@@ -17,7 +17,7 @@
 						v-for="program in data"
 						:key="program.name"
 						@click="openDetails(program.name, category)"
-						class="block w-full border rounded-md p-3 hover:border-outline-gray-3 cursor-pointer text-start"
+						class="block w-full border rounded-5 p-3 hover:border-outline-gray-3 cursor-pointer text-start"
 					>
 						<div class="text-lg-semibold text-ink-gray-9 mb-2">
 							{{ program.name }}

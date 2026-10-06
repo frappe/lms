@@ -81,6 +81,7 @@ for (const [name, language] of Object.entries(HLJS_LANGUAGES)) {
 }
 
 // Atom One Dark, self-hosted and scoped tightly to out-specify frappe-ui's .ProseMirror .hljs-* rules.
+// token-exempt-start: highlight.js atom-one theme, own light/dark pair
 const CODEBOX_THEME_CSS = `
 .codeBoxHolder { max-width: 100%; }
 .codeBoxHolder .codeBoxTextArea { overflow-x: auto; max-width: 100%; }
@@ -123,6 +124,7 @@ const CODEBOX_THEME_CSS = `
 .codeBoxHolder .codeBoxTextArea.dark .hljs-strong { font-weight: bold; }
 .codeBoxHolder .codeBoxTextArea.dark .hljs-link { text-decoration: underline; }
 `
+// token-exempt-end
 
 // Convert legacy contenteditable HTML to plain text: block tags -> line breaks,
 // <br> -> \n, inline tags stripped. DOMParser is inert (no scripts/loads).

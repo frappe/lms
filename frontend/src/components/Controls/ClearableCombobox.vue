@@ -9,6 +9,7 @@
 			:description="description"
 			:error="error"
 			:required="required"
+			:aria-label="ariaLabel"
 			@update:modelValue="
 				(value) => emit('update:modelValue', value ? String(value) : null)
 			"
@@ -21,7 +22,7 @@
 					type="button"
 					:aria-label="__('Clear')"
 					tabindex="-1"
-					class="grid size-4 place-items-center rounded-sm text-ink-gray-5 hover:bg-surface-gray-3 hover:text-ink-gray-7"
+					class="grid size-4 place-items-center rounded-1 text-ink-gray-5 hover:bg-surface-gray-3 hover:text-ink-gray-7"
 					@click.stop="clear()"
 					@pointerdown.stop
 				>
@@ -55,6 +56,7 @@ defineProps<{
 	description?: string
 	error?: string
 	required?: boolean
+	ariaLabel?: string
 }>()
 
 const emit = defineEmits<{ 'update:modelValue': [string | null] }>()

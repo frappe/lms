@@ -1,8 +1,11 @@
 <template>
 	<div class="">
+		<h1 class="sr-only">
+			{{ jobName == 'new' ? __('New Job') : jobDetails.doc?.job_title }}
+		</h1>
 		<PageHeader :breadcrumbs="breadcrumbs">
 			<template #actions>
-				<Badge v-if="isDirty" theme="orange">
+				<Badge v-if="isDirty" theme="amber">
 					{{ __('Not Saved') }}
 				</Badge>
 				<ShortcutTooltip :label="__('Save')" combo="Mod+S" :disabled="isMobile">
@@ -41,18 +44,20 @@
 							:required="true"
 						/>
 					</div>
-					<div class="space-y-1.5">
+					<div class="mb-4 space-y-1.5">
 						<InputLabel
 							:id="descriptionLabelId"
 							:label="__('Description')"
 							:required="true"
 						/>
 						<RichTextEditor
+							:ariaLabelledby="descriptionLabelId"
 							:content="job.description"
 							@change="(val) => (job.description = val)"
 							:editable="true"
 							:fixedMenu="true"
-							editorClass="prose-sm max-w-none border-b border-x border-outline-elevation-2 bg-surface-gray-2 rounded-b-md py-1 px-2 min-h-[20rem] max-h-[70vh] overflow-y-auto mb-4"
+							minHeight="20rem"
+							maxHeight="70vh"
 						/>
 					</div>
 				</div>
@@ -128,8 +133,9 @@ import { sessionStore } from '@/stores/session'
 import { useRouter } from 'vue-router'
 import { sanitizeOnWrite } from '@/utils/sanitizeOnWrite'
 import { useScreenSize } from '@/utils/composables'
+import Link from '@/components/Controls/Link.vue'
 import Uploader from '@/components/Controls/Uploader.vue'
-import PageHeader from '@/components/Layouts/PageHeader.vue'
+import PageHeader from '@/components/Layouts/pages/PageHeader.vue'
 import HeaderButton from '@/components/HeaderButton.vue'
 import ShortcutTooltip from '@/components/ShortcutTooltip.vue'
 import {
@@ -137,7 +143,7 @@ import {
 	saveShortcut,
 } from '@/composables/useKeyboardShortcuts'
 import RichTextEditor from '@/components/RichTextEditor.vue'
-import { InputLabel } from '@/components/Form/labeling'
+import { InputLabel } from 'frappe-ui/experimental'
 import { submitResource } from '@/utils/resource'
 
 const user = inject('$user')

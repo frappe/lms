@@ -18,7 +18,7 @@
 						</div>
 					</div>
 					<div
-						class="prose prose-sm bg-surface-sidebar !min-w-full px-4 py-2 rounded-md"
+						class="prose prose-sm bg-surface-sidebar !min-w-full px-4 py-2 rounded-5"
 						v-safe-html:rich="comm.content"
 					></div>
 				</div>

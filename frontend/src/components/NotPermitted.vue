@@ -1,8 +1,8 @@
 <template>
-	<div class="text-base border rounded-md w-1/3 mx-auto my-32">
+	<div class="text-base border rounded-5 w-1/3 mx-auto my-32">
 		<div class="border-b px-5 py-3 font-medium text-ink-gray-9">
 			<span
-				class="inline-flex items-center before:bg-surface-red-7 before:w-2 before:h-2 before:rounded-md before:me-2"
+				class="inline-flex items-center before:bg-surface-red-7 before:w-2 before:h-2 before:rounded-5 before:me-2"
 			></span>
 			{{ __(title) }}
 		</div>

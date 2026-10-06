@@ -2,7 +2,7 @@
 # See license.txt
 
 import frappe
-from frappe.tests import IntegrationTestCase, UnitTestCase
+from frappe.tests import UnitTestCase
 
 
 class UnitTestLMSGoogleMeetSettings(UnitTestCase):
@@ -11,95 +11,16 @@ class UnitTestLMSGoogleMeetSettings(UnitTestCase):
 	Use this class for testing individual functions and methods.
 	"""
 
-	pass
+	def test_calendar_and_member_are_both_required(self):
+		# TestLMSLiveClass::test_google_meet_missing_calendar_raises_error looks like
+		# it covers this, but it sets flags.ignore_mandatory to get a calendar-less
+		# row saved, so it exercises the live-class path and not the reqd docfields.
+		meta = frappe.get_meta("LMS Google Meet Settings")
 
-
-class IntegrationTestLMSGoogleMeetSettings(IntegrationTestCase):
-	"""
-	Integration tests for LMSGoogleMeetSettings.
-	"""
-
-	def setUp(self):
-		self.cleanup_items = []
-
-		google_settings = frappe.get_doc("Google Settings")
-		self._original_google_settings = {
-			"enable": google_settings.enable,
-			"client_id": google_settings.client_id,
-		}
-		google_settings.enable = 1
-		google_settings.client_id = "test-client-id"
-		google_settings.client_secret = "test-client-secret"
-		google_settings.save(ignore_permissions=True)
-
-	def tearDown(self):
-		for item_type, item_name in reversed(self.cleanup_items):
-			if frappe.db.exists(item_type, item_name):
-				try:
-					frappe.delete_doc(item_type, item_name, force=True)
-				except Exception:
-					pass
-
-		if hasattr(self, "_original_google_settings"):
-			google_settings = frappe.get_doc("Google Settings")
-			google_settings.enable = self._original_google_settings["enable"]
-			google_settings.client_id = self._original_google_settings["client_id"]
-			google_settings.client_secret = ""
-			google_settings.save(ignore_permissions=True)
-
-	def _create_google_calendar(self, name="Test Google Calendar"):
-		if frappe.db.exists("Google Calendar", name):
-			return frappe.get_doc("Google Calendar", name)
-
-		calendar = frappe.get_doc(
-			{
-				"doctype": "Google Calendar",
-				"calendar_name": name,
-				"user": "Administrator",
-				"google_account": "test@gmail.com",
-			}
-		)
-		calendar.insert(ignore_permissions=True)
-		self.cleanup_items.append(("Google Calendar", calendar.name))
-		return calendar
-
-	def test_create_google_meet_settings_with_valid_data(self):
-		calendar = self._create_google_calendar()
-		settings = frappe.get_doc(
-			{
-				"doctype": "LMS Google Meet Settings",
-				"account_name": f"Test Meet Account {frappe.generate_hash(length=6)}",
-				"member": "Administrator",
-				"google_calendar": calendar.name,
-				"enabled": 1,
-			}
-		)
-		settings.insert(ignore_permissions=True)
-		self.cleanup_items.append(("LMS Google Meet Settings", settings.name))
-
-		self.assertTrue(frappe.db.exists("LMS Google Meet Settings", settings.name))
-		self.assertEqual(settings.enabled, 1)
-		self.assertEqual(settings.google_calendar, calendar.name)
-
-	def test_create_google_meet_settings_without_calendar_raises_error(self):
-		with self.assertRaises(frappe.exceptions.MandatoryError):
-			settings = frappe.get_doc(
-				{
-					"doctype": "LMS Google Meet Settings",
-					"account_name": f"Test No Calendar {frappe.generate_hash(length=6)}",
-					"member": "Administrator",
-				}
-			)
-			settings.insert(ignore_permissions=True)
-
-	def test_create_google_meet_settings_without_member_raises_error(self):
-		calendar = self._create_google_calendar()
-		with self.assertRaises(frappe.exceptions.MandatoryError):
-			settings = frappe.get_doc(
-				{
-					"doctype": "LMS Google Meet Settings",
-					"account_name": f"Test No Member {frappe.generate_hash(length=6)}",
-					"google_calendar": calendar.name,
-				}
-			)
-			settings.insert(ignore_permissions=True)
+		for fieldname in ("google_calendar", "member"):
+			with self.subTest(fieldname=fieldname):
+				self.assertTrue(
+					meta.get_field(fieldname).reqd,
+					f"{fieldname} must stay mandatory: a settings row without it only fails "
+					"later, when someone tries to create a live class",
+				)

@@ -1,7 +1,7 @@
 <template>
 	<div class="p-5">
-		<div class="flex items-center gap-3 rounded-lg bg-surface-amber-2 p-3">
-			<div class="grid size-7 shrink-0 place-items-center text-ink-amber-6">
+		<div class="flex items-center gap-3 rounded-6 bg-surface-amber-2 p-3">
+			<div class="grid size-7 shrink-0 place-items-center text-ink-amber-5">
 				<span
 					:class="notFound ? 'lucide-file-question' : 'lucide-lock-keyhole'"
 					class="size-4"
@@ -22,7 +22,7 @@
 			</div>
 			<template v-if="redirect">
 				<span
-					class="shrink-0 text-p-xs text-ink-gray-5 tabular-nums"
+					class="shrink-0 text-p-xs text-ink-gray-6 tabular-nums"
 					aria-hidden="true"
 				>
 					{{ __('{0}s').format(secondsLeft) }}

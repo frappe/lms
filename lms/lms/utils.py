@@ -7,6 +7,7 @@ from zoneinfo import ZoneInfo
 
 import frappe
 import requests
+from bs4 import BeautifulSoup, Comment
 from frappe import _
 from frappe.desk.doctype.dashboard_chart.dashboard_chart import get_result
 from frappe.desk.doctype.notification_log.notification_log import make_notification_logs
@@ -27,6 +28,7 @@ from frappe.utils import (
 	getdate,
 	nowtime,
 	rounded,
+	strip_html,
 	to_timedelta,
 	validate_email_address,
 )
@@ -62,6 +64,36 @@ def extend_bootinfo(bootinfo: dict):
 	bootinfo["lms_path"] = get_lms_path()
 
 
+def resolve_text_direction(lang: str) -> str:
+	"""The direction the SPA shell is served with.
+
+	`is_rtl()` reads frappe.local.lang, which a guest gets from Accept-Language,
+	while boot.lang comes from get_user_lang(), which a guest gets from System
+	Settings. Passing the language in keeps the two from disagreeing.
+	"""
+	from frappe.utils.jinja_globals import is_rtl
+
+	setting = frappe.db.get_single_value("LMS Settings", "text_direction")
+
+	if setting == "Left to Right":
+		return "ltr"
+	if setting == "Right to Left":
+		return "rtl"
+
+	# Frappe's own answer, over the language asked about rather than the session
+	# one. A hardcoded set here went stale immediately: frappe ships `ku` and
+	# `ur` as RTL too, and resolves a regional code through get_parent_language,
+	# so Urdu and Kurdish sites were served `<html dir="ltr">`. Its comment asks
+	# for the set to be kept in sync with a JavaScript twin; a third copy in LMS
+	# is the one that would drift unnoticed.
+	previous = frappe.local.lang
+	try:
+		frappe.local.lang = lang
+		return "rtl" if is_rtl() else "ltr"
+	finally:
+		frappe.local.lang = previous
+
+
 def slugify(title: str, used_slugs: list = None):
 	"""Converts title to a slug.
 
@@ -92,9 +124,9 @@ def slugify(title: str, used_slugs: list = None):
 		count = count + 1
 
 
-def generate_slug(title: str, doctype: str):
+def generate_slug(title: str, doctype: str, reserved: frozenset[str] = frozenset()):
 	result = frappe.get_all(doctype, fields=["name"])
-	slugs = {row["name"] for row in result}
+	slugs = {row["name"] for row in result} | reserved
 	return slugify(title, used_slugs=slugs)
 
 
@@ -394,6 +426,25 @@ def has_moderator_role(member: str = None):
 	)
 
 
+def moderators_among(members) -> set[str]:
+	"""has_moderator_role for a whole set of accounts, in one query.
+
+	Callers that judge a list of third parties (serve_resource weighs one per File row
+	sharing a url) would otherwise put a query inside their loop.
+	"""
+	members = {member for member in members or [] if member}
+	if not members:
+		return set()
+
+	return set(
+		frappe.db.get_all(
+			"Has Role",
+			filters={"parent": ("in", list(members)), "role": "Moderator"},
+			pluck="parent",
+		)
+	)
+
+
 def has_evaluator_role(member: str = None):
 	return frappe.db.get_value(
 		"Has Role",
@@ -430,15 +481,92 @@ def get_courses_under_review():
 
 
 def validate_image(path: str) -> str:
-	if path and "/private" in path:
-		frappe.db.set_value(
-			"File",
-			{"file_url": path},
-			"is_private",
-			0,
+	"""Make the session user's own uploaded image public; leave anyone else's file private."""
+	if not path or "/private" not in path:
+		return path
+
+	own_files = [
+		row.name
+		for row in frappe.get_all(
+			"File", filters={"file_url": path, "owner": frappe.session.user}, fields=["name", "file_url"]
 		)
-		return path.replace("/private", "")
-	return path
+		if row.file_url == path
+	]
+	if not own_files:
+		return path
+
+	frappe.db.set_value("File", {"name": ["in", own_files]}, "is_private", 0)
+	return path.replace("/private", "")
+
+
+def get_attachable_files(file_urls: list[str], doc: Document, user: str) -> dict[str, "frappe._dict"]:
+	"""Each URL in `file_urls` mapped to the File row `user` may attach to `doc`, one query for all of them.
+
+	Eligible: attached to `doc` already, or unattached, owned by `user`, and `user` isn't Guest — that
+	owner match already implies read access (file.has_permission), so no per-row query is needed.
+	"""
+	urls = list(dict.fromkeys(file_urls))
+	if not urls:
+		return {}
+
+	rows = frappe.get_all(
+		"File",
+		filters={"file_url": ["in", urls]},
+		fields=["name", "file_url", "attached_to_doctype", "attached_to_name", "owner"],
+	)
+
+	resolved = {}
+	for file_url in urls:
+		# tabFile.file_url is case-insensitive, so the "in" filter can return rows for a
+		# different URL than the one requested; the exact match here is what decides.
+		candidates = [row for row in rows if row.file_url == file_url]
+
+		attached = next(
+			(
+				row
+				for row in candidates
+				if row.attached_to_doctype == doc.doctype and row.attached_to_name == doc.name
+			),
+			None,
+		)
+		if attached:
+			resolved[file_url] = attached
+			continue
+
+		candidate = next(
+			(
+				row
+				for row in candidates
+				if not row.attached_to_doctype
+				and not row.attached_to_name
+				and row.owner == user
+				and user != "Guest"
+			),
+			None,
+		)
+		if candidate:
+			resolved[file_url] = candidate
+
+	return resolved
+
+
+def get_attachable_file(file_url: str, doc: Document, user: str) -> "frappe._dict | None":
+	"""The File row at exactly `file_url` that `user` may attach to `doc`."""
+	return get_attachable_files([file_url], doc, user).get(file_url)
+
+
+def validate_attachable_file(doc: Document, fieldname: str) -> None:
+	"""Reject a private file URL in `fieldname` that the session user did not upload for `doc`."""
+	file_url = doc.get(fieldname)
+	if not (file_url or "").startswith("/private/") or not doc.has_value_changed(fieldname):
+		return
+	if not get_attachable_file(file_url, doc, frappe.session.user):
+		frappe.throw(
+			_("Please upload the file for {0} again. Only a file you uploaded can be attached.").format(
+				_(doc.meta.get_label(fieldname))
+			),
+			frappe.PermissionError,
+		)
 
 
 def handle_notifications(doc: Document, method: str):
@@ -602,6 +730,10 @@ def get_lesson_count(course: str) -> int:
 	return frappe.db.count("Lesson Reference", {"parent": ("in", chapter_references)})
 
 
+STATISTICS_CHARTS = ("New Signups", "Course Enrollments", "Certification")
+
+
+# nosemgrep: security.guest-whitelisted-method - pre-existing grant; this branch narrows it to the Statistics charts. Flagged only because the body changed.
 @frappe.whitelist(allow_guest=True)
 @rate_limit(limit=500, seconds=60 * 60)
 def get_chart_data(
@@ -610,8 +742,19 @@ def get_chart_data(
 	from_date: str = None,
 	to_date: str = None,
 ):
+	if not isinstance(chart_name, str) or chart_name not in STATISTICS_CHARTS:
+		frappe.throw(_("This chart is not available."), frappe.PermissionError)
+
+	try:
+		chart = frappe.get_doc("Dashboard Chart", chart_name)
+	except frappe.DoesNotExistError:
+		frappe.clear_last_message()
+		frappe.throw(_("This chart is not available."), frappe.PermissionError)
+
+	if not chart.is_public and not frappe.has_permission("Dashboard Chart", "read", doc=chart):
+		frappe.throw(_("This chart is not available."), frappe.PermissionError)
+
 	from_date, to_date = get_chart_date_range(from_date, to_date)
-	chart = frappe.get_doc("Dashboard Chart", chart_name)
 	doctype = chart.document_type
 	datefield = chart.based_on
 	value_field = chart.value_based_on or "1"
@@ -791,6 +934,170 @@ def format_timezone(timezone: str, at=None) -> str:
 	return f"{timezone} (GMT{sign}{hours}:{minutes:02d})"
 
 
+MAX_INLINE_IMAGES = 10
+MAX_INLINE_IMAGE_BYTES = 5 * 1024 * 1024
+
+
+def has_message(html: str | None) -> bool:
+	"""An image on its own is a message.
+
+	The editor uploads a pasted screenshot as a file and leaves the body around
+	it empty, so strip_html returns "" for the one thing a contact-us mail most
+	often carries.
+	"""
+	if not html:
+		return False
+
+	if strip_html(html).replace("\xa0", " ").replace("&nbsp;", " ").strip():
+		return True
+
+	return bool(BeautifulSoup(html, "html.parser").find(["img", "video"]))
+
+
+def prepare_inline_images(html: str | None) -> tuple[str, list[dict]]:
+	"""Rewrite site images to `embed` and return their bytes alongside.
+
+	frappe turns `<img embed="...">` into a real inline attachment carrying a
+	Content-Id (email_body.replace_filename_with_cid), which is the only way a
+	private file reaches an external recipient: a /private/files/ URL in an
+	email is served to nobody.
+
+	The bytes travel with the message instead of being re-read from a path at
+	send time. set_part_html prefers what the caller supplies, and letting
+	frappe resolve the path itself means trusting a string the client sent:
+	get_filecontent_from_path has no permission check of its own, and matching
+	that string against the database first does not help, because
+	tabFile.file_url is utf8mb4_unicode_ci while the filesystem is
+	case-sensitive. So `/private/files/Offer.pdf`, which the sender uploaded,
+	matches the row for `/private/files/offer.pdf`, which they cannot read.
+	Here the row decides: its own file_url goes into `embed`, and its own
+	content is what travels.
+	"""
+	if not html:
+		return "", []
+
+	soup = BeautifulSoup(html, "html.parser")
+	# to_markdown turns a comment into visible text in the plaintext part.
+	for comment in soup.find_all(string=lambda text: isinstance(text, Comment)):
+		comment.extract()
+
+	candidate_tags = []
+	for tag in soup.find_all(["img", "video"]):
+		src = tag.get("src")
+		if isinstance(src, str) and src.startswith(("/files/", "/private/files/")):
+			candidate_tags.append((tag, src))
+
+	# One query (plus one permission check per candidate row) for every image in
+	# the message, instead of one query per tag: a message with several embeds
+	# was otherwise a query per embed.
+	files_by_url = get_readable_files([src for _tag, src in candidate_tags])
+
+	inline_images = []
+	total_bytes = 0
+
+	for tag, src in candidate_tags:
+		file = files_by_url.get(src)
+		if not file:
+			continue
+
+		if len(inline_images) >= MAX_INLINE_IMAGES:
+			frappe.throw(
+				_("An email can carry at most {0} images. Please send the rest separately.").format(
+					MAX_INLINE_IMAGES
+				)
+			)
+
+		# Checked against the File row's own recorded size before reading the
+		# content, so a file that alone blows the budget is rejected without
+		# loading it into memory first.
+		if file.file_size and total_bytes + file.file_size > MAX_INLINE_IMAGE_BYTES:
+			frappe.throw(
+				_("These images come to more than {0} MB. Please send smaller ones.").format(
+					MAX_INLINE_IMAGE_BYTES // (1024 * 1024)
+				)
+			)
+
+		content = file.get_content()
+		total_bytes += len(content)
+		if total_bytes > MAX_INLINE_IMAGE_BYTES:
+			frappe.throw(
+				_("These images come to more than {0} MB. Please send smaller ones.").format(
+					MAX_INLINE_IMAGE_BYTES // (1024 * 1024)
+				)
+			)
+
+		tag["embed"] = file.file_url
+		del tag["src"]
+		inline_images.append({"filename": file.file_url, "filecontent": content})
+
+	return str(soup), inline_images
+
+
+def get_readable_files(file_urls: list[str]) -> dict:
+	"""The File each URL in `file_urls` resolves to, keyed by that exact URL.
+
+	One query covers every URL. tabFile.file_url is case-insensitive, so a
+	caller's string can match more than one row; permission decides between
+	them, not which one the database happens to return first.
+	"""
+	if not file_urls:
+		return {}
+
+	candidates = frappe.get_all("File", filters={"file_url": ["in", file_urls]}, fields=["name", "file_url"])
+	names_by_lower_url = {}
+	for row in candidates:
+		names_by_lower_url.setdefault(row.file_url.lower(), []).append(row.name)
+
+	resolved = {}
+	for file_url in file_urls:
+		if file_url in resolved:
+			continue
+		for name in names_by_lower_url.get(file_url.lower(), []):
+			# has_permission(doc=name) would refetch the row internally to
+			# evaluate it; fetch once and pass the doc so a match costs one
+			# read, not two.
+			candidate = frappe.get_doc("File", name)
+			if frappe.has_permission("File", ptype="read", doc=candidate):
+				resolved[file_url] = candidate
+				break
+
+	return resolved
+
+
+def attach_file_to_doc(file_url: str, doctype: str, docname: str) -> None:
+	"""Point a File row at `docname` so the stored copy renders.
+
+	File.has_permission grants a private file to its owner, an explicit share,
+	or whoever can read the document it is attached to. An editor upload is
+	attached to nothing, so without this the image in a saved Communication is
+	broken for every reader but the sender. Mirrors Helpdesk's
+	HDTicket.attach_file_with_doc.
+	"""
+	# Lock the row this file is attaching to before the check below, or two
+	# concurrent callers can both see "no File row yet" and both insert one.
+	# Same shape as the batch and course locks elsewhere in this file.
+	frappe.db.get_value(doctype, docname, "name", for_update=True)
+
+	filters = {
+		"file_url": file_url,
+		"attached_to_doctype": doctype,
+		"attached_to_name": docname,
+	}
+	if frappe.db.exists("File", filters):
+		return
+
+	# A student cannot create a File row against a Communication they do not own.
+	# nosemgrep: lms-unjustified-ignore-permissions - prepare_inline_images already checked has_permission on this file
+	frappe.get_doc(
+		{
+			"doctype": "File",
+			"file_url": file_url,
+			"is_private": 1 if file_url.startswith("/private/") else 0,
+			**filters,
+		}
+	).insert(ignore_permissions=True)
+
+
 def check_multicurrency(amount: float, currency: str, country: str = None, amount_usd: float = None):
 	settings = frappe.get_single("LMS Settings")
 	show_usd_equivalent = settings.show_usd_equivalent
@@ -863,6 +1170,40 @@ def guest_access_allowed():
 	return True
 
 
+SELF_SCOPED_FILTERS = ("created", "enrolled")
+
+
+def can_list_unpublished(user: str = None) -> bool:
+	"""Whether a caller may see draft rows in a list that is not self-scoped."""
+	user = user or frappe.session.user
+	if user == "Guest":
+		return False
+	return bool(has_moderator_role(user)) or "System Manager" in frappe.get_roles(user)
+
+
+def is_self_scoped(filters: dict) -> bool:
+	"""True when the list is already narrowed to rows that belong to the caller.
+
+	`created` and `enrolled` are resolved into a `name in (...)` over the caller's
+	own courses / enrolments, so a draft reached through them is one the caller
+	authored or is already inside.
+	"""
+	return any(filters.get(key) for key in SELF_SCOPED_FILTERS)
+
+
+def restrict_to_published(filters: dict, self_scoped: bool) -> None:
+	"""Pin `published` for callers not entitled to drafts, in place.
+
+	The course and batch lists are whitelisted with allow_guest and hand
+	caller-supplied filters straight to the query, so `{"published": 0}` used to
+	return every unpublished row to anyone who asked. The caller's value is
+	overwritten, not defaulted: it is the value being abused.
+	"""
+	if self_scoped or can_list_unpublished():
+		return
+	filters["published"] = 1
+
+
 DEFAULT_PAGE_LENGTH = 24
 MAX_PAGE_LENGTH = 120
 
@@ -890,7 +1231,9 @@ def get_courses(filters: dict = None, start: int = 0, limit_page_length: int | s
 	if not filters:
 		filters = {}
 
+	self_scoped = is_self_scoped(filters)
 	filters, or_filters, show_featured = update_course_filters(filters)
+	restrict_to_published(filters, self_scoped)
 	fields = get_course_fields()
 	page_length = resolve_page_length(limit_page_length)
 	start = cint(start)
@@ -942,7 +1285,9 @@ def get_course_count(filters: dict = None) -> int:
 	if not filters:
 		filters = {}
 
+	self_scoped = is_self_scoped(filters)
 	filters, or_filters, show_featured = update_course_filters(filters)
+	restrict_to_published(filters, self_scoped)
 	total = count_matching("LMS Course", filters, or_filters)
 	if show_featured:
 		# `update_course_filters` narrowed the query to featured=0 for the live
@@ -952,9 +1297,18 @@ def get_course_count(filters: dict = None) -> int:
 
 
 def count_matching(doctype: str, filters: dict | list, or_filters: dict = None) -> int:
-	"""Row count for filters that include or_filters, which db.count cannot take."""
-	rows = frappe.get_all(doctype, filters=filters, or_filters=or_filters, fields=[{"COUNT": "*"}])
-	return cint(next(iter(rows[0].values()))) if rows else 0
+	"""Return row count for filters, including OR filters."""
+	if not or_filters:
+		return frappe.db.count(doctype, filters)
+	return len(
+		frappe.get_all(
+			doctype,
+			filters=filters,
+			or_filters=or_filters,
+			fields=["name"],
+			limit_page_length=0,
+		)
+	)
 
 
 def as_filter_conditions(filters: dict) -> list:
@@ -1211,12 +1565,25 @@ def get_categorized_courses(courses: list) -> dict:
 def get_course_outline(course: str, progress: bool = False) -> list:
 	"""Returns the course outline."""
 
+	if not isinstance(course, str):
+		frappe.throw(_("Course must be a string."))
+
 	if not guest_access_allowed():
+		return []
+
+	if not can_view_course(course):
 		return []
 
 	chapters = get_outline_chapter(course)
 	if not chapters:
 		return []
+
+	# get_outline_chapter reads through frappe.qb, which consults no permission layer at
+	# all — not the DocPerm rows, not the permlevel — and this endpoint answers guests.
+	# can_modify_course is the predicate the only reader's own save is refused on.
+	if any(c.is_scorm_package and c.scorm_package for c in chapters) and not can_modify_course(course):
+		for chapter in chapters:
+			chapter.scorm_package = None
 
 	lesson_rows = get_outline_lessons([c.name for c in chapters])
 	files_by_name = get_scorm_files(chapters)
@@ -1227,6 +1594,24 @@ def get_course_outline(course: str, progress: bool = False) -> list:
 	enforce = enforces_lesson_completion(course) if progress else False
 
 	return build_outline(chapters, lesson_rows, files_by_name, completed, progress, enforce)
+
+
+def can_view_course(course: str) -> bool:
+	"""Whether the caller may read an individual course's structure.
+
+	A published course is public. A draft is readable by a moderator, by its own
+	instructors, and by a member already enrolled in it: unpublishing a course
+	must not lock out the people who were already inside, which is the stance
+	`resolve_lesson_access` takes for lessons.
+	"""
+	published = frappe.db.get_value("LMS Course", course, "published")
+	if published is None:
+		return False
+	if published:
+		return True
+	if frappe.session.user == "Guest":
+		return False
+	return bool(can_modify_course(course) or get_membership(course))
 
 
 def get_outline_chapter(course: str) -> list:
@@ -1241,7 +1626,6 @@ def get_outline_chapter(course: str) -> list:
 			CourseChapter.name.as_("name"),
 			CourseChapter.title.as_("title"),
 			CourseChapter.is_scorm_package.as_("is_scorm_package"),
-			CourseChapter.launch_file.as_("launch_file"),
 			CourseChapter.scorm_package.as_("scorm_package"),
 		)
 		.where(ChapterReference.parent == course)
@@ -1413,18 +1797,13 @@ def build_outline(
 			name=c.name,
 			title=c.title,
 			is_scorm_package=c.is_scorm_package,
-			launch_file=c.launch_file,
 			scorm_package=c.scorm_package,
 			idx=c.idx,
 			lessons=lessons,
 		)
-		# launch_file is the SCORM entry URL and scorm_package resolves to the package
-		# file. Handing either out for a chapter the student cannot open yet would let
-		# the outline itself route around the gate, so withhold both.
-		if lessons and all(lesson.get("locked") for lesson in lessons):
-			chapter.launch_file = None
-			chapter.scorm_package = None
-		elif c.is_scorm_package and c.scorm_package and c.scorm_package in files_by_name:
+		# The bare docname is what survives a deleted File row; the expansion is what
+		# ChapterForm renders.
+		if c.is_scorm_package and c.scorm_package and c.scorm_package in files_by_name:
 			chapter.scorm_package = files_by_name[c.scorm_package]
 		outline.append(chapter)
 	return outline
@@ -1630,12 +2009,16 @@ def get_batch_details(batch: str):
 	if not guest_access_allowed():
 		return {}
 
+	from lms.lms.permissions import can_author_batch
+
 	batch_students = frappe.get_all("LMS Batch Enrollment", {"batch": batch}, pluck="member")
-	is_batch_admin = can_modify_batch(batch)
+	# can_modify_batch only recognises the Course Instructor tag; can_author_batch also
+	# recognises a Batch Course evaluator tag, which a Course Creator may hold instead.
+	can_manage = can_author_batch(batch)
 	is_batch_published = frappe.db.get_value("LMS Batch", batch, "published")
 	is_student_enrolled = frappe.session.user in batch_students
 
-	if not (is_batch_published or is_batch_admin or is_student_enrolled):
+	if not (is_batch_published or can_manage or is_student_enrolled):
 		return {}
 
 	batch_details = frappe.db.get_value(
@@ -1672,6 +2055,7 @@ def get_batch_details(batch: str):
 	)
 
 	batch_details.instructors = get_instructors("LMS Batch", batch)
+	batch_details.can_manage = can_manage
 	batch_details.accept_enrollments = batch_details.start_date > getdate()
 
 	if (
@@ -1688,7 +2072,7 @@ def get_batch_details(batch: str):
 		"LMS Assessment", {"parent": batch}, ["assessment_name", "assessment_type"]
 	)
 
-	if can_modify_batch(batch):
+	if can_manage:
 		batch_details.students = batch_students
 	elif is_student_enrolled:
 		batch_details.students = [frappe.session.user]
@@ -1748,14 +2132,41 @@ def get_country_code():
 	return
 
 
+def can_view_quiz_answers(quiz: str, show_answers=None) -> bool:
+	"""Whether the caller is entitled to a quiz's answer-key material.
+
+	An explanation is written per option and authors normally write one only on
+	the correct option, so shipping explanations with the question ships the
+	answer. They go out to privileged users, to a learner who has already
+	submitted (the attempt is spent), and for a quiz that reveals answers as the
+	learner goes: `Quiz.vue` renders the explanation out of this same payload
+	right after `check_answer` and never refetches, so withholding them there
+	would silently kill the feedback the setting exists for.
+	"""
+	if PRIVILEGED_ROLES & set(frappe.get_roles()):
+		return True
+
+	if show_answers:
+		return True
+
+	return bool(frappe.db.exists("LMS Quiz Submission", {"quiz": quiz, "member": frappe.session.user}))
+
+
 @frappe.whitelist()
 def get_quiz_with_questions(quiz: str) -> dict:
-	"""Return the quiz doc plus every question's details in a single round trip."""
+	"""Return the quiz doc plus every question's details in a single round trip.
+
+	When scheduling blocks the quiz for a non-privileged user, question content
+	is withheld so learners cannot inspect it before the window opens (or after
+	it ends). Metadata including ``schedule_block_reason`` is still returned so
+	the UI can show the availability message.
+	"""
 	from lms.lms.doctype.lms_question.lms_question import (
 		QUESTION_EXPLANATION_FIELDS,
 		QUESTION_OPTION_FIELDS,
 	)
 	from lms.lms.permissions import can_access_quiz
+	from lms.lms.schedule_utils import enrich_schedule_payload
 
 	if not isinstance(quiz, str):
 		frappe.throw(_("Quiz must be a string."))
@@ -1766,28 +2177,59 @@ def get_quiz_with_questions(quiz: str) -> dict:
 		)
 		frappe.throw(_("You are not authorized to view this quiz."), frappe.PermissionError)
 
-	quiz_doc = frappe.get_doc("LMS Quiz", quiz).as_dict()
+	quiz_doc = enrich_schedule_payload(frappe.get_doc("LMS Quiz", quiz).as_dict())
+	reason = quiz_doc.get("schedule_block_reason")
 
-	question_names = [row.get("question") for row in quiz_doc.get("questions") or [] if row.get("question")]
+	privileged = bool(PRIVILEGED_ROLES & set(frappe.get_roles()))
+	withhold_questions = bool(reason) and not privileged
+
 	questions_by_name = {}
-	if question_names:
-		fields = [
-			"name",
-			"question",
-			"type",
-			"multiple",
-			*QUESTION_OPTION_FIELDS,
-			*QUESTION_EXPLANATION_FIELDS,
+	if withhold_questions:
+		# Child rows only hold question names / marks; clearing them plus the
+		# detail map keeps prompt/options out of the response entirely.
+		quiz_doc["questions"] = []
+	else:
+		question_names = [
+			row.get("question") for row in quiz_doc.get("questions") or [] if row.get("question")
 		]
-		rows = frappe.get_all(
-			"LMS Question",
-			filters=[["name", "in", question_names]],
-			fields=fields,
-			ignore_permissions=True,
-		)
-		questions_by_name = {row["name"]: row for row in rows}
+		if question_names:
+			fields = [
+				"name",
+				"question",
+				"type",
+				"multiple",
+				*QUESTION_OPTION_FIELDS,
+			]
+			if can_view_quiz_answers(quiz, quiz_doc.get("show_answers")):
+				fields += QUESTION_EXPLANATION_FIELDS
+			# nosemgrep: lms-unjustified-ignore-permissions - access gated by can_access_quiz above
+			rows = frappe.get_all(
+				"LMS Question",
+				filters=[["name", "in", question_names]],
+				fields=fields,
+				ignore_permissions=True,
+			)
+			questions_by_name = {row["name"]: row for row in rows}
 
 	return {"quiz": quiz_doc, "questions_by_name": questions_by_name}
+
+
+@frappe.whitelist()
+def get_assignment(name: str) -> dict:
+	"""Return an LMS Assignment with a server-computed schedule_block_reason.
+
+	Mirrors ``frappe.client.get`` permission checks so callers cannot bypass
+	DocPerm by hitting this whitelist directly.
+	"""
+	from lms.lms.schedule_utils import enrich_schedule_payload
+
+	if not isinstance(name, str):
+		frappe.throw(_("Assignment must be a string."))
+
+	doc = frappe.get_doc("LMS Assignment", name)
+	doc.check_permission("read")
+	doc.apply_fieldlevel_read_permissions()
+	return enrich_schedule_payload(doc.as_dict())
 
 
 @frappe.whitelist(allow_guest=True)
@@ -1810,9 +2252,12 @@ def get_batch_courses(batch: str) -> list:
 
 @frappe.whitelist()
 def get_assessments(batch: str) -> list:
+	from lms.lms.permissions import can_author_batch
+
 	member = frappe.session.user
 	is_enrolled = frappe.db.exists("LMS Batch Enrollment", {"batch": batch, "member": member})
-	if not is_enrolled and not can_modify_batch(batch):
+	is_admin = "Batch Evaluator" in frappe.get_roles(member) or can_author_batch(batch, user=member)
+	if not is_enrolled and not is_admin:
 		frappe.throw(_("You are not authorized to view the assessments of this batch."))
 
 	assessments = frappe.get_all(
@@ -1859,8 +2304,8 @@ def get_assignment_details(assessment: dict, member: str) -> dict:
 		assessment.status = "Not Attempted"
 		assessment.color = "red"
 
-	assessment.edit_url = f"/assignments/{assessment.assessment_name}"
-	submission_name = existing_submission if existing_submission else "new-submission"
+	assessment.edit_url = f"/assignments/edit/{assessment.assessment_name}"
+	submission_name = existing_submission if existing_submission else "new"
 	assessment.url = get_lms_route(f"assignment-submission/{assessment.assessment_name}/{submission_name}")
 
 	return assessment
@@ -1891,9 +2336,11 @@ def get_quiz_details(assessment: dict, member: str) -> dict:
 		assessment.color = "red"
 		assessment.completed = False
 
-	assessment.edit_url = f"/quizzes/{assessment.assessment_name}"
-	submission_name = existing_submission[0].name if len(existing_submission) else "new-submission"
-	assessment.url = f"/quiz-submission/{assessment.assessment_name}/{submission_name}"
+	assessment.edit_url = f"/quizzes/edit/{assessment.assessment_name}"
+	if len(existing_submission):
+		assessment.url = f"/quiz-submission/{existing_submission[0].name}"
+	else:
+		assessment.url = f"/quiz/{assessment.assessment_name}"
 
 	return assessment
 
@@ -1912,18 +2359,22 @@ def get_exercise_details(assessment: dict, member: str) -> dict:
 		assessment.completed = True
 		assessment.status = assessment.submission.status
 		assessment.edit_url = (
-			f"/exercises/{assessment.assessment_name}/submission/{assessment.submission.name}"
+			f"/programming-exercise-submission/{assessment.assessment_name}/{assessment.submission.name}"
 		)
 	else:
 		assessment.status = "Not Attempted"
 		assessment.color = "red"
 		assessment.completed = False
-		assessment.edit_url = f"/exercises/{assessment.assessment_name}/submission/new"
+		assessment.edit_url = f"/programming-exercise-submission/{assessment.assessment_name}/new"
+
+	return assessment
 
 
 @frappe.whitelist()
 def get_batch_student_progress(member: str, batch: str) -> dict:
-	if not can_modify_batch(batch):
+	from lms.lms.permissions import can_author_batch
+
+	if "Batch Evaluator" not in frappe.get_roles() and not can_author_batch(batch):
 		frappe.throw(_("You are not authorized to view the students of this batch."))
 
 	details = get_batch_student_details(member)
@@ -2014,7 +2465,9 @@ def get_quiz_pass_stats(batch: str) -> list:
 @frappe.whitelist()
 def get_batch_chart_data(batch: str) -> list:
 	"""Get completion counts per course and assessment"""
-	if not can_modify_batch(batch):
+	from lms.lms.permissions import can_author_batch
+
+	if "Batch Evaluator" not in frappe.get_roles() and not can_author_batch(batch):
 		frappe.throw(_("You are not authorized to view the chart data of this batch."))
 	if not frappe.db.exists("LMS Batch", batch):
 		frappe.throw(_("The specified batch does not exist."))
@@ -2167,10 +2620,13 @@ def can_access_topic(doctype: str, docname: str) -> bool:
 		if not is_student and not can_modify_course(course):
 			return False
 	elif doctype == "LMS Batch":
+		from lms.lms.permissions import can_author_batch
+
 		is_student = frappe.db.exists(
 			"LMS Batch Enrollment", {"batch": docname, "member": frappe.session.user}
 		)
-		if not is_student and not can_modify_batch(docname):
+		is_admin = "Batch Evaluator" in frappe.get_roles() or can_author_batch(docname)
+		if not is_student and not is_admin:
 			return False
 	return True
 
@@ -2845,7 +3301,9 @@ def get_batches(
 	if not filters:
 		filters = {}
 
+	self_scoped = is_self_scoped(filters)
 	update_batch_filters(filters)
+	restrict_to_published(filters, self_scoped)
 
 	batches = frappe.get_all(
 		"LMS Batch",
@@ -2892,9 +3350,9 @@ def update_batch_filters(filters: dict) -> None:
 def get_batch_count(filters: dict = None) -> int:
 	"""How many batches the same filters `get_batches` takes actually match.
 
-	The list footer cannot ask `frappe.client.get_count` for this: the Upcoming
-	and Archived tabs turn on the time of day, and the query only settles the
-	date, so `filter_batches_based_on_start_time` decides the rest in Python.
+	The list footer cannot ask `frappe.client.get_count` for this: Active,
+	Upcoming and Archived turn on the time of day, and the query only settles
+	the date, so `filter_batches_based_on_start_time` decides the rest in Python.
 
 	Counted as two COUNTs rather than by fetching the rows and repeating that
 	pass over them: the endpoint is open to guests, so the work it does must not
@@ -2906,7 +3364,9 @@ def get_batch_count(filters: dict = None) -> int:
 	if not filters:
 		filters = {}
 
+	self_scoped = is_self_scoped(filters)
 	update_batch_filters(filters)
+	restrict_to_published(filters, self_scoped)
 	total = count_matching("LMS Batch", filters)
 
 	batch_type = get_batch_type(filters)
@@ -2921,9 +3381,17 @@ def count_batches_the_clock_decides(filters: dict, batch_type: str) -> int:
 
 	Only today's are ever in question. Every other date the query has already
 	settled. Upcoming drops the ones already under way; Archived, the ones still
-	to come. Both conditions are added rather than replacing the caller's date
-	filter, so a tab asking for `start_date > today` still counts nothing today.
+	to come; Active, the ones that have already ended. Conditions are added rather
+	than replacing the caller's date filter, so a tab asking for `start_date > today`
+	still counts nothing today.
 	"""
+	if batch_type == "active":
+		already_ended = as_filter_conditions(filters) + [
+			["end_date", "=", getdate()],
+			["end_time", "<", nowtime()],
+		]
+		return count_matching("LMS Batch", already_ended)
+
 	started = "<" if batch_type == "upcoming" else ">="
 	conditions = as_filter_conditions(filters) + [
 		["start_date", "=", getdate()],
@@ -2945,6 +3413,14 @@ def has_started_today(batch) -> bool:
 	return to_timedelta(str(batch.start_time)) < to_timedelta(nowtime())
 
 
+def has_ended_today(batch) -> bool:
+	"""Whether a batch that ends today has already finished. Compared as times,
+	like `has_started_today`."""
+	if getdate(batch.end_date) != getdate():
+		return False
+	return to_timedelta(str(batch.end_time)) < to_timedelta(nowtime())
+
+
 def filter_batches_based_on_start_time(batches: list, filters: dict) -> list:
 	batchType = get_batch_type(filters)
 	if batchType == "upcoming":
@@ -2953,20 +3429,26 @@ def filter_batches_based_on_start_time(batches: list, filters: dict) -> list:
 		batches = [
 			batch for batch in batches if getdate(batch.start_date) != getdate() or has_started_today(batch)
 		]
+	elif batchType == "active":
+		batches = [batch for batch in batches if not has_ended_today(batch)]
 	return batches
 
 
 def get_batch_type(filters: dict) -> str:
-	start_date_filter = filters.get("start_date")
-	batchType = None
-	if start_date_filter:
-		sign = start_date_filter[0]
-		if ">" in sign:
-			batchType = "upcoming"
-		elif "<" in sign:
-			batchType = "archived"
+	if ">" in _filter_operator(filters.get("end_date")):
+		return "active"
+	start_op = _filter_operator(filters.get("start_date"))
+	if ">" in start_op:
+		return "upcoming"
+	if "<" in start_op:
+		return "archived"
+	return None
 
-	return batchType
+
+def _filter_operator(value) -> str:
+	if isinstance(value, list | tuple) and value:
+		return str(value[0])
+	return ""
 
 
 def get_batch_card_details(batches: list) -> list:
@@ -3151,9 +3633,18 @@ def is_demo_course(course: str) -> bool:
 
 
 def sanitize_editorjs(raw):
+	"""Sanitise lesson content without treating the JSON envelope as HTML.
+
+	`content` carries `ignore_xss_filter`, so frappe's field-level `sanitize_html`
+	no longer runs over it: it read the whole JSON document as markup and left the
+	field unparseable. `sanitize_json` is the gate instead, string by string.
+	"""
 	try:
 		data = json.loads(raw)
 	except (TypeError, ValueError):
+		# Returned byte-for-byte. Nothing renders content that will not parse, and
+		# rewriting it defeats the repair on read: one title-only save was enough
+		# to turn a recoverable lesson into an unrecoverable one.
 		return raw
 	return json.dumps(sanitize_json(data), separators=(",", ":"))
 

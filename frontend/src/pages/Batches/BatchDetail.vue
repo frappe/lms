@@ -9,35 +9,28 @@
 		doc-prop="batch"
 	>
 		<template #actions="{ tab, instance }">
-			<Badge v-if="tab?.key === 'settings' && instance?.isDirty" theme="orange">
+			<Badge v-if="tab?.key === 'settings' && instance?.isDirty" theme="amber">
 				{{ __('Not Saved') }}
 			</Badge>
+			<Dropdown
+				v-if="isAdmin && batchMenu(tab).length"
+				:options="batchMenu(tab)"
+				:button="{
+					icon: 'lucide-ellipsis',
+					variant: 'ghost',
+					label: __('Batch options'),
+				}"
+				side="bottom"
+				align="end"
+			/>
 			<Button
 				v-if="tab?.key === 'settings' && isAdmin && !isMobile"
-				:variant="batch.data?.published ? 'outline' : 'solid'"
+				:variant="batch.data?.published ? 'subtle' : 'solid'"
 				:theme="batch.data?.published ? 'red' : 'gray'"
 				@click="togglePublishBatch"
 			>
 				{{ batch.data?.published ? __('Unpublish') : __('Publish') }}
 			</Button>
-			<Dropdown
-				v-if="isAdmin && batchMenu(tab).length"
-				:options="batchMenu(tab)"
-				placement="left"
-				side="left"
-			>
-				<template v-slot="{ open }">
-					<Button
-						variant="ghost"
-						:label="__('Batch options')"
-						:aria-expanded="open"
-					>
-						<template #icon>
-							<span class="lucide-ellipsis-vertical w-4 h-4" />
-						</template>
-					</Button>
-				</template>
-			</Dropdown>
 			<HeaderButton
 				v-if="tab?.key === 'dashboard' && isAdmin"
 				:label="__('Enroll')"
@@ -120,7 +113,7 @@ import Discussions from '@/components/Discussions.vue'
 import HeaderButton from '@/components/HeaderButton.vue'
 import ShortcutTooltip from '@/components/ShortcutTooltip.vue'
 import SkeletonLoader from '@/components/SkeletonLoader.vue'
-import TabbedDetailPage from '@/components/Layouts/TabbedDetailPage.vue'
+import TabbedDetailPage from '@/components/Layouts/pages/TabbedDetailPage.vue'
 import { openBatchForm } from '@/composables/useBatchForms'
 
 const router = useRouter()
@@ -171,7 +164,11 @@ watch(
 provide('reloadBatchDetails', () => batch.reload())
 
 const isAdmin = computed(() => {
-	return Boolean(user.data?.is_moderator || user.data?.is_evaluator)
+	// is_moderator/is_evaluator are session-wide roles; can_manage is this
+	// batch's own tag, since a Course Creator only manages batches they author.
+	return Boolean(
+		user.data?.is_moderator || user.data?.is_evaluator || batch.data?.can_manage
+	)
 })
 
 const isStudent = computed(() => {
@@ -188,6 +185,7 @@ const tabs = computed(() => {
 			icon: 'lucide-list',
 			when: enrolled,
 			flow: true,
+			rendersHeading: true,
 		},
 		{
 			key: 'dashboard',
@@ -334,6 +332,6 @@ usePageMeta(() => {
 
 .batch-description strong {
 	font-weight: 600;
-	color: theme('colors.gray.900') !important;
+	color: var(--ink-gray-9) !important;
 }
 </style>

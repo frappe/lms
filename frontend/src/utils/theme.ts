@@ -6,10 +6,10 @@ export type ThemePreference = Theme | 'system'
 // Two keys, deliberately.
 //
 // `themePreference` holds what the user chose, including 'system'. `theme`
-// holds the RESOLVED light/dark value — and has to keep doing so, because
-// CodeEditor.vue reads `localStorage.getItem('theme') === 'dark'` directly. If
-// 'system' were written into `theme`, that read would silently fall back to
-// light for every system-dark user.
+// holds the RESOLVED light/dark value, which index.html's pre-paint bootstrap
+// reads as the legacy fallback for an install that predates the preference key.
+// Nothing renders from it any more: the code editor used to read it directly to
+// pick an Ace theme, and now follows the app's tokens under [data-theme].
 const PREFERENCE_KEY = 'themePreference'
 const RESOLVED_KEY = 'theme'
 
@@ -48,21 +48,15 @@ const setThemePreference = (preference: ThemePreference): void => {
 	paint(resolve(preference))
 }
 
-// Toggling from 'system' commits to the opposite of whatever system currently
-// resolves to, which is what a user flipping a switch means by it.
-const toggleTheme = (): void => {
-	setThemePreference(theme.value === 'dark' ? 'light' : 'dark')
-}
-
 // Paint at module init rather than from a component's onMounted. The previous
 // arrangement had UserDropdown call applyTheme(theme.value) on mount, which
 // under a tri-state preference would rewrite a 'system' choice into a concrete
 // light/dark on every load. Painting here also removes the flash of the wrong
 // theme between first paint and that component mounting.
 if (typeof document !== 'undefined') {
-	// paint(), not a bare setAttribute: `theme` is the resolved key CodeEditor.vue
-	// reads directly, and on a load where the user never touches the theme control
-	// nothing else writes it — leaving every code editor light inside a dark app.
+	// paint(), not a bare setAttribute: `theme` is the resolved key index.html
+	// falls back to, and on a load where the user never touches the theme control
+	// nothing else writes it.
 	paint(theme.value)
 	// Writing the resolved key needs the preference written beside it. Otherwise
 	// storedPreference()'s legacy fallback reads that value back on the next load
@@ -82,4 +76,4 @@ if (typeof window !== 'undefined' && typeof window.matchMedia === 'function') {
 		})
 }
 
-export { setThemePreference, theme, themePreference, toggleTheme }
+export { setThemePreference, theme, themePreference }

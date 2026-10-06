@@ -6,7 +6,7 @@
 	>
 		<template #default>
 			<div
-				class="grid grid-cols-2 gap-12 text-sm-semibold text-ink-gray-5 pb-2"
+				class="grid grid-cols-2 gap-12 text-sm-semibold text-ink-gray-6 pb-2"
 			>
 				<div>
 					{{ __('Member') }}
@@ -62,7 +62,7 @@
 	</Dialog>
 </template>
 <script setup lang="ts">
-import { Avatar, createListResource, Dialog, Tooltip } from 'frappe-ui'
+import { Avatar, createListResource, Dialog } from 'frappe-ui'
 import { inject } from 'vue'
 import { profileRoute } from '@/utils/routes'
 
@@ -80,7 +80,7 @@ const props = defineProps<{
 
 const participants = createListResource({
 	doctype: 'LMS Live Class Participant',
-	filter: {
+	filters: {
 		live_class: props.live_class?.name,
 	},
 	fields: [

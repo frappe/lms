@@ -13,7 +13,7 @@
 	>
 		<template #actions>
 			<Dropdown
-				placement="right"
+				align="end"
 				side="bottom"
 				v-if="canCreateCourse()"
 				:options="courseMenu"
@@ -48,7 +48,6 @@
 				:placeholder="__('Search')"
 				:aria-label="__('Search')"
 				type="text"
-				@input="updateCourses()"
 			>
 				<template #prefix>
 					<span class="lucide-search size-4 text-ink-gray-5" />
@@ -59,6 +58,7 @@
 				v-model="currentCategory"
 				:options="categories.data.filter((c) => c.value)"
 				:placeholder="__('Category')"
+				:ariaLabel="__('Category')"
 				@update:modelValue="updateCourses()"
 			/>
 			<ToggleFilter
@@ -71,11 +71,10 @@
 		</template>
 
 		<template #card="{ row }">
-			<router-link
+			<CourseCard
+				:course="row"
 				:to="{ name: 'CourseDetail', params: { courseName: row.name } }"
-			>
-				<CourseCard :course="row" />
-			</router-link>
+			/>
 		</template>
 	</ListPage>
 
@@ -93,7 +92,7 @@ import {
 } from 'frappe-ui'
 import ClearableCombobox from '@/components/Controls/ClearableCombobox.vue'
 import ToggleFilter from '@/components/Controls/ToggleFilter.vue'
-import ListPage from '@/components/Layouts/ListPage.vue'
+import ListPage from '@/components/Layouts/pages/ListPage.vue'
 import { computed, inject, onMounted, ref, watch } from 'vue'
 import { sessionStore } from '@/stores/session'
 import { canCreateCourse } from '@/utils'
@@ -120,6 +119,8 @@ const router = useRouter()
 onMounted(() => {
 	setFiltersFromQuery()
 	updateCourses()
+	// TextInput emits on input and change; watched after query hydration to avoid a refetch.
+	watch(title, updateCourses)
 })
 
 const setFiltersFromQuery = () => {

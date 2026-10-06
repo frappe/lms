@@ -1,7 +1,7 @@
 <template>
 	<ListPage
 		:breadcrumbs="breadcrumbs"
-		:title="__('All Batches')"
+		:title="pageTitle"
 		:rows="batches.data || []"
 		:loading="batches.list.loading"
 		:total-count="batchCount"
@@ -65,7 +65,6 @@
 				:placeholder="__('Search')"
 				:aria-label="__('Search')"
 				type="text"
-				@input="updateBatches()"
 			>
 				<template #prefix>
 					<span class="lucide-search size-4 text-ink-gray-5" />
@@ -76,6 +75,7 @@
 				v-model="currentCategory"
 				:options="categories.filter((c) => c.value)"
 				:placeholder="__('Category')"
+				:ariaLabel="__('Category')"
 				@update:modelValue="updateBatches()"
 			/>
 			<ToggleFilter
@@ -88,11 +88,10 @@
 		</template>
 
 		<template #card="{ row }">
-			<router-link
+			<BatchCard
+				:batch="row"
 				:to="{ name: 'BatchDetail', params: { batchName: row.name } }"
-			>
-				<BatchCard :batch="row" />
-			</router-link>
+			/>
 		</template>
 	</ListPage>
 
@@ -114,7 +113,7 @@ import { computed, inject, onMounted, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { sessionStore } from '@/stores/session'
 import BatchCard from '@/pages/Batches/components/BatchCard.vue'
-import ListPage from '@/components/Layouts/ListPage.vue'
+import ListPage from '@/components/Layouts/pages/ListPage.vue'
 import { openFormRoute } from '@/composables/useFormRoute'
 
 const user = inject('$user')
@@ -127,7 +126,12 @@ const title = ref('')
 const certification = ref(false)
 const filters = ref({})
 const is_student = computed(() => user.data?.is_student)
-const currentTab = ref(is_student.value ? 'all' : 'upcoming')
+const isAdmin = computed(() =>
+	['is_moderator', 'is_instructor', 'is_evaluator'].some(
+		(role) => user.data?.[role]
+	)
+)
+const currentTab = ref(isAdmin.value ? 'active' : 'all')
 const orderBy = ref('start_date')
 const readOnlyMode = window.read_only_mode
 const router = useRouter()
@@ -135,6 +139,8 @@ const router = useRouter()
 onMounted(() => {
 	setFiltersFromQuery()
 	updateBatches()
+	// TextInput emits on input and change; watched after query hydration to avoid a refetch.
+	watch(title, () => updateBatches())
 	categories.value = [
 		{
 			label: '',
@@ -184,9 +190,9 @@ const setCategories = (data) => {
 	}
 }
 
-// Upcoming and Archived are settled against the current time in Python rather
-// than in the query, and `enrolled` is not a field, so only the endpoint that
-// resolves both can say how many batches a tab really holds.
+// Active, Upcoming and Archived are settled against the current time in Python
+// rather than in the query, and `enrolled` is not a field, so only the
+// endpoint that resolves both can say how many batches a tab really holds.
 const batchCountResource = createResource({
 	url: 'lms.lms.utils.get_batch_count',
 	makeParams: () => ({ filters: filters.value }),
@@ -250,18 +256,22 @@ const updateTabFilter = () => {
 	if (!user.data) {
 		return
 	}
-	if (currentTab.value == 'enrolled' && is_student.value) {
+	if (currentTab.value == 'enrolled') {
 		filters.value['enrolled'] = 1
 		delete filters.value['start_date']
 		delete filters.value['published']
 		orderBy.value = 'start_date desc'
-	} else if (is_student.value) {
+	} else if (isAdmin.value) {
 		delete filters.value['enrolled']
-	} else {
 		delete filters.value['start_date']
+		delete filters.value['end_date']
 		delete filters.value['published']
 		orderBy.value = 'start_date desc'
-		if (currentTab.value == 'upcoming') {
+		if (currentTab.value == 'active') {
+			filters.value['end_date'] = ['>=', dayjs().format('YYYY-MM-DD')]
+			filters.value['published'] = 1
+			orderBy.value = 'start_date'
+		} else if (currentTab.value == 'upcoming') {
 			filters.value['start_date'] = ['>=', dayjs().format('YYYY-MM-DD')]
 			filters.value['published'] = 1
 			orderBy.value = 'start_date'
@@ -270,6 +280,8 @@ const updateTabFilter = () => {
 		} else if (currentTab.value == 'unpublished') {
 			filters.value['published'] = 0
 		}
+	} else {
+		delete filters.value['enrolled']
 	}
 }
 
@@ -321,36 +333,36 @@ watch(currentTab, () => {
 })
 
 const batchTabs = computed(() => {
-	let tabs = [
-		{
-			label: __('All'),
-			value: 'all',
-		},
-	]
-
-	if (
-		user.data?.is_moderator ||
-		user.data?.is_instructor ||
-		user.data?.is_evaluator
-	) {
-		tabs.push({ label: __('Upcoming'), value: 'upcoming' })
-		tabs.push({ label: __('Archived'), value: 'archived' })
-		tabs.push({ label: __('Unpublished'), value: 'unpublished' })
-	} else if (user.data) {
+	if (isAdmin.value) {
+		return [
+			{ label: __('Active'), value: 'active' },
+			{ label: __('Upcoming'), value: 'upcoming' },
+			{ label: __('Archived'), value: 'archived' },
+			{ label: __('Unpublished'), value: 'unpublished' },
+		]
+	}
+	const tabs = [{ label: __('All'), value: 'all' }]
+	if (user.data) {
 		tabs.push({ label: __('Enrolled'), value: 'enrolled' })
 	}
 	return tabs
 })
 
+// Roles can land after setup, leaving staff on `all`, which they have no tab for.
+watch(batchTabs, (tabs) => {
+	if (!tabs.some((tab) => tab.value === currentTab.value)) {
+		currentTab.value = tabs[0].value
+	}
+})
+
+const pageTitle = computed(() => {
+	const tab = batchTabs.value.find((t) => t.value === currentTab.value)
+	return __('{0} Batches').format(tab?.label)
+})
+
 const canCreateBatch = () => {
 	if (readOnlyMode) return false
-	if (
-		user.data?.is_moderator ||
-		user.data?.is_instructor ||
-		user.data?.is_evaluator
-	)
-		return true
-	return false
+	return Boolean(user.data?.is_moderator || user.data?.is_evaluator)
 }
 
 const breadcrumbs = computed(() => [

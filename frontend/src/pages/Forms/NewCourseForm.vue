@@ -59,7 +59,7 @@
 						<template #item-label="{ item }">
 							<div class="min-w-0 flex justify-between gap-2">
 								<div class="truncate">{{ item.label }}</div>
-								<div class="truncate text-xs text-ink-gray-5">
+								<div class="truncate text-xs text-ink-gray-6">
 									{{ item.value }}
 								</div>
 							</div>
@@ -88,11 +88,13 @@
 						/>
 						<RichTextEditor
 							:id="descriptionId"
+							:ariaLabelledby="descriptionLabelId"
 							:content="course.description"
 							@change="(val: string) => (course.description = val)"
 							:editable="true"
 							:fixedMenu="true"
-							editorClass="prose-sm max-w-none border-b border-x border-outline-elevation-2 bg-surface-gray-2 rounded-b-md py-1 px-2 min-h-[10rem] max-h-[17rem] overflow-auto"
+							minHeight="10rem"
+							maxHeight="17rem"
 						/>
 					</div>
 				</div>
@@ -125,7 +127,9 @@ import {
 	createResource,
 	toast,
 } from 'frappe-ui'
-import { useOnboarding, useTelemetry } from 'frappe-ui/frappe'
+import type { FrappeResourceError } from 'frappe-ui'
+import { useOnboarding } from '@framework/ui/components/Onboarding/index'
+import { useTelemetry } from '@framework/ui/telemetry/index'
 import { computed, inject, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import FormShell from '@/components/FormShell.vue'
 import HeaderButton from '@/components/HeaderButton.vue'
@@ -135,10 +139,10 @@ import MultiLink from '@/components/Controls/MultiLink.vue'
 import Uploader from '@/components/Controls/Uploader.vue'
 import NewMemberModal from '@/components/Modals/NewMemberModal.vue'
 import { canCreateCourse, cleanError, createLMSCategory } from '@/utils'
-import { sanitizeOnWrite } from '@/utils/sanitizeOnWrite'
+import { sanitizeStringFields } from '@/utils/sanitizeOnWrite'
 import type { Resource } from '@/types'
 import RichTextEditor from '@/components/RichTextEditor.vue'
-import { InputLabel, useInputLabeling } from '@/components/Form/labeling'
+import { InputLabel, useInputLabeling } from 'frappe-ui/experimental'
 import { submitResource } from '@/utils/resource'
 
 interface InstructorOption {
@@ -317,19 +321,9 @@ const onInstructorCreated = (newUser: any) => {
 	instructorsRef.value?.reload()
 }
 
-const validateFields = () => {
-	const fields = course.value as Record<string, unknown>
-	for (const key of Object.keys(fields)) {
-		const value = fields[key]
-		if (typeof value === 'string') {
-			fields[key] = sanitizeOnWrite(value)
-		}
-	}
-}
-
 const saveCourse = () => {
 	if (!canCreate.value) return
-	validateFields()
+	sanitizeStringFields(course.value as Record<string, unknown>)
 	submitResource(
 		courses.insert,
 		{
@@ -356,7 +350,7 @@ const saveCourse = () => {
 					})
 				}
 			},
-			onError(err: any) {
+			onError(err: FrappeResourceError) {
 				toast.error(cleanError(err.messages?.[0]))
 				console.error(err)
 			},

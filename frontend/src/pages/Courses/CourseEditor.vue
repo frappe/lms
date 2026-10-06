@@ -8,7 +8,7 @@
 				/>
 				<div
 					v-else-if="!selected"
-					class="flex flex-col items-center justify-center h-full text-ink-gray-5"
+					class="flex flex-col items-center justify-center h-full text-ink-gray-6"
 				>
 					<span class="lucide-book-open size-8" />
 					<div>
@@ -18,11 +18,13 @@
 				<LessonForm
 					v-else
 					ref="lessonFormRef"
-					:key="`edit-${selected.number}`"
+					:key="`edit-${selected.formKey}`"
 					:courseName="props.course.data.name"
 					:chapterNumber="selected.chapterNumber"
 					:lessonNumber="selected.lessonNumber"
+					:draftChapter="selected.draftChapter || ''"
 					@saved="onLessonSaved"
+					@created="onLessonCreated"
 				/>
 			</div>
 		</div>
@@ -44,6 +46,7 @@
 				@select-lesson="onSelectLesson"
 				@lesson-deleted="onLessonDeleted"
 				@chapter-deleted="onChapterDeleted"
+				@add-lesson="onAddLesson"
 			/>
 		</aside>
 
@@ -70,6 +73,7 @@
 				@select-lesson="onSelectLesson"
 				@lesson-deleted="onLessonDeleted"
 				@chapter-deleted="onChapterDeleted"
+				@add-lesson="onAddLesson"
 			/>
 		</BottomSheet>
 
@@ -93,17 +97,19 @@ import SkeletonLoader from '@/components/SkeletonLoader.vue'
 import LessonForm from '@/pages/LessonForm.vue'
 import VideoStatistics from '@/components/Modals/VideoStatistics.vue'
 import {
-	findLessonNameByNumber,
-	lessonExistsByNumber,
-	isSelectionStale,
+	SELECTION_PARAMS,
 	isLessonInChapter,
+	resolveTarget,
+	selectionQuery,
+	targetFromQuery,
 } from '@/utils/courseOutline'
 
 const props = defineProps({
 	course: { type: Object, required: true },
 })
 
-const selected = defineModel('selected', { default: null })
+// Read-only for the parent: the open lesson is derived below.
+const selectedModel = defineModel('selected', { default: null })
 const route = useRoute()
 const router = useRouter()
 const { isMobile } = useScreenSize()
@@ -120,22 +126,10 @@ onBeforeUnmount(() => {
 	sidebarStore.isSidebarCollapsed = false
 })
 
-// Keep ?editLesson in sync with what's selected so a refresh, tab-switch
-// round-trip, or shared URL lands on the same lesson. Guard against
-// route-watcher → selected-watcher loops by comparing values before
-// replacing.
-function syncSelectedToUrl(number) {
-	if (!number) return
-	if (route.query.editLesson === number) return
-	router.replace({
-		query: { ...route.query, editLesson: number },
-		hash: route.hash || '#editor',
-	})
-}
-
 const STORAGE_KEY = 'lms-course-editor-last-lesson'
 
 function getStoredLesson(courseName) {
+	if (!courseName) return null
 	try {
 		const raw = localStorage.getItem(STORAGE_KEY)
 		if (!raw) return null
@@ -147,6 +141,7 @@ function getStoredLesson(courseName) {
 }
 
 function storeLesson(courseName, number) {
+	if (!courseName) return
 	try {
 		const raw = localStorage.getItem(STORAGE_KEY)
 		const map = raw ? JSON.parse(raw) : {}
@@ -157,17 +152,48 @@ function storeLesson(courseName, number) {
 	}
 }
 
-function setSelectedFromNumber(number) {
-	const [chapterNumber, lessonNumber] = number.split('-')
-	if (!chapterNumber || !lessonNumber) return
-	selected.value = {
-		chapterNumber,
-		lessonNumber,
-		number,
-		name: findLessonNameByNumber(outline.data, number),
-		title: '',
+// What the editor is asked to open comes from the route or an action here.
+// The selection is resolved from it against the outline, again on every
+// outline change, so a target the outline doesn't have yet opens once it
+// does. One watcher below writes the result back to the URL and the model.
+let draftCount = 0
+const nextDraftToken = () => `draft-${++draftCount}`
+// A URL that names no lesson opens the course default: the stored lesson,
+// else the first.
+const targetFromRoute = () =>
+	targetFromQuery(route.query, nextDraftToken) ?? { kind: 'default' }
+const target = ref(targetFromRoute())
+
+const selected = computed(() =>
+	resolveTarget(
+		target.value,
+		outline.data,
+		target.value?.kind === 'default'
+			? getStoredLesson(props.course?.data?.name)
+			: null
+	)
+)
+
+// "Add Lesson" opens an empty form; LessonForm creates the lesson once it has a
+// title.
+function onAddLesson({ chapter }) {
+	target.value = {
+		kind: 'draft',
+		chapter: chapter.name,
+		token: nextDraftToken(),
 	}
-	syncSelectedToUrl(number)
+	showChapters.value = false
+}
+
+// The created lesson keeps the draft's token as its form key, so the form
+// isn't remounted and the title keeps its focus and caret. Until the outline
+// reload brings the lesson in it has no position: another author may have
+// added a lesson meanwhile, so a guessed number could name theirs.
+function onLessonCreated({ name, chapter }) {
+	const draft = target.value
+	if (draft?.kind !== 'draft' || draft.chapter !== chapter) return
+	target.value = { kind: 'lesson', name, token: draft.token, chapter }
+	outline.reload()
 }
 
 // Reflect an autosaved lesson title/preview-flag in the shared outline
@@ -190,8 +216,8 @@ function onLessonSaved({ name, title, include_in_preview, isNew }) {
 }
 
 // The outline reports a specific lesson/chapter delete. If the lesson open in the
-// editor is the one removed, tell the form before the stale-selection watcher
-// unmounts it, so its teardown flush doesn't set_value the now-deleted document.
+// editor is the one removed, tell the form before clearing the target unmounts
+// it, so its teardown flush doesn't set_value the now-deleted document.
 // Keyed by docname (not a generic "selection went stale" signal, which is also
 // true on a course switch or transient outline) and applied synchronously here,
 // so it can't be mis-bound to whichever reload happens to land next.
@@ -199,29 +225,23 @@ function onLessonDeleted({ lesson }) {
 	if (lessonFormRef.value?.lessonName?.() === lesson) {
 		lessonFormRef.value?.markDeleted?.()
 	}
+	if (selected.value?.name === lesson) target.value = null
 }
 function onChapterDeleted({ chapter }) {
-	// Deleting a chapter takes its lessons too. Resolve membership against the
-	// still-current outline (the delete's reload hasn't applied yet).
-	const openLesson = lessonFormRef.value?.lessonName?.()
-	if (openLesson && isLessonInChapter(outline.data, chapter, openLesson)) {
-		lessonFormRef.value?.markDeleted?.()
-	}
+	// Deleting a chapter takes its lessons, and a draft in it must not create
+	// its lesson on unmount. Resolve membership against the still-current
+	// outline (the delete's reload hasn't applied yet).
+	const open = target.value
+	const inChapter =
+		open?.chapter === chapter ||
+		isLessonInChapter(outline.data, chapter, selected.value?.name)
+	if (!inChapter) return
+	lessonFormRef.value?.markDeleted?.()
+	target.value = null
 }
 
 function onSelectLesson({ chapterNumber, lessonNumber }) {
-	const number = `${chapterNumber}-${lessonNumber}`
-	selected.value = {
-		chapterNumber,
-		lessonNumber,
-		number,
-		name: findLessonNameByNumber(outline.data, number),
-		title: '',
-	}
-	if (props.course?.data?.name) {
-		storeLesson(props.course.data.name, number)
-	}
-	syncSelectedToUrl(number)
+	target.value = { kind: 'number', number: `${chapterNumber}-${lessonNumber}` }
 	// On mobile the outline lives in a sheet; dismiss it once a lesson is picked.
 	showChapters.value = false
 }
@@ -242,77 +262,71 @@ const outline = createResource({
 	auto: false,
 })
 
-// Drive initial selection from outline.data instead of the resource
-// onSuccess hook, which runs on every reload and skips cache hits, so a
-// deep-link landing on a cached outline never set `selected`.
-let initialPickDone = false
-function pickInitialLesson() {
-	if (initialPickDone) return
-	const chapters = outline.data
-	if (!chapters?.length) return
-	initialPickDone = true
-	const routeLesson = route.query.editLesson
-	if (routeLesson) {
-		setSelectedFromNumber(routeLesson)
-		return
-	}
-	if (selected.value) return
-	const courseName = props.course?.data?.name
-	const stored = courseName ? getStoredLesson(courseName) : null
-	if (lessonExistsByNumber(chapters, stored)) {
-		setSelectedFromNumber(stored)
-		return
-	}
-	const firstLesson = chapters.find((c) => c.lessons?.length)?.lessons?.[0]
-	if (firstLesson?.number) {
-		setSelectedFromNumber(firstLesson.number)
-	}
+// Our own URL writes come back through the route watcher; skip those, and
+// take anything else as a new target.
+const ownWrites = new Set()
+const selectionKey = (query) =>
+	JSON.stringify(SELECTION_PARAMS.map((key) => query[key] ?? null))
+
+function writeSelectionToUrl(next) {
+	if (!next) return
+	const key = selectionKey(next)
+	if (key === selectionKey(route.query)) return
+	ownWrites.add(key)
+	const query = Object.fromEntries(
+		Object.entries(route.query).filter(
+			([param]) => !SELECTION_PARAMS.includes(param)
+		)
+	)
+	router.replace({
+		query: { ...query, ...next },
+		hash: route.hash || '#editor',
+	})
 }
 
-watch(() => outline.data, pickInitialLesson, { immediate: true })
-
-// When the selected lesson disappears from the outline (e.g. it was just
-// deleted), drop back to the empty "choose a lesson" state instead of
-// editing a lesson that no longer exists.
 watch(
-	() => outline.data,
-	(chapters) => {
-		if (isSelectionStale(selected.value, chapters)) {
-			selected.value = null
-			if (route.query.editLesson) {
-				const { editLesson, ...rest } = route.query
-				router.replace({
-					query: rest,
-					hash: route.hash || '#editor',
-				})
-			}
-		}
+	() => selectionKey(route.query),
+	(key) => {
+		if (!ownWrites.delete(key)) target.value = targetFromRoute()
 	}
+)
+
+// Pin a position or the course default to its lesson once resolved, remember
+// it, and write what is open back to the model and the URL.
+watch(
+	selected,
+	(selection) => {
+		selectedModel.value = selection
+		const current = target.value
+		if (selection?.name && selection.number) {
+			if (current?.kind === 'number' || current?.kind === 'default') {
+				target.value = { kind: 'lesson', name: selection.name }
+			}
+			storeLesson(props.course?.data?.name, selection.number)
+		}
+		writeSelectionToUrl(selectionQuery(target.value, selection))
+	},
+	{ immediate: true }
 )
 
 watch(
 	() => props.course?.data?.name,
-	(name) => {
+	(name, previous) => {
+		// A target belongs to its course: re-read it from the route on a switch,
+		// and drop the old outline so the default can't resolve against it.
+		if (previous && name !== previous) {
+			outline.reset()
+			target.value = targetFromRoute()
+		}
 		if (name) outline.fetch()
 	},
 	{ immediate: true }
 )
 
-// React to a deep-link change while the editor tab is already open.
-// Trust the query. A non-existent number means "new lesson", which
-// LessonForm renders in create mode.
-watch(
-	() => route.query.editLesson,
-	(number) => {
-		if (!number) return
-		setSelectedFromNumber(number)
-	}
-)
-
 // ?lessonMode is a dead param: student view used to be a mode of this editor
 // and is now the lesson route. Send an old `preview` link to that route once
 // a lesson number is resolvable, and strip any other value so it can't linger
-// in the query that syncSelectedToUrl copies forward. One-shot: a redirect
+// in the query that writeSelectionToUrl copies forward. One-shot: a redirect
 // unmounts us, and the strip must not re-fire on its own replace.
 let legacyLessonModeHandled = false
 watch(

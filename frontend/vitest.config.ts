@@ -6,8 +6,8 @@ import { lucideIcons } from 'frappe-ui/vite'
 
 export default defineConfig({
 	// `import { X } from 'frappe-ui'` resolves the entire barrel (src/index.ts,
-	// ~30 component families incl. DatePicker/TextEditor/Charts/ListView), because
-	// frappe-ui here is an installed npm package, not a symlinked working copy.
+	// incl. DatePicker/Dialog/Select), because frappe-ui here is an installed
+	// npm package, not a symlinked working copy.
 	// frappe-ui/vite's `barrelImports` plugin only rewrites named imports to deep,
 	// single-component paths for a symlinked/working-copy install (`linkedOnly`
 	// defaults true); tried forcing `linkedOnly: false` to narrow this and it broke
@@ -18,10 +18,9 @@ export default defineConfig({
 	// in reverse (skips rewriting), so it was left out entirely rather than added
 	// for no effect. Net effect: mounting ANY unmocked frappe-ui export currently
 	// evaluates the whole barrel's module graph, same as a real (non-linked) dev
-	// server today, not a test-only gap. `lucideIcons` below exists because that
-	// full-barrel load reaches `DatePicker` -> `PickerShell.vue`, which imports the
-	// `~icons/lucide/chevron-down` virtual module (NOT Combobox's own chevron;
-	// that's a plain `lucide-chevron-down` CSS class, no icon import involved).
+	// server today, not a test-only gap. `lucideIcons` resolves LMS's own
+	// auto-registered `<LucideX>` tags and @framework/ui's `~icons/lucide/*`
+	// imports, mirroring the app build's `frappeui({ lucideIcons: true })`.
 	// Registering `lucideIcons` also turns on `unplugin-auto-import` /
 	// `unplugin-vue-components`, which write to the tracked
 	// `frontend/auto-imports.d.ts` / `frontend/components.d.ts` on every test run
@@ -48,13 +47,48 @@ export default defineConfig({
 			// (valid under Vite's resolver, invalid under Node's strict ESM loader).
 			// Vitest externalizes node_modules to Node's loader by default; inlining
 			// keeps frappe-ui on Vite's transform/resolve pipeline, matching dev/build.
-			deps: { inline: ['frappe-ui'] },
+			// tiptap and ProseMirror are inlined so `resolve.dedupe` below reaches
+			// them: @tiptap/pm nests a second prosemirror-model, and a node from one
+			// copy fails the other's instanceof checks.
+			deps: {
+				inline: ['frappe-ui', '@framework/ui', /@tiptap\//, /prosemirror-/],
+			},
 		},
 	},
 	resolve: {
+		// Resolve the linked `@framework/ui` through its symlink rather than its real
+		// path. It is `link:../../frappe/ui`, and its own source imports bare deps of
+		// its own: `vuedraggable` in ConditionGroup.vue, plus reka-ui, dompurify and
+		// frappe-ui. Resolution walks up from the *importer*, so following the link to
+		// `apps/frappe/ui/src/...` looks for them under `apps/frappe` — which on a bench
+		// has its own node_modules and in CI is a sparse checkout of `ui` alone. Keeping
+		// the symlinked path walks up through `apps/lms/frontend/node_modules` instead,
+		// where LMS already declares every one of them.
+		//
+		// So it fails only in CI, which is why it was invisible here: locally
+		// `apps/frappe/node_modules/vuedraggable` satisfies the lookup. Both the vitest
+		// run and the SPA build hit it, as "Failed to resolve import vuedraggable from
+		// ...ConditionGroup.vue". Reproduce it by pointing the link at a copy of
+		// apps/frappe/ui that has no node_modules beside it.
+		preserveSymlinks: true,
 		alias: {
 			'@': path.resolve(path.dirname(fileURLToPath(import.meta.url)), 'src'),
 		},
-		dedupe: ['vue', 'frappe-ui'],
+		// Match vite.config.js so tests load one ProseMirror and CodeMirror/Lezer
+		// like the build.
+		dedupe: [
+			'prosemirror-model',
+			'prosemirror-state',
+			'prosemirror-view',
+			'prosemirror-transform',
+			'@codemirror/language',
+			'@codemirror/state',
+			'@codemirror/view',
+			'@lezer/common',
+			'@lezer/lr',
+			'@lezer/highlight',
+			'vue',
+			'frappe-ui',
+		],
 	},
 })

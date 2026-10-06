@@ -17,13 +17,13 @@
 							<div class="font-semibold">
 								{{ student?.member_name }}
 							</div>
-							<div class="text-ink-gray-5">
+							<div class="text-ink-gray-6">
 								{{ student.member }}
 							</div>
 						</div>
 					</div>
 					<div class="w-25 space-y-2">
-						<div class="text-ink-gray-5 text-sm">
+						<div class="text-ink-gray-6 text-sm">
 							{{ Math.round(student.progress) }}% {{ __('completed') }}
 						</div>
 						<ProgressBar
@@ -36,9 +36,9 @@
 				<div class="grid gap-5" :class="hasAssessmentData ? 'grid-cols-2' : ''">
 					<div
 						v-if="lessons.data"
-						class="border border-outline-elevation-2 rounded-lg px-3 max-h-[60vh] overflow-y-auto"
+						class="border border-outline-elevation-2 rounded-6 px-3 max-h-[60vh] overflow-y-auto"
 					>
-						<div class="sticky top-0 z-10 bg-surface-base py-3 text-ink-gray-5">
+						<div class="sticky top-0 z-10 bg-surface-base py-3 text-ink-gray-6">
 							{{ __('Lesson Progress') }}
 						</div>
 						<ul class="list-none">
@@ -59,10 +59,10 @@
 									v-if="getLessonStatus(progress) == 'Complete'"
 									:text="__('Complete')"
 								>
-									<span class="lucide-check text-ink-green-6 size-4" />
+									<span class="lucide-check text-ink-green-5 size-4" />
 								</Tooltip>
 								<Tooltip v-else :text="__('Pending')">
-									<span class="lucide-minus text-ink-amber-5 size-4" />
+									<span class="lucide-minus text-ink-amber-4 size-4" />
 								</Tooltip>
 								<!-- <Badge :theme="getLessonStatusTheme(progress)">
 									{{ getLessonStatus(progress) }}
@@ -74,9 +74,9 @@
 					<div class="space-y-3">
 						<div
 							v-if="assessmentProgress.data?.quizzes?.length"
-							class="border border-outline-elevation-2 rounded-lg px-3 pt-3 h-fit"
+							class="border border-outline-elevation-2 rounded-6 px-3 pt-3 h-fit"
 						>
-							<div class="grid grid-cols-4 gap-5 text-ink-gray-5 mb-5">
+							<div class="grid grid-cols-4 gap-5 text-ink-gray-6 mb-5">
 								<div class="col-span-2">
 									{{ __('Quiz Progress') }}
 								</div>
@@ -104,10 +104,10 @@
 
 						<div
 							v-if="assessmentProgress.data?.assignments?.length"
-							class="border border-outline-elevation-2 rounded-lg px-3 pt-3 h-fit"
+							class="border border-outline-elevation-2 rounded-6 px-3 pt-3 h-fit"
 						>
 							<div>
-								<div class="text-ink-gray-5 mb-5">
+								<div class="text-ink-gray-6 mb-5">
 									{{ __('Assignment Progress') }}
 								</div>
 							</div>
@@ -130,10 +130,10 @@
 
 						<div
 							v-if="assessmentProgress.data?.exercises?.length"
-							class="border border-outline-elevation-2 rounded-lg px-3 pt-3 h-fit"
+							class="border border-outline-elevation-2 rounded-6 px-3 pt-3 h-fit"
 						>
 							<div>
-								<div class="text-ink-gray-5 mb-5">
+								<div class="text-ink-gray-6 mb-5">
 									{{ __('Programming Exercise Progress') }}
 								</div>
 							</div>
@@ -209,14 +209,14 @@ const getLessonStatusTheme = (lesson: any) => {
 	if (status === 'Complete') {
 		return 'green'
 	} else {
-		return 'orange'
+		return 'amber'
 	}
 }
 
 const getAssessmentStatusTheme = (status: string) => {
 	if (status.includes('Pass')) return 'green'
 	else if (status.includes('Fail')) return 'red'
-	else return 'orange'
+	else return 'amber'
 }
 
 const hasAssessmentData = computed(() => {
