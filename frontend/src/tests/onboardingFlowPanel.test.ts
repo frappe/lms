@@ -40,6 +40,7 @@ function makeHandle() {
 }
 
 vi.mock('frappe-ui', () => ({
+	sidebarCollapsedKey: Symbol('sidebarCollapsed'),
 	SidebarItem: {
 		inheritAttrs: false,
 		props: ['label', 'icon', 'onClick'],
@@ -360,7 +361,7 @@ describe('help centre', () => {
 		const footer = w.find('[data-testid="panel-footer"]')
 		expect(footer.find('.sidebar-item').exists()).toBe(true)
 		const row = footerRow(w)
-		expect(row.text()).toBe('Help centre')
+		expect(row.text()).toBe('Help center')
 		expect(row.find('.help-icon').exists()).toBe(true)
 	})
 
@@ -440,7 +441,7 @@ describe('help centre', () => {
 		expect(w.find('[data-testid="hero-title"]').text()).toBe(
 			'Publish my first course'
 		)
-		expect(footerRow(w).text()).toBe('Help centre')
+		expect(footerRow(w).text()).toBe('Help center')
 	})
 })
 

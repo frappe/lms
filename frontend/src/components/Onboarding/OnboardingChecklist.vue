@@ -36,40 +36,42 @@
 					{{ text.tryNext }}
 				</span>
 				<Tooltip :text="next.description">
-					<SidebarItem
-						:label="next.title"
-						data-testid="next-up"
-						@click="openNextCard"
-					>
-						<template #prefix>
-							<component
-								:is="next.icon"
-								class="text-ink-gray-6"
-								:class="SIDEBAR_ICON"
-								aria-hidden="true"
-							/>
-						</template>
-						<span
-							class="text-ink-gray-8"
-							:class="ROW_TEXT"
-							data-testid="next-title"
+					<div>
+						<SidebarItem
+							:label="next.title"
+							data-testid="next-up"
+							@click="openNextCard"
 						>
-							{{ next.title }}
-						</span>
-						<template #suffix>
-							<Button
-								variant="ghost"
-								size="sm"
-								class="me-1"
-								data-testid="next-action"
-								@click="openNextCard"
+							<template #prefix>
+								<component
+									:is="next.icon"
+									class="text-ink-gray-6"
+									:class="SIDEBAR_ICON"
+									aria-hidden="true"
+								/>
+							</template>
+							<span
+								class="text-ink-gray-8"
+								:class="ROW_TEXT"
+								data-testid="next-title"
 							>
-								<span :class="ROW_TEXT">
-									{{ nextStarted ? text.continue : text.tryIt }}
-								</span>
-							</Button>
-						</template>
-					</SidebarItem>
+								{{ next.title }}
+							</span>
+							<template #suffix>
+								<Button
+									variant="ghost"
+									size="sm"
+									class="me-1"
+									data-testid="next-action"
+									@click="openNextCard"
+								>
+									<span :class="ROW_TEXT">
+										{{ nextStarted ? text.continue : text.tryIt }}
+									</span>
+								</Button>
+							</template>
+						</SidebarItem>
+					</div>
 				</Tooltip>
 			</div>
 			<p v-else class="text-center text-ink-gray-5" :class="ROW_TEXT">

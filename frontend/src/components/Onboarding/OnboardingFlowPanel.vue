@@ -18,7 +18,7 @@
 					<LucideChevronLeft class="size-4 rtl:rotate-180" aria-hidden="true" />
 				</Button>
 				<h2 :id="headingId" class="truncate text-p-sm font-medium">
-					{{ screen === 'help' ? text.helpHeading : text.heading }}
+					{{ screen === 'help' ? text.helpCenter : text.heading }}
 				</h2>
 			</div>
 			<div class="flex gap-1">
@@ -72,7 +72,7 @@
 
 		<div class="flex flex-col gap-1.5" data-testid="panel-footer">
 			<SidebarItem
-				:label="screen === 'help' ? text.heading : text.helpCentre"
+				:label="footerLabel"
 				data-testid="footer-row"
 				@click="toggleHelp"
 			>
@@ -84,7 +84,7 @@
 					/>
 				</template>
 				<span class="truncate text-p-sm text-ink-gray-8">
-					{{ screen === 'help' ? text.heading : text.helpCentre }}
+					{{ footerLabel }}
 				</span>
 			</SidebarItem>
 		</div>
@@ -92,8 +92,8 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, useId } from 'vue'
-import { Button, SidebarItem } from 'frappe-ui'
+import { computed, provide, ref, useId } from 'vue'
+import { Button, SidebarItem, sidebarCollapsedKey } from 'frappe-ui'
 import {
 	HelpIcon,
 	MaximizeIcon,
@@ -121,6 +121,13 @@ const {
 	closePanel,
 } = useLearningOnboarding()
 
+// The panel floats over the page, so a collapsed app sidebar around it must not
+// collapse its rows down to their icons.
+provide(
+	sidebarCollapsedKey,
+	computed(() => false)
+)
+
 const headingId = useId()
 
 const articles = ref(helpArticles())
@@ -131,8 +138,7 @@ const text = {
 	expand: __('Expand'),
 	minimize: __('Minimize'),
 	close: __('Close'),
-	helpCentre: __('Help centre'),
-	helpHeading: __('Help center'),
+	helpCenter: __('Help center'),
 	welcome: __('Welcome to Frappe Learning'),
 }
 
