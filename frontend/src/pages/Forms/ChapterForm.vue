@@ -280,9 +280,9 @@ const saveChapter = () => {
 		{},
 		{
 			validate: validateChapter,
-			onSuccess() {
+			onSuccess(data: { name?: string } | null) {
 				if (!isEdit.value) {
-					completeStep('create_first_chapter')
+					completeStep('create_first_chapter', { first_chapter: data?.name })
 					capture('chapter_created')
 				}
 				// Stands in for the modal's `created`/`updated` emits: a route

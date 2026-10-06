@@ -74,13 +74,14 @@ class TestOnboardingFacts(BaseTestUtils):
 	# Guards: a renamed or dropped fact key that the frontend flows read by name. Introduced in this
 	# branch (feat/onboarding-flows, PR pending); test added there to keep the payload shape fixed.
 	def test_returns_exact_key_set(self):
-		self.assertEqual(set(self._facts()), FLAG_KEYS | {"first_course", "first_batch"})
+		self.assertEqual(set(self._facts()), FLAG_KEYS | {"first_course", "first_chapter", "first_batch"})
 
 	# Guards: a step showing as done on a fresh site. Introduced in this branch (feat/onboarding-flows, PR
 	# pending); test added there to pin the all-false baseline.
 	def test_clean_site_has_no_facts(self):
 		facts = self._facts()
 		self.assertIsNone(facts["first_course"])
+		self.assertIsNone(facts["first_chapter"])
 		self.assertIsNone(facts["first_batch"])
 		for key in FLAG_KEYS:
 			self.assertIs(facts[key], False, key)
@@ -111,13 +112,19 @@ class TestOnboardingFacts(BaseTestUtils):
 		self.assertFalse(facts["has_course_pricing"])
 		self.assertFalse(facts["has_published_course"])
 
+		self.assertIsNone(facts["first_chapter"])
+
+		later = self._create_chapter("Onboarding chapter two", course.name)
 		chapter = self._create_chapter("Onboarding chapter", course.name)
+		self._create_chapter_reference(course.name, later.name, idx=2)
+		self._create_chapter_reference(course.name, chapter.name, idx=1)
 		self._create_lesson("Onboarding lesson", chapter.name, course.name)
 		frappe.db.set_value(
 			"LMS Course", course.name, {"published": 1, "paid_course": 1, "course_price": 499}
 		)
 
 		facts = self._facts()
+		self.assertEqual(facts["first_chapter"], chapter.name)
 		self.assertTrue(facts["has_chapter"])
 		self.assertTrue(facts["has_lesson"])
 		self.assertTrue(facts["has_course_pricing"])

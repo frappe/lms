@@ -26,6 +26,7 @@ def _course_facts() -> dict[str, str | bool | None]:
 	name = course.name if course else None
 	return {
 		"first_course": name,
+		"first_chapter": _first_chapter(name),
 		"has_course": bool(course),
 		"has_chapter": _exists_for(name, "Course Chapter", {"course": name}),
 		"has_lesson": _exists_for(name, "Course Lesson", {"course": name}),
@@ -33,6 +34,18 @@ def _course_facts() -> dict[str, str | bool | None]:
 		"has_course_pricing": bool(course and cint(course.paid_course) and flt(course.course_price) > 0),
 		"has_published_course": bool(course and cint(course.published)),
 	}
+
+
+def _first_chapter(course: str | None) -> str | None:
+	"""The course's first chapter in outline order."""
+	if not course:
+		return None
+	return frappe.db.get_value(
+		"Chapter Reference",
+		{"parent": course, "parenttype": "LMS Course"},
+		"chapter",
+		order_by="idx asc",
+	)
 
 
 def _learner_facts() -> dict[str, bool]:

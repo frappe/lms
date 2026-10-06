@@ -392,15 +392,18 @@ describe('ChapterForm as a route', () => {
 		expect(outlineResource.reload).not.toHaveBeenCalled()
 	})
 
-	it('completes the first-chapter onboarding step on a create', async () => {
+	// Guards: Add a chapter not ticking, or later steps aiming at another
+	// course. Introduced in this branch (feat/onboarding-flows, PR pending);
+	// test added there to pin the chapter and its own course.
+	it('completes the first-chapter onboarding step on a create, with its chapter', async () => {
 		completeStepMock.mockReset()
 		const router = makeRouter()
 		await openForm(router, 'new')
 		const wrapper = await mountForm(router)
 
 		upsertResource.submit.mockImplementation(
-			(_params: unknown, options: { onSuccess: () => void }) => {
-				options.onSuccess()
+			(_params: unknown, options: { onSuccess: (d: unknown) => void }) => {
+				options.onSuccess({ name: 'CH-0001' })
 			}
 		)
 		await wrapper
@@ -408,7 +411,9 @@ describe('ChapterForm as a route', () => {
 			.setValue('Chapter One')
 		await wrapper.find('[data-testid="chapter-save"]').trigger('click')
 		await flushPromises()
-		expect(completeStepMock).toHaveBeenCalledWith('create_first_chapter')
+		expect(completeStepMock).toHaveBeenCalledWith('create_first_chapter', {
+			first_chapter: 'CH-0001',
+		})
 	})
 
 	it('replaces rather than pushes on save, so Back leaves the form behind', async () => {

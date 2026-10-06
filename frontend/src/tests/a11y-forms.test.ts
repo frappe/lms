@@ -149,14 +149,17 @@ describe('named controls and focus outlines', () => {
 	// Guards: unnamed lesson preview switches, marks input and tags trigger, no
 	// JobForm h1, and lost focus outlines. Introduced in #2164, #2469, #2659 and
 	// #2662; test added with the a11y audit remediation.
-	it('names the lesson preview switches and rings the title', () => {
+	it('names the lesson preview switches and shows only the caret on the title', () => {
 		const file = 'pages/LessonForm.vue'
 		const switches = elements(file).filter((el) => el.tag === 'Switch')
 		expect(switches).toHaveLength(2)
 		for (const sw of switches)
 			expectIdsDeclared(file, attr(sw, 'aria-labelledby') ?? '')
+		// The caret is the title's focus indicator: a ring boxed the whole line
+		// on the programmatic focus every new lesson gets.
 		const title = elements(file).find((el) => el.tag === 'textarea')!
-		expect(attr(title, 'class')).toMatch(/\bfocus-visible:ring-2\b/)
+		expect(attr(title, 'class')).not.toMatch(/\bfocus-visible:ring-2\b/)
+		expect(attr(title, 'class')).toMatch(/\bfocus-visible:outline-none\b/)
 	})
 
 	it('names the marks input and tags trigger, and gives JobForm an h1', () => {

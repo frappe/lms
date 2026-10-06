@@ -178,6 +178,23 @@ describe('LessonForm draft: a new lesson is created from its title', () => {
 		vi.useRealTimers()
 	})
 
+	// The caret is the title's focus indicator; a ring drew a box round the
+	// whole line on the programmatic focus. Needs a browser check too.
+	it('shows only the caret on the focused title, no ring or outline', async () => {
+		wrapper = await mountDraft()
+		const classes = titleField(wrapper).classes()
+		expect(classes).toEqual(
+			expect.arrayContaining([
+				'focus:outline-none',
+				'focus-visible:outline-none',
+				'focus:ring-0',
+			])
+		)
+		expect(
+			classes.filter((c) => /^focus(-visible)?:ring-(?!0$)/.test(c))
+		).toEqual([])
+	})
+
 	it('opens empty and focused, loading and creating nothing', async () => {
 		wrapper = await mountDraft()
 

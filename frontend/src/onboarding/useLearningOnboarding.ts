@@ -55,10 +55,10 @@ import {
 } from '@/onboarding/onboardingProgress'
 
 type FlowTargets = Partial<
-	Pick<OnboardingFacts, 'first_course' | 'first_batch'>
+	Pick<OnboardingFacts, 'first_course' | 'first_chapter' | 'first_batch'>
 >
 
-const TARGET_KEYS = ['first_course', 'first_batch'] as const
+const TARGET_KEYS = ['first_course', 'first_chapter', 'first_batch'] as const
 const FACTS_REFETCH_DELAY = 500
 
 // Where the help centre returns to.

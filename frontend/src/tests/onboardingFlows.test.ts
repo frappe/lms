@@ -11,6 +11,7 @@ import {
 	type FlowNavigation,
 	type OnboardingFacts,
 } from '@/onboarding/flows'
+import { targetFromQuery } from '@/utils/courseOutline'
 
 function fakeNav(facts: Partial<OnboardingFacts> = {}): FlowNavigation {
 	return {
@@ -286,13 +287,31 @@ describe('step targets', () => {
 		})
 	})
 
-	it('opens a new lesson in the first chapter in the course editor', () => {
+	it("adds a lesson to the first chapter through the editor's own draft", () => {
+		const nav = fakeNav({ ...facts, first_chapter: 'my-chapter' })
+		click('publish_course', 'create_first_lesson', nav)
+		const to = vi.mocked(nav.openRoute).mock.calls[0][0] as {
+			query: Record<string, string>
+		}
+		expect(to).toEqual({
+			name: 'CourseDetail',
+			params: { courseName: 'my-course' },
+			query: { editLesson: '1-new', draftChapter: 'my-chapter' },
+			hash: '#editor',
+		})
+		expect(targetFromQuery(to.query, () => 'token')).toEqual({
+			kind: 'draft',
+			chapter: 'my-chapter',
+			token: 'token',
+		})
+	})
+
+	it('opens the course editor when the first chapter is not known yet', () => {
 		const nav = fakeNav(facts)
 		click('publish_course', 'create_first_lesson', nav)
 		expect(nav.openRoute).toHaveBeenCalledWith({
 			name: 'CourseDetail',
 			params: { courseName: 'my-course' },
-			query: { editLesson: '1-1' },
 			hash: '#editor',
 		})
 	})

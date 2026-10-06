@@ -1,6 +1,7 @@
 import { h, markRaw, type Component } from 'vue'
 import type { RouteLocationRaw } from 'vue-router'
 import type { OnboardingStep } from '@framework/ui/components/Onboarding/index'
+import { draftLessonNumber } from '@/utils/courseOutline'
 import {
 	Banknote,
 	BookOpen,
@@ -53,6 +54,8 @@ export type FactKey = typeof FACT_KEYS[number]
 /** `lms.lms.onboarding.get_onboarding_facts`. */
 export type OnboardingFacts = Record<FactKey, boolean> & {
 	first_course: string | null
+	/** The first course's first chapter, in outline order. */
+	first_chapter: string | null
 	first_batch: string | null
 }
 
@@ -152,17 +155,20 @@ function openChapterForm(nav: FlowNavigation): void {
 	)
 }
 
-// The course editor treats a lesson number that does not exist yet as a new
-// lesson and opens LessonForm in create mode, so 1-1 starts the first lesson.
+// The editor's own Add Lesson draft in the first chapter, the URL it writes
+// for one: LessonForm opens empty with the caret in the title.
 function openNewLesson(nav: FlowNavigation): void {
-	withCourse(nav, (courseName) =>
+	withCourse(nav, (courseName) => {
+		const chapter = nav.facts.first_chapter
 		nav.openRoute({
 			name: 'CourseDetail',
 			params: { courseName },
-			query: { editLesson: '1-1' },
+			...(chapter && {
+				query: { editLesson: draftLessonNumber(1), draftChapter: chapter },
+			}),
 			hash: '#editor',
 		})
-	)
+	})
 }
 
 function openLiveClassForm(nav: FlowNavigation): void {
