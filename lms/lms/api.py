@@ -270,9 +270,9 @@ def verify_billing_access(doctype, name, billing_type):
 			access = False
 			message = _("You are already enrolled for this batch.")
 
-		seat_count = frappe.get_cached_value("LMS Batch", name, "seat_count")
+		seat_count = cint(frappe.get_cached_value("LMS Batch", name, "seat_count"))
 		number_of_students = frappe.db.count("LMS Batch Enrollment", {"batch": name})
-		if seat_count <= number_of_students:
+		if seat_count and seat_count <= number_of_students:
 			access = False
 			message = _("Batch is sold out.")
 
