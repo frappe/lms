@@ -1371,11 +1371,13 @@ def get_new_gateway_fields(doctype: str):
 
 @frappe.whitelist()
 def get_announcements(batch: str):
+	from lms.lms.permissions import can_author_batch
+
 	roles = frappe.get_roles()
 	is_batch_student = frappe.db.exists(
 		"LMS Batch Enrollment", {"batch": batch, "member": frappe.session.user}
 	)
-	is_admin = "Moderator" in roles or "Batch Evaluator" in roles
+	is_admin = "Moderator" in roles or "Batch Evaluator" in roles or can_author_batch(batch)
 
 	if not (is_batch_student or is_admin):
 		frappe.throw(
