@@ -327,7 +327,12 @@ const applySourceCode = () => {
 	const submitted: string = submissionDoc.value?.code || ''
 	if (!submitted) {
 		code.value = startingCode.value
-	} else if (submitted.startsWith(storedPrefix.value)) {
+	} else if (
+		submissionDoc.value?.full_code ||
+		submitted.startsWith(storedPrefix.value)
+	) {
+		// full_code: stored whole because the learner edited the boilerplate, so
+		// adding it back would run it twice (a second `const fs` breaks JavaScript).
 		code.value = submitted
 	} else {
 		code.value = `${storedPrefix.value}${submitted}`

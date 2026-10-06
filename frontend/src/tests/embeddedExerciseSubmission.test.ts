@@ -17,7 +17,10 @@ const {
 } = vi.hoisted(() => ({
 	documentCache: new Map<string, { reload: () => void }>(),
 	// The rows the server's own run stored, which reload() hands back.
-	saved: { rows: [] as Record<string, unknown>[] },
+	saved: {
+		rows: [] as Record<string, unknown>[],
+		doc: {} as Record<string, unknown>,
+	},
 	toast: { error: vi.fn(), success: vi.fn(), warning: vi.fn() },
 	runner: { url: '' },
 	call: vi.fn(),
@@ -56,6 +59,7 @@ vi.mock('frappe-ui', () => ({
 				status: 'Passed',
 				code: 'print(1)',
 				test_cases: saved.rows,
+				...saved.doc,
 			}
 		}
 		documentCache.set(options.name, resource)
@@ -179,6 +183,7 @@ const runCode = async (wrapper: VueWrapper) => {
 beforeEach(() => {
 	documentCache.clear()
 	saved.rows = []
+	saved.doc = {}
 	toast.success.mockClear()
 	toast.warning.mockClear()
 	call.mockReset()
@@ -262,6 +267,28 @@ describe('the programming exercise mounted inline in a lesson', () => {
 
 		expect(wrapper.get('[data-testid="result-statuses"]').text()).toBe('Passed')
 		expect(toast.success).toHaveBeenCalled()
+	})
+
+	// Guards edited boilerplate being added back on reload, running it twice: a
+	// second `const fs` breaks JavaScript. Added on fix-1 with full_code.
+	it('loads code stored whole as it is, without adding the boilerplate', async () => {
+		saved.doc = { code: 'import sys\nprint(sys.stdin.read())', full_code: 1 }
+
+		const wrapper = await mountEmbedded(undefined, true, 'SUB-9')
+
+		expect(wrapper.get('[data-testid="code"]').text()).toBe(
+			'import sys\nprint(sys.stdin.read())'
+		)
+	})
+
+	it('adds the boilerplate back to code stored without it', async () => {
+		saved.doc = { code: 'print(inputs[0])', full_code: 0 }
+
+		const wrapper = await mountEmbedded(undefined, true, 'SUB-9')
+
+		const editor = wrapper.get('[data-testid="code"]').text()
+		expect(editor.startsWith('with open("stdin"')).toBe(true)
+		expect(editor.endsWith('print(inputs[0])')).toBe(true)
 	})
 
 	it("keeps one block's submission out of another unsubmitted block", async () => {

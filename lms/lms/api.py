@@ -2557,6 +2557,8 @@ def make_new_exercise_submission(exercise: str, code: str):
 	submission.exercise = exercise
 	submission.member = frappe.session.user
 	submission.code = stored_code
+	# Nothing stripped: tells the page not to add the boilerplate back on load.
+	submission.full_code = stored_code == code
 	for row in rows:
 		submission.append("test_cases", row)
 
@@ -2577,7 +2579,9 @@ def update_exercise_submission(submission: str, code: str):
 	update_test_cases(rows, submission)
 	status = get_exercise_status(rows)
 	frappe.db.set_value(
-		"LMS Programming Exercise Submission", submission, {"status": status, "code": stored_code}
+		"LMS Programming Exercise Submission",
+		submission,
+		{"status": status, "code": stored_code, "full_code": stored_code == code},
 	)
 
 

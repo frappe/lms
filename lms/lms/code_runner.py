@@ -49,7 +49,8 @@ def run_test_cases(language: str, code: str, test_cases: list) -> list[str]:
 def code_to_store(language: str, starter_code: str | None, code: str) -> str:
 	"""Submissions store the learner's code without the preamble, which the page
 	adds back on load. Starter code replaces the preamble, so it is stored whole,
-	as is code whose preamble the learner edited."""
+	as is code whose preamble the learner edited. A submission's full_code flag
+	records which, since the stored code alone cannot tell them apart."""
 	if starter_code:
 		return code
 	preamble = BOILERPLATE.get((language or "").lower(), "")

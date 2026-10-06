@@ -459,12 +459,22 @@ class TestProgrammingExerciseSubmissionSave(BaseTestUtils):
 		_, ran, _ = self.runner_calls[0].args
 		self.assertEqual(ran, code)
 		self.assertEqual(self._stored(name).code, "print(inputs[0])\n")
+		self.assertFalse(self._stored(name).full_code)
 
 	def test_code_with_an_edited_boilerplate_is_stored_whole(self):
 		code = "import sys\nprint(sys.stdin.read())"
 		name = self._save_as_student(["5", "0"], code=code)
 
 		self.assertEqual(self._stored(name).code, code)
+		# Flagged, or the page would add the boilerplate back and run it twice.
+		self.assertTrue(self._stored(name).full_code)
+
+	def test_an_update_resets_the_full_code_flag(self):
+		name = self._save_as_student(["5", "0"], code="import sys\nprint(sys.stdin.read())")
+
+		self._save_as_student(["5", "0"], submission=name, code=BOILERPLATE["python"] + "print(1)\n")
+
+		self.assertFalse(self._stored(name).full_code)
 
 	def test_code_from_starter_code_is_stored_whole(self):
 		frappe.db.set_value("LMS Programming Exercise", self.exercise.name, "starter_code", "pass\n")
