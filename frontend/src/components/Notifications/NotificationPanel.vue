@@ -11,7 +11,9 @@
 					: {
 							left: sidebarLeft,
 							width: '400px',
-							boxShadow: '8px 0px 8px rgba(0, 0, 0, 0.1)',
+							// A cast shadow is black alpha in either theme, the same way
+							// frappe-ui's own --elevation-* values are.
+							boxShadow: '8px 0px 8px rgba(0, 0, 0, 0.1)', // token-exempt: shadow
 					  }
 			"
 		>
@@ -22,13 +24,22 @@
 					</div>
 					<div class="flex gap-1 me-3">
 						<Tooltip v-if="hasUnread" :text="__('Mark all as read')">
-							<Button variant="ghost" @click="markAllAsRead.submit">
+							<Button
+								variant="ghost"
+								:label="__('Mark all as read')"
+								@click="markAllAsRead.submit"
+							>
 								<template #icon>
 									<span class="lucide-check-check size-4 text-ink-gray-7" />
 								</template>
 							</Button>
 						</Tooltip>
-						<Button v-if="isMobile" variant="ghost" @click="closeNotifications">
+						<Button
+							v-if="isMobile"
+							variant="ghost"
+							:label="__('Close')"
+							@click="closeNotifications"
+						>
 							<template #icon>
 								<span class="lucide-x size-4 text-ink-gray-7" />
 							</template>
@@ -38,19 +49,25 @@
 				<TabButtons
 					v-model="activeTab"
 					:options="tabs"
-					class="tab-buttons w-full px-4 py-1"
+					fluid
+					class="px-4 py-1"
 				/>
 				<div class="flex h-full overflow-hidden">
 					<div
 						v-if="filtered.length"
 						class="w-full divide-y divide-outline-gray-2 overflow-auto text-p-base"
 					>
-						<div
-							v-for="n in filtered"
+						<component
+							:is="route ? 'router-link' : 'button'"
+							v-for="{ n, route } in rows"
 							:key="n.name"
-							class="flex cursor-pointer items-start gap-2.5 px-4 py-2.5 hover:bg-surface-gray-2"
+							:to="route || undefined"
+							:type="route ? undefined : 'button'"
+							class="flex w-full cursor-pointer items-start gap-2.5 px-4 py-2.5 text-start hover:bg-surface-gray-2"
+							:class="{ 'font-medium': !n.read }"
 							@click="onSelect(n)"
 						>
+							<span v-if="!n.read" class="sr-only">{{ __('Unread') }}</span>
 							<div class="mt-1 flex items-center gap-2.5">
 								<div
 									class="size-[5px] rounded-full"
@@ -64,11 +81,11 @@
 							</div>
 							<div>
 								<div v-safe-html:basic="decodeEntities(n.subject)" />
-								<div class="text-p-sm text-ink-gray-5">
+								<div class="text-p-sm text-ink-gray-6">
 									{{ dayjs(n.creation).fromNow() }}
 								</div>
 							</div>
-						</div>
+						</component>
 					</div>
 					<EmptyStateLayout
 						v-else
@@ -86,9 +103,9 @@
 <script setup>
 import { Avatar, Button, TabButtons, Tooltip } from 'frappe-ui'
 import { computed, inject, ref, watch } from 'vue'
-import { useRouter } from 'vue-router'
 import { onClickOutside } from '@vueuse/core'
 import { decodeEntities } from '@/utils'
+import { assignmentSubmissionFromLink } from '@/utils/notificationLinks'
 import { useSidebar } from '@/stores/sidebar'
 import { useScreenSize } from '@/utils/composables'
 import EmptyStateLayout from '@/components/Layouts/EmptyStateLayout.vue'
@@ -101,13 +118,15 @@ import {
 } from '@/stores/notifications'
 
 const dayjs = inject('$dayjs')
-const router = useRouter()
 const sidebarStore = useSidebar()
 const { isMobile } = useScreenSize()
 
 const panelRef = ref(null)
 const activeTab = ref('Unread')
-const tabs = [{ label: 'Unread' }, { label: 'Read' }]
+const tabs = [
+	{ label: __('Unread'), value: 'Unread' },
+	{ label: __('Read'), value: 'Read' },
+]
 
 onClickOutside(panelRef, () => closeNotifications(), {
 	ignore: ['[data-notifications-trigger]'],
@@ -119,6 +138,10 @@ const filtered = computed(() => {
 		? data.filter((n) => !n.read)
 		: data.filter((n) => n.read)
 })
+
+const rows = computed(() =>
+	filtered.value.map((n) => ({ n, route: notificationRoute(n) }))
+)
 
 const emptyTitle = computed(() =>
 	activeTab.value === 'Unread'
@@ -133,7 +156,7 @@ const emptyDescription = computed(() =>
 )
 
 const sidebarLeft = computed(() =>
-	sidebarStore.isSidebarCollapsed ? '3.5rem' : '14rem'
+	sidebarStore.isSidebarCollapsed ? '3rem' : '14rem'
 )
 
 const hasUnread = computed(() => notifications.data?.some((n) => !n.read))
@@ -145,40 +168,25 @@ watch(panelVisible, (open) => {
 
 const onSelect = (n) => {
 	if (!n.read) markAsRead.submit({ name: n.name })
-	navigateToPage(n)
 	closeNotifications()
 }
 
-const navigateToPage = (log) => {
-	if (!log.link) return
+const notificationRoute = (log) => {
+	if (!log.link) return null
+	const submission = assignmentSubmissionFromLink(log.link)
+	if (submission) return { name: 'AssignmentSubmission', params: submission }
 	let link = log.link.split('/')
 	if (link[2] == 'courses') {
-		router.push({ name: 'CourseDetail', params: { courseName: link[3] } })
+		return { name: 'CourseDetail', params: { courseName: link[3] } }
 	} else if (link.includes('batches')) {
-		router.push({ name: 'BatchDetail', params: { batchName: link.pop() } })
-	} else if (link.includes('assignment-submission')) {
-		router.push({
-			name: 'AssignmentSubmission',
-			params: { submissionName: link[4], assignmentID: link[3] },
-		})
+		const batchTarget = link.pop()
+		const [batchName, hashValue] = batchTarget.split('#')
+		return {
+			name: 'BatchDetail',
+			params: { batchName },
+			hash: hashValue ? `#${hashValue}` : '',
+		}
 	}
+	return null
 }
 </script>
-<style scoped>
-/* Stretch frappe-ui TabButtons to full width with two evenly split tabs that
-   each fill (and highlight) their half. DOM: RadioGroupRoot(.tab-buttons) >
-   flex container div > button[data-slot=tab-button] > Pill.
-   Pattern from Helpdesk: desk/src/components/ticket-agent/TicketSidebar.vue */
-:deep(.tab-buttons > div) {
-	display: flex;
-	width: 100%;
-}
-:deep(.tab-buttons [data-slot='tab-button']) {
-	flex: 1 1 0%;
-}
-:deep(.tab-buttons [data-slot='tab-button'] > *) {
-	display: flex;
-	width: 100%;
-	justify-content: center;
-}
-</style>

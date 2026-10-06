@@ -228,20 +228,30 @@ export const routes = [
 		component: () => import('@/pages/Quizzes.vue'),
 	},
 	{
-		path: '/quizzes/:quizID',
+		path: '/quizzes/submissions',
+		name: 'QuizSubmissions',
+		component: () => import('@/pages/QuizSubmissions.vue'),
+	},
+	{
+		path: '/quizzes/questions',
+		name: 'Questions',
+		component: () => import('@/pages/Questions.vue'),
+	},
+	{
+		// A quiz has no name until its mandatory fields are filled, so this route
+		// has no param.
+		path: '/quizzes/new',
+		name: 'NewQuiz',
+		component: () => import('@/pages/Forms/QuizForm.vue'),
+	},
+	{
+		// The `edit/` prefix is mandatory. A docname is generate_slug(title), so a
+		// quiz titled "Questions" would be shadowed by the static /quizzes/questions
+		// above; vue-router scores static over param.
+		path: '/quizzes/edit/:quizID',
 		name: 'QuizForm',
 		component: () => import('@/pages/Forms/QuizForm.vue'),
 		props: true,
-		children: [
-			{
-				// :questionName is the LMS Quiz Question ROW name, or 'new'. It is
-				// NOT the LMS Question docname — marks lives on the row. See design R2.
-				path: 'question/:questionName',
-				name: 'QuizQuestion',
-				component: () => import('@/pages/Forms/QuizQuestionForm.vue'),
-				props: true,
-			},
-		],
 	},
 	{
 		path: '/quiz/:quizID',
@@ -250,16 +260,29 @@ export const routes = [
 		props: true,
 	},
 	{
-		path: '/quiz-submissions/:quizID',
-		name: 'QuizSubmissionList',
-		component: () => import('@/pages/QuizSubmissionList.vue'),
-		props: true,
-	},
-	{
 		path: '/quiz-submission/:submission',
 		name: 'QuizSubmission',
 		component: () => import('@/pages/QuizSubmission.vue'),
 		props: true,
+	},
+	{
+		// Links made before the rebuild. A bare `:quizID` never swallows the static
+		// siblings above: vue-router scores a fixed segment higher whatever the order.
+		path: '/quizzes/:quizID',
+		redirect: (to) => `/quizzes/edit/${to.params.quizID}`,
+	},
+	{
+		// The per-question page is gone; a question is edited inside its quiz now.
+		path: '/quizzes/:quizID/question/:questionName',
+		redirect: (to) => `/quizzes/edit/${to.params.quizID}`,
+	},
+	{
+		// The per-quiz submissions page is now the cross-quiz list, scoped by filter.
+		path: '/quiz-submissions/:quizID',
+		redirect: (to) => ({
+			name: 'QuizSubmissions',
+			query: { quiz: String(to.params.quizID) },
+		}),
 	},
 	{
 		path: '/programs',
@@ -302,7 +325,18 @@ export const routes = [
 		component: () => import('@/pages/Assignments.vue'),
 		children: [
 			{
-				path: ':assignmentID',
+				// An assignment has no docname until it is written, so the
+				// create form takes no param; AssignmentForm's own default
+				// stands in for one.
+				path: 'new',
+				name: 'NewAssignment',
+				component: () => import('@/pages/Forms/AssignmentForm.vue'),
+			},
+			{
+				// `edit/` is load-bearing: docnames are title slugs, so a bare
+				// /assignments/:assignmentID for "Submissions" would lose to the
+				// static /assignments/submissions route.
+				path: 'edit/:assignmentID',
 				name: 'AssignmentForm',
 				component: () => import('@/pages/Forms/AssignmentForm.vue'),
 				props: true,
@@ -310,6 +344,13 @@ export const routes = [
 		],
 	},
 	{
+		path: '/assignments/submissions',
+		name: 'AssignmentSubmissions',
+		component: () => import('@/pages/AssignmentSubmissions.vue'),
+	},
+	{
+		// Keeps :assignmentID because :submissionName is `new` on a first
+		// attempt, with no submission to read the assignment from.
 		path: '/assignment-submission/:assignmentID/:submissionName',
 		name: 'AssignmentSubmission',
 		component: () => import('@/pages/AssignmentSubmission.vue'),
@@ -317,8 +358,26 @@ export const routes = [
 	},
 	{
 		path: '/assignment-submissions',
-		name: 'AssignmentSubmissionList',
-		component: () => import('@/pages/AssignmentSubmissionList.vue'),
+		redirect: (to) => {
+			const { assignmentID, ...rest } = to.query
+			return {
+				name: 'AssignmentSubmissions',
+				query: assignmentID
+					? { ...rest, assignment: assignmentID }
+					: rest,
+			}
+		},
+	},
+	{
+		// The form's old address. A bare `:assignmentID` never swallows the
+		// static siblings above: vue-router scores a fixed segment higher
+		// whatever the registration order.
+		path: '/assignments/:assignmentID',
+		redirect: (to) => ({
+			name: 'AssignmentForm',
+			params: { assignmentID: to.params.assignmentID },
+			query: to.query,
+		}),
 	},
 	{
 		path: '/persona',
@@ -330,20 +389,21 @@ export const routes = [
 		name: 'ProgrammingExercises',
 		component: () =>
 			import('@/pages/ProgrammingExercises/ProgrammingExercises.vue'),
-		children: [
-			{
-				// The `edit/` prefix is mandatory, not stylistic: a bare
-				// `:exerciseID` child would also match the sibling static
-				// `/programming-exercises/submissions` below, and vue-router
-				// scores the child higher than a later-registered static route
-				// only by accident of ordering. `edit/` keeps the two apart.
-				path: 'edit/:exerciseID',
-				name: 'ProgrammingExerciseForm',
-				component: () =>
-					import('@/pages/Forms/ProgrammingExerciseForm.vue'),
-				props: true,
-			},
-		],
+	},
+	{
+		// A page rather than a child of the list: the form is not drawn over
+		// the list any more, so it has no parent to render inside.
+		path: '/programming-exercises/new',
+		name: 'NewProgrammingExercise',
+		component: () => import('@/pages/Forms/ProgrammingExerciseForm.vue'),
+	},
+	{
+		// See the assignment form above: an exercise is named from its title
+		// too, so the segment is needed here for the same reason.
+		path: '/programming-exercises/edit/:exerciseID',
+		name: 'ProgrammingExerciseForm',
+		component: () => import('@/pages/Forms/ProgrammingExerciseForm.vue'),
+		props: true,
 	},
 	{
 		path: '/programming-exercises/submissions',
@@ -355,13 +415,26 @@ export const routes = [
 		props: true,
 	},
 	{
-		path: '/programming-exercises/:exerciseID/submission/:submissionID',
+		// Outside the plural namespace for the same reason its assignment
+		// counterpart is, and it keeps :exerciseID for the same reason too.
+		path: '/programming-exercise-submission/:exerciseID/:submissionID',
 		name: 'ProgrammingExerciseSubmission',
 		component: () =>
 			import(
 				'@/pages/ProgrammingExercises/ProgrammingExerciseSubmission.vue'
 			),
 		props: true,
+	},
+	{
+		path: '/programming-exercises/:exerciseID/submission/:submissionID',
+		redirect: (to) => ({
+			name: 'ProgrammingExerciseSubmission',
+			params: {
+				exerciseID: to.params.exerciseID,
+				submissionID: to.params.submissionID,
+			},
+			query: to.query,
+		}),
 	},
 	{
 		path: '/data-import',

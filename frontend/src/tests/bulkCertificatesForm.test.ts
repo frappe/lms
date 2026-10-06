@@ -36,8 +36,6 @@ const {
 	}
 })
 
-// frappe-ui's ESM build doesn't resolve under vitest (see FormShell.test.ts), so
-// every export the form and FormShell touch is stubbed by hand.
 // HeaderButton wraps frappe-ui's Button in a Tooltip below the mobile
 // breakpoint, and the hand-written frappe-ui mock here has no Tooltip. Stub it
 // down to the bare button so the fallthrough attrs the assertions use
@@ -57,10 +55,6 @@ vi.mock('frappe-ui', () => ({
 		props: ['open', 'title', 'size'],
 		emits: ['update:open'],
 		template: `<div v-if="open" role="dialog"><slot name="title" /><slot /><slot name="actions" /></div>`,
-	},
-	Button: {
-		inheritAttrs: false,
-		template: `<button v-bind="$attrs"><slot name="icon" /><slot /></button>`,
 	},
 	FormControl: {
 		props: ['modelValue', 'label', 'type', 'options'],

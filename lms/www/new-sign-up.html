@@ -6,26 +6,26 @@
 
 <form id="new-sign-up">
 	<div class="form-group">
-		<label for="full_name">Full Name:</label>
-		<input id="full_name" type="text" class="form-control" required>
+		<label for="full_name">{{ _("Full Name") }}:</label>
+		<input id="full_name" type="text" class="form-control" autocomplete="name" required>
 	</div>
 	<div class="form-group">
-		<label for="signup_email">Email:</label>
-		<input id="signup_email" type="email" class="form-control" required>
+		<label for="signup_email">{{ _("Email") }}:</label>
+		<input id="signup_email" type="email" class="form-control" autocomplete="email" required>
 	</div>
 	<div class="form-group">
-		<label for="username">Username:</label>
-		<input id="username" type="text" class="form-control" required>
+		<label for="username">{{ _("Username") }}:</label>
+		<input id="username" type="text" class="form-control" autocomplete="username" required>
 	</div>
 	<div class="form-group">
-		<label for="password">Password:</label>
-		<input id="password" type="password" class="form-control" required>
+		<label for="password">{{ _("Password") }}:</label>
+		<input id="password" type="password" class="form-control" autocomplete="new-password" required>
 		<span class="password-strength-indicator indicator"></span>
 
 	</div>
 	<p class='password-strength-message text-muted small hidden'></p>
 	<div class="form-group">
-		<label for="invite_code">Invite Code:</label>
+		<label for="invite_code">{{ _("Invite Code") }}:</label>
 		<input id="invite_code" type="text" class="form-control" readonly required
 			value="{{ frappe.form_dict['invite_code'] }}">
 	</div>

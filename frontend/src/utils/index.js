@@ -1,4 +1,5 @@
 import { call, toast } from 'frappe-ui'
+import { ASSESSMENT_BLOCK_SELECTOR } from '@/utils/blockMount'
 import { Quiz } from '@/utils/quiz'
 import { Program } from '@/utils/program'
 import { Assignment } from '@/utils/assignment'
@@ -6,6 +7,8 @@ import { Upload } from '@/utils/upload'
 import { Markdown } from '@/utils/markdownParser'
 import { useSettings } from '@/stores/settings'
 import { usersStore } from '@/stores/user'
+import router from '@/router'
+import { pushSettingsHash } from '@/composables/useSettingsHash'
 import { Heading } from '@/utils/heading'
 import Paragraph from '@editorjs/paragraph'
 import { CodeBox } from '@/utils/code'
@@ -15,7 +18,6 @@ import { Bold } from '@/utils/inline/Bold'
 import { Underline } from '@/utils/inline/Underline'
 import { Strikethrough } from '@/utils/inline/Strikethrough'
 import { AlignLeft, AlignCenter, AlignRight } from '@/utils/inline/TextAlign'
-import { Color } from '@/utils/inline/Color'
 import {
 	clipboardTunes,
 	clipboardTuneNames,
@@ -26,6 +28,7 @@ import SimpleImage from '@editorjs/simple-image'
 import Table from '@editorjs/table'
 import DOMPurify from 'dompurify'
 import { decodeEntities } from './inertHtml'
+import { escapeHTML } from '@/utils/format'
 
 const readOnlyMode = window.read_only_mode
 
@@ -130,8 +133,11 @@ const INLINE_TOOLBAR_ORDER = [
 	'inlineCode',
 	'underline',
 	'strikeThrough',
-	'color',
 ]
+
+// The embed tool parses these html strings, so a translated title is escaped
+// before it goes inside an attribute.
+const frameTitle = (label) => `title="${escapeHTML(label)}"`
 
 export function getEditorTools(
 	isInstructorEditor = false,
@@ -211,7 +217,6 @@ export function getEditorTools(
 		alignLeft: AlignLeft,
 		alignCenter: AlignCenter,
 		alignRight: AlignRight,
-		color: Color,
 		copyBlock: clipboardTunes.copyBlock,
 		cutBlock: clipboardTunes.cutBlock,
 		pasteBlock: clipboardTunes.pasteBlock,
@@ -238,7 +243,9 @@ export function getEditorTools(
 						regex: /^https:\/\/customer-[a-z0-9]+\.cloudflarestream\.com\/([a-f0-9]{32})\/watch$/,
 						embedUrl:
 							'https://iframe.videodelivery.net/<%= remote_id %>',
-						html: `<iframe style="width:100%; height: ${
+						html: `<iframe ${frameTitle(
+							__('Cloudflare Stream embed')
+						)} style="width:100%; height: ${
 							window.innerWidth < 640 ? '15rem' : '30rem'
 						};" frameborder="0" allowfullscreen></iframe>`,
 					},
@@ -246,7 +253,9 @@ export function getEditorTools(
 						regex: /^https:\/\/(?:iframe\.mediadelivery\.net|video\.bunnycdn\.com|player\.mediadelivery\.net)\/play\/([a-zA-Z0-9]+\/[a-zA-Z0-9-]+)$/,
 						embedUrl:
 							'https://player.mediadelivery.net/embed/<%= remote_id %>',
-						html: `<iframe style="width:100%; height: ${
+						html: `<iframe ${frameTitle(
+							__('Bunny Stream embed')
+						)} style="width:100%; height: ${
 							window.innerWidth < 640 ? '15rem' : '30rem'
 						};" frameborder="0" allowfullscreen></iframe>`,
 					},
@@ -255,7 +264,9 @@ export function getEditorTools(
 						regex: /^(?:http[s]?:\/\/)?(?:www.)?aparat\.com\/v\/([^\/\?\&]+)\/?$/,
 						embedUrl:
 							'https://www.aparat.com/video/video/embed/videohash/<%= remote_id %>/vt/frame',
-						html: `<iframe style="margin: 0 auto; width: 100%; height: ${
+						html: `<iframe ${frameTitle(
+							__('Aparat embed')
+						)} style="margin: 0 auto; width: 100%; height: ${
 							window.innerWidth < 640 ? '15rem' : '30rem'
 						};" frameborder="0" scrolling="no" allowtransparency="true"></iframe>`,
 					},
@@ -264,41 +275,53 @@ export function getEditorTools(
 						regex: /^https:\/\/docs\.google\.com\/presentation\/d\/([A-Za-z0-9_-]+)\/pub$/,
 						embedUrl:
 							'https://docs.google.com/presentation/d/<%= remote_id %>/embed',
-						html: `<iframe style='width: 100%; height: ${
+						html: `<iframe ${frameTitle(
+							__('Google Slides embed')
+						)} style='width: 100%; height: ${
 							window.innerWidth < 640 ? '15rem' : '30rem'
-						}; border: 1px solid #D3D3D3; border-radius: 12px; margin: 1rem 0' frameborder='0' allowfullscreen='true'></iframe>`,
+						}; border: 1px solid var(--outline-gray-2); border-radius: 12px; margin: 1rem 0' frameborder='0' allowfullscreen='true'></iframe>`,
 					},
 					drive: {
 						regex: /^https:\/\/drive\.google\.com\/file\/d\/([A-Za-z0-9_-]+)\/view(\?.+)?$/,
 						embedUrl:
 							'https://drive.google.com/file/d/<%= remote_id %>/preview',
-						html: `<iframe style='width: 100%; height: ${
+						html: `<iframe ${frameTitle(
+							__('Google Drive embed')
+						)} style='width: 100%; height: ${
 							window.innerWidth < 640 ? '15rem' : '30rem'
-						}; border: 1px solid #D3D3D3; border-radius: 12px;' frameborder='0' allowfullscreen='true'></iframe>`,
+						}; border: 1px solid var(--outline-gray-2); border-radius: 12px;' frameborder='0' allowfullscreen='true'></iframe>`,
 					},
 					docsPublic: {
 						regex: /^https:\/\/docs\.google\.com\/document\/d\/([A-Za-z0-9_-]+)\/edit(\?.+)?$/,
 						embedUrl:
 							'https://docs.google.com/document/d/<%= remote_id %>/preview',
-						html: "<iframe style='width: 100%; height: 40rem; border: 1px solid #D3D3D3; border-radius: 12px;' frameborder='0' allowfullscreen='true'></iframe>",
+						html: `<iframe ${frameTitle(
+							__('Google Docs embed')
+						)} style='width: 100%; height: 40rem; border: 1px solid var(--outline-gray-2); border-radius: 12px;' frameborder='0' allowfullscreen='true'></iframe>`,
 					},
 					sheetsPublic: {
 						regex: /^https:\/\/docs\.google\.com\/spreadsheets\/d\/([A-Za-z0-9_-]+)\/edit(\?.+)?$/,
 						embedUrl:
 							'https://docs.google.com/spreadsheets/d/<%= remote_id %>/preview',
-						html: "<iframe style='width: 100%; height: 40rem; border: 1px solid #D3D3D3; border-radius: 12px;' frameborder='0' allowfullscreen='true'></iframe>",
+						html: `<iframe ${frameTitle(
+							__('Google Sheets embed')
+						)} style='width: 100%; height: 40rem; border: 1px solid var(--outline-gray-2); border-radius: 12px;' frameborder='0' allowfullscreen='true'></iframe>`,
 					},
 					slidesPublic: {
 						regex: /^https:\/\/docs\.google\.com\/presentation\/d\/([A-Za-z0-9_-]+)\/edit(\?.+)?$/,
 						embedUrl:
 							'https://docs.google.com/presentation/d/<%= remote_id %>/embed',
-						html: "<iframe style='width: 100%; height: 30rem; border: 1px solid #D3D3D3; border-radius: 12px; margin: 1rem 0;' frameborder='0' allowfullscreen='true'></iframe>",
+						html: `<iframe ${frameTitle(
+							__('Google Slides embed')
+						)} style='width: 100%; height: 30rem; border: 1px solid var(--outline-gray-2); border-radius: 12px; margin: 1rem 0;' frameborder='0' allowfullscreen='true'></iframe>`,
 					},
 					codesandbox: {
 						regex: /^https:\/\/codesandbox\.io\/(?:(?:p\/(?:sandbox|devbox)\/)|(?:embed\/)|(?:s\/))?([A-Za-z0-9_-]+)(?:[\/\?].*)?$/,
 						embedUrl:
 							'https://codesandbox.io/embed/<%= remote_id %>?view=editor+%2B+preview&module=%2Findex.html',
-						html: "<iframe style='width: 100%; height: 500px; border: 0; border-radius: 4px; overflow: hidden;' sandbox='allow-modals allow-forms allow-popups allow-scripts allow-same-origin' frameborder='0' allowfullscreen='true'></iframe>",
+						html: `<iframe ${frameTitle(
+							__('CodeSandbox embed')
+						)} style='width: 100%; height: 500px; border: 0; border-radius: 4px; overflow: hidden;' sandbox='allow-modals allow-forms allow-popups allow-scripts allow-same-origin' frameborder='0' allowfullscreen='true'></iframe>`,
 					},
 				},
 			},
@@ -599,9 +622,11 @@ const getSidebarItems = (forMobile = false) => {
 					activeFor: [
 						'Quizzes',
 						'QuizForm',
+						'NewQuiz',
 						'QuizPage',
-						'QuizSubmissionList',
+						'QuizSubmissions',
 						'QuizSubmission',
+						'Questions',
 					],
 				},
 				{
@@ -613,7 +638,7 @@ const getSidebarItems = (forMobile = false) => {
 					},
 					activeFor: [
 						'Assignments',
-						'AssignmentSubmissionList',
+						'AssignmentSubmissions',
 						'AssignmentSubmission',
 					],
 				},
@@ -850,13 +875,14 @@ export const createLMSCategory = (name) => {
 }
 
 // Settings is the desktop dialog, mounted only inside the sidebar's
-// UserDropdown — this branch deliberately left the phone no settings pages. So
-// on a phone the flag below reached nothing, and the `close()` above it threw
-// away the half-filled form the user was standing in for a dialog that never
-// arrived. Say so instead, and leave the form where it is.
-// Returns whether Settings actually opened, so a caller that closes itself
-// separately can stay put when it did not.
-export const openSettings = (category, close = null) => {
+// UserDropdown; the phone has no settings pages. On a phone the hash below
+// reaches nothing, so this says so instead of closing and losing whatever
+// the user had half-filled in behind it.
+//
+// Takes the tab's slug, not its label, since renaming a label must not break
+// callers. Returns whether Settings actually opened, so a caller that closes
+// itself separately can stay put when it did not.
+export const openSettings = (slug, close = null) => {
 	const settingsStore = useSettings()
 	if (!settingsStore.isSettingsMounted) {
 		toast.error(__('Settings is only available on a larger screen.'))
@@ -865,13 +891,20 @@ export const openSettings = (category, close = null) => {
 	if (close) {
 		close()
 	}
-	settingsStore.activeTab = category
-	settingsStore.isSettingsOpen = true
+	pushSettingsHash(router, slug)
 	return true
 }
 
 export const cleanError = (message) => {
-	const cleanMessage = message.replace(/<[^>]+>/g, (match) => {
+	// Every caller passes `err.messages?.[0] || err`; frappe-ui attaches
+	// `.messages` only to a server-error response, so a transport failure
+	// re-throws a raw object. Coerced here, not per call site, since throwing
+	// from inside a catch loses the original error and skips its cleanup.
+	const text =
+		typeof message === 'string'
+			? message
+			: String(message?.message ?? message ?? '')
+	const cleanMessage = text.replace(/<[^>]+>/g, (match) => {
 		return match.replace(/<\/?[^>]+(>|$)/g, '')
 	})
 	return cleanMessage
@@ -928,9 +961,13 @@ const getRootNode = (selector = '#editor') => {
 	return root
 }
 
+// A saved highlight belongs to the lesson's own text, so text inside an inline
+// quiz, assignment or exercise is never a match.
 const createTextWalker = (root, phrase) => {
 	return document.createTreeWalker(root, NodeFilter.SHOW_TEXT, {
 		acceptNode(node) {
+			if (node.parentElement?.closest(ASSESSMENT_BLOCK_SELECTOR))
+				return NodeFilter.FILTER_SKIP
 			return node.nodeValue.toLowerCase().includes(phrase.toLowerCase())
 				? NodeFilter.FILTER_ACCEPT
 				: NodeFilter.FILTER_SKIP
@@ -954,10 +991,12 @@ const createHighlightSpan = (color, name, scrollIntoView) => {
 	const span = document.createElement('span')
 	span.className = 'highlighted-text'
 	if (scrollIntoView) {
-		span.style.border = `2px solid var(--${color}-400)`
+		// token-exempt: colour is a saved highlight swatch name
+		span.style.border = `2px solid var(--surface-${color}-5)`
 		span.style.borderRadius = '4px'
 	} else {
-		span.style.backgroundColor = `var(--${color}-200)`
+		// token-exempt: colour is a saved highlight swatch name
+		span.style.backgroundColor = `var(--surface-${color}-3)`
 	}
 	span.dataset.name = name
 	return span

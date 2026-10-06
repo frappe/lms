@@ -13,7 +13,7 @@
 
 		<button
 			type="button"
-			class="absolute inset-x-0 bottom-0 py-4 text-center text-sm text-ink-gray-5 transition-colors hover:text-ink-gray-7"
+			class="absolute inset-x-0 bottom-0 py-4 text-center text-sm text-ink-gray-6 transition-colors hover:text-ink-gray-7"
 			@click="skipPersonaForm"
 		>
 			{{ __('Skip for now') }}
@@ -24,7 +24,7 @@
 <script setup>
 import PersonaCard from '@/components/Persona/PersonaCard.vue'
 import { call, usePageMeta } from 'frappe-ui'
-import { useTelemetry } from 'frappe-ui/frappe'
+import { useTelemetry } from '@framework/ui/telemetry/index'
 import { BookOpen, Users, Award, Rocket, Compass } from 'lucide-vue-next'
 import { computed, inject, markRaw, ref } from 'vue'
 import { useRouter } from 'vue-router'

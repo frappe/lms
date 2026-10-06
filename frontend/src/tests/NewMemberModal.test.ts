@@ -20,14 +20,17 @@ const { callMock, toastMock, closeMock } = vi.hoisted(() => ({
 	closeMock: vi.fn(),
 }))
 
+// RoleSwitches.vue pulls in members.ts -> Members.vue -> MemberForm.vue, which
+// imports `@framework/ui/telemetry` and `@framework/ui/components/Onboarding`.
+// Both must resolve even though nothing here renders MemberForm.vue.
+vi.mock('@framework/ui/telemetry/index', () => ({}))
+vi.mock('@framework/ui/components/Onboarding/index', () => ({}))
+
 vi.mock('frappe-ui', () => ({
 	call: callMock,
 	toast: toastMock,
 	Dialog: {
-		// beta.7 Dialog contract: v-model:open (prop `open`), flat title/actions
-		// props, and the default slot for body content (#body-content is
-		// deprecated). Mirror that here. The old modelValue/options/body-content
-		// mock left `open` undefined, so the dialog rendered as <!--v-if-->.
+		// Mirrors Dialog. v-model:open, flat title/actions, body in default slot.
 		props: ['open', 'title', 'actions'],
 		setup() {
 			return { closeMock }

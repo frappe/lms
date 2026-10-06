@@ -64,7 +64,7 @@ vi.mock('@/components/Controls/Select.vue', () => ({
 }))
 
 // Stands in for the page shell so this file stays about the count.
-vi.mock('@/components/Layouts/ListPage.vue', () => ({
+vi.mock('@/components/Layouts/pages/ListPage.vue', () => ({
 	default: {
 		props: ['rows', 'breadcrumbs', 'title', 'loading', 'totalCount'],
 		template: `<div :data-title="title">
@@ -108,6 +108,11 @@ const makeRouter = () =>
 				],
 			},
 			{ path: '/courses', name: 'Courses', component: FormStub },
+			{
+				path: '/assignments/submissions',
+				name: 'AssignmentSubmissions',
+				component: FormStub,
+			},
 		],
 	})
 

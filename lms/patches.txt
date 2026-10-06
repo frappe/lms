@@ -130,3 +130,13 @@ lms.patches.v2_0.set_course_progress_defaults #02-06-2026
 lms.patches.v2_0.add_video_watch_duration_index #18-06-2026
 lms.patches.v2_0.add_batch_enrollment_index #20-07-2026
 lms.patches.v2_0.make_public_images_public #05-08-2026
+lms.patches.v2_0.set_question_marks_from_quizzes #05-09-2026
+lms.patches.v2_0.seed_sidebar_items #02-09-2026
+execute:from lms.patches.v2_0.reconcile_custom_docperm_permlevels import reconcile; reconcile(["LMS Assignment"])
+execute:from lms.patches.v2_0.reconcile_custom_docperm_permlevels import reconcile; reconcile(["Course Chapter"])
+execute:from lms.patches.v2_0.reconcile_custom_docperm_permlevels import reconcile; reconcile(["LMS Programming Exercise"])
+lms.patches.v2_0.unhide_existing_test_cases #09-09-2026
+lms.patches.v2_0.migrate_raven_rule_vocabulary #29-09-2026
+lms.patches.v2_0.backfill_lesson_assessment_placements #22-09-2026
+execute:from lms.patches.v2_0.reconcile_custom_docperm_permlevels import reconcile; reconcile(["LMS Question"])
+lms.patches.v2_0.add_certificate_member_course_index

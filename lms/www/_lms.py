@@ -5,10 +5,9 @@ from bs4 import BeautifulSoup
 from frappe import _
 from frappe.translate import get_user_lang
 from frappe.utils.data import escape_html
-from frappe.utils.jinja_globals import is_rtl
 from frappe.utils.telemetry import capture
 
-from lms.lms.utils import get_lms_path, get_lms_route
+from lms.lms.utils import get_lms_path, get_lms_route, resolve_text_direction
 
 no_cache = 1
 
@@ -31,6 +30,8 @@ def get_context():
 
 
 def get_boot():
+	lang = get_user_lang()
+
 	return frappe._dict(
 		{
 			"frappe_version": frappe.__version__,
@@ -38,8 +39,9 @@ def get_boot():
 			"csrf_token": frappe.sessions.get_csrf_token(),
 			"site_name": frappe.local.site,
 			"lms_path": get_lms_path(),
-			"lang": get_user_lang(),
-			"text_direction": "rtl" if is_rtl() else "ltr",
+			"lang": lang,
+			"text_direction": resolve_text_direction(lang),
+			"date_format": frappe.get_system_settings("date_format"),
 		}
 	)
 
@@ -303,8 +305,8 @@ def get_meta_from_document(app_path):
 			"link": get_lms_route("assignments"),
 		}
 
-	if re.match(r"^assignments/[^/]+$", app_path):
-		assignment_name = app_path.split("/")[1]
+	if re.match(r"^assignments/edit/[^/]+$", app_path):
+		assignment_name = app_path.split("/")[2]
 		assignment = frappe.db.get_value(
 			"LMS Assignment",
 			assignment_name,
@@ -318,7 +320,7 @@ def get_meta_from_document(app_path):
 			return {
 				"title": assignment.title,
 				"keywords": assignment.title,
-				"link": get_lms_route(f"assignments/{assignment_name}"),
+				"link": get_lms_route(f"assignments/edit/{assignment_name}"),
 			}
 
 	if app_path == "programs":

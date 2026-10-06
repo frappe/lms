@@ -1,5 +1,5 @@
 <template>
-	<div class="py-6 sm:py-10">
+	<div ref="formRef" class="py-6 sm:py-10">
 		<div class="mx-0 space-y-6 px-4 sm:mx-10 sm:px-20">
 			<button
 				v-if="isMobile"
@@ -13,9 +13,16 @@
 
 			<div v-else class="flex items-center justify-between gap-3">
 				<div class="flex items-center gap-3">
-					<Switch v-model="lesson.include_in_preview" @change="markDirty" />
+					<Switch
+						v-model="lesson.include_in_preview"
+						:aria-labelledby="previewLabelId"
+						@update:modelValue="markDirty"
+					/>
 					<div class="flex items-center gap-1.5">
-						<span class="text-p-base font-medium text-ink-gray-8">
+						<span
+							:id="previewLabelId"
+							class="text-p-base font-medium text-ink-gray-8"
+						>
 							{{ __('Include in preview') }}
 						</span>
 						<Tooltip
@@ -37,10 +44,13 @@
 				<div class="px-3 pb-2">
 					<div class="flex items-start justify-between gap-4 py-3">
 						<div class="min-w-0">
-							<div class="text-p-base font-medium text-ink-gray-8">
+							<div
+								:id="previewSheetLabelId"
+								class="text-p-base font-medium text-ink-gray-8"
+							>
 								{{ __('Include in preview') }}
 							</div>
-							<p class="mt-0.5 text-p-sm text-ink-gray-5">
+							<p class="mt-0.5 text-p-sm text-ink-gray-6">
 								{{
 									__(
 										'When on, anyone can preview this lesson without enrolling. Otherwise it is visible only to enrolled students.'
@@ -50,8 +60,9 @@
 						</div>
 						<Switch
 							v-model="lesson.include_in_preview"
+							:aria-labelledby="previewSheetLabelId"
 							class="shrink-0"
-							@change="markDirty"
+							@update:modelValue="markDirty"
 						/>
 					</div>
 				</div>
@@ -63,13 +74,14 @@
 				:placeholder="__('Lesson title')"
 				:aria-label="__('Lesson title')"
 				rows="1"
-				class="lesson-title block w-full resize-none overflow-hidden border-0 bg-transparent p-0 text-2xl font-bold leading-tight text-ink-gray-9 placeholder:text-ink-gray-4 focus:outline-none focus:ring-0"
+				class="lesson-title block w-full resize-none overflow-hidden border-0 bg-transparent p-0 text-2xl font-bold leading-tight text-ink-gray-9 placeholder:text-ink-gray-4 focus:outline-none focus:ring-0 focus-visible:ring-2 focus-visible:ring-outline-gray-5"
 				@input="onTitleInput"
 				@keydown.enter="onTitleEnter"
+				@blur="onTitleBlur"
 			/>
 
 			<details
-				class="instructor-notes rounded-lg border border-outline-gray-2"
+				class="instructor-notes rounded-6 border border-outline-gray-2"
 				@toggle="onInstructorNotesToggle"
 			>
 				<summary
@@ -126,12 +138,14 @@ import {
 	ref,
 	nextTick,
 	onBeforeUnmount,
+	useId,
 } from 'vue'
 import { ChevronRight, NotebookPen } from 'lucide-vue-next'
 import { useDebounceFn } from '@vueuse/core'
 import { enablePlyr, sanitizeEditorJs } from '@/utils'
 import {
 	hasEditorContent,
+	parseStoredEditorJs,
 	shouldSkipLessonSave,
 	toSingleLineTitle,
 } from '@/utils/lessonForm'
@@ -141,7 +155,8 @@ import { hasVideoContent } from '@/utils/video'
 import BlockEditor from '@/components/BlockEditor.vue'
 import BottomSheet from '@/components/BottomSheet.vue'
 import { useScreenSize } from '@/utils/composables'
-import { useOnboarding, useTelemetry } from 'frappe-ui/frappe'
+import { useOnboarding } from '@framework/ui/components/Onboarding/index'
+import { useTelemetry } from '@framework/ui/telemetry/index'
 import {
 	useKeyboardShortcuts,
 	saveShortcut,
@@ -149,11 +164,14 @@ import {
 
 const { isMobile } = useScreenSize()
 const showLessonDetails = ref(false)
+const previewLabelId = useId()
+const previewSheetLabelId = useId()
 
 const editor = ref(null)
 const instructorEditor = ref(null)
 const user = inject('$user')
 const titleRef = ref(null)
+const formRef = ref(null)
 
 // A lesson title is one line. The field stays a textarea so a long title wraps
 // and grows; only the explicit break is refused.
@@ -168,6 +186,10 @@ function onTitleInput() {
 	lesson.title = toSingleLineTitle(lesson.title)
 	autoGrowTitle()
 	markDirty({ fromTitle: true })
+}
+
+function onTitleBlur() {
+	if (isDraft.value) createDraftLesson()
 }
 
 // EditorJS can't focus while the card is collapsed (display:none).
@@ -191,10 +213,41 @@ const instructorUploadContext = reactive({
 const { capture } = useTelemetry()
 const { updateOnboardingStep } = useOnboarding('learning')
 
-const emit = defineEmits(['saved'])
+const emit = defineEmits(['saved', 'created'])
 
 // True after initial render, so render()'s onChange doesn't autosave.
 let initialLoadComplete = false
+
+// An unreadable field renders as empty, which looks exactly like a lesson with
+// no body, so foldEditorData holds it back and writes it home unchanged.
+// Per field: unreadable notes must not stop the author fixing the body.
+const unreadable = reactive({ content: false, instructor_content: false })
+
+const unreadableLabels = () =>
+	[
+		unreadable.content && __('Content'),
+		unreadable.instructor_content && __('Instructor Notes'),
+	].filter(Boolean)
+
+// What the last toast said, rather than a boolean. The fields resolve
+// independently, so a warning naming only Content must not suppress the later
+// one that also names the notes.
+let warnedAbout = ''
+
+function markUnreadable(field) {
+	unreadable[field] = true
+}
+
+function warnUnreadable() {
+	const fields = unreadableLabels().join(', ')
+	if (!fields || warnedAbout === fields) return
+	warnedAbout = fields
+	toast.error(__('Lesson content could not be read'), {
+		description: __(
+			'The stored {0} of this lesson could not be read, so the editor is showing it as empty. It is left untouched and will not be overwritten; anything else you edit still saves. Reload the page; if it still fails, restore the lesson from its version history in Desk.'
+		).format(fields),
+	})
+}
 
 const props = defineProps({
 	courseName: {
@@ -209,7 +262,17 @@ const props = defineProps({
 		type: String,
 		required: true,
 	},
+	// A new lesson for this chapter (docname), created once its title is typed.
+	draftChapter: {
+		type: String,
+		default: '',
+	},
 })
+
+// Read once: the parent swaps the props to the created lesson's without
+// remounting, and that must not turn this form back into a draft.
+const draftChapter = props.draftChapter
+const isDraft = ref(Boolean(draftChapter))
 
 const isDirty = ref(false)
 // Set once the Course Lesson exists. Its Lesson Reference is a second request,
@@ -228,6 +291,7 @@ const autoSave = useDebounceFn(() => {
 
 function markDirty({ fromTitle = false } = {}) {
 	if (lessonDeleted) return
+	if (isDraft.value) return markDraftDirty(fromTitle)
 	if (!lessonDetails.data?.lesson) return
 	// render() fires onChange; gate non-title saves until loaded.
 	if (!fromTitle && !initialLoadComplete) return
@@ -252,7 +316,84 @@ onMounted(() => {
 	}
 	capture('lesson_form_opened')
 	enablePlyr()
+	if (isDraft.value) openDraft()
 })
+
+// A draft has nothing to load: arm the editors once they are ready and put the
+// caret in the title. Focus again after the editors settle, unless the author
+// has already moved on, in case closing the mobile outline sheet took it.
+function openDraft() {
+	titleRef.value?.focus()
+	Promise.all([
+		editor.value?.isReady(),
+		instructorEditor.value?.isReady(),
+	]).then(() => {
+		initialLoadComplete = true
+		if (!formRef.value?.contains(document.activeElement)) {
+			titleRef.value?.focus()
+		}
+	})
+}
+
+// Before the lesson exists, body edits are only captured; the title schedules
+// the create. The first save after the create writes the captured edits.
+function markDraftDirty(fromTitle) {
+	if (fromTitle) return createDraftAfterIdle()
+	if (!initialLoadComplete) return
+	isDirty.value = true
+	captureEditors()
+}
+
+const createLessonResource = createResource({
+	url: 'lms.lms.api.create_lesson',
+	makeParams: (values) => values,
+})
+
+// Guards the one create: idle ticks, blur and Ctrl+S during the request must
+// not insert a second lesson. Cleared only when the request fails.
+let creatingDraft = false
+let createdTitle = ''
+
+const createDraftAfterIdle = useDebounceFn(() => createDraftLesson(), 3000)
+
+function createDraftLesson({ flush = false } = {}) {
+	if (!isDraft.value || creatingDraft || lessonDeleted) return
+	if (isUnmounting && !flush) return
+	const title = lesson.title.trim()
+	if (!title) return
+	creatingDraft = true
+	createdTitle = title
+	return submitResource(
+		createLessonResource,
+		{ chapter: draftChapter, title },
+		{
+			onSuccess: promoteDraft,
+			onError(err) {
+				creatingDraft = false
+				toast.error(resourceErrorMessage(err))
+			},
+		}
+	)
+}
+
+// The form stays mounted, so the title keeps its focus and caret. From here on
+// it is an ordinary lesson and saves through the 800 ms autosave.
+function promoteDraft(name) {
+	isDraft.value = false
+	lessonDetails.data = {
+		chapter: { name: draftChapter },
+		lesson: { name, title: createdTitle },
+	}
+	contentUploadContext.docname = name
+	instructorUploadContext.docname = name
+	capture('lesson_created')
+	emit('created', { name, chapter: draftChapter })
+	// Typed while the create was in flight.
+	if (lesson.title.trim() !== createdTitle) isDirty.value = true
+	if (!isDirty.value) return
+	if (isUnmounting) saveLesson({ flush: true })
+	else autoSave()
+}
 
 // ignoreTyping:false enables Ctrl+S in title; guard spares ProseMirror.
 useKeyboardShortcuts({
@@ -282,9 +423,12 @@ const lessonDetails = createResource({
 		chapter: props.chapterNumber,
 		lesson: props.lessonNumber,
 	},
-	auto: true,
+	auto: !isDraft.value,
 	onSuccess(data) {
 		if (data.lesson) {
+			unreadable.content = false
+			unreadable.instructor_content = false
+			warnedAbout = ''
 			Object.keys(data.lesson).forEach((key) => {
 				lesson[key] = data.lesson[key]
 			})
@@ -302,10 +446,9 @@ const lessonDetails = createResource({
 						// Loaded content isn't user input; arm autosave after render.
 						isDirty.value = false
 						initialLoadComplete = true
-						// A freshly created lesson opens empty as "Untitled lesson".
-						// Focus the title so it can be named (and so the block editor
-						// doesn't grab the caret out from under the title). Existing
-						// lessons focus the body for content editing.
+						// An empty lesson focuses the title so it can be named (and so
+						// the block editor doesn't grab the caret out from under the
+						// title). Lessons with a body focus the body for editing.
 						if (!data.lesson.content && !data.lesson.body) {
 							titleRef.value?.focus()
 						} else {
@@ -325,9 +468,11 @@ const addLessonContent = (data) => {
 	return editor.value.isReady().then(() => {
 		if (!editor.value) return
 		if (data.lesson.content) {
-			return editor.value.render(
-				sanitizeEditorJs(JSON.parse(data.lesson.content))
-			)
+			const stored = parseStoredEditorJs(data.lesson.content)
+			// Throwing here abandons the rest of the load chain, leaving the form
+			// permanently un-loaded, and the notes editor's edits with it.
+			if (!stored) return markUnreadable('content')
+			return editor.value.render(sanitizeEditorJs(stored))
 		} else if (data.lesson.body) {
 			let blocks = convertToJSON(data.lesson)
 			return editor.value.render({
@@ -342,9 +487,9 @@ const addInstructorNotes = (data) => {
 	return instructorEditor.value.isReady().then(() => {
 		if (!instructorEditor.value) return
 		if (data.lesson.instructor_content) {
-			return instructorEditor.value.render(
-				sanitizeEditorJs(JSON.parse(data.lesson.instructor_content))
-			)
+			const stored = parseStoredEditorJs(data.lesson.instructor_content)
+			if (!stored) return markUnreadable('instructor_content')
+			return instructorEditor.value.render(sanitizeEditorJs(stored))
 		} else if (data.lesson.instructor_notes) {
 			let blocks = convertToJSON(data.lesson)
 			return instructorEditor.value.render({
@@ -358,6 +503,12 @@ onBeforeUnmount(() => {
 	isUnmounting = true
 	// Flush unsaved edits before teardown; skip if deleted.
 	if (lessonDeleted) return
+	if (isDraft.value) {
+		// Read the editors before they are destroyed; the create writes them after.
+		if (initialLoadComplete) captureEditors()
+		createDraftLesson({ flush: true })
+		return
+	}
 	if (isDirty.value && lessonDetails.data?.lesson) saveLesson({ flush: true })
 })
 
@@ -404,12 +555,7 @@ const lessonReference = createResource({
 
 // Stored body has real content? Lets title-only edits skip re-serialising.
 const storedContentHasBody = () => {
-	if (!lesson.content) return false
-	try {
-		return hasEditorContent(JSON.parse(lesson.content))
-	} catch {
-		return false
-	}
+	return hasEditorContent(parseStoredEditorJs(lesson.content))
 }
 
 // Editor destroyed mid-save can reject; degrade to null so persist still runs.
@@ -420,14 +566,14 @@ const serialise = (ed) =>
 const foldEditorData = (bodyData, notesData) => {
 	// Editor gone or empty: keep stored content so we don't wipe the body.
 	let bodyHasContent = storedContentHasBody()
-	if (bodyData) {
+	if (bodyData && !unreadable.content) {
 		bodyData = removeEmptyBlocks(bodyData)
 		bodyHasContent = hasEditorContent(bodyData)
 		if (bodyHasContent) lesson.content = JSON.stringify(bodyData)
 	}
 
 	// Fold notes only after load, else the empty default wipes stored notes.
-	if (initialLoadComplete && notesData) {
+	if (initialLoadComplete && notesData && !unreadable.instructor_content) {
 		notesData = removeEmptyBlocks(notesData)
 		lesson.instructor_content = JSON.stringify(notesData)
 		// Clear legacy field so removed notes don't reappear via fallback.
@@ -448,25 +594,33 @@ const captureEditors = async () => {
 }
 
 function saveLesson({ flush = false } = {}) {
-	// Serialise both editors concurrently before unmount destroys them.
-	const bodyPromise = serialise(editor.value)
-	const notesPromise = serialise(instructorEditor.value)
+	if (isDraft.value) return createDraftLesson({ flush })
+	// foldEditorData skips unreadable fields, so `lesson` still holds their stored
+	// strings and the write puts them back unchanged rather than blanking them.
+	warnUnreadable()
 
-	Promise.all([bodyPromise, notesPromise]).then(([bodyData, notesData]) => {
-		const bodyHasContent = foldEditorData(bodyData, notesData)
+	// Both serialise() calls are made before either is awaited, so the editors
+	// are read before unmount destroys them.
+	Promise.all([
+		serialise(editor.value),
+		serialise(instructorEditor.value),
+	]).then(([bodyData, notesData]) => persistLesson(bodyData, notesData, flush))
+}
 
-		// Skip when there's nothing to save: no title, no body.
-		if (shouldSkipLessonSave(lesson.title, bodyHasContent)) return
+function persistLesson(bodyData, notesData, flush) {
+	const bodyHasContent = foldEditorData(bodyData, notesData)
 
-		// During teardown only an explicit flush may persist.
-		if (isUnmounting && !flush) return
-		if (lessonDeleted) return
-		if (lessonDetails.data?.lesson) {
-			editCurrentLesson()
-		} else {
-			createNewLesson()
-		}
-	})
+	// Nothing to save: no title, no body.
+	if (shouldSkipLessonSave(lesson.title, bodyHasContent)) return
+
+	// During teardown only an explicit flush may persist.
+	if (isUnmounting && !flush) return
+	if (lessonDeleted) return
+	if (lessonDetails.data?.lesson) {
+		editCurrentLesson()
+	} else {
+		createNewLesson()
+	}
 }
 
 const removeEmptyBlocks = (outputData) => {

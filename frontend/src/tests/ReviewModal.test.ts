@@ -15,12 +15,12 @@ import ReviewModal from '@/components/Modals/ReviewModal.vue'
 const { toastError } = vi.hoisted(() => ({ toastError: vi.fn() }))
 // captured from the createResource() call so the test can inspect makeParams()
 let resourceConfig: { makeParams: () => { doc: Record<string, unknown> } }
+// when set, the stubbed submit fails the request with this error
+let submitError: unknown = null
 
-// frappe-ui doesn't resolve under vitest; stub the pieces ReviewModal uses.
-// The Dialog stub renders each action as a button that invokes its onClick with
-// a { close } that emits update:open=false, mirroring the real Dialog contract.
-// createResource.submit runs validate() and routes to onError/onSuccess so the
-// component's real wiring is exercised without a network call.
+// Dialog stub turns each action into a button whose close() emits
+// update:open=false. Real submitResource runs validate(); stubbed submit only
+// routes to onError/onSuccess, so no network call.
 vi.mock('frappe-ui', () => ({
 	Dialog: {
 		props: ['open', 'title', 'size', 'actions'],
@@ -58,13 +58,11 @@ vi.mock('frappe-ui', () => ({
 			submit: (
 				_values: unknown,
 				opts: {
-					validate?: () => string | undefined
 					onError?: (e: unknown) => void
 					onSuccess?: () => void
 				}
 			) => {
-				const err = opts.validate?.()
-				if (err) opts.onError?.(err)
+				if (submitError) opts.onError?.(submitError)
 				else opts.onSuccess?.()
 			},
 		}
@@ -87,7 +85,10 @@ const mountModal = () =>
 		global: { mocks: { __: (s: string) => s } },
 	})
 
-beforeEach(() => vi.clearAllMocks())
+beforeEach(() => {
+	vi.clearAllMocks()
+	submitError = null
+})
 
 describe('ReviewModal submit', () => {
 	it('keeps the dialog open and shows an error when the rating is missing', async () => {
@@ -121,5 +122,24 @@ describe('ReviewModal submit', () => {
 		expect(reloadReviews).toHaveBeenCalled()
 		expect(reloadHasReviewed).toHaveBeenCalled()
 		expect(wrapper.emitted('update:modelValue')?.at(-1)).toEqual([false])
+	})
+
+	it('toasts the fallback when the request never reached the server', async () => {
+		submitError = new TypeError('Failed to fetch')
+		const wrapper = mountModal()
+		await wrapper.get('[data-testid="rating"]').setValue('4')
+		await wrapper.get('[data-testid="action"]').trigger('click')
+
+		expect(toastError).toHaveBeenCalledWith('Error')
+		expect(wrapper.emitted('update:modelValue')).toBeUndefined()
+	})
+
+	it("toasts the server's message when the request fails", async () => {
+		submitError = { messages: ['Server said no'] }
+		const wrapper = mountModal()
+		await wrapper.get('[data-testid="rating"]').setValue('4')
+		await wrapper.get('[data-testid="action"]').trigger('click')
+
+		expect(toastError).toHaveBeenCalledWith('Server said no')
 	})
 })

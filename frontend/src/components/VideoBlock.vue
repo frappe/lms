@@ -22,14 +22,14 @@
 		<div
 			v-if="!showQuiz"
 			ref="videoContainer"
-			class="video-block relative group"
+			class="video-block relative group overflow-hidden rounded-7"
 		>
 			<video
 				@timeupdate="updateTime"
 				@ended="videoEnded"
 				@click="togglePlay"
 				oncontextmenu="return false"
-				class="rounded-md border border-outline-gray-1 cursor-pointer"
+				class="block cursor-pointer"
 				ref="videoRef"
 				:src="safeUrl(fileURL)"
 				:type="type"
@@ -39,36 +39,29 @@
 				v-if="!playing"
 				:aria-label="__('Play video')"
 				class="absolute inset-0 flex items-center justify-center cursor-pointer"
-				@click="playVideo"
+				@click="playFromOverlay"
 			>
-				<div
-					class="rounded-full p-4 ps-4.5"
-					style="
-						background: radial-gradient(
-							circle,
-							rgba(0, 0, 0, 0.3) 0%,
-							rgba(0, 0, 0, 0.4) 50%
-						);
-					"
-				>
-					<Play />
+				<div class="video-play-scrim rounded-full p-4 ps-4.5">
+					<Play :class="scrimInk" />
 				</div>
 			</button>
 			<div
-				class="flex items-center gap-x-2 py-2 px-1 text-ink-base bg-gradient-to-b from-transparent to-black/75 absolute bottom-0 start-0 end-0 mx-auto rounded-md"
+				class="flex items-center gap-x-2 py-2 px-1 bg-gradient-to-b from-transparent to-black-overlay-700 absolute bottom-0 start-0 end-0 mx-auto rounded-5"
 				:class="{
-					'invisible group-hover:visible': playing,
+					'invisible group-hover:visible group-focus-within:visible [@media(hover:none)]:visible':
+						playing,
 				}"
 			>
 				<Button
+					ref="playPauseButton"
 					variant="ghost"
 					class="hover:bg-transparent"
 					:label="playing ? __('Pause') : __('Play')"
 					@click="togglePlay"
 				>
 					<template #icon>
-						<Play v-if="!playing" class="size-4 text-ink-gray-9" />
-						<span v-else class="lucide-pause size-5 text-ink-base" />
+						<Play v-if="!playing" class="size-4" :class="scrimInk" />
+						<span v-else class="lucide-pause size-5" :class="scrimInk" />
 					</template>
 				</Button>
 
@@ -93,7 +86,10 @@
 					</div>
 				</div>
 
-				<span class="text-sm-medium shrink-0 whitespace-nowrap">
+				<span
+					class="text-sm-medium shrink-0 whitespace-nowrap"
+					:class="scrimInk"
+				>
 					{{ formatSeconds(currentTime) }} / {{ formatSeconds(duration) }}
 				</span>
 
@@ -108,8 +104,12 @@
 					class="hover:bg-transparent"
 				>
 					<template #icon>
-						<span class="lucide-volume-2 size-5 text-ink-base" v-if="!muted" />
-						<span class="lucide-volume-x size-5 text-ink-base" v-else />
+						<span
+							class="lucide-volume-2 size-5"
+							:class="scrimInk"
+							v-if="!muted"
+						/>
+						<span class="lucide-volume-x size-5" :class="scrimInk" v-else />
 					</template>
 				</Button>
 				<Button
@@ -119,7 +119,7 @@
 					class="hover:bg-transparent"
 				>
 					<template #icon>
-						<span class="lucide-maximize size-5 text-ink-base" />
+						<span class="lucide-maximize size-5" :class="scrimInk" />
 					</template>
 				</Button>
 			</div>
@@ -165,8 +165,12 @@ import { Button, Dialog, Dropdown } from 'frappe-ui'
 import { formatSeconds, formatTimestamp } from '@/utils/format'
 import { useSettings } from '@/stores/settings'
 import Play from '@/components/Icons/Play.vue'
+import Quiz from '@/components/Quiz.vue'
 import QuizInVideo from '@/components/Modals/QuizInVideo.vue'
 import { safeUrl } from '@/utils/safeUrl'
+
+// token-exempt: on the video scrim, which stays dark in either theme
+const scrimInk = 'text-white'
 
 /* The control bar is a fixed set of buttons plus an elapsed/duration readout,
    with the seek slider absorbing whatever is left. The slider is the only
@@ -176,6 +180,7 @@ import { safeUrl } from '@/utils/safeUrl'
    of the video statistics modal. */
 const videoRef = ref(null)
 const videoContainer = ref(null)
+const playPauseButton = ref(null)
 let playing = ref(false)
 let currentTime = ref(0)
 let duration = ref(0)
@@ -303,6 +308,14 @@ const playVideo = () => {
 	playing.value = true
 }
 
+// The overlay unmounts on play and would drop keyboard focus, so focus moves to
+// Pause while the bar is still visible; focus-within then keeps the bar shown.
+// A click with detail 0 came from Enter or Space.
+const playFromOverlay = (event) => {
+	if (event.detail === 0) playPauseButton.value?.$el?.focus()
+	playVideo()
+}
+
 const pauseVideo = () => {
 	videoRef.value.pause()
 	playing.value = false
@@ -361,7 +374,7 @@ const setPlaybackSpeed = (speed, label) => {
 const dropdownOptions = computed(() =>
 	playbackSpeeds.map((speed) => ({
 		label: speed.label,
-		active: playbackSpeed.value === speed.value,
+		selected: playbackSpeed.value === speed.value,
 		onClick: () => setPlaybackSpeed(speed.value, speed.label),
 	}))
 )
@@ -383,6 +396,8 @@ iframe {
 	min-height: 500px;
 }
 
+/* token-exempt-start: the transport sits on the video, which is its own dark
+   surface in either theme — the same reasoning as the play scrim below. */
 .duration-slider {
 	-webkit-appearance: none;
 	appearance: none;
@@ -411,4 +426,15 @@ iframe {
 		box-shadow: -500px 0 0 500px theme('colors.white');
 	}
 }
+/* token-exempt-end */
+
+/* token-exempt-start: scrim on the video still */
+.video-play-scrim {
+	background: radial-gradient(
+		circle,
+		rgba(0, 0, 0, 0.3) 0%,
+		rgba(0, 0, 0, 0.4) 50%
+	);
+}
+/* token-exempt-end */
 </style>

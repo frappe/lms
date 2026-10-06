@@ -10,7 +10,7 @@
 <script setup>
 import Quiz from '@/components/Quiz.vue'
 import { createResource, usePageMeta } from 'frappe-ui'
-import PageHeader from '@/components/Layouts/PageHeader.vue'
+import PageHeader from '@/components/Layouts/pages/PageHeader.vue'
 import { computed, inject, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { sessionStore } from '../stores/session'
@@ -49,6 +49,8 @@ const title = createResource({
 	auto: true,
 })
 
+const quizTitle = computed(() => title.data?.title || __('Quiz'))
+
 const breadcrumbs = computed(() => {
 	return [
 		{
@@ -56,7 +58,7 @@ const breadcrumbs = computed(() => {
 			route: { name: 'Quizzes' },
 		},
 		{
-			label: title.data?.title,
+			label: quizTitle.value,
 			route: { name: 'QuizForm', params: { quizID: props.quizID } },
 		},
 		{ label: __('Test Quiz') },
@@ -65,7 +67,7 @@ const breadcrumbs = computed(() => {
 
 usePageMeta(() => {
 	return {
-		title: `${title.data?.title}`,
+		title: quizTitle.value,
 		icon: brand.favicon,
 	}
 })
