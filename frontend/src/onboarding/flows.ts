@@ -77,6 +77,8 @@ export interface FlowStep extends OnboardingStep {
 	actionLabel: string
 	/** Completed by answering this card's question, offered on the step itself. */
 	chooses?: CardId
+	/** Minimise the panel once the step opens its page, which needs the room. */
+	minimizeOnOpen?: boolean
 }
 
 export interface OnboardingFlow {
@@ -303,6 +305,7 @@ const publishCourseFlow: OnboardingFlow = {
 			icon: stepIcon(CircleHelp),
 			completed: false,
 			fact: 'has_quiz',
+			minimizeOnOpen: true,
 			onClick: () => nav.openRoute({ name: 'NewQuiz' }),
 		},
 		{

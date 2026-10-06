@@ -466,6 +466,35 @@ describe('step status', () => {
 	})
 })
 
+describe('minimizeOnOpen', () => {
+	// Guards: form steps opening under the panel instead of tucking it away.
+	// Introduced in this branch (feat/onboarding-flows, PR pending); test added
+	// there to pin minimizeOnOpen.
+	it('tucks the panel away when a step opens a page that needs the room', async () => {
+		const o = await ready()
+		o.ui.minimize.value = false
+		o.startStep('publish_course', 'add_quiz')
+		expect(nav.openRoute).toHaveBeenCalledWith({ name: 'NewQuiz' })
+		expect(o.ui.minimize.value).toBe(true)
+	})
+
+	it('leaves the panel as it is for other steps', async () => {
+		const o = await ready()
+		o.ui.minimize.value = false
+		o.startStep('publish_course', 'create_first_course')
+		expect(nav.openForm).toHaveBeenCalledWith({ name: 'NewCourse' })
+		expect(o.ui.minimize.value).toBe(false)
+	})
+
+	it('is set on the quiz step only', async () => {
+		const o = await ready()
+		const minimizing = o.flows.FLOWS.flatMap((flow) =>
+			o.stepsOf(flow.id).filter((step) => step.minimizeOnOpen)
+		).map((step) => step.name)
+		expect(minimizing).toEqual(['add_quiz'])
+	})
+})
+
 describe('step actions', () => {
 	// Guards: the checkbox failing to tick or to un-tick a step. Introduced in
 	// this branch (feat/onboarding-flows, PR pending); test added there to pin

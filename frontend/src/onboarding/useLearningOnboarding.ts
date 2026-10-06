@@ -193,6 +193,7 @@ function startStep(id: FlowId, name: string): void {
 	const step = stepsOf(id).find((s) => s.name === name)
 	if (!step || step.completed || blocker(id, step)) return
 	step.onClick?.()
+	if (step.minimizeOnOpen) minimize.value = true
 }
 
 function skipOpenSteps(id: FlowId): void {
