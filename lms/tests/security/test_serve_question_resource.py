@@ -19,10 +19,16 @@ from lms.lms.doctype.lms_question.lms_question import (
 from lms.lms.test_helpers import BaseTestUtils
 from lms.lms.utils import QUESTION_PRIVATE_MEDIA_ENDPOINT, get_quiz_with_questions
 
-# 1x1 transparent PNG.
+# 1x1 transparent PNG. File.insert reuses file_url for identical content_hash, so
+# each upload must carry distinct trailing bytes or "foreign" pastes collapse onto
+# the instructor's original image and the deny tests pass by accident (they don't).
 ONE_PIXEL_PNG = base64.b64decode(
 	"iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+M8AAAMBAQDJ/pLvAAAAAElFTkSuQmCC"
 )
+
+
+def _unique_png_b64(tag: str) -> str:
+	return base64.b64encode(ONE_PIXEL_PNG + tag.encode()).decode()
 
 
 class TestServeQuestionResource(BaseTestUtils):
@@ -57,7 +63,7 @@ class TestServeQuestionResource(BaseTestUtils):
 					"doctype": "File",
 					"file_name": f"quiz_prompt_{h}.png",
 					"is_private": 1,
-					"content": base64.b64encode(ONE_PIXEL_PNG).decode(),
+					"content": _unique_png_b64(f"quiz_prompt_{h}"),
 					"decode": True,
 				}
 			).insert(ignore_permissions=True)
@@ -131,12 +137,18 @@ class TestServeQuestionResource(BaseTestUtils):
 					"doctype": "File",
 					"file_name": f"secret_{h}.png",
 					"is_private": 1,
-					"content": base64.b64encode(ONE_PIXEL_PNG).decode(),
+					"content": _unique_png_b64(f"secret_{h}"),
 					"decode": True,
 				}
 			).insert(ignore_permissions=True)
 		finally:
 			frappe.set_user("Administrator")
+
+		self.assertNotEqual(
+			secret.file_url,
+			self.file_url,
+			msg="Frappe must not reuse the instructor image url for the foreign upload",
+		)
 
 		original_html = self.question.question
 		frappe.set_user(self.instructor.email)
@@ -172,12 +184,18 @@ class TestServeQuestionResource(BaseTestUtils):
 					"doctype": "File",
 					"file_name": f"mod_secret_{h}.png",
 					"is_private": 1,
-					"content": base64.b64encode(ONE_PIXEL_PNG).decode(),
+					"content": _unique_png_b64(f"mod_secret_{h}"),
 					"decode": True,
 				}
 			).insert(ignore_permissions=True)
 		finally:
 			frappe.set_user("Administrator")
+
+		self.assertNotEqual(
+			secret.file_url,
+			self.file_url,
+			msg="Frappe must not reuse the instructor image url for the moderator upload",
+		)
 
 		frappe.set_user(author.email)
 		try:
@@ -233,7 +251,7 @@ class TestServeQuestionResource(BaseTestUtils):
 					"doctype": "File",
 					"file_name": f"expl_{h}.png",
 					"is_private": 1,
-					"content": base64.b64encode(ONE_PIXEL_PNG).decode(),
+					"content": _unique_png_b64(f"expl_{h}"),
 					"decode": True,
 				}
 			).insert(ignore_permissions=True)
@@ -272,7 +290,7 @@ class TestServeQuestionResource(BaseTestUtils):
 					"doctype": "File",
 					"file_name": f"expl_attach_{h}.png",
 					"is_private": 1,
-					"content": base64.b64encode(ONE_PIXEL_PNG).decode(),
+					"content": _unique_png_b64(f"expl_attach_{h}"),
 					"decode": True,
 					"attached_to_doctype": "LMS Question",
 					"attached_to_name": self.question.name,
