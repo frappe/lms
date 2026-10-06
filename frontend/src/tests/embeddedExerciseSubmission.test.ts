@@ -63,11 +63,12 @@ vi.mock('@/router', () => ({
 }))
 vi.mock('@/components/ProgrammingExercises/ExerciseWorkspace.vue', () => ({
 	default: defineComponent({
+		props: { submissionStatus: String },
 		emits: ['run'],
-		setup: (_props, { emit, slots, expose }) => {
-			expose({ showTab: () => {} })
+		setup: (props, { emit, slots }) => {
 			return () => [
 				h('button', { 'data-testid': 'workspace', onClick: () => emit('run') }),
+				props.submissionStatus,
 				slots.editor?.(),
 			]
 		},

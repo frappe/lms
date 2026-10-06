@@ -18,16 +18,10 @@
 		</Button>
 	</div>
 	<div ref="root" class="flex flex-col" :class="rootClass">
-		<div v-if="submissionDoc?.status" class="mb-3">
-			<Badge :theme="submissionDoc.status == 'Passed' ? 'green' : 'red'">
-				{{ submissionDoc.status }}
-			</Badge>
-		</div>
 		<div class="min-h-0 flex-1">
 			<ExerciseWorkspaceSkeleton v-if="loading" />
 			<ExerciseWorkspace
 				v-else
-				ref="workspace"
 				:title="exercise?.title ?? ''"
 				:language="exercise?.language ?? ''"
 				:problemStatement="exercise?.problem_statement ?? ''"
@@ -37,6 +31,7 @@
 				:running="running"
 				:canRun="canRun"
 				:saved="saved"
+				:submissionStatus="submissionDoc?.status"
 				@run="submitCode"
 				@reset="resetCode"
 			>
@@ -54,7 +49,6 @@
 </template>
 <script setup lang="ts">
 import {
-	Badge,
 	Button,
 	call,
 	createDocumentResource,
@@ -154,7 +148,6 @@ const root = ref<HTMLElement | null>(null)
 const falconURL = ref<string>('https://falcon.frappe.io')
 const falconError = ref<string | undefined>(undefined)
 const running = ref<boolean>(false)
-const workspace = ref<InstanceType<typeof ExerciseWorkspace> | null>(null)
 const exerciseLoading = ref<boolean>(true)
 const falconReady = ref<boolean>(false)
 
@@ -253,7 +246,7 @@ watch(exerciseID, () => {
 })
 
 // Only the first load shows the skeleton: the resource reloads after every
-// submit, and swapping the workspace out then would reset its tab and editor.
+// submit, and swapping the workspace out then would reset its editor.
 const submissionPending = ref<boolean>(props.submissionID != 'new')
 const loading = computed<boolean>(
 	() => exerciseLoading.value || submissionPending.value
@@ -479,7 +472,6 @@ const runCode = async () => {
 		elapsed: elapsed[index] ?? null,
 	}))
 	duration.value = (performance.now() - startedAt) / 1000
-	workspace.value?.showTab('tests')
 }
 
 const resetCode = () => {
@@ -512,7 +504,6 @@ const applyReset = () => {
 	results.value = []
 	consoleLines.value = []
 	duration.value = null
-	workspace.value?.showTab('problem')
 }
 
 const inThisBlock = sameBlock(root)

@@ -5,6 +5,14 @@
 			:title="__('Programming Exercise')"
 			:subtitle="title"
 		>
+			<Badge
+				v-if="submissionStatus"
+				class="whitespace-nowrap"
+				:theme="submissionStatus == 'Passed' ? 'green' : 'red'"
+				size="sm"
+			>
+				{{ __(submissionStatus) }}
+			</Badge>
 			<Button
 				variant="ghost"
 				size="sm"
@@ -36,31 +44,24 @@
 		<div
 			class="grid min-h-0 flex-1 grid-cols-1 md:grid-cols-[minmax(0,0.8fr)_minmax(0,1.2fr)]"
 		>
-			<Tabs
-				v-model="activeTab"
-				class="min-h-0 border-b border-outline-gray-1 md:border-b-0 md:border-e"
+			<div
+				class="flex min-h-0 flex-col border-b border-outline-gray-1 md:border-b-0 md:border-e"
 			>
-				<TabList class="h-11 bg-surface-gray-1 px-3.5 py-0">
-					<TabTrigger value="problem" :label="__('Problem')" />
-					<TabTrigger value="tests" :label="__('Test cases')" />
-				</TabList>
-				<TabPanel value="problem">
-					<div data-testid="problem-pane" class="min-h-0 overflow-y-auto p-3.5">
-						<div
-							v-safe-html:rich="problemStatement"
-							class="ProseMirror prose prose-sm max-w-none !whitespace-normal prose-pre:bg-surface-gray-3 prose-pre:text-ink-gray-9"
-						></div>
-					</div>
-				</TabPanel>
-				<TabPanel value="tests">
-					<ExerciseTestCases
-						data-testid="tests-pane"
-						class="min-h-0 overflow-y-auto"
-						:results="results"
-						:duration="duration"
-					/>
-				</TabPanel>
-			</Tabs>
+				<div
+					class="flex h-11 shrink-0 items-center border-b border-outline-gray-1 bg-surface-gray-1 px-3.5"
+				>
+					<h3 class="text-sm-semibold text-ink-gray-9">{{ __('Problem') }}</h3>
+				</div>
+				<div
+					data-testid="problem-pane"
+					class="min-h-0 flex-1 overflow-y-auto p-3.5"
+				>
+					<div
+						v-safe-html:rich="problemStatement"
+						class="ProseMirror prose prose-sm max-w-none !whitespace-normal prose-pre:bg-surface-gray-3 prose-pre:text-ink-gray-9"
+					></div>
+				</div>
+			</div>
 
 			<div class="flex min-h-0 flex-col">
 				<div
@@ -72,7 +73,9 @@
 							{{ language }}
 						</span>
 					</div>
-					<span class="shrink-0 text-xs text-ink-gray-6">{{ status }}</span>
+					<span v-if="saved" class="shrink-0 text-xs text-ink-gray-6">
+						{{ __('autosaved') }}
+					</span>
 				</div>
 				<div class="exercise-editor min-h-0 flex-1 overflow-y-auto">
 					<slot name="editor" />
@@ -82,22 +85,19 @@
 					:duration="duration"
 					:running="running"
 				/>
+				<ExerciseTestCases
+					data-testid="tests-pane"
+					class="max-h-80 shrink-0 overflow-y-auto border-t border-outline-gray-1"
+					:results="results"
+					:duration="duration"
+				/>
 			</div>
 		</div>
 	</AssessmentCard>
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue'
-import {
-	Button,
-	KeyboardShortcut,
-	TabList,
-	TabPanel,
-	Tabs,
-	TabTrigger,
-	Tooltip,
-} from 'frappe-ui'
+import { Badge, Button, KeyboardShortcut, Tooltip } from 'frappe-ui'
 import AssessmentCard from '@/components/Assessment/AssessmentCard.vue'
 import AssessmentCardHeader from '@/components/Assessment/AssessmentCardHeader.vue'
 import ExerciseTestCases, {
@@ -107,9 +107,7 @@ import ExerciseConsole, {
 	type ConsoleLine,
 } from '@/components/ProgrammingExercises/ExerciseConsole.vue'
 
-type WorkspaceTab = 'problem' | 'tests'
-
-const props = defineProps<{
+defineProps<{
 	title: string
 	language: string
 	problemStatement: string
@@ -119,33 +117,11 @@ const props = defineProps<{
 	running: boolean
 	canRun: boolean
 	saved: boolean
+	submissionStatus?: string
 }>()
 
 const emit = defineEmits<{
 	run: []
 	reset: []
 }>()
-
-const activeTab = ref<WorkspaceTab>('problem')
-
-const passed = computed(
-	() => props.results.filter((r) => r.status === 'Passed').length
-)
-
-const status = computed(() => {
-	const parts: string[] = []
-	if (props.results.length) {
-		parts.push(
-			__('{0} of {1} passed').format(passed.value, props.results.length)
-		)
-	}
-	if (props.saved) parts.push(__('autosaved'))
-	return parts.join(' · ')
-})
-
-const showTab = (tab: WorkspaceTab) => {
-	activeTab.value = tab
-}
-
-defineExpose({ showTab })
 </script>
