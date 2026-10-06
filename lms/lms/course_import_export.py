@@ -762,14 +762,6 @@ def create_question_doc(zip_file, file):
 		doc.insert(ignore_permissions=True)
 
 
-def create_test_case_doc(zip_file, file):
-	test_case_data = read_json_from_zip(zip_file, file)
-	if test_case_data:
-		doc = frappe.new_doc("LMS Test Case")
-		doc.update(test_case_data)
-		doc.insert(ignore_permissions=True)
-
-
 def add_questions_to_quiz(quiz_doc, questions):
 	for question in questions:
 		question_detail = question["question_detail"]
@@ -782,8 +774,6 @@ def create_supporting_docs(zip_file):
 	for file in zip_file.namelist():
 		if file.startswith("assessments/questions/") and file.endswith(".json"):
 			create_question_doc(zip_file, file)
-		elif file.startswith("assessments/test_cases/") and file.endswith(".json"):
-			create_test_case_doc(zip_file, file)
 
 
 def is_assessment_file(file):
