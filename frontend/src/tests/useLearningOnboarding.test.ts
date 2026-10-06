@@ -83,6 +83,7 @@ function makeHandle(storedComplete = false): FakeHandle {
 const USER = 'admin@example.com'
 const ALL = [
 	'publish_course',
+	'add_assessments',
 	'live_class',
 	'live_class_zoom',
 	'live_class_meet',
@@ -271,10 +272,10 @@ describe('list', () => {
 	// added there to pin the step-weighted percent.
 	it('weighs the overall percent by steps across every card', async () => {
 		const o = await ready({ answers: { live_class: 'zoom' } })
-		// publish 6 + zoom 6 + users 2 = 14.
+		// publish 5 + assessments 4 + zoom 6 + users 2 = 17.
 		o.toggleStep('publish_course', 'create_first_course')
 		o.toggleStep('live_class_zoom', 'connect_zoom')
-		expect(o.overallPercent.value).toBe(Math.floor((2 / 14) * 100))
+		expect(o.overallPercent.value).toBe(Math.floor((2 / 17) * 100))
 	})
 
 	// Guards: a finished card not counting toward the done total. Introduced in
@@ -284,9 +285,14 @@ describe('list', () => {
 		const o = await ready({
 			answers: { live_class: 'zoom' },
 		})
-		for (const key of ['publish_course', 'onboard_learners', 'live_class_zoom'])
+		for (const key of [
+			'publish_course',
+			'add_assessments',
+			'onboard_learners',
+			'live_class_zoom',
+		])
 			finish(key)
-		expect(o.completedCards.value).toBe(3)
+		expect(o.completedCards.value).toBe(4)
 		expect(o.overallPercent.value).toBe(100)
 	})
 
@@ -320,7 +326,7 @@ describe('list', () => {
 		})
 		expect(o.cardProgress(card(o, 'publish_course'))).toEqual({
 			resolved: 0,
-			total: 6,
+			total: 5,
 			skipped: 0,
 		})
 	})
@@ -335,7 +341,7 @@ describe('list', () => {
 		expect(handle('publish_course').skipAll).not.toHaveBeenCalled()
 		for (const key of ALL.slice(1))
 			expect(handle(key).skipAll).toHaveBeenCalledTimes(1)
-		expect(o.completedCards.value).toBe(3)
+		expect(o.completedCards.value).toBe(4)
 		expect(o.overallPercent.value).toBe(100)
 	})
 })
@@ -446,11 +452,10 @@ describe('step status', () => {
 			'current',
 			'upcoming',
 			'upcoming',
-			'upcoming',
 		])
 		expect(o.flowProgress('publish_course')).toEqual({
 			resolved: 2,
-			total: 6,
+			total: 5,
 			skipped: 1,
 		})
 	})
@@ -473,7 +478,7 @@ describe('minimizeOnOpen', () => {
 	it('tucks the panel away when a step opens a page that needs the room', async () => {
 		const o = await ready()
 		o.ui.minimize.value = false
-		o.startStep('publish_course', 'add_quiz')
+		o.startStep('add_assessments', 'add_quiz')
 		expect(nav.openRoute).toHaveBeenCalledWith({ name: 'NewQuiz' })
 		expect(o.ui.minimize.value).toBe(true)
 	})
@@ -486,12 +491,16 @@ describe('minimizeOnOpen', () => {
 		expect(o.ui.minimize.value).toBe(false)
 	})
 
-	it('is set on the quiz step only', async () => {
+	it('is set on the assessment form steps only', async () => {
 		const o = await ready()
 		const minimizing = o.flows.FLOWS.flatMap((flow) =>
 			o.stepsOf(flow.id).filter((step) => step.minimizeOnOpen)
 		).map((step) => step.name)
-		expect(minimizing).toEqual(['add_quiz'])
+		expect(minimizing).toEqual([
+			'add_quiz',
+			'add_programming_exercise',
+			'add_assignment',
+		])
 	})
 })
 
@@ -501,13 +510,13 @@ describe('step actions', () => {
 	// toggle both ways.
 	it('toggle ticks an open step and un-ticks a done one', async () => {
 		const o = await ready()
-		o.toggleStep('publish_course', 'add_quiz')
-		expect(handle('publish_course').updateOnboardingStep).toHaveBeenCalledWith(
+		o.toggleStep('add_assessments', 'add_quiz')
+		expect(handle('add_assessments').updateOnboardingStep).toHaveBeenCalledWith(
 			'add_quiz',
 			true
 		)
-		o.toggleStep('publish_course', 'add_quiz')
-		expect(handle('publish_course').reset).toHaveBeenCalledWith('add_quiz')
+		o.toggleStep('add_assessments', 'add_quiz')
+		expect(handle('add_assessments').reset).toHaveBeenCalledWith('add_quiz')
 	})
 
 	// Guards: ticking a skipped step resetting it instead of marking it done.
@@ -515,11 +524,11 @@ describe('step actions', () => {
 	// there to pin toggle on a skip.
 	it('toggle on a skipped step marks it done', async () => {
 		const o = await ready()
-		o.skipStep('publish_course', 'add_quiz')
-		o.toggleStep('publish_course', 'add_quiz')
-		const quiz = o.stepsOf('publish_course')[3]
-		expect(o.stepStatus('publish_course', quiz)).toBe('done')
-		expect(handle('publish_course').reset).not.toHaveBeenCalled()
+		o.skipStep('add_assessments', 'add_quiz')
+		o.toggleStep('add_assessments', 'add_quiz')
+		const quiz = o.stepsOf('add_assessments')[0]
+		expect(o.stepStatus('add_assessments', quiz)).toBe('done')
+		expect(handle('add_assessments').reset).not.toHaveBeenCalled()
 	})
 
 	// Guards: a blocked step being ticked before its blocker. Introduced in this
@@ -536,23 +545,23 @@ describe('step actions', () => {
 	// there to pin the stored skip.
 	it('skip tells the framework and remembers the skip', async () => {
 		const o = await ready()
-		o.skipStep('publish_course', 'add_quiz')
-		expect(handle('publish_course').skip).toHaveBeenCalledWith('add_quiz')
+		o.skipStep('add_assessments', 'add_quiz')
+		expect(handle('add_assessments').skip).toHaveBeenCalledWith('add_quiz')
 		await nextTick()
 		expect(
 			JSON.parse(localStorage.getItem('learningOnboardingSkipped' + USER)!)
-		).toEqual({ learning_publish_course: ['add_quiz'] })
+		).toEqual({ learning_add_assessments: ['add_quiz'] })
 	})
 
 	// Guards: undo leaving a step skipped or ticked. Introduced in this branch
 	// (feat/onboarding-flows, PR pending); test added there to pin undo.
 	it('undo resets the step and forgets the skip', async () => {
 		const o = await ready()
-		o.skipStep('publish_course', 'add_quiz')
-		o.undoStep('publish_course', 'add_quiz')
-		const quiz = o.stepsOf('publish_course')[3]
-		expect(handle('publish_course').reset).toHaveBeenCalledWith('add_quiz')
-		expect(o.flowProgress('publish_course').skipped).toBe(0)
+		o.skipStep('add_assessments', 'add_quiz')
+		o.undoStep('add_assessments', 'add_quiz')
+		const quiz = o.stepsOf('add_assessments')[0]
+		expect(handle('add_assessments').reset).toHaveBeenCalledWith('add_quiz')
+		expect(o.flowProgress('add_assessments').skipped).toBe(0)
 		expect(quiz.completed).toBe(false)
 	})
 
@@ -574,9 +583,9 @@ describe('step actions', () => {
 	// as navigation only.
 	it("start runs the step's navigation without ticking it", async () => {
 		const o = await ready()
-		o.startStep('publish_course', 'add_quiz')
+		o.startStep('add_assessments', 'add_quiz')
 		expect(nav.openRoute).toHaveBeenCalledWith({ name: 'NewQuiz' })
-		expect(o.stepsOf('publish_course')[3].completed).toBe(false)
+		expect(o.stepsOf('add_assessments')[0].completed).toBe(false)
 	})
 
 	// Guards: Start navigating for a blocked step. Introduced in this branch
@@ -599,9 +608,9 @@ describe('flow menu', () => {
 		o.skipRemaining('publish_course')
 		expect(handle('publish_course').skipAll).toHaveBeenCalledTimes(1)
 		expect(o.flowProgress('publish_course')).toEqual({
-			resolved: 6,
-			total: 6,
-			skipped: 5,
+			resolved: 5,
+			total: 5,
+			skipped: 4,
 		})
 		expect(o.isFlowComplete('publish_course')).toBe(true)
 	})
@@ -630,8 +639,8 @@ describe('telemetry', () => {
 	// pending); test added there to keep it sent.
 	it('captures a skipped and a reset step', async () => {
 		const o = await ready()
-		o.skipStep('publish_course', 'add_quiz')
-		o.undoStep('publish_course', 'add_quiz')
+		o.skipStep('add_assessments', 'add_quiz')
+		o.undoStep('add_assessments', 'add_quiz')
 		expect(captureMock.mock.calls).toEqual([
 			['onboarding_step_skipped_add_quiz'],
 			['onboarding_step_reset_add_quiz'],
@@ -671,7 +680,8 @@ describe('next up', () => {
 	// (feat/onboarding-flows, PR pending); test added there to pin the order.
 	it("follows the card's next order", async () => {
 		const o = await ready()
-		expect(o.nextCard(card(o, 'publish_course'))?.id).toBe('live_class')
+		expect(o.nextCard(card(o, 'publish_course'))?.id).toBe('add_assessments')
+		expect(o.nextCard(card(o, 'add_assessments'))?.id).toBe('live_class')
 		expect(o.nextCard(card(o, 'live_class'))?.id).toBe('onboard_learners')
 		expect(o.nextCard(card(o, 'onboard_learners'))?.id).toBe('publish_course')
 	})
@@ -681,6 +691,7 @@ describe('next up', () => {
 	// cards.
 	it('skips finished cards', async () => {
 		const o = await ready({ answers: { live_class: 'zoom' } })
+		finish('add_assessments')
 		finish('live_class_zoom')
 		expect(o.nextCard(card(o, 'publish_course'))?.id).toBe('onboard_learners')
 	})
@@ -692,6 +703,7 @@ describe('next up', () => {
 		const o = await ready({
 			answers: { live_class: 'meet' },
 		})
+		finish('add_assessments')
 		finish('onboard_learners')
 		finish('live_class_meet')
 		expect(o.nextCard(card(o, 'publish_course'))).toBeNull()
@@ -765,9 +777,9 @@ describe('completeStep', () => {
 	// pin the skip clearing.
 	it('a real completion clears an earlier skip', async () => {
 		const o = await ready()
-		o.skipStep('publish_course', 'add_quiz')
+		o.skipStep('add_assessments', 'add_quiz')
 		o.completeStep('add_quiz')
-		expect(o.flowProgress('publish_course').skipped).toBe(0)
+		expect(o.flowProgress('add_assessments').skipped).toBe(0)
 	})
 })
 
@@ -884,11 +896,10 @@ describe('facts', () => {
 	// there to pin facts as tick-only.
 	it('tick steps whose fact is true and never un-tick', async () => {
 		const o = await ready()
-		o.toggleStep('publish_course', 'add_quiz')
+		o.toggleStep('add_assessments', 'add_quiz')
 		o.applyFacts({ has_course: true, has_quiz: false })
-		const steps = o.stepsOf('publish_course')
-		expect(steps[0].completed).toBe(true)
-		expect(steps[3].completed).toBe(true)
+		expect(o.stepsOf('publish_course')[0].completed).toBe(true)
+		expect(o.stepsOf('add_assessments')[0].completed).toBe(true)
 	})
 
 	// Guards: a fact leaving a skipped step skipped. Introduced in this branch
@@ -896,10 +907,10 @@ describe('facts', () => {
 	// skips.
 	it('turn a skipped step into a done one', async () => {
 		const o = await ready()
-		o.skipStep('publish_course', 'add_quiz')
+		o.skipStep('add_assessments', 'add_quiz')
 		o.applyFacts({ has_quiz: true })
-		const quiz = o.stepsOf('publish_course')[3]
-		expect(o.stepStatus('publish_course', quiz)).toBe('done')
+		const quiz = o.stepsOf('add_assessments')[0]
+		expect(o.stepStatus('add_assessments', quiz)).toBe('done')
 	})
 
 	// Guards: each focus event refetching facts instead of one debounced fetch.
@@ -908,6 +919,12 @@ describe('facts', () => {
 	it('are fetched again once after a burst of focus events', async () => {
 		vi.useFakeTimers()
 		const o = await ready()
+		// The mocked framework module survives resetModules, so every earlier
+		// composable still watches its minimize ref. Open the panel and let their
+		// refetches land first, so the tick below un-minimises nothing.
+		o.ui.minimize.value = false
+		await nextTick()
+		await vi.advanceTimersByTimeAsync(1000)
 		callMock.mockClear()
 		callMock.mockResolvedValue({ has_google_calendar: true })
 		window.dispatchEvent(new Event('focus'))
@@ -1034,9 +1051,8 @@ describe('after Skip all on a flow', () => {
 			'skipped',
 			'skipped',
 			'skipped',
-			'skipped',
 		])
-		expect(o.flowProgress('publish_course').resolved).toBe(6)
+		expect(o.flowProgress('publish_course').resolved).toBe(5)
 	})
 
 	// Guards: a fact completion showing done in the count but not on the row.

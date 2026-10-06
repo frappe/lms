@@ -1,17 +1,17 @@
 import frappe
 from frappe.utils import nowdate
 
-from lms.lms.onboarding import get_onboarding_facts
+from lms.lms.onboarding import DEMO_QUIZ_TITLE, SAMPLE_COURSE_TITLE, get_onboarding_facts
 from lms.lms.test_helpers import BaseTestUtils
-
-SAMPLE_COURSE_TITLE = "A guide to Frappe Learning"
-DEMO_QUIZ_TITLE = "Do you know Frappe Learning?"
 
 FLAG_KEYS = {
 	"has_course",
 	"has_chapter",
 	"has_lesson",
 	"has_quiz",
+	"has_programming_exercise",
+	"has_assignment",
+	"has_assessment_in_lesson",
 	"has_course_pricing",
 	"has_published_course",
 	"has_imported_learners",
@@ -45,6 +45,9 @@ class TestOnboardingFacts(BaseTestUtils):
 			"Course Chapter",
 			"LMS Course",
 			"LMS Quiz",
+			"LMS Assignment",
+			"LMS Programming Exercise",
+			"LMS Lesson Assessment",
 			"LMS Zoom Settings",
 			"LMS Google Meet Settings",
 			"Google Calendar",
@@ -147,16 +150,44 @@ class TestOnboardingFacts(BaseTestUtils):
 		self._insert_quiz("Onboarding quiz")
 		self.assertTrue(self._facts()["has_quiz"])
 
-	def _insert_quiz(self, title):
-		frappe.get_doc(
-			{
-				"doctype": "LMS Quiz",
-				"name": frappe.generate_hash(length=10),
-				"title": title,
-				"passing_percentage": 50,
-				"total_marks": 1,
-			}
-		).db_insert()
+	# Guards: the Add assessments flow missing an exercise or assignment the site already has. Introduced
+	# in this branch (feat/onboarding-flows, PR pending); test added there to pin both facts.
+	def test_programming_exercise_and_assignment_count(self):
+		facts = self._facts()
+		self.assertFalse(facts["has_programming_exercise"])
+		self.assertFalse(facts["has_assignment"])
+
+		self._create_programming_exercise("Onboarding exercise")
+		self._create_assignment("Onboarding assignment")
+		facts = self._facts()
+		self.assertTrue(facts["has_programming_exercise"])
+		self.assertTrue(facts["has_assignment"])
+
+	# Guards: the last Add assessments step missing an assessment placed in a lesson. Introduced in this
+	# branch (feat/onboarding-flows, PR pending); test added there to read the lesson placement index.
+	def test_assessment_in_a_lesson_counts(self):
+		course = self._create_course(title="Onboarding Course")
+		self.assertFalse(self._facts()["has_assessment_in_lesson"])
+
+		assignment = self._create_assignment("Onboarding assignment")
+		self._place_in_lesson(course.name, "LMS Assignment", assignment.name)
+		self.assertTrue(self._facts()["has_assessment_in_lesson"])
+
+	# Guards: instructor notes ticking the student-facing assessment step. Introduced in this branch
+	# (feat/onboarding-flows, PR pending); test added there to skip instructor_only placements.
+	def test_an_instructor_only_assessment_does_not_count(self):
+		course = self._create_course(title="Onboarding Course")
+		assignment = self._create_assignment("Onboarding assignment")
+		self._place_in_lesson(course.name, "LMS Assignment", assignment.name, instructor_only=True)
+		self.assertFalse(self._facts()["has_assessment_in_lesson"])
+
+	# Guards: the sample course's demo quiz ticking the assessment-in-lesson step. Introduced in this
+	# branch (feat/onboarding-flows, PR pending); test added there to exclude sample-course lessons.
+	def test_the_sample_course_assessments_do_not_count(self):
+		sample = self._create_course(title=SAMPLE_COURSE_TITLE)
+		quiz = self._insert_quiz(DEMO_QUIZ_TITLE)
+		self._place_in_lesson(sample.name, "LMS Quiz", quiz.name)
+		self.assertFalse(self._facts()["has_assessment_in_lesson"])
 
 	# Guards: batch details, live class or published ticking before the batch has them. Introduced in this
 	# branch (feat/onboarding-flows, PR pending); test added there to follow one batch through each step.
@@ -326,3 +357,16 @@ class TestOnboardingFacts(BaseTestUtils):
 				"timezone": "Asia/Kolkata",
 			}
 		).db_insert()
+
+	def _insert_quiz(self, title):
+		quiz = frappe.get_doc(
+			{
+				"doctype": "LMS Quiz",
+				"name": frappe.generate_hash(length=10),
+				"title": title,
+				"passing_percentage": 50,
+				"total_marks": 1,
+			}
+		)
+		quiz.db_insert()
+		return quiz

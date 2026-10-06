@@ -14,7 +14,13 @@ PLACEHOLDER_EMAIL_DOMAIN = "example.com"
 def get_onboarding_facts() -> dict[str, str | bool | None]:
 	"""What the site already has, so the onboarding flows can tick steps done before they shipped."""
 	frappe.only_for("System Manager")
-	return {**_course_facts(), **_learner_facts(), **_batch_facts(), **_meeting_facts()}
+	return {
+		**_course_facts(),
+		**_assessment_facts(),
+		**_learner_facts(),
+		**_batch_facts(),
+		**_meeting_facts(),
+	}
 
 
 def _course_facts() -> dict[str, str | bool | None]:
@@ -46,6 +52,36 @@ def _first_chapter(course: str | None) -> str | None:
 		"chapter",
 		order_by="idx asc",
 	)
+
+
+def _assessment_facts() -> dict[str, bool]:
+	return {
+		"has_programming_exercise": bool(_first("LMS Programming Exercise", {})),
+		"has_assignment": bool(_first("LMS Assignment", {})),
+		"has_assessment_in_lesson": _has_assessment_in_lesson(),
+	}
+
+
+def _has_assessment_in_lesson() -> bool:
+	"""A student-visible assessment in a lesson outside the sample course, read from
+	the placement index each lesson save derives from its content."""
+	placement = frappe.qb.DocType("LMS Lesson Assessment")
+	lesson = frappe.qb.DocType("Course Lesson")
+	course = frappe.qb.DocType("LMS Course")
+	rows = (
+		frappe.qb.from_(placement)
+		.join(lesson)
+		.on(placement.parent == lesson.name)
+		.join(course)
+		.on(lesson.course == course.name)
+		.select(placement.name)
+		.where(placement.parenttype == "Course Lesson")
+		.where(placement.instructor_only == 0)
+		.where(course.title != SAMPLE_COURSE_TITLE)
+		.limit(1)
+		.run()
+	)
+	return bool(rows)
 
 
 def _learner_facts() -> dict[str, bool]:

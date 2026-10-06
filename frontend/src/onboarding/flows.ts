@@ -7,6 +7,10 @@ import {
 	BookOpen,
 	CalendarCheck,
 	CircleHelp,
+	ClipboardCheck,
+	ClipboardList,
+	Code,
+	FilePlus,
 	FileText,
 	FolderTree,
 	Globe,
@@ -22,19 +26,27 @@ import {
 
 export type FlowId =
 	| 'publish_course'
+	| 'add_assessments'
 	| 'live_class'
 	| 'live_class_zoom'
 	| 'live_class_meet'
 	| 'onboard_learners'
 
 /** A list entry. A card with a question holds one flow per answer. */
-export type CardId = 'publish_course' | 'onboard_learners' | 'live_class'
+export type CardId =
+	| 'publish_course'
+	| 'add_assessments'
+	| 'onboard_learners'
+	| 'live_class'
 
 export const FACT_KEYS = [
 	'has_course',
 	'has_chapter',
 	'has_lesson',
 	'has_quiz',
+	'has_programming_exercise',
+	'has_assignment',
+	'has_assessment_in_lesson',
 	'has_course_pricing',
 	'has_published_course',
 	'has_imported_learners',
@@ -299,16 +311,6 @@ const publishCourseFlow: OnboardingFlow = {
 			onClick: () => openNewLesson(nav),
 		},
 		{
-			name: 'add_quiz',
-			actionLabel: __('Add'),
-			title: __('Add a quiz'),
-			icon: stepIcon(CircleHelp),
-			completed: false,
-			fact: 'has_quiz',
-			minimizeOnOpen: true,
-			onClick: () => nav.openRoute({ name: 'NewQuiz' }),
-		},
-		{
 			name: 'set_course_pricing',
 			actionLabel: __('Set'),
 			title: __('Set pricing'),
@@ -327,6 +329,67 @@ const publishCourseFlow: OnboardingFlow = {
 			dependsOn: 'create_first_course',
 			fact: 'has_published_course',
 			onClick: () => openCourseSettings(nav),
+		},
+	],
+}
+
+// The course editor opens its stored or first lesson, where the author inserts
+// the assessment.
+function openCourseEditor(nav: FlowNavigation): void {
+	withCourse(nav, (courseName) =>
+		nav.openRoute({
+			name: 'CourseDetail',
+			params: { courseName },
+			hash: '#editor',
+		})
+	)
+}
+
+const addAssessmentsFlow: OnboardingFlow = {
+	id: 'add_assessments',
+	card: 'add_assessments',
+	key: 'learning_add_assessments',
+	steps: (nav) => [
+		{
+			name: 'add_quiz',
+			actionLabel: __('Create'),
+			title: __('Create a quiz'),
+			icon: stepIcon(CircleHelp),
+			completed: false,
+			fact: 'has_quiz',
+			minimizeOnOpen: true,
+			onClick: () => nav.openRoute({ name: 'NewQuiz' }),
+		},
+		{
+			name: 'add_programming_exercise',
+			actionLabel: __('Create'),
+			title: __('Create a programming exercise'),
+			icon: stepIcon(Code),
+			completed: false,
+			fact: 'has_programming_exercise',
+			minimizeOnOpen: true,
+			onClick: () => nav.openRoute({ name: 'NewProgrammingExercise' }),
+		},
+		{
+			name: 'add_assignment',
+			actionLabel: __('Create'),
+			title: __('Create an assignment'),
+			icon: stepIcon(ClipboardList),
+			completed: false,
+			fact: 'has_assignment',
+			minimizeOnOpen: true,
+			onClick: () => nav.openForm({ name: 'NewAssignment' }),
+		},
+		{
+			// The framework takes one dependsOn; a quiz is the first thing made.
+			name: 'add_assessment_to_lesson',
+			actionLabel: __('Add'),
+			title: __('Add an assessment to a lesson'),
+			icon: stepIcon(FilePlus),
+			completed: false,
+			dependsOn: 'add_quiz',
+			fact: 'has_assessment_in_lesson',
+			onClick: () => openCourseEditor(nav),
 		},
 	],
 }
@@ -427,6 +490,7 @@ const onboardLearnersFlow: OnboardingFlow = {
 
 export const FLOWS: readonly OnboardingFlow[] = [
 	publishCourseFlow,
+	addAssessmentsFlow,
 	liveClassFlow,
 	liveClassZoomFlow,
 	liveClassMeetFlow,
@@ -445,8 +509,22 @@ export const CARDS: readonly FlowCard[] = [
 			return __('Set up your first course and lessons.')
 		},
 		icon: markRaw(BookOpen),
-		next: ['live_class', 'onboard_learners'],
+		next: ['add_assessments', 'live_class', 'onboard_learners'],
 		flows: [publishCourseFlow],
+	},
+	{
+		id: 'add_assessments',
+		get title() {
+			return __('Add assessments')
+		},
+		get description() {
+			return __(
+				'Create a quiz, a programming exercise and an assignment, then add them to a lesson.'
+			)
+		},
+		icon: markRaw(ClipboardCheck),
+		next: ['live_class', 'onboard_learners', 'publish_course'],
+		flows: [addAssessmentsFlow],
 	},
 	{
 		id: 'live_class',
@@ -488,7 +566,7 @@ export const CARDS: readonly FlowCard[] = [
 			],
 		},
 		defaultFlow: liveClassFlow,
-		next: ['onboard_learners', 'publish_course'],
+		next: ['onboard_learners', 'publish_course', 'add_assessments'],
 		flows: [liveClassFlow, liveClassZoomFlow, liveClassMeetFlow],
 	},
 	{
@@ -500,7 +578,7 @@ export const CARDS: readonly FlowCard[] = [
 			return __('Set up email and bring your users in.')
 		},
 		icon: markRaw(Users),
-		next: ['publish_course', 'live_class'],
+		next: ['publish_course', 'live_class', 'add_assessments'],
 		flows: [onboardLearnersFlow],
 	},
 ]

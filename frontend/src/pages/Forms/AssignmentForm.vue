@@ -122,6 +122,7 @@ import Link from '@/components/Controls/Link.vue'
 import RichTextEditor from '@/components/RichTextEditor.vue'
 import { InputLabel } from 'frappe-ui/experimental'
 import { resourceErrorMessage, submitResource } from '@/utils/resource'
+import { useLearningOnboarding } from '@/onboarding/useLearningOnboarding'
 import { toDatetimeLocal, fromDatetimeLocal } from '@/utils/schedule'
 
 const questionLabelId = useId()
@@ -139,6 +140,7 @@ const user = inject<any>('$user')
 const { close, saveAndReplace } = useFormRoute({ name: 'Assignments' })
 
 const isNew = computed(() => props.assignmentID === 'new')
+const { completeStep } = useLearningOnboarding()
 
 const formTitle = computed(() =>
 	isNew.value ? __('Create an Assignment') : __('Edit Assignment')
@@ -231,6 +233,7 @@ const newAssignment = createResource({
 		doc: { doctype: 'LMS Assignment', ...assignment },
 	}),
 	onSuccess() {
+		completeStep('add_assignment')
 		toast.success(__('Assignment created successfully'))
 		emit('created')
 		// replace, not push: the form entry is consumed so Back reaches the list

@@ -84,7 +84,10 @@ vi.mock('lucide-vue-next', () => ({
 }))
 const { completeStepMock } = vi.hoisted(() => ({ completeStepMock: vi.fn() }))
 vi.mock('@/onboarding/useLearningOnboarding', () => ({
-	useLearningOnboarding: () => ({ completeStep: completeStepMock }),
+	useLearningOnboarding: () => ({
+		completeStep: completeStepMock,
+		refetchFacts: vi.fn(),
+	}),
 }))
 vi.mock('@framework/ui/telemetry/index', async (importOriginal) => ({
 	...(await importOriginal<typeof import('@framework/ui/telemetry/index')>()),

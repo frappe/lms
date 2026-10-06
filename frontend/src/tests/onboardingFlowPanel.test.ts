@@ -176,7 +176,7 @@ describe('list screen', () => {
 		expect(w.find('.logo').exists()).toBe(true)
 		expect(hero(w)).toEqual({
 			title: 'Welcome to Frappe Learning',
-			count: '0/3 flows completed',
+			count: '0/4 flows completed',
 		})
 	})
 
@@ -202,7 +202,8 @@ describe('list screen', () => {
 		await flushPromises()
 		const rows = w.findAll('[data-testid="flow-row"]')
 		expect(rows.map((r) => r.text())).toEqual([
-			'Publish my first course0/6',
+			'Publish my first course0/5',
+			'Add assessments0/4',
 			'Run my first live class1/6',
 			'Onboard existing users0/2',
 		])
@@ -223,16 +224,17 @@ describe('list screen', () => {
 		expect(title.classes()).toContain('line-through')
 	})
 
-	// Regression: with every flow done the panel showed Skip all and no way back
-	// in. Introduced and fixed on this branch (feat/onboarding-flows, unpushed).
-	it('Skip all finishes everything: 100%, green, 3/3', async () => {
+	// Guards: a finished panel showing Skip all and no Reset all. Introduced in
+	// this branch (feat/onboarding-flows, PR pending); test added there to
+	// check Skip all ends at 100%.
+	it('Skip all finishes everything: 100%, green, 4/4', async () => {
 		const { w } = await setUp()
 		await w
 			.findAll('button')
 			.find((b) => b.text() === 'Skip all')!
 			.trigger('click')
 		await flushPromises()
-		expect(hero(w).count).toBe('3/3 flows completed')
+		expect(hero(w).count).toBe('4/4 flows completed')
 		const badge = w.find('.badge')
 		expect(badge.text()).toBe('100% completed')
 		expect(badge.attributes('data-theme')).toBe('green')
@@ -266,7 +268,7 @@ describe('list screen', () => {
 	// there to pin its checklist.
 	it('opens the users card on its two steps with no question', async () => {
 		const { o, w } = await setUp()
-		await w.findAll('[data-testid="flow-row"]')[2].trigger('click')
+		await w.findAll('[data-testid="flow-row"]')[3].trigger('click')
 		expect(o.screen.value).toBe('flow')
 		expect(hero(w)).toEqual({
 			title: 'Onboard existing users',
@@ -277,17 +279,6 @@ describe('list screen', () => {
 		)
 		expect(w.find('[data-testid="answer-switch"]').exists()).toBe(false)
 	})
-
-	it('opens a card without a question on its checklist', async () => {
-		const { o, w } = await setUp()
-		await w.findAll('[data-testid="flow-row"]')[0].trigger('click')
-		expect(o.screen.value).toBe('flow')
-		expect(hero(w)).toEqual({
-			title: 'Publish my first course',
-			count: '0/6 steps completed',
-		})
-		expect(w.text()).toContain('Create a course')
-	})
 })
 
 describe('run my first live class', () => {
@@ -296,7 +287,7 @@ describe('run my first live class', () => {
 	// pending); test added there to pin the pre-choice checklist.
 	it('opens on the batch steps and the tool choice, with no question first', async () => {
 		const { o, w } = await setUp()
-		await w.findAll('[data-testid="flow-row"]')[1].trigger('click')
+		await w.findAll('[data-testid="flow-row"]')[2].trigger('click')
 		expect(o.openFlow.value?.id).toBe('live_class')
 		expect(hero(w)).toEqual({
 			title: 'Run my first live class',
@@ -313,7 +304,7 @@ describe('run my first live class', () => {
 	// pending); test added there to check the switch keeps progress.
 	it("picking a tool on the step opens that tool's checklist with progress kept", async () => {
 		const { o, w } = await setUp()
-		await w.findAll('[data-testid="flow-row"]')[1].trigger('click')
+		await w.findAll('[data-testid="flow-row"]')[2].trigger('click')
 		o.toggleStep('live_class', 'create_first_batch')
 		await flushPromises()
 		await w
@@ -470,7 +461,7 @@ describe('stale stored ids', () => {
 		localStorage.setItem('learningOnboardingFlow' + USER, 'live_class')
 		const { o, w } = await setUp()
 		expect(o.screen.value).toBe('list')
-		expect(w.findAll('[data-testid="flow-row"]')).toHaveLength(3)
+		expect(w.findAll('[data-testid="flow-row"]')).toHaveLength(4)
 	})
 
 	// Guards: a stale saved answer crashing the live class card. Introduced in

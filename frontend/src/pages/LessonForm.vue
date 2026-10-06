@@ -222,7 +222,7 @@ const instructorUploadContext = reactive({
 	fieldname: 'instructor_content',
 })
 const { capture } = useTelemetry()
-const { completeStep } = useLearningOnboarding()
+const { completeStep, refetchFacts } = useLearningOnboarding()
 
 const emit = defineEmits(['saved', 'created'])
 
@@ -745,6 +745,7 @@ const linkLesson = (lessonName) =>
 		{
 			onSuccess() {
 				completeStep('create_first_lesson')
+				refetchFacts()
 				capture('lesson_created')
 				toast.success(__('Lesson created successfully'))
 				isDirty.value = false
@@ -772,6 +773,7 @@ const editCurrentLesson = (isRetry = false) => {
 				},
 				onSuccess() {
 					isDirty.value = false
+					refetchFacts()
 					emit('saved', {
 						name: lessonDetails.data.lesson.name,
 						title: lesson.title,

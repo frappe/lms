@@ -321,6 +321,7 @@ async function loadFacts(): Promise<void> {
 }
 
 function refetchFacts(): void {
+	if (!isSetUp.value) return
 	clearTimeout(refetchTimer)
 	refetchTimer = setTimeout(loadFacts, FACTS_REFETCH_DELAY)
 }
@@ -429,6 +430,7 @@ export function useLearningOnboarding() {
 		hideHelp,
 		closePanel,
 		completeStep,
+		refetchFacts,
 		applyFacts,
 		toggleStep,
 		skipStep,

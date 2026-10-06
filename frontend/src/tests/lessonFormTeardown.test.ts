@@ -95,9 +95,15 @@ vi.mock('lucide-vue-next', () => ({
 	NotebookPen: { render: () => null },
 }))
 
-const { completeStepMock } = vi.hoisted(() => ({ completeStepMock: vi.fn() }))
+const { completeStepMock, refetchFactsMock } = vi.hoisted(() => ({
+	completeStepMock: vi.fn(),
+	refetchFactsMock: vi.fn(),
+}))
 vi.mock('@/onboarding/useLearningOnboarding', () => ({
-	useLearningOnboarding: () => ({ completeStep: completeStepMock }),
+	useLearningOnboarding: () => ({
+		completeStep: completeStepMock,
+		refetchFacts: refetchFactsMock,
+	}),
 }))
 vi.mock('@framework/ui/telemetry/index', async (importOriginal) => ({
 	...(await importOriginal<typeof import('@framework/ui/telemetry/index')>()),
@@ -243,6 +249,28 @@ describe('LessonForm teardown autosave', () => {
 		const editLesson = findResource('frappe.client.set_value')
 		expect(editLesson.submit).toHaveBeenCalledTimes(1)
 		expect(editLesson.lastParams.fieldname.title).toBe('Edited title')
+	})
+
+	// Guards: the assessment step not ticking after a lesson save, or ticking for
+	// sample lessons. The server's has_assessment_in_lesson fact decides it. In
+	// this branch (feat/onboarding-flows, PR pending); test added there.
+	it('asks onboarding to refetch its facts once the lesson save lands', async () => {
+		refetchFactsMock.mockReset()
+		wrapper = await mountLoaded({ content: JSON.stringify(paragraph('Body')) })
+		editorState.saveData.content = {
+			blocks: [{ type: 'quiz', data: { quiz: 'QZ-1' } }],
+		}
+		await editEditor(wrapper, 'content')
+		wrapper.unmount()
+		await flushPromises()
+
+		const editLesson = findResource('frappe.client.set_value')
+		expect(refetchFactsMock).not.toHaveBeenCalled()
+		editLesson.lastHandlers.onSuccess()
+		expect(refetchFactsMock).toHaveBeenCalledTimes(1)
+		expect(completeStepMock).not.toHaveBeenCalledWith(
+			'add_assessment_to_lesson'
+		)
 	})
 
 	it('persists the latest body edit captured before teardown even when the body save rejects', async () => {

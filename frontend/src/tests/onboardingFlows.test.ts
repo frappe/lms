@@ -32,9 +32,10 @@ function stepsOf(id: string, nav = fakeNav()) {
 const flowRows = FLOWS.map((f) => ({ id: f.id }))
 
 describe('flow registry', () => {
-	it('ships five flows with their framework keys', () => {
+	it('ships six flows with their framework keys', () => {
 		expect(FLOWS.map((f) => [f.id, f.key])).toEqual([
 			['publish_course', 'learning_publish_course'],
+			['add_assessments', 'learning_add_assessments'],
 			['live_class', 'learning_live_class'],
 			['live_class_zoom', 'learning_live_class_zoom'],
 			['live_class_meet', 'learning_live_class_meet'],
@@ -42,12 +43,17 @@ describe('flow registry', () => {
 		])
 	})
 
-	it('groups them into three cards in the persona order', () => {
+	it('groups them into four cards, assessments after the first course', () => {
 		expect(CARDS.map((c) => [c.id, c.title, c.description])).toEqual([
 			[
 				'publish_course',
 				'Publish my first course',
 				'Set up your first course and lessons.',
+			],
+			[
+				'add_assessments',
+				'Add assessments',
+				'Create a quiz, a programming exercise and an assignment, then add them to a lesson.',
 			],
 			[
 				'live_class',
@@ -129,9 +135,17 @@ describe('flow registry', () => {
 				'Create a course',
 				'Add a chapter',
 				'Add a lesson',
-				'Add a quiz',
 				'Set pricing',
 				'Publish the course',
+			],
+		},
+		{
+			id: 'add_assessments',
+			titles: [
+				'Create a quiz',
+				'Create a programming exercise',
+				'Create an assignment',
+				'Add an assessment to a lesson',
 			],
 		},
 		{
@@ -177,8 +191,9 @@ describe('flow registry', () => {
 	it.each([
 		{
 			id: 'publish_course',
-			actions: ['Create', 'Add', 'Add', 'Add', 'Set', 'Publish'],
+			actions: ['Create', 'Add', 'Add', 'Set', 'Publish'],
 		},
+		{ id: 'add_assessments', actions: ['Create', 'Create', 'Create', 'Add'] },
 		{ id: 'live_class', actions: ['Create', 'Fill in', 'Choose'] },
 		{
 			id: 'live_class_zoom',
@@ -227,6 +242,30 @@ describe('flow registry', () => {
 			expect(step.completed).toBe(false)
 			if (step.fact) expect(FACT_KEYS).toContain(step.fact)
 		}
+	})
+
+	it('the assessments flow builds on the quiz and needs room for its forms', () => {
+		const steps = stepsOf('add_assessments')
+		expect(
+			steps.map((s) => [s.name, s.fact, s.dependsOn, s.minimizeOnOpen])
+		).toEqual([
+			['add_quiz', 'has_quiz', undefined, true],
+			['add_programming_exercise', 'has_programming_exercise', undefined, true],
+			['add_assignment', 'has_assignment', undefined, true],
+			[
+				'add_assessment_to_lesson',
+				'has_assessment_in_lesson',
+				'add_quiz',
+				undefined,
+			],
+		])
+		expect(stepsOf('publish_course').map((s) => s.name)).not.toContain(
+			'add_quiz'
+		)
+	})
+
+	it('offers assessments next once the first course is published', () => {
+		expect(getCard('publish_course')!.next[0]).toBe('add_assessments')
 	})
 
 	it.each(CARDS.map((c) => ({ id: c.id })))(
@@ -330,13 +369,34 @@ describe('step targets', () => {
 		}
 	)
 
+	it('create_first_course opens NewCourse', () => {
+		const nav = fakeNav()
+		click('publish_course', 'create_first_course', nav)
+		expect(nav.openForm).toHaveBeenCalledWith({ name: 'NewCourse' })
+	})
+
 	it.each([
-		{ name: 'create_first_course', to: { name: 'NewCourse' }, via: 'openForm' },
 		{ name: 'add_quiz', to: { name: 'NewQuiz' }, via: 'openRoute' },
+		{
+			name: 'add_programming_exercise',
+			to: { name: 'NewProgrammingExercise' },
+			via: 'openRoute',
+		},
+		{ name: 'add_assignment', to: { name: 'NewAssignment' }, via: 'openForm' },
 	] as const)('$name opens $to.name', ({ name, to, via }) => {
 		const nav = fakeNav()
-		click('publish_course', name, nav)
+		click('add_assessments', name, nav)
 		expect(nav[via]).toHaveBeenCalledWith(to)
+	})
+
+	it("adds an assessment in the course editor's open lesson", () => {
+		const nav = fakeNav(facts)
+		click('add_assessments', 'add_assessment_to_lesson', nav)
+		expect(nav.openRoute).toHaveBeenCalledWith({
+			name: 'CourseDetail',
+			params: { courseName: 'my-course' },
+			hash: '#editor',
+		})
 	})
 
 	it('opens the data import for users to import them in bulk', () => {

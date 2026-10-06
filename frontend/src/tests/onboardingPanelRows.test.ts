@@ -132,10 +132,11 @@ describe.each([
 	it('shows every list row with its title, count and chevron', async () => {
 		const { w } = await setUp(collapsed)
 		const rows = control(w, 'flow-row')
-		expect(rows).toHaveLength(3)
+		expect(rows).toHaveLength(4)
 		expect(rows.map((r) => r.find('[data-testid="row-title"]').text())).toEqual(
 			[
 				'Publish my first course',
+				'Add assessments',
 				'Run my first live class',
 				'Onboard existing users',
 			]
@@ -163,6 +164,7 @@ describe.each([
 		const { o, w } = await setUp(collapsed)
 		for (const [index, title] of [
 			'Publish my first course',
+			'Add assessments',
 			'Run my first live class',
 			'Onboard existing users',
 		].entries()) {
@@ -181,7 +183,7 @@ describe.each([
 	// pending); test added there to click those rows too.
 	it('opens Try next and the help centre without throwing', async () => {
 		const { o, w } = await setUp(collapsed)
-		await control(w, 'flow-row')[2].trigger('click')
+		await control(w, 'flow-row')[3].trigger('click')
 		await flushPromises()
 		framework.handles['learning_onboard_learners'].skipAll()
 		await flushPromises()
