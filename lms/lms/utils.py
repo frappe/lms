@@ -2223,9 +2223,7 @@ def get_quiz_with_questions(quiz: str) -> dict:
 				fields=fields,
 				ignore_permissions=True,
 			)
-			questions_by_name = {
-				row["name"]: _rewrite_question_private_media(row) for row in rows
-			}
+			questions_by_name = {row["name"]: _rewrite_question_private_media(row) for row in rows}
 			for child in quiz_doc.get("questions") or []:
 				if child.get("question_detail"):
 					child["question_detail"] = rewrite_private_media(

@@ -209,9 +209,7 @@ def _questions_vouched_by_owner(references: list[_QuestionReference]) -> dict[st
 			placed_by_uploader = (
 				ref.attached and ref.canonical and question_owner.get(ref.question) is not None
 			)
-			if not (
-				placed_by_uploader and (question_owner[ref.question] == ref.owner or ref.untouched)
-			):
+			if not (placed_by_uploader and (question_owner[ref.question] == ref.owner or ref.untouched)):
 				continue
 		if ref.question not in vouched:
 			vouched[ref.question] = ref.explanation_only
