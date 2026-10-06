@@ -126,12 +126,30 @@ async function mountDraft() {
 			provide: {
 				$user: { data: { is_moderator: true, is_instructor: true } },
 			},
+			// ComponentCustomProperties types $dialog; the mock only records calls.
+			config: { globalProperties: { $dialog: dialogMock } as never },
 		},
 		attachTo: document.body,
 	})
 	await flushPromises()
 	return wrapper
 }
+
+type DialogAction = {
+	label: string
+	onClick: (c: { close: () => void }) => void
+}
+const dialogMock = vi.fn()
+const lastDialog = () =>
+	dialogMock.mock.calls.at(-1)![0] as {
+		title: string
+		message: string
+		actions: DialogAction[]
+	}
+const press = (label: string) =>
+	lastDialog()
+		.actions.find((a) => a.label === label)!
+		.onClick({ close: () => {} })
 
 const titleField = (wrapper: VueWrapper) =>
 	wrapper.find('textarea.lesson-title')
@@ -341,6 +359,106 @@ describe('LessonForm draft: a new lesson is created from its title', () => {
 		await idle(3000)
 		await settleCreate('fail')
 		expect(completeStepMock).not.toHaveBeenCalled()
+	})
+
+	// Guards: an untitled lesson being created from body edits alone. Introduced
+	// in this branch (feat/onboarding-flows, PR pending); test added there with
+	// the discard prompt, which relies on nothing being saved.
+	it('creates nothing from a body with no title, on save or on leaving', async () => {
+		wrapper = await mountDraft()
+		await editBody(wrapper)
+		;(wrapper.vm as any).saveLesson({ flush: true })
+		await idle(3000)
+		wrapper.unmount()
+		await flushPromises()
+		expect(createLesson().submit).not.toHaveBeenCalled()
+	})
+
+	// Guards: a draft lesson looking saved before it exists. Introduced in this
+	// branch (feat/onboarding-flows, PR pending); test added there to pin when
+	// the Not saved badge shows and what it says is missing.
+	it('says Not saved beside the title until the lesson is created', async () => {
+		wrapper = await mountDraft()
+		const badge = () => wrapper.findComponent({ name: 'UnsavedBadge' })
+		expect(badge().props('missing')).toEqual(['a title'])
+		await typeTitle(wrapper, 'Intro')
+		expect(badge().props('missing')).toEqual([])
+		await idle(3000)
+		await settleCreate()
+		expect(badge().exists()).toBe(false)
+	})
+
+	describe('leaving an unsaved lesson', () => {
+		const guard = (w: VueWrapper, leave: () => void) =>
+			(w.vm as any).guardLeave(leave) as boolean
+
+		beforeEach(() => dialogMock.mockReset())
+
+		// Guards: a discard prompt on a lesson with nothing to lose. Introduced in
+		// this branch (feat/onboarding-flows, PR pending); test added there.
+		it('leaves an empty new lesson silently', async () => {
+			wrapper = await mountDraft()
+			expect(guard(wrapper, vi.fn())).toBe(true)
+			expect(dialogMock).not.toHaveBeenCalled()
+		})
+
+		// Guards: a discard prompt on a titled lesson, which leaving saves anyway.
+		// Introduced in this branch (feat/onboarding-flows, PR pending); test
+		// added there.
+		it('leaves a titled one silently, since leaving creates it', async () => {
+			wrapper = await mountDraft()
+			await typeTitle(wrapper, 'Intro')
+			expect(guard(wrapper, vi.fn())).toBe(true)
+			expect(dialogMock).not.toHaveBeenCalled()
+		})
+
+		// Guards: body edits on an untitled lesson vanishing without a prompt.
+		// Introduced in this branch (feat/onboarding-flows, PR pending); test
+		// added there to pin the prompt's wording and actions.
+		it('asks before discarding a body that has no title to save it under', async () => {
+			wrapper = await mountDraft()
+			await editBody(wrapper)
+			const leave = vi.fn()
+			expect(guard(wrapper, leave)).toBe(false)
+			expect(lastDialog().title).toBe('Discard changes?')
+			expect(lastDialog().message).toBe(
+				"This lesson hasn't been saved. Your changes will be lost."
+			)
+			expect(lastDialog().actions.map((a) => a.label)).toEqual([
+				'Discard',
+				'Keep editing',
+			])
+		})
+
+		// Guards: the prompt's buttons doing the wrong thing or Discard re-asking.
+		// Introduced in this branch (feat/onboarding-flows, PR pending); test
+		// added there.
+		it('Keep editing stays; Discard leaves and does not ask again', async () => {
+			wrapper = await mountDraft()
+			await editBody(wrapper)
+			const leave = vi.fn()
+			guard(wrapper, leave)
+			press('Keep editing')
+			expect(leave).not.toHaveBeenCalled()
+			guard(wrapper, leave)
+			press('Discard')
+			expect(leave).toHaveBeenCalledTimes(1)
+			expect(guard(wrapper, vi.fn())).toBe(true)
+		})
+
+		// Guards: closing the tab silently dropping an untitled lesson's body.
+		// Introduced in this branch (feat/onboarding-flows, PR pending); test
+		// added there for the beforeunload prompt.
+		it('has the browser ask before closing the tab', async () => {
+			wrapper = await mountDraft()
+			const event = new Event('beforeunload', { cancelable: true })
+			window.dispatchEvent(event)
+			expect(event.defaultPrevented).toBe(false)
+			await editBody(wrapper)
+			const lost = new Event('beforeunload', { cancelable: true })
+			window.dispatchEvent(lost)
+			expect(lost.defaultPrevented).toBe(true)
+		})
 	})
 
 	it('saves body edits made during the draft right after the create', async () => {

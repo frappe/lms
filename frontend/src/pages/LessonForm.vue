@@ -68,17 +68,25 @@
 				</div>
 			</BottomSheet>
 
-			<textarea
-				ref="titleRef"
-				v-model="lesson.title"
-				:placeholder="__('Lesson title')"
-				:aria-label="__('Lesson title')"
-				rows="1"
-				class="lesson-title block w-full resize-none overflow-hidden border-0 bg-transparent p-0 text-2xl font-bold leading-tight text-ink-gray-9 placeholder:text-ink-gray-4 focus:outline-none focus-visible:outline-none focus:ring-0"
-				@input="onTitleInput"
-				@keydown.enter="onTitleEnter"
-				@blur="onTitleBlur"
-			/>
+			<div class="flex items-start gap-2">
+				<textarea
+					ref="titleRef"
+					v-model="lesson.title"
+					:placeholder="__('Lesson title')"
+					:aria-label="__('Lesson title')"
+					rows="1"
+					class="lesson-title block w-full resize-none overflow-hidden border-0 bg-transparent p-0 text-2xl font-bold leading-tight text-ink-gray-9 placeholder:text-ink-gray-4 focus:outline-none focus-visible:outline-none focus:ring-0"
+					@input="onTitleInput"
+					@keydown.enter="onTitleEnter"
+					@blur="onTitleBlur"
+				/>
+				<UnsavedBadge
+					v-if="isDraft"
+					class="mt-1.5 shrink-0"
+					:missing="lesson.title.trim() ? [] : [__('a title')]"
+					:hint="__('This lesson saves once you pause typing')"
+				/>
+			</div>
 
 			<details
 				class="instructor-notes rounded-6 border border-outline-gray-2"
@@ -139,7 +147,10 @@ import {
 	nextTick,
 	onBeforeUnmount,
 	useId,
+	getCurrentInstance,
 } from 'vue'
+import { onBeforeRouteLeave, onBeforeRouteUpdate, useRouter } from 'vue-router'
+import UnsavedBadge from '@/components/UnsavedBadge.vue'
 import { ChevronRight, NotebookPen } from 'lucide-vue-next'
 import { useDebounceFn } from '@vueuse/core'
 import { enablePlyr, sanitizeEditorJs } from '@/utils'
@@ -301,7 +312,65 @@ function markDirty({ fromTitle = false } = {}) {
 	autoSave()
 }
 
+// A draft is created from its title, and leaving creates a titled one, so only
+// a body with no title is lost on the way out.
+const draftWouldBeLost = computed(
+	() => isDraft.value && !lesson.title.trim() && isDirty.value
+)
+const { $dialog } = getCurrentInstance().appContext.config.globalProperties
+const router = useRouter()
+let discardConfirmed = false
+
+// True when leaving loses nothing. Otherwise asks, and calls `leave` on Discard:
+// createDialog reports no dismissal, so the caller cancels and is re-run.
+function guardLeave(leave) {
+	if (discardConfirmed || !draftWouldBeLost.value) return true
+	askToDiscard(leave)
+	return false
+}
+
+function askToDiscard(leave) {
+	$dialog({
+		title: __('Discard changes?'),
+		message: __("This lesson hasn't been saved. Your changes will be lost."),
+		actions: [
+			{
+				label: __('Discard'),
+				theme: 'red',
+				variant: 'solid',
+				onClick({ close }) {
+					discardConfirmed = true
+					close()
+					leave()
+				},
+			},
+			{
+				label: __('Keep editing'),
+				onClick({ close }) {
+					close()
+				},
+			},
+		],
+	})
+}
+
+onBeforeRouteLeave((to) => guardLeave(() => router.push(to)))
+// Another tab of the course page unmounts the editor too.
+onBeforeRouteUpdate(
+	(to, from) => to.hash === from.hash || guardLeave(() => router.push(to))
+)
+
+// The browser writes the text. Both calls are needed for the prompt to appear.
+function warnOnUnload(event) {
+	if (!draftWouldBeLost.value) return
+	event.preventDefault()
+	event.returnValue = ''
+}
+window.addEventListener('beforeunload', warnOnUnload)
+onBeforeUnmount(() => window.removeEventListener('beforeunload', warnOnUnload))
+
 defineExpose({
+	guardLeave,
 	saveLesson,
 	markDeleted,
 	isDirty,
