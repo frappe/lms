@@ -4,9 +4,24 @@
 		:uploadArgs="uploadArgs"
 		:validateFile="validateFile"
 		@success="(data) => addFile(data)"
+<<<<<<< HEAD
 		ref="fileUploader"
 		class="hide"
 	/>
+=======
+		v-slot="{ openFileSelector, uploading, progress, error }"
+	>
+		<div>
+			<AutoOpen :open="openFileSelector" />
+			<Button :loading="uploading" @click="openFileSelector">
+				{{
+					uploading ? __('Uploading {0}%').format(progress) : __('Upload File')
+				}}
+			</Button>
+			<ErrorMessage :message="error?.replace('; the limit is', '. The limit is') ?? undefined" class="mt-1" />
+		</div>
+	</FileUploader>
+>>>>>>> bdff590 (fix: show configured limit for oversized lesson uploads)
 </template>
 <script setup>
 import { FileUploader } from 'frappe-ui'
