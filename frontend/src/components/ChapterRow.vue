@@ -1,80 +1,105 @@
 <template>
 	<Disclosure v-slot="{ open }" :key="chapter.name" :defaultOpen="defaultOpen">
-		<DisclosureButton class="flex items-center w-full p-2 group">
-			<span
-				:class="{
-					'rotate-90': open,
-					'rtl:rotate-180': !open,
-					hidden: chapter.is_scorm_package,
-					'self-start mt-0.5': inlineSelect,
-				}"
-				class="lucide-chevron-right size-4 text-ink-gray-9 transform duration-200"
-			/>
-			<div
-				class="ms-2 min-w-0 flex-1 text-start"
-				:class="[
-					inlineSelect ? '' : 'flex items-baseline justify-between gap-3',
-					isScormChapterLocked ? 'cursor-not-allowed opacity-60' : '',
-				]"
-				@click="redirectToChapter"
+		<div class="flex items-center w-full group">
+			<component
+				:is="headerComponent"
+				v-bind="headerProps"
+				class="flex items-center w-full min-w-0 p-2 text-start"
 			>
-				<TextInput
-					v-if="isRenaming"
-					ref="renameInput"
-					v-model="renameValue"
-					class="w-full"
-					@click.stop.prevent
-					@keydown.enter.stop.prevent="commitRename"
-					@keydown.esc.stop.prevent="cancelRename"
-					@blur="commitRename"
+				<span
+					:class="{
+						'rotate-90': open,
+						'rtl:rotate-180': !open,
+						hidden: chapter.is_scorm_package,
+						'self-start mt-0.5': inlineSelect,
+					}"
+					class="lucide-chevron-right size-4 text-ink-gray-9 transform duration-200"
 				/>
 				<div
-					v-else
-					class="truncate text-base-medium leading-5 text-ink-gray-9"
-					:title="chapter.title"
-					@dblclick="allowEdit && !chapter.is_scorm_package && startRename()"
+					class="ms-2 min-w-0 flex-1 text-start"
+					:class="[
+						inlineSelect ? '' : 'flex items-baseline justify-between gap-3',
+						isScormChapterLocked ? 'cursor-not-allowed opacity-60' : '',
+					]"
 				>
-					{{ chapter.title }}
+					<TextInput
+						v-if="isRenaming"
+						ref="renameInput"
+						v-model="renameValue"
+						class="w-full"
+						@click.stop.prevent
+						@keydown.enter.stop.prevent="commitRename"
+						@keydown.esc.stop.prevent="cancelRename"
+						@blur="commitRename"
+					/>
+					<div
+						v-else
+						class="truncate text-base-medium leading-5 text-ink-gray-9"
+						:title="chapter.title"
+						@dblclick="allowEdit && !chapter.is_scorm_package && startRename()"
+					>
+						{{ chapter.title }}
+					</div>
 				</div>
-			</div>
-			<div class="flex ms-3 items-center gap-x-4 shrink-0">
 				<span
 					v-if="!chapter.is_scorm_package && chapter.lessons?.length"
-					class="text-sm text-ink-gray-5"
+					class="ms-3 shrink-0 text-sm text-ink-gray-6"
 					:class="{
-						'group-hover:hidden [@media(hover:none)]:hidden': allowEdit,
+						'group-hover:hidden group-focus-within:hidden [@media(hover:none)]:hidden':
+							allowEdit,
 					}"
 				>
 					{{ chapter.lessons.length }}
 				</span>
-				<Tooltip :text="__('Edit Chapter')" side="bottom">
+				<template v-if="isScormChapterLocked">
 					<span
-						v-if="allowEdit && chapter.is_scorm_package"
-						@click.prevent="emit('edit-chapter', chapter)"
-						class="lucide-file-pen-line size-4 text-ink-gray-9 invisible group-hover:visible [@media(hover:none)]:visible"
+						class="lucide-lock-keyhole size-4 text-ink-gray-4"
+						:title="__('Complete the previous lessons to unlock this one')"
+						aria-hidden="true"
 					/>
+					<span class="sr-only">{{ __('Locked') }}</span>
+				</template>
+				<template
+					v-else-if="chapter.is_scorm_package && isScormChapterComplete"
+				>
+					<span
+						class="lucide-check size-4 text-ink-green-8"
+						aria-hidden="true"
+					/>
+					<span class="sr-only">{{ __('Completed') }}</span>
+				</template>
+			</component>
+			<div v-if="allowEdit" class="flex items-center gap-x-4 shrink-0">
+				<Tooltip
+					v-if="chapter.is_scorm_package"
+					:text="__('Edit Chapter')"
+					side="bottom"
+				>
+					<Button
+						variant="ghost"
+						:label="__('Edit Chapter')"
+						class="invisible group-hover:visible group-focus-within:visible [@media(hover:none)]:visible"
+						@click="emit('edit-chapter', chapter)"
+					>
+						<template #icon>
+							<span class="lucide-file-pen-line size-4 text-ink-gray-9" />
+						</template>
+					</Button>
 				</Tooltip>
 				<Tooltip :text="__('Delete Chapter')" side="bottom">
-					<span
-						v-if="allowEdit"
-						@click.prevent="emit('delete-chapter', chapter.name)"
-						class="lucide-trash-2 size-4 text-ink-red-5 hidden group-hover:inline-block [@media(hover:none)]:inline-block"
-					/>
+					<Button
+						variant="ghost"
+						:label="__('Delete Chapter')"
+						class="me-2 hidden group-hover:inline-flex group-focus-within:inline-flex [@media(hover:none)]:inline-flex"
+						@click="emit('delete-chapter', chapter.name)"
+					>
+						<template #icon>
+							<span class="lucide-trash-2 size-4 text-ink-red-5" />
+						</template>
+					</Button>
 				</Tooltip>
 			</div>
-			<template v-if="isScormChapterLocked">
-				<span
-					class="lucide-lock-keyhole size-4 text-ink-gray-4"
-					:title="__('Complete the previous lessons to unlock this one')"
-					aria-hidden="true"
-				/>
-				<span class="sr-only">{{ __('Locked') }}</span>
-			</template>
-			<span
-				v-else-if="chapter.is_scorm_package && isScormChapterComplete"
-				class="lucide-check size-4 text-ink-green-8"
-			/>
-		</DisclosureButton>
+		</div>
 		<DisclosurePanel v-if="!chapter.is_scorm_package">
 			<Draggable
 				:list="chapter.lessons"
@@ -86,27 +111,31 @@
 			>
 				<template #item="{ element: lesson }">
 					<div
-						class="ps-8 py-2 pe-4 text-ink-gray-9"
+						class="ps-8 py-2 pe-4 text-ink-gray-9 flex items-center group"
 						data-testid="outline-lesson"
 						:class="
 							isActiveLesson(lesson.number) ? 'bg-surface-gray-3 rounded-5' : ''
 						"
 					>
 						<component
-							:is="inlineSelect || lesson.locked ? 'div' : 'router-link'"
+							:is="
+								lesson.locked ? 'div' : inlineSelect ? 'button' : 'router-link'
+							"
+							:type="!lesson.locked && inlineSelect ? 'button' : undefined"
 							:to="
 								inlineSelect || lesson.locked ? undefined : lessonRoute(lesson)
 							"
+							class="flex-1 min-w-0"
 							:class="
 								lesson.locked
 									? 'cursor-not-allowed opacity-60'
 									: inlineSelect
-									? 'cursor-pointer'
+									? 'cursor-pointer w-full text-start'
 									: ''
 							"
 							@click="onLessonClick(lesson)"
 						>
-							<div class="flex items-center text-sm leading-5 group">
+							<div class="flex items-center text-sm leading-5">
 								<span
 									v-if="lesson.icon === 'icon-youtube'"
 									class="lucide-monitor-play h-4 w-4 me-2"
@@ -128,17 +157,6 @@
 									class="lucide-file-text h-4 w-4 text-ink-gray-9 me-2"
 								/>
 								{{ lesson.title }}
-								<div v-if="allowEdit" class="ms-auto flex items-center gap-2">
-									<span
-										@click.prevent="
-											emit('delete-lesson', {
-												lesson: lesson.name,
-												chapter: chapter.name,
-											})
-										"
-										class="lucide-trash-2 h-4 w-4 text-ink-red-5 invisible group-hover:visible [@media(hover:none)]:visible"
-									/>
-								</div>
 								<template v-if="lesson.locked">
 									<span
 										class="lucide-lock-keyhole h-4 w-4 text-ink-gray-4 ms-2"
@@ -149,17 +167,45 @@
 									/>
 									<span class="sr-only">{{ __('Locked') }}</span>
 								</template>
-								<span
-									v-else-if="lesson.is_complete"
-									class="lucide-check h-4 w-4 text-ink-green-8 ms-2"
-								/>
+								<template v-else-if="lesson.is_complete">
+									<span
+										class="lucide-check h-4 w-4 text-ink-green-8 ms-2"
+										aria-hidden="true"
+									/>
+									<span class="sr-only">{{ __('Completed') }}</span>
+								</template>
 							</div>
 						</component>
+						<div v-if="allowEdit" class="ms-auto flex items-center gap-2">
+							<Button
+								variant="ghost"
+								size="xs"
+								:label="__('Delete Lesson')"
+								class="-my-0.5 invisible group-hover:visible group-focus-within:visible [@media(hover:none)]:visible"
+								@click="
+									emit('delete-lesson', {
+										lesson: lesson.name,
+										chapter: chapter.name,
+									})
+								"
+							>
+								<template #icon>
+									<span class="lucide-trash-2 h-4 w-4 text-ink-red-5" />
+								</template>
+							</Button>
+						</div>
 					</div>
 				</template>
 			</Draggable>
+			<div
+				v-if="isDraftInChapter"
+				class="ps-8 py-2 pe-4 bg-surface-gray-3 rounded-5 text-sm leading-5 text-ink-gray-6"
+				data-testid="outline-draft-lesson"
+			>
+				{{ __('New lesson') }}
+			</div>
 			<div v-if="allowEdit" class="flex mt-2 mb-4 ps-8">
-				<Button :loading="creatingLesson" @click="addLesson">
+				<Button @click="addLesson">
 					<template #prefix>
 						<span class="lucide-plus size-4" />
 					</template>
@@ -175,10 +221,11 @@ import { Button, TextInput, Tooltip, toast } from 'frappe-ui'
 import { computed, inject, nextTick, ref, watch } from 'vue'
 import Draggable from 'vuedraggable'
 import { Disclosure, DisclosureButton, DisclosurePanel } from '@headlessui/vue'
-import { useRoute, useRouter } from 'vue-router'
+import { useRoute } from 'vue-router'
 import type { RouteLocationRaw } from 'vue-router'
 import type { InputExposed } from 'frappe-ui'
 import type { OutlineChapter, OutlineLesson, SessionUser } from '@/types'
+import { draftLessonNumber } from '@/utils/courseOutline'
 
 interface DraggableEvent {
 	item: { __draggable_context: { element: OutlineChapter | OutlineLesson } }
@@ -195,14 +242,12 @@ const props = withDefaults(
 		inlineSelect?: boolean
 		editorLinks?: boolean
 		selectedLessonNumber?: string
-		creatingLesson?: boolean
 	}>(),
 	{
 		allowEdit: false,
 		inlineSelect: false,
 		editorLinks: false,
 		selectedLessonNumber: '',
-		creatingLesson: false,
 	}
 )
 
@@ -218,7 +263,6 @@ const emit = defineEmits<{
 }>()
 
 const route = useRoute()
-const router = useRouter()
 const user = inject<SessionUser>('$user')!
 
 const isRenaming = ref<boolean>(false)
@@ -286,6 +330,13 @@ const isScormChapterLocked = computed<boolean>(() =>
 	)
 )
 
+// The editor's open lesson is a draft in this chapter, not yet in its lessons.
+const isDraftInChapter = computed<boolean>(
+	() =>
+		props.inlineSelect &&
+		props.selectedLessonNumber === draftLessonNumber(props.chapter.idx)
+)
+
 function isActiveLesson(lessonNumber: string): boolean {
 	if (props.inlineSelect) return props.selectedLessonNumber === lessonNumber
 	return (
@@ -328,20 +379,29 @@ function addLesson() {
 	})
 }
 
-function redirectToChapter() {
-	if (!props.chapter.is_scorm_package) return
-	;(event as Event | undefined)?.preventDefault()
-	if (isScormChapterLocked.value) return
-	if (!user.data) {
-		toast.success(__('Please enroll for this course to view this lesson'))
-		return
-	}
-	router.push({
-		name: 'SCORMChapter',
-		params: {
-			courseName: props.courseName,
-			chapterName: props.chapter.name,
-		},
-	})
+function notifyEnrollment(): void {
+	toast.success(__('Please enroll for this course to view this lesson'))
 }
+
+// A SCORM chapter has no lessons to disclose, so its header is a link to the
+// player instead of a disclosure button.
+const headerComponent = computed(() => {
+	if (!props.chapter.is_scorm_package) return DisclosureButton
+	if (isScormChapterLocked.value) return 'div'
+	return user.data ? 'router-link' : 'button'
+})
+
+const headerProps = computed(() => {
+	if (!props.chapter.is_scorm_package || isScormChapterLocked.value) return {}
+	if (!user.data) return { type: 'button', onClick: notifyEnrollment }
+	return {
+		to: {
+			name: 'SCORMChapter',
+			params: {
+				courseName: props.courseName,
+				chapterName: props.chapter.name,
+			},
+		},
+	}
+})
 </script>

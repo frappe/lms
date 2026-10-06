@@ -1,8 +1,9 @@
 <template>
-	<div class="text-lg-semibold mb-4 text-ink-gray-9">
+	<div :id="notesLabelId" class="text-lg-semibold mb-4 text-ink-gray-9">
 		{{ __('My Notes') }}
 	</div>
 	<RichTextEditor
+		:ariaLabelledby="notesLabelId"
 		:content="note"
 		:placeholder="__('Make notes for quick revision. Press / for menu.')"
 		@change="(val: string) => updateNoteText(val)"
@@ -17,12 +18,13 @@
 </template>
 <script setup lang="ts">
 import { useDebounceFn } from '@vueuse/core'
-import { inject, ref, onMounted, watch } from 'vue'
+import { inject, ref, onMounted, useId, watch } from 'vue'
 import type { Note, Notes } from '@/types'
 import type { FrappeResourceError } from 'frappe-ui'
 import { blockQuotesClick } from '@/utils/'
 import RichTextEditor from '@/components/RichTextEditor.vue'
 
+const notesLabelId = useId()
 const note = ref<string | null>(null)
 const currentNoteName = ref<string | null>(null)
 const user = inject<any>('$user')

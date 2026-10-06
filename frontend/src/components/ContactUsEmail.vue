@@ -15,6 +15,7 @@
 						:required="true"
 					/>
 					<RichTextEditor
+						:ariaLabelledby="messageLabelId"
 						:fixedMenu="true"
 						@change="(val) => (message = val)"
 						minHeight="200px"

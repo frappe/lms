@@ -57,12 +57,17 @@
 						v-if="filtered.length"
 						class="w-full divide-y divide-outline-gray-2 overflow-auto text-p-base"
 					>
-						<div
-							v-for="n in filtered"
+						<component
+							:is="route ? 'router-link' : 'button'"
+							v-for="{ n, route } in rows"
 							:key="n.name"
-							class="flex cursor-pointer items-start gap-2.5 px-4 py-2.5 hover:bg-surface-gray-2"
+							:to="route || undefined"
+							:type="route ? undefined : 'button'"
+							class="flex w-full cursor-pointer items-start gap-2.5 px-4 py-2.5 text-start hover:bg-surface-gray-2"
+							:class="{ 'font-medium': !n.read }"
 							@click="onSelect(n)"
 						>
+							<span v-if="!n.read" class="sr-only">{{ __('Unread') }}</span>
 							<div class="mt-1 flex items-center gap-2.5">
 								<div
 									class="size-[5px] rounded-full"
@@ -76,11 +81,11 @@
 							</div>
 							<div>
 								<div v-safe-html:basic="decodeEntities(n.subject)" />
-								<div class="text-p-sm text-ink-gray-5">
+								<div class="text-p-sm text-ink-gray-6">
 									{{ dayjs(n.creation).fromNow() }}
 								</div>
 							</div>
-						</div>
+						</component>
 					</div>
 					<EmptyStateLayout
 						v-else
@@ -98,7 +103,6 @@
 <script setup>
 import { Avatar, Button, TabButtons, Tooltip } from 'frappe-ui'
 import { computed, inject, ref, watch } from 'vue'
-import { useRouter } from 'vue-router'
 import { onClickOutside } from '@vueuse/core'
 import { decodeEntities } from '@/utils'
 import { assignmentSubmissionFromLink } from '@/utils/notificationLinks'
@@ -114,7 +118,6 @@ import {
 } from '@/stores/notifications'
 
 const dayjs = inject('$dayjs')
-const router = useRouter()
 const sidebarStore = useSidebar()
 const { isMobile } = useScreenSize()
 
@@ -135,6 +138,10 @@ const filtered = computed(() => {
 		? data.filter((n) => !n.read)
 		: data.filter((n) => n.read)
 })
+
+const rows = computed(() =>
+	filtered.value.map((n) => ({ n, route: notificationRoute(n) }))
+)
 
 const emptyTitle = computed(() =>
 	activeTab.value === 'Unread'
@@ -161,28 +168,25 @@ watch(panelVisible, (open) => {
 
 const onSelect = (n) => {
 	if (!n.read) markAsRead.submit({ name: n.name })
-	navigateToPage(n)
 	closeNotifications()
 }
 
-const navigateToPage = (log) => {
-	if (!log.link) return
+const notificationRoute = (log) => {
+	if (!log.link) return null
 	const submission = assignmentSubmissionFromLink(log.link)
-	if (submission) {
-		router.push({ name: 'AssignmentSubmission', params: submission })
-		return
-	}
+	if (submission) return { name: 'AssignmentSubmission', params: submission }
 	let link = log.link.split('/')
 	if (link[2] == 'courses') {
-		router.push({ name: 'CourseDetail', params: { courseName: link[3] } })
+		return { name: 'CourseDetail', params: { courseName: link[3] } }
 	} else if (link.includes('batches')) {
 		const batchTarget = link.pop()
 		const [batchName, hashValue] = batchTarget.split('#')
-		router.push({
+		return {
 			name: 'BatchDetail',
 			params: { batchName },
 			hash: hashValue ? `#${hashValue}` : '',
-		})
+		}
 	}
+	return null
 }
 </script>

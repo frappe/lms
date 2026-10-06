@@ -45,7 +45,7 @@
 					@blur="commitMarks"
 				>
 					<template #suffix>
-						<span class="text-ink-gray-5">{{ marksUnit }}</span>
+						<span class="text-ink-gray-6">{{ marksUnit }}</span>
 					</template>
 				</FormControl>
 			</div>

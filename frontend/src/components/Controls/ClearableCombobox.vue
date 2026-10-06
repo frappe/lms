@@ -9,6 +9,7 @@
 			:description="description"
 			:error="error"
 			:required="required"
+			:aria-label="ariaLabel"
 			@update:modelValue="
 				(value) => emit('update:modelValue', value ? String(value) : null)
 			"
@@ -55,6 +56,7 @@ defineProps<{
 	description?: string
 	error?: string
 	required?: boolean
+	ariaLabel?: string
 }>()
 
 const emit = defineEmits<{ 'update:modelValue': [string | null] }>()

@@ -16,9 +16,13 @@
 	</EmptyStateLayout>
 </template>
 <script setup>
-import { Button } from 'frappe-ui'
+import { Button, usePageMeta } from 'frappe-ui'
 import EmptyStateLayout from '@/components/Layouts/EmptyStateLayout.vue'
 import { useRouter } from 'vue-router'
+import { sessionStore } from '@/stores/session'
 
 const router = useRouter()
+const { brand } = sessionStore()
+
+usePageMeta(() => ({ title: __('Page not found'), icon: brand.favicon }))
 </script>

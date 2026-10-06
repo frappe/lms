@@ -8,6 +8,7 @@
 			:disabled="attrs.readonly as boolean"
 			:size="(attrs.size as ComboboxSize) || 'sm'"
 			:aria-label="label ? undefined : (attrs['aria-label'] as string)"
+			:autocomplete="attrs.autocomplete as string"
 			:variant="attrs.variant as ComboboxVariant"
 			:align="props.align"
 			:loading="options.loading"

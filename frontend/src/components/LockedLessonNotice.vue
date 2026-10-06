@@ -22,7 +22,7 @@
 			</div>
 			<template v-if="redirect">
 				<span
-					class="shrink-0 text-p-xs text-ink-gray-5 tabular-nums"
+					class="shrink-0 text-p-xs text-ink-gray-6 tabular-nums"
 					aria-hidden="true"
 				>
 					{{ __('{0}s').format(secondsLeft) }}

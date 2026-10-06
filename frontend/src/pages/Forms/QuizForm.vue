@@ -31,6 +31,7 @@
 			</template>
 		</template>
 	</PageHeader>
+	<h1 class="sr-only">{{ pageTitle }}</h1>
 	<div
 		v-if="quizDetails.loading && !quizDetails.doc"
 		class="flex items-center justify-center py-20"
@@ -1016,6 +1017,11 @@ const calculateTotalMarks = () => {
 	const counted = limit ? rows.slice(0, limit) : rows
 	return counted.reduce((total, row) => total + (Number(row.marks) || 0), 0)
 }
+
+// A new quiz's title changes on every keystroke, so its heading stays fixed.
+const pageTitle = computed(() =>
+	isNew.value ? __('New Quiz') : doc.value?.title || __('Quiz')
+)
 
 const breadcrumbs = computed(() => {
 	const crumbs = [

@@ -7,8 +7,12 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 // carries no `video-player` class. The fake must do the same or the mock hides
 // the class of bug where Vue keeps patching a node Plyr already detached.
 const plyrCtor = vi.hoisted(() =>
-	vi.fn(function FakePlyr(this: { on: () => void }, el: Element) {
+	vi.fn(function FakePlyr(
+		this: { on: () => void; elements: object },
+		el: Element
+	) {
 		this.on = () => {}
+		this.elements = {}
 		if (el?.parentNode) {
 			const container = document.createElement('div')
 			container.id = 'plyr-youtube-fake'
