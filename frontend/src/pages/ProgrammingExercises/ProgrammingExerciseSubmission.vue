@@ -40,6 +40,7 @@
 						:modelValue="code"
 						@update:modelValue="editCode"
 						:language="editorLanguage"
+						:readonly="running"
 						:label="__('Your Code')"
 					/>
 				</template>

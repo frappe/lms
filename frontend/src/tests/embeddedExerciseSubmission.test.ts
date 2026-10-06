@@ -98,9 +98,13 @@ vi.mock('@/components/ProgrammingExercises/ExerciseWorkspace.vue', () => ({
 }))
 vi.mock('@/components/ProgrammingExercises/ExerciseCodeEditor.vue', () => ({
 	default: defineComponent({
-		props: ['modelValue'],
+		props: ['modelValue', 'readonly'],
 		setup: (props) => () =>
-			h('pre', { 'data-testid': 'code' }, props.modelValue),
+			h(
+				'pre',
+				{ 'data-testid': 'code', 'data-readonly': String(!!props.readonly) },
+				props.modelValue
+			),
 	}),
 }))
 vi.mock('@/components/Layouts/pages/PageHeader.vue', () => ({
@@ -289,6 +293,33 @@ describe('the programming exercise mounted inline in a lesson', () => {
 		const editor = wrapper.get('[data-testid="code"]').text()
 		expect(editor.startsWith('with open("stdin"')).toBe(true)
 		expect(editor.endsWith('print(inputs[0])')).toBe(true)
+	})
+
+	// Guards edits typed while the server grades being wiped when the save lands.
+	// Added on fix-1, when saving started to take seconds.
+	it('locks the editor until the save finishes', async () => {
+		let finishSave: (name: string) => void = () => {}
+		call.mockImplementation((method: string) => {
+			if (method === 'lms.lms.api.get_programming_exercise')
+				return Promise.resolve(exercise)
+			if (method === CREATE)
+				return new Promise((resolve) => (finishSave = resolve))
+			if (method === 'lms.lms.api.evaluate_programming_exercise')
+				return Promise.resolve(scoredRun)
+			return Promise.resolve()
+		})
+		const wrapper = await mountEmbedded()
+
+		await runCode(wrapper)
+		expect(
+			wrapper.get('[data-testid="code"]').attributes('data-readonly')
+		).toBe('true')
+
+		finishSave('SUB-1')
+		await flushPromises()
+		expect(
+			wrapper.get('[data-testid="code"]').attributes('data-readonly')
+		).toBe('false')
 	})
 
 	it("keeps one block's submission out of another unsubmitted block", async () => {

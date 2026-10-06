@@ -17,6 +17,7 @@
 				variant="ghost"
 				size="sm"
 				data-testid="reset-code"
+				:disabled="running"
 				@click="emit('reset')"
 			>
 				{{ __('Reset') }}
