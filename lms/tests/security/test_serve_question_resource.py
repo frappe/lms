@@ -237,9 +237,9 @@ class TestServeQuestionResource(BaseTestUtils):
 					"decode": True,
 				}
 			).insert(ignore_permissions=True)
-			# Prompt has no image; only the explanation cites the private file.
+			# explanation_* is Small Text (not a text editor), so cite the bare url.
 			self.question.question = f"<p>No image here {h}</p>"
-			self.question.explanation_1 = f'<p><img src="{expl.file_url}"></p>'
+			self.question.explanation_1 = expl.file_url
 			self.question.save()
 		finally:
 			frappe.set_user("Administrator")
@@ -280,7 +280,7 @@ class TestServeQuestionResource(BaseTestUtils):
 				}
 			).insert(ignore_permissions=True)
 			self.question.question = f"<p>No image here {h}</p>"
-			self.question.explanation_1 = f'<p><img src="{expl.file_url}"></p>'
+			self.question.explanation_1 = expl.file_url
 			self.question.save()
 		finally:
 			frappe.set_user("Administrator")
