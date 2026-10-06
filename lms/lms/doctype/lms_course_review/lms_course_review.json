@@ -31,7 +31,8 @@
    "in_standard_filter": 1,
    "label": "Course",
    "options": "LMS Course",
-   "reqd": 1
+   "reqd": 1,
+   "search_index": 1
   },
   {
    "fieldname": "column_break_lrtk",
