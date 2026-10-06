@@ -379,8 +379,9 @@ def import_course_zip(zip_file_path):
 			frappe.throw(_("Invalid course ZIP: Missing course.json"))
 
 		create_assets(zip_file)
-		create_user_for_instructors(zip_file)
-		create_evaluator(zip_file)
+		if is_moderator():
+			create_user_for_instructors(zip_file)
+			create_evaluator(zip_file)
 		course_doc = create_course_doc(course_data)
 		chapter_docs = create_chapter_docs(zip_file, course_doc.name)
 		create_assessment_docs(zip_file)
@@ -426,6 +427,16 @@ def read_json_from_zip(zip_file, filename):
 	except Exception as e:
 		frappe.log_error(f"Error reading {filename} from ZIP: {e}")
 		return None
+
+
+def is_moderator():
+	"""Only a Moderator's archive may create users or a Course Evaluator, which grants
+	Batch Evaluator. Every other importer maps the archive onto users that already exist."""
+	return "Moderator" in frappe.get_roles()
+
+
+def record_exists(doctype, name):
+	return isinstance(name, str) and bool(name) and bool(frappe.db.exists(doctype, name))
 
 
 def create_user_for_instructors(zip_file):
@@ -504,7 +515,9 @@ def get_user_names(user):
 
 
 def create_user(user):
+	frappe.only_for("Moderator", message=True)
 	first_name, last_name, full_name = get_user_names(user)
+	# nosemgrep: lms-unjustified-ignore-permissions - Moderator has no create on User; only_for above gates this
 	user_doc = create_lms_user(
 		email=user["email"],
 		first_name=first_name,
@@ -512,6 +525,7 @@ def create_user(user):
 		full_name=full_name,
 		user_image=user.get("user_image"),
 		roles=["Course Creator"],
+		ignore_permissions=True,
 	)
 	return user_doc
 
@@ -529,10 +543,12 @@ def create_evaluator(zip_file):
 		evaluator_data["email"] = evaluator_data["evaluator"]
 		create_user(evaluator_data)
 
-	if not frappe.db.exists("Course Evaluator", evaluator_data["name"]):
-		evaluator_doc = frappe.new_doc("Course Evaluator")
-		evaluator_doc.update(evaluator_data)
-		evaluator_doc.insert(ignore_permissions=True)
+	if frappe.db.exists("Course Evaluator", evaluator_data["name"]):
+		return
+
+	evaluator_doc = frappe.new_doc("Course Evaluator")
+	evaluator_doc.update(evaluator_data)
+	evaluator_doc.insert(ignore_if_duplicate=True)
 
 
 def get_course_fields():
@@ -569,7 +585,11 @@ def add_data_to_course(course_doc, course_data):
 
 
 def add_instructors_to_course(course_doc, course_data):
-	instructors = [row["instructor"] for row in course_data.get("instructors", []) if row.get("instructor")]
+	instructors = [
+		row["instructor"]
+		for row in course_data.get("instructors", [])
+		if record_exists("User", row.get("instructor"))
+	]
 
 	# serve_resource only honours a lesson whose course the FILE'S OWNER authors, and
 	# every imported asset is owned by whoever ran the import -- so without this row
@@ -599,6 +619,8 @@ def create_course_doc(course_data):
 	verify_category(course_data.get("category"))
 	course_data.pop("instructors", None)
 	course_data.pop("chapters", None)
+	if not record_exists("Course Evaluator", course_data.get("evaluator")):
+		course_data.pop("evaluator", None)
 	add_data_to_course(course_doc, course_data)
 	course_doc.insert(ignore_permissions=True)
 	return course_doc
@@ -740,14 +762,6 @@ def create_question_doc(zip_file, file):
 		doc.insert(ignore_permissions=True)
 
 
-def create_test_case_doc(zip_file, file):
-	test_case_data = read_json_from_zip(zip_file, file)
-	if test_case_data:
-		doc = frappe.new_doc("LMS Test Case")
-		doc.update(test_case_data)
-		doc.insert(ignore_permissions=True)
-
-
 def add_questions_to_quiz(quiz_doc, questions):
 	for question in questions:
 		question_detail = question["question_detail"]
@@ -760,8 +774,6 @@ def create_supporting_docs(zip_file):
 	for file in zip_file.namelist():
 		if file.startswith("assessments/questions/") and file.endswith(".json"):
 			create_question_doc(zip_file, file)
-		elif file.startswith("assessments/test_cases/") and file.endswith(".json"):
-			create_test_case_doc(zip_file, file)
 
 
 def is_assessment_file(file):
