@@ -41,7 +41,7 @@ class TestLMSCourseInstructors(BaseTestUtils):
 				"description": "The owner must be assigned as instructor automatically.",
 			}
 		)
-		course.insert(ignore_permissions=True)
+		course.insert()
 
 		self.assertEqual([row.instructor for row in course.instructors], [course.owner])
 
