@@ -2841,9 +2841,9 @@ def calculate_discount_amount(base_amount: float, coupon: dict) -> float:
 	if coupon.discount_type == "Percentage":
 		discount_amount = (base_amount * coupon.percentage_discount) / 100
 	elif coupon.discount_type == "Fixed Amount":
-		discount_amount = base_amount - coupon.fixed_amount_discount
+		discount_amount = coupon.fixed_amount_discount
 
-	return discount_amount
+	return max(min(flt(discount_amount), flt(base_amount)), 0)
 
 
 @frappe.whitelist()
