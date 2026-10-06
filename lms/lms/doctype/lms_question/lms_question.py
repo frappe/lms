@@ -12,7 +12,6 @@ from frappe.rate_limiter import rate_limit
 
 from lms.lms.doctype.lms_content_author.lms_content_author import AuthoredDocument
 from lms.lms.permissions import can_access_quiz, is_content_author
-from lms.lms.utils import moderators_among
 
 # Each LMS Question carries up to 10 option/correctness/explanation/possibility
 # columns. Keep these lists as the single source of truth so any future change
@@ -173,15 +172,15 @@ def _resolve_question_references(file_url: str) -> list[_QuestionReference]:
 def _questions_vouched_by_owner(references: list[_QuestionReference]) -> dict[str, bool]:
 	"""Vouched question names → whether only explanation fields cite the bytes.
 
-	A reference vouches only when its owner uploaded the bytes (canonical File row)
-	and currently authors the question — or, for an attachment they placed and never
-	edited, when they own the question document. Being a Moderator alone is not
-	enough: otherwise pasting an unrelated moderator-owned private URL into any
-	authored question would open that file to the quiz's learners.
+	Only the canonical File row (the upload of the bytes) may speak. Saving a
+	question that pastes another user's /private/files/ url makes Frappe insert a
+	second File row attached to the question and owned by the paster
+	(attach_files_to_document). That row must not vouch: its owner authors the
+	question, but they did not upload the bytes.
 
-	Borrowed File rows (later inserts that only name the url) are kept solely while
-	their owner is still a Moderator, and still have to pass the author/placement
-	check above.
+	A canonical reference vouches when its owner currently authors the question,
+	or when they placed an attachment themselves (they own the question, or the
+	File row has never been edited).
 	"""
 	if not references:
 		return {}
@@ -194,21 +193,13 @@ def _questions_vouched_by_owner(references: list[_QuestionReference]) -> dict[st
 	)
 	question_owner = {row.name: row.owner for row in owners}
 
-	borrowed = {ref.owner for ref in references if ref.attached and not ref.canonical}
-	trusted = references
-	if borrowed:
-		moderators = moderators_among(borrowed)
-		trusted = [ref for ref in references if ref.canonical or ref.owner in moderators]
-
 	# question → explanation_only. A student-visible cite clears the flag.
 	vouched: dict[str, bool] = {}
-	for ref in trusted:
-		if not ref.owner:
+	for ref in references:
+		if not ref.owner or not ref.canonical:
 			continue
 		if not is_content_author("LMS Question", ref.question, ref.owner):
-			placed_by_uploader = (
-				ref.attached and ref.canonical and question_owner.get(ref.question) is not None
-			)
+			placed_by_uploader = ref.attached and question_owner.get(ref.question) is not None
 			if not (placed_by_uploader and (question_owner[ref.question] == ref.owner or ref.untouched)):
 				continue
 		if ref.question not in vouched:
