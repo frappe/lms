@@ -46,7 +46,7 @@
 		<div class="flex shrink-0 items-center gap-1 pe-1">
 			<span
 				v-if="status === 'skipped'"
-				class="text-ink-gray-5"
+				class="text-ink-gray-6"
 				:class="ROW_TEXT"
 			>
 				{{ text.skipped }}
@@ -143,7 +143,7 @@ const actionClass = computed<string>(() =>
 )
 
 const titleClass = computed<string>(() => {
-	if (isResolved.value) return 'text-ink-gray-5 line-through'
+	if (isResolved.value) return 'text-ink-gray-6 line-through'
 	if (parent.value) return 'cursor-default text-ink-gray-4'
 	return 'text-ink-gray-8'
 })

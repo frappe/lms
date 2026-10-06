@@ -32,7 +32,7 @@
 
 		<template v-if="complete">
 			<div v-if="next" class="flex flex-col gap-0.5 pt-3">
-				<span class="px-2 text-ink-gray-5" :class="ROW_TEXT">
+				<span class="px-2 text-ink-gray-6" :class="ROW_TEXT">
 					{{ text.tryNext }}
 				</span>
 				<Tooltip :text="next.description">
@@ -74,7 +74,7 @@
 					</div>
 				</Tooltip>
 			</div>
-			<p v-else class="text-center text-ink-gray-5" :class="ROW_TEXT">
+			<p v-else class="text-center text-ink-gray-6" :class="ROW_TEXT">
 				{{ text.allDone }}
 			</p>
 		</template>

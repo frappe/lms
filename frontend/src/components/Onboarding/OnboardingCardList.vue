@@ -34,7 +34,7 @@
 								class="truncate text-p-sm"
 								:class="
 									isCardComplete(card)
-										? 'text-ink-gray-5 line-through'
+										? 'text-ink-gray-6 line-through'
 										: 'text-ink-gray-8'
 								"
 								data-testid="row-title"
@@ -42,7 +42,7 @@
 								{{ card.title }}
 							</span>
 							<span
-								class="flex shrink-0 items-center gap-1 text-p-sm text-ink-gray-5"
+								class="flex shrink-0 items-center gap-1 text-p-sm text-ink-gray-6"
 							>
 								<span class="tabular-nums">{{ rowMeta(card) }}</span>
 								<LucideChevronRight

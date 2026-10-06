@@ -9,7 +9,7 @@
 			>
 				<template #prefix>
 					<LucideSearch
-						class="text-ink-gray-5"
+						class="text-ink-gray-6"
 						:class="SIDEBAR_ICON"
 						aria-hidden="true"
 					/>
@@ -17,13 +17,13 @@
 			</TextInput>
 		</div>
 		<div
-			class="flex justify-between items-center text-ink-gray-5 mx-2"
+			class="flex justify-between items-center text-ink-gray-6 mx-2"
 			:class="ROW_TEXT"
 		>
 			<div>{{ text.allArticles }}</div>
 			<Button variant="ghost" :aria-label="text.openDocs" @click="openDocs">
 				<LucideArrowUpRight
-					class="text-ink-gray-5"
+					class="text-ink-gray-6"
 					:class="SIDEBAR_ICON"
 					aria-hidden="true"
 				/>
@@ -79,7 +79,7 @@
 						</span>
 						<template #suffix>
 							<LucideArrowUpRight
-								class="me-2 hidden text-ink-gray-5 group-hover/sidebar-item:flex"
+								class="me-2 hidden text-ink-gray-6 group-hover/sidebar-item:flex"
 								:class="SIDEBAR_ICON"
 								aria-hidden="true"
 							/>
