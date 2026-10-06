@@ -270,6 +270,27 @@ watch(
 	}
 )
 
+// The creator starts as an instructor, once per open, and only on an empty
+// field. Their option comes from the session user because the role search
+// leaves out creators without an instructor role.
+let creatorPrefilled = false
+watch(
+	() => user.data?.name,
+	(name: string | undefined) => {
+		if (!name || creatorPrefilled) return
+		creatorPrefilled = true
+		if (course.value.instructors.length) return
+		resolvedDetails.value = new Map(resolvedDetails.value).set(name, {
+			label: user.data.full_name || name,
+			value: name,
+			image: user.data.user_image || '',
+			description: name,
+		})
+		course.value.instructors = [name]
+	},
+	{ immediate: true }
+)
+
 const resolvedSelected = computed<InstructorOption[]>(() =>
 	course.value.instructors
 		.map((v) => resolvedDetails.value.get(v))

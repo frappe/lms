@@ -6,7 +6,7 @@ import {
 	RouterView,
 	type Router,
 } from 'vue-router'
-import { defineComponent, h } from 'vue'
+import { defineComponent, h, reactive } from 'vue'
 
 vi.stubGlobal('__', (text: string) => text)
 
@@ -74,7 +74,12 @@ vi.mock('@/stores/user', () => ({ usersStore: () => ({ userResource }) }))
 
 vi.mock('frappe-ui', () => ({
 	createListResource: createListResourceMock,
-	createResource: () => ({ data: [], reload: vi.fn(), loading: false }),
+	createResource: () => ({
+		data: [],
+		reload: vi.fn(),
+		update: vi.fn(),
+		loading: false,
+	}),
 	call: vi.fn(),
 	toast: { success: vi.fn(), error: vi.fn() },
 	Dialog: {
@@ -103,7 +108,13 @@ vi.mock('frappe-ui', () => ({
 	},
 	Avatar: passthrough,
 	Combobox: passthrough,
-	MultiSelect: passthrough,
+	// Shows each selected value through its option's label, as the real
+	// trigger does, so a label that fails to resolve shows up as the raw email.
+	MultiSelect: {
+		inheritAttrs: false,
+		props: ['label', 'modelValue', 'options'],
+		template: `<div><label v-if="label">{{ label }}</label><span v-for="v in modelValue || []" :key="v" data-testid="selected-option">{{ (options || []).find((o) => o.value === v)?.label ?? v }}</span><slot /></div>`,
+	},
 	Select: passthrough,
 }))
 
@@ -126,6 +137,7 @@ vi.mock('@/components/Modals/NewMemberModal.vue', () => ({
 }))
 
 import NewCourseForm from '@/pages/Forms/NewCourseForm.vue'
+import MultiLink from '@/components/Controls/MultiLink.vue'
 
 // The list page hosts the form as a child route, so it has to render a nested
 // RouterView — otherwise the child never mounts. RouterView is imported rather
@@ -155,11 +167,15 @@ const makeRouter = (): Router =>
 		],
 	})
 
-const mountForm = async (router: Router, user: Record<string, unknown>) => {
+const mountForm = async (
+	router: Router,
+	user: Record<string, unknown> | null,
+	$user: { data: Record<string, unknown> | null } = { data: user }
+) => {
 	const wrapper = mount(defineComponent({ render: () => h(RouterView) }), {
 		global: {
 			plugins: [router],
-			provide: { $user: { data: user } },
+			provide: { $user },
 			stubs: { teleport: true },
 			// vi.stubGlobal alone doesn't reach a compiled template's `_ctx.__`
 			// access — it has to be on the instance too (see FormShell.test.ts).
@@ -366,6 +382,85 @@ describe('NewCourseForm as a route', () => {
 		await flushPromises()
 		expect(completeStepMock).toHaveBeenCalledWith('create_first_course', {
 			first_course: 'COURSE-0001',
+		})
+	})
+
+	describe('instructors', () => {
+		const creator = {
+			name: 'mod@example.com',
+			full_name: 'Maya Moderator',
+			user_image: '/files/maya.png',
+			is_moderator: true,
+		}
+		const instructors = (wrapper: ReturnType<typeof mount>) =>
+			wrapper.findComponent(MultiLink).props('modelValue')
+		const pick = async (wrapper: ReturnType<typeof mount>, v: string[]) => {
+			wrapper.findComponent(MultiLink).vm.$emit('update:modelValue', v)
+			await flushPromises()
+		}
+
+		// Guards: a new course starting with no instructor. Introduced in this
+		// branch (feat/onboarding-flows, PR pending); test added there.
+		it('starts with the person creating the course as an instructor', async () => {
+			const router = makeRouter()
+			await router.push({ name: 'NewCourse' })
+			const wrapper = await mountForm(router, creator)
+			expect(instructors(wrapper)).toEqual(['mod@example.com'])
+		})
+
+		// Guards: the prefilled instructor chip showing a raw email. Introduced in
+		// this branch (feat/onboarding-flows, PR pending); test added there.
+		it('shows that instructor by name, not by email', async () => {
+			const router = makeRouter()
+			await router.push({ name: 'NewCourse' })
+			const wrapper = await mountForm(router, creator)
+			const chips = wrapper.findAll('[data-testid="selected-option"]')
+			expect(chips.map((c) => c.text())).toEqual(['Maya Moderator'])
+		})
+
+		// Guards: a late user load overwriting instructors already picked.
+		// Introduced in this branch (feat/onboarding-flows, PR pending); test
+		// added there.
+		it('does not replace instructors picked before the user loaded', async () => {
+			const $user = reactive({ data: null as Record<string, unknown> | null })
+			const router = makeRouter()
+			await router.push({ name: 'NewCourse' })
+			const wrapper = await mountForm(router, null, $user)
+			await pick(wrapper, ['jane@example.com'])
+			$user.data = { ...creator }
+			await flushPromises()
+			expect(instructors(wrapper)).toEqual(['jane@example.com'])
+		})
+
+		// Guards: a user reload re-adding a creator who removed themselves.
+		// Introduced in this branch (feat/onboarding-flows, PR pending); test
+		// added there.
+		it('stays removed once the creator takes themselves off', async () => {
+			const $user = reactive<{ data: Record<string, unknown> | null }>({
+				data: { ...creator },
+			})
+			const router = makeRouter()
+			await router.push({ name: 'NewCourse' })
+			const wrapper = await mountForm(router, null, $user)
+			expect(instructors(wrapper)).toEqual(['mod@example.com'])
+			await pick(wrapper, [])
+			$user.data = null
+			await flushPromises()
+			$user.data = { ...creator }
+			await flushPromises()
+			expect(instructors(wrapper)).toEqual([])
+		})
+
+		// Guards: the prefilled instructor showing but not being saved. Introduced
+		// in this branch (feat/onboarding-flows, PR pending); test added there.
+		it('saves the prefilled instructor with the course', async () => {
+			const router = makeRouter()
+			await router.push({ name: 'NewCourse' })
+			const wrapper = await mountForm(router, creator)
+			await wrapper.find('[data-testid="new-course-save"]').trigger('click')
+			expect(insertSubmit.mock.calls[0][0].instructors).toEqual([
+				{ instructor: 'mod@example.com' },
+			])
 		})
 	})
 })
