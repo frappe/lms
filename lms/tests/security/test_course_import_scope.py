@@ -1,12 +1,8 @@
 # Copyright (c) 2026, Frappe and Contributors
 # See license.txt
-"""A course archive cannot reach past the course it creates.
-
-The import inserts with ignore_permissions, so whatever the archive names is
-written as-is. A Course Creator's archive must not create users or a Course
-Evaluator (which grants Batch Evaluator). A Moderator's archive still creates
-instructors and the evaluator.
-"""
+"""Regressions from #2286 (a4a0a76ad): a Course Creator's course archive created users and a
+Course Evaluator (granting Batch Evaluator) and added test cases to any exercise.
+Added for audit findings #2 and #23 on branch fix/course-import-scope."""
 
 import json
 import os
@@ -36,7 +32,23 @@ class TestCourseImportScope(BaseTestUtils):
 			f"cis-student-{cls.hash}@example.com", "Stu", "Dent", ["LMS Student"]
 		).name
 
-	def _archive(self, instructor=None, evaluator=None, test_case_parent=None, exercise=None):
+	def _victim_exercise(self):
+		frappe.set_user(self.exercise_author)
+		exercise = frappe.get_doc(
+			{
+				"doctype": "LMS Programming Exercise",
+				"title": f"Victim Exercise {frappe.generate_hash(length=6)}",
+				"language": "Python",
+				"problem_statement": "<p>Add two integers.</p>",
+				"test_cases": [{"input": "2 3", "expected_output": "5"}],
+			}
+		).insert()
+		frappe.set_user("Administrator")
+		return exercise
+
+	def _archive(
+		self, instructor=None, evaluator=None, test_case_parent=None, exercise=None, evaluator_fields=None
+	):
 		tag = frappe.generate_hash(length=6).lower()
 		instructor = instructor or self.course_creator
 		instructors = [{"instructor": instructor}]
@@ -58,7 +70,14 @@ class TestCourseImportScope(BaseTestUtils):
 			if evaluator:
 				zf.writestr(
 					"evaluator.json",
-					json.dumps({"doctype": "Course Evaluator", "name": evaluator, "evaluator": evaluator}),
+					json.dumps(
+						{
+							"doctype": "Course Evaluator",
+							"name": evaluator,
+							"evaluator": evaluator,
+							**(evaluator_fields or {}),
+						}
+					),
 				)
 			if test_case_parent:
 				zf.writestr(
@@ -124,6 +143,30 @@ class TestCourseImportScope(BaseTestUtils):
 
 		self.assertCountEqual(self._instructors(course), [self.exercise_author, self.course_creator])
 
+	def test_a_course_creator_import_cannot_add_test_cases_to_another_authors_exercise(self):
+		victim = self._victim_exercise()
+
+		self._import_as(self.course_creator, self._archive(test_case_parent=victim.name))
+
+		cases = frappe.get_all("LMS Test Case", {"parent": victim.name}, pluck="expected_output")
+		self.assertEqual(cases, ["5"])
+
+	def test_an_imported_exercise_carries_each_test_case_once(self):
+		name = f"cis-ex-{frappe.generate_hash(length=6).lower()}"
+		exercise = {
+			"doctype": "LMS Programming Exercise",
+			"name": name,
+			"title": name,
+			"language": "Python",
+			"problem_statement": "<p>Add two integers.</p>",
+			"test_cases": [{"input": "2 3", "expected_output": "5"}],
+		}
+
+		self._import_as(self.course_creator, self._archive(test_case_parent=name, exercise=exercise))
+
+		cases = frappe.get_all("LMS Test Case", {"parent": name}, pluck="expected_output")
+		self.assertEqual(cases, ["5"])
+
 	def test_a_moderator_import_creates_instructors_and_the_evaluator(self):
 		new_instructor = self._new_email()
 		course = self._import_as(
@@ -135,3 +178,18 @@ class TestCourseImportScope(BaseTestUtils):
 		self.assertTrue(frappe.db.exists("Course Evaluator", self.student))
 		self.assertTrue(self._is_batch_evaluator(self.student))
 		self.assertEqual(frappe.db.get_value("LMS Course", course, "evaluator"), self.student)
+
+	def test_a_moderator_import_skips_an_existing_evaluator(self):
+		"""An archived evaluator that already exists is skipped, so its bad schedule can't abort the import."""
+		frappe.get_doc({"doctype": "Course Evaluator", "evaluator": self.student}).insert(
+			ignore_if_duplicate=True
+		)
+		archive = self._archive(
+			evaluator=self.student,
+			evaluator_fields={"unavailable_from": "2026-02-01", "unavailable_to": "2026-01-01"},
+		)
+
+		course = self._import_as(self.moderator, archive)
+
+		self.assertEqual(frappe.db.get_value("LMS Course", course, "evaluator"), self.student)
+		self.assertFalse(frappe.db.get_value("Course Evaluator", self.student, "unavailable_from"))
