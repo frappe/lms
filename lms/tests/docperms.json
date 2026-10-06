@@ -765,6 +765,10 @@
 			"report",
 			"export"
 		],
+		"Course Creator#1": [
+			"read",
+			"write"
+		],
 		"Moderator#0": [
 			"read",
 			"write",
@@ -773,6 +777,10 @@
 			"share",
 			"report",
 			"export"
+		],
+		"Moderator#1": [
+			"read",
+			"write"
 		]
 	},
 	"LMS Quiz": {
