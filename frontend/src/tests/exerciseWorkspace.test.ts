@@ -17,9 +17,10 @@ const translate = (message: string) => {
 	}
 }
 
-const mountWorkspace = () =>
+const mountWorkspace = (extra: Record<string, unknown> = {}) =>
 	mount(ExerciseWorkspace, {
 		props: {
+			...extra,
 			title: 'Coding exercise',
 			language: 'Python',
 			problemStatement: '<p>Add two integers.</p>',
@@ -53,6 +54,15 @@ describe('ExerciseWorkspace', () => {
 		await wrapper.setProps({ submissionStatus: 'Failed' })
 
 		expect(wrapper.text()).toContain('Failed')
+	})
+
+	// Guards the box looking out of place on the exercise's own page.
+	// Added on fix-1: boxed in a lesson, page-filling on its own page.
+	it('is boxed by default and unboxed when not framed', () => {
+		expect(mountWorkspace().classes()).toContain('rounded-7')
+		expect(mountWorkspace({ framed: false }).classes()).not.toContain(
+			'rounded-7'
+		)
 	})
 
 	it('renders the editor slot', () => {

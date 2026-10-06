@@ -16,10 +16,7 @@ const translate = (message: string) => {
 	}
 }
 
-const mountTestCases = (props: {
-	results: TestCaseResult[]
-	duration: number | null
-}) =>
+const mountTestCases = (props: { results: TestCaseResult[] }) =>
 	mount(ExerciseTestCases, {
 		props,
 		global: { mocks: { __: translate } },
@@ -52,7 +49,7 @@ const mixed = [
 // Added on feat/assessment-visual-redesign; locked rows added on fix-1.
 describe('ExerciseTestCases', () => {
 	it('labels a visible case input, expected and the learner output', () => {
-		const wrapper = mountTestCases({ results: mixed, duration: 0.42 })
+		const wrapper = mountTestCases({ results: mixed })
 
 		const row = wrapper.findAll('[data-testid="test-case-row"]')[0]
 		expect(row.text()).toContain('Case 1')
@@ -62,7 +59,7 @@ describe('ExerciseTestCases', () => {
 	})
 
 	it('shows a hidden case as a locked row with its verdict only', () => {
-		const wrapper = mountTestCases({ results: mixed, duration: 0.42 })
+		const wrapper = mountTestCases({ results: mixed })
 
 		const rows = wrapper.findAll('[data-testid="test-case-row"]')
 		expect(rows).toHaveLength(2)
@@ -78,22 +75,30 @@ describe('ExerciseTestCases', () => {
 			status: 'Failed' as const,
 			output: '',
 		}
-		const wrapper = mountTestCases({ results: [failed], duration: 0.42 })
+		const wrapper = mountTestCases({ results: [failed] })
 
 		expect(wrapper.text()).toContain('No output')
 		expect(wrapper.get('dd.text-ink-red-5').exists()).toBe(true)
 	})
 
 	it('counts hidden cases into the summary', () => {
-		const wrapper = mountTestCases({ results: mixed, duration: 0.42 })
+		const wrapper = mountTestCases({ results: mixed })
 
 		expect(wrapper.get('[data-testid="test-case-summary"]').text()).toContain(
 			'1 of 2 passed'
 		)
 	})
 
+	it('is titled, before and after a run', async () => {
+		const wrapper = mountTestCases({ results: [] })
+		expect(wrapper.get('h3').text()).toBe('Test cases')
+
+		await wrapper.setProps({ results: mixed })
+		expect(wrapper.get('h3').text()).toBe('Test cases')
+	})
+
 	it('prompts a run when there are no results yet', () => {
-		const wrapper = mountTestCases({ results: [], duration: null })
+		const wrapper = mountTestCases({ results: [] })
 
 		expect(wrapper.text()).toContain('Run your code to check the test cases')
 		expect(wrapper.findAll('[data-testid="test-case-row"]')).toHaveLength(0)
@@ -110,7 +115,7 @@ describe('ExerciseTestCases', () => {
 				elapsed: 0.01,
 			},
 		]
-		const wrapper = mountTestCases({ results: authorView, duration: 0.42 })
+		const wrapper = mountTestCases({ results: authorView })
 
 		expect(wrapper.text()).not.toContain('SECRET_EXPECTED_VALUE')
 	})
@@ -120,11 +125,11 @@ describe('ExerciseTestCases announcements', () => {
 	// Guards: pass/fail shown by colour and icon alone, results not announced.
 	// Introduced in #2823; test added with the a11y audit remediation.
 	it('says each verdict in text and announces from a status region kept mounted', async () => {
-		const wrapper = mountTestCases({ results: [], duration: null })
+		const wrapper = mountTestCases({ results: [] })
 		const status = wrapper.get('[role="status"]')
 		const failed = { ...mixed[0], idx: 2, status: 'Failed' as const }
 
-		await wrapper.setProps({ results: [mixed[0], failed], duration: 0.4 })
+		await wrapper.setProps({ results: [mixed[0], failed] })
 
 		expect(wrapper.get('[role="status"]').element).toBe(status.element)
 		expect(status.text()).toBe('1 of 2 passed')

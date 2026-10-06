@@ -22,6 +22,7 @@
 			<ExerciseWorkspaceSkeleton v-if="loading" />
 			<ExerciseWorkspace
 				v-else
+				:framed="embedded || preview"
 				:title="exercise?.title ?? ''"
 				:language="exercise?.language ?? ''"
 				:problemStatement="exercise?.problem_statement ?? ''"
@@ -206,7 +207,7 @@ watch(
 const rootClass = computed<string>(() => {
 	if (props.embedded) return 'h-[900px]'
 	if (props.preview) return 'h-full'
-	return 'h-[calc(100vh_-_3rem)] p-4'
+	return 'h-[calc(100vh_-_3rem)]'
 })
 
 const fetchSubmission = (name: string = '') => {

@@ -1,5 +1,8 @@
 <template>
-	<AssessmentCard class="flex h-full flex-col">
+	<component
+		:is="framed ? AssessmentCard : 'div'"
+		class="flex h-full flex-col overflow-hidden"
+	>
 		<AssessmentCardHeader
 			icon="lucide-code-xml"
 			:title="__('Programming Exercise')"
@@ -90,11 +93,10 @@
 					data-testid="tests-pane"
 					class="max-h-80 shrink-0 overflow-y-auto border-t border-outline-gray-1"
 					:results="results"
-					:duration="duration"
 				/>
 			</div>
 		</div>
-	</AssessmentCard>
+	</component>
 </template>
 
 <script setup lang="ts">
@@ -108,18 +110,24 @@ import ExerciseConsole, {
 	type ConsoleLine,
 } from '@/components/ProgrammingExercises/ExerciseConsole.vue'
 
-defineProps<{
-	title: string
-	language: string
-	problemStatement: string
-	results: TestCaseResult[]
-	consoleLines: ConsoleLine[]
-	duration: number | null
-	running: boolean
-	canRun: boolean
-	saved: boolean
-	submissionStatus?: string
-}>()
+withDefaults(
+	defineProps<{
+		title: string
+		language: string
+		problemStatement: string
+		results: TestCaseResult[]
+		consoleLines: ConsoleLine[]
+		duration: number | null
+		running: boolean
+		canRun: boolean
+		saved: boolean
+		submissionStatus?: string
+		// Boxed where it sits among other content, as in a lesson. On a page of
+		// its own it fills the page instead: a box there only adds a frame.
+		framed?: boolean
+	}>(),
+	{ submissionStatus: undefined, framed: true }
+)
 
 const emit = defineEmits<{
 	run: []
