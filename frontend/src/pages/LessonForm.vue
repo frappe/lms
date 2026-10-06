@@ -387,6 +387,7 @@ function promoteDraft(name) {
 	contentUploadContext.docname = name
 	instructorUploadContext.docname = name
 	capture('lesson_created')
+	completeStep('create_first_lesson')
 	emit('created', { name, chapter: draftChapter })
 	// Typed while the create was in flight.
 	if (lesson.title.trim() !== createdTitle) isDirty.value = true

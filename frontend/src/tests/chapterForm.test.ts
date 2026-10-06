@@ -412,6 +412,7 @@ describe('ChapterForm as a route', () => {
 		await wrapper.find('[data-testid="chapter-save"]').trigger('click')
 		await flushPromises()
 		expect(completeStepMock).toHaveBeenCalledWith('create_first_chapter', {
+			first_course: 'COURSE-1',
 			first_chapter: 'CH-0001',
 		})
 	})

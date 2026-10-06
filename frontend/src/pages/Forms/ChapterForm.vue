@@ -282,7 +282,10 @@ const saveChapter = () => {
 			validate: validateChapter,
 			onSuccess(data: { name?: string } | null) {
 				if (!isEdit.value) {
-					completeStep('create_first_chapter', { first_chapter: data?.name })
+					completeStep('create_first_chapter', {
+						first_course: props.courseName,
+						first_chapter: data?.name,
+					})
 					capture('chapter_created')
 				}
 				// Stands in for the modal's `created`/`updated` emits: a route

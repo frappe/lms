@@ -33,12 +33,20 @@ function sessionUser(): string {
 	return cookies.get('user_id') ?? ''
 }
 
+/** What this admin created from the steps; a chapter is kept with its course. */
+interface RecordedTargets {
+	course?: string
+	chapter?: string
+	batch?: string
+}
+
 // Per user, like the framework's own flags. The framework stores only
 // `completed`, so skipped step names are kept here per flow key.
 let stored: {
 	activeCard: Ref<string | null>
 	answers: Ref<Record<string, string>>
 	skipped: Ref<Record<string, string[]>>
+	targets: Ref<RecordedTargets>
 } | null = null
 
 export function storage() {
@@ -54,6 +62,10 @@ export function storage() {
 		),
 		skipped: useStorage<Record<string, string[]>>(
 			'learningOnboardingSkipped' + user,
+			{}
+		),
+		targets: useStorage<RecordedTargets>(
+			'learningOnboardingTargets' + user,
 			{}
 		),
 	}

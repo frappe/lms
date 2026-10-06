@@ -59,6 +59,34 @@ type FlowTargets = Partial<
 >
 
 const TARGET_KEYS = ['first_course', 'first_chapter', 'first_batch'] as const
+
+// What a step opens: what this admin created, else the site's first. A chapter
+// only ever goes with its own course.
+const stepTargets: FlowTargets = {
+	get first_course() {
+		return storage().targets.value.course || facts.first_course
+	},
+	get first_chapter() {
+		const { course, chapter } = storage().targets.value
+		if (chapter) return chapter
+		return !course || course === facts.first_course ? facts.first_chapter : null
+	},
+	get first_batch() {
+		return storage().targets.value.batch || facts.first_batch
+	},
+}
+
+function recordTargets(created: FlowTargets): void {
+	const targets = storage().targets
+	if (created.first_course)
+		targets.value = {
+			...targets.value,
+			course: created.first_course,
+			chapter: created.first_chapter || undefined,
+		}
+	if (created.first_batch)
+		targets.value = { ...targets.value, batch: created.first_batch }
+}
 const FACTS_REFETCH_DELAY = 500
 
 // Where the help centre returns to.
@@ -92,11 +120,9 @@ function reopen(flow: OnboardingFlow): UseOnboarding | undefined {
 }
 
 /** Tick a step in every flow that has it. A no-op until the sidebar set up the flows. */
-function completeStep(step: string, targets: FlowTargets = {}): void {
-	for (const key of TARGET_KEYS) {
-		if (targets[key] && !facts[key]) facts[key] = targets[key]
-	}
+function completeStep(step: string, created: FlowTargets = {}): void {
 	if (!isSetUp.value) return
+	recordTargets(created)
 	const owners = flowsOwning(step)
 	for (const flow of owners) {
 		forgetSkip(flow, step)
@@ -333,7 +359,11 @@ function syncAllKeys(): void {
 type SidebarNavigation = Omit<FlowNavigation, 'facts' | 'complete'>
 
 function registerFlows(nav: SidebarNavigation): boolean {
-	const stepNav: FlowNavigation = { ...nav, facts, complete: completeStep }
+	const stepNav: FlowNavigation = {
+		...nav,
+		facts: stepTargets,
+		complete: completeStep,
+	}
 	for (const flow of FLOWS) {
 		const handle = useOnboarding(flow.key)
 		if (!handle) return false

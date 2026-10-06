@@ -82,8 +82,9 @@ vi.mock('lucide-vue-next', () => ({
 	ChevronRight: { render: () => null },
 	NotebookPen: { render: () => null },
 }))
+const { completeStepMock } = vi.hoisted(() => ({ completeStepMock: vi.fn() }))
 vi.mock('@/onboarding/useLearningOnboarding', () => ({
-	useLearningOnboarding: () => ({ completeStep: vi.fn() }),
+	useLearningOnboarding: () => ({ completeStep: completeStepMock }),
 }))
 vi.mock('@framework/ui/telemetry/index', async (importOriginal) => ({
 	...(await importOriginal<typeof import('@framework/ui/telemetry/index')>()),
@@ -315,6 +316,31 @@ describe('LessonForm draft: a new lesson is created from its title', () => {
 		// Nothing changed since the create, so there is nothing to save.
 		await idle(800)
 		expect(setValue().submit).not.toHaveBeenCalled()
+	})
+
+	// Guards: the draft create never ticking Add a lesson (only the old insert
+	// path did). Introduced in this branch (feat/onboarding-flows, PR pending)
+	// on rebase onto develop's draft lessons; test added there as the fix guard.
+	it('ticks the onboarding lesson step once the lesson is created', async () => {
+		completeStepMock.mockClear()
+		wrapper = await mountDraft()
+		await typeTitle(wrapper, 'Intro')
+		await idle(3000)
+		expect(completeStepMock).not.toHaveBeenCalled()
+		await settleCreate()
+		expect(completeStepMock).toHaveBeenCalledWith('create_first_lesson')
+	})
+
+	// Guards: Add a lesson ticking for a lesson that was never created.
+	// Introduced in this branch (feat/onboarding-flows, PR pending); test added
+	// there with the draft-create tick.
+	it('does not tick the step when the create fails', async () => {
+		completeStepMock.mockClear()
+		wrapper = await mountDraft()
+		await typeTitle(wrapper, 'Intro')
+		await idle(3000)
+		await settleCreate('fail')
+		expect(completeStepMock).not.toHaveBeenCalled()
 	})
 
 	it('saves body edits made during the draft right after the create', async () => {

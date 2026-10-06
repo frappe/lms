@@ -2,6 +2,7 @@
 // in-memory model, so each test sees which keys were updated or left alone.
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { nextTick, reactive, ref, type Ref } from 'vue'
+import type { FlowId } from '@/onboarding/flows'
 
 type FakeStep = { name: string; completed: boolean; onClick?: () => void }
 type FakeHandle = {
@@ -739,12 +740,112 @@ describe('completeStep', () => {
 		o.completeStep('add_quiz')
 		expect(o.flowProgress('publish_course').skipped).toBe(0)
 	})
+})
 
-	it('remembers a new course as the first course only when none is known', async () => {
-		const o = await load()
-		o.completeStep('create_first_course', { first_course: 'course-a' })
-		o.completeStep('create_first_course', { first_course: 'course-b' })
-		expect(o.facts.first_course).toBe('course-a')
+describe('step targets', () => {
+	const SITE = {
+		first_course: 'sikjs',
+		first_chapter: 'SIK-1',
+		first_batch: 'old-batch',
+	}
+	const click = (o: Loaded, flow: FlowId, name: string) =>
+		o.stepsOf(flow).find((s) => s.name === name)!.onClick!()
+	const lessonRoute = (courseName: string, draftChapter?: string) => ({
+		name: 'CourseDetail',
+		params: { courseName },
+		...(draftChapter && {
+			query: { editLesson: '1-new', draftChapter },
+		}),
+		hash: '#editor',
+	})
+
+	beforeEach(() => callMock.mockResolvedValue(SITE))
+
+	// Guards: course steps losing the site's existing course and chapter as
+	// targets. Introduced in this branch (feat/onboarding-flows, PR pending);
+	// test added there to pin the fallback.
+	it("uses the site's first course and chapter until the admin creates one", async () => {
+		const o = await ready()
+		click(o, 'publish_course', 'create_first_lesson')
+		expect(nav.openRoute).toHaveBeenCalledWith(lessonRoute('sikjs', 'SIK-1'))
+	})
+
+	// Guards: Add a chapter opening the oldest course, not the one the admin
+	// made. Introduced in this branch (feat/onboarding-flows, PR pending); test
+	// added there to pin the created course.
+	it('adds a chapter to the course the admin created', async () => {
+		const o = await ready()
+		o.completeStep('create_first_course', { first_course: 'mine' })
+		click(o, 'publish_course', 'create_first_chapter')
+		expect(nav.openForm).toHaveBeenCalledWith({
+			name: 'ChapterForm',
+			params: { courseName: 'mine', chapterName: 'new' },
+			hash: '#editor',
+		})
+	})
+
+	// Guards: Add a lesson opening the wrong chapter or course. Introduced in
+	// this branch (feat/onboarding-flows, PR pending); test added there to pin
+	// the created chapter.
+	it("adds a lesson to the chapter the admin created, in that chapter's course", async () => {
+		const o = await ready()
+		o.completeStep('create_first_course', { first_course: 'mine' })
+		o.completeStep('create_first_chapter', {
+			first_course: 'other',
+			first_chapter: 'CH-9',
+		})
+		click(o, 'publish_course', 'create_first_lesson')
+		expect(nav.openRoute).toHaveBeenCalledWith(lessonRoute('other', 'CH-9'))
+	})
+
+	// Guards: Add a lesson pairing the admin's course with another course's
+	// chapter. Introduced in this branch (feat/onboarding-flows, PR pending);
+	// test added there to stop the mismatch.
+	it("never pairs the admin's course with another course's chapter", async () => {
+		const o = await ready()
+		o.completeStep('create_first_course', { first_course: 'mine' })
+		click(o, 'publish_course', 'create_first_lesson')
+		expect(nav.openRoute).toHaveBeenCalledWith(lessonRoute('mine'))
+	})
+
+	// Guards: a new course keeping the old course's chapter as the lesson
+	// target. Introduced in this branch (feat/onboarding-flows, PR pending);
+	// test added there to drop the stale chapter.
+	it('a new course drops the chapter recorded for the previous one', async () => {
+		const o = await ready()
+		o.completeStep('create_first_chapter', {
+			first_course: 'mine',
+			first_chapter: 'CH-9',
+		})
+		o.completeStep('create_first_course', { first_course: 'second' })
+		click(o, 'publish_course', 'create_first_lesson')
+		expect(nav.openRoute).toHaveBeenCalledWith(lessonRoute('second'))
+	})
+
+	// Guards: recorded targets being lost on a facts refetch or a reload.
+	// Introduced in this branch (feat/onboarding-flows, PR pending); test added
+	// there to pin their persistence.
+	it('keeps the recorded targets over a facts refetch and a reload', async () => {
+		let o = await ready()
+		o.completeStep('create_first_chapter', {
+			first_course: 'mine',
+			first_chapter: 'CH-9',
+		})
+		o.applyFacts(SITE)
+		vi.resetModules()
+		framework.handles = {}
+		o = await ready()
+		click(o, 'publish_course', 'create_first_lesson')
+		expect(nav.openRoute).toHaveBeenCalledWith(lessonRoute('mine', 'CH-9'))
+	})
+
+	it('publishes the batch the admin created', async () => {
+		const o = await ready()
+		o.completeStep('create_first_batch', { first_batch: 'new-batch' })
+		click(o, 'live_class_zoom', 'publish_batch')
+		expect(nav.openRoute).toHaveBeenCalledWith(
+			expect.objectContaining({ params: { batchName: 'new-batch' } })
+		)
 	})
 })
 
