@@ -210,7 +210,7 @@ const rootClass = computed<string>(() => {
 
 const fetchSubmission = (name: string = '') => {
 	if (name) submission.value = submissionFor(name)
-	submission.value?.reload()
+	return submission.value?.reload()
 }
 
 // Not createDocumentResource: a learner must never receive a hidden case's
@@ -307,7 +307,8 @@ const runCommand = computed<string>(
 		)}`
 )
 
-// Submissions store the code minus the boilerplate. Starter code is stored whole.
+// Submissions store the code minus the boilerplate, unless the learner edited
+// the boilerplate. Starter code is stored whole.
 const storedPrefix = computed<string>(() =>
 	exercise.value?.starter_code ? '' : boilerplate.value
 )
@@ -324,9 +325,13 @@ const applySourceCode = () => {
 		return
 	}
 	const submitted: string = submissionDoc.value?.code || ''
-	code.value = submitted
-		? `${storedPrefix.value}${submitted}`
-		: startingCode.value
+	if (!submitted) {
+		code.value = startingCode.value
+	} else if (submitted.startsWith(storedPrefix.value)) {
+		code.value = submitted
+	} else {
+		code.value = `${storedPrefix.value}${submitted}`
+	}
 }
 
 // A draft that arrives later, or under a new exercise key, replaces the
@@ -387,6 +392,20 @@ const restoreResults = () => {
 	const stored: StoredTestCase[] = submissionDoc.value?.test_cases || []
 	if (!stored.length) return
 	results.value = restoredResults(stored, exercise.value.test_cases)
+}
+
+// After a save, the stored rows are the server's own run of the code: the verdict
+// that counts. They replace this run's rows so the screen matches it; only the
+// timings, which the server does not keep, carry over. Returns whether any
+// verdict changed.
+const showSavedResults = (ran: TestCaseResult[]): boolean => {
+	const stored: StoredTestCase[] = submissionDoc.value?.test_cases || []
+	if (!exercise.value || !stored.length) return false
+	const byIdx = new Map(ran.map((row) => [row.idx, row]))
+	results.value = restoredResults(stored, exercise.value.test_cases).map(
+		(row) => ({ ...row, elapsed: byIdx.get(row.idx)?.elapsed ?? null })
+	)
+	return results.value.some((row) => row.status !== byIdx.get(row.idx)?.status)
 }
 
 watch(
@@ -529,15 +548,14 @@ const createSubmission = async () => {
 	// preview would otherwise write a real submission under the author's name.
 	if (props.preview) return
 	if (!results.value.length) return
-	const codeToSave = code.value.replace(storedPrefix.value, '')
-
+	// Sent whole: the server runs the code the run here used and scores it itself
+	// rather than taking these results on trust, then strips the boilerplate to store.
 	return call<string>('lms.lms.api.create_programming_exercise_submission', {
 		exercise: props.exerciseID,
 		submission: submissionID.value,
-		code: codeToSave,
-		test_cases: results.value,
+		code: code.value,
 	})
-		.then((name) => {
+		.then(async (name) => {
 			clearDraft()
 			const created = submissionID.value == 'new'
 			submissionID.value = name
@@ -547,8 +565,17 @@ const createSubmission = async () => {
 					params: { exerciseID: props.exerciseID, submissionID: name },
 				})
 			}
-			fetchSubmission(name)
-			toast.success(__('Submission saved!'))
+			const ran = results.value
+			await fetchSubmission(name)
+			if (showSavedResults(ran)) {
+				toast.warning(
+					__(
+						'Saved, but the result differs from this run. The saved result is shown.'
+					)
+				)
+			} else {
+				toast.success(__('Submission saved!'))
+			}
 		})
 		.catch((error: any) => {
 			console.error('Error creating submission:', error)
