@@ -61,6 +61,23 @@ describe('ExerciseConsole', () => {
 		expect(wrapper.text()).not.toContain('Ran in')
 	})
 
+	// Guards the console taking space from the test cases below it, while an
+	// error still surfaces. Came with moving test cases under the console.
+	// Added on fix-1 with the collapsed-by-default console.
+	it('starts collapsed when the run printed no error', () => {
+		const wrapper = mountConsole({ lines: lines.slice(0, 2), duration: 0.42 })
+
+		expect(wrapper.findAll('[data-testid="console-line"]')).toHaveLength(0)
+	})
+
+	it('opens itself when an error arrives', async () => {
+		const wrapper = mountConsole({ lines: [], duration: null })
+
+		await wrapper.setProps({ lines, duration: 0.42 })
+
+		expect(wrapper.findAll('[data-testid="console-line"]')).toHaveLength(3)
+	})
+
 	it('collapses and reopens when the header is clicked', async () => {
 		const wrapper = mountConsole({ lines, duration: 0.42 })
 		expect(wrapper.findAll('[data-testid="console-line"]')).toHaveLength(3)

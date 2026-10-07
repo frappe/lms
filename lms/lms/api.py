@@ -36,6 +36,7 @@ from frappe.utils import (
 from frappe.utils.response import Response
 from pypika import functions as fn
 
+from lms.lms.code_runner import code_to_store, run_test_cases
 from lms.lms.course_import_export import export_course_zip, import_course_zip, validate_archive
 from lms.lms.doctype.course_lesson.course_lesson import (
 	cleanup_lesson_backreferences,
@@ -2491,7 +2492,10 @@ def evaluate_programming_exercise(exercise: str, outputs: list) -> list[dict]:
 
 	doc = frappe.get_doc("LMS Programming Exercise", exercise)
 	doc.check_permission("read")
+	return _score_outputs(doc, outputs)
 
+
+def _score_outputs(doc, outputs: list) -> list[dict]:
 	if len(outputs) != len(doc.test_cases):
 		frappe.throw(_("Expected {0} outputs, got {1}").format(len(doc.test_cases), len(outputs)))
 
@@ -2515,44 +2519,70 @@ def _score_test_case(case, produced, author: bool) -> dict:
 
 
 @frappe.whitelist()
-def create_programming_exercise_submission(exercise: str, submission: str, code: str, test_cases: list):
-	frappe.only_for(["Moderator", "Course Creator", "Batch Evaluator"])
+def create_programming_exercise_submission(exercise: str, submission: str, code: str):
+	frappe.only_for(["Moderator", "Course Creator", "Batch Evaluator", "LMS Student"])
 	if submission == "new":
-		return make_new_exercise_submission(exercise, code, test_cases)
-	else:
-		update_exercise_submission(submission, code, test_cases)
+		return make_new_exercise_submission(exercise, code)
+	update_exercise_submission(submission, code)
+	# The page takes the reply as the submission's name for its next save.
+	return submission
 
 
-def make_new_exercise_submission(exercise: str, code: str, test_cases: list):
+def run_submitted_code(exercise: str, code: str) -> tuple[list[dict], str]:
+	"""Run `code`, as the page ran it, against every test case on the code runner
+	and score it. Nothing the browser reports about a run is trusted, so a learner
+	cannot save a pass it did not earn, nor store a hidden case's answer in a row
+	it can read back. Returns the scored rows and the code to store."""
+	doc = frappe.get_doc("LMS Programming Exercise", exercise)
+	doc.check_permission("read")
+
+	outputs = run_test_cases(doc.language, code, doc.test_cases)
+	scored = _score_outputs(doc, outputs)
+	rows = [
+		{
+			"input": case.input,
+			"output": row["output"],
+			"expected_output": row["expected_output"],
+			"status": row["status"],
+		}
+		for case, row in zip(doc.test_cases, scored, strict=True)
+	]
+	return rows, code_to_store(doc.language, doc.starter_code, code)
+
+
+def make_new_exercise_submission(exercise: str, code: str):
+	rows, stored_code = run_submitted_code(exercise, code)
+
 	submission = frappe.new_doc("LMS Programming Exercise Submission")
 	submission.exercise = exercise
 	submission.member = frappe.session.user
-	submission.code = code
+	submission.code = stored_code
+	# Nothing stripped: tells the page not to add the boilerplate back on load.
+	submission.full_code = stored_code == code
+	for row in rows:
+		submission.append("test_cases", row)
 
-	for test_case in test_cases:
-		submission.append(
-			"test_cases",
-			{
-				"input": test_case.get("input"),
-				"output": test_case.get("output"),
-				"expected_output": test_case.get("expected_output"),
-				"status": test_case.get("status", test_case.get("status", "Failed")),
-			},
-		)
-
-	submission.status = get_exercise_status(test_cases)
+	submission.status = get_exercise_status(rows)
 	submission.insert()
 	return submission.name
 
 
-def update_exercise_submission(submission: str, code: str, test_cases: list):
-	member = frappe.db.get_value("LMS Programming Exercise Submission", submission, "member")
+def update_exercise_submission(submission: str, code: str):
+	member, exercise = frappe.db.get_value(
+		"LMS Programming Exercise Submission", submission, ["member", "exercise"]
+	) or (None, None)
 	if member != frappe.session.user:
 		frappe.throw(_("You do not have permission to update this submission."), frappe.PermissionError)
 
-	update_test_cases(test_cases, submission)
-	status = get_exercise_status(test_cases)
-	frappe.db.set_value("LMS Programming Exercise Submission", submission, {"status": status, "code": code})
+	# Run against the submission's own exercise, never one named in the request.
+	rows, stored_code = run_submitted_code(exercise, code)
+	update_test_cases(rows, submission)
+	status = get_exercise_status(rows)
+	frappe.db.set_value(
+		"LMS Programming Exercise Submission",
+		submission,
+		{"status": status, "code": stored_code, "full_code": stored_code == code},
+	)
 
 
 def get_exercise_status(test_cases: list):

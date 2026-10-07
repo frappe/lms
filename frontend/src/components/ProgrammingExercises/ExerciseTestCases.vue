@@ -1,9 +1,7 @@
 <template>
 	<div class="space-y-2.5 p-3.5">
 		<div class="flex items-center justify-between gap-x-2">
-			<span class="text-base text-ink-gray-6">
-				{{ summary }}
-			</span>
+			<h3 class="text-sm-semibold text-ink-gray-9">{{ __('Test cases') }}</h3>
 			<Badge
 				v-if="results.length"
 				size="sm"
@@ -14,13 +12,16 @@
 			</Badge>
 			<span role="status" class="sr-only">{{ resultStatus }}</span>
 		</div>
+		<p v-if="!results.length" class="text-base text-ink-gray-6">
+			{{ __('Run your code to check the test cases') }}
+		</p>
 
-		<div v-if="results.length" class="space-y-1.5">
+		<div v-if="results.length" class="divide-y divide-outline-gray-1">
 			<div
-				v-for="result in visible"
+				v-for="(result, index) in results"
 				:key="result.idx"
 				data-testid="test-case-row"
-				class="space-y-1 rounded-6 border border-outline-gray-2 p-2.5"
+				class="space-y-2 py-3 first:pt-1 last:pb-0"
 			>
 				<div class="flex items-center gap-x-2">
 					<span
@@ -35,32 +36,59 @@
 					<span class="sr-only">
 						{{ result.status === 'Passed' ? __('Passed') : __('Failed') }}
 					</span>
+					<span class="min-w-0 flex-1 truncate text-sm-medium text-ink-gray-9">
+						{{ __('Case {0}').format(index + 1) }}
+					</span>
 					<span
-						class="min-w-0 flex-1 truncate font-mono text-base text-ink-gray-9"
+						v-if="result.hidden"
+						class="flex shrink-0 items-center gap-x-1 text-sm text-ink-gray-6"
 					>
-						{{ result.input }}
+						<span class="lucide-lock size-3.5" aria-hidden="true" />
+						{{ __('Hidden') }}
 					</span>
 					<span
 						v-if="result.elapsed !== null"
-						class="shrink-0 text-base text-ink-gray-6"
+						class="shrink-0 text-sm text-ink-gray-6"
 					>
 						{{ __('{0}s').format(result.elapsed.toFixed(2)) }}
 					</span>
 				</div>
-				<div class="flex items-baseline gap-x-2 ms-6">
-					<span class="shrink-0 text-base text-ink-gray-6">
-						{{ __('Expected') }}
-					</span>
-					<span class="font-mono text-base text-ink-gray-8">
-						{{ result.expected_output }}
-					</span>
-				</div>
-				<p
-					v-if="result.status === 'Failed' && result.output"
-					class="whitespace-pre-wrap break-words text-p-base text-ink-gray-6 ms-6"
-				>
-					{{ result.output }}
-				</p>
+				<!-- A hidden case shows its verdict only. Even the learner's own output
+				     stays out: for a program that echoes, it would print the input. -->
+				<dl v-if="!result.hidden" class="ms-6 grid grid-cols-3 gap-x-4">
+					<div class="min-w-0 space-y-0.5">
+						<dt class="text-sm text-ink-gray-6">{{ __('Input') }}</dt>
+						<dd
+							class="whitespace-pre-wrap break-words font-mono text-sm text-ink-gray-8"
+						>
+							{{ result.input }}
+						</dd>
+					</div>
+					<div class="min-w-0 space-y-0.5">
+						<dt class="text-sm text-ink-gray-6">{{ __('Expected') }}</dt>
+						<dd
+							class="whitespace-pre-wrap break-words font-mono text-sm text-ink-gray-8"
+						>
+							{{ result.expected_output }}
+						</dd>
+					</div>
+					<div class="min-w-0 space-y-0.5">
+						<dt class="text-sm text-ink-gray-6">{{ __('Your output') }}</dt>
+						<dd
+							class="whitespace-pre-wrap break-words font-mono text-sm"
+							:class="
+								result.status === 'Passed'
+									? 'text-ink-gray-8'
+									: 'text-ink-red-5'
+							"
+						>
+							<template v-if="result.output">{{ result.output }}</template>
+							<span v-else class="font-sans italic text-ink-gray-6">
+								{{ __('No output') }}
+							</span>
+						</dd>
+					</div>
+				</dl>
 			</div>
 		</div>
 	</div>
@@ -84,10 +112,8 @@ import { Badge } from 'frappe-ui'
 
 const props = defineProps<{
 	results: TestCaseResult[]
-	duration: number | null
 }>()
 
-const visible = computed(() => props.results.filter((r) => !r.hidden))
 const passed = computed(
 	() => props.results.filter((r) => r.status === 'Passed').length
 )
@@ -97,12 +123,4 @@ const resultStatus = computed(() =>
 		? __('{0} of {1} passed').format(passed.value, props.results.length)
 		: ''
 )
-
-const summary = computed(() => {
-	if (!props.results.length) {
-		return __('Run your code to check the test cases')
-	}
-	if (props.duration === null) return ''
-	return __('Ran in {0}s').format(props.duration.toFixed(2))
-})
 </script>

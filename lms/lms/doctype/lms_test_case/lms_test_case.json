@@ -13,7 +13,7 @@
  "fields": [
   {
    "fieldname": "input",
-   "fieldtype": "Data",
+   "fieldtype": "Small Text",
    "in_list_view": 1,
    "label": "Input"
   },
@@ -24,7 +24,7 @@
   {
    "description": "Readable only at permlevel 1, so a learner is scored against it server-side and never receives it.",
    "fieldname": "expected_output",
-   "fieldtype": "Data",
+   "fieldtype": "Small Text",
    "in_list_view": 1,
    "label": "Expected Output",
    "permlevel": 1,
@@ -43,8 +43,8 @@
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2025-06-20 12:57:19.186644",
- "modified_by": "sayali@frappe.io",
+ "modified": "2026-10-06 23:00:00.000000",
+ "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Test Case",
  "owner": "Administrator",

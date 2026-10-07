@@ -18,16 +18,11 @@
 		</Button>
 	</div>
 	<div ref="root" class="flex flex-col" :class="rootClass">
-		<div v-if="submissionDoc?.status" class="mb-3">
-			<Badge :theme="submissionDoc.status == 'Passed' ? 'green' : 'red'">
-				{{ submissionDoc.status }}
-			</Badge>
-		</div>
 		<div class="min-h-0 flex-1">
 			<ExerciseWorkspaceSkeleton v-if="loading" />
 			<ExerciseWorkspace
 				v-else
-				ref="workspace"
+				:framed="embedded || preview"
 				:title="exercise?.title ?? ''"
 				:language="exercise?.language ?? ''"
 				:problemStatement="exercise?.problem_statement ?? ''"
@@ -37,6 +32,7 @@
 				:running="running"
 				:canRun="canRun"
 				:saved="saved"
+				:submissionStatus="submissionDoc?.status"
 				@run="submitCode"
 				@reset="resetCode"
 			>
@@ -45,6 +41,7 @@
 						:modelValue="code"
 						@update:modelValue="editCode"
 						:language="editorLanguage"
+						:readonly="running"
 						:label="__('Your Code')"
 					/>
 				</template>
@@ -54,7 +51,6 @@
 </template>
 <script setup lang="ts">
 import {
-	Badge,
 	Button,
 	call,
 	createDocumentResource,
@@ -154,7 +150,6 @@ const root = ref<HTMLElement | null>(null)
 const falconURL = ref<string>('https://falcon.frappe.io')
 const falconError = ref<string | undefined>(undefined)
 const running = ref<boolean>(false)
-const workspace = ref<InstanceType<typeof ExerciseWorkspace> | null>(null)
 const exerciseLoading = ref<boolean>(true)
 const falconReady = ref<boolean>(false)
 
@@ -212,12 +207,12 @@ watch(
 const rootClass = computed<string>(() => {
 	if (props.embedded) return 'h-[900px]'
 	if (props.preview) return 'h-full'
-	return 'h-[calc(100vh_-_3rem)] p-4'
+	return 'h-[calc(100vh_-_3rem)]'
 })
 
 const fetchSubmission = (name: string = '') => {
 	if (name) submission.value = submissionFor(name)
-	submission.value?.reload()
+	return submission.value?.reload()
 }
 
 // Not createDocumentResource: a learner must never receive a hidden case's
@@ -253,7 +248,7 @@ watch(exerciseID, () => {
 })
 
 // Only the first load shows the skeleton: the resource reloads after every
-// submit, and swapping the workspace out then would reset its tab and editor.
+// submit, and swapping the workspace out then would reset its editor.
 const submissionPending = ref<boolean>(props.submissionID != 'new')
 const loading = computed<boolean>(
 	() => exerciseLoading.value || submissionPending.value
@@ -314,7 +309,8 @@ const runCommand = computed<string>(
 		)}`
 )
 
-// Submissions store the code minus the boilerplate. Starter code is stored whole.
+// Submissions store the code minus the boilerplate, unless the learner edited
+// the boilerplate. Starter code is stored whole.
 const storedPrefix = computed<string>(() =>
 	exercise.value?.starter_code ? '' : boilerplate.value
 )
@@ -331,9 +327,18 @@ const applySourceCode = () => {
 		return
 	}
 	const submitted: string = submissionDoc.value?.code || ''
-	code.value = submitted
-		? `${storedPrefix.value}${submitted}`
-		: startingCode.value
+	if (!submitted) {
+		code.value = startingCode.value
+	} else if (
+		submissionDoc.value?.full_code ||
+		submitted.startsWith(storedPrefix.value)
+	) {
+		// full_code: stored whole because the learner edited the boilerplate, so
+		// adding it back would run it twice (a second `const fs` breaks JavaScript).
+		code.value = submitted
+	} else {
+		code.value = `${storedPrefix.value}${submitted}`
+	}
 }
 
 // A draft that arrives later, or under a new exercise key, replaces the
@@ -394,6 +399,20 @@ const restoreResults = () => {
 	const stored: StoredTestCase[] = submissionDoc.value?.test_cases || []
 	if (!stored.length) return
 	results.value = restoredResults(stored, exercise.value.test_cases)
+}
+
+// After a save, the stored rows are the server's own run of the code: the verdict
+// that counts. They replace this run's rows so the screen matches it; only the
+// timings, which the server does not keep, carry over. Returns whether any
+// verdict changed.
+const showSavedResults = (ran: TestCaseResult[]): boolean => {
+	const stored: StoredTestCase[] = submissionDoc.value?.test_cases || []
+	if (!exercise.value || !stored.length) return false
+	const byIdx = new Map(ran.map((row) => [row.idx, row]))
+	results.value = restoredResults(stored, exercise.value.test_cases).map(
+		(row) => ({ ...row, elapsed: byIdx.get(row.idx)?.elapsed ?? null })
+	)
+	return results.value.some((row) => row.status !== byIdx.get(row.idx)?.status)
 }
 
 watch(
@@ -479,7 +498,6 @@ const runCode = async () => {
 		elapsed: elapsed[index] ?? null,
 	}))
 	duration.value = (performance.now() - startedAt) / 1000
-	workspace.value?.showTab('tests')
 }
 
 const resetCode = () => {
@@ -512,7 +530,6 @@ const applyReset = () => {
 	results.value = []
 	consoleLines.value = []
 	duration.value = null
-	workspace.value?.showTab('problem')
 }
 
 const inThisBlock = sameBlock(root)
@@ -538,15 +555,14 @@ const createSubmission = async () => {
 	// preview would otherwise write a real submission under the author's name.
 	if (props.preview) return
 	if (!results.value.length) return
-	const codeToSave = code.value.replace(storedPrefix.value, '')
-
+	// Sent whole: the server runs the code the run here used and scores it itself
+	// rather than taking these results on trust, then strips the boilerplate to store.
 	return call<string>('lms.lms.api.create_programming_exercise_submission', {
 		exercise: props.exerciseID,
 		submission: submissionID.value,
-		code: codeToSave,
-		test_cases: results.value,
+		code: code.value,
 	})
-		.then((name) => {
+		.then(async (name) => {
 			clearDraft()
 			const created = submissionID.value == 'new'
 			submissionID.value = name
@@ -556,8 +572,17 @@ const createSubmission = async () => {
 					params: { exerciseID: props.exerciseID, submissionID: name },
 				})
 			}
-			fetchSubmission(name)
-			toast.success(__('Submission saved!'))
+			const ran = results.value
+			await fetchSubmission(name)
+			if (showSavedResults(ran)) {
+				toast.warning(
+					__(
+						'Saved, but the result differs from this run. The saved result is shown.'
+					)
+				)
+			} else {
+				toast.success(__('Submission saved!'))
+			}
 		})
 		.catch((error: any) => {
 			console.error('Error creating submission:', error)

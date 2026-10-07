@@ -1,8 +1,8 @@
-// Guards the two-tab exercise workspace: tabs, run/reset, autosave stamp.
+// Guards the exercise workspace: problem beside editor, run/reset, autosave stamp.
 // Came with this branch's two-tab workspace for programming exercises.
 // Added on feat/assessment-visual-redesign to pin the workspace's contract.
 import { describe, expect, it } from 'vitest'
-import { flushPromises, mount } from '@vue/test-utils'
+import { mount } from '@vue/test-utils'
 import ExerciseWorkspace from '@/components/ProgrammingExercises/ExerciseWorkspace.vue'
 
 // vi.stubGlobal doesn't reach a template's `_ctx.__`; this mirrors setup.ts's
@@ -17,9 +17,10 @@ const translate = (message: string) => {
 	}
 }
 
-const mountWorkspace = () =>
+const mountWorkspace = (extra: Record<string, unknown> = {}) =>
 	mount(ExerciseWorkspace, {
 		props: {
+			...extra,
 			title: 'Coding exercise',
 			language: 'Python',
 			problemStatement: '<p>Add two integers.</p>',
@@ -37,11 +38,31 @@ const mountWorkspace = () =>
 	})
 
 describe('ExerciseWorkspace', () => {
-	it('opens on the problem tab', () => {
+	// Guards the test cases hiding the problem behind a tab. Came with the
+	// two-tab workspace. Added on fix-1 with the cases moved under the console.
+	it('shows the problem and the test cases together', () => {
 		const wrapper = mountWorkspace()
 
 		expect(wrapper.find('[data-testid="problem-pane"]').exists()).toBe(true)
-		expect(wrapper.find('[data-testid="tests-pane"]').exists()).toBe(false)
+		expect(wrapper.find('[data-testid="tests-pane"]').exists()).toBe(true)
+	})
+
+	it('shows the submission status in the header', async () => {
+		const wrapper = mountWorkspace()
+		expect(wrapper.text()).not.toContain('Failed')
+
+		await wrapper.setProps({ submissionStatus: 'Failed' })
+
+		expect(wrapper.text()).toContain('Failed')
+	})
+
+	// Guards the box looking out of place on the exercise's own page.
+	// Added on fix-1: boxed in a lesson, page-filling on its own page.
+	it('is boxed by default and unboxed when not framed', () => {
+		expect(mountWorkspace().classes()).toContain('rounded-7')
+		expect(mountWorkspace({ framed: false }).classes()).not.toContain(
+			'rounded-7'
+		)
 	})
 
 	it('renders the editor slot', () => {
@@ -66,24 +87,6 @@ describe('ExerciseWorkspace', () => {
 		expect(wrapper.emitted('reset')).toHaveLength(1)
 	})
 
-	it('showTab moves to the tests pane and back', async () => {
-		const wrapper = mountWorkspace()
-
-		wrapper.vm.showTab('tests')
-		await flushPromises()
-		expect(wrapper.find('[data-testid="tests-pane"]').exists()).toBe(true)
-
-		wrapper.vm.showTab('problem')
-		await flushPromises()
-		expect(wrapper.find('[data-testid="problem-pane"]').exists()).toBe(true)
-	})
-
-	it('exposes showTab rather than leaking it through the proxy', () => {
-		expect(Object.keys(mountWorkspace().vm.$.exposed ?? {})).toContain(
-			'showTab'
-		)
-	})
-
 	it('shows the autosaved stamp only once something is saved', async () => {
 		const wrapper = mountWorkspace()
 		expect(wrapper.text()).not.toContain('autosaved')
@@ -97,8 +100,6 @@ describe('ExerciseWorkspace', () => {
 	// Introduced in #2823; test added with the a11y audit remediation.
 	it('announces results from one status region, not the whole pane', async () => {
 		const wrapper = mountWorkspace()
-		wrapper.vm.showTab('tests')
-		await flushPromises()
 
 		const pane = wrapper.get('[data-testid="tests-pane"]')
 		expect(pane.attributes('role')).toBeUndefined()
