@@ -18,6 +18,7 @@
 					doctype="Course Evaluator"
 					v-model="evaluator"
 					:label="__('Evaluator')"
+					variant="outline"
 				/>
 			</div>
 		</template>

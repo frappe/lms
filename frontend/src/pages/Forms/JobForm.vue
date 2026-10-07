@@ -28,6 +28,7 @@
 							v-model="job.job_title"
 							:label="__('Title')"
 							:required="true"
+							variant="outline"
 						/>
 						<FormControl
 							v-model="job.type"
@@ -35,6 +36,7 @@
 							type="select"
 							:options="jobTypes"
 							:required="true"
+							variant="outline"
 						/>
 						<FormControl
 							v-model="job.work_mode"
@@ -42,6 +44,7 @@
 							type="select"
 							:options="workModes"
 							:required="true"
+							variant="outline"
 						/>
 					</div>
 					<div class="mb-4 space-y-1.5">
@@ -69,6 +72,7 @@
 							type="select"
 							:options="jobStatuses"
 							:required="true"
+							variant="outline"
 						/>
 					</div>
 					<div class="p-5 space-y-5 border-b">
@@ -79,12 +83,14 @@
 							v-model="job.location"
 							:label="__('City')"
 							:required="true"
+							variant="outline"
 						/>
 						<Link
 							v-model="job.country"
 							doctype="Country"
 							:label="__('Country')"
 							:required="true"
+							variant="outline"
 						/>
 					</div>
 					<div class="p-5 space-y-5">
@@ -96,17 +102,20 @@
 							:label="__('Company Name')"
 							class="mb-4"
 							:required="true"
+							variant="outline"
 						/>
 						<FormControl
 							v-model="job.company_website"
 							:label="__('Company Website')"
 							:required="true"
+							variant="outline"
 						/>
 						<FormControl
 							v-model="job.company_email_address"
 							:label="__('Company Email Address')"
 							class="mb-4"
 							:required="true"
+							variant="outline"
 						/>
 						<Uploader
 							v-model="job.company_logo"

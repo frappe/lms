@@ -9,6 +9,7 @@
 					v-model="assignment.title"
 					:label="__('Title')"
 					:required="true"
+					variant="outline"
 				/>
 				<FormControl
 					v-model="assignment.type"
@@ -16,12 +17,14 @@
 					:options="assignmentOptions"
 					:label="__('Submission Type')"
 					:required="true"
+					variant="outline"
 				/>
 				<Link
 					v-model="assignment.course"
 					:label="__('Course')"
 					doctype="LMS Course"
 					placeholder=" "
+					variant="outline"
 				/>
 				<BooleanSwitch
 					v-model="assignment.enable_scheduling"
@@ -40,6 +43,7 @@
 					"
 					:label="__('Schedule Start')"
 					:required="true"
+					variant="outline"
 				/>
 				<FormControl
 					v-if="assignment.enable_scheduling"
@@ -54,6 +58,7 @@
 							'Optional. Leave empty to keep the assignment open after it starts.'
 						)
 					"
+					variant="outline"
 				/>
 				<div
 					role="group"

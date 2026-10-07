@@ -93,7 +93,8 @@ vi.mock('frappe-ui', () => ({
 		template: `<button v-bind="$attrs"><slot name="icon" /><slot /></button>`,
 	},
 	FormControl: {
-		props: ['modelValue', 'label', 'type', 'required'],
+		name: 'FormControl',
+		props: ['modelValue', 'label', 'type', 'required', 'variant'],
 		emits: ['update:modelValue'],
 		template: `<label>{{ label }}<input :value="modelValue" @input="$emit('update:modelValue', $event.target.value)" /></label>`,
 	},
@@ -137,6 +138,7 @@ vi.mock('@/components/Modals/NewMemberModal.vue', () => ({
 }))
 
 import NewCourseForm from '@/pages/Forms/NewCourseForm.vue'
+import Link from '@/components/Controls/Link.vue'
 import MultiLink from '@/components/Controls/MultiLink.vue'
 
 // The list page hosts the form as a child route, so it has to render a nested
@@ -271,6 +273,22 @@ describe('NewCourseForm as a route', () => {
 		}
 		// Exact count, so an added field has to be added here too.
 		expect(labels).toHaveLength(FIELD_LABELS.length)
+	})
+
+	// Guards: creation-form fields drawn in the subtle variant instead of outline.
+	// Introduced in this branch (feat/onboarding-flows, PR pending); test added
+	// there with the outline-inputs fix.
+	it('draws every field as outline', async () => {
+		const router = makeRouter()
+		await router.push({ name: 'NewCourse' })
+		const wrapper = await mountForm(router, moderator)
+		expect(wrapper.findComponent(MultiLink).props('variant')).toBe('outline')
+		expect(wrapper.findComponent(Link).vm.$attrs.variant).toBe('outline')
+		const controls = wrapper.findAllComponents({ name: 'FormControl' })
+		expect(controls.length).toBeGreaterThan(0)
+		for (const control of controls) {
+			expect(control.props('variant')).toBe('outline')
+		}
 	})
 
 	it('ignores Ctrl+S for a user who cannot create courses', async () => {

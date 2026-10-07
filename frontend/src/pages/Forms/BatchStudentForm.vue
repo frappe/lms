@@ -16,6 +16,7 @@
 					:label="__('Student')"
 					:required="true"
 					:onCreate="openMemberSettings"
+					variant="outline"
 				/>
 				<Link
 					doctype="LMS Payment"
@@ -23,6 +24,7 @@
 					placeholder=" "
 					:label="__('Payment')"
 					:onCreate="openPaymentSettings"
+					variant="outline"
 				/>
 			</div>
 		</template>

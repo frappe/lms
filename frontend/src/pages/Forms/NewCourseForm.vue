@@ -11,6 +11,7 @@
 						:label="__('Title')"
 						:required="true"
 						autocomplete="off"
+						variant="outline"
 					/>
 					<Link
 						v-model="course.category"
@@ -18,6 +19,7 @@
 						:label="__('Category')"
 						:inlineCreate="true"
 						:onCreate="createCategory"
+						variant="outline"
 					/>
 					<MultiLink
 						ref="instructorsRef"
@@ -31,6 +33,7 @@
 						:placeholder="__('Select instructors')"
 						:required="true"
 						:onCreate="openMemberModal"
+						variant="outline"
 					>
 						<template #prefix>
 							<div
@@ -78,6 +81,7 @@
 						:label="__('Short introduction')"
 						type="textarea"
 						:required="true"
+						variant="outline"
 					/>
 					<div class="space-y-1.5">
 						<InputLabel

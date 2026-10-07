@@ -15,6 +15,7 @@
 					:required="true"
 					autocomplete="off"
 					autofocus
+					variant="outline"
 				/>
 				<BooleanSwitch
 					size="sm"

@@ -20,6 +20,7 @@
 					v-model="student"
 					:required="true"
 					:onCreate="openMemberSettings"
+					variant="outline"
 				/>
 				<Link
 					v-if="purchasedCertificate"
@@ -28,6 +29,7 @@
 					placeholder=" "
 					v-model="payment"
 					:onCreate="openPaymentSettings"
+					variant="outline"
 				/>
 			</div>
 		</template>

@@ -110,6 +110,7 @@
 										v-model="evaluation.status"
 										:label="__('Status')"
 										:disabled="!userIsEvaluator()"
+										variant="outline"
 									/>
 								</div>
 							</div>
@@ -119,6 +120,7 @@
 								:label="__('Summary')"
 								:rows="7"
 								:disabled="!userIsEvaluator()"
+								variant="outline"
 							/>
 							<Button
 								v-if="userIsEvaluator()"
@@ -146,6 +148,7 @@
 								:filters="{
 									doc_type: 'LMS Certificate',
 								}"
+								variant="outline"
 							/>
 							<FormControl
 								type="date"
@@ -153,6 +156,7 @@
 								v-model="certificate.issue_date"
 								:disabled="!userIsEvaluator()"
 								:label="__('Issue Date')"
+								variant="outline"
 							/>
 							<FormControl
 								type="date"
@@ -160,6 +164,7 @@
 								v-model="certificate.expiry_date"
 								:disabled="!userIsEvaluator()"
 								:label="__('Expiry Date')"
+								variant="outline"
 							/>
 							<Button
 								v-if="userIsEvaluator()"
