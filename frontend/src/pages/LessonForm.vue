@@ -75,9 +75,13 @@
 					:placeholder="__('Lesson title')"
 					:aria-label="__('Lesson title')"
 					rows="1"
-					class="lesson-title block w-full resize-none overflow-hidden border-0 bg-transparent p-0 text-2xl font-bold leading-tight text-ink-gray-9 placeholder:text-ink-gray-4 focus:outline-none focus-visible:outline-none focus:ring-0"
+					class="lesson-title block w-full resize-none overflow-hidden border-0 bg-transparent p-0 text-2xl font-bold leading-tight text-ink-gray-9 placeholder:text-ink-gray-4 focus:outline-none focus-visible:outline-none"
+					:class="
+						titleKeyboardFocus ? 'ring-2 ring-outline-gray-5' : 'focus:ring-0'
+					"
 					@input="onTitleInput"
 					@keydown.enter="onTitleEnter"
+					@focus="onTitleFocus"
 					@blur="onTitleBlur"
 				/>
 				<UnsavedBadge
@@ -146,6 +150,7 @@ import {
 	ref,
 	nextTick,
 	onBeforeUnmount,
+	onUnmounted,
 	useId,
 	getCurrentInstance,
 } from 'vue'
@@ -199,9 +204,39 @@ function onTitleInput() {
 	markDirty({ fromTitle: true })
 }
 
+// A textarea matches :focus-visible on click and on programmatic focus too, so
+// the ring is driven by the last input modality: only a Tab arrival shows it.
+const titleKeyboardFocus = ref(false)
+let lastWasTab = false
+
+function onTitleFocus() {
+	titleKeyboardFocus.value = lastWasTab
+}
+
 function onTitleBlur() {
+	titleKeyboardFocus.value = false
 	if (isDraft.value) createDraftLesson()
 }
+
+function onModalityKeydown(event) {
+	if (event.key === 'Tab') lastWasTab = true
+}
+
+function onModalityPointerdown() {
+	lastWasTab = false
+}
+
+onMounted(() => {
+	document.addEventListener('keydown', onModalityKeydown, true)
+	document.addEventListener('pointerdown', onModalityPointerdown, true)
+	document.addEventListener('mousedown', onModalityPointerdown, true)
+})
+
+onUnmounted(() => {
+	document.removeEventListener('keydown', onModalityKeydown, true)
+	document.removeEventListener('pointerdown', onModalityPointerdown, true)
+	document.removeEventListener('mousedown', onModalityPointerdown, true)
+})
 
 // EditorJS can't focus while the card is collapsed (display:none).
 function onInstructorNotesToggle(event) {

@@ -200,21 +200,64 @@ describe('LessonForm draft: a new lesson is created from its title', () => {
 		vi.useRealTimers()
 	})
 
-	// The caret is the title's focus indicator; a ring drew a box round the
-	// whole line on the programmatic focus. Needs a browser check too.
-	it('shows only the caret on the focused title, no ring or outline', async () => {
-		wrapper = await mountDraft()
-		const classes = titleField(wrapper).classes()
-		expect(classes).toEqual(
-			expect.arrayContaining([
-				'focus:outline-none',
-				'focus-visible:outline-none',
-				'focus:ring-0',
-			])
-		)
-		expect(
-			classes.filter((c) => /^focus(-visible)?:ring-(?!0$)/.test(c))
-		).toEqual([])
+	// A textarea matches :focus-visible on click and programmatic focus too, so
+	// the ring follows the last input modality: only a Tab arrival rings it.
+	describe('title focus ring', () => {
+		const ringed = (w: VueWrapper) => {
+			const classes = titleField(w).classes()
+			return (
+				classes.includes('ring-2') && classes.includes('ring-outline-gray-5')
+			)
+		}
+
+		async function refocus(w: VueWrapper, before: Event) {
+			const title = titleField(w).element as HTMLTextAreaElement
+			title.blur()
+			await flushPromises()
+			document.body.dispatchEvent(before)
+			title.focus()
+			await flushPromises()
+		}
+
+		// Guards: keyboard users losing the title's focus ring. The ring rules come
+		// from develop (frappe/lms#2848); test added in this branch
+		// (feat/onboarding-flows, PR pending) with the Tab-only ring fix.
+		it('rings the title when focus arrives by Tab', async () => {
+			wrapper = await mountDraft()
+			await refocus(
+				wrapper,
+				new KeyboardEvent('keydown', { key: 'Tab', bubbles: true })
+			)
+			expect(ringed(wrapper)).toBe(true)
+			expect(titleField(wrapper).classes()).not.toContain('focus:ring-0')
+			;(titleField(wrapper).element as HTMLTextAreaElement).blur()
+			await flushPromises()
+			expect(ringed(wrapper)).toBe(false)
+		})
+
+		// Guards: a click ringing the title. Introduced in frappe/lms#2848; test
+		// added in this branch (feat/onboarding-flows, PR pending) for that fix.
+		it('does not ring the title when focus follows a pointerdown', async () => {
+			wrapper = await mountDraft()
+			document.body.dispatchEvent(
+				new KeyboardEvent('keydown', { key: 'Tab', bubbles: true })
+			)
+			await refocus(wrapper, new Event('pointerdown', { bubbles: true }))
+			expect(ringed(wrapper)).toBe(false)
+			expect(titleField(wrapper).classes()).toContain('focus:ring-0')
+		})
+
+		// Guards: every new lesson opening with a ringed title from its autofocus.
+		// Introduced in frappe/lms#2848; test added in this branch
+		// (feat/onboarding-flows, PR pending) for that fix.
+		it('does not ring the title on programmatic focus', async () => {
+			wrapper = await mountDraft()
+			expect(document.activeElement).toBe(titleField(wrapper).element)
+			expect(ringed(wrapper)).toBe(false)
+			expect(titleField(wrapper).classes()).toEqual(
+				expect.arrayContaining(['focus:outline-none', 'focus:ring-0'])
+			)
+		})
 	})
 
 	it('opens empty and focused, loading and creating nothing', async () => {
