@@ -80,13 +80,28 @@ describe('OnboardingBanner', () => {
 		expect(ui.minimize.value).toBe(false)
 	})
 
-	it('uses ghost buttons, open and collapsed', () => {
+	// Guards: the expanded banner button losing the framework's blue accent.
+	// Introduced in this branch (feat/onboarding-flows, PR pending); test added
+	// there to pin theme blue.
+	it('gives the open button the blue accent, like the framework', () => {
 		framework.counts.learning_publish_course = [1, 6]
-		for (const collapsed of [false, true]) {
-			const w = mountBanner('learning_publish_course', collapsed)
-			for (const button of w.findAllComponents({ name: 'Button' }))
-				expect(button.props('variant')).toBe('ghost')
-		}
+		const button = mountBanner('learning_publish_course').findComponent({
+			name: 'Button',
+		})
+		expect(button.props('theme')).toBe('blue')
+		expect(button.props('variant')).toBeUndefined()
+	})
+
+	// Guards: the collapsed icon button turning blue. Introduced in this branch
+	// (feat/onboarding-flows, PR pending); test added there to pin the ghost
+	// variant.
+	it('uses a ghost button when collapsed', () => {
+		framework.counts.learning_publish_course = [1, 6]
+		const button = mountBanner('learning_publish_course', true).findComponent({
+			name: 'Button',
+		})
+		expect(button.props('variant')).toBe('ghost')
+		expect(button.props('theme')).toBeUndefined()
 	})
 
 	// Guards: a fresh banner saying Continue. Introduced in this branch

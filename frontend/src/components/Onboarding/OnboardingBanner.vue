@@ -35,7 +35,7 @@
 		</div>
 		<Button
 			v-if="!allDone"
-			variant="ghost"
+			theme="blue"
 			:label="stepsCompleted === 0 ? text.start : text.continue"
 			@click="openOnboarding"
 		>
@@ -56,8 +56,8 @@
 
 <script setup lang="ts">
 // A copy of the framework's Onboarding/GettingStartedBanner.vue, at the LMS
-// sidebar's text size (text-p-sm) with ghost buttons, and the dismiss control
-// as a real button.
+// sidebar's text size (text-p-sm) with a ghost collapsed button, and the
+// dismiss control as a real button.
 import { computed } from 'vue'
 import { Button } from 'frappe-ui'
 import { StepsIcon } from 'frappe-ui/icons'

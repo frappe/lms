@@ -1,5 +1,6 @@
-// The panel and banner must use the sidebar nav label class and ghost buttons
-// only. Read from the sources, so a change on either side shows up here.
+// Onboarding must use the sidebar nav label class and ghost buttons only, bar
+// the banner's Start now/Continue (framework blue). Reads the sources, so a
+// change on either side shows up here.
 import { describe, expect, it } from 'vitest'
 import { existsSync, readdirSync, readFileSync } from 'node:fs'
 import { join, resolve } from 'node:path'
@@ -59,6 +60,11 @@ describe('onboarding matches the sidebar', () => {
 			expect(source).not.toMatch(/variant="(?:solid|subtle|outline)"/)
 			const buttons = source.match(/<Button\b[^>]*>/gs) ?? []
 			for (const button of buttons) {
+				if (name === 'OnboardingBanner.vue' && /text\.start/.test(button)) {
+					expect(button).toMatch(/\btheme="blue"/)
+					expect(button).not.toMatch(/\bvariant="/)
+					continue
+				}
 				expect(button).toMatch(/variant="ghost"/)
 				expect(button).not.toMatch(/\btheme="/)
 			}
