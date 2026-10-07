@@ -2,7 +2,7 @@
 // mounts inside the app <Sidebar>, so a collapsed sidebar reaches its rows, and
 // a Tooltip trigger merges its own click handler into the row's.
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { flushPromises, mount } from '@vue/test-utils'
+import { flushPromises, mount, type DOMWrapper } from '@vue/test-utils'
 import { computed, reactive, ref } from 'vue'
 import { sidebarCollapsedKey } from 'frappe-ui'
 
@@ -202,5 +202,31 @@ describe.each([
 		await flushPromises()
 		expect(article.attributes('aria-expanded')).toBe('true')
 		expect(errors).toEqual([])
+	})
+})
+
+// Guards: Reset all, Skip all and Help center rendering larger than a step's
+// action. Introduced in this branch (feat/onboarding-flows, PR pending); test
+// added there to keep them at the row action's size.
+describe('panel action sizes', () => {
+	const sizeClasses = (button: DOMWrapper<Element>) =>
+		button.classes().filter((c) => /^(h|px|rounded|text-(base|sm|p))/.test(c))
+
+	it('sizes Reset all, Skip all and Help center like a step action', async () => {
+		const { w } = await setUp(null)
+		await control(w, 'flow-row')[0].trigger('click')
+		await flushPromises()
+		framework.handles['learning_publish_course'].updateOnboardingStep(
+			'create_first_course'
+		)
+		await flushPromises()
+
+		const action = control(w, 'step-action')[0]
+		for (const testid of ['reset-all', 'skip-all', 'footer-row']) {
+			const button = control(w, testid)[0]
+			expect(sizeClasses(button), testid).toEqual(sizeClasses(action))
+			expect(button.find('span.text-p-sm').exists(), testid).toBe(true)
+		}
+		expect(control(w, 'footer-row')[0].find('.size-4').exists()).toBe(true)
 	})
 })

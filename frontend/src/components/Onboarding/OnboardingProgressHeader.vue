@@ -9,15 +9,21 @@
 			<Button
 				v-if="canReset"
 				variant="ghost"
-				:label="text.resetAll"
+				size="sm"
+				data-testid="reset-all"
 				@click="emit('reset')"
-			/>
+			>
+				<span :class="ROW_TEXT">{{ text.resetAll }}</span>
+			</Button>
 			<Button
 				v-if="percent !== 100"
 				variant="ghost"
-				:label="text.skipAll"
+				size="sm"
+				data-testid="skip-all"
 				@click="emit('skip')"
-			/>
+			>
+				<span :class="ROW_TEXT">{{ text.skipAll }}</span>
+			</Button>
 		</div>
 	</div>
 </template>
@@ -25,6 +31,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { Badge, Button } from 'frappe-ui'
+import { ROW_TEXT } from '@/onboarding/rowClasses'
 
 const props = defineProps<{ percent: number; canReset: boolean }>()
 

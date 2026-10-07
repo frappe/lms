@@ -344,13 +344,11 @@ describe('help centre', () => {
 	const footerRow = (w: Awaited<ReturnType<typeof setUp>>['w']) =>
 		w.find('[data-testid="panel-footer"]').find('button')
 
-	// Guards: the help footer drifting from the sidebar row look. Introduced in
-	// this branch (feat/onboarding-flows, PR pending); test added there to pin
-	// the footer row.
-	it('is a sidebar row with the help icon', async () => {
+	// Guards: the help footer losing its label or icon. Introduced in this
+	// branch (feat/onboarding-flows, PR pending); test added there to pin the
+	// footer control.
+	it('is a button with the help icon', async () => {
 		const { w } = await setUp()
-		const footer = w.find('[data-testid="panel-footer"]')
-		expect(footer.find('.sidebar-item').exists()).toBe(true)
 		const row = footerRow(w)
 		expect(row.text()).toBe('Help center')
 		expect(row.find('.help-icon').exists()).toBe(true)

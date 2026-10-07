@@ -71,8 +71,10 @@
 		</div>
 
 		<div class="flex flex-col gap-1.5" data-testid="panel-footer">
-			<SidebarItem
-				:label="footerLabel"
+			<Button
+				variant="ghost"
+				size="sm"
+				class="self-start"
 				data-testid="footer-row"
 				@click="toggleHelp"
 			>
@@ -83,17 +85,15 @@
 						aria-hidden="true"
 					/>
 				</template>
-				<span class="truncate text-p-sm text-ink-gray-8">
-					{{ footerLabel }}
-				</span>
-			</SidebarItem>
+				<span :class="ROW_TEXT">{{ footerLabel }}</span>
+			</Button>
 		</div>
 	</section>
 </template>
 
 <script setup lang="ts">
 import { computed, provide, ref, useId } from 'vue'
-import { Button, SidebarItem, sidebarCollapsedKey } from 'frappe-ui'
+import { Button, sidebarCollapsedKey } from 'frappe-ui'
 import {
 	HelpIcon,
 	MaximizeIcon,
@@ -108,6 +108,7 @@ import OnboardingHelpCenter from '@/components/Onboarding/OnboardingHelpCenter.v
 import { HELP_DOCS_LINK, helpArticles } from '@/onboarding/helpArticles'
 import { CARDS } from '@/onboarding/cards'
 import { useLearningOnboarding } from '@/onboarding/useLearningOnboarding'
+import { ROW_TEXT } from '@/onboarding/rowClasses'
 
 const {
 	screen,
