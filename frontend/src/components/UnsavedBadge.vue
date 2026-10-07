@@ -13,6 +13,7 @@
 <script setup lang="ts">
 import { Badge, Tooltip } from 'frappe-ui'
 import { computed } from 'vue'
+import { documentLocale } from '@/utils/numberCardFormat'
 
 // The settings header's "Not saved" marker, for a record not written yet. The
 // tooltip names what saving still needs, or how to save once nothing is missing.
@@ -24,7 +25,7 @@ const props = defineProps<{
 
 const label = __('Not saved')
 
-const listFormat = new Intl.ListFormat(document.documentElement.lang || 'en', {
+const listFormat = new Intl.ListFormat(documentLocale(), {
 	style: 'long',
 	type: 'conjunction',
 })

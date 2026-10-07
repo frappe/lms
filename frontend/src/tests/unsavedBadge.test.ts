@@ -33,4 +33,19 @@ describe('UnsavedBadge', () => {
 	])('with %j missing, the tooltip says %s', (missing, text) => {
 		expect(render(missing).findComponent(Tooltip).props('text')).toBe(text)
 	})
+
+	// Guards: Intl.ListFormat throwing at mount on the dev page's raw
+	// "{{ boot.lang }}" lang. Introduced in this branch (feat/onboarding-flows,
+	// PR pending); test added there with the locale guard fix.
+	it('mounts when the page lang is not a valid locale', () => {
+		const lang = document.documentElement.lang
+		document.documentElement.lang = '{{ boot.lang }}'
+		try {
+			expect(render(['a title']).findComponent(Tooltip).props('text')).toBe(
+				'Add a title to save'
+			)
+		} finally {
+			document.documentElement.lang = lang
+		}
+	})
 })
