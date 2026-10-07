@@ -339,6 +339,18 @@ describe('step action buttons', () => {
 		)
 	})
 
+	it('ends the actions on the same edge as Skip all', () => {
+		const w = mountFlow()
+		const endInset = /^(?:p|m)(?:e|x|r)?-|^(?:p|m)-/
+		const header = w.find('[data-testid="badge-row"]').element
+		const rowActions = rows(w)[2].element.lastElementChild!
+		for (const el of [header, header.lastElementChild!, rowActions]) {
+			expect(Array.from(el.classList).filter((c) => endInset.test(c))).toEqual(
+				[]
+			)
+		}
+	})
+
 	it("reserves the hover Skip's space before the action", () => {
 		const row = rows(mountFlow())[2]
 		const buttons = row.findAll('button').map((b) => b.text())

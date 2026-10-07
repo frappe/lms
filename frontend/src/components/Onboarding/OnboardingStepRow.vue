@@ -56,7 +56,7 @@
 				</span>
 			</button>
 		</component>
-		<div class="flex shrink-0 items-center gap-1 pe-1">
+		<div class="flex shrink-0 items-center gap-1">
 			<Button
 				v-if="isResolved || !parent"
 				variant="ghost"
