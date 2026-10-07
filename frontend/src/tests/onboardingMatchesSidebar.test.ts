@@ -57,7 +57,8 @@ describe('onboarding matches the sidebar', () => {
 		'$name has only ghost buttons',
 		({ name }) => {
 			const source = readFileSync(join(ONBOARDING, name), 'utf8')
-			expect(source).not.toMatch(/variant="(?:solid|subtle|outline)"/)
+			const withoutBadges = source.replace(/<Badge\b[^>]*>/gs, '')
+			expect(withoutBadges).not.toMatch(/variant="(?:solid|subtle|outline)"/)
 			const buttons = source.match(/<Button\b[^>]*>/gs) ?? []
 			for (const button of buttons) {
 				if (name === 'OnboardingBanner.vue' && /text\.start/.test(button)) {

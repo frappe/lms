@@ -27,7 +27,20 @@
 			:text="blockedText"
 			class="flex h-full min-w-0 flex-1"
 		>
+			<span
+				v-if="status === 'skipped'"
+				class="ms-2 flex h-full min-w-0 flex-1 items-center"
+			>
+				<span
+					class="truncate"
+					:class="[ROW_TEXT, titleClass]"
+					data-testid="step-open"
+				>
+					{{ step.title }}
+				</span>
+			</span>
 			<button
+				v-else
 				type="button"
 				class="ms-2 text-start"
 				:class="SIDEBAR_ROW_CONTROL"
@@ -44,13 +57,6 @@
 			</button>
 		</component>
 		<div class="flex shrink-0 items-center gap-1 pe-1">
-			<span
-				v-if="status === 'skipped'"
-				class="text-ink-gray-6"
-				:class="ROW_TEXT"
-			>
-				{{ text.skipped }}
-			</span>
 			<Button
 				v-if="isResolved || !parent"
 				variant="ghost"
@@ -61,7 +67,7 @@
 				<span :class="ROW_TEXT">{{ isResolved ? text.reset : text.skip }}</span>
 			</Button>
 			<Dropdown
-				v-if="step.chooses && status !== 'done'"
+				v-if="step.chooses && !isResolved"
 				:options="choiceOptions"
 				data-testid="step-choice"
 			>
@@ -72,11 +78,11 @@
 					:disabled="Boolean(parent)"
 					data-testid="step-action"
 				>
-					<span :class="ROW_TEXT">{{ actionLabel }}</span>
+					<span :class="ROW_TEXT">{{ step.actionLabel }}</span>
 				</Button>
 			</Dropdown>
 			<Button
-				v-else-if="status !== 'done'"
+				v-else-if="!isResolved"
 				variant="ghost"
 				size="sm"
 				:class="actionClass"
@@ -84,15 +90,22 @@
 				data-testid="step-action"
 				@click.stop="startStep(flow.id, step.name)"
 			>
-				<span :class="ROW_TEXT">{{ actionLabel }}</span>
+				<span :class="ROW_TEXT">{{ step.actionLabel }}</span>
 			</Button>
+			<Badge
+				v-if="status === 'skipped'"
+				theme="gray"
+				variant="subtle"
+				size="sm"
+				:label="text.skipped"
+			/>
 		</div>
 	</div>
 </template>
 
 <script setup lang="ts">
 import { computed } from 'vue'
-import { Button, Dropdown, Tooltip } from 'frappe-ui'
+import { Badge, Button, Dropdown, Tooltip } from 'frappe-ui'
 import type { FlowCard, FlowStep, OnboardingFlow } from '@/onboarding/flows'
 import { useLearningOnboarding } from '@/onboarding/useLearningOnboarding'
 import {
@@ -123,17 +136,12 @@ const text = {
 	skipped: __('Skipped'),
 	skip: __('Skip'),
 	reset: __('Reset'),
-	doIt: __('Do it'),
 }
 
 const status = computed(() => stepStatus(props.flow.id, props.step))
 const parent = computed(() => blocker(props.flow.id, props.step))
 const isResolved = computed<boolean>(
 	() => status.value === 'done' || status.value === 'skipped'
-)
-
-const actionLabel = computed<string>(() =>
-	status.value === 'skipped' ? text.doIt : props.step.actionLabel
 )
 
 const actionClass = computed<string>(() =>

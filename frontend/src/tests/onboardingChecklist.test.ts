@@ -55,8 +55,9 @@ vi.mock('frappe-ui', () => ({
 		template: `<div class="sidebar-item"><button type="button" v-bind="$attrs" @click="onClick && onClick($event)"><slot name="prefix" /><slot>{{ label }}</slot></button><slot name="suffix" /></div>`,
 	},
 	Badge: {
-		props: ['label', 'theme', 'size'],
-		template: '<span class="badge" :data-theme="theme">{{ label }}</span>',
+		props: ['label', 'theme', 'variant', 'size'],
+		template:
+			'<span class="badge" :data-theme="theme" :data-variant="variant" :data-size="size">{{ label }}</span>',
 	},
 	Button: {
 		props: ['label', 'variant', 'size', 'disabled'],
@@ -220,10 +221,17 @@ describe('step rows', () => {
 		expect(titles[3]).toContain('text-ink-gray-4')
 	})
 
-	it('marks a skipped step with muted Skipped text', () => {
+	it('marks a skipped step with a gray Skipped badge at the row end', () => {
 		const w = mountFlow()
-		expect(rows(w)[1].text()).toContain('Skipped')
-		expect(rows(w)[0].text()).not.toContain('Skipped')
+		const badge = rows(w)[1].find('.badge')
+		expect(badge.text()).toBe('Skipped')
+		expect(badge.attributes()).toMatchObject({
+			'data-theme': 'gray',
+			'data-variant': 'subtle',
+			'data-size': 'sm',
+		})
+		expect(badge.element.nextElementSibling).toBeNull()
+		expect(rows(w)[0].find('.badge').exists()).toBe(false)
 	})
 
 	it('shows a green check for done and the step icon otherwise', () => {
@@ -265,6 +273,15 @@ describe('step rows', () => {
 		)
 	})
 
+	it('leaves a skipped title inert until it is reset', async () => {
+		const title = rows(mountFlow())[1].find('[data-testid="step-open"]')
+		expect(title.text()).toBe('Set up Google API')
+		expect(title.element.closest('button')).toBeNull()
+		expect(title.element.closest('[role="button"]')).toBeNull()
+		await title.trigger('click')
+		expect(actions.startStep).not.toHaveBeenCalled()
+	})
+
 	it('offers Skip on open steps and Reset on resolved ones', async () => {
 		const w = mountFlow()
 		await buttonIn(rows(w)[2], 'Skip')!.trigger('click')
@@ -285,14 +302,14 @@ describe('step action buttons', () => {
 	const action = (w: ReturnType<typeof mountFlow>, i: number) =>
 		rows(w)[i].find('[data-testid="step-action"]')
 
-	it('gives each open step its verb, and done steps none', () => {
+	it('gives each open step its verb, and done or skipped steps none', () => {
 		const w = mountFlow()
 		expect(
 			[0, 1, 2, 3, 4, 5].map((i) => {
 				const b = action(w, i)
 				return b.exists() ? b.text() : null
 			})
-		).toEqual([null, 'Do it', 'Connect', 'Add', 'Schedule', 'Publish'])
+		).toEqual([null, null, 'Connect', 'Add', 'Schedule', 'Publish'])
 	})
 
 	it('keeps every action ghost and marks the current one by colour', () => {
@@ -301,24 +318,24 @@ describe('step action buttons', () => {
 		expect(action(w, 2).classes()).toContain('!text-ink-gray-9')
 		expect(action(w, 4).attributes('data-variant')).toBe('ghost')
 		expect(action(w, 4).classes()).toContain('!text-ink-gray-6')
-		expect(action(w, 1).attributes('data-variant')).toBe('ghost')
+	})
+
+	it('shows no action button on a skipped row, only Reset', () => {
+		const row = rows(mountFlow())[1]
+		expect(row.find('[data-testid="step-action"]').exists()).toBe(false)
+		expect(row.findAll('button').map((b) => b.text())).toEqual(['', 'Reset'])
 	})
 
 	it("disables a blocked step's action", () => {
 		expect(action(mountFlow(), 3).attributes('disabled')).toBeDefined()
 	})
 
-	it('runs the step from its action, the skipped one included', async () => {
+	it('runs the step from its action', async () => {
 		const w = mountFlow()
 		await action(w, 2).trigger('click')
 		expect(actions.startStep).toHaveBeenCalledWith(
 			'live_class_meet',
 			'connect_google_calendar'
-		)
-		await action(w, 1).trigger('click')
-		expect(actions.startStep).toHaveBeenCalledWith(
-			'live_class_meet',
-			'setup_google_api'
 		)
 	})
 
@@ -362,6 +379,14 @@ describe('choosing a meeting tool', () => {
 			props: { card: liveCard, flow: getFlow('live_class')! },
 		})
 		expect(w.find('[data-testid="answer-switch"]').exists()).toBe(false)
+	})
+	it('offers no tools once the step is skipped', () => {
+		state.status = { ...state.status, choose_meeting_tool: 'skipped' }
+		const w = mount(OnboardingChecklist, {
+			props: { card: liveCard, flow: getFlow('live_class')! },
+		})
+		expect(w.find('[data-testid="step-choice"]').exists()).toBe(false)
+		expect(w.find('[data-testid="step-action"]').exists()).toBe(false)
 	})
 })
 
