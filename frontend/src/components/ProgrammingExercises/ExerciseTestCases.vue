@@ -83,7 +83,7 @@
 							"
 						>
 							<template v-if="result.output">{{ result.output }}</template>
-							<span v-else class="font-sans italic text-ink-gray-5">
+							<span v-else class="font-sans italic text-ink-gray-6">
 								{{ __('No output') }}
 							</span>
 						</dd>
