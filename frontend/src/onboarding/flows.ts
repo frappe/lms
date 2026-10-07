@@ -149,24 +149,18 @@ function withBatch(nav: FlowNavigation, open: (batchName: string) => void) {
 	open(batchName)
 }
 
-function openCourseSettings(nav: FlowNavigation): void {
+// Each intent is read once: CoursePublishSettings turns Paid course on for
+// ?pricing=paid and puts the caret in the price; CourseDetail focuses its
+// Publish button for ?publish=1.
+function openCourseSettings(
+	nav: FlowNavigation,
+	intent: { pricing: 'paid' } | { publish: '1' }
+): void {
 	withCourse(nav, (courseName) =>
 		nav.openRoute({
 			name: 'CourseDetail',
 			params: { courseName },
-			hash: '#settings',
-		})
-	)
-}
-
-// CoursePublishSettings reads ?pricing=paid once: it turns Paid course on and
-// puts the caret in the price.
-function openCoursePricing(nav: FlowNavigation): void {
-	withCourse(nav, (courseName) =>
-		nav.openRoute({
-			name: 'CourseDetail',
-			params: { courseName },
-			query: { pricing: 'paid' },
+			query: intent,
 			hash: '#settings',
 		})
 	)
@@ -332,7 +326,7 @@ const publishCourseFlow: OnboardingFlow = {
 			dependsOn: 'create_first_course',
 			fact: 'has_course_pricing',
 			minimizeOnOpen: true,
-			onClick: () => openCoursePricing(nav),
+			onClick: () => openCourseSettings(nav, { pricing: 'paid' }),
 		},
 		{
 			name: 'publish_course',
@@ -342,7 +336,8 @@ const publishCourseFlow: OnboardingFlow = {
 			completed: false,
 			dependsOn: 'create_first_course',
 			fact: 'has_published_course',
-			onClick: () => openCourseSettings(nav),
+			minimizeOnOpen: true,
+			onClick: () => openCourseSettings(nav, { publish: '1' }),
 		},
 	],
 }

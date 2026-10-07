@@ -303,14 +303,19 @@ describe('step targets', () => {
 			?.onClick?.()
 	}
 
-	it('publish_course opens the first course at #settings', () => {
+	it('publish_course asks the settings to focus Publish, minimised', () => {
 		const nav = fakeNav(facts)
 		click('publish_course', 'publish_course', nav)
 		expect(nav.openRoute).toHaveBeenCalledWith({
 			name: 'CourseDetail',
 			params: { courseName: 'my-course' },
+			query: { publish: '1' },
 			hash: '#settings',
 		})
+		const step = stepsOf('publish_course').find(
+			(s) => s.name === 'publish_course'
+		)
+		expect(step?.minimizeOnOpen).toBe(true)
 	})
 
 	it('set_course_pricing asks the settings for a paid price, minimised', () => {

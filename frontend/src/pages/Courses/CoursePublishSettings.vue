@@ -258,38 +258,42 @@ function setPaidCourse(val: boolean) {
 	if (applyPaidCourse(val)) markDirty()
 }
 
-// Onboarding's Set pricing step lands here with ?pricing=paid. It is dropped
-// from the URL once read, so a refresh or a later visit leaves the form alone.
 const route = useRoute()
 const router = useRouter()
 const coursePriceInput = ref<{ focus: () => void } | null>(null)
-const pricingRequested = ref<boolean>(false)
-
-watch(
-	() => route.query.pricing,
-	(pricing) => {
-		if (pricing !== 'paid') return
-		pricingRequested.value = true
-		const { pricing: _dropped, ...query } = route.query
-		router.replace({ query, hash: route.hash })
-	},
-	{ immediate: true }
-)
 
 // A cached course shows while it reloads; the reload would undo the switch.
 const docLoaded = computed<boolean>(
 	() => Boolean(resource.doc) && !resource.get?.loading
 )
 
-watch(
-	[pricingRequested, docLoaded],
-	([requested, loaded]) => {
-		if (!requested || !loaded) return
-		pricingRequested.value = false
-		openPaidPricing()
-	},
-	{ immediate: true }
-)
+// Onboarding's Set pricing step lands here with ?pricing=paid. The intent is
+// dropped from the URL once read, so a refresh or a later visit leaves the
+// form alone, and runs once the course has loaded.
+function onIntent(param: string, value: string, run: () => void) {
+	const requested = ref<boolean>(false)
+	watch(
+		() => route.query[param],
+		(given) => {
+			if (given !== value) return
+			requested.value = true
+			const { [param]: _dropped, ...query } = route.query
+			router.replace({ query, hash: route.hash })
+		},
+		{ immediate: true }
+	)
+	watch(
+		[requested, docLoaded],
+		([wanted, loaded]) => {
+			if (!wanted || !loaded) return
+			requested.value = false
+			run()
+		},
+		{ immediate: true }
+	)
+}
+
+onIntent('pricing', 'paid', openPaidPricing)
 
 // No autosave: the switch waits for a price and the user's own save.
 async function openPaidPricing() {
