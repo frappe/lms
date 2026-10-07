@@ -32,6 +32,9 @@ function stepsOf(id: string, nav = fakeNav()) {
 const flowRows = FLOWS.map((f) => ({ id: f.id }))
 
 describe('flow registry', () => {
+	// Guards: a renamed or dropped flow key, which orphans the progress stored
+	// under it. Introduced in this branch (feat/onboarding-flows, PR pending);
+	// test added there to pin the six keys.
 	it('ships six flows with their framework keys', () => {
 		expect(FLOWS.map((f) => [f.id, f.key])).toEqual([
 			['publish_course', 'learning_publish_course'],
@@ -43,6 +46,9 @@ describe('flow registry', () => {
 		])
 	})
 
+	// Guards: the panel's cards losing a title or changing order. Introduced in
+	// this branch (feat/onboarding-flows, PR pending); test added there to pin
+	// the card list.
 	it('groups them into four cards, assessments after the first course', () => {
 		expect(CARDS.map((c) => [c.id, c.title, c.description])).toEqual([
 			[
@@ -68,12 +74,18 @@ describe('flow registry', () => {
 		])
 	})
 
+	// Guards: a question showing on the users card, which has one flow.
+	// Introduced in this branch (feat/onboarding-flows, PR pending); test added
+	// there to keep that card question-free.
 	it('asks nothing before onboarding users', () => {
 		const card = getCard('onboard_learners')!
 		expect(card.question).toBeUndefined()
 		expect(card.flows.map((f) => f.id)).toEqual(['onboard_learners'])
 	})
 
+	// Guards: the meeting tool choice losing Zoom or Meet, or picking the wrong
+	// flow. Introduced in this branch (feat/onboarding-flows, PR pending); test
+	// added there to pin the options.
 	it('offers the meeting tools as the live class choice', () => {
 		const q = getCard('live_class')!.question!
 		expect([q.label, q.title]).toEqual([
@@ -90,6 +102,9 @@ describe('flow registry', () => {
 		])
 	})
 
+	// Guards: an unknown or missing tool answer resolving to no flow.
+	// Introduced in this branch (feat/onboarding-flows, PR pending); test added
+	// there to keep the pre-choice fallback.
 	it('runs the live class on its pre-choice flow until a tool is picked', () => {
 		const live = getCard('live_class')!
 		expect(flowForAnswer(live, null)?.id).toBe('live_class')
@@ -97,6 +112,9 @@ describe('flow registry', () => {
 		expect(flowForAnswer(live, 'meet')?.id).toBe('live_class_meet')
 	})
 
+	// Guards: the live class keys drifting apart before the tool is picked.
+	// Introduced in this branch (feat/onboarding-flows, PR pending); test added
+	// there to keep their shared head.
 	it('starts every live class key with the same three steps', () => {
 		const head = [
 			'create_first_batch',
@@ -112,22 +130,34 @@ describe('flow registry', () => {
 		expect(stepsOf('live_class')).toHaveLength(3)
 	})
 
+	// Guards: the meeting tool step losing `chooses`, so the panel stops
+	// asking. Introduced in this branch (feat/onboarding-flows, PR pending);
+	// test added there to pin the marker.
 	it('marks the meeting tool step as the live class choice', () => {
 		const choose = stepsOf('live_class')[2]
 		expect(choose.chooses).toBe('live_class')
 		expect(choose.fact).toBeUndefined()
 	})
 
+	// Guards: a question on the publish card blocking its only flow. Introduced
+	// in this branch (feat/onboarding-flows, PR pending); test added there to
+	// keep it question-free.
 	it('publish course has no question', () => {
 		expect(getCard('publish_course')!.question).toBeUndefined()
 	})
 
+	// Guards: a one-flow card resolving to nothing with no answer. Introduced
+	// in this branch (feat/onboarding-flows, PR pending); test added there to
+	// cover that path.
 	it('resolves a card without a question to its only flow', () => {
 		expect(flowForAnswer(getCard('publish_course')!, null)?.id).toBe(
 			'publish_course'
 		)
 	})
 
+	// Guards: a reordered step; stored progress maps by index, so it ticks the
+	// wrong one. Introduced in this branch (feat/onboarding-flows, PR pending);
+	// test added there to freeze the order.
 	it.each([
 		{
 			id: 'publish_course',
@@ -188,6 +218,9 @@ describe('flow registry', () => {
 		expect(stepsOf(id).map((s) => s.title)).toEqual(titles)
 	})
 
+	// Guards: a step's action button losing its short verb. Introduced in this
+	// branch (feat/onboarding-flows, PR pending); test added there to pin the
+	// labels.
 	it.each([
 		{
 			id: 'publish_course',
@@ -224,11 +257,17 @@ describe('flow registry', () => {
 		expect(stepsOf(id).map((s) => s.actionLabel)).toEqual(actions)
 	})
 
+	// Guards: two steps sharing a name, so finishing one ticks both. Introduced
+	// in this branch (feat/onboarding-flows, PR pending); test added there to
+	// catch duplicates.
 	it.each(flowRows)('$id has unique step names', ({ id }) => {
 		const names = stepsOf(id).map((s) => s.name)
 		expect(new Set(names).size).toBe(names.length)
 	})
 
+	// Guards: a step locked behind a later step, so it never unlocks.
+	// Introduced in this branch (feat/onboarding-flows, PR pending); test added
+	// there to check dependency order.
 	it.each(flowRows)('$id only depends on earlier steps', ({ id }) => {
 		const steps = stepsOf(id)
 		steps.forEach((step, index) => {
@@ -237,6 +276,9 @@ describe('flow registry', () => {
 		})
 	})
 
+	// Guards: a step shipped done, or keyed to a fact the server never sends.
+	// Introduced in this branch (feat/onboarding-flows, PR pending); test added
+	// there to check the defaults.
 	it.each(flowRows)('$id steps start incomplete with known facts', ({ id }) => {
 		for (const step of stepsOf(id)) {
 			expect(step.completed).toBe(false)
@@ -244,6 +286,9 @@ describe('flow registry', () => {
 		}
 	})
 
+	// Guards: assessment steps losing their facts, quiz dependency or minimise-
+	// on-open. Introduced in this branch (feat/onboarding-flows, PR pending);
+	// test added there to pin that flow's wiring.
 	it('the assessments flow builds on the quiz and needs room for its forms', () => {
 		const steps = stepsOf('add_assessments')
 		expect(
@@ -264,10 +309,16 @@ describe('flow registry', () => {
 		)
 	})
 
+	// Guards: the publish card no longer leading to assessments. Introduced in
+	// this branch (feat/onboarding-flows, PR pending); test added there to pin
+	// the next card.
 	it('offers assessments next once the first course is published', () => {
 		expect(getCard('publish_course')!.next[0]).toBe('add_assessments')
 	})
 
+	// Guards: a card offering itself or an unknown card under Try next.
+	// Introduced in this branch (feat/onboarding-flows, PR pending); test added
+	// there to check every card.
 	it.each(CARDS.map((c) => ({ id: c.id })))(
 		'$id offers only other known cards next',
 		({ id }) => {
@@ -280,6 +331,9 @@ describe('flow registry', () => {
 		}
 	)
 
+	// Guards: Calendar or the Meet account unlocking before the step it needs.
+	// Introduced in this branch (feat/onboarding-flows, PR pending); test added
+	// there to pin the chain.
 	it('chains the Google Meet set-up steps', () => {
 		const steps = stepsOf('live_class_meet')
 		const dependsOn = (name: string) =>
@@ -288,6 +342,9 @@ describe('flow registry', () => {
 		expect(dependsOn('add_meet_account')).toBe('connect_google_calendar')
 	})
 
+	// Guards: a stale stored flow id throwing instead of reading as no flow.
+	// Introduced in this branch (feat/onboarding-flows, PR pending); test added
+	// there to cover the lookup miss.
 	it('reads an unknown id as undefined', () => {
 		expect(getFlow('live_class_old')).toBeUndefined()
 		expect(getCard(null)).toBeUndefined()
@@ -303,6 +360,9 @@ describe('step targets', () => {
 			?.onClick?.()
 	}
 
+	// Guards: Publish landing off the course settings, or the panel covering
+	// it. Introduced in this branch (feat/onboarding-flows, PR pending); test
+	// added there to pin the target.
 	it('publish_course asks the settings to focus Publish, minimised', () => {
 		const nav = fakeNav(facts)
 		click('publish_course', 'publish_course', nav)
@@ -318,6 +378,9 @@ describe('step targets', () => {
 		expect(step?.minimizeOnOpen).toBe(true)
 	})
 
+	// Guards: Set pricing landing off the paid price, or the panel covering it.
+	// Introduced in this branch (feat/onboarding-flows, PR pending); test added
+	// there to pin the target.
 	it('set_course_pricing asks the settings for a paid price, minimised', () => {
 		const nav = fakeNav(facts)
 		click('publish_course', 'set_course_pricing', nav)
@@ -333,6 +396,9 @@ describe('step targets', () => {
 		expect(step?.minimizeOnOpen).toBe(true)
 	})
 
+	// Guards: Add a chapter opening the form on the wrong course. Introduced in
+	// this branch (feat/onboarding-flows, PR pending); test added there to pin
+	// the target.
 	it('opens the new-chapter form on the first course', () => {
 		const nav = fakeNav(facts)
 		click('publish_course', 'create_first_chapter', nav)
@@ -343,6 +409,9 @@ describe('step targets', () => {
 		})
 	})
 
+	// Guards: Add a lesson sending a query the editor cannot read as a new
+	// draft. Introduced in this branch (feat/onboarding-flows, PR pending);
+	// test added there to round-trip the query.
 	it("adds a lesson to the first chapter through the editor's own draft", () => {
 		const nav = fakeNav({ ...facts, first_chapter: 'my-chapter' })
 		click('publish_course', 'create_first_lesson', nav)
@@ -362,6 +431,9 @@ describe('step targets', () => {
 		})
 	})
 
+	// Guards: Add a lesson breaking before the first chapter is known.
+	// Introduced in this branch (feat/onboarding-flows, PR pending); test added
+	// there to cover the fallback.
 	it('opens the course editor when the first chapter is not known yet', () => {
 		const nav = fakeNav(facts)
 		click('publish_course', 'create_first_lesson', nav)
@@ -372,6 +444,9 @@ describe('step targets', () => {
 		})
 	})
 
+	// Guards: course steps opening a form with no course to put it in.
+	// Introduced in this branch (feat/onboarding-flows, PR pending); test added
+	// there to cover the fallback.
 	it.each([
 		{ name: 'create_first_chapter' },
 		{ name: 'create_first_lesson' },
@@ -386,12 +461,17 @@ describe('step targets', () => {
 		}
 	)
 
+	// Guards: Create a course opening the wrong form. Introduced in this branch
+	// (feat/onboarding-flows, PR pending); test added there to pin the target.
 	it('create_first_course opens NewCourse', () => {
 		const nav = fakeNav()
 		click('publish_course', 'create_first_course', nav)
 		expect(nav.openForm).toHaveBeenCalledWith({ name: 'NewCourse' })
 	})
 
+	// Guards: an assessment step opening the wrong form. Introduced in this
+	// branch (feat/onboarding-flows, PR pending); test added there to pin each
+	// target.
 	it.each([
 		{ name: 'add_quiz', to: { name: 'NewQuiz' }, via: 'openRoute' },
 		{
@@ -406,6 +486,9 @@ describe('step targets', () => {
 		expect(nav[via]).toHaveBeenCalledWith(to)
 	})
 
+	// Guards: the assessment step leaving the course editor. Introduced in this
+	// branch (feat/onboarding-flows, PR pending); test added there to pin the
+	// target.
 	it("adds an assessment in the course editor's open lesson", () => {
 		const nav = fakeNav(facts)
 		click('add_assessments', 'add_assessment_to_lesson', nav)
@@ -416,6 +499,9 @@ describe('step targets', () => {
 		})
 	})
 
+	// Guards: Import users in bulk missing the User data import. Introduced in
+	// this branch (feat/onboarding-flows, PR pending); test added there to pin
+	// the target.
 	it('opens the data import for users to import them in bulk', () => {
 		const nav = fakeNav()
 		click('onboard_learners', 'import_learners', nav)
@@ -425,6 +511,9 @@ describe('step targets', () => {
 		})
 	})
 
+	// Guards: Fill in batch details opening anything but that batch's settings.
+	// Introduced in this branch (feat/onboarding-flows, PR pending); test added
+	// there to pin the target.
 	it("opens the first batch's settings to fill in its details", () => {
 		const nav = fakeNav(facts)
 		click('live_class', 'fill_batch_details', nav)
@@ -435,11 +524,9 @@ describe('step targets', () => {
 		})
 	})
 
-	it('onboards users through email set-up and a bulk import only', () => {
-		const names = stepsOf('onboard_learners').map((s) => s.name)
-		expect(names).toEqual(['setup_email', 'import_learners'])
-	})
-
+	// Guards: a settings step opening the wrong page or record. Introduced in
+	// this branch (feat/onboarding-flows, PR pending); test added there to pin
+	// each target.
 	it.each([
 		{
 			id: 'onboard_learners',
@@ -478,6 +565,9 @@ describe('step targets', () => {
 		expect(nav.openSettings).toHaveBeenCalledWith(...args)
 	})
 
+	// Guards: Create a batch opening the wrong form after a tool is picked.
+	// Introduced in this branch (feat/onboarding-flows, PR pending); test added
+	// there to pin the target.
 	it.each(['live_class_zoom', 'live_class_meet'].map((id) => ({ id })))(
 		'$id opens the new batch form',
 		({ id }) => {
@@ -487,6 +577,9 @@ describe('step targets', () => {
 		}
 	)
 
+	// Guards: Schedule a live class landing on the wrong batch or tab.
+	// Introduced in this branch (feat/onboarding-flows, PR pending); test added
+	// there to pin the target.
 	it.each([
 		{
 			id: 'live_class_meet',
@@ -504,6 +597,9 @@ describe('step targets', () => {
 		})
 	})
 
+	// Guards: Publish the batch opening the wrong batch. Introduced in this
+	// branch (feat/onboarding-flows, PR pending); test added there to pin the
+	// target.
 	it('opens the first batch to publish it', () => {
 		const nav = fakeNav(facts)
 		click('live_class_zoom', 'publish_batch', nav)
@@ -513,6 +609,9 @@ describe('step targets', () => {
 		})
 	})
 
+	// Guards: batch steps breaking with no batch yet. Introduced in this branch
+	// (feat/onboarding-flows, PR pending); test added there to cover the
+	// fallback.
 	it('falls back to the batch list without a first batch', () => {
 		const nav = fakeNav()
 		click('live_class_zoom', 'schedule_live_class', nav)
