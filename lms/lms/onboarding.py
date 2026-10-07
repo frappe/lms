@@ -1,4 +1,5 @@
 import frappe
+from frappe import _
 from frappe.utils import cint, flt
 
 SAMPLE_COURSE_TITLE = "A guide to Frappe Learning"
@@ -11,11 +12,14 @@ PLACEHOLDER_EMAIL_DOMAIN = "example.com"
 
 
 @frappe.whitelist()
-def get_onboarding_facts() -> dict[str, str | bool | None]:
-	"""What the site already has, so the onboarding flows can tick steps done before they shipped."""
+def get_onboarding_facts(course: str | None = None) -> dict[str, str | bool | None]:
+	"""What the site already has, so the onboarding flows can tick steps done before they shipped.
+	Course facts are read for `course`, the one the admin created from the flow."""
 	frappe.only_for("System Manager")
+	if course is not None and not isinstance(course, str):
+		frappe.throw(_("course must be a string"))
 	return {
-		**_course_facts(),
+		**_course_facts(course),
 		**_assessment_facts(),
 		**_learner_facts(),
 		**_batch_facts(),
@@ -23,11 +27,10 @@ def get_onboarding_facts() -> dict[str, str | bool | None]:
 	}
 
 
-def _course_facts() -> dict[str, str | bool | None]:
-	course = _first_row(
-		"LMS Course",
-		{"title": ["!=", SAMPLE_COURSE_TITLE]},
-		["name", "paid_course", "course_price", "published"],
+def _course_facts(target: str | None) -> dict[str, str | bool | None]:
+	fields = ["name", "paid_course", "course_price", "published"]
+	course = _target_course(target, fields) or _first_row(
+		"LMS Course", {"title": ["!=", SAMPLE_COURSE_TITLE]}, fields, order_by="creation desc"
 	)
 	name = course.name if course else None
 	return {
@@ -40,6 +43,13 @@ def _course_facts() -> dict[str, str | bool | None]:
 		"has_course_pricing": bool(course and cint(course.paid_course) and flt(course.course_price) > 0),
 		"has_published_course": bool(course and cint(course.published)),
 	}
+
+
+def _target_course(name: str | None, fields: list[str]) -> frappe._dict | None:
+	"""The flow's recorded course, unless it is gone or is the sample course."""
+	if not name:
+		return None
+	return _first_row("LMS Course", {"name": name, "title": ["!=", SAMPLE_COURSE_TITLE]}, fields)
 
 
 def _first_chapter(course: str | None) -> str | None:
@@ -116,8 +126,10 @@ def _meeting_facts() -> dict[str, bool]:
 	}
 
 
-def _first_row(doctype: str, filters: dict, fields: list[str]) -> frappe._dict | None:
-	rows = frappe.get_all(doctype, filters=filters, fields=fields, order_by="creation asc", limit=1)
+def _first_row(
+	doctype: str, filters: dict, fields: list[str], order_by: str = "creation asc"
+) -> frappe._dict | None:
+	rows = frappe.get_all(doctype, filters=filters, fields=fields, order_by=order_by, limit=1)
 	return rows[0] if rows else None
 
 

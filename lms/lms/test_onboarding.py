@@ -57,8 +57,8 @@ class TestOnboardingFacts(BaseTestUtils):
 			frappe.db.delete(doctype)
 		self._set_google_settings(enable=0, client_id=None, client_secret=None)
 
-	def _facts(self):
-		return get_onboarding_facts()
+	def _facts(self, course=None):
+		return get_onboarding_facts(course)
 
 	# Guards: a Guest reading the site's setup facts. Introduced in this branch (feat/onboarding-flows, PR
 	# pending); test added there to pin the auth gate.
@@ -103,7 +103,10 @@ class TestOnboardingFacts(BaseTestUtils):
 		self.assertFalse(facts["has_lesson"])
 		self.assertFalse(facts["has_published_course"])
 
-	def test_course_facts_follow_the_first_course(self):
+	# Guards: course facts and first_chapter read from the wrong course or outline position. Introduced in
+	# this branch (feat/onboarding-flows, PR pending); test added there to follow one course from draft to
+	# published.
+	def test_course_facts_follow_the_only_course(self):
 		course = self._create_course(title="Onboarding Course")
 		frappe.db.set_value("LMS Course", course.name, {"published": 0, "paid_course": 0, "course_price": 0})
 
@@ -143,6 +146,68 @@ class TestOnboardingFacts(BaseTestUtils):
 		frappe.db.set_value("LMS Course", course.name, {"paid_course": 0, "course_price": 499})
 		self.assertFalse(self._facts()["has_course_pricing"])
 
+	# Guards: the fallback course going back to the oldest instead of the newest. Introduced in this branch
+	# (feat/onboarding-flows, PR pending); test added there to pin the fallback order.
+	def test_without_a_recorded_course_the_newest_is_followed(self):
+		older = self._create_course(title="Onboarding Course")
+		newer = self._create_course(title="Onboarding Course Two")
+		self._set_creation(older.name, "2026-01-01 10:00:00")
+		self._set_creation(newer.name, "2026-01-02 10:00:00")
+		self.assertEqual(self._facts()["first_course"], newer.name)
+
+	# Guards: steps ticking from another course's chapters, lessons or price. Introduced in this branch
+	# (feat/onboarding-flows, PR pending); test added there so the publish flow's own course wins.
+	def test_a_recorded_course_is_followed_over_the_oldest_and_the_newest(self):
+		oldest = self._create_course(title="Onboarding Course")
+		recorded = self._create_course(title="Onboarding Course Two")
+		newest = self._create_course(title="Onboarding Course Three")
+		for course in (oldest, newest):
+			chapter = self._create_chapter(f"{course.title} chapter", course.name)
+			self._create_chapter_reference(course.name, chapter.name, idx=1)
+			self._create_lesson(f"{course.title} lesson", chapter.name, course.name)
+			frappe.db.set_value("LMS Course", course.name, {"paid_course": 1, "course_price": 499})
+		self._set_creation(oldest.name, "2026-01-01 10:00:00")
+		self._set_creation(recorded.name, "2026-01-02 10:00:00")
+		self._set_creation(newest.name, "2026-01-03 10:00:00")
+
+		facts = self._facts(recorded.name)
+		self.assertEqual(facts["first_course"], recorded.name)
+		self.assertIsNone(facts["first_chapter"])
+		self.assertFalse(facts["has_chapter"])
+		self.assertFalse(facts["has_lesson"])
+		self.assertFalse(facts["has_course_pricing"])
+
+	# Guards: Publish ticking because some older course is published. Introduced in this branch
+	# (feat/onboarding-flows, PR pending); test added there to read published from the target course only.
+	def test_a_published_old_course_does_not_publish_an_unpublished_target(self):
+		older = self._create_course(title="Onboarding Course")
+		newer = self._create_course(title="Onboarding Course Two")
+		frappe.db.set_value("LMS Course", older.name, "published", 1)
+		frappe.db.set_value("LMS Course", newer.name, "published", 0)
+		self._set_creation(older.name, "2026-01-01 10:00:00")
+		self._set_creation(newer.name, "2026-01-02 10:00:00")
+		self.assertFalse(self._facts(newer.name)["has_published_course"])
+		self.assertTrue(self._facts(older.name)["has_published_course"])
+
+	# Guards: a deleted, empty or sample-course target blanking the course facts. Introduced in this branch
+	# (feat/onboarding-flows, PR pending); test added there to pin the fallback.
+	def test_an_unknown_or_sample_course_falls_back_to_the_newest(self):
+		course = self._create_course(title="Onboarding Course")
+		sample = self._create_course(title=SAMPLE_COURSE_TITLE)
+		for target in ("no-such-course", sample.name, ""):
+			self.assertEqual(self._facts(target)["first_course"], course.name, target)
+
+	# Guards: a list or dict `course` reaching the filters as an operator. frappe's type check runs first, so
+	# __wrapped__ reaches the explicit guard. Introduced in this branch (feat/onboarding-flows, PR pending);
+	# test added there to pin that guard.
+	def test_a_course_that_is_not_a_string_is_rejected(self):
+		unchecked = get_onboarding_facts.__wrapped__
+		for target in (["!=", ""], {"name": "x"}, 1):
+			with self.assertRaises(frappe.ValidationError):
+				unchecked(target)
+
+	# Guards: the seeded demo quiz ticking Add a quiz. Introduced in this branch (feat/onboarding-flows,
+	# PR pending); test added there to exclude it by title.
 	def test_quiz_counts_but_the_demo_quiz_does_not(self):
 		self._insert_quiz(DEMO_QUIZ_TITLE)
 		self.assertFalse(self._facts()["has_quiz"])
@@ -370,3 +435,6 @@ class TestOnboardingFacts(BaseTestUtils):
 		)
 		quiz.db_insert()
 		return quiz
+
+	def _set_creation(self, course, creation):
+		frappe.db.set_value("LMS Course", course, "creation", creation, update_modified=False)

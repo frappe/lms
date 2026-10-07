@@ -60,33 +60,44 @@ type FlowTargets = Partial<
 
 const TARGET_KEYS = ['first_course', 'first_chapter', 'first_batch'] as const
 
-// What a step opens: what this admin created, else the site's first. A chapter
-// only ever goes with its own course.
+// What a step opens. The course is the one the facts were read for: the
+// course this admin created from the flow, which the facts call sends, else
+// the site's newest. A chapter only ever goes with its own course.
 const stepTargets: FlowTargets = {
 	get first_course() {
-		return storage().targets.value.course || facts.first_course
+		return facts.first_course || storage().targets.value.course
 	},
 	get first_chapter() {
 		const { course, chapter } = storage().targets.value
-		if (chapter) return chapter
-		return !course || course === facts.first_course ? facts.first_chapter : null
+		const current = stepTargets.first_course
+		if (chapter && course === current) return chapter
+		return facts.first_course === current ? facts.first_chapter : null
 	},
 	get first_batch() {
 		return storage().targets.value.batch || facts.first_batch
 	},
 }
 
+// A new course is the flow's course from now on: aim the steps at it at once,
+// then read its facts.
 function recordTargets(created: FlowTargets): void {
 	const targets = storage().targets
-	if (created.first_course)
+	if (created.first_course) {
 		targets.value = {
 			...targets.value,
 			course: created.first_course,
 			chapter: created.first_chapter || undefined,
 		}
+		if (created.first_course !== facts.first_course) {
+			facts.first_course = created.first_course
+			facts.first_chapter = null
+			refetchFacts()
+		}
+	}
 	if (created.first_batch)
 		targets.value = { ...targets.value, batch: created.first_batch }
 }
+
 const FACTS_REFETCH_DELAY = 500
 
 // Where the help centre returns to.
@@ -150,7 +161,7 @@ function tickFromFacts(
 /** Tick steps whose work exists, and un-skip them. Never un-ticks anything. */
 function applyFacts(next: Partial<OnboardingFacts>): void {
 	for (const key of TARGET_KEYS) {
-		if (next[key]) facts[key] = next[key]
+		if (key in next) facts[key] = next[key]
 	}
 	let ticked = false
 	for (const flow of FLOWS) {
@@ -227,12 +238,13 @@ function resetFlow(id: FlowId): void {
 	capture('onboarding_steps_reset')
 }
 
-/** Start onboarding over: every key, every answer, every skip. */
+/** Start onboarding over: every key, answer, skip and recorded target. */
 function resetEverything(): void {
 	for (const flow of FLOWS) reopen(flow)?.resetAll()
 	capture('onboarding_steps_reset')
 	storage().answers.value = {}
 	storage().skipped.value = {}
+	storage().targets.value = {}
 	storage().activeCard.value = null
 	openCardId.value = null
 	requestedScreen.value = 'list'
@@ -313,7 +325,9 @@ function statusSettled(): Promise<void> {
 
 async function loadFacts(): Promise<void> {
 	try {
-		const data = await call('lms.lms.onboarding.get_onboarding_facts')
+		const data = await call('lms.lms.onboarding.get_onboarding_facts', {
+			course: storage().targets.value.course ?? null,
+		})
 		applyFacts(data as Partial<OnboardingFacts>)
 	} catch {
 		// Facts only save re-doing old work; the stored progress still stands.

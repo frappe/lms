@@ -81,6 +81,7 @@ function makeHandle(storedComplete = false): FakeHandle {
 }
 
 const USER = 'admin@example.com'
+const FACTS_URL = 'lms.lms.onboarding.get_onboarding_facts'
 const ALL = [
 	'publish_course',
 	'add_assessments',
@@ -864,19 +865,80 @@ describe('step targets', () => {
 	// Introduced in this branch (feat/onboarding-flows, PR pending); test added
 	// there to pin their persistence.
 	it('keeps the recorded targets over a facts refetch and a reload', async () => {
+		callMock.mockImplementation(async (_url, args) =>
+			args?.course ? { ...SITE, first_course: args.course } : SITE
+		)
 		let o = await ready()
 		o.completeStep('create_first_chapter', {
 			first_course: 'mine',
 			first_chapter: 'CH-9',
 		})
-		o.applyFacts(SITE)
+		o.refetchFacts()
+		await vi.waitFor(() =>
+			expect(callMock).toHaveBeenLastCalledWith(FACTS_URL, { course: 'mine' })
+		)
 		vi.resetModules()
 		framework.handles = {}
 		o = await ready()
+		expect(callMock).toHaveBeenLastCalledWith(FACTS_URL, { course: 'mine' })
 		click(o, 'publish_course', 'create_first_lesson')
 		expect(nav.openRoute).toHaveBeenCalledWith(lessonRoute('mine', 'CH-9'))
 	})
 
+	// Guards: facts and Publish reading the oldest course, not the one the flow
+	// created. Introduced in this branch (feat/onboarding-flows, PR pending);
+	// test added there to pin the tracked course.
+	it('asks for the facts of the course the admin created, not the oldest', async () => {
+		const o = await ready()
+		expect(callMock).toHaveBeenLastCalledWith(FACTS_URL, { course: null })
+		callMock.mockClear()
+		callMock.mockResolvedValue({
+			...SITE,
+			first_course: 'abcd',
+			first_chapter: null,
+			has_published_course: false,
+		})
+		o.completeStep('create_first_course', { first_course: 'abcd' })
+		click(o, 'publish_course', 'publish_course')
+		expect(nav.openRoute).toHaveBeenLastCalledWith(
+			expect.objectContaining({ params: { courseName: 'abcd' } })
+		)
+		await vi.waitFor(() =>
+			expect(callMock).toHaveBeenCalledWith(FACTS_URL, { course: 'abcd' })
+		)
+	})
+
+	// Guards: a deleted recorded course stranding the targets. Introduced in
+	// this branch (feat/onboarding-flows, PR pending); test added there to
+	// follow the course the server answered for.
+	it('follows the course the server read the facts for', async () => {
+		localStorage.setItem(
+			'learningOnboardingTargets' + USER,
+			JSON.stringify({ course: 'deleted', chapter: 'CH-1' })
+		)
+		const o = await ready()
+		expect(callMock).toHaveBeenLastCalledWith(FACTS_URL, { course: 'deleted' })
+		click(o, 'publish_course', 'create_first_lesson')
+		expect(nav.openRoute).toHaveBeenCalledWith(lessonRoute('sikjs', 'SIK-1'))
+	})
+
+	// Guards: Reset all keeping the recorded course for the next run.
+	// Introduced in this branch (feat/onboarding-flows, PR pending); test added
+	// there to clear it.
+	it('Reset all forgets the recorded course', async () => {
+		const o = await ready()
+		o.completeStep('create_first_course', { first_course: 'mine' })
+		o.resetEverything()
+		callMock.mockClear()
+		vi.resetModules()
+		framework.handles = {}
+		await ready()
+		expect(callMock).toHaveBeenLastCalledWith(FACTS_URL, { course: null })
+	})
+
+	// Guards: Publish the batch opening an older batch, not the one the admin
+	// made. Introduced in this branch (feat/onboarding-flows, PR pending); test
+	// added there to pin the created batch.
 	it('publishes the batch the admin created', async () => {
 		const o = await ready()
 		o.completeStep('create_first_batch', { first_batch: 'new-batch' })
@@ -946,9 +1008,7 @@ describe('facts', () => {
 		o.ui.showHelpModal.value = true
 		await nextTick()
 		await vi.advanceTimersByTimeAsync(1000)
-		expect(callMock).toHaveBeenCalledWith(
-			'lms.lms.onboarding.get_onboarding_facts'
-		)
+		expect(callMock).toHaveBeenCalledWith(FACTS_URL, { course: null })
 	})
 })
 
