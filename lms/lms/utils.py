@@ -112,7 +112,9 @@ def process_user_names(first_name, last_name, full_name):
 	return first_name, last_name or "", full_name
 
 
-def create_user_document(email, first_name, last_name, full_name, user_image=None, roles=None):
+def create_user_document(
+	email, first_name, last_name, full_name, user_image=None, roles=None, ignore_permissions=False
+):
 	user_doc = frappe.new_doc("User")
 	user_doc.email = email
 	user_doc.first_name = first_name
@@ -124,11 +126,19 @@ def create_user_document(email, first_name, last_name, full_name, user_image=Non
 		roles = ["LMS Student"]
 	for role in roles:
 		user_doc.append("roles", {"role": role})
-	user_doc.insert()
+	user_doc.insert(ignore_permissions=ignore_permissions)
 	return user_doc
 
 
-def create_user(email, first_name=None, last_name=None, full_name=None, user_image=None, roles=None):
+def create_user(
+	email,
+	first_name=None,
+	last_name=None,
+	full_name=None,
+	user_image=None,
+	roles=None,
+	ignore_permissions=False,
+):
 	validate_email_address(email, True)
 	print(email)
 	print(frappe.db.exists("User", email))
@@ -139,7 +149,9 @@ def create_user(email, first_name=None, last_name=None, full_name=None, user_ima
 		return frappe.get_doc("User", email)
 
 	first_name, last_name, full_name = process_user_names(first_name, last_name, full_name)
-	user_doc = create_user_document(email, first_name, last_name, full_name, user_image, roles)
+	user_doc = create_user_document(
+		email, first_name, last_name, full_name, user_image, roles, ignore_permissions=ignore_permissions
+	)
 	return user_doc
 
 
@@ -396,6 +408,25 @@ def has_moderator_role(member: str = None):
 	)
 
 
+def moderators_among(members) -> set[str]:
+	"""has_moderator_role for a whole set of accounts, in one query.
+
+	Callers that judge a list of third parties (serve_resource weighs one per File row
+	sharing a url) would otherwise put a query inside their loop.
+	"""
+	members = {member for member in members or [] if member}
+	if not members:
+		return set()
+
+	return set(
+		frappe.db.get_all(
+			"Has Role",
+			filters={"parent": ("in", list(members)), "role": "Moderator"},
+			pluck="parent",
+		)
+	)
+
+
 def has_evaluator_role(member: str = None):
 	return frappe.db.get_value(
 		"Has Role",
@@ -432,15 +463,92 @@ def get_courses_under_review():
 
 
 def validate_image(path: str) -> str:
-	if path and "/private" in path:
-		frappe.db.set_value(
-			"File",
-			{"file_url": path},
-			"is_private",
-			0,
+	"""Make the session user's own uploaded image public; leave anyone else's file private."""
+	if not path or "/private" not in path:
+		return path
+
+	own_files = [
+		row.name
+		for row in frappe.get_all(
+			"File", filters={"file_url": path, "owner": frappe.session.user}, fields=["name", "file_url"]
 		)
-		return path.replace("/private", "")
-	return path
+		if row.file_url == path
+	]
+	if not own_files:
+		return path
+
+	frappe.db.set_value("File", {"name": ["in", own_files]}, "is_private", 0)
+	return path.replace("/private", "")
+
+
+def get_attachable_files(file_urls: list[str], doc: Document, user: str) -> dict[str, "frappe._dict"]:
+	"""Each URL in `file_urls` mapped to the File row `user` may attach to `doc`, one query for all of them.
+
+	Eligible: attached to `doc` already, or unattached, owned by `user`, and `user` isn't Guest — that
+	owner match already implies read access (file.has_permission), so no per-row query is needed.
+	"""
+	urls = list(dict.fromkeys(file_urls))
+	if not urls:
+		return {}
+
+	rows = frappe.get_all(
+		"File",
+		filters={"file_url": ["in", urls]},
+		fields=["name", "file_url", "attached_to_doctype", "attached_to_name", "owner"],
+	)
+
+	resolved = {}
+	for file_url in urls:
+		# tabFile.file_url is case-insensitive, so the "in" filter can return rows for a
+		# different URL than the one requested; the exact match here is what decides.
+		candidates = [row for row in rows if row.file_url == file_url]
+
+		attached = next(
+			(
+				row
+				for row in candidates
+				if row.attached_to_doctype == doc.doctype and row.attached_to_name == doc.name
+			),
+			None,
+		)
+		if attached:
+			resolved[file_url] = attached
+			continue
+
+		candidate = next(
+			(
+				row
+				for row in candidates
+				if not row.attached_to_doctype
+				and not row.attached_to_name
+				and row.owner == user
+				and user != "Guest"
+			),
+			None,
+		)
+		if candidate:
+			resolved[file_url] = candidate
+
+	return resolved
+
+
+def get_attachable_file(file_url: str, doc: Document, user: str) -> "frappe._dict | None":
+	"""The File row at exactly `file_url` that `user` may attach to `doc`."""
+	return get_attachable_files([file_url], doc, user).get(file_url)
+
+
+def validate_attachable_file(doc: Document, fieldname: str) -> None:
+	"""Reject a private file URL in `fieldname` that the session user did not upload for `doc`."""
+	file_url = doc.get(fieldname)
+	if not (file_url or "").startswith("/private/") or not doc.has_value_changed(fieldname):
+		return
+	if not get_attachable_file(file_url, doc, frappe.session.user):
+		frappe.throw(
+			_("Please upload the file for {0} again. Only a file you uploaded can be attached.").format(
+				_(doc.meta.get_label(fieldname))
+			),
+			frappe.PermissionError,
+		)
 
 
 def handle_notifications(doc: Document, method: str):
@@ -604,6 +712,10 @@ def get_lesson_count(course: str) -> int:
 	return frappe.db.count("Lesson Reference", {"parent": ("in", chapter_references)})
 
 
+STATISTICS_CHARTS = ("New Signups", "Course Enrollments", "Certification")
+
+
+# nosemgrep: security.guest-whitelisted-method - pre-existing grant; this branch narrows it to the Statistics charts. Flagged only because the body changed.
 @frappe.whitelist(allow_guest=True)
 @rate_limit(limit=500, seconds=60 * 60)
 def get_chart_data(
@@ -612,8 +724,19 @@ def get_chart_data(
 	from_date: str = None,
 	to_date: str = None,
 ):
+	if not isinstance(chart_name, str) or chart_name not in STATISTICS_CHARTS:
+		frappe.throw(_("This chart is not available."), frappe.PermissionError)
+
+	try:
+		chart = frappe.get_doc("Dashboard Chart", chart_name)
+	except frappe.DoesNotExistError:
+		frappe.clear_last_message()
+		frappe.throw(_("This chart is not available."), frappe.PermissionError)
+
+	if not chart.is_public and not frappe.has_permission("Dashboard Chart", "read", doc=chart):
+		frappe.throw(_("This chart is not available."), frappe.PermissionError)
+
 	from_date, to_date = get_chart_date_range(from_date, to_date)
-	chart = frappe.get_doc("Dashboard Chart", chart_name)
 	doctype = chart.document_type
 	datefield = chart.based_on
 	value_field = chart.value_based_on or "1"
@@ -1868,12 +1991,16 @@ def get_batch_details(batch: str):
 	if not guest_access_allowed():
 		return {}
 
+	from lms.lms.permissions import can_author_batch
+
 	batch_students = frappe.get_all("LMS Batch Enrollment", {"batch": batch}, pluck="member")
-	is_batch_admin = can_modify_batch(batch)
+	# can_modify_batch only recognises the Course Instructor tag; can_author_batch also
+	# recognises a Batch Course evaluator tag, which a Course Creator may hold instead.
+	can_manage = can_author_batch(batch)
 	is_batch_published = frappe.db.get_value("LMS Batch", batch, "published")
 	is_student_enrolled = frappe.session.user in batch_students
 
-	if not (is_batch_published or is_batch_admin or is_student_enrolled):
+	if not (is_batch_published or can_manage or is_student_enrolled):
 		return {}
 
 	batch_details = frappe.db.get_value(
@@ -1910,6 +2037,7 @@ def get_batch_details(batch: str):
 	)
 
 	batch_details.instructors = get_instructors("LMS Batch", batch)
+	batch_details.can_manage = can_manage
 	batch_details.accept_enrollments = batch_details.start_date > getdate()
 
 	if (
@@ -1926,7 +2054,7 @@ def get_batch_details(batch: str):
 		"LMS Assessment", {"parent": batch}, ["assessment_name", "assessment_type"]
 	)
 
-	if can_modify_batch(batch):
+	if can_manage:
 		batch_details.students = batch_students
 	elif is_student_enrolled:
 		batch_details.students = [frappe.session.user]
@@ -2106,9 +2234,12 @@ def get_batch_courses(batch: str) -> list:
 
 @frappe.whitelist()
 def get_assessments(batch: str) -> list:
+	from lms.lms.permissions import can_author_batch
+
 	member = frappe.session.user
 	is_enrolled = frappe.db.exists("LMS Batch Enrollment", {"batch": batch, "member": member})
-	if not is_enrolled and not can_modify_batch(batch):
+	is_admin = "Batch Evaluator" in frappe.get_roles(member) or can_author_batch(batch, user=member)
+	if not is_enrolled and not is_admin:
 		frappe.throw(_("You are not authorized to view the assessments of this batch."))
 
 	assessments = frappe.get_all(
@@ -2219,7 +2350,9 @@ def get_exercise_details(assessment: dict, member: str) -> dict:
 
 @frappe.whitelist()
 def get_batch_student_progress(member: str, batch: str) -> dict:
-	if not can_modify_batch(batch):
+	from lms.lms.permissions import can_author_batch
+
+	if "Batch Evaluator" not in frappe.get_roles() and not can_author_batch(batch):
 		frappe.throw(_("You are not authorized to view the students of this batch."))
 
 	details = get_batch_student_details(member)
@@ -2310,7 +2443,9 @@ def get_quiz_pass_stats(batch: str) -> list:
 @frappe.whitelist()
 def get_batch_chart_data(batch: str) -> list:
 	"""Get completion counts per course and assessment"""
-	if not can_modify_batch(batch):
+	from lms.lms.permissions import can_author_batch
+
+	if "Batch Evaluator" not in frappe.get_roles() and not can_author_batch(batch):
 		frappe.throw(_("You are not authorized to view the chart data of this batch."))
 	if not frappe.db.exists("LMS Batch", batch):
 		frappe.throw(_("The specified batch does not exist."))
@@ -2463,10 +2598,13 @@ def can_access_topic(doctype: str, docname: str) -> bool:
 		if not is_student and not can_modify_course(course):
 			return False
 	elif doctype == "LMS Batch":
+		from lms.lms.permissions import can_author_batch
+
 		is_student = frappe.db.exists(
 			"LMS Batch Enrollment", {"batch": docname, "member": frappe.session.user}
 		)
-		if not is_student and not can_modify_batch(docname):
+		is_admin = "Batch Evaluator" in frappe.get_roles() or can_author_batch(docname)
+		if not is_student and not is_admin:
 			return False
 	return True
 

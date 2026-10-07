@@ -1,16 +1,48 @@
 import json
+from contextlib import contextmanager
+from unittest.mock import patch
 
 import frappe
 from frappe.cache_manager import user_cache_keys
 from frappe.tests import IntegrationTestCase
 from frappe.utils import add_days, nowdate
+from frappe.utils.html_utils import sanitize_html
 
+from lms.lms.course_import_export import get_assessment_map
 from lms.lms.doctype.lms_certificate.lms_certificate import get_default_certificate_template
 from lms.lms.doctype.lms_quiz.lms_quiz import submit_quiz
+from lms.lms.lesson_assessments import ASSESSMENT_BLOCK_KEYS
 
 # frappe keys cached documents as f"document_cache::{doctype}::{name}"
 # (frappe/model/document.py, get_document_cache_key).
 DOCUMENT_CACHE_PREFIX = "document_cache::"
+
+# Inverted from the two maps the lesson reader itself uses, so a new assessment type is
+# placeable by these helpers as soon as the app can place it.
+ASSESSMENT_BLOCK_TYPES = {
+	doctype: (block_type, ASSESSMENT_BLOCK_KEYS[block_type])
+	for block_type, doctype in get_assessment_map().items()
+}
+
+
+def released_sanitize_html(html, *args, always_sanitize=False, **kwargs):
+	"""frappe v15/v16 return any JSON-parseable string untouched unless always_sanitize is set."""
+	if not always_sanitize and isinstance(html, str):
+		try:
+			json.loads(html)
+			return html
+		except ValueError:
+			pass
+	return sanitize_html(html, *args, always_sanitize=always_sanitize, **kwargs)
+
+
+@contextmanager
+def released_frappe_sanitizer():
+	with (
+		patch("frappe.model.base_document.sanitize_html", released_sanitize_html),
+		patch("lms.lms.html_sanitizer.sanitize_html", released_sanitize_html),
+	):
+		yield
 
 
 class BaseTestUtils(IntegrationTestCase):
@@ -328,6 +360,42 @@ class BaseTestUtils(IntegrationTestCase):
 			)
 		quiz.save()
 		return quiz
+
+	@classmethod
+	def _set_authors(cls, doctype: str, name: str, users: list[str]):
+		"""Replace the stored `authors` rows outright, leaving `owner` untouched."""
+		doc = frappe.get_doc(doctype, name)
+		doc.set("authors", [{"author": user} for user in users])
+		# nosemgrep: lms-unjustified-ignore-permissions - fixture seeding, not the permission under test
+		doc.save(ignore_permissions=True)
+
+	@classmethod
+	def _stamp_legacy_quiz_placement(cls, quiz: str, course: str, lesson: str | None = None):
+		"""Write the frozen pre-placement-table LMS Quiz.course/.lesson stamp, deliberately.
+		Use _place_in_lesson for a placement the app itself would make."""
+		frappe.db.set_value("LMS Quiz", quiz, {"course": course, "lesson": lesson})
+
+	@classmethod
+	def _place_in_lesson(
+		cls,
+		course: str,
+		assessment_type: str,
+		assessment_name: str,
+		instructor_only: bool = False,
+		title: str | None = None,
+	):
+		"""Embed an assessment in a lesson of `course`, the way a real save places it.
+		A distinct default title per call: _create_lesson is a get-or-create keyed on
+		(course, title), so a shared one collapses every placement onto one lesson."""
+		block_type, data_key = ASSESSMENT_BLOCK_TYPES[assessment_type]
+		blob = frappe.as_json({"blocks": [{"type": block_type, "data": {data_key: assessment_name}}]})
+		chapter = cls._create_chapter(f"Placement Chapter for {course}", course)
+		title = title or f"Placement Lesson {frappe.generate_hash(length=8)}"
+		lesson = cls._create_lesson(title, chapter.name, course, None if instructor_only else blob)
+		if instructor_only:
+			lesson.instructor_content = blob
+			lesson.save()
+		return lesson
 
 	@classmethod
 	def _create_assignment(cls, title="Utility Assignment"):

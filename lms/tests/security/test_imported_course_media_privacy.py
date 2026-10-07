@@ -14,6 +14,7 @@ every member it was ever given. Imported courses simply arrived with no media at
 """
 
 import base64
+import io
 import json
 import os
 import unittest
@@ -25,7 +26,12 @@ import frappe
 from lms.lms.course_import_export import (
 	MAX_IMPORTED_ASSET_BYTES,
 	asset_file_url,
+	asset_is_private,
+	asset_member_path,
+	asset_members,
+	base_name,
 	existing_asset_urls,
+	get_asset_citations,
 	import_course_zip,
 	is_safe_zip_member,
 	validate_assets,
@@ -176,6 +182,20 @@ class TestImportedCourseMediaPrivacy(BaseTestUtils):
 
 		self.assertEqual(probe.call_count, 1)
 
+	def test_the_archive_json_is_read_once_for_the_asset_citations(self):
+		"""The privacy map and the member paths the citations expect come off one
+		pass. Read separately, every lesson JSON in the archive is parsed twice."""
+		from lms.lms import course_import_export
+
+		with patch.object(
+			course_import_export,
+			"get_referenced_asset_urls",
+			wraps=course_import_export.get_referenced_asset_urls,
+		) as citations:
+			self._import()
+
+		self.assertEqual(citations.call_count, 1)
+
 	def test_a_public_file_of_that_name_does_not_block_the_private_asset(self):
 		"""Regression from frappe/lms#2768's own privacy change, caught reviewing that
 		PR. Private and public are two directories. A site already holding a public
@@ -226,6 +246,232 @@ class TestImportedCourseMediaPrivacy(BaseTestUtils):
 			"File", filters={"file_url": ("like", f"%dup-{self.hash}%")}, fields=["name", "file_url"]
 		)
 		self.assertEqual(len(rows), 1, f"one file name, {len(rows)} File rows: {rows}")
+
+	def test_a_name_used_by_both_a_public_and_a_private_url_keeps_both(self):
+		"""Greptile P1: a course can embed /files/x.png and /private/files/x.png at
+		once. Flattened onto one archive entry, the import kept the private one and the
+		lesson's public URL was left citing nothing."""
+		name = f"dual-{self.hash}.png"
+		public_bytes = ONE_PIXEL_PNG + b"public"
+		private_bytes = ONE_PIXEL_PNG + b"private"
+		path = frappe.get_site_path("private", "files", f"media-privacy-dual-{self.hash}.zip")
+		with zipfile.ZipFile(path, "w") as zf:
+			zf.writestr(
+				"course.json",
+				json.dumps(
+					{"title": f"Dual Course {self.hash}", "short_introduction": "x", "description": "x"}
+				),
+			)
+			zf.writestr(
+				f"chapters/chapter-{self.hash}.json",
+				json.dumps({"name": f"dual-ch-{self.hash}", "title": f"Dual Chapter {self.hash}"}),
+			)
+			zf.writestr(
+				f"lessons/lesson-{self.hash}.json",
+				json.dumps(
+					{
+						"title": f"Dual Lesson {self.hash}",
+						"chapter": f"dual-ch-{self.hash}",
+						"content": json.dumps(
+							{
+								"blocks": [
+									{"type": "upload", "data": {"file_url": f"/files/{name}"}},
+									{"type": "upload", "data": {"file_url": f"/private/files/{name}"}},
+								]
+							}
+						),
+					}
+				),
+			)
+			zf.writestr(f"assets/files/{name}", public_bytes)
+			zf.writestr(f"assets/private/files/{name}", private_bytes)
+		self.addCleanup(lambda: os.path.exists(path) and os.remove(path))
+
+		original = frappe.session.user
+		frappe.set_user(self.importer)
+		try:
+			import_course_zip(f"/private/files/{os.path.basename(path)}")
+		finally:
+			frappe.set_user(original)
+
+		for url, is_private, size in (
+			(f"/files/{name}", 0, len(public_bytes)),
+			(f"/private/files/{name}", 1, len(private_bytes)),
+		):
+			with self.subTest(url=url):
+				row = frappe.db.get_value(
+					"File", {"file_url": url}, ["is_private", "file_size"], as_dict=True
+				)
+				self.assertTrue(row, f"the lesson cites {url} and nothing serves it")
+				self.assertEqual(row.is_private, is_private)
+				# The bytes filed under each root, not one blob copied to both URLs.
+				self.assertEqual(row.file_size, size)
+
+	def test_a_root_that_contradicts_the_only_citation_does_not_publish_it(self):
+		"""Greptile P1: the archive stores this name under assets/files/ (public) but
+		the lesson only ever cites it at /private/files/. The path must not overrule
+		the citation, or bytes the content asked to keep private get published."""
+		name = f"mismatch-{self.hash}.png"
+		content_bytes = ONE_PIXEL_PNG + b"mismatch"
+		path = frappe.get_site_path("private", "files", f"media-privacy-mismatch-{self.hash}.zip")
+		with zipfile.ZipFile(path, "w") as zf:
+			zf.writestr(
+				"course.json",
+				json.dumps(
+					{"title": f"Mismatch Course {self.hash}", "short_introduction": "x", "description": "x"}
+				),
+			)
+			zf.writestr(
+				f"chapters/chapter-{self.hash}.json",
+				json.dumps({"name": f"mismatch-ch-{self.hash}", "title": f"Mismatch Chapter {self.hash}"}),
+			)
+			zf.writestr(
+				f"lessons/lesson-{self.hash}.json",
+				json.dumps(
+					{
+						"title": f"Mismatch Lesson {self.hash}",
+						"chapter": f"mismatch-ch-{self.hash}",
+						"content": json.dumps(
+							{"blocks": [{"type": "upload", "data": {"file_url": f"/private/files/{name}"}}]}
+						),
+					}
+				),
+			)
+			zf.writestr(f"assets/files/{name}", content_bytes)
+		self.addCleanup(lambda: os.path.exists(path) and os.remove(path))
+
+		original = frappe.session.user
+		frappe.set_user(self.importer)
+		try:
+			import_course_zip(f"/private/files/{os.path.basename(path)}")
+		finally:
+			frappe.set_user(original)
+
+		self.assertFalse(
+			frappe.db.exists("File", {"file_url": f"/files/{name}"}),
+			"the mismatched root published bytes the lesson cites as private",
+		)
+		row = frappe.db.get_value(
+			"File", {"file_url": f"/private/files/{name}"}, ["is_private", "file_size"], as_dict=True
+		)
+		self.assertTrue(row, f"the lesson cites /private/files/{name} and nothing serves it")
+		self.assertEqual(row.is_private, 1)
+		self.assertEqual(row.file_size, len(content_bytes))
+
+	def test_two_members_resolving_to_the_same_url_do_not_create_an_orphan(self):
+		"""Greptile P1: assets/x.png and assets/files/x.png both resolve to
+		/files/x.png. Undeduped, the second insert finds the URL taken and frappe
+		renames it into an orphan File nothing cites."""
+		name = f"collide-{self.hash}.png"
+		first_bytes = ONE_PIXEL_PNG + b"first"
+		second_bytes = ONE_PIXEL_PNG + b"second"
+		path = frappe.get_site_path("private", "files", f"media-privacy-collide-{self.hash}.zip")
+		with zipfile.ZipFile(path, "w") as zf:
+			zf.writestr(
+				"course.json",
+				json.dumps(
+					{"title": f"Collide Course {self.hash}", "short_introduction": "x", "description": "x"}
+				),
+			)
+			zf.writestr(
+				f"chapters/chapter-{self.hash}.json",
+				json.dumps({"name": f"collide-ch-{self.hash}", "title": f"Collide Chapter {self.hash}"}),
+			)
+			zf.writestr(
+				f"lessons/lesson-{self.hash}.json",
+				json.dumps(
+					{
+						"title": f"Collide Lesson {self.hash}",
+						"chapter": f"collide-ch-{self.hash}",
+						"content": json.dumps(
+							{"blocks": [{"type": "upload", "data": {"file_url": f"/files/{name}"}}]}
+						),
+					}
+				),
+			)
+			zf.writestr(f"assets/{name}", first_bytes)
+			zf.writestr(f"assets/files/{name}", second_bytes)
+		self.addCleanup(lambda: os.path.exists(path) and os.remove(path))
+
+		original = frappe.session.user
+		frappe.set_user(self.importer)
+		try:
+			import_course_zip(f"/private/files/{os.path.basename(path)}")
+		finally:
+			frappe.set_user(original)
+
+		rows = frappe.get_all(
+			"File", filters={"file_url": ("like", f"%{name}%")}, fields=["name", "file_url", "file_size"]
+		)
+		self.assertEqual(len(rows), 1, f"two members resolving to one URL created {len(rows)} rows: {rows}")
+		self.assertEqual(rows[0].file_url, f"/files/{name}")
+		# The correctly rooted, citation-confirmed member wins over the flat, legacy
+		# one ahead of it in the archive, not whichever the zip lists first.
+		self.assertEqual(rows[0].file_size, len(second_bytes))
+
+	def test_a_private_rooted_member_never_wins_a_mismatched_public_citation(self):
+		"""Greptile round 3: the lesson cites only /files/{name}, and the archive
+		also carries a private-rooted member for that name. Either zip order, that
+		member's bytes must land at its own private URL, never the public one."""
+		for order_label, members in (
+			("flat first", ("assets/{name}", "assets/private/files/{name}")),
+			("private root first", ("assets/private/files/{name}", "assets/{name}")),
+		):
+			with self.subTest(order=order_label):
+				name = f"root3-{order_label.replace(' ', '-')}-{self.hash}.png"
+				# Distinct per subTest: identical bytes elsewhere would hit frappe's
+				# content-hash dedup and repoint this file_url to that other File.
+				flat_bytes = ONE_PIXEL_PNG + f"flat-{name}".encode()
+				private_bytes = ONE_PIXEL_PNG + f"private-rooted-{name}".encode()
+				bytes_by_member = {"assets/{name}": flat_bytes, "assets/private/files/{name}": private_bytes}
+				path = frappe.get_site_path("private", "files", f"media-privacy-root3-{name}.zip")
+				with zipfile.ZipFile(path, "w") as zf:
+					zf.writestr(
+						"course.json",
+						json.dumps({"title": f"Root3 {name}", "short_introduction": "x", "description": "x"}),
+					)
+					zf.writestr(
+						f"chapters/chapter-{name}.json",
+						json.dumps({"name": f"ch-{name}", "title": f"Root3 Chapter {name}"}),
+					)
+					zf.writestr(
+						f"lessons/lesson-{name}.json",
+						json.dumps(
+							{
+								"title": f"Root3 Lesson {name}",
+								"chapter": f"ch-{name}",
+								"content": json.dumps(
+									{"blocks": [{"type": "upload", "data": {"file_url": f"/files/{name}"}}]}
+								),
+							}
+						),
+					)
+					for template in members:
+						zf.writestr(template.format(name=name), bytes_by_member[template])
+				self.addCleanup(lambda p=path: os.path.exists(p) and os.remove(p))
+
+				original = frappe.session.user
+				frappe.set_user(self.importer)
+				try:
+					import_course_zip(f"/private/files/{os.path.basename(path)}")
+				finally:
+					frappe.set_user(original)
+
+				public_row = frappe.db.get_value(
+					"File", {"file_url": f"/files/{name}"}, ["is_private", "file_size"], as_dict=True
+				)
+				self.assertTrue(public_row, f"the lesson cites /files/{name} and nothing serves it")
+				self.assertEqual(public_row.is_private, 0)
+				self.assertEqual(
+					public_row.file_size, len(flat_bytes), "the private-rooted bytes were published public"
+				)
+
+				private_row = frappe.db.get_value(
+					"File", {"file_url": f"/private/files/{name}"}, ["is_private", "file_size"], as_dict=True
+				)
+				self.assertTrue(private_row, "the private-rooted member was dropped instead of kept private")
+				self.assertEqual(private_row.is_private, 1)
+				self.assertEqual(private_row.file_size, len(private_bytes))
 
 	def test_a_traversing_member_does_not_shadow_the_valid_one(self):
 		"""Greptile P2 on frappe/lms#2768. Deduplicating by base name before the
@@ -352,3 +598,154 @@ class TestImportedAssetBounds(unittest.TestCase):
 		member is read."""
 		with self.assertRaises(frappe.ValidationError):
 			validate_assets([self._member("assets/big.png", MAX_IMPORTED_ASSET_BYTES + 1)])
+
+
+class TestAssetPrivacyIsNotFlattened(unittest.TestCase):
+	"""Greptile P1. /files/x.png and /private/files/x.png are two files on a site, and
+	a course can embed both. The archive has to keep them apart or the import loses one
+	of them and the URL that cited it serves nothing. Fixture-free: archive bookkeeping.
+	"""
+
+	def _archive(self, *members):
+		buffer = io.BytesIO()
+		with zipfile.ZipFile(buffer, "w") as zf:
+			for name in members:
+				zf.writestr(name, ONE_PIXEL_PNG)
+		return zipfile.ZipFile(buffer)
+
+	def _imported_urls(self, zip_file):
+		"""The File URLs create_assets would end up asking for."""
+		privacy, referenced_paths = get_asset_citations(zip_file)
+		return {
+			asset_file_url(base_name(info.filename), is_private)
+			for info, is_private in asset_members(zip_file, privacy, referenced_paths)
+		}
+
+	def test_the_export_files_public_and_private_assets_under_their_own_root(self):
+		self.assertEqual(asset_member_path("/files/logo.png"), "assets/files/logo.png")
+		self.assertEqual(asset_member_path("/private/files/logo.png"), "assets/private/files/logo.png")
+
+	def test_a_name_under_both_roots_survives_as_two_members(self):
+		"""Both cited, so each member's own root is confirmed and neither collapses
+		into the other."""
+		archive = self._archive("assets/files/x.png", "assets/private/files/x.png")
+		referenced_paths = {"assets/files/x.png", "assets/private/files/x.png"}
+		members = asset_members(archive, {}, referenced_paths)
+		self.assertEqual(
+			[info.filename for info, _ in members],
+			["assets/files/x.png", "assets/private/files/x.png"],
+		)
+		urls = {asset_file_url(base_name(info.filename), is_private) for info, is_private in members}
+		self.assertEqual(urls, {"/files/x.png", "/private/files/x.png"})
+
+	def test_an_uncited_asset_defaults_to_private_even_under_the_public_root(self):
+		"""Greptile round 2: nothing cites this asset anywhere, so its own root must
+		not be enough to publish it -- an uncited file has no one to vouch for it."""
+		self.assertEqual(asset_is_private({}, "assets/files/x.png", set()), 1)
+
+	def test_an_uncited_pair_under_both_roots_collapses_to_one_private_file(self):
+		"""Companion to the above at the asset_members level: with no citation for
+		either root, both default private, resolve to the same URL, and dedup keeps
+		one member rather than publishing the public-rooted one."""
+		archive = self._archive("assets/files/x.png", "assets/private/files/x.png")
+		members = asset_members(archive, {}, set())
+		self.assertEqual(len(members), 1)
+		self.assertEqual(members[0][1], 1)
+
+	def test_a_confirmed_root_wins_even_when_a_sibling_citation_says_otherwise(self):
+		"""The dual case: /files/x.png and /private/files/x.png are both cited, so
+		each member's own root exactly matches one of them and keeps its own privacy
+		rather than collapsing to the other."""
+		referenced_paths = {"assets/files/x.png", "assets/private/files/x.png"}
+		self.assertEqual(asset_is_private({"x.png": 1}, "assets/files/x.png", referenced_paths), 0)
+		self.assertEqual(asset_is_private({"x.png": 1}, "assets/private/files/x.png", referenced_paths), 1)
+
+	def test_asset_is_private_covers_every_citation_and_root_combination(self):
+		"""Every (citation privacy x member root) cell (Greptile P1, round 3). A
+		private root is never eligible for a public URL; a public root deferring
+		to a private citation leaks nothing, so it is left to defer."""
+		cases = (
+			# label, privacy, member, referenced_paths, expected
+			("public root, uncited", {}, "assets/files/x.png", set(), 1),
+			("public root, unconfirmed public derived", {"x.png": 0}, "assets/files/x.png", set(), 0),
+			(
+				"public root, confirmed public",
+				{"x.png": 0},
+				"assets/files/x.png",
+				{"assets/files/x.png"},
+				0,
+			),
+			("public root, unconfirmed private derived", {"x.png": 1}, "assets/files/x.png", set(), 1),
+			(
+				"public root, confirmed amid a dual citation",
+				{"x.png": 1},
+				"assets/files/x.png",
+				{"assets/files/x.png", "assets/private/files/x.png"},
+				0,
+			),
+			("private root, uncited", {}, "assets/private/files/x.png", set(), 1),
+			(
+				"private root, confirmed private",
+				{"x.png": 1},
+				"assets/private/files/x.png",
+				{"assets/private/files/x.png"},
+				1,
+			),
+			(
+				"private root, unconfirmed public derived (round 3 bug)",
+				{"x.png": 0},
+				"assets/private/files/x.png",
+				set(),
+				1,
+			),
+			(
+				"private root, confirmed amid a dual citation",
+				{"x.png": 1},
+				"assets/private/files/x.png",
+				{"assets/files/x.png", "assets/private/files/x.png"},
+				1,
+			),
+			("flat, uncited", {}, "assets/x.png", set(), 1),
+			("flat, public derived", {"x.png": 0}, "assets/x.png", set(), 0),
+			("flat, private derived", {"x.png": 1}, "assets/x.png", set(), 1),
+		)
+		for label, privacy, member, referenced_paths, expected in cases:
+			with self.subTest(label=label):
+				self.assertEqual(asset_is_private(privacy, member, referenced_paths), expected)
+
+	def test_a_flat_archive_still_reads_privacy_off_the_citing_url(self):
+		"""Control. Archives exported before the split record nothing in the path, so
+		those still take the citing URL's privacy and default to private."""
+		self.assertEqual(asset_is_private({"x.png": 0}, "assets/x.png", set()), 0)
+		self.assertEqual(asset_is_private({"x.png": 1}, "assets/x.png", set()), 1)
+		self.assertEqual(asset_is_private({}, "assets/x.png", set()), 1)
+
+	def test_a_flat_archive_still_reduces_a_name_to_one_member(self):
+		"""Control for the fix. One flat entry cannot say which of two same-named files
+		it holds, so it must stay one asset, and private."""
+		members = asset_members(self._archive("assets/a/x.png", "assets/b/x.png"), {}, set())
+		self.assertEqual([info.filename for info, _ in members], ["assets/a/x.png"])
+		self.assertEqual(self._imported_urls(self._archive("assets/x.png")), {"/private/files/x.png"})
+
+	def test_priority_winner_is_independent_of_zip_order(self):
+		"""Greptile round 2: a legacy flat member must not win a destination URL
+		over a citation-confirmed rooted one, regardless of which one is listed
+		first in the archive."""
+		flat, rooted = "assets/x.png", "assets/files/x.png"
+		for label, order in (("flat first", (flat, rooted)), ("rooted first", (rooted, flat))):
+			with self.subTest(label=label):
+				members = asset_members(self._archive(*order), {"x.png": 0}, {rooted})
+				self.assertEqual([info.filename for info, _ in members], [rooted])
+
+	def test_a_genuine_priority_tie_is_settled_by_zip_order(self):
+		"""Two uncited rooted members of opposite privacy tie at priority 1 (neither
+		is citation-confirmed). Documents that a real tie, unlike a ranked case
+		above, is settled by list order rather than one root outranking the other."""
+		public_root, private_root = "assets/files/x.png", "assets/private/files/x.png"
+		for label, order in (
+			("public root first", (public_root, private_root)),
+			("private root first", (private_root, public_root)),
+		):
+			with self.subTest(label=label):
+				members = asset_members(self._archive(*order), {}, set())
+				self.assertEqual([info.filename for info, _ in members], [order[0]])

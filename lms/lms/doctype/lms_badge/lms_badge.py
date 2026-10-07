@@ -53,7 +53,8 @@ def award(doc, member):
 			"issued_on": frappe.utils.now(),
 		}
 	)
-	assignment.save()
+	# nosemgrep: lms-unjustified-ignore-permissions - award() is not reachable directly by a user
+	assignment.save(ignore_permissions=True)
 	return assignment.name
 
 

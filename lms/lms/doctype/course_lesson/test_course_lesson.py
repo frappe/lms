@@ -13,6 +13,7 @@ from lms.lms.doctype.course_lesson.course_lesson import (
 	rename_settled_untitled_lessons,
 )
 from lms.lms.test_helpers import BaseTestUtils
+from lms.lms.utils import can_modify_course
 
 IGNORE_TEST_RECORD_DEPENDENCIES = ["Course Chapter", "LMS Course"]
 
@@ -588,3 +589,716 @@ class TestServeResourceFileOwnership(BaseTestUtils):
 
 		self.assertEqual(self._serve_as(self.attacker), self.SERVED)
 		self.assertEqual(self._serve_as(self.outsider), self.DENIED)
+
+
+class TestServeResourceAfterInstructorChange(BaseTestUtils):
+	"""An instructor who uploaded private lesson media is later dropped from the
+	course's instructors. Vouching the reference on the owner's CURRENT authorship
+	alone then denied the file to everyone -- the enrolled learners the lesson was
+	written for included -- because no surviving reference vouched for it.
+
+	The lesson the owner created still vouches for it: Course Creator write on
+	Course Lesson is if_owner, so nobody but the lesson's own author (or a
+	moderator, who vouches for every course anyway) could have put the file there,
+	and `owner` is stamped from the session on insert and cannot be reassigned by an
+	if_owner writer. Access stays exactly the lesson's audience -- can_access_lesson
+	still runs, unchanged, over the surviving references.
+	"""
+
+	SERVED = "authz-passed"
+	DENIED = "permission-error"
+
+	def setUp(self):
+		super().setUp()
+		suffix = frappe.generate_hash(length=6)
+
+		self.author = self._create_user(
+			f"left-course-author-{suffix}@example.com", "Gone", "Author", ["Course Creator"]
+		).name
+		self.attacker = self._create_user(
+			f"left-course-attacker-{suffix}@example.com", "Other", "Creator", ["Course Creator"]
+		).name
+		self.student = self._create_user(
+			f"left-course-student-{suffix}@example.com", "Enrolled", "Student", ["LMS Student"]
+		).name
+		self.outsider = self._create_user(
+			f"left-course-outsider-{suffix}@example.com", "Unenrolled", "Student", ["LMS Student"]
+		).name
+
+		self.course = self._create_course(title=f"Left Course {suffix}", instructor=self.author).name
+		chapter = self._create_chapter(f"Left Chapter {suffix}", self.course).name
+		self.lesson = self._create_lesson(f"Left Lesson {suffix}", chapter, self.course).name
+		frappe.db.set_value("Course Lesson", self.lesson, "owner", self.author, update_modified=False)
+		self._create_enrollment(self.student, self.course)
+
+		self.file_url = self._private_file(owner=self.author, lesson=self.lesson)
+		content = _content({"type": "paragraph", "data": {"text": f'<img src="{self.file_url}">'}})
+		frappe.db.set_value("Course Lesson", self.lesson, "content", content, update_modified=False)
+
+	def _private_file(self, owner, lesson):
+		frappe.set_user(owner)
+		try:
+			# Fixture setup, not the thing under test.
+			# nosemgrep: lms-unjustified-ignore-permissions
+			file = frappe.get_doc(
+				{
+					"doctype": "File",
+					"file_name": f"handover-{frappe.generate_hash(length=8)}.txt",
+					"is_private": 1,
+					"content": "course media the learners paid for",
+					"attached_to_doctype": "Course Lesson",
+					"attached_to_name": lesson,
+					"attached_to_field": "content",
+				}
+			).insert(ignore_permissions=True)
+		finally:
+			frappe.set_user("Administrator")
+
+		self.assertEqual(file.owner, owner)
+		# The transaction rollback does not unlink what was written to disk.
+		self.addCleanup(self._unlink, file.get_full_path())
+		return file.file_url
+
+	@staticmethod
+	def _unlink(path):
+		import os
+
+		if os.path.exists(path):
+			os.remove(path)
+
+	def _drop_from_instructors(self, user):
+		frappe.db.delete(
+			"Course Instructor", {"parent": self.course, "parenttype": "LMS Course", "instructor": user}
+		)
+		frappe.set_user(user)
+		try:
+			self.assertFalse(can_modify_course(self.course), msg="fixture: the drop must have landed")
+		finally:
+			frappe.set_user("Administrator")
+
+	def _serve_as(self, user):
+		"""Run the endpoint in `user`'s own session and classify the outcome.
+
+		There is no request in a test runner, so a call that PASSES authorization dies
+		inside send_private_file with ``AttributeError: request``. Only
+		frappe.PermissionError is a denial.
+		"""
+		from lms.lms.doctype.course_lesson.course_lesson import serve_resource
+
+		frappe.set_user(user)
+		try:
+			serve_resource(self.file_url)
+			return self.SERVED
+		except frappe.PermissionError:
+			return self.DENIED
+		except AttributeError as e:
+			if "request" not in str(e):
+				raise
+			return self.SERVED
+		finally:
+			frappe.set_user("Administrator")
+
+	def test_enrolled_learner_keeps_the_media_after_the_uploader_is_dropped(self):
+		self._drop_from_instructors(self.author)
+		self.assertEqual(self._serve_as(self.student), self.SERVED)
+
+	def test_a_replacement_instructor_gets_the_media(self):
+		self._drop_from_instructors(self.author)
+		replacement = self._create_user(
+			f"left-course-replacement-{frappe.generate_hash(length=6)}@example.com",
+			"New",
+			"Instructor",
+			["Course Creator"],
+		).name
+		course = frappe.get_doc("LMS Course", self.course)
+		course.append("instructors", {"instructor": replacement})
+		# Fixture setup, not the thing under test: appending an instructor is an
+		# authoring action the dropped author no longer has.
+		# nosemgrep: lms-unjustified-ignore-permissions
+		course.save(ignore_permissions=True)
+
+		self.assertEqual(self._serve_as(replacement), self.SERVED)
+
+	def test_an_unenrolled_account_is_still_denied_after_the_drop(self):
+		"""The boundary must not move: leaving the course does not make the file public."""
+		self._drop_from_instructors(self.author)
+		self.assertEqual(self._serve_as(self.outsider), self.DENIED)
+		self.assertEqual(self._serve_as(self.attacker), self.DENIED)
+
+	def test_the_owners_own_other_lesson_cannot_adopt_a_different_file(self):
+		"""Same owner on both rows is not enough: the dropped author still owns
+		self.lesson (if_owner ignores course membership) and could paste an unrelated
+		file's url into it. That file really lives in a different lesson."""
+		self._drop_from_instructors(self.author)
+		suffix = frappe.generate_hash(length=6)
+		other_course = self._create_course(title=f"Elsewhere Course {suffix}", instructor=self.author).name
+		other_chapter = self._create_chapter(f"Elsewhere Chapter {suffix}", other_course).name
+		other_lesson = self._create_lesson(f"Elsewhere Lesson {suffix}", other_chapter, other_course).name
+		# Distinct bytes: frappe dedupes identical file content onto one File row, which
+		# would collide with self.file_url from setUp and defeat this test's premise.
+		frappe.set_user(self.author)
+		try:
+			# nosemgrep: lms-unjustified-ignore-permissions
+			other_file = frappe.get_doc(
+				{
+					"doctype": "File",
+					"file_name": f"elsewhere-{frappe.generate_hash(length=8)}.txt",
+					"is_private": 1,
+					"content": f"unrelated course media {frappe.generate_hash(length=8)}",
+					"attached_to_doctype": "Course Lesson",
+					"attached_to_name": other_lesson,
+					"attached_to_field": "content",
+				}
+			).insert(ignore_permissions=True)
+		finally:
+			frappe.set_user("Administrator")
+		self.addCleanup(self._unlink, other_file.get_full_path())
+		other_file_url = other_file.file_url
+
+		# self.author still owns self.lesson (if_owner survives leaving the course) and
+		# pastes the OTHER file's url into it -- a content match, not a real attachment.
+		frappe.db.set_value(
+			"Course Lesson",
+			self.lesson,
+			"content",
+			_content({"type": "paragraph", "data": {"text": f'<img src="{other_file_url}">'}}),
+			update_modified=False,
+		)
+
+		self.file_url = other_file_url
+		self.assertEqual(self._serve_as(self.student), self.DENIED)
+
+	def test_another_creator_still_cannot_adopt_the_orphaned_file(self):
+		"""The lesson that vouches is the one its OWNER created, not any lesson naming
+		the url: pasting it into your own lesson must still not serve it."""
+		self._drop_from_instructors(self.author)
+		suffix = frappe.generate_hash(length=6)
+		their_course = self._create_course(title=f"Adopting Course {suffix}", instructor=self.attacker).name
+		their_chapter = self._create_chapter(f"Adopting Chapter {suffix}", their_course).name
+		their_lesson = self._create_lesson(f"Adopting Lesson {suffix}", their_chapter, their_course).name
+		frappe.db.set_value("Course Lesson", their_lesson, "owner", self.attacker, update_modified=False)
+		frappe.db.set_value(
+			"Course Lesson",
+			their_lesson,
+			"content",
+			_content({"type": "paragraph", "data": {"text": f'<img src="{self.file_url}">'}}),
+			update_modified=False,
+		)
+
+		self.assertEqual(self._serve_as(self.attacker), self.DENIED)
+
+
+class TestServeResourceModeratorPlacedMedia(BaseTestUtils):
+	"""Course Creator write on Course Lesson is if_owner, so a Moderator is the one
+	real way media not uploaded by the lesson's own owner gets genuinely attached
+	to it. Losing the Moderator role later must not retroactively deny it."""
+
+	SERVED = "authz-passed"
+	DENIED = "permission-error"
+
+	def setUp(self):
+		super().setUp()
+		suffix = frappe.generate_hash(length=6)
+
+		self.owner = self._create_user(
+			f"mod-placed-owner-{suffix}@example.com", "Lesson", "Owner", ["Course Creator"]
+		).name
+		self.moderator = self._create_user(
+			f"mod-placed-mod-{suffix}@example.com", "Former", "Moderator", ["Course Creator", "Moderator"]
+		).name
+		self.student = self._create_user(
+			f"mod-placed-student-{suffix}@example.com", "Enrolled", "Student", ["LMS Student"]
+		).name
+		self.outsider = self._create_user(
+			f"mod-placed-outsider-{suffix}@example.com", "Unenrolled", "Student", ["LMS Student"]
+		).name
+
+		self.course = self._create_course(title=f"Mod Placed Course {suffix}", instructor=self.owner).name
+		chapter = self._create_chapter(f"Mod Placed Chapter {suffix}", self.course).name
+		self.lesson = self._create_lesson(f"Mod Placed Lesson {suffix}", chapter, self.course).name
+		self._create_enrollment(self.student, self.course)
+
+		self.file_url = self._private_file(owner=self.moderator, lesson=self.lesson)
+		content = _content({"type": "paragraph", "data": {"text": f'<img src="{self.file_url}">'}})
+		frappe.db.set_value("Course Lesson", self.lesson, "content", content, update_modified=False)
+
+	def _private_file(self, owner, lesson):
+		frappe.set_user(owner)
+		try:
+			# Fixture setup, not the thing under test: a Moderator attaching media to a
+			# lesson they do not own.
+			# nosemgrep: lms-unjustified-ignore-permissions
+			file = frappe.get_doc(
+				{
+					"doctype": "File",
+					"file_name": f"mod-upload-{frappe.generate_hash(length=8)}.txt",
+					"is_private": 1,
+					"content": "media a moderator placed for the class",
+					"attached_to_doctype": "Course Lesson",
+					"attached_to_name": lesson,
+					"attached_to_field": "content",
+				}
+			).insert(ignore_permissions=True)
+		finally:
+			frappe.set_user("Administrator")
+
+		self.assertEqual(file.owner, owner)
+		self.addCleanup(self._unlink, file.get_full_path())
+		return file.file_url
+
+	@staticmethod
+	def _unlink(path):
+		import os
+
+		if os.path.exists(path):
+			os.remove(path)
+
+	def _serve_as(self, user):
+		"""See TestServeResourceFileOwnership._serve_as."""
+		from lms.lms.doctype.course_lesson.course_lesson import serve_resource
+
+		frappe.set_user(user)
+		try:
+			serve_resource(self.file_url)
+			return self.SERVED
+		except frappe.PermissionError:
+			return self.DENIED
+		except AttributeError as e:
+			if "request" not in str(e):
+				raise
+			return self.SERVED
+		finally:
+			frappe.set_user("Administrator")
+
+	def test_enrolled_learner_keeps_the_media_after_the_moderator_steps_down(self):
+		frappe.get_doc("User", self.moderator).remove_roles("Moderator")
+		self.assertEqual(self._serve_as(self.student), self.SERVED)
+
+	def test_an_unenrolled_account_is_still_denied_after_the_role_change(self):
+		frappe.get_doc("User", self.moderator).remove_roles("Moderator")
+		self.assertEqual(self._serve_as(self.outsider), self.DENIED)
+
+	def test_repointing_a_former_moderators_file_after_the_fact_does_not_qualify(self):
+		"""attached_to_name is only trusted un-repointed since upload: a later change
+		(even to a lesson that keeps making sense) bumps File.modified, so this must
+		not fall back to being served on that basis alone."""
+		frappe.get_doc("User", self.moderator).remove_roles("Moderator")
+		# A separate, unenrolled course: validate_progress_recalculation enqueues a
+		# recalculation for every enrollment of a lesson's own course on insert, and
+		# self.course already has one from setUp.
+		suffix = frappe.generate_hash(length=6)
+		other_course = self._create_course(title=f"Retarget Course {suffix}", instructor=self.owner).name
+		other_chapter = self._create_chapter(f"Retarget Chapter {suffix}", other_course).name
+		other_lesson = self._create_lesson(f"Retarget Lesson {suffix}", other_chapter, other_course).name
+		frappe.db.set_value("File", {"file_url": self.file_url}, "attached_to_name", other_lesson)
+
+		self.assertEqual(self._serve_as(self.student), self.DENIED)
+
+
+class TestServeResourceSecondFileRowForExistingUrl(BaseTestUtils):
+	"""A second File row can legitimately point at an existing private url --
+	validate_private_file_access only requires the inserter to already be able to
+	read it, not to own it. Vouching must bind each attachment to ITS OWN row's
+	owner; a row someone else created for that url must never borrow the first
+	row's authority, or vice versa.
+
+	Table: who owns row 1 (real bytes) x who owns row 2 (same url, new lesson).
+	"""
+
+	SERVED = "authz-passed"
+	DENIED = "permission-error"
+
+	def setUp(self):
+		super().setUp()
+		suffix = frappe.generate_hash(length=6)
+
+		self.author = self._create_user(
+			f"row1-author-{suffix}@example.com", "Row", "One", ["Course Creator"]
+		).name
+		self.co_instructor = self._create_user(
+			f"row2-co-{suffix}@example.com", "Row", "Two", ["Course Creator"]
+		).name
+
+		self.course1 = self._create_course(title=f"Row1 Course {suffix}", instructor=self.author).name
+		course1 = frappe.get_doc("LMS Course", self.course1)
+		# co_instructor must already be able to READ row 1 to pass
+		# validate_private_file_access when inserting row 2 for the same url.
+		course1.append("instructors", {"instructor": self.co_instructor})
+		# Fixture setup, not the thing under test.
+		# nosemgrep: lms-unjustified-ignore-permissions
+		course1.save(ignore_permissions=True)
+		chapter1 = self._create_chapter(f"Row1 Chapter {suffix}", self.course1).name
+		self.lesson1 = self._create_lesson(f"Row1 Lesson {suffix}", chapter1, self.course1).name
+		frappe.db.set_value("Course Lesson", self.lesson1, "owner", self.author, update_modified=False)
+
+		self.viewer1 = self._create_user(
+			f"row1-viewer-{suffix}@example.com", "Viewer", "One", ["LMS Student"]
+		).name
+		self._create_enrollment(self.viewer1, self.course1)
+
+		self.file_url = self._file(owner=self.author, lesson=self.lesson1)
+
+	def _file(self, owner, lesson):
+		frappe.set_user(owner)
+		try:
+			# Fixture setup: this site's Course Creator DocPerm is if_owner.
+			# nosemgrep: lms-unjustified-ignore-permissions
+			file = frappe.get_doc(
+				{
+					"doctype": "File",
+					"file_name": f"shared-{frappe.generate_hash(length=8)}.txt",
+					"is_private": 1,
+					"content": "shared private bytes",
+					"attached_to_doctype": "Course Lesson",
+					"attached_to_name": lesson,
+					"attached_to_field": "content",
+				}
+			).insert(ignore_permissions=True)
+		finally:
+			frappe.set_user("Administrator")
+		self.assertEqual(file.owner, owner)
+		self.addCleanup(self._unlink, file.get_full_path())
+		return file.file_url
+
+	def _attach_second_row(self, owner, lesson):
+		"""A second File row for the SAME url, owned by `owner`, attached to `lesson`.
+
+		Repoints file_url via db.set_value after a normal insert, the same way the
+		existing repoint tests simulate a second row landing on an existing url --
+		this exercises the vouching code under test, not the upload/dedup pipeline.
+		"""
+		frappe.set_user(owner)
+		try:
+			# nosemgrep: lms-unjustified-ignore-permissions
+			file = frappe.get_doc(
+				{
+					"doctype": "File",
+					"file_name": f"repointed-{frappe.generate_hash(length=8)}.txt",
+					"is_private": 1,
+					"content": f"unrelated bytes {frappe.generate_hash(length=8)}",
+					"attached_to_doctype": "Course Lesson",
+					"attached_to_name": lesson,
+					"attached_to_field": "content",
+				}
+			).insert(ignore_permissions=True)
+		finally:
+			frappe.set_user("Administrator")
+		self.addCleanup(self._unlink, file.get_full_path())
+		frappe.db.set_value("File", file.name, "file_url", self.file_url, update_modified=False)
+
+	@staticmethod
+	def _unlink(path):
+		import os
+
+		if os.path.exists(path):
+			os.remove(path)
+
+	def _serve_as(self, user):
+		"""See TestServeResourceFileOwnership._serve_as."""
+		from lms.lms.doctype.course_lesson.course_lesson import serve_resource
+
+		frappe.set_user(user)
+		try:
+			serve_resource(self.file_url)
+			return self.SERVED
+		except frappe.PermissionError:
+			return self.DENIED
+		except AttributeError as e:
+			if "request" not in str(e):
+				raise
+			return self.SERVED
+		finally:
+			frappe.set_user("Administrator")
+
+	def test_second_row_same_owner_reusing_own_media_is_served_from_both_lessons(self):
+		"""Row 2's owner matches row 1: legitimately their own bytes, reused."""
+		suffix = frappe.generate_hash(length=6)
+		course2 = self._create_course(title=f"Row1 Reuse Course {suffix}", instructor=self.author).name
+		chapter2 = self._create_chapter(f"Row1 Reuse Chapter {suffix}", course2).name
+		lesson2 = self._create_lesson(f"Row1 Reuse Lesson {suffix}", chapter2, course2).name
+		frappe.db.set_value("Course Lesson", lesson2, "owner", self.author, update_modified=False)
+		viewer2 = self._create_user(
+			f"row1-reuse-viewer-{suffix}@example.com", "Viewer", "Reuse", ["LMS Student"]
+		).name
+		self._create_enrollment(viewer2, course2)
+		self._attach_second_row(self.author, lesson2)
+
+		self.assertEqual(self._serve_as(self.viewer1), self.SERVED)
+		self.assertEqual(self._serve_as(viewer2), self.SERVED)
+
+	def test_second_row_different_owner_does_not_leak_into_their_course(self):
+		"""Row 2's owner (co_instructor) could already read row 1 via course1 --
+		that must not let their own, unrelated course adopt the same bytes."""
+		suffix = frappe.generate_hash(length=6)
+		course2 = self._create_course(title=f"Row2 Course {suffix}", instructor=self.co_instructor).name
+		chapter2 = self._create_chapter(f"Row2 Chapter {suffix}", course2).name
+		lesson2 = self._create_lesson(f"Row2 Lesson {suffix}", chapter2, course2).name
+		frappe.db.set_value("Course Lesson", lesson2, "owner", self.co_instructor, update_modified=False)
+		viewer2 = self._create_user(
+			f"row2-viewer-{suffix}@example.com", "Viewer", "Two", ["LMS Student"]
+		).name
+		self._create_enrollment(viewer2, course2)
+		self._attach_second_row(self.co_instructor, lesson2)
+
+		self.assertEqual(self._serve_as(self.viewer1), self.SERVED)
+		self.assertEqual(self._serve_as(viewer2), self.DENIED)
+
+	def test_touching_row_one_after_row_two_exists_does_not_change_the_canonical_owner(self):
+		"""Canonical ownership is decided by creation order, not by which row was
+		modified last -- serve_resource's own row lookup must agree."""
+		suffix = frappe.generate_hash(length=6)
+		course2 = self._create_course(title=f"Row2 Late Course {suffix}", instructor=self.co_instructor).name
+		chapter2 = self._create_chapter(f"Row2 Late Chapter {suffix}", course2).name
+		lesson2 = self._create_lesson(f"Row2 Late Lesson {suffix}", chapter2, course2).name
+		frappe.db.set_value("Course Lesson", lesson2, "owner", self.co_instructor, update_modified=False)
+		self._attach_second_row(self.co_instructor, lesson2)
+		# Touch row 1's own metadata after row 2 exists, without changing its owner.
+		frappe.db.set_value("File", {"file_url": self.file_url, "owner": self.author}, "file_name", "x.txt")
+
+		self.assertEqual(self._serve_as(self.viewer1), self.SERVED)
+
+
+class TestServeResourceCoInstructorUpload(BaseTestUtils):
+	"""The ordinary co-authoring path: an instructor uploads private media into a lesson
+	a DIFFERENT instructor created, and is later dropped from the course. The uploader
+	owns neither the lesson nor a current authorship any more, so the reference survives
+	on the File row alone -- attached, never edited since, and the upload of record."""
+
+	SERVED = "authz-passed"
+	DENIED = "permission-error"
+
+	def setUp(self):
+		super().setUp()
+		suffix = frappe.generate_hash(length=6)
+
+		self.lesson_author = self._create_user(
+			f"co-lesson-author-{suffix}@example.com", "Lesson", "Author", ["Course Creator"]
+		).name
+		self.uploader = self._create_user(
+			f"co-uploader-{suffix}@example.com", "Co", "Instructor", ["Course Creator"]
+		).name
+		self.student = self._create_user(
+			f"co-student-{suffix}@example.com", "Enrolled", "Student", ["LMS Student"]
+		).name
+		self.outsider = self._create_user(
+			f"co-outsider-{suffix}@example.com", "Unenrolled", "Student", ["LMS Student"]
+		).name
+
+		self.course = self._create_course(title=f"Co Course {suffix}", instructor=self.lesson_author).name
+		course = frappe.get_doc("LMS Course", self.course)
+		course.append("instructors", {"instructor": self.uploader})
+		# Fixture setup, not the thing under test.
+		# nosemgrep: lms-unjustified-ignore-permissions
+		course.save(ignore_permissions=True)
+
+		chapter = self._create_chapter(f"Co Chapter {suffix}", self.course).name
+		self.lesson = self._create_lesson(f"Co Lesson {suffix}", chapter, self.course).name
+		frappe.db.set_value("Course Lesson", self.lesson, "owner", self.lesson_author, update_modified=False)
+		self._create_enrollment(self.student, self.course)
+
+		self.file_url = self._private_file(owner=self.uploader, lesson=self.lesson)
+		frappe.db.set_value(
+			"Course Lesson",
+			self.lesson,
+			"content",
+			_content({"type": "paragraph", "data": {"text": f'<img src="{self.file_url}">'}}),
+			update_modified=False,
+		)
+
+	def _private_file(self, owner, lesson):
+		frappe.set_user(owner)
+		try:
+			# Fixture setup, not the thing under test.
+			# nosemgrep: lms-unjustified-ignore-permissions
+			file = frappe.get_doc(
+				{
+					"doctype": "File",
+					"file_name": f"co-upload-{frappe.generate_hash(length=8)}.txt",
+					"is_private": 1,
+					"content": f"co-authored media {frappe.generate_hash(length=8)}",
+					"attached_to_doctype": "Course Lesson",
+					"attached_to_name": lesson,
+					"attached_to_field": "content",
+				}
+			).insert(ignore_permissions=True)
+		finally:
+			frappe.set_user("Administrator")
+
+		self.assertEqual(file.owner, owner)
+		self.addCleanup(self._unlink, file.get_full_path())
+		return file.file_url
+
+	@staticmethod
+	def _unlink(path):
+		import os
+
+		if os.path.exists(path):
+			os.remove(path)
+
+	def _drop_from_instructors(self, user):
+		frappe.db.delete(
+			"Course Instructor", {"parent": self.course, "parenttype": "LMS Course", "instructor": user}
+		)
+		frappe.set_user(user)
+		try:
+			self.assertFalse(can_modify_course(self.course), msg="fixture: the drop must have landed")
+		finally:
+			frappe.set_user("Administrator")
+
+	def _serve_as(self, user):
+		"""See TestServeResourceFileOwnership._serve_as."""
+		from lms.lms.doctype.course_lesson.course_lesson import serve_resource
+
+		frappe.set_user(user)
+		try:
+			serve_resource(self.file_url)
+			return self.SERVED
+		except frappe.PermissionError:
+			return self.DENIED
+		except AttributeError as e:
+			if "request" not in str(e):
+				raise
+			return self.SERVED
+		finally:
+			frappe.set_user("Administrator")
+
+	def test_enrolled_learner_keeps_the_media_after_the_uploader_is_dropped(self):
+		self._drop_from_instructors(self.uploader)
+		self.assertEqual(self._serve_as(self.student), self.SERVED)
+
+	def test_the_lesson_author_keeps_the_media_after_the_uploader_is_dropped(self):
+		self._drop_from_instructors(self.uploader)
+		self.assertEqual(self._serve_as(self.lesson_author), self.SERVED)
+
+	def test_an_unenrolled_account_is_still_denied_after_the_drop(self):
+		"""Control: the audience is still the lesson's, not everybody's."""
+		self._drop_from_instructors(self.uploader)
+		self.assertEqual(self._serve_as(self.outsider), self.DENIED)
+
+
+class TestServeResourceOwnerLookupIsBatched(BaseTestUtils):
+	"""Every File row sharing a url adds an owner that has to be judged, so the
+	authorship and Moderator lookups must not run once per owner: a popular asset would
+	put a query per row on every media request.
+
+	The invariant is measured, not asserted against a magic number -- the same reference
+	set with more distinct owners must cost the same number of queries.
+	"""
+
+	COUNTED_TABLES = ("tabCourse Instructor", "tabHas Role")
+
+	def setUp(self):
+		super().setUp()
+		suffix = frappe.generate_hash(length=6)
+
+		self.author = self._create_user(
+			f"budget-author-{suffix}@example.com", "Budget", "Author", ["Course Creator"]
+		).name
+		self.course = self._create_course(title=f"Budget Course {suffix}", instructor=self.author).name
+		chapter = self._create_chapter(f"Budget Chapter {suffix}", self.course).name
+		self.lesson = self._create_lesson(f"Budget Lesson {suffix}", chapter, self.course).name
+		frappe.db.set_value("Course Lesson", self.lesson, "owner", self.author, update_modified=False)
+
+		self.file_url = self._private_file(self.author)
+
+	def _private_file(self, owner):
+		frappe.set_user(owner)
+		try:
+			# Fixture setup, not the thing under test.
+			# nosemgrep: lms-unjustified-ignore-permissions
+			file = frappe.get_doc(
+				{
+					"doctype": "File",
+					"file_name": f"budget-{frappe.generate_hash(length=8)}.txt",
+					"is_private": 1,
+					"content": f"budget media {frappe.generate_hash(length=8)}",
+					"attached_to_doctype": "Course Lesson",
+					"attached_to_name": self.lesson,
+					"attached_to_field": "content",
+				}
+			).insert(ignore_permissions=True)
+		finally:
+			frappe.set_user("Administrator")
+		self.addCleanup(self._unlink, file.get_full_path())
+		return file.file_url
+
+	@staticmethod
+	def _unlink(path):
+		import os
+
+		if os.path.exists(path):
+			os.remove(path)
+
+	def _add_moderator_rows(self, count):
+		"""`count` further File rows for the same url, each owned by a different Moderator.
+
+		A Moderator's row is the one a non-uploader can still have weighed, so this grows
+		the set of owners the vouching step must judge without changing its verdict.
+		"""
+		for _i in range(count):
+			suffix = frappe.generate_hash(length=8)
+			moderator = self._create_user(
+				f"budget-mod-{suffix}@example.com", "Budget", "Moderator", ["Course Creator", "Moderator"]
+			).name
+			frappe.set_user(moderator)
+			try:
+				# nosemgrep: lms-unjustified-ignore-permissions
+				file = frappe.get_doc(
+					{
+						"doctype": "File",
+						"file_name": f"budget-extra-{suffix}.txt",
+						"is_private": 1,
+						"content": f"budget extra {suffix}",
+						"attached_to_doctype": "Course Lesson",
+						"attached_to_name": self.lesson,
+						"attached_to_field": "content",
+					}
+				).insert(ignore_permissions=True)
+			finally:
+				frappe.set_user("Administrator")
+			self.addCleanup(self._unlink, file.get_full_path())
+			frappe.db.set_value("File", file.name, "file_url", self.file_url, update_modified=False)
+
+	def _vouch_and_count(self):
+		"""(vouched references, queries against the counted tables) for one resolution."""
+		from lms.lms.doctype.course_lesson.course_lesson import (
+			_references_vouched_by_owner,
+			_resolve_lesson_references,
+		)
+
+		references = _resolve_lesson_references(self.file_url)
+
+		counted = []
+		real_sql = frappe.local.db.sql
+
+		def counting_sql(query, *args, **kwargs):
+			text = str(query)
+			if any(table in text for table in self.COUNTED_TABLES):
+				counted.append(text)
+			return real_sql(query, *args, **kwargs)
+
+		frappe.local.db.sql = counting_sql
+		try:
+			vouched = _references_vouched_by_owner(references)
+		finally:
+			frappe.local.db.sql = real_sql
+
+		return vouched, len(counted)
+
+	def test_the_owner_lookup_does_not_grow_with_the_number_of_owners(self):
+		self._add_moderator_rows(1)
+		few_vouched, few_queries = self._vouch_and_count()
+
+		self._add_moderator_rows(4)
+		many_vouched, many_queries = self._vouch_and_count()
+
+		# Control: the extra owners must not change the verdict, only the cost.
+		self.assertIn((self.lesson, False), few_vouched)
+		self.assertIn((self.lesson, False), many_vouched)
+
+		self.assertEqual(
+			many_queries,
+			few_queries,
+			msg=f"owner lookups must be batched: {few_queries} query(s) for 2 owners, "
+			f"{many_queries} for 6",
+		)
