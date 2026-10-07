@@ -18,7 +18,12 @@
 					uploading ? __('Uploading {0}%').format(progress) : __('Upload File')
 				}}
 			</Button>
-			<ErrorMessage :message="error?.replace('; the limit is', '. The limit is') ?? undefined" class="mt-1" />
+			<ErrorMessage
+				:message="
+					error?.replace('; the limit is', '. The limit is') ?? undefined
+				"
+				class="mt-1"
+			/>
 		</div>
 	</FileUploader>
 >>>>>>> bdff590 (fix: show configured limit for oversized lesson uploads)
