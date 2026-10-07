@@ -1,14 +1,12 @@
 import { computed } from 'vue'
-import {
-	CARDS,
-	FLOWS,
-	getCard,
-	getFlow,
-	type FlowCard,
-	type FlowId,
-	type FlowStep,
-	type OnboardingFlow,
-} from '@/onboarding/flows'
+import { FLOWS, getFlow } from '@/onboarding/flows'
+import { CARDS, getCard } from '@/onboarding/cards'
+import type {
+	FlowCard,
+	FlowId,
+	FlowStep,
+	OnboardingFlow,
+} from '@/onboarding/types'
 import {
 	cardFlow,
 	handles,

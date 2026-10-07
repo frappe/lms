@@ -4,7 +4,8 @@ import { describe, expect, it, vi } from 'vitest'
 import { mount } from '@vue/test-utils'
 import { SidebarItem } from 'frappe-ui'
 import { BookOpen } from 'lucide-vue-next'
-import { getCard, getFlow } from '@/onboarding/flows'
+import { getFlow } from '@/onboarding/flows'
+import { getCard } from '@/onboarding/cards'
 import OnboardingChecklist from '@/components/Onboarding/OnboardingChecklist.vue'
 
 const { progress } = vi.hoisted(() => ({

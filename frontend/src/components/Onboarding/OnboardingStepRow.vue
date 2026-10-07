@@ -106,7 +106,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { Badge, Button, Dropdown, Tooltip } from 'frappe-ui'
-import type { FlowCard, FlowStep, OnboardingFlow } from '@/onboarding/flows'
+import type { FlowCard, FlowStep, OnboardingFlow } from '@/onboarding/types'
 import { useLearningOnboarding } from '@/onboarding/useLearningOnboarding'
 import {
 	ROW_TEXT,

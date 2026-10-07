@@ -106,7 +106,7 @@ import OnboardingCardList from '@/components/Onboarding/OnboardingCardList.vue'
 import OnboardingChecklist from '@/components/Onboarding/OnboardingChecklist.vue'
 import OnboardingHelpCenter from '@/components/Onboarding/OnboardingHelpCenter.vue'
 import { HELP_DOCS_LINK, helpArticles } from '@/onboarding/helpArticles'
-import { CARDS } from '@/onboarding/flows'
+import { CARDS } from '@/onboarding/cards'
 import { useLearningOnboarding } from '@/onboarding/useLearningOnboarding'
 
 const {

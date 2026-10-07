@@ -61,7 +61,8 @@
 <script setup lang="ts">
 import { SidebarItem, Tooltip } from 'frappe-ui'
 import OnboardingProgressHeader from '@/components/Onboarding/OnboardingProgressHeader.vue'
-import { CARDS, type FlowCard } from '@/onboarding/flows'
+import { CARDS } from '@/onboarding/cards'
+import type { FlowCard } from '@/onboarding/types'
 import { useLearningOnboarding } from '@/onboarding/useLearningOnboarding'
 
 const {

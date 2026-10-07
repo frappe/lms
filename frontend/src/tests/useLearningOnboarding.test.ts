@@ -2,7 +2,7 @@
 // in-memory model, so each test sees which keys were updated or left alone.
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { nextTick, reactive, ref, type Ref } from 'vue'
-import type { FlowId } from '@/onboarding/flows'
+import type { FlowId } from '@/onboarding/types'
 
 type FakeStep = { name: string; completed: boolean; onClick?: () => void }
 type FakeHandle = {
@@ -111,8 +111,9 @@ async function load(
 		)
 	const mod = await import('@/onboarding/useLearningOnboarding')
 	const flows = await import('@/onboarding/flows')
+	const cards = await import('@/onboarding/cards')
 	const ui = await import('@framework/ui/components/Onboarding/index')
-	return { ...mod.useLearningOnboarding(), ui, flows }
+	return { ...mod.useLearningOnboarding(), ui, flows, cards }
 }
 
 async function ready(stored?: Parameters<typeof load>[0]): Promise<Loaded> {
@@ -129,7 +130,7 @@ function finish(key: string): void {
 	for (const step of handle(key).steps) step.completed = true
 }
 
-const card = (o: Loaded, id: string) => o.flows.getCard(id)!
+const card = (o: Loaded, id: string) => o.cards.getCard(id)!
 
 // vi.resetModules gives each test a fresh composable, but the focus listener
 // an earlier copy added to window outlives it. Drop them between tests.

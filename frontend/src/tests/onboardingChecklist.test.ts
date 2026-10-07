@@ -2,7 +2,9 @@
 // The composable is faked so each test sets its own state.
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { mount, type DOMWrapper } from '@vue/test-utils'
-import { getCard, getFlow, type FlowStep } from '@/onboarding/flows'
+import { getFlow } from '@/onboarding/flows'
+import { getCard } from '@/onboarding/cards'
+import type { FlowStep } from '@/onboarding/types'
 import OnboardingChecklist from '@/components/Onboarding/OnboardingChecklist.vue'
 
 type Status = 'done' | 'skipped' | 'current' | 'upcoming'

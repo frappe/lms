@@ -7,17 +7,16 @@ import {
 	useOnboarding,
 	type UseOnboarding,
 } from '@framework/ui/components/Onboarding/index'
-import {
-	FLOWS,
-	getCard,
-	getFlow,
-	type CardId,
-	type FlowId,
-	type FlowNavigation,
-	type FlowStep,
-	type OnboardingFacts,
-	type OnboardingFlow,
-} from '@/onboarding/flows'
+import { FLOWS, getFlow } from '@/onboarding/flows'
+import { getCard } from '@/onboarding/cards'
+import type {
+	CardId,
+	FlowId,
+	FlowNavigation,
+	FlowStep,
+	OnboardingFacts,
+	OnboardingFlow,
+} from '@/onboarding/types'
 import {
 	answerOf,
 	cardFlow,

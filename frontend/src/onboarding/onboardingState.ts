@@ -1,15 +1,15 @@
 import { reactive, ref, shallowReactive, type Ref } from 'vue'
 import { useStorage } from '@vueuse/core'
 import type { UseOnboarding } from '@framework/ui/components/Onboarding/index'
-import {
-	flowForAnswer,
-	type CardId,
-	type FlowCard,
-	type FlowId,
-	type FlowStep,
-	type OnboardingFacts,
-	type OnboardingFlow,
-} from '@/onboarding/flows'
+import { flowForAnswer } from '@/onboarding/cards'
+import type {
+	CardId,
+	FlowCard,
+	FlowId,
+	FlowStep,
+	OnboardingFacts,
+	OnboardingFlow,
+} from '@/onboarding/types'
 
 export type Screen = 'list' | 'flow' | 'help'
 

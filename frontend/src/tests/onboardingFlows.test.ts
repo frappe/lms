@@ -1,16 +1,13 @@
 // The flow registry. Step order is frozen once shipped: the framework matches
 // stored progress to steps by index.
 import { describe, expect, it, vi } from 'vitest'
+import { FLOWS, getFlow } from '@/onboarding/flows'
+import { CARDS, flowForAnswer, getCard } from '@/onboarding/cards'
 import {
-	CARDS,
 	FACT_KEYS,
-	FLOWS,
-	flowForAnswer,
-	getCard,
-	getFlow,
 	type FlowNavigation,
 	type OnboardingFacts,
-} from '@/onboarding/flows'
+} from '@/onboarding/types'
 import { targetFromQuery } from '@/utils/courseOutline'
 
 function fakeNav(facts: Partial<OnboardingFacts> = {}): FlowNavigation {
