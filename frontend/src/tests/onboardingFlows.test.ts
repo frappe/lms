@@ -303,17 +303,29 @@ describe('step targets', () => {
 			?.onClick?.()
 	}
 
-	it.each([
-		{ name: 'set_course_pricing', hash: '#settings' },
-		{ name: 'publish_course', hash: '#settings' },
-	])('$name opens the first course at $hash', ({ name, hash }) => {
+	it('publish_course opens the first course at #settings', () => {
 		const nav = fakeNav(facts)
-		click('publish_course', name, nav)
+		click('publish_course', 'publish_course', nav)
 		expect(nav.openRoute).toHaveBeenCalledWith({
 			name: 'CourseDetail',
 			params: { courseName: 'my-course' },
-			hash,
+			hash: '#settings',
 		})
+	})
+
+	it('set_course_pricing asks the settings for a paid price, minimised', () => {
+		const nav = fakeNav(facts)
+		click('publish_course', 'set_course_pricing', nav)
+		expect(nav.openRoute).toHaveBeenCalledWith({
+			name: 'CourseDetail',
+			params: { courseName: 'my-course' },
+			query: { pricing: 'paid' },
+			hash: '#settings',
+		})
+		const step = stepsOf('publish_course').find(
+			(s) => s.name === 'set_course_pricing'
+		)
+		expect(step?.minimizeOnOpen).toBe(true)
 	})
 
 	it('opens the new-chapter form on the first course', () => {

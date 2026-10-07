@@ -159,6 +159,19 @@ function openCourseSettings(nav: FlowNavigation): void {
 	)
 }
 
+// CoursePublishSettings reads ?pricing=paid once: it turns Paid course on and
+// puts the caret in the price.
+function openCoursePricing(nav: FlowNavigation): void {
+	withCourse(nav, (courseName) =>
+		nav.openRoute({
+			name: 'CourseDetail',
+			params: { courseName },
+			query: { pricing: 'paid' },
+			hash: '#settings',
+		})
+	)
+}
+
 function openChapterForm(nav: FlowNavigation): void {
 	withCourse(nav, (courseName) =>
 		nav.openForm({
@@ -318,7 +331,8 @@ const publishCourseFlow: OnboardingFlow = {
 			completed: false,
 			dependsOn: 'create_first_course',
 			fact: 'has_course_pricing',
-			onClick: () => openCourseSettings(nav),
+			minimizeOnOpen: true,
+			onClick: () => openCoursePricing(nav),
 		},
 		{
 			name: 'publish_course',

@@ -137,12 +137,17 @@ const markDirty = (): void => {
 	autoSave()
 }
 
+const markUnsaved = (): void => {
+	isDirty.value = true
+}
+
 const courseFormContext: CourseFormContext = {
 	resource: courseResource,
 	instructors,
 	relatedCourses: related_courses,
 	meta,
 	markDirty,
+	markUnsaved,
 }
 provide<CourseFormContext>('courseForm', courseFormContext)
 

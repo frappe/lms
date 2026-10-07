@@ -491,12 +491,13 @@ describe('minimizeOnOpen', () => {
 		expect(o.ui.minimize.value).toBe(false)
 	})
 
-	it('is set on the assessment form steps only', async () => {
+	it('is set on the pricing and assessment form steps only', async () => {
 		const o = await ready()
 		const minimizing = o.flows.FLOWS.flatMap((flow) =>
 			o.stepsOf(flow.id).filter((step) => step.minimizeOnOpen)
 		).map((step) => step.name)
 		expect(minimizing).toEqual([
+			'set_course_pricing',
 			'add_quiz',
 			'add_programming_exercise',
 			'add_assignment',
