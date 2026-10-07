@@ -237,6 +237,7 @@ import LessonHelp from '@/components/LessonHelp.vue'
 import ShortcutTooltip from '@/components/ShortcutTooltip.vue'
 import HeaderButton from '@/components/HeaderButton.vue'
 import { openFormRoute } from '@/composables/useFormRoute'
+import { useRouteIntent } from '@/composables/useRouteIntent'
 import type {
 	CourseDetails,
 	CourseInstructorInfo,
@@ -350,32 +351,17 @@ function togglePublishCourse() {
 	publishToggle.submit()
 }
 
-// Onboarding's Publish the course step lands here with ?publish=1. It is
-// dropped from the URL once read, and Publish takes focus, without being
-// pressed, once the settings header shows it.
+// Onboarding's Publish the course step lands here with ?publish=1: Publish
+// takes focus, without being pressed, once the settings header shows it.
 const publishButton = useTemplateRef<{ $el: HTMLElement }>('publishButton')
-const publishRequested = ref<boolean>(false)
 
-watch(
-	() => route.query.publish,
-	(publish) => {
-		if (publish !== '1') return
-		publishRequested.value = true
-		const { publish: _dropped, ...query } = route.query
-		router.replace({ query, hash: route.hash })
-	},
-	{ immediate: true }
-)
-
-watch(
-	[publishRequested, publishButton],
-	([requested, button]) => {
-		if (!requested || !button) return
-		publishRequested.value = false
-		button.$el.focus()
-	},
-	{ immediate: true, flush: 'post' }
-)
+useRouteIntent({
+	param: 'publish',
+	value: '1',
+	ready: publishButton,
+	run: () => publishButton.value?.$el.focus(),
+	flush: 'post',
+})
 
 // The enrollment form is a child route now, not a modal the dashboard tab owned,
 // so the button navigates instead of reaching into the tab instance. Hash and

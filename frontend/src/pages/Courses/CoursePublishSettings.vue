@@ -199,14 +199,14 @@
 <script setup lang="ts">
 import { Dialog, FormControl, createResource } from 'frappe-ui'
 import BooleanSwitch from '@/components/Controls/BooleanSwitch.vue'
-import { computed, inject, nextTick, ref, watch } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
+import { computed, inject, nextTick, ref } from 'vue'
 import CollapsibleSection from '@/components/CollapsibleSection.vue'
 import Link from '@/components/Controls/Link.vue'
 import NewMemberModal from '@/components/Modals/NewMemberModal.vue'
 import { useSettings } from '@/stores/settings'
 import type { CourseFormContext, Resource } from '@/types'
 import { openExternal } from '@/utils/openExternal'
+import { useRouteIntent } from '@/composables/useRouteIntent'
 
 const { resource, markDirty, markUnsaved } =
 	inject<CourseFormContext>('courseForm')!
@@ -258,8 +258,6 @@ function setPaidCourse(val: boolean) {
 	if (applyPaidCourse(val)) markDirty()
 }
 
-const route = useRoute()
-const router = useRouter()
 const coursePriceInput = ref<{ focus: () => void } | null>(null)
 
 // A cached course shows while it reloads; the reload would undo the switch.
@@ -267,33 +265,13 @@ const docLoaded = computed<boolean>(
 	() => Boolean(resource.doc) && !resource.get?.loading
 )
 
-// Onboarding's Set pricing step lands here with ?pricing=paid. The intent is
-// dropped from the URL once read, so a refresh or a later visit leaves the
-// form alone, and runs once the course has loaded.
-function onIntent(param: string, value: string, run: () => void) {
-	const requested = ref<boolean>(false)
-	watch(
-		() => route.query[param],
-		(given) => {
-			if (given !== value) return
-			requested.value = true
-			const { [param]: _dropped, ...query } = route.query
-			router.replace({ query, hash: route.hash })
-		},
-		{ immediate: true }
-	)
-	watch(
-		[requested, docLoaded],
-		([wanted, loaded]) => {
-			if (!wanted || !loaded) return
-			requested.value = false
-			run()
-		},
-		{ immediate: true }
-	)
-}
-
-onIntent('pricing', 'paid', openPaidPricing)
+// Onboarding's Set pricing step lands here with ?pricing=paid.
+useRouteIntent({
+	param: 'pricing',
+	value: 'paid',
+	ready: docLoaded,
+	run: openPaidPricing,
+})
 
 // No autosave: the switch waits for a price and the user's own save.
 async function openPaidPricing() {
