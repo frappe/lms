@@ -100,7 +100,6 @@ function recordTargets(created: FlowTargets): void {
 
 const FACTS_REFETCH_DELAY = 500
 
-// Where the help centre returns to.
 let screenBeforeHelp: Screen = 'list'
 // Un-minimising on a tick is ours, not the admin reopening the panel, so it
 // must not trigger another facts fetch through the minimise watcher.
@@ -174,9 +173,9 @@ function toggleStep(id: FlowId, name: string): void {
 	const flow = getFlow(id)
 	const step = stepsOf(id).find((s) => s.name === name)
 	if (!flow || !step || blocker(id, step)) return
-	if (!step.completed) return handles[id]?.updateOnboardingStep(name, true)
-	if (isSkipped(flow, name)) return forgetSkip(flow, name)
-	undoStep(id, name)
+	if (!step.completed) handles[id]?.updateOnboardingStep(name, true)
+	else if (isSkipped(flow, name)) forgetSkip(flow, name)
+	else undoStep(id, name)
 }
 
 function markSkipped(id: FlowId, name: string): void {
