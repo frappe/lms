@@ -96,9 +96,7 @@ class TestSignupForm(UnitTestCase):
 		source = self.source()
 		reset_handler = source.split("const reset_signup_form = ")[1].split("\n    }")[0]
 		self.assertIn('userCategory.value = ""', reset_handler)
-		self.assertIn(
-			'userCategory.dispatchEvent(new Event("change", { bubbles: true }))', reset_handler
-		)
+		self.assertIn('userCategory.dispatchEvent(new Event("change", { bubbles: true }))', reset_handler)
 
 	def test_renders_without_the_frameworks_login_templates(self):
 		"""/login renders this template, so an include the running frappe does not
