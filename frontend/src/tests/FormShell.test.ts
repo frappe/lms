@@ -4,8 +4,8 @@ import { nextTick } from 'vue'
 import FormShell from '@/components/FormShell.vue'
 import { Dialog } from 'frappe-ui'
 
-// Dialog is FormShell's only frappe-ui import. This stub mirrors its
-// open/title/size contract and slots, and keeps reka's portal and focus code out.
+// These stubs keep reka's portal and focus code out while preserving the
+// mobile ScrollArea's root and viewport classes.
 // The mobile page also legitimately carries role="dialog" now (finding 3),
 // so tests distinguish "the desktop Dialog rendered" via findComponent(Dialog)
 // rather than a bare [role="dialog"] query, which both branches would match.
@@ -14,6 +14,11 @@ vi.mock('frappe-ui', () => ({
 		props: ['open', 'title', 'size'],
 		emits: ['update:open'],
 		template: `<div v-if="open" role="dialog"><slot name="title" /><slot /><slot name="actions" /></div>`,
+	},
+	ScrollArea: {
+		inheritAttrs: false,
+		props: ['viewportClass'],
+		template: `<div data-slot="scroll-area" v-bind="$attrs"><div data-slot="scroll-area-viewport" :class="viewportClass"><slot /></div></div>`,
 	},
 }))
 
@@ -101,7 +106,9 @@ describe('FormShell', () => {
 		// A full-screen form legitimately owns its own scroll range — unlike a
 		// form embedded in main#scrollContainer, there is no outer scroller left
 		// for it to fight with, so overflow-y-auto here is correct, not a bug.
-		const body = wrapper.find('[data-testid="form-shell-body"]')
+		const body = wrapper.find(
+			'[data-testid="form-shell-body"] [data-slot="scroll-area-viewport"]'
+		)
 		expect(body.exists()).toBe(true)
 		expect(body.classes()).toContain('overflow-y-auto')
 		expect(body.classes()).toContain('overscroll-contain')

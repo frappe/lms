@@ -1,6 +1,14 @@
 <template>
 	<div class="flex flex-1 flex-col sm:min-h-0">
-		<div class="flex flex-1 flex-col sm:min-h-0 sm:overflow-y-auto">
+		<component
+			:is="isDesktopScroller ? ScrollArea : 'div'"
+			class="flex flex-1 flex-col sm:min-h-0"
+			:viewportClass="
+				isDesktopScroller
+					? 'flex flex-col sm:min-h-0 sm:overflow-y-auto'
+					: undefined
+			"
+		>
 			<div
 				v-if="hasNameStrip"
 				data-testid="page-header-block"
@@ -40,7 +48,7 @@
 			</div>
 
 			<slot />
-		</div>
+		</component>
 
 		<BottomSheet
 			v-if="$slots.filters && isMobile"
@@ -67,7 +75,8 @@
 
 <script setup lang="ts">
 import { computed, ref, useSlots } from 'vue'
-import { Button } from 'frappe-ui'
+import { useMediaQuery } from '@vueuse/core'
+import { Button, ScrollArea } from 'frappe-ui'
 import BottomSheet from '@/components/BottomSheet.vue'
 import { useScreenSize } from '@/utils/composables'
 
@@ -98,6 +107,7 @@ const props = withDefaults(
 
 const slots = useSlots()
 const { isMobile } = useScreenSize()
+const isDesktopScroller = useMediaQuery('(min-width: 640px)')
 const showFilters = ref(false)
 
 const unpinned = computed<boolean>(() => isMobile.value && props.selecting)

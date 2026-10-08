@@ -33,6 +33,11 @@ vi.mock('frappe-ui', () => ({
 		props: ['options'],
 		template: `<div data-testid="dropdown" />`,
 	},
+	ScrollArea: {
+		inheritAttrs: false,
+		props: ['viewportClass'],
+		template: `<div data-slot="scroll-area" v-bind="$attrs"><div data-slot="scroll-area-viewport" :class="viewportClass"><slot /></div></div>`,
+	},
 	Switch: {
 		props: ['modelValue', 'ariaLabel'],
 		template: `<button data-testid="switch" :aria-label="ariaLabel" />`,

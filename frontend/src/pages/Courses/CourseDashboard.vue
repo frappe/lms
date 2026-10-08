@@ -57,7 +57,10 @@
 						</FormControl>
 					</div>
 				</div>
-				<div class="sm:max-h-[63vh] sm:overflow-y-auto">
+				<ScrollArea
+					class="sm:max-h-[63vh]"
+					viewportClass="sm:max-h-[63vh] sm:overflow-y-auto"
+				>
 					<ResponsiveListView
 						v-if="progressList.loading || progressList.data?.length"
 						:columns="progressColumns"
@@ -111,7 +114,7 @@
 							{{ __('Load More') }}
 						</Button>
 					</div>
-				</div>
+				</ScrollArea>
 			</div>
 			<div class="space-y-5">
 				<div
@@ -175,9 +178,11 @@
 							class="!w-32"
 						/>
 					</div>
-					<ul
-						class="divide-y sm:max-h-[40vh] divide-outline-elevation-2 text-ink-gray-7 sm:overflow-y-auto list-none"
+					<ScrollArea
+						class="sm:max-h-[40vh]"
+						viewportClass="sm:max-h-[40vh] sm:overflow-y-auto"
 					>
+						<ul class="divide-y divide-outline-elevation-2 text-ink-gray-7 list-none">
 						<li
 							v-for="progress in lessonProgress.data"
 							:key="`${progress.chapter_idx}-${progress.idx}`"
@@ -205,7 +210,8 @@
 								</div>
 							</Tooltip>
 						</li>
-					</ul>
+						</ul>
+					</ScrollArea>
 				</div>
 			</div>
 		</div>
@@ -225,6 +231,7 @@ import {
 	createListResource,
 	createResource,
 	FormControl,
+	ScrollArea,
 	Tooltip,
 } from 'frappe-ui'
 import type { SelectOptionValue } from 'frappe-ui'

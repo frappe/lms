@@ -90,6 +90,11 @@ vi.mock('frappe-ui', () => ({
 		template: `<nav><span v-for="i in items" :key="i.label">{{ i.label }}</span></nav>`,
 	},
 	LoadingIndicator: { template: `<span />` },
+	ScrollArea: {
+		inheritAttrs: false,
+		props: ['viewportClass'],
+		template: `<div v-bind="$attrs"><div :class="viewportClass"><slot /></div></div>`,
+	},
 }))
 
 // Preview mounts the learner's submission page, which pulls in the code

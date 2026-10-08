@@ -34,6 +34,11 @@ const passthrough = (tag: string, testid?: string) => ({
 vi.mock('frappe-ui', () => ({
 	Breadcrumbs: { template: '<nav data-testid="breadcrumbs" />' },
 	Button: passthrough('button'),
+	ScrollArea: {
+		inheritAttrs: false,
+		props: ['viewportClass'],
+		template: `<div data-slot="scroll-area" v-bind="$attrs"><div data-slot="scroll-area-viewport" :class="viewportClass"><slot /></div></div>`,
+	},
 	// Faithful to frappe-ui's Checkbox in the one structural respect the
 	// filters rely on: an <input> plus a <label for> pointing at it, so the
 	// label is part of the hit area. A stub that rendered only the input

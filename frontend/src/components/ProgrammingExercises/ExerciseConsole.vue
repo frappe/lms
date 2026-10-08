@@ -29,7 +29,7 @@
 		</button>
 		<span role="status" class="sr-only">{{ runStatus }}</span>
 
-		<div v-if="open" class="min-h-0 flex-1 overflow-y-auto">
+		<ScrollArea v-if="open" class="min-h-0 flex-1" viewportClass="min-h-0">
 			<div
 				v-if="running"
 				class="flex items-center gap-x-2.5 px-3 pb-4 text-sm text-ink-gray-6"
@@ -60,7 +60,7 @@
 				</span>
 				<KeyboardShortcut combo="Mod+Enter" bg class="shrink-0" />
 			</div>
-		</div>
+		</ScrollArea>
 	</div>
 </template>
 
@@ -73,7 +73,7 @@ export type ConsoleLine = {
 
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
-import { KeyboardShortcut, Spinner } from 'frappe-ui'
+import { KeyboardShortcut, ScrollArea, Spinner } from 'frappe-ui'
 import {
 	sameBlock,
 	useKeyboardShortcuts,

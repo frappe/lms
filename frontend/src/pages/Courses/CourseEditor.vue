@@ -1,7 +1,7 @@
 <template>
 	<div class="grid grid-cols-1 md:grid-cols-[70%,30%] flex-1 min-h-0">
 		<div class="flex flex-col overflow-hidden">
-			<div class="overflow-y-auto h-full">
+			<ScrollArea class="h-full min-h-0" viewportClass="overflow-y-auto">
 				<SkeletonLoader
 					v-if="outline.loading && !outline.data"
 					variant="editor-content"
@@ -26,28 +26,30 @@
 					@saved="onLessonSaved"
 					@created="onLessonCreated"
 				/>
-			</div>
+			</ScrollArea>
 		</div>
 
-		<aside v-if="!isMobile" class="border-s overflow-y-auto">
-			<SkeletonLoader
-				v-if="outline.loading && !outline.data"
-				variant="editor-sidebar"
-			/>
-			<CourseOutline
-				v-else-if="props.course?.data"
-				ref="courseOutlineRef"
-				:courseName="props.course.data.name"
-				:title="__('Chapters')"
-				:allowEdit="true"
-				:hideHeader="true"
-				:inlineSelect="true"
-				:selectedLessonNumber="selected?.number"
-				@select-lesson="onSelectLesson"
-				@lesson-deleted="onLessonDeleted"
-				@chapter-deleted="onChapterDeleted"
-				@add-lesson="onAddLesson"
-			/>
+		<aside v-if="!isMobile" class="min-h-0 border-s">
+			<ScrollArea class="h-full min-h-0" viewportClass="overflow-y-auto">
+				<SkeletonLoader
+					v-if="outline.loading && !outline.data"
+					variant="editor-sidebar"
+				/>
+				<CourseOutline
+					v-else-if="props.course?.data"
+					ref="courseOutlineRef"
+					:courseName="props.course.data.name"
+					:title="__('Chapters')"
+					:allowEdit="true"
+					:hideHeader="true"
+					:inlineSelect="true"
+					:selectedLessonNumber="selected?.number"
+					@select-lesson="onSelectLesson"
+					@lesson-deleted="onLessonDeleted"
+					@chapter-deleted="onChapterDeleted"
+					@add-lesson="onAddLesson"
+				/>
+			</ScrollArea>
 		</aside>
 
 		<BottomSheet v-if="isMobile" v-model="showChapters">
@@ -88,7 +90,7 @@
 <script setup>
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { Button, createResource } from 'frappe-ui'
+import { Button, createResource, ScrollArea } from 'frappe-ui'
 import { useSidebar } from '@/stores/sidebar'
 import { useScreenSize } from '@/utils/composables'
 import CourseOutline from '@/components/CourseOutline.vue'

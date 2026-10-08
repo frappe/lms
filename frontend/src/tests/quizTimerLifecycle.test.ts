@@ -95,6 +95,7 @@ vi.mock('frappe-ui', async () => {
 	const passthrough = { template: '<div><slot /></div>' }
 	return {
 		createResource,
+		ScrollArea: passthrough,
 		call: vi.fn(),
 		toast: { warning: vi.fn(), error: vi.fn(), success: vi.fn() },
 		Button: {

@@ -42,8 +42,9 @@
 		data-testid="programming-exercise-fields"
 		class="grid flex-1 grid-cols-1 lg:min-h-0 lg:grid-cols-[7fr,3fr]"
 	>
-		<div
-			class="flex min-h-0 flex-col gap-8 overflow-y-auto p-5"
+		<ScrollArea
+			class="min-h-0 flex-1"
+			viewportClass="min-h-0 flex flex-col gap-8 overflow-y-auto p-5"
 			@focusout="createIfReady()"
 		>
 			<div
@@ -108,9 +109,10 @@
 					/>
 				</div>
 			</template>
-		</div>
-		<div
-			class="order-first min-w-0 space-y-4 border-b p-5 lg:order-none lg:min-h-0 lg:overflow-y-auto lg:border-b-0 lg:border-s"
+		</ScrollArea>
+		<ScrollArea
+			class="order-first min-w-0 border-b p-5 lg:order-none lg:min-h-0 lg:border-b-0 lg:border-s"
+			viewportClass="space-y-4 lg:overflow-y-auto"
 		>
 			<FormControl
 				v-model="exercise.title"
@@ -128,7 +130,7 @@
 				:options="languageOptions"
 				:required="true"
 			/>
-		</div>
+		</ScrollArea>
 	</div>
 </template>
 <script setup lang="ts">
@@ -142,6 +144,7 @@ import {
 	createListResource,
 	createResource,
 	FormControl,
+	ScrollArea,
 	toast,
 } from 'frappe-ui'
 import type { FrappeResourceError } from 'frappe-ui'

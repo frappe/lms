@@ -611,7 +611,10 @@
 					{{ summaryLog.length == 1 ? __('event') : __('events') }}</span
 				>
 			</div>
-			<div class="max-h-64 divide-y divide-outline-gray-1 overflow-y-auto">
+			<ScrollArea
+				class="max-h-64"
+				viewportClass="max-h-64 divide-y divide-outline-gray-1"
+			>
 				<div
 					v-for="(entry, i) in summaryLog"
 					:key="i"
@@ -657,7 +660,7 @@
 						}}
 					</span>
 				</div>
-			</div>
+			</ScrollArea>
 		</div>
 
 		<div
@@ -825,6 +828,7 @@ import {
 	Dialog,
 	FormControl,
 	Progress,
+	ScrollArea,
 	Skeleton,
 	toast,
 } from 'frappe-ui'

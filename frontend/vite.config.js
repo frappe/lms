@@ -164,7 +164,6 @@ export default defineConfig(async ({ mode }) => {
 				'tailwind.config.js',
 				'highlight.js',
 				'plyr',
-				'interactjs',
 				// frappe-ui is excluded below, so a subpath only it imports is served
 				// raw beside a pre-bundled sibling: a second `echarts/core` or
 				// `@codemirror/state`. Bundle each family in one run, as Insights does.

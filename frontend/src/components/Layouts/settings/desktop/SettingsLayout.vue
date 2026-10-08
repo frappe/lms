@@ -40,18 +40,21 @@
 			</slot>
 		</div>
 
-		<div
-			class="flex min-h-0 flex-1 flex-col overflow-y-auto px-8 pb-8"
-			:class="flush ? '' : banded ? 'pt-4' : 'pt-8'"
+		<ScrollArea
+			class="min-h-0 flex-1"
+			:viewportClass="
+				'flex min-h-0 flex-col overflow-y-auto px-8 pb-8 ' +
+				(flush ? '' : banded ? 'pt-4' : 'pt-8')
+			"
 		>
 			<slot />
-		</div>
+		</ScrollArea>
 	</div>
 </template>
 
 <script setup lang="ts">
 import { computed, useSlots } from 'vue'
-import { Button } from 'frappe-ui'
+import { Button, ScrollArea } from 'frappe-ui'
 import SettingsHeader from '@/components/Layouts/settings/desktop/SettingsHeader.vue'
 import type { AutosaveStatus } from '@/composables/useAutosave'
 

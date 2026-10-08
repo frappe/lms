@@ -5,20 +5,21 @@
 		class="flex-1 min-h-0"
 	/>
 	<div v-else class="grid grid-cols-1 flex-1 md:min-h-0 md:grid-cols-[70%,30%]">
-		<div class="space-y-8 p-5 md:overflow-y-auto">
+		<ScrollArea class="md:min-h-0" viewportClass="space-y-8 p-5 md:overflow-y-auto">
 			<CourseDetailsSection />
 			<CourseOverviewSection />
-		</div>
-		<aside
-			class="border-t md:overflow-y-auto md:border-s md:border-t-0 md:px-3"
+		</ScrollArea>
+		<ScrollArea
+			class="min-h-0 border-t md:border-s md:border-t-0"
+			viewportClass="md:overflow-y-auto md:px-3"
 		>
 			<CoursePublishSettings />
-		</aside>
+		</ScrollArea>
 	</div>
 </template>
 
 <script setup lang="ts">
-import { createResource, createDocumentResource, toast } from 'frappe-ui'
+import { createResource, createDocumentResource, ScrollArea, toast } from 'frappe-ui'
 import type { FrappeResourceError } from 'frappe-ui'
 import { reportAutosaveError, resourceErrorMessage } from '@/utils/resource'
 import {

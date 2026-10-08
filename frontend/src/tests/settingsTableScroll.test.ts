@@ -18,6 +18,11 @@ vi.mock('frappe-ui', () => ({
 		template: `<button data-testid="load-more" @click="$emit('click')"><slot /></button>`,
 	},
 	Dropdown: { props: ['options'], template: `<div />` },
+	ScrollArea: {
+		inheritAttrs: false,
+		props: ['viewportClass'],
+		template: `<div data-slot="scroll-area" v-bind="$attrs"><div data-slot="scroll-area-viewport" :class="viewportClass"><slot /></div></div>`,
+	},
 	Switch: { props: ['modelValue', 'ariaLabel'], template: `<button />` },
 }))
 
@@ -62,7 +67,7 @@ const build = (props: Record<string, unknown> = {}) =>
 	})
 
 const scroller = (wrapper: ReturnType<typeof build>) =>
-	wrapper.get('.overflow-y-auto').element as HTMLElement
+	wrapper.get('[data-slot="scroll-area"]').element as HTMLElement
 
 describe('SettingsTable: the scrolling window', () => {
 	it('opens a window of exactly the rows asked for, plus the header', () => {

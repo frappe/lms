@@ -20,44 +20,47 @@
 	>
 		<!-- Master: topic list (always visible at md+; hidden on mobile while a
 		     topic thread is open) -->
-		<ul
-			class="md:w-2/5 md:shrink-0 md:max-h-[60vh] md:overflow-y-auto md:border-e md:pe-5 list-none"
+		<ScrollArea
+			class="md:w-2/5 md:shrink-0 md:max-h-[60vh] md:border-e"
+			viewportClass="md:max-h-[60vh] md:overflow-y-auto md:pe-5"
 			:class="{ 'hidden md:block': currentTopic }"
 		>
-			<li v-for="(topic, index) in topics.data" :key="topic.name">
-				<button
-					type="button"
-					data-testid="topic-row"
-					@click="showReplies(topic)"
-					class="flex items-center cursor-pointer py-4 px-2 rounded-5 w-full text-start"
-					:class="[
-						{ 'border-b': index + 1 != topics.data.length },
-						currentTopic?.name === topic.name ? 'bg-surface-gray-2' : '',
-					]"
-				>
-					<UserAvatar :user="topic.user" size="xl" class="me-3" />
-					<div class="min-w-0">
-						<div class="text-base-semibold mb-1 text-ink-gray-7 truncate">
-							{{ topic.title }}
+			<ul class="list-none">
+				<li v-for="(topic, index) in topics.data" :key="topic.name">
+					<button
+						type="button"
+						data-testid="topic-row"
+						@click="showReplies(topic)"
+						class="flex items-center cursor-pointer py-4 px-2 rounded-5 w-full text-start"
+						:class="[
+							{ 'border-b': index + 1 != topics.data.length },
+							currentTopic?.name === topic.name ? 'bg-surface-gray-2' : '',
+						]"
+					>
+						<UserAvatar :user="topic.user" size="xl" class="me-3" />
+						<div class="min-w-0">
+							<div class="text-base-semibold mb-1 text-ink-gray-7 truncate">
+								{{ topic.title }}
+							</div>
+							<div class="flex items-center text-ink-gray-6">
+								<span class="text-sm">
+									{{ timeAgo(topic.creation) }}
+								</span>
+								<span class="flex items-center gap-1 text-sm ms-3">
+									<span class="lucide-message-square size-3.5" />
+									{{
+										(topic.reply_count === 1
+											? __('{0} reply')
+											: __('{0} replies')
+										).format(topic.reply_count || 0)
+									}}
+								</span>
+							</div>
 						</div>
-						<div class="flex items-center text-ink-gray-6">
-							<span class="text-sm">
-								{{ timeAgo(topic.creation) }}
-							</span>
-							<span class="flex items-center gap-1 text-sm ms-3">
-								<span class="lucide-message-square size-3.5" />
-								{{
-									(topic.reply_count === 1
-										? __('{0} reply')
-										: __('{0} replies')
-									).format(topic.reply_count || 0)
-								}}
-							</span>
-						</div>
-					</div>
-				</button>
-			</li>
-		</ul>
+					</button>
+				</li>
+			</ul>
+		</ScrollArea>
 		<!-- Detail: selected topic's thread -->
 		<div class="flex-1 min-w-0">
 			<DiscussionReplies
@@ -101,7 +104,7 @@
 	/>
 </template>
 <script setup>
-import { createResource, Button } from 'frappe-ui'
+import { createResource, Button, ScrollArea } from 'frappe-ui'
 import UserAvatar from '@/components/UserAvatar.vue'
 import { singularize, timeAgo } from '@/utils'
 import { ref, watch, onMounted, inject, onUnmounted } from 'vue'

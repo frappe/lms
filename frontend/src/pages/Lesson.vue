@@ -96,13 +96,12 @@
 					@done="goToCurrentLesson()"
 				/>
 			</div>
-			<div
+			<component
 				v-else
+				:is="zenModeEnabled ? ScrollArea : 'div'"
 				ref="lessonContainer"
 				class="bg-surface-base min-w-0"
-				:class="{
-					'overflow-y-auto': zenModeEnabled,
-				}"
+				:viewportClass="zenModeEnabled ? 'overflow-y-auto' : undefined"
 			>
 				<div
 					class="sm:border-e pt-8 sm:pt-5 pb-10 h-full"
@@ -293,7 +292,7 @@
 						/>
 					</div>
 				</div>
-			</div>
+			</component>
 			<aside v-if="!isMobile" class="sticky top-10 h-[94vh]">
 				<StudentLessonSidebar
 					:courseName="courseName"
@@ -352,12 +351,13 @@ import {
 	call,
 	createListResource,
 	createResource,
+	ScrollArea,
 	TabButtons,
 	Tooltip,
 	usePageMeta,
 	toast,
 } from 'frappe-ui'
-import type { FrappeResourceError } from 'frappe-ui'
+import type { FrappeResourceError, ScrollAreaExposed } from 'frappe-ui'
 import {
 	computed,
 	watch,
@@ -478,7 +478,7 @@ const allowDiscussions = ref(false)
 const editor = ref<EditorJS | null>(null)
 const instructorEditor = ref<EditorJS | null>(null)
 const lessonProgress = ref(0)
-const lessonContainer = ref<HTMLElement | null>(null)
+const lessonContainer = ref<HTMLElement | ScrollAreaExposed | null>(null)
 const zenModeEnabled = ref(false)
 const hasQuiz = ref(false)
 const discussionsContainer = ref<HTMLElement | null>(null)
@@ -1242,7 +1242,12 @@ type VendorFullscreen = HTMLElement & {
 }
 
 const goFullScreen = (): void => {
-	const container = lessonContainer.value as VendorFullscreen | null
+	const target = lessonContainer.value
+	const viewport =
+		target && 'viewportElement' in target ? target.viewportElement : target
+	const container = (
+		viewport?.closest('[data-slot="scroll-area"]') ?? viewport
+	) as VendorFullscreen | null
 	if (!container) return
 	if (container.requestFullscreen) {
 		container.requestFullscreen()

@@ -1,6 +1,7 @@
 <template>
-	<div
-		class="relative flex min-h-dvh flex-col overflow-y-auto bg-surface-base transition-opacity duration-300 ease-out"
+	<ScrollArea
+		class="relative min-h-dvh bg-surface-base transition-opacity duration-300 ease-out"
+		viewportClass="relative flex min-h-dvh flex-col overflow-y-auto"
 		:class="leaving ? 'opacity-0' : 'opacity-100'"
 	>
 		<div class="flex flex-1 justify-center px-4 pb-16 pt-[105px]">
@@ -18,12 +19,12 @@
 		>
 			{{ __('Skip for now') }}
 		</button>
-	</div>
+	</ScrollArea>
 </template>
 
 <script setup>
 import PersonaCard from '@/components/Persona/PersonaCard.vue'
-import { call, usePageMeta } from 'frappe-ui'
+import { call, ScrollArea, usePageMeta } from 'frappe-ui'
 import { useTelemetry } from '@framework/ui/telemetry/index'
 import { BookOpen, Users, Award, Rocket, Compass } from 'lucide-vue-next'
 import { computed, inject, markRaw, ref } from 'vue'

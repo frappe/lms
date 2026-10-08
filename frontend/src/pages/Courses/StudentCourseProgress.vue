@@ -5,7 +5,10 @@
 		:size="hasAssessmentData ? '4xl' : 'xl'"
 	>
 		<template #default>
-			<div class="text-base text-ink-gray-9 max-h-[70vh] overflow-y-auto">
+			<ScrollArea
+				class="max-h-[70vh]"
+				viewportClass="max-h-[70vh] overflow-y-auto text-base text-ink-gray-9"
+			>
 				<div class="flex justify-between mb-5 px-2">
 					<div class="flex items-center gap-x-3">
 						<Avatar
@@ -34,9 +37,10 @@
 				</div>
 
 				<div class="grid gap-5" :class="hasAssessmentData ? 'grid-cols-2' : ''">
-					<div
+					<ScrollArea
 						v-if="lessons.data"
-						class="border border-outline-elevation-2 rounded-6 px-3 max-h-[60vh] overflow-y-auto"
+						class="max-h-[60vh] rounded-6 border border-outline-elevation-2"
+						viewportClass="max-h-[60vh] overflow-y-auto px-3"
 					>
 						<div class="sticky top-0 z-10 bg-surface-base py-3 text-ink-gray-6">
 							{{ __('Lesson Progress') }}
@@ -69,7 +73,7 @@
 								</Badge> -->
 							</li>
 						</ul>
-					</div>
+					</ScrollArea>
 
 					<div class="space-y-3">
 						<div
@@ -154,7 +158,7 @@
 						</div>
 					</div>
 				</div>
-			</div>
+			</ScrollArea>
 		</template>
 	</Dialog>
 </template>
@@ -165,6 +169,7 @@ import {
 	createListResource,
 	createResource,
 	Dialog,
+	ScrollArea,
 	Tooltip,
 } from 'frappe-ui'
 import ProgressBar from '@/components/ProgressBar.vue'

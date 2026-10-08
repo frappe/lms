@@ -13,13 +13,16 @@
 		<main
 			id="main-content"
 			tabindex="-1"
-			class="flex-1 flex flex-col h-full overflow-auto bg-surface-base focus:outline-none"
+			class="flex h-full flex-1 flex-col overflow-hidden bg-surface-base focus:outline-none"
 		>
-			<slot />
+			<ScrollArea class="min-h-0 flex-1" viewportClass="min-h-0 flex flex-col">
+				<slot />
+			</ScrollArea>
 		</main>
 	</div>
 </template>
 <script setup>
 import { skipToContent } from '@/utils/a11y'
+import { ScrollArea } from 'frappe-ui'
 import AppSidebar from '@/components/Sidebar/AppSidebar.vue'
 </script>

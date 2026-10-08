@@ -34,7 +34,10 @@
 					</button>
 				</template>
 				<template #default="{ close }">
-					<div class="p-3 max-h-56 overflow-auto w-full">
+					<ScrollArea
+						class="max-h-56 w-full"
+						viewportClass="max-h-56 p-3"
+					>
 						<FormControl
 							ref="search"
 							v-model="iconQuery"
@@ -56,7 +59,7 @@
 								/>
 							</button>
 						</div>
-					</div>
+					</ScrollArea>
 				</template>
 			</Popover>
 		</div>
@@ -69,7 +72,7 @@
 	</div>
 </template>
 <script setup>
-import { FormControl, Popover } from 'frappe-ui'
+import { FormControl, Popover, ScrollArea } from 'frappe-ui'
 import {
 	InputDescription,
 	InputError,
