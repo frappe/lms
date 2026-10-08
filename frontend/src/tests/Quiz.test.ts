@@ -189,6 +189,28 @@ beforeEach(() => {
 	localStorage.clear()
 })
 
+// Guards an empty quiz, or one whose questions no longer resolve, offering Start
+// beside "no questions" and opening on nothing. Came with Start moving below the
+// rules, out of the branch that excluded it. Added on quiz-share-link.
+describe('Quiz with no questions', () => {
+	it('offers no Start button and cannot be started', async () => {
+		const response = quizResponse()
+		response.quiz.questions = [{ question: 'DELETED', marks: 1 }]
+		resourceState.response = response
+		const wrapper = mountQuiz()
+		await flushPromises()
+
+		expect(wrapper.text()).toContain(
+			'This quiz has no questions available yet.'
+		)
+		expect(
+			wrapper.findAll('button').some((b) => b.text() === 'Start Quiz')
+		).toBe(false)
+		;(wrapper.vm as any).startQuiz()
+		expect((wrapper.vm as any).activeQuestion).toBe(0)
+	})
+})
+
 describe('Quiz remount', () => {
 	it('restores valid questions without extra requests after remounting the same quiz', async () => {
 		const first = mountQuiz()

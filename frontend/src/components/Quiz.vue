@@ -253,7 +253,7 @@
 					<!-- Last, after the camera and the rules: the learner reads them and sees the
 					     camera turn ready on the way to the button it unlocks. -->
 					<div
-						v-if="!attemptsExhausted && !scheduleBlocked"
+						v-if="questions.length && !attemptsExhausted && !scheduleBlocked"
 						class="flex flex-wrap items-center justify-between gap-3"
 					>
 						<span class="text-sm text-ink-gray-6">
@@ -928,12 +928,22 @@ const answerLeave = (leave: boolean): void => {
 	settleLeave = null
 }
 
+// Leaving waits for the save: a rejected one (the schedule closing while the
+// dialog was open, say) keeps the learner on the quiz instead of losing the
+// attempt. A submit already under way is this attempt's, so the guard waits for
+// it rather than send a second one, which could spend another attempt.
 const removeLeaveGuard = router.beforeEach(async (to, from) => {
-	if (!proctoringRunning.value || to.fullPath === from.fullPath) return true
+	if (props.preview || !proctoringRunning.value) return true
+	if (to.fullPath === from.fullPath) return true
+	if (submitting) return submitting
 	if (!(await confirmLeave())) return false
+	if (submitting) return submitting
 	recordCurrentAttempt()
-	sendSubmitBeacon('left_page')
-	return true
+	submissionReason.value = 'left_page'
+	beginSubmitting()
+	const saving = submitting!
+	createSubmission('left_page')
+	return saving
 })
 
 // Closing the dialog any other way (Escape, the backdrop) is staying.
@@ -1367,7 +1377,7 @@ watch(
 
 const startQuiz = () => {
 	if (scheduleBlocked.value) return
-	if (!quiz.data) return
+	if (!quiz.data || !questions.value.length) return
 	activeQuestion.value = 1
 	attemptStartedAt = Date.now()
 	localStorage.removeItem(quiz.data.title)
@@ -1637,8 +1647,25 @@ const resetQuestion = () => {
 	possibleAnswer.value = null
 }
 
+// One promise for the submit in flight, from the moment it is asked for (submitQuiz
+// can defer the request by 500ms) until the server answers: true once saved.
+let submitting: Promise<boolean> | null = null
+let settleSubmitting: ((saved: boolean) => void) | null = null
+
+const beginSubmitting = (): void => {
+	if (submitting) return
+	submitting = new Promise((resolve) => (settleSubmitting = resolve))
+}
+
+const endSubmitting = (saved: boolean): void => {
+	settleSubmitting?.(saved)
+	submitting = null
+	settleSubmitting = null
+}
+
 const submitQuiz = (reason: SubmissionReason = 'manual'): void => {
 	submissionReason.value = reason
+	beginSubmitting()
 	if (!quiz.data?.show_answers) {
 		if (questionDetails.data?.type == 'Open Ended' || getAnswers().length) {
 			addToLocalStorage()
@@ -1653,7 +1680,8 @@ const submitQuiz = (reason: SubmissionReason = 'manual'): void => {
 }
 
 const createSubmission = (reason: SubmissionReason = 'manual'): void => {
-	if (props.preview) return
+	if (props.preview) return endSubmitting(false)
+	beginSubmitting()
 	// Which quiz this submission belongs to. The component is reused across
 	// lessons, so by the time the response lands props.quizName may have moved
 	// on — and markLessonProgress() reads window.location.pathname at that
@@ -1666,6 +1694,7 @@ const createSubmission = (reason: SubmissionReason = 'manual'): void => {
 		},
 		{
 			onSuccess() {
+				endSubmitting(true)
 				proctoringActive.value = false
 				if (props.quizName !== submittedQuiz) return
 				markLessonProgress()
@@ -1673,6 +1702,7 @@ const createSubmission = (reason: SubmissionReason = 'manual'): void => {
 				stopTimer()
 			},
 			onError(err: FrappeResourceError) {
+				endSubmitting(false)
 				const errorTitle = err?.message || ''
 				if (errorTitle.includes('MaximumAttemptsExceededError')) {
 					const errorMessage = err.messages?.[0] || err.message
@@ -1716,6 +1746,7 @@ const resetQuiz = () => {
 	cameraReady.value = false
 	violationLog.value = []
 	attemptStartedAt = null
+	endSubmitting(false)
 	submissionReason.value = ''
 	populateQuestions()
 	setupTimer()

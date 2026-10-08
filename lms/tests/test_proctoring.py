@@ -430,6 +430,26 @@ class TestSubmitQuizWithViolations(unittest.TestCase):
 				counts = {key: result[key] for key in ("correct", "wrong", "unanswered")}
 				self.assertEqual(counts, expected)
 
+	# Guards a quiz drawing part of its questions per attempt counting the rest
+	# as unanswered. Added on quiz-share-link with the review of the counts.
+	def test_unanswered_counts_only_the_questions_an_attempt_shows(self):
+		extra = _make_question()
+		quiz = _make_quiz(self.question)
+		quiz.append("questions", {"question": extra.name, "marks": 5})
+		quiz.shuffle_questions = 1
+		quiz.limit_questions_to = 1
+		quiz.save(ignore_permissions=True)
+		try:
+			result = submit_quiz(
+				quiz.name,
+				results=json.dumps([{"question_name": self.question.name, "answer": ["Correct"]}]),
+			)
+			self.assertEqual(result["unanswered"], 0)
+		finally:
+			frappe.db.delete("LMS Quiz Submission", {"quiz": quiz.name})
+			frappe.db.delete("LMS Quiz", quiz.name)
+			frappe.db.delete("LMS Question", extra.name)
+
 	def test_events_are_ignored_when_proctoring_is_off(self):
 		question = _make_question()
 		quiz = _make_quiz(question)

@@ -192,6 +192,7 @@ def submit_quiz(
 			"marks_to_cut",
 			"enable_proctoring",
 			"max_violations",
+			"limit_questions_to",
 			"enable_scheduling",
 			"schedule_start",
 			"schedule_end",
@@ -242,8 +243,16 @@ def submit_quiz(
 		"pass": percentage >= quiz_details.passing_percentage,
 		"percentage": percentage,
 		"is_open_ended": is_open_ended,
-		**_answer_counts(data["results"], frappe.db.count("LMS Quiz Question", {"parent": quiz})),
+		**_answer_counts(data["results"], _attempt_size(quiz_details)),
 	}
+
+
+def _attempt_size(quiz_details: dict) -> int:
+	"""How many questions one attempt shows. A quiz limited to part of its questions
+	draws that many per attempt; the rest were never seen, so not unanswered."""
+	total = frappe.db.count("LMS Quiz Question", {"parent": quiz_details.name})
+	limit = cint(quiz_details.limit_questions_to)
+	return min(limit, total) if limit else total
 
 
 def _answer_counts(results: list, total_questions: int) -> dict:

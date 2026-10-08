@@ -270,11 +270,14 @@ describe('Quiz.vue leaving a proctored attempt', () => {
 
 	beforeEach(() => {
 		localStorage.clear()
-		Object.defineProperty(navigator, 'sendBeacon', {
-			value: vi.fn(() => true),
-			configurable: true,
-		})
+		submitSpy.mockClear()
+		submitOutcome = 'succeeds'
 	})
+
+	const leftPageSubmits = () =>
+		submissionCalls().filter(([, params]) =>
+			JSON.stringify(params).includes('left_page')
+		)
 
 	const started = async () => {
 		const wrapper = mountQuiz()
@@ -292,7 +295,7 @@ describe('Quiz.vue leaving a proctored attempt', () => {
 		expect((wrapper.vm as any).showLeaveConfirmation).toBe(true)
 		;(wrapper.vm as any).answerLeave(false)
 		expect(await leaving).toBe(false)
-		expect(navigator.sendBeacon).not.toHaveBeenCalled()
+		expect(submissionCalls()).toHaveLength(0)
 		wrapper.unmount()
 	})
 
@@ -304,8 +307,58 @@ describe('Quiz.vue leaving a proctored attempt', () => {
 		;(wrapper.vm as any).answerLeave(true)
 
 		expect(await leaving).toBe(true)
-		const url = vi.mocked(navigator.sendBeacon).mock.calls[0][0] as string
-		expect(url).toContain('submission_reason=left_page')
+		expect(leftPageSubmits()).toHaveLength(1)
+		wrapper.unmount()
+	})
+
+	// Guards the learner leaving with nothing saved when the server rejects the
+	// submit, as when the schedule closes while the dialog is open.
+	it('keeps the learner on the quiz when the save fails', async () => {
+		submitOutcome = 'fails'
+		const wrapper = await started()
+
+		const leaving = navigate()
+		await flushPromises()
+		;(wrapper.vm as any).answerLeave(true)
+
+		expect(await leaving).toBe(false)
+		wrapper.unmount()
+	})
+
+	// Guards a second submit, which could spend another attempt, when the learner
+	// leaves while one is already on its way.
+	it('waits for a submit already under way instead of sending another', async () => {
+		vi.useFakeTimers()
+		try {
+			const wrapper = await started()
+			;(wrapper.vm as any).submitQuiz()
+
+			const leaving = navigate()
+			await vi.advanceTimersByTimeAsync(1_000)
+
+			expect(await leaving).toBe(true)
+			expect((wrapper.vm as any).showLeaveConfirmation).toBe(false)
+			expect(submissionCalls()).toHaveLength(1)
+			wrapper.unmount()
+		} finally {
+			vi.useRealTimers()
+		}
+	})
+
+	it('never asks in an author preview', async () => {
+		const wrapper = mount(Quiz, {
+			props: { quizName: 'quiz-a', preview: true },
+			global: {
+				provide: { $user: { data: { name: 'author@example.com' } } },
+				mocks: { __: (s: string) => s },
+			},
+		})
+		await flushPromises()
+		;(wrapper.vm as any).startQuiz()
+		await flushPromises()
+
+		expect(await navigate()).toBe(true)
+		expect((wrapper.vm as any).showLeaveConfirmation).toBe(false)
 		wrapper.unmount()
 	})
 
