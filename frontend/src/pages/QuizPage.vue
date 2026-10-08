@@ -1,7 +1,7 @@
 <template>
 	<PageHeader v-if="!fromLesson" :breadcrumbs="breadcrumbs" />
 	<div
-		class="md:w-7/12 md:mx-auto mx-4 py-10"
+		class="md:w-7/12 md:mx-auto mx-4 py-6"
 		:class="{ 'pt-4 md:w-full': fromLesson }"
 	>
 		<Quiz :quizName="quizID" />

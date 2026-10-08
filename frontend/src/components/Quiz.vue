@@ -3,6 +3,7 @@
 		v-if="quiz.loading && !quiz.data"
 		class="flex items-center justify-center py-12"
 	>
+<<<<<<< HEAD
 		<LoadingIndicator class="size-4 text-ink-gray-5" />
 	</div>
 	<div v-else-if="quiz.data">
@@ -27,9 +28,76 @@
 			>
 				<span class="lucide-timer size-4" />
 				{{ formatTimer(timer) }}
+=======
+		<AssessmentCardHeader icon="lucide-circle-help" :title="__('Quiz')" />
+		<div class="space-y-4 p-3.5">
+			<Skeleton class="h-5 w-1/3 rounded-4" />
+			<div class="grid grid-cols-2 gap-2 sm:grid-cols-4">
+				<Skeleton v-for="i in 4" :key="i" class="h-14 rounded-6" />
+			</div>
+			<div class="flex justify-end">
+				<Skeleton class="h-8 w-24 rounded-4" />
+			</div>
+		</div>
+	</AssessmentCard>
+	<div v-else-if="quiz.data" class="space-y-4">
+		<AssessmentCard>
+			<AssessmentCardHeader
+				icon="lucide-circle-help"
+				:title="__('Quiz')"
+				:subtitle="activeQuestion > 0 ? quizSubtitle : undefined"
+			>
+				<Badge
+					v-if="proctoringRunning"
+					data-testid="violation-count"
+					size="sm"
+					:theme="violationCount > 0 ? 'red' : 'green'"
+				>
+					<template #prefix>
+						<span class="lucide-camera size-3" aria-hidden="true" />
+					</template>
+					{{ violationCount }} / {{ quiz.data.max_violations }}
+					{{
+						quiz.data.max_violations == 1 ? __('violation') : __('violations')
+					}}
+				</Badge>
+				<span
+					v-if="attemptsLeft !== null"
+					class="hidden text-xs text-ink-gray-6 sm:inline"
+				>
+					{{ attemptsLeftLabel(attemptsLeft) }}
+				</span>
+				<Badge
+					v-if="
+						activeQuestion > 0 && !quizSubmission.data && quiz.data.duration
+					"
+					data-testid="quiz-timer"
+					size="sm"
+					:theme="timerTheme"
+				>
+					<template #prefix>
+						<span class="lucide-timer size-3" />
+					</template>
+					{{ formatTimer(timer) }}
+				</Badge>
+			</AssessmentCardHeader>
+
+			<!-- The monitor runs detection and floats its camera over the page, so it
+			     needs no room here; zero height, not display:none, so its first
+			     video still plays while it starts. The count sits in the header. -->
+			<div v-if="proctoringRunning" class="h-0 overflow-hidden">
+				<ProctoringMonitor
+					:active="proctoringActive"
+					@violation="handleViolation"
+					@warning="handleWarning"
+					@camera-ready="() => {}"
+					@camera-denied="() => {}"
+				/>
+>>>>>>> e992584 (feat(quiz): tighten the proctored attempt and stop leaving it unnoticed)
 			</div>
 			<div v-else />
 
+<<<<<<< HEAD
 			<!-- Violation pill -->
 			<ProctoringMonitor
 				v-if="quiz.data.enable_proctoring"
@@ -48,6 +116,12 @@
 			<div class="border rounded-7 overflow-hidden">
 				<div class="px-5 pt-5 pb-4 space-y-3 text-center">
 					<h2 class="text-xl font-semibold text-ink-gray-9 leading-snug">
+=======
+			<div v-if="activeQuestion == 0">
+				<!-- What the quiz is comes first, then the rules for taking it. -->
+				<div class="space-y-3.5 border-b border-outline-gray-1 p-3.5">
+					<div class="text-base-semibold text-ink-gray-9">
+>>>>>>> e992584 (feat(quiz): tighten the proctored attempt and stop leaving it unnoticed)
 						{{ quiz.data.title }}
 					</h2>
 					<div class="flex flex-wrap gap-1.5 justify-center">
@@ -116,6 +190,7 @@
 					</div>
 				</div>
 
+<<<<<<< HEAD
 				<!-- Proctored: centered info lines -->
 				<div
 					v-if="quiz.data.enable_proctoring && questions.length"
@@ -244,6 +319,30 @@
 				</div>
 
 				<div class="px-5 py-4">
+=======
+				<div
+					v-if="introTips.length && questions.length && !attemptsExhausted"
+					class="space-y-2 border-b border-outline-gray-1 p-3.5"
+				>
+					<div class="text-sm text-ink-gray-6">
+						{{ __('Before you start') }}
+					</div>
+					<ol class="space-y-1.5">
+						<li
+							v-for="(tip, index) in introTips"
+							:key="index"
+							class="flex gap-x-2 text-p-base text-ink-gray-7"
+						>
+							<span class="shrink-0 font-mono text-ink-gray-4">
+								{{ index + 1 }}
+							</span>
+							<span>{{ tip }}</span>
+						</li>
+					</ol>
+				</div>
+
+				<div class="space-y-3.5 p-3.5">
+>>>>>>> e992584 (feat(quiz): tighten the proctored attempt and stop leaving it unnoticed)
 					<template v-if="!questions.length">
 						<p class="text-sm text-ink-gray-5 mb-3">
 							{{ __('This quiz has no questions available yet.') }}
@@ -269,6 +368,7 @@
 							__('Resume Video')
 						}}</Button>
 					</template>
+<<<<<<< HEAD
 					<template v-else-if="scheduleBlocked">
 						<div class="bg-surface-amber-1 rounded-6 px-4 py-3 mb-3">
 							<div class="text-sm text-ink-amber-5 leading-5">
@@ -394,6 +494,77 @@
 											'Switching tabs or minimizing the window is flagged immediately.'
 										)
 									}}
+=======
+					<div
+						v-if="
+							quiz.data.enable_proctoring &&
+							!attemptsExhausted &&
+							!scheduleBlocked
+						"
+						class="-mx-3.5 -mt-3.5 grid border-b border-outline-gray-1 md:grid-cols-2 md:divide-x md:divide-outline-gray-1"
+					>
+						<!-- One band split by a divider, not two boxed cards: the quiz card
+						     is the only box. It is the first thing in this section whenever it
+						     shows, hence the negative top margin against the rules above. -->
+						<div
+							class="flex flex-col gap-3 border-b border-outline-gray-1 p-3.5 md:border-b-0"
+						>
+							<div class="text-sm-semibold text-ink-gray-8">
+								{{ __('Camera Setup') }}
+							</div>
+							<div class="flex min-h-[18rem] flex-1 flex-col md:min-h-0">
+								<ProctoringMonitor
+									class="flex min-h-0 flex-1 flex-col"
+									:active="false"
+									@camera-ready="cameraReady = true"
+									@camera-lost="cameraReady = false"
+									@camera-denied="() => {}"
+									@violation="handleViolation"
+									@warning="handleWarning"
+								/>
+							</div>
+						</div>
+
+						<div class="flex flex-col gap-1 p-3.5">
+							<div class="text-sm-semibold text-ink-gray-8">
+								{{ __('Proctoring Rules') }}
+							</div>
+							<div class="divide-y divide-outline-gray-1">
+								<div
+									v-for="rule in proctoringRules"
+									:key="rule.icon"
+									class="flex items-start gap-3 py-2.5"
+								>
+									<span
+										:class="rule.icon"
+										class="mt-0.5 size-4 shrink-0 text-ink-gray-5"
+									/>
+									<div>
+										<div class="text-sm text-ink-gray-8">
+											{{ rule.title }}
+										</div>
+										<div class="mt-0.5 text-p-sm text-ink-gray-6">
+											{{ rule.hint }}
+										</div>
+									</div>
+								</div>
+								<div class="flex items-start gap-3 py-2.5">
+									<span
+										class="lucide-alert-triangle mt-0.5 size-4 shrink-0 text-ink-orange-4"
+									/>
+									<div class="text-p-sm text-ink-orange-5">
+										{{
+											__(
+												'After {0} {1}, the quiz will be automatically submitted.'
+											).format(
+												quiz.data.max_violations,
+												quiz.data.max_violations == 1
+													? __('violation')
+													: __('violations')
+											)
+										}}
+									</div>
+>>>>>>> e992584 (feat(quiz): tighten the proctored attempt and stop leaving it unnoticed)
 								</div>
 							</div>
 						</div>
@@ -426,6 +597,35 @@
 									)
 								}}
 							</div>
+						</div>
+					</div>
+
+					<!-- Last, after the camera and the rules: the learner reads them and sees the
+					     camera turn ready on the way to the button it unlocks. -->
+					<div
+						v-if="!attemptsExhausted && !scheduleBlocked"
+						class="flex flex-wrap items-center justify-between gap-3"
+					>
+						<span class="text-sm text-ink-gray-6">
+							<template v-if="quiz.data.enable_proctoring && !cameraReady">
+								{{
+									__(
+										'Position your face in the camera to enable the start button.'
+									)
+								}}
+							</template>
+						</span>
+						<div class="flex items-center gap-2">
+							<Button v-if="inVideo" @click="props.backToVideo()">{{
+								__('Resume Video')
+							}}</Button>
+							<Button
+								variant="solid"
+								:disabled="!!quiz.data.enable_proctoring && !cameraReady"
+								@click="startQuiz"
+							>
+								{{ __('Start Quiz') }}
+							</Button>
 						</div>
 					</div>
 				</div>
@@ -943,6 +1143,38 @@
 			</div>
 		</template>
 	</Dialog>
+	<Dialog
+		v-model:open="showLeaveConfirmation"
+		:title="__('Leave the quiz?')"
+		:actions="[
+			{
+				size: 'sm',
+				label: __('Leave and submit'),
+				variant: 'solid',
+				theme: 'red',
+				onClick() {
+					answerLeave(true)
+				},
+			},
+			{
+				size: 'sm',
+				label: __('Stay'),
+				onClick() {
+					answerLeave(false)
+				},
+			},
+		]"
+	>
+		<template #default>
+			<p class="text-base leading-5 text-ink-gray-6">
+				{{
+					__(
+						'This is a proctored quiz. Leaving this page submits it now with the answers you have given so far.'
+					)
+				}}
+			</p>
+		</template>
+	</Dialog>
 </template>
 <script setup>
 import {
@@ -973,9 +1205,22 @@ import { getScheduleBlockReason } from '@/utils/schedule'
 import ProgressBar from '@/components/ProgressBar.vue'
 import ResponsiveListView from '@/components/ResponsiveListView.vue'
 import RichTextEditor from '@/components/RichTextEditor.vue'
+import router from '@/router'
 import ProctoringMonitor from '@/components/ProctoringMonitor.vue'
 
+<<<<<<< HEAD
 const user = inject('$user')
+=======
+type Answer = string | null | undefined
+type SubmissionReason =
+	| 'manual'
+	| 'timer_expired'
+	| 'max_violations'
+	| 'browser_closed'
+	| 'left_page'
+
+const user = inject<SessionUser>('$user')!
+>>>>>>> e992584 (feat(quiz): tighten the proctored attempt and stop leaving it unnoticed)
 const activeQuestion = ref(0)
 const currentQuestion = ref('')
 const MAX_OPTIONS = 10
@@ -1014,6 +1259,13 @@ const timer = ref(0)
 let timerInterval = null
 const violationCount = ref(0)
 const proctoringActive = ref(false)
+// A proctored attempt in progress: the monitor is watching and the count shows.
+const proctoringRunning = computed(
+	() =>
+		activeQuestion.value > 0 &&
+		!quizSubmission.data &&
+		!!quiz.data?.enable_proctoring
+)
 const cameraReady = ref(false)
 const violationLog = ref([])
 const submissionReason = ref('')
@@ -1046,7 +1298,40 @@ onMounted(() => {
 	window.addEventListener('beforeunload', handleBeforeUnload)
 })
 
+// Leaving a proctored attempt for another page in the app was a free way out to
+// look up answers: no tab switch, no page unload, so nothing noticed. Asked
+// first, then submitted like closing the tab. A router-wide guard rather than
+// onBeforeRouteLeave: a lesson mounts this outside its route's view.
+const showLeaveConfirmation = ref(false)
+let settleLeave: ((leave: boolean) => void) | null = null
+
+const confirmLeave = (): Promise<boolean> =>
+	new Promise((resolve) => {
+		settleLeave = resolve
+		showLeaveConfirmation.value = true
+	})
+
+const answerLeave = (leave: boolean): void => {
+	showLeaveConfirmation.value = false
+	settleLeave?.(leave)
+	settleLeave = null
+}
+
+const removeLeaveGuard = router.beforeEach(async (to, from) => {
+	if (!proctoringRunning.value || to.fullPath === from.fullPath) return true
+	if (!(await confirmLeave())) return false
+	recordCurrentAttempt()
+	sendSubmitBeacon('left_page')
+	return true
+})
+
+// Closing the dialog any other way (Escape, the backdrop) is staying.
+watch(showLeaveConfirmation, (open) => {
+	if (!open && settleLeave) answerLeave(false)
+})
+
 onUnmounted(() => {
+	removeLeaveGuard()
 	window.removeEventListener('pagehide', handlePageHide)
 	window.removeEventListener('beforeunload', handleBeforeUnload)
 	stopTimer()
@@ -1065,14 +1350,24 @@ const serialiseViolationLog = (withFrames = true) =>
 			.map(({ frame, ...event }) => (withFrames ? { ...event, frame } : event))
 	)
 
+<<<<<<< HEAD
 const handlePageHide = () => {
+=======
+const handlePageHide = (): void => {
+	sendSubmitBeacon('browser_closed')
+}
+
+// A beacon, not a resource call: it still goes out when the page, or the quiz
+// with it, is going away, which is exactly when this is sent.
+const sendSubmitBeacon = (reason: SubmissionReason): void => {
+>>>>>>> e992584 (feat(quiz): tighten the proctored attempt and stop leaving it unnoticed)
 	if (props.preview) return
 	if (activeQuestion.value > 0 && !quizSubmission.data) {
 		const params = new URLSearchParams({
 			quiz: quiz.data.name,
 			results: localStorage.getItem(quiz.data.title) || '[]',
 			violation_count: String(violationCount.value),
-			submission_reason: 'browser_closed',
+			submission_reason: reason,
 		})
 		if (window.csrf_token) params.set('csrf_token', window.csrf_token)
 		if (violationLog.value.length) {
@@ -1194,6 +1489,98 @@ const timerUrgency = computed(() => {
 	return 'normal'
 })
 
+<<<<<<< HEAD
+=======
+// frappe-ui 1.0 has no orange Badge theme; amber is the warning tone.
+const timerTheme = computed<'red' | 'amber' | 'gray'>(() => {
+	if (timerUrgency.value === 'critical') return 'red'
+	if (timerUrgency.value === 'warning') return 'amber'
+	return 'gray'
+})
+
+const attemptsLeft = computed(() => {
+	if (!quiz.data?.max_attempts) return null
+	return Math.max(quiz.data.max_attempts - (attempts.data?.length ?? 0), 0)
+})
+
+const quizSubtitle = computed(() =>
+	formatQuizSubtitle(
+		questions.value.map((row) => questionsByName.value[row.question]?.type),
+		quiz.data?.passing_percentage
+	)
+)
+
+const introTips = computed(() => {
+	if (!quiz.data) return []
+	const proctored = quiz.data.enable_proctoring
+	const tips: string[] = []
+	if (props.inVideo) tips.push(__('Complete the quiz to continue the video.'))
+	if (!proctored) {
+		tips.push(
+			__(
+				'Use "Mark for Review" to flag questions you want to revisit before submitting.'
+			),
+			__(
+				'Answer all questions before you submit. You can navigate freely between them.'
+			)
+		)
+	}
+	tips.push(
+		proctored
+			? __(
+					'Closing, refreshing or leaving this page will submit your quiz automatically.'
+			  )
+			: __(
+					'Closing or refreshing the page will submit your quiz automatically.'
+			  )
+	)
+	if (quiz.data.duration) {
+		tips.push(__('The timer starts as soon as you begin.'))
+	}
+	if (!proctored && quiz.data.duration) {
+		tips.push(
+			__('The quiz will be submitted automatically when the timer runs out.')
+		)
+	}
+	if (quiz.data.enable_negative_marking) {
+		tips.push(
+			__('Wrong answers deduct {0} {1}.').format(
+				quiz.data.marks_to_cut,
+				quiz.data.marks_to_cut == 1 ? __('mark') : __('marks')
+			)
+		)
+	}
+	return tips
+})
+
+const proctoringRules = computed(() => [
+	{
+		icon: 'lucide-eye-off',
+		title: __('Face must be visible'),
+		hint: __('Looking away for too long counts as a violation.'),
+	},
+	{
+		icon: 'lucide-users',
+		title: __('One person only'),
+		hint: __('Multiple faces in the frame will be flagged.'),
+	},
+	{
+		icon: 'lucide-monitor-x',
+		title: __('Stay on this tab'),
+		hint: __('Switching tabs or minimizing the window is flagged immediately.'),
+	},
+	{
+		icon: 'lucide-camera-off',
+		title: __('Keep camera connected'),
+		hint: __('Disconnecting your camera counts as a violation.'),
+	},
+])
+
+const choiceCorrect = computed(
+	() => !showAnswers.some((answer) => answer == 0 || answer == 2)
+)
+
+>>>>>>> e992584 (feat(quiz): tighten the proctored attempt and stop leaving it unnoticed)
 const attemptsExhausted = computed(
 	() =>
 		!!quiz.data?.max_attempts &&
