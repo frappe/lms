@@ -44,7 +44,7 @@ from lms.lms.utils import (
 ALLOWED_DATAURL_IMAGE_EXTENSIONS = {".png", ".jpg", ".jpeg", ".gif", ".webp", ".avif", ".bmp"}
 
 VIOLATION_EVENT_TYPES = {"tab_switch", "no_face", "multiple_faces", "focus_loss", "camera_disconnect"}
-SUBMISSION_REASONS = {"manual", "timer_expired", "max_violations", "browser_closed"}
+SUBMISSION_REASONS = {"manual", "timer_expired", "max_violations", "browser_closed", "left_page"}
 # One attempt cannot plausibly produce more proctoring events than this; the rest is a flood.
 MAX_VIOLATION_EVENTS = 500
 # Proctoring frames are ~320px JPEGs, so a frame past this is not a frame. Held as a

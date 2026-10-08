@@ -20,10 +20,21 @@
 			<AssessmentCardHeader
 				icon="lucide-circle-help"
 				:title="__('Quiz')"
-				:subtitle="quizSubtitle"
+				:subtitle="activeQuestion > 0 ? quizSubtitle : undefined"
 			>
-				<Badge v-if="quiz.data.enable_proctoring" theme="amber" size="sm">
-					{{ __('Proctored') }}
+				<Badge
+					v-if="proctoringRunning"
+					data-testid="violation-count"
+					size="sm"
+					:theme="violationCount > 0 ? 'red' : 'green'"
+				>
+					<template #prefix>
+						<span class="lucide-camera size-3" aria-hidden="true" />
+					</template>
+					{{ violationCount }} / {{ quiz.data.max_violations }}
+					{{
+						quiz.data.max_violations == 1 ? __('violation') : __('violations')
+					}}
 				</Badge>
 				<span
 					v-if="attemptsLeft !== null"
@@ -46,18 +57,12 @@
 				</Badge>
 			</AssessmentCardHeader>
 
-			<div
-				v-if="
-					activeQuestion > 0 &&
-					!quizSubmission.data &&
-					quiz.data.enable_proctoring
-				"
-				class="flex justify-end border-b border-outline-gray-1 px-3.5 py-2"
-			>
+			<!-- The monitor runs detection and floats its camera over the page, so it
+			     needs no room here; zero height, not display:none, so its first
+			     video still plays while it starts. The count sits in the header. -->
+			<div v-if="proctoringRunning" class="h-0 overflow-hidden">
 				<ProctoringMonitor
-					:max-violations="quiz.data.max_violations"
 					:active="proctoringActive"
-					:violation-count="violationCount"
 					@violation="handleViolation"
 					@warning="handleWarning"
 					@camera-ready="() => {}"
@@ -66,28 +71,8 @@
 			</div>
 
 			<div v-if="activeQuestion == 0">
-				<div
-					v-if="introTips.length && questions.length && !attemptsExhausted"
-					class="space-y-2 border-b border-outline-gray-1 p-3.5"
-				>
-					<div class="text-sm text-ink-gray-6">
-						{{ __('Before you start') }}
-					</div>
-					<ol class="space-y-1.5">
-						<li
-							v-for="(tip, index) in introTips"
-							:key="index"
-							class="flex gap-x-2 text-p-base text-ink-gray-7"
-						>
-							<span class="shrink-0 font-mono text-ink-gray-4">
-								{{ index + 1 }}
-							</span>
-							<span>{{ tip }}</span>
-						</li>
-					</ol>
-				</div>
-
-				<div class="space-y-3.5 p-3.5">
+				<!-- What the quiz is comes first, then the rules for taking it. -->
+				<div class="space-y-3.5 border-b border-outline-gray-1 p-3.5">
 					<div class="text-base-semibold text-ink-gray-9">
 						{{ quiz.data.title }}
 					</div>
@@ -130,7 +115,30 @@
 							}}
 						</span>
 					</div>
+				</div>
 
+				<div
+					v-if="introTips.length && questions.length && !attemptsExhausted"
+					class="space-y-2 border-b border-outline-gray-1 p-3.5"
+				>
+					<div class="text-sm text-ink-gray-6">
+						{{ __('Before you start') }}
+					</div>
+					<ol class="space-y-1.5">
+						<li
+							v-for="(tip, index) in introTips"
+							:key="index"
+							class="flex gap-x-2 text-p-base text-ink-gray-7"
+						>
+							<span class="shrink-0 font-mono text-ink-gray-4">
+								{{ index + 1 }}
+							</span>
+							<span>{{ tip }}</span>
+						</li>
+					</ol>
+				</div>
+
+				<div class="space-y-3.5 p-3.5">
 					<template v-if="!questions.length">
 						<p class="text-p-base text-ink-gray-6">
 							{{ __('This quiz has no questions available yet.') }}
@@ -165,55 +173,27 @@
 							__('Resume Video')
 						}}</Button>
 					</template>
-					<div v-else class="flex flex-wrap items-center justify-between gap-3">
-						<span class="text-sm text-ink-gray-6">
-							<template v-if="quiz.data.enable_proctoring && !cameraReady">
-								{{
-									__(
-										'Position your face in the camera to enable the start button.'
-									)
-								}}
-							</template>
-							<template v-else-if="quiz.data.duration">
-								{{ __('The timer starts as soon as you begin.') }}
-							</template>
-						</span>
-						<div class="flex items-center gap-2">
-							<Button v-if="inVideo" @click="props.backToVideo()">{{
-								__('Resume Video')
-							}}</Button>
-							<Button
-								variant="solid"
-								:disabled="!!quiz.data.enable_proctoring && !cameraReady"
-								@click="startQuiz"
-							>
-								{{ __('Start Quiz') }}
-							</Button>
-						</div>
-					</div>
-
 					<div
 						v-if="
 							quiz.data.enable_proctoring &&
 							!attemptsExhausted &&
 							!scheduleBlocked
 						"
-						class="grid gap-4 md:grid-cols-2"
+						class="-mx-3.5 -mt-3.5 grid border-b border-outline-gray-1 md:grid-cols-2 md:divide-x md:divide-outline-gray-1"
 					>
+						<!-- One band split by a divider, not two boxed cards: the quiz card
+						     is the only box. It is the first thing in this section whenever it
+						     shows, hence the negative top margin against the rules above. -->
 						<div
-							class="flex flex-col overflow-hidden rounded-6 border border-outline-gray-2"
+							class="flex flex-col gap-3 border-b border-outline-gray-1 p-3.5 md:border-b-0"
 						>
-							<div class="border-b border-outline-gray-1 px-3.5 py-2.5">
-								<div class="text-sm-semibold text-ink-gray-8">
-									{{ __('Camera Setup') }}
-								</div>
+							<div class="text-sm-semibold text-ink-gray-8">
+								{{ __('Camera Setup') }}
 							</div>
-							<div class="flex min-h-[18rem] flex-1 flex-col p-3.5 md:min-h-0">
+							<div class="flex min-h-[18rem] flex-1 flex-col md:min-h-0">
 								<ProctoringMonitor
 									class="flex min-h-0 flex-1 flex-col"
-									:max-violations="quiz.data.max_violations"
 									:active="false"
-									:violation-count="violationCount"
 									@camera-ready="cameraReady = true"
 									@camera-lost="cameraReady = false"
 									@camera-denied="() => {}"
@@ -223,26 +203,22 @@
 							</div>
 						</div>
 
-						<div
-							class="flex flex-col overflow-hidden rounded-6 border border-outline-gray-2"
-						>
-							<div class="border-b border-outline-gray-1 px-3.5 py-2.5">
-								<div class="text-sm-semibold text-ink-gray-8">
-									{{ __('Proctoring Rules') }}
-								</div>
+						<div class="flex flex-col gap-1 p-3.5">
+							<div class="text-sm-semibold text-ink-gray-8">
+								{{ __('Proctoring Rules') }}
 							</div>
 							<div class="divide-y divide-outline-gray-1">
 								<div
 									v-for="rule in proctoringRules"
 									:key="rule.icon"
-									class="flex items-start gap-3 px-3.5 py-3"
+									class="flex items-start gap-3 py-2.5"
 								>
 									<span
 										:class="rule.icon"
 										class="mt-0.5 size-4 shrink-0 text-ink-gray-5"
 									/>
 									<div>
-										<div class="text-base text-ink-gray-8">
+										<div class="text-sm text-ink-gray-8">
 											{{ rule.title }}
 										</div>
 										<div class="mt-0.5 text-p-sm text-ink-gray-6">
@@ -250,13 +226,11 @@
 										</div>
 									</div>
 								</div>
-								<div
-									class="flex items-start gap-3 bg-surface-orange-1 px-3.5 py-3"
-								>
+								<div class="flex items-start gap-3 py-2.5">
 									<span
 										class="lucide-alert-triangle mt-0.5 size-4 shrink-0 text-ink-orange-4"
 									/>
-									<div class="text-p-base text-ink-orange-5">
+									<div class="text-p-sm text-ink-orange-5">
 										{{
 											__(
 												'After {0} {1}, the quiz will be automatically submitted.'
@@ -270,6 +244,35 @@
 									</div>
 								</div>
 							</div>
+						</div>
+					</div>
+
+					<!-- Last, after the camera and the rules: the learner reads them and sees the
+					     camera turn ready on the way to the button it unlocks. -->
+					<div
+						v-if="!attemptsExhausted && !scheduleBlocked"
+						class="flex flex-wrap items-center justify-between gap-3"
+					>
+						<span class="text-sm text-ink-gray-6">
+							<template v-if="quiz.data.enable_proctoring && !cameraReady">
+								{{
+									__(
+										'Position your face in the camera to enable the start button.'
+									)
+								}}
+							</template>
+						</span>
+						<div class="flex items-center gap-2">
+							<Button v-if="inVideo" @click="props.backToVideo()">{{
+								__('Resume Video')
+							}}</Button>
+							<Button
+								variant="solid"
+								:disabled="!!quiz.data.enable_proctoring && !cameraReady"
+								@click="startQuiz"
+							>
+								{{ __('Start Quiz') }}
+							</Button>
 						</div>
 					</div>
 				</div>
@@ -815,6 +818,38 @@
 			</div>
 		</template>
 	</Dialog>
+	<Dialog
+		v-model:open="showLeaveConfirmation"
+		:title="__('Leave the quiz?')"
+		:actions="[
+			{
+				size: 'sm',
+				label: __('Leave and submit'),
+				variant: 'solid',
+				theme: 'red',
+				onClick() {
+					answerLeave(true)
+				},
+			},
+			{
+				size: 'sm',
+				label: __('Stay'),
+				onClick() {
+					answerLeave(false)
+				},
+			},
+		]"
+	>
+		<template #default>
+			<p class="text-base leading-5 text-ink-gray-6">
+				{{
+					__(
+						'This is a proctored quiz. Leaving this page submits it now with the answers you have given so far.'
+					)
+				}}
+			</p>
+		</template>
+	</Dialog>
 </template>
 <script setup lang="ts">
 import {
@@ -850,6 +885,7 @@ import {
 import { markLessonProgress } from '@/utils/markLessonProgress'
 import ResponsiveListView from '@/components/ResponsiveListView.vue'
 import RichTextEditor from '@/components/RichTextEditor.vue'
+import router from '@/router'
 import ProctoringMonitor from '@/components/ProctoringMonitor.vue'
 import AssessmentCard from '@/components/Assessment/AssessmentCard.vue'
 import AssessmentCardHeader from '@/components/Assessment/AssessmentCardHeader.vue'
@@ -877,6 +913,7 @@ type SubmissionReason =
 	| 'timer_expired'
 	| 'max_violations'
 	| 'browser_closed'
+	| 'left_page'
 
 const user = inject<SessionUser>('$user')!
 const activeQuestion = ref(0)
@@ -894,6 +931,13 @@ const timer = ref(0)
 let timerInterval: ReturnType<typeof setInterval> | undefined
 const violationCount = ref(0)
 const proctoringActive = ref(false)
+// A proctored attempt in progress: the monitor is watching and the count shows.
+const proctoringRunning = computed(
+	() =>
+		activeQuestion.value > 0 &&
+		!quizSubmission.data &&
+		!!quiz.data?.enable_proctoring
+)
 const cameraReady = ref(false)
 const violationLog = ref<ViolationEvent[]>([])
 const submissionReason = ref<SubmissionReason | ''>('')
@@ -920,7 +964,40 @@ onMounted(() => {
 	window.addEventListener('beforeunload', handleBeforeUnload)
 })
 
+// Leaving a proctored attempt for another page in the app was a free way out to
+// look up answers: no tab switch, no page unload, so nothing noticed. Asked
+// first, then submitted like closing the tab. A router-wide guard rather than
+// onBeforeRouteLeave: a lesson mounts this outside its route's view.
+const showLeaveConfirmation = ref(false)
+let settleLeave: ((leave: boolean) => void) | null = null
+
+const confirmLeave = (): Promise<boolean> =>
+	new Promise((resolve) => {
+		settleLeave = resolve
+		showLeaveConfirmation.value = true
+	})
+
+const answerLeave = (leave: boolean): void => {
+	showLeaveConfirmation.value = false
+	settleLeave?.(leave)
+	settleLeave = null
+}
+
+const removeLeaveGuard = router.beforeEach(async (to, from) => {
+	if (!proctoringRunning.value || to.fullPath === from.fullPath) return true
+	if (!(await confirmLeave())) return false
+	recordCurrentAttempt()
+	sendSubmitBeacon('left_page')
+	return true
+})
+
+// Closing the dialog any other way (Escape, the backdrop) is staying.
+watch(showLeaveConfirmation, (open) => {
+	if (!open && settleLeave) answerLeave(false)
+})
+
 onUnmounted(() => {
+	removeLeaveGuard()
 	window.removeEventListener('pagehide', handlePageHide)
 	window.removeEventListener('beforeunload', handleBeforeUnload)
 	stopTimer()
@@ -940,13 +1017,19 @@ const serialiseViolationLog = (withFrames = true): string =>
 	)
 
 const handlePageHide = (): void => {
+	sendSubmitBeacon('browser_closed')
+}
+
+// A beacon, not a resource call: it still goes out when the page, or the quiz
+// with it, is going away, which is exactly when this is sent.
+const sendSubmitBeacon = (reason: SubmissionReason): void => {
 	if (props.preview) return
 	if (activeQuestion.value > 0 && !quizSubmission.data && quiz.data) {
 		const params = new URLSearchParams({
 			quiz: quiz.data.name,
 			results: localStorage.getItem(quiz.data.title) || '[]',
 			violation_count: String(violationCount.value),
-			submission_reason: 'browser_closed',
+			submission_reason: reason,
 		})
 		// Beacons go out as a query string, so only spend the URL budget on the
 		// log when there is one.
@@ -1110,8 +1193,17 @@ const introTips = computed(() => {
 		)
 	}
 	tips.push(
-		__('Closing or refreshing the page will submit your quiz automatically.')
+		proctored
+			? __(
+					'Closing, refreshing or leaving this page will submit your quiz automatically.'
+			  )
+			: __(
+					'Closing or refreshing the page will submit your quiz automatically.'
+			  )
 	)
+	if (quiz.data.duration) {
+		tips.push(__('The timer starts as soon as you begin.'))
+	}
 	if (!proctored && quiz.data.duration) {
 		tips.push(
 			__('The quiz will be submitted automatically when the timer runs out.')

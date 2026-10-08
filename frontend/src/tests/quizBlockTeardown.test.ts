@@ -85,7 +85,10 @@ vi.mock('@/stores/user', () => ({
 		userResource: { data: { name: 'student@example.com' } },
 	}),
 }))
-vi.mock('@/router', () => ({ default: { push: vi.fn() } }))
+// Quiz.vue guards navigation away from a proctored attempt on the app router.
+vi.mock('@/router', () => ({
+	default: { push: vi.fn(), beforeEach: () => () => {} },
+}))
 vi.mock('@/components/AssessmentPlugin.vue', () => ({ default: {} }))
 vi.mock('@/components/ProgressBar.vue', () => ({
 	default: { template: '<div />' },

@@ -194,7 +194,7 @@ describe('Quiz remount', () => {
 		const first = mountQuiz()
 		await flushPromises()
 
-		expect(first.text()).toContain('1 question')
+		expect(first.text()).toContain('Questions1')
 		expect(first.text()).toContain('Start')
 		expect(first.text()).not.toContain(
 			'This quiz has no questions available yet.'
@@ -210,7 +210,7 @@ describe('Quiz remount', () => {
 			['lms.lms.utils.get_quiz_with_questions', { quiz: 'QUIZ-1' }],
 			['lms.lms.utils.get_quiz_with_questions', { quiz: 'QUIZ-1' }],
 		])
-		expect(second.text()).toContain('1 question')
+		expect(second.text()).toContain('Questions1')
 		expect(second.text()).toContain('Start')
 		expect(second.text()).not.toContain(
 			'This quiz has no questions available yet.'
@@ -386,14 +386,19 @@ describe('Quiz card', () => {
 		expect(wrapper.text()).toContain('Start Quiz')
 	})
 
-	it('summarises the quiz type, size and pass mark in the header', async () => {
+	// The stats repeat it before the start, so the header carries it only during
+	// the attempt.
+	it('summarises the quiz type, size and pass mark in the header once started', async () => {
 		resourceState.response = choicesQuizResponse(2)
 		const wrapper = mountQuiz()
 		await flushPromises()
+		const summary =
+			'Multiple choice\u2002·\u20022 questions\u2002·\u2002pass at 70%'
+		expect(wrapper.text()).not.toContain(summary)
 
-		expect(wrapper.text()).toContain(
-			'Multiple choice · 2 questions · pass at 70%'
-		)
+		await startQuiz(wrapper)
+
+		expect(wrapper.text()).toContain(summary)
 	})
 
 	it('renders one option row per option and a verdict after Check', async () => {

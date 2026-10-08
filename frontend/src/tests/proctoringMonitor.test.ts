@@ -79,11 +79,9 @@ const emittedTypes = (wrapper: any, name: string): string[] =>
 
 // ─── Mount helper ─────────────────────────────────────────────────────────────
 
-const mountMonitor = (
-	props: Partial<{ active: boolean; violationCount: number }> = {}
-) =>
+const mountMonitor = (props: Partial<{ active: boolean }> = {}) =>
 	mount(ProctoringMonitor, {
-		props: { maxViolations: 3, active: false, violationCount: 0, ...props },
+		props: { active: false, ...props },
 		global: { mocks: { __: (s: string) => s } },
 		attachTo: document.body,
 	})
@@ -123,27 +121,6 @@ describe('ProctoringMonitor — setup phase', () => {
 })
 
 describe('ProctoringMonitor — monitoring phase', () => {
-	it('shows the violation count pill', async () => {
-		const wrapper = mountMonitor({ active: true, violationCount: 2 })
-		await flushPromises()
-		expect(wrapper.text()).toContain('2 / 3')
-		expect(wrapper.text()).toContain('violations')
-	})
-
-	it('pill is red when violation count is greater than zero', async () => {
-		const wrapper = mountMonitor({ active: true, violationCount: 1 })
-		await flushPromises()
-		const pill = wrapper.find('.rounded-full')
-		expect(pill.classes().join(' ')).toContain('bg-surface-red-1')
-	})
-
-	it('pill is green when there are no violations', async () => {
-		const wrapper = mountMonitor({ active: true, violationCount: 0 })
-		await flushPromises()
-		const pill = wrapper.find('.rounded-full')
-		expect(pill.classes().join(' ')).toContain('bg-surface-green-1')
-	})
-
 	it('emits violation("tab_switch") when the document becomes hidden', async () => {
 		const wrapper = mountMonitor({ active: true })
 		await flushPromises()

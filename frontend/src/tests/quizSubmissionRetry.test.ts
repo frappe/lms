@@ -16,13 +16,29 @@ const SUBMIT_URL = 'lms.lms.doctype.lms_quiz.lms_quiz.submit_quiz'
 const QUIZ_URL = 'lms.lms.utils.get_quiz_with_questions'
 
 const submitSpy = vi.fn()
-const { toastMock } = vi.hoisted(() => ({
+const { toastMock, routerGuards } = vi.hoisted(() => ({
 	toastMock: { warning: vi.fn(), error: vi.fn(), success: vi.fn() },
+	// The guards Quiz.vue registers on the app router, so a test can run a navigation.
+	routerGuards: [] as ((
+		to: { fullPath: string },
+		from: { fullPath: string }
+	) => unknown)[],
+}))
+
+vi.mock('@/router', () => ({
+	default: {
+		beforeEach: (guard: typeof routerGuards[number]) => {
+			routerGuards.push(guard)
+			return () => routerGuards.splice(routerGuards.indexOf(guard), 1)
+		},
+	},
 }))
 
 // 'fails' is the generic branch under test; 'succeeds' is only used to read back
 // the params a normal submission sends.
 let submitOutcome: 'fails' | 'succeeds' = 'fails'
+// Per-test changes to the quiz the mocked server returns.
+let quizOverrides: Record<string, unknown> = {}
 
 const quizFixture = () => ({
 	quiz: {
@@ -61,6 +77,7 @@ vi.mock('frappe-ui', async () => {
 				// A real response never lands during setup().
 				await Promise.resolve()
 				const raw = structuredClone(quizFixture())
+				Object.assign(raw.quiz, quizOverrides)
 				const transformed = options.transform?.(raw)
 				resource.data = transformed === undefined ? raw : transformed
 				options.onSuccess?.(raw)
@@ -207,6 +224,121 @@ describe('Quiz.vue failed submission', () => {
 		await runDeferredSubmit()
 
 		expect(submissionCalls()).toHaveLength(1)
+		wrapper.unmount()
+	})
+})
+
+// Guards the violation count sitting in a row of its own under the header.
+// Added on quiz-share-link, when it moved into the header beside the timer.
+describe('Quiz.vue violation count', () => {
+	beforeEach(() => {
+		localStorage.clear()
+	})
+
+	it('shows in the header while a proctored attempt runs', async () => {
+		const wrapper = mountQuiz()
+		await flushPromises()
+		expect(wrapper.find('[data-testid="violation-count"]').exists()).toBe(false)
+
+		const vm = wrapper.vm as any
+		vm.startQuiz()
+		await flushPromises()
+		const count = () => wrapper.get('[data-testid="violation-count"]').text()
+		expect(count()).toContain('0 / 3')
+
+		vm.handleViolation('tab_switch')
+		await flushPromises()
+		expect(count()).toContain('1 / 3')
+		wrapper.unmount()
+	})
+})
+
+// Guards a proctored attempt being left for another page in the app with nothing
+// noticing: no tab switch, no unload. Added on quiz-share-link with the guard.
+describe('Quiz.vue leaving a proctored attempt', () => {
+	const navigate = () =>
+		routerGuards.at(-1)!(
+			{ fullPath: '/lms/courses/c/learn/1-2' },
+			{ fullPath: '/lms/courses/c/learn/1-1' }
+		) as Promise<boolean>
+
+	beforeEach(() => {
+		localStorage.clear()
+		Object.defineProperty(navigator, 'sendBeacon', {
+			value: vi.fn(() => true),
+			configurable: true,
+		})
+	})
+
+	const started = async () => {
+		const wrapper = mountQuiz()
+		await flushPromises()
+		;(wrapper.vm as any).startQuiz()
+		await flushPromises()
+		return wrapper
+	}
+
+	it('asks first, and staying keeps the learner on the quiz', async () => {
+		const wrapper = await started()
+
+		const leaving = navigate()
+		await flushPromises()
+		expect((wrapper.vm as any).showLeaveConfirmation).toBe(true)
+		;(wrapper.vm as any).answerLeave(false)
+		expect(await leaving).toBe(false)
+		expect(navigator.sendBeacon).not.toHaveBeenCalled()
+		wrapper.unmount()
+	})
+
+	it('submits the attempt when the learner leaves anyway', async () => {
+		const wrapper = await started()
+
+		const leaving = navigate()
+		await flushPromises()
+		;(wrapper.vm as any).answerLeave(true)
+
+		expect(await leaving).toBe(true)
+		const url = vi.mocked(navigator.sendBeacon).mock.calls[0][0] as string
+		expect(url).toContain('submission_reason=left_page')
+		wrapper.unmount()
+	})
+
+	it('lets the learner go freely before the attempt starts', async () => {
+		const wrapper = mountQuiz()
+		await flushPromises()
+
+		expect(await navigate()).toBe(true)
+		wrapper.unmount()
+	})
+
+	it('stops guarding once the quiz is gone', async () => {
+		const wrapper = await started()
+		const before = routerGuards.length
+
+		wrapper.unmount()
+
+		expect(routerGuards.length).toBe(before - 1)
+	})
+})
+
+// Guards the timer note sitting by the Start button, apart from the other rules.
+// Added on quiz-share-link, when it became a numbered point in the list.
+describe('Quiz.vue before-you-start list', () => {
+	afterEach(() => {
+		quizOverrides = {}
+	})
+
+	it('lists leaving the page, then the timer, for a timed proctored quiz', async () => {
+		quizOverrides = { duration: 10 }
+		const wrapper = mountQuiz()
+		await flushPromises()
+
+		const text = wrapper.text()
+		const leaving = text.indexOf('leaving this page will submit')
+		const timer = text.indexOf('The timer starts as soon as you begin.')
+		expect(leaving).toBeGreaterThan(-1)
+		expect(timer).toBeGreaterThan(leaving)
+		expect(text.split('The timer starts as soon as you begin.')).toHaveLength(2)
 		wrapper.unmount()
 	})
 })
