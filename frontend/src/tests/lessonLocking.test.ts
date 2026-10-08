@@ -35,6 +35,7 @@ vi.mock('frappe-ui', async () => {
 		template: `<div><slot name="prefix" /><slot name="icon" /><slot /><slot name="suffix" /></div>`,
 	})
 	return {
+		ScrollArea: { name: 'ScrollArea', template: '<div><slot /></div>' },
 		createResource: (config: any) => {
 			const resource: any = reactive({
 				data: null,

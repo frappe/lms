@@ -35,6 +35,7 @@ vi.mock('frappe-ui', () => ({
 	Breadcrumbs: { template: '<nav data-testid="breadcrumbs" />' },
 	Button: passthrough('button'),
 	ScrollArea: {
+		name: 'ScrollArea',
 		inheritAttrs: false,
 		props: ['viewportClass'],
 		template: `<div data-slot="scroll-area" v-bind="$attrs"><div data-slot="scroll-area-viewport" :class="viewportClass"><slot /></div></div>`,
@@ -116,6 +117,21 @@ vi.mock('@/components/Layouts/EmptyStateLayout.vue', () =>
 )
 
 vi.stubGlobal('__', (s: string) => s)
+
+// PageBody's desk scroll area follows the CSS breakpoint independently of
+// the mocked useScreenSize composable. Give matchMedia the desktop viewport
+// branch used by its scrollbar assertions.
+window.matchMedia = ((query: string) =>
+	({
+		matches: query === '(min-width: 640px)',
+		media: query,
+		onchange: null,
+		addEventListener: vi.fn(),
+		removeEventListener: vi.fn(),
+		addListener: vi.fn(),
+		removeListener: vi.fn(),
+		dispatchEvent: vi.fn(),
+	} as unknown as MediaQueryList)) as typeof window.matchMedia
 
 const ROWS = [
 	{ name: 'a', title: 'Alpha', modified: '01 Jan 2026' },

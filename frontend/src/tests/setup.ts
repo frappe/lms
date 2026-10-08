@@ -1,5 +1,6 @@
 import { vi } from 'vitest'
 import { config } from '@vue/test-utils'
+import { defineComponent, h } from 'vue'
 import { safeHtml, vExternal } from '../directives'
 
 // main.js registers these on the app, so a component that uses one renders
@@ -10,6 +11,24 @@ config.global.directives = {
 	...config.global.directives,
 	'safe-html': safeHtml,
 	external: vExternal,
+}
+
+config.global.stubs = {
+	...config.global.stubs,
+	ScrollArea: defineComponent({
+		name: 'ScrollArea',
+		props: { viewportClass: { type: String, default: '' } },
+		setup(props, { attrs, slots }) {
+			return () =>
+				h('div', { ...attrs, 'data-slot': 'scroll-area' }, [
+					h(
+						'div',
+						{ class: props.viewportClass, 'data-slot': 'scroll-area-viewport' },
+						slots.default?.()
+					),
+				])
+		},
+	}),
 }
 
 // main.js puts `__` on window; without it a script-block translation dies on a

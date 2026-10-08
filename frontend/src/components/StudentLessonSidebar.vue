@@ -64,7 +64,9 @@
 												? 'button'
 												: 'router-link'
 										"
-										:type="!lesson.locked && inlineSelect ? 'button' : undefined"
+										:type="
+											!lesson.locked && inlineSelect ? 'button' : undefined
+										"
 										:to="
 											lesson.locked || inlineSelect
 												? undefined
@@ -116,10 +118,10 @@
 										/>
 									</component>
 								</li>
-						</ul>
-					</DisclosurePanel>
-				</Disclosure>
-			</li>
+							</ul>
+						</DisclosurePanel>
+					</Disclosure>
+				</li>
 			</ul>
 		</ScrollArea>
 	</div>

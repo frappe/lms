@@ -182,34 +182,36 @@
 						class="sm:max-h-[40vh]"
 						viewportClass="sm:max-h-[40vh] sm:overflow-y-auto"
 					>
-						<ul class="divide-y divide-outline-elevation-2 text-ink-gray-7 list-none">
-						<li
-							v-for="progress in lessonProgress.data"
-							:key="`${progress.chapter_idx}-${progress.idx}`"
-							class="flex justify-between text-sm py-2 my-1 text-ink-gray-9"
+						<ul
+							class="divide-y divide-outline-elevation-2 text-ink-gray-7 list-none"
 						>
-							<div class="">
-								<span class="me-3 text-xs">
-									{{ progress.chapter_idx }}.{{ progress.idx }}
-								</span>
-								<span>
-									{{ progress.title }}
-								</span>
-							</div>
-							<Tooltip :text="String(progress.completion_count)">
-								<div>
-									{{
-										course.data?.enrollments
-											? Math.ceil(
-													(progress.completion_count /
-														course.data.enrollments) *
-														100
-											  )
-											: 0
-									}}%
+							<li
+								v-for="progress in lessonProgress.data"
+								:key="`${progress.chapter_idx}-${progress.idx}`"
+								class="flex justify-between text-sm py-2 my-1 text-ink-gray-9"
+							>
+								<div class="">
+									<span class="me-3 text-xs">
+										{{ progress.chapter_idx }}.{{ progress.idx }}
+									</span>
+									<span>
+										{{ progress.title }}
+									</span>
 								</div>
-							</Tooltip>
-						</li>
+								<Tooltip :text="String(progress.completion_count)">
+									<div>
+										{{
+											course.data?.enrollments
+												? Math.ceil(
+														(progress.completion_count /
+															course.data.enrollments) *
+															100
+												  )
+												: 0
+										}}%
+									</div>
+								</Tooltip>
+							</li>
 						</ul>
 					</ScrollArea>
 				</div>

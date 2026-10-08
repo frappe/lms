@@ -30,10 +30,7 @@
 			/>
 		</div>
 
-		<ScrollArea
-			class="min-h-0 flex-1"
-			viewportClass="overflow-y-auto px-5"
-		>
+		<ScrollArea class="min-h-0 flex-1" viewportClass="overflow-y-auto px-5">
 			<ResponsiveListView
 				force-cards
 				no-detail-separator

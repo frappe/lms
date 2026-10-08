@@ -24,6 +24,7 @@ vi.mock('frappe-ui', () => {
 					h(tag, slots.default?.()),
 		})
 	return {
+		ScrollArea: { name: 'ScrollArea', template: '<div><slot /></div>' },
 		Alert: passthrough('div'),
 		Badge: passthrough('span'),
 		Button: defineComponent({

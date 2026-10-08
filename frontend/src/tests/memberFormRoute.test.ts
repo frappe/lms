@@ -45,6 +45,7 @@ vi.mock('@/components/HeaderButton.vue', () => ({
 }))
 
 vi.mock('frappe-ui', () => ({
+	ScrollArea: { name: 'ScrollArea', template: '<div><slot /></div>' },
 	call: callMock,
 	createResource: createResourceMock,
 	getCachedResource: getCachedResourceMock,

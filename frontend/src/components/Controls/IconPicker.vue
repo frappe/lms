@@ -34,10 +34,7 @@
 					</button>
 				</template>
 				<template #default="{ close }">
-					<ScrollArea
-						class="max-h-56 w-full"
-						viewportClass="max-h-56 p-3"
-					>
+					<ScrollArea class="max-h-56 w-full" viewportClass="max-h-56 p-3">
 						<FormControl
 							ref="search"
 							v-model="iconQuery"

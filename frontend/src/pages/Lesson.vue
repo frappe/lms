@@ -1245,9 +1245,8 @@ const goFullScreen = (): void => {
 	const target = lessonContainer.value
 	const viewport =
 		target && 'viewportElement' in target ? target.viewportElement : target
-	const container = (
-		viewport?.closest('[data-slot="scroll-area"]') ?? viewport
-	) as VendorFullscreen | null
+	const container = (viewport?.closest('[data-slot="scroll-area"]') ??
+		viewport) as VendorFullscreen | null
 	if (!container) return
 	if (container.requestFullscreen) {
 		container.requestFullscreen()
