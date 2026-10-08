@@ -322,6 +322,9 @@ describe('Quiz.vue leaving a proctored attempt', () => {
 		;(wrapper.vm as any).answerLeave(true)
 
 		expect(await leaving).toBe(false)
+		// The attempt is still live, so proctoring keeps counting.
+		;(wrapper.vm as any).handleViolation('tab_switch')
+		expect((wrapper.vm as any).violationCount).toBe(1)
 		wrapper.unmount()
 	})
 
@@ -339,6 +342,28 @@ describe('Quiz.vue leaving a proctored attempt', () => {
 			expect(await leaving).toBe(true)
 			expect((wrapper.vm as any).showLeaveConfirmation).toBe(false)
 			expect(submissionCalls()).toHaveLength(1)
+			wrapper.unmount()
+		} finally {
+			vi.useRealTimers()
+		}
+	})
+
+	// Guards the attempt being submitted twice when the timer or the violation
+	// cap saves it while the leave dialog is still open.
+	it('does not submit again when the attempt was saved while the dialog was open', async () => {
+		vi.useFakeTimers()
+		try {
+			const wrapper = await started()
+			const leaving = navigate()
+			await vi.advanceTimersByTimeAsync(0)
+			expect((wrapper.vm as any).showLeaveConfirmation).toBe(true)
+			;(wrapper.vm as any).submitQuiz('timer_expired')
+			await vi.advanceTimersByTimeAsync(1_000)
+			;(wrapper.vm as any).answerLeave(true)
+
+			expect(await leaving).toBe(true)
+			expect(submissionCalls()).toHaveLength(1)
+			expect(leftPageSubmits()).toHaveLength(0)
 			wrapper.unmount()
 		} finally {
 			vi.useRealTimers()
