@@ -937,13 +937,21 @@ const removeLeaveGuard = router.beforeEach(async (to, from) => {
 	if (to.fullPath === from.fullPath) return true
 	if (submitting) return submitting
 	if (!(await confirmLeave())) return false
+	// The dialog can stay open while the timer or the violation cap submits the
+	// attempt: wait for that submit, or go if it already landed. Never a second.
 	if (submitting) return submitting
+	if (!proctoringRunning.value) return true
 	recordCurrentAttempt()
 	submissionReason.value = 'left_page'
 	beginSubmitting()
 	const saving = submitting!
 	createSubmission('left_page')
-	return saving
+	const saved = await saving
+	// The learner stays on a live attempt, and handleViolation ignores every
+	// event while a submission reason is set, so proctoring would stop counting.
+	if (!saved && submissionReason.value === 'left_page')
+		submissionReason.value = ''
+	return saved
 })
 
 // Closing the dialog any other way (Escape, the backdrop) is staying.
