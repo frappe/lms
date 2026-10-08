@@ -547,7 +547,7 @@ describe('Quiz for screen readers', () => {
 		const submission = (wrapper.vm as any).quizSubmission
 		submission.data = result
 		await flushPromises()
-		expect(wrapper.text()).toContain('Quiz Summary')
+		expect(wrapper.text()).toContain('Quiz result')
 		expect(document.activeElement?.tagName).not.toBe('H2')
 
 		submission.submit.mockImplementation((_: unknown, callbacks: any) => {
@@ -556,7 +556,7 @@ describe('Quiz for screen readers', () => {
 		})
 		;(wrapper.vm as any).submitQuiz()
 		await flushPromises()
-		expect(document.activeElement?.textContent?.trim()).toBe('Quiz Summary')
+		expect(document.activeElement?.textContent?.trim()).toBe('Quiz result')
 	})
 >>>>>>> e992584 (feat(quiz): tighten the proctored attempt and stop leaving it unnoticed)
 })

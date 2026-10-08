@@ -413,6 +413,23 @@ class TestSubmitQuizWithViolations(unittest.TestCase):
 				result = submit_quiz(self.quiz.name, results=self._results(), **kwargs)
 				self.assertEqual(self._stored(result["submission"], "submission_reason"), expected_reason)
 
+	# Guards the result screen having only a score to show. Added on
+	# quiz-share-link with its correct / wrong / not answered line.
+	def test_it_counts_correct_wrong_and_unanswered(self):
+		cases = [
+			(["Correct"], {"correct": 1, "wrong": 0, "unanswered": 0}),
+			(["Wrong"], {"correct": 0, "wrong": 1, "unanswered": 0}),
+			([""], {"correct": 0, "wrong": 0, "unanswered": 1}),
+		]
+		for answer, expected in cases:
+			with self.subTest(answer=answer):
+				result = submit_quiz(
+					self.quiz.name,
+					results=json.dumps([{"question_name": self.question.name, "answer": answer}]),
+				)
+				counts = {key: result[key] for key in ("correct", "wrong", "unanswered")}
+				self.assertEqual(counts, expected)
+
 	def test_events_are_ignored_when_proctoring_is_off(self):
 		question = _make_question()
 		quiz = _make_quiz(question)
