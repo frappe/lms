@@ -52,6 +52,9 @@ const title = createResource({
 const quizTitle = computed(() => title.data?.title || __('Quiz'))
 
 const breadcrumbs = computed(() => {
+	// A learner arrives from a shared link. The authoring trail would lead to pages
+	// they cannot open, and "Test Quiz" names the author's view, not theirs.
+	if (user.data?.is_student) return [{ label: quizTitle.value }]
 	return [
 		{
 			label: __('Quizzes'),
