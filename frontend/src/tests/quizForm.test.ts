@@ -687,7 +687,7 @@ describe('QuizForm: copy link', () => {
 		})
 	})
 
-	it('copies the learner page link and says who can open it', async () => {
+	it('copies the learner page link', async () => {
 		const writeText = vi.fn(async () => {})
 		Object.defineProperty(navigator, 'clipboard', {
 			value: { writeText },
@@ -701,9 +701,7 @@ describe('QuizForm: copy link', () => {
 		expect(writeText).toHaveBeenCalledWith(
 			`${window.location.origin}/lms/quiz/QZ-0001`
 		)
-		expect(vi.mocked(toast.success).mock.calls.at(-1)?.[0]).toContain(
-			'course or batch'
-		)
+		expect(vi.mocked(toast.success).mock.calls.at(-1)?.[0]).toBe('Link copied')
 	})
 
 	// navigator.clipboard is missing on plain http, as on a bench LAN hostname.

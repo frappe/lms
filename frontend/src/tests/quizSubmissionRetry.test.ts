@@ -407,6 +407,8 @@ describe('Quiz.vue result', () => {
 		expect(tryAgain(wrapper)).toBeDefined()
 		// Once, by Try again, not again in the header.
 		expect(text.split('attempts left')).toHaveLength(2)
+		// The result says the score; the header's quiz summary would repeat it.
+		expect(text).not.toContain('pass at')
 		wrapper.unmount()
 	})
 

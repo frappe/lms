@@ -20,7 +20,9 @@
 			<AssessmentCardHeader
 				icon="lucide-circle-help"
 				:title="__('Quiz')"
-				:subtitle="activeQuestion > 0 ? quizSubtitle : undefined"
+				:subtitle="
+					activeQuestion > 0 && !quizSubmission.data ? quizSubtitle : undefined
+				"
 			>
 				<Badge
 					v-if="proctoringRunning"

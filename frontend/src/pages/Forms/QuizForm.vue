@@ -659,19 +659,14 @@ const togglePreview = async () => {
 	previewing.value = true
 }
 
-// The learner-facing page, the link an author shares. It opens only for a learner
-// whose course or batch includes the quiz, so the toast says as much.
+// The learner-facing page, the link an author shares.
 const copyQuizLink = async () => {
 	const link = `${window.location.origin}${getLmsRoute(
 		`quiz/${encodeURIComponent(quizDetails.value.doc.name)}`
 	)}`
 	try {
 		await copyText(link)
-		toast.success(
-			__(
-				'Link copied. Students can open it once the quiz is in their course or batch.'
-			)
-		)
+		toast.success(__('Link copied'))
 	} catch {
 		toast.error(__('Could not copy the link: {0}').format(link))
 	}
