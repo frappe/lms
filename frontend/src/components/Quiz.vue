@@ -182,7 +182,7 @@
 							!attemptsExhausted &&
 							!scheduleBlocked
 						"
-						class="-mx-3.5 -mt-3.5 grid border-b border-outline-gray-1 md:grid-cols-2 md:divide-x md:divide-outline-gray-1"
+						class="-mx-3.5 -mt-3.5 grid border-b border-outline-gray-1 md:grid-cols-2 md:divide-x md:divide-outline-gray-1 rtl:divide-x-reverse"
 					>
 						<!-- One band split by a divider, not two boxed cards: the quiz card
 						     is the only box. It is the first thing in this section whenever it
