@@ -370,6 +370,68 @@ describe('Quiz.vue leaving a proctored attempt', () => {
 		}
 	})
 
+	// Guards the timer, or a second press of Submit, recording another
+	// submission while one is already on its way.
+	it('sends one submission when a second submit comes in while one is under way', async () => {
+		vi.useFakeTimers()
+		try {
+			const wrapper = await started()
+			;(wrapper.vm as any).submitQuiz('manual')
+			;(wrapper.vm as any).submitQuiz('timer_expired')
+			await vi.advanceTimersByTimeAsync(1_000)
+
+			expect(submissionCalls()).toHaveLength(1)
+			wrapper.unmount()
+		} finally {
+			vi.useRealTimers()
+		}
+	})
+
+	// Guards the attempt going unsaved when the timer expires within the 500ms a
+	// pressed Submit waits: that submit must still go out, once.
+	it('still submits once when the timer expires just after Submit', async () => {
+		vi.useFakeTimers()
+		quizOverrides = { duration: 1, enable_proctoring: 0 }
+		try {
+			const wrapper = await started()
+			await vi.advanceTimersByTimeAsync(59_800)
+			;(wrapper.vm as any).submitQuiz('manual')
+			await vi.advanceTimersByTimeAsync(2_000)
+
+			const calls = submissionCalls()
+			expect(calls).toHaveLength(1)
+			expect(JSON.stringify(calls[0][1])).toContain('manual')
+			wrapper.unmount()
+		} finally {
+			quizOverrides = {}
+			vi.useRealTimers()
+		}
+	})
+
+	// Guards an automatic retry when the timer expires during a submit that then
+	// fails: a lost response can mean the attempt was saved, so a second submit
+	// could duplicate it. The learner resubmits, as after any failure.
+	it('does not resubmit on expiry when the submit under way fails', async () => {
+		vi.useFakeTimers()
+		quizOverrides = { duration: 1, enable_proctoring: 0 }
+		submitOutcome = 'fails'
+		try {
+			const wrapper = await started()
+			await vi.advanceTimersByTimeAsync(59_800)
+			;(wrapper.vm as any).submitQuiz('manual')
+			await vi.advanceTimersByTimeAsync(3_000)
+
+			const reasons = submissionCalls().map(([, p]) =>
+				JSON.stringify(p).includes('timer_expired') ? 'timer_expired' : 'manual'
+			)
+			expect(reasons).toEqual(['manual'])
+			wrapper.unmount()
+		} finally {
+			quizOverrides = {}
+			vi.useRealTimers()
+		}
+	})
+
 	it('never asks in an author preview', async () => {
 		const wrapper = mount(Quiz, {
 			props: { quizName: 'quiz-a', preview: true },
