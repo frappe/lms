@@ -85,7 +85,10 @@ vi.mock('@/stores/user', () => ({
 		userResource: { data: { name: 'student@example.com' } },
 	}),
 }))
-vi.mock('@/router', () => ({ default: { push: vi.fn() } }))
+// Quiz.vue guards navigation away from a proctored attempt on the app router.
+vi.mock('@/router', () => ({
+	default: { push: vi.fn(), beforeEach: () => () => {} },
+}))
 vi.mock('@/components/AssessmentPlugin.vue', () => ({ default: {} }))
 vi.mock('@/components/ProgressBar.vue', () => ({
 	default: { template: '<div />' },
@@ -167,7 +170,7 @@ describe('tearing down an inline quiz keeps the completion gate shut', () => {
 		const second = await renderQuizBlock()
 
 		expect(startButton(second)).toBeDefined()
-		expect(second.wrapper.textContent).not.toContain('Quiz Summary')
+		expect(second.wrapper.textContent).not.toContain('Quiz result')
 		expect(submitted).not.toContain(SUBMIT_URL)
 	})
 })
