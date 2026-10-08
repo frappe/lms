@@ -203,6 +203,7 @@ beforeEach(() => {
 
 afterEach(() => {
 	wrapper?.unmount()
+	delete (document as any).fullscreenElement
 })
 
 describe('Lesson.vue Next affordance follows canGoNext', () => {
@@ -585,5 +586,51 @@ describe('Lesson.vue zen-mode progress chip', () => {
 		expect(classes).toContain('[@media(hover:none)]:block')
 		expect(classes).toContain('[@media(hover:none)]:static')
 		expect(classes).toContain('[@media(hover:none)]:mt-0')
+	})
+})
+
+describe('Lesson.vue zen-mode fullscreen target', () => {
+	it('keeps fullscreen on the lesson while Zen Mode enables its ScrollArea', async () => {
+		wrapper = await mountLesson()
+		findResource('lms.lms.utils.get_lesson').data = {
+			...baseLesson,
+			membership: { progress: 42.3 },
+		}
+		await flushPromises()
+
+		const pageScrollArea = document.createElement('div')
+		pageScrollArea.setAttribute('data-slot', 'scroll-area')
+		pageScrollArea.append(wrapper.element)
+
+		const lessonFullscreenContainer = wrapper.get(
+			'[data-testid="lesson-fullscreen-container"]'
+		).element
+		const pageRequestFullscreen = vi.fn()
+		const lessonRequestFullscreen = vi.fn(function (this: HTMLElement) {
+			Object.defineProperty(document, 'fullscreenElement', {
+				configurable: true,
+				value: this,
+			})
+			document.dispatchEvent(new Event('fullscreenchange'))
+			return Promise.resolve()
+		})
+		Object.defineProperty(pageScrollArea, 'requestFullscreen', {
+			configurable: true,
+			value: pageRequestFullscreen,
+		})
+		Object.defineProperty(lessonFullscreenContainer, 'requestFullscreen', {
+			configurable: true,
+			value: lessonRequestFullscreen,
+		})
+		;(wrapper.vm as any).goFullScreen()
+		await flushPromises()
+
+		expect(lessonRequestFullscreen).toHaveBeenCalledOnce()
+		expect(pageRequestFullscreen).not.toHaveBeenCalled()
+		expect(document.fullscreenElement).toBe(lessonFullscreenContainer)
+		expect(
+			wrapper.get('[data-testid="lesson-fullscreen-container"]').element
+		).toBe(lessonFullscreenContainer)
+		expect((wrapper.vm as any).zenModeEnabled).toBe(true)
 	})
 })
