@@ -1083,8 +1083,13 @@ const stopTimer = () => {
 	// submitQuiz() defers createSubmission() by 500ms so the last answer can be
 	// written to localStorage first. Left pending, it fires against an unmounted
 	// or already-switched component and marks progress on the wrong lesson.
-	clearTimeout(submitTimeout)
-	submitTimeout = undefined
+	// A cancelled submit is no longer in flight, so the next one (the timer's own,
+	// on expiry) may go out; otherwise it would be dropped and the attempt lost.
+	if (submitTimeout) {
+		clearTimeout(submitTimeout)
+		submitTimeout = undefined
+		endSubmitting(false)
+	}
 }
 
 const startTimer = () => {
@@ -1096,6 +1101,11 @@ const startTimer = () => {
 		timer.value--
 		if (timer.value == 0) {
 			clearInterval(timerInterval)
+			timerInterval = undefined
+			// A submit already on its way ends the attempt: let it go rather than
+			// cancel it. If it fails, the learner resubmits, as after any failure;
+			// an automatic retry could record a second submission (see onError).
+			if (submitting) return
 			stopTimer()
 			submitQuiz('timer_expired')
 		}
@@ -1672,6 +1682,9 @@ const endSubmitting = (saved: boolean): void => {
 }
 
 const submitQuiz = (reason: SubmissionReason = 'manual'): void => {
+	// One submit at a time: the timer can expire, or Submit be pressed, while a
+	// submit (a leave, say) is still on its way, and a second would be recorded too.
+	if (submitting) return
 	submissionReason.value = reason
 	beginSubmitting()
 	if (!quiz.data?.show_answers) {
