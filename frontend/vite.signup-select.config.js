@@ -12,7 +12,12 @@ export default defineConfig({
 	css: {
 		postcss: {
 			plugins: [
-				tailwindcss({ config: path.resolve(__dirname, 'tailwind.signup-select.config.js') }),
+				tailwindcss({
+					config: path.resolve(
+						__dirname,
+						'tailwind.signup-select.config.js'
+					),
+				}),
 				autoprefixer(),
 			],
 		},
@@ -28,7 +33,10 @@ export default defineConfig({
 				format: 'iife',
 				name: 'LMSSignupSelect',
 				entryFileNames: 'signup-select.js',
-				assetFileNames: (assetInfo) => assetInfo.name?.endsWith('.css') ? 'signup-select.css' : 'assets/[name]-[hash][extname]',
+				assetFileNames: (assetInfo) =>
+					assetInfo.name?.endsWith('.css')
+						? 'signup-select.css'
+						: 'assets/[name]-[hash][extname]',
 			},
 		},
 	},

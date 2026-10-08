@@ -122,7 +122,11 @@
     const reset_signup_form = () => {
         const form = $(".signup-form");
         form.find("input:not([type='submit'])").val("").prop("checked", false);
-        form.find("#user_category").val("").trigger("change");
+        const userCategory = form.find("#user_category")[0];
+        if (userCategory) {
+            userCategory.value = "";
+            userCategory.dispatchEvent(new Event("change", { bubbles: true }));
+        }
         form.find(".form-group").removeClass("invalid").find(".field-error").text("");
         form.find(".page-card-body").removeClass("invalid");
         form.find(".login-error-banner, .login-success-banner").addClass("hidden");

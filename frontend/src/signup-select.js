@@ -34,25 +34,34 @@ if (nativeSelect && mountPoint) {
 
 	createApp({
 		render() {
-			return h(Select, {
-				class: 'w-full',
-				modelValue: selectedValue.value,
-				options,
-				variant: 'outline',
-				size: 'sm',
-				placeholder,
-				required: true,
-				error: errorMessage.value || undefined,
-				'onUpdate:modelValue': (value) => {
-					selectedValue.value = value
-					nativeSelect.value = value ?? ''
-					nativeSelect.dispatchEvent(new Event('change', { bubbles: true }))
+			return h(
+				Select,
+				{
+					class: 'w-full',
+					modelValue: selectedValue.value,
+					options,
+					variant: 'outline',
+					size: 'sm',
+					placeholder,
+					required: true,
+					error: errorMessage.value || undefined,
+					'onUpdate:modelValue': (value) => {
+						selectedValue.value = value
+						nativeSelect.value = value ?? ''
+						nativeSelect.dispatchEvent(
+							new Event('change', { bubbles: true })
+						)
+					},
 				},
-			},
-			{
-				label: () => h('span', { class: 'text-base text-ink-gray-5 w-full mb-0' }, label),
-			}
-		)
+				{
+					label: () =>
+						h(
+							'span',
+							{ class: 'text-base text-ink-gray-6 w-full mb-0' },
+							label
+						),
+				}
+			)
 		},
 	}).mount(mountPoint)
 }
