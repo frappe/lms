@@ -36,8 +36,9 @@
 						quiz.data.max_violations == 1 ? __('violation') : __('violations')
 					}}
 				</Badge>
+				<!-- After a submit the result says it beside Try again. -->
 				<span
-					v-if="attemptsLeft !== null"
+					v-if="attemptsLeft !== null && !quizSubmission.data"
 					class="hidden text-xs text-ink-gray-6 sm:inline"
 				>
 					{{ attemptsLeftLabel(attemptsLeft) }}
@@ -509,158 +510,99 @@
 			</div>
 
 			<div v-else>
-				<div
-					v-if="
-						quiz.data.enable_proctoring && submissionReason === 'max_violations'
-					"
-					class="border-b border-outline-red-2 bg-surface-red-2 px-3.5 py-3"
-				>
-					<div class="mb-1 flex items-center gap-2.5">
-						<span class="lucide-shield-x size-4 shrink-0 text-ink-red-5" />
-						<span class="text-sm-semibold text-ink-red-6">{{
-							__('Maximum violations reached')
-						}}</span>
-					</div>
-					<p class="ps-6.5 text-p-base text-ink-red-5">
+				<div class="space-y-3 p-3.5">
+					<h2 ref="summaryHeading" tabindex="-1" class="sr-only">
+						{{ __('Quiz result') }}
+					</h2>
+					<p
+						v-if="quizSubmission.data.is_open_ended"
+						class="text-p-base text-ink-gray-7"
+					>
 						{{
 							__(
-								'This quiz was submitted automatically because you reached the maximum of {0} {1}. Reach out to your instructor if you need to try again.'
-							).format(
-								quiz.data.max_violations,
-								quiz.data.max_violations == 1
-									? __('violation')
-									: __('violations')
+								"Your submission has been successfully saved. The instructor will review and grade it shortly, and you'll be notified of your final result."
 							)
 						}}
 					</p>
+					<template v-else>
+						<div class="space-y-2">
+							<Badge
+								data-testid="quiz-verdict"
+								size="md"
+								:theme="passed ? 'green' : 'red'"
+							>
+								{{ passed ? __('Passed') : __('Failed') }}
+							</Badge>
+							<p class="text-base tabular-nums text-ink-gray-8">
+								{{
+									__('{0} of {1} marks').format(
+										quizSubmission.data.score,
+										quizSubmission.data.score_out_of
+									)
+								}}<span class="mx-2 text-ink-gray-4" aria-hidden="true">·</span
+								>{{ Math.ceil(quizSubmission.data.percentage) }}%
+							</p>
+						</div>
+						<ul
+							v-if="answerCounts.length"
+							data-testid="answer-counts"
+							class="flex flex-wrap gap-x-4 gap-y-1 text-sm tabular-nums text-ink-gray-7"
+						>
+							<li
+								v-for="count in answerCounts"
+								:key="count.label"
+								class="flex items-center gap-1.5"
+							>
+								<span
+									class="size-1.5 shrink-0 rounded-full"
+									:class="count.dot"
+									aria-hidden="true"
+								/>
+								{{ count.label }}
+							</li>
+						</ul>
+					</template>
+					<p v-if="endedNote" class="text-p-base text-ink-gray-7">
+						{{ endedNote }}
+					</p>
+					<div
+						v-if="retakeNote || canRetake || inVideo"
+						class="flex flex-wrap items-center justify-between gap-3"
+					>
+						<span class="text-sm text-ink-gray-6">{{ retakeNote }}</span>
+						<div class="flex items-center gap-2">
+							<Button v-if="inVideo" @click="props.backToVideo()">
+								{{ __('Resume Video') }}
+							</Button>
+							<Button
+								v-if="canRetake"
+								:variant="passed ? 'subtle' : 'solid'"
+								@click="resetQuiz()"
+							>
+								{{ __('Try again') }}
+							</Button>
+						</div>
+					</div>
 				</div>
-				<div class="space-y-3 p-3.5">
-					<h2
-						ref="summaryHeading"
-						tabindex="-1"
-						class="text-base-semibold text-ink-gray-9"
-					>
-						{{ __('Quiz Summary') }}
-					</h2>
-					<div
-						class="flex items-start gap-2 rounded-6 border border-outline-gray-2 bg-surface-gray-1 p-3"
-					>
-						<span
-							class="lucide-check-circle mt-0.5 size-4 shrink-0 text-ink-gray-6"
-						/>
-						<p
-							v-if="quizSubmission.data.is_open_ended"
-							class="text-p-base text-ink-gray-7"
-						>
-							{{
-								__(
-									"Your submission has been successfully saved. The instructor will review and grade it shortly, and you'll be notified of your final result."
-								)
-							}}
-						</p>
-						<p v-else class="text-p-base text-ink-gray-7">
-							{{
-								__(
-									'You got {0}% correct answers with a score of {1} out of {2}'
-								).format(
-									Math.ceil(quizSubmission.data.percentage),
-									quizSubmission.data.score,
-									quizSubmission.data.score_out_of
-								)
-							}}
-						</p>
-					</div>
-					<div
-						v-if="
-							!quiz.data.max_attempts ||
-							(attempts.data?.length ?? 0) < quiz.data.max_attempts ||
-							inVideo
-						"
-						class="flex items-center justify-end gap-x-2"
-					>
-						<Button v-if="inVideo" @click="props.backToVideo()">
-							{{ __('Resume Video') }}
-						</Button>
-						<Button
-							@click="resetQuiz()"
-							v-if="
-								!quiz.data.max_attempts ||
-								(attempts.data?.length ?? 0) < quiz.data.max_attempts
-							"
-						>
-							<span>
-								{{ __('Try Again') }}
-							</span>
-						</Button>
-					</div>
+				<div
+					v-if="quiz.data.enable_proctoring && summaryLog.length"
+					class="border-t border-outline-gray-1 p-3.5"
+				>
+					<QuizActivityLog :entries="summaryLog" />
 				</div>
 			</div>
 		</AssessmentCard>
 
 		<div
 			v-if="
-				activeQuestion > 0 && quiz.data.enable_proctoring && summaryLog.length
+				activeQuestion > 0 &&
+				!quizSubmission.data &&
+				quiz.data.enable_proctoring &&
+				summaryLog.length
 			"
-			class="overflow-hidden rounded-6 border border-outline-gray-2"
+			class="rounded-6 border border-outline-gray-2 p-3.5"
 		>
-			<div
-				class="flex items-center justify-between border-b border-outline-gray-1 bg-surface-gray-1 px-3.5 py-2.5"
-			>
-				<span class="text-xs font-semibold text-ink-gray-8">{{
-					__('Activity')
-				}}</span>
-				<span class="text-xs text-ink-gray-6"
-					>{{ summaryLog.length }}
-					{{ summaryLog.length == 1 ? __('event') : __('events') }}</span
-				>
-			</div>
-			<div class="max-h-64 divide-y divide-outline-gray-1 overflow-y-auto">
-				<div
-					v-for="(entry, i) in summaryLog"
-					:key="i"
-					class="flex items-center gap-2.5 px-3.5 py-2.5"
-				>
-					<span
-						class="size-1.5 shrink-0 rounded-full"
-						:class="
-							entry.severity === 'violation'
-								? 'bg-surface-red-6'
-								: 'bg-surface-orange-6'
-						"
-					/>
-					<span class="flex-1 text-sm text-ink-gray-7">{{
-						violationEventLabels[entry.eventType] || entry.eventType
-					}}</span>
-					<a
-						v-if="safeUrl(entry.frame)"
-						v-external
-						:href="safeUrl(entry.frame)"
-						class="shrink-0"
-					>
-						<img
-							:src="safeUrl(entry.frame)"
-							:alt="
-								__('Camera at {0}').format(
-									violationEventLabels[entry.eventType] || entry.eventType
-								)
-							"
-							class="h-8 w-11 rounded-4 border object-cover"
-						/>
-					</a>
-					<span
-						class="shrink-0 text-xs font-medium uppercase tracking-wide"
-						:class="
-							entry.severity === 'violation'
-								? 'text-ink-red-5'
-								: 'text-ink-orange-5'
-						"
-					>
-						{{
-							entry.severity === 'violation' ? __('Violation') : __('Warning')
-						}}
-					</span>
-				</div>
-			</div>
+			<QuizActivityLog :entries="summaryLog" />
 		</div>
 
 		<div
@@ -877,7 +819,7 @@ import {
 	watch,
 } from 'vue'
 import { timeAgo } from '@/utils/format'
-import { safeUrl } from '@/utils/safeUrl'
+import { violationLabel } from '@/utils/proctoring'
 import {
 	formatScheduleDate,
 	useAssessmentSchedule,
@@ -886,6 +828,7 @@ import { markLessonProgress } from '@/utils/markLessonProgress'
 import ResponsiveListView from '@/components/ResponsiveListView.vue'
 import RichTextEditor from '@/components/RichTextEditor.vue'
 import router from '@/router'
+import QuizActivityLog from '@/components/Quiz/QuizActivityLog.vue'
 import ProctoringMonitor from '@/components/ProctoringMonitor.vue'
 import AssessmentCard from '@/components/Assessment/AssessmentCard.vue'
 import AssessmentCardHeader from '@/components/Assessment/AssessmentCardHeader.vue'
@@ -1424,6 +1367,7 @@ const startQuiz = () => {
 	if (scheduleBlocked.value) return
 	if (!quiz.data) return
 	activeQuestion.value = 1
+	attemptStartedAt = Date.now()
 	localStorage.removeItem(quiz.data.title)
 	// Neither in an author preview. Nothing may be submitted there, so a countdown
 	// would reach zero with no way to end the attempt and the camera would stay on
@@ -1462,27 +1406,84 @@ watch(
 	}
 )
 
-// Prefer the stored log once it lands. Before that — and during the quiz itself,
-// where there is no submission to read — the client's own list stands in, so the
-// activity table is never empty while events are happening.
+// This attempt's own list first: it is the same events, and it carries the time
+// into the attempt, which the stored rows (site-time timestamps) cannot give. The
+// stored log stands in when this page has none of its own.
 const summaryLog = computed<ViolationEvent[]>(() =>
-	storedViolationLog.data?.length
-		? storedViolationLog.data.map((row: StoredViolationRow) => ({
+	violationLog.value.length
+		? violationLog.value
+		: (storedViolationLog.data ?? []).map((row: StoredViolationRow) => ({
 				eventType: row.event_type,
 				severity: row.severity,
 				timestamp: row.timestamp,
 				frame: row.frame,
 		  }))
-		: violationLog.value
 )
 
-const violationEventLabels: Record<string, string> = {
-	tab_switch: __('Tab switch'),
-	no_face: __('Face not visible'),
-	multiple_faces: __('Multiple faces'),
-	focus_loss: __('Window focus lost'),
-	camera_disconnect: __('Camera disconnected'),
-}
+let attemptStartedAt: number | null = null
+const secondsIntoAttempt = (): number | undefined =>
+	attemptStartedAt === null ? undefined : (Date.now() - attemptStartedAt) / 1000
+
+const passed = computed(() => {
+	const result = quizSubmission.data
+	if (!result) return false
+	if (typeof result.pass === 'boolean') return result.pass
+	return result.percentage >= (quiz.data?.passing_percentage ?? 0)
+})
+
+const answerCounts = computed(() => {
+	const result = quizSubmission.data
+	if (result?.correct === undefined) return []
+	return [
+		{
+			label: __('{0} correct').format(result.correct),
+			dot: 'bg-surface-green-6',
+		},
+		{ label: __('{0} wrong').format(result.wrong), dot: 'bg-surface-red-6' },
+		{
+			label: __('{0} not answered').format(result.unanswered),
+			dot: 'bg-surface-gray-5',
+		},
+	]
+})
+
+// Ending on the violation cap is the instructor's call to undo, not a retry.
+const endedOnViolations = computed(
+	() =>
+		!!quiz.data?.enable_proctoring &&
+		submissionReason.value === 'max_violations'
+)
+
+const endedNote = computed(() => {
+	if (endedOnViolations.value) {
+		return __(
+			'Submitted automatically after {0} of {0} violations. If you wish to try again, reach out to the instructor.'
+		).format(quiz.data?.max_violations)
+	}
+	if (submissionReason.value === 'timer_expired') {
+		return __('Submitted automatically when the time ran out.')
+	}
+	return ''
+})
+
+const attemptsRemain = computed(
+	() =>
+		!quiz.data?.max_attempts ||
+		(attempts.data?.length ?? 0) < quiz.data.max_attempts
+)
+
+const canRetake = computed(
+	() => attemptsRemain.value && !endedOnViolations.value
+)
+
+// Ending on violations says what to do next in the line above it.
+const retakeNote = computed(() => {
+	if (endedOnViolations.value) return ''
+	if (!attemptsRemain.value) return __('No attempts left.')
+	return attemptsLeft.value === null
+		? ''
+		: attemptsLeftLabel(attemptsLeft.value)
+})
 
 const handleViolation = (
 	eventType: string,
@@ -1496,12 +1497,13 @@ const handleViolation = (
 		severity: 'violation',
 		timestamp: new Date().toISOString(),
 		frame,
+		elapsed: secondsIntoAttempt(),
 	})
 	const remaining = (quiz.data?.max_violations ?? 0) - violationCount.value
 	if (remaining <= 0) {
 		submitQuiz('max_violations')
 	} else {
-		const label = violationEventLabels[eventType] || __('Proctoring violation')
+		const label = violationLabel(eventType) || __('Proctoring violation')
 		toast.warning(label + '. ' + __('Remaining: {0}').format(remaining))
 	}
 }
@@ -1521,6 +1523,7 @@ const handleWarning = (
 		severity: 'warning',
 		timestamp: new Date().toISOString(),
 		frame,
+		elapsed: secondsIntoAttempt(),
 	})
 }
 
@@ -1710,6 +1713,7 @@ const resetQuiz = () => {
 	proctoringActive.value = false
 	cameraReady.value = false
 	violationLog.value = []
+	attemptStartedAt = null
 	submissionReason.value = ''
 	populateQuestions()
 	setupTimer()

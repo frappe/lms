@@ -170,7 +170,7 @@ describe('tearing down an inline quiz keeps the completion gate shut', () => {
 		const second = await renderQuizBlock()
 
 		expect(startButton(second)).toBeDefined()
-		expect(second.wrapper.textContent).not.toContain('Quiz Summary')
+		expect(second.wrapper.textContent).not.toContain('Quiz result')
 		expect(submitted).not.toContain(SUBMIT_URL)
 	})
 })

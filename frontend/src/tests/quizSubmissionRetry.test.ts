@@ -39,6 +39,12 @@ vi.mock('@/router', () => ({
 let submitOutcome: 'fails' | 'succeeds' = 'fails'
 // Per-test changes to the quiz the mocked server returns.
 let quizOverrides: Record<string, unknown> = {}
+// What a successful submit_quiz returns.
+let submitResult: Record<string, unknown> = {
+	submission: 'sub-1',
+	score: 1,
+	score_out_of: 1,
+}
 
 const quizFixture = () => ({
 	quiz: {
@@ -87,7 +93,7 @@ vi.mock('frappe-ui', async () => {
 				submitSpy(options.url, options.makeParams?.(values))
 				if (options.url !== SUBMIT_URL) return
 				if (submitOutcome === 'succeeds') {
-					resource.data = { submission: 'sub-1', score: 1, score_out_of: 1 }
+					resource.data = { ...submitResult }
 					handlers?.onSuccess?.(resource.data)
 					return
 				}
@@ -339,6 +345,128 @@ describe('Quiz.vue before-you-start list', () => {
 		expect(leaving).toBeGreaterThan(-1)
 		expect(timer).toBeGreaterThan(leaving)
 		expect(text.split('The timer starts as soon as you begin.')).toHaveLength(2)
+		wrapper.unmount()
+	})
+})
+
+// Guards the result screen: a sentence of score with no verdict, a Try Again
+// beside a message saying to ask the instructor, and the activity as a separate
+// box with no times. Added on quiz-share-link with the redesigned result.
+describe('Quiz.vue result', () => {
+	const failedWithRetries = {
+		submission: 'sub-1',
+		score: 8,
+		score_out_of: 20,
+		percentage: 40,
+		pass: false,
+		correct: 4,
+		wrong: 5,
+		unanswered: 1,
+		is_open_ended: 0,
+	}
+
+	beforeEach(() => {
+		submitOutcome = 'succeeds'
+		localStorage.clear()
+		vi.useFakeTimers()
+	})
+
+	afterEach(() => {
+		vi.useRealTimers()
+		quizOverrides = {}
+		submitResult = { submission: 'sub-1', score: 1, score_out_of: 1 }
+	})
+
+	const finish = async (overrides = {}, result = failedWithRetries) => {
+		quizOverrides = overrides
+		submitResult = result
+		const wrapper = mountQuiz()
+		await flushPromises()
+		;(wrapper.vm as any).startQuiz()
+		await flushPromises()
+		return wrapper
+	}
+
+	const tryAgain = (wrapper: any) =>
+		wrapper.findAll('button').find((b: any) => b.text() === 'Try again')
+
+	it('shows the verdict, marks and answer counts', async () => {
+		const wrapper = await finish({ enable_proctoring: 0, max_attempts: 3 })
+		;(wrapper.vm as any).submitQuiz()
+		await runDeferredSubmit()
+
+		const text = wrapper.text()
+		expect(wrapper.get('[data-testid="quiz-verdict"]').text()).toBe('Failed')
+		expect(text).toContain('8 of 20 marks')
+		expect(text).toContain('40%')
+		expect(wrapper.get('[data-testid="answer-counts"]').text()).toContain(
+			'4 correct'
+		)
+		expect(text).toContain('5 wrong')
+		expect(text).toContain('1 not answered')
+		expect(tryAgain(wrapper)).toBeDefined()
+		// Once, by Try again, not again in the header.
+		expect(text.split('attempts left')).toHaveLength(2)
+		wrapper.unmount()
+	})
+
+	it('says Passed on a pass', async () => {
+		const wrapper = await finish(
+			{ enable_proctoring: 0 },
+			{ ...failedWithRetries, score: 16, percentage: 80, pass: true }
+		)
+		;(wrapper.vm as any).submitQuiz()
+		await runDeferredSubmit()
+
+		expect(wrapper.get('[data-testid="quiz-verdict"]').text()).toBe('Passed')
+		wrapper.unmount()
+	})
+
+	it('sends a learner who hit the violation cap to the instructor, not a retry', async () => {
+		const wrapper = await finish()
+		const vm = wrapper.vm as any
+		vm.handleViolation('tab_switch')
+		vm.handleViolation('no_face')
+		vm.handleViolation('focus_loss')
+		await runDeferredSubmit()
+
+		const text = wrapper.text()
+		expect(text).toContain(
+			'Submitted automatically after 3 of 3 violations. If you wish to try again, reach out to the instructor.'
+		)
+		expect(tryAgain(wrapper)).toBeUndefined()
+		wrapper.unmount()
+	})
+
+	// Guards this attempt's stills, inline images, being dropped by the link
+	// allowlist, so the log showed no photos until a reload.
+	it('shows the camera still captured during the attempt', async () => {
+		const wrapper = await finish()
+		const vm = wrapper.vm as any
+		vm.handleWarning('no_face', 'data:image/jpeg;base64,AAAA')
+		vm.submitQuiz()
+		await runDeferredSubmit()
+
+		const still = wrapper.get('[data-testid="activity-row"] img')
+		expect(still.attributes('src')).toBe('data:image/jpeg;base64,AAAA')
+		wrapper.unmount()
+	})
+
+	it('lists the activity with the time into the attempt', async () => {
+		const wrapper = await finish()
+		const vm = wrapper.vm as any
+		await vi.advanceTimersByTimeAsync(125_000)
+		vm.handleWarning('no_face')
+		vm.submitQuiz()
+		await runDeferredSubmit()
+
+		const rows = wrapper.findAll('[data-testid="activity-row"]')
+		expect(rows).toHaveLength(1)
+		expect(rows[0].text()).toContain('02:05')
+		expect(rows[0].text()).toContain('Face not visible')
+		expect(wrapper.get('[data-testid="activity-tally"]').text()).toBe(
+			'1 warning'
+		)
 		wrapper.unmount()
 	})
 })

@@ -15,6 +15,7 @@ from frappe.utils import (
 	cint,
 	comma_and,
 	convert_utc_to_system_timezone,
+	cstr,
 	escape_html,
 	get_datetime,
 	now_datetime,
@@ -241,6 +242,20 @@ def submit_quiz(
 		"pass": percentage >= quiz_details.passing_percentage,
 		"percentage": percentage,
 		"is_open_ended": is_open_ended,
+		**_answer_counts(data["results"], frappe.db.count("LMS Quiz Question", {"parent": quiz})),
+	}
+
+
+def _answer_counts(results: list, total_questions: int) -> dict:
+	"""Correct, wrong and not answered, for the result screen. A blank answer counts
+	as not answered, and so does a question the attempt never reached, which has no
+	result row at all."""
+	answered = [row for row in results if cstr(row.get("answer")).strip()]
+	correct = sum(1 for row in answered if row.get("is_correct"))
+	return {
+		"correct": correct,
+		"wrong": len(answered) - correct,
+		"unanswered": max(total_questions - len(answered), 0),
 	}
 
 
