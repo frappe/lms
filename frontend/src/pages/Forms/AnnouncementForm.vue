@@ -78,7 +78,9 @@ const batch = useBatchDetails(() => props.batchName)
 const loadingBatch = computed(() => !batch.data && batch.loading)
 
 const isAdmin = computed(() =>
-	Boolean(user.data?.is_moderator || user.data?.is_evaluator)
+	Boolean(
+		user.data?.is_moderator || user.data?.is_evaluator || batch.data?.can_manage
+	)
 )
 
 // Lifted off BatchDetail.vue's "Make Announcement" button, which renders only
@@ -129,8 +131,7 @@ const layout = [
 									component: RichTextEditorField,
 									props: {
 										fixedMenu: true,
-										editorClass:
-											'prose-sm py-2 px-2 min-h-[200px] border-outline-gray-2 hover:border-outline-gray-3 rounded-b-5 bg-surface-gray-3',
+										minHeight: '200px',
 									},
 								},
 							},

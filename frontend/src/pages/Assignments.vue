@@ -47,11 +47,12 @@
 				v-model="typeFilter"
 				:options="assignmentTypes"
 				:placeholder="__('Type')"
+				:aria-label="__('Type')"
 			/>
 		</template>
 
 		<template #cell="{ column, value }">
-			<div v-if="column.key == 'modified'" class="text-sm text-ink-gray-5">
+			<div v-if="column.key == 'modified'" class="text-sm text-ink-gray-6">
 				{{ value }}
 			</div>
 			<div v-else>{{ value }}</div>
@@ -100,6 +101,7 @@ const readOnlyMode = window.read_only_mode
 onMounted(() => {
 	if (!user.data?.is_moderator && !user.data?.is_instructor) {
 		router.push({ name: 'Courses' })
+		return
 	}
 	titleFilter.value = router.currentRoute.value.query.title
 	typeFilter.value = router.currentRoute.value.query.type

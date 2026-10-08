@@ -138,3 +138,5 @@ execute:from lms.patches.v2_0.reconcile_custom_docperm_permlevels import reconci
 lms.patches.v2_0.unhide_existing_test_cases #09-09-2026
 lms.patches.v2_0.migrate_raven_rule_vocabulary #29-09-2026
 lms.patches.v2_0.backfill_lesson_assessment_placements #22-09-2026
+execute:from lms.patches.v2_0.reconcile_custom_docperm_permlevels import reconcile; reconcile(["LMS Question"])
+lms.patches.v2_0.add_certificate_member_course_index

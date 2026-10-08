@@ -14,6 +14,7 @@
   "member_image",
   "section_break_onmz",
   "code",
+  "full_code",
   "section_break_idyi",
   "test_cases"
  ],
@@ -72,6 +73,15 @@
    "reqd": 1
   },
   {
+   "default": "0",
+   "description": "Set when the code was stored with its stdin boilerplate, so the exercise page does not add it again.",
+   "fieldname": "full_code",
+   "fieldtype": "Check",
+   "hidden": 1,
+   "label": "Full Code",
+   "read_only": 1
+  },
+  {
    "fetch_from": "exercise.title",
    "fieldname": "exercise_title",
    "fieldtype": "Data",
@@ -88,8 +98,8 @@
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2026-02-20 14:43:56.587110",
- "modified_by": "sayali@frappe.io",
+ "modified": "2026-10-06 23:30:00.000000",
+ "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Programming Exercise Submission",
  "owner": "Administrator",

@@ -1,4 +1,4 @@
-import { mount } from '@vue/test-utils'
+import { mount, RouterLinkStub } from '@vue/test-utils'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { nextTick } from 'vue'
 import ChapterRow from '@/components/ChapterRow.vue'
@@ -74,9 +74,7 @@ const mountRow = (
 		global: {
 			mocks: { __: (s: string) => s },
 			provide: { $user: { data: { name: 'admin@example.com' } } },
-			stubs: {
-				'router-link': { template: '<a><slot /></a>' },
-			},
+			stubs: { RouterLink: RouterLinkStub },
 		},
 	})
 
@@ -114,7 +112,7 @@ describe('ChapterRow inline rename', () => {
 
 describe('ChapterRow lesson count', () => {
 	const count = (allowEdit: boolean) =>
-		mountRow(chapter, allowEdit).get('span.text-ink-gray-5').classes()
+		mountRow(chapter, allowEdit).get('span.text-ink-gray-6').classes()
 
 	it('gives way to the delete action on hover and on touch', () => {
 		expect(count(true)).toEqual(
@@ -206,18 +204,14 @@ describe('ChapterRow locked lesson', () => {
 		expect(pushMock).not.toHaveBeenCalled()
 	})
 
-	it('still opens an unlocked SCORM chapter', async () => {
+	it('still opens an unlocked SCORM chapter', () => {
 		const wrapper = mountRow(scormChapter(0))
 
 		expect(wrapper.find('.lucide-lock-keyhole').exists()).toBe(false)
-
-		await wrapper.get('[title="Old Chapter"]').trigger('click')
-		expect(pushMock).toHaveBeenCalledWith(
-			expect.objectContaining({
-				name: 'SCORMChapter',
-				params: { courseName: 'course-1', chapterName: 'CH-2' },
-			})
-		)
+		expect(wrapper.getComponent(RouterLinkStub).props('to')).toEqual({
+			name: 'SCORMChapter',
+			params: { courseName: 'course-1', chapterName: 'CH-2' },
+		})
 	})
 
 	it('does not emit select-lesson when a locked inline row is clicked', async () => {
@@ -247,5 +241,76 @@ describe('ChapterRow locked lesson', () => {
 		await wrapper.get('.cursor-not-allowed').trigger('click')
 
 		expect(wrapper.emitted('select-lesson')).toBeUndefined()
+	})
+})
+
+describe('ChapterRow keyboard access', () => {
+	// Guards: chapter and lesson actions were icon spans, nested in the header or
+	// lesson control, and completion was an icon alone. Introduced in #2424 and
+	// #2674; test added with the a11y audit remediation.
+	const done: OutlineChapter = {
+		...chapter,
+		idx: 1,
+		lessons: [
+			{ name: 'LESSON-1', title: 'Lesson 1', number: '2-1', is_complete: true },
+		],
+	}
+
+	it('makes delete a button outside the header and the lesson link', async () => {
+		const wrapper = mountRow(done)
+
+		for (const label of ['Delete Chapter', 'Delete Lesson']) {
+			const button = wrapper.get(`button[label="${label}"]`)
+			expect(button.element.parentElement!.closest('a, button')).toBeNull()
+		}
+		await wrapper.get('button[label="Delete Lesson"]').trigger('click')
+		expect(wrapper.emitted('delete-lesson')).toEqual([
+			[{ lesson: 'LESSON-1', chapter: 'CH-2' }],
+		])
+		expect(wrapper.get('a').get('.sr-only').text()).toBe('Completed')
+	})
+
+	it('renders an inline-select lesson as a button', async () => {
+		const wrapper = mount(ChapterRow, {
+			props: { chapter: done, courseName: 'course-1', inlineSelect: true },
+			global: { mocks: { __: (s: string) => s } },
+		})
+
+		await wrapper.get('[data-testid="outline-lesson"] button').trigger('click')
+		expect(wrapper.emitted('select-lesson')).toEqual([
+			[{ chapterNumber: '2', lessonNumber: '1' }],
+		])
+	})
+})
+
+describe('ChapterRow draft lesson', () => {
+	const mountInline = (selectedLessonNumber: string) =>
+		mount(ChapterRow, {
+			props: {
+				chapter,
+				courseName: 'course-1',
+				allowEdit: true,
+				inlineSelect: true,
+				selectedLessonNumber,
+			},
+			global: {
+				mocks: { __: (s: string) => s },
+				provide: { $user: { data: { name: 'admin@example.com' } } },
+			},
+		})
+
+	it('shows the open draft as the active row of its chapter', () => {
+		const row = mountInline('2-new').find(
+			'[data-testid="outline-draft-lesson"]'
+		)
+		expect(row.exists()).toBe(true)
+		expect(row.classes()).toContain('bg-surface-gray-3')
+	})
+
+	it('shows nothing for a draft in another chapter', () => {
+		const wrapper = mountInline('1-new')
+		expect(wrapper.find('[data-testid="outline-draft-lesson"]').exists()).toBe(
+			false
+		)
 	})
 })

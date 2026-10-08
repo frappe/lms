@@ -1,21 +1,23 @@
 <template>
-	<SidebarHeader
-		:title="appName"
-		:subtitle="
-			userResource.data ? convertToTitleCase(userResource.data.full_name) : ''
-		"
-		:menuItems="userDropdownOptions"
-	>
-		<template #prefix>
-			<img
-				v-if="branding.data?.banner_image"
-				:src="safeUrl(branding.data?.banner_image.file_url)"
-				alt=""
-				class="size-full object-cover"
-			/>
-			<LMSLogo v-else class="size-full" />
-		</template>
-	</SidebarHeader>
+	<div class="py-2">
+		<SidebarHeader
+			:title="appName"
+			:subtitle="
+				userResource.data ? convertToTitleCase(userResource.data.full_name) : ''
+			"
+			:menuItems="userDropdownOptions"
+		>
+			<template #prefix>
+				<img
+					v-if="branding.data?.banner_image"
+					:src="safeUrl(branding.data?.banner_image.file_url)"
+					alt=""
+					class="size-full object-cover"
+				/>
+				<LMSLogo v-else class="size-full" />
+			</template>
+		</SidebarHeader>
+	</div>
 	<SettingsModal v-if="userResource.data?.is_moderator" />
 </template>
 
@@ -62,10 +64,17 @@ const themeCheck = {
 			: null,
 }
 
+function isSystemUser() {
+	const cookies = new URLSearchParams(document.cookie.split('; ').join('&'))
+	return cookies.get('system_user') === 'yes'
+}
+
+// Only system users see the Apps menu, and with `block_endpoints` on a website
+// user gets a 403 from this endpoint, so don't fetch it for them at all.
 const apps = createResource({
 	url: 'frappe.apps.get_apps',
 	cache: 'apps',
-	auto: true,
+	auto: isSystemUser(),
 	transform: (data) => [deskApp(), ...siblingApps(data)],
 })
 
@@ -155,14 +164,7 @@ const userDropdownOptions = computed(() => {
 					icon: 'lucide-layout-grid',
 					label: __('Apps'),
 					submenu: appMenuItems.value,
-					condition: () => {
-						let cookies = new URLSearchParams(
-							document.cookie.split('; ').join('&')
-						)
-						let system_user = cookies.get('system_user')
-						if (system_user === 'yes') return true
-						else return false
-					},
+					condition: isSystemUser,
 				},
 				{
 					icon: 'lucide-settings',

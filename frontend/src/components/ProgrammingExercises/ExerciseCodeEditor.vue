@@ -9,7 +9,7 @@
 </template>
 
 <script setup lang="ts">
-import type { Extension } from '@codemirror/state'
+import { EditorState, type Extension } from '@codemirror/state'
 import { EditorView } from '@codemirror/view'
 import { computed, shallowRef, watch } from 'vue'
 import {
@@ -28,8 +28,9 @@ const props = withDefaults(
 		language: ExerciseLanguage
 		label: string
 		contentClass?: string
+		readonly?: boolean
 	}>(),
-	{ contentClass: 'min-h-[16rem]' }
+	{ contentClass: 'min-h-[16rem]', readonly: false }
 )
 
 const LANGUAGE_KEYS: Record<ExerciseLanguage, LanguageKey> = {
@@ -62,6 +63,9 @@ const accessibleName = computed(() =>
 const extensions = computed<Extension[]>(() => {
 	const list: Extension[] = [kit, accessibleName.value]
 	if (languageExtension.value) list.push(languageExtension.value)
+	if (props.readonly) {
+		list.push(EditorState.readOnly.of(true), EditorView.editable.of(false))
+	}
 	return list
 })
 </script>

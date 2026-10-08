@@ -128,7 +128,11 @@
 				</ChartCard>
 
 				<div class="p-4 border rounded-6">
-					<BatchFeedback v-if="batch.data" :batch="batch.data.name" />
+					<BatchFeedback
+						v-if="batch.data"
+						:batch="batch.data.name"
+						:can-manage="Boolean(batch.data?.can_manage)"
+					/>
 				</div>
 			</div>
 		</div>

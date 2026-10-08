@@ -19,7 +19,7 @@
 
 	<AssessmentCard v-else-if="!details" data-testid="block-preview-missing">
 		<AssessmentCardHeader :icon="icon" :title="label" preview />
-		<p class="p-3.5 text-p-base text-ink-gray-5">
+		<p class="p-3.5 text-p-base text-ink-gray-6">
 			{{ __('{0} {1} could not be loaded.').format(label, name) }}
 		</p>
 	</AssessmentCard>
@@ -36,7 +36,7 @@
 			</Badge>
 			<span
 				v-if="details.doc.max_attempts"
-				class="hidden text-xs text-ink-gray-5 sm:inline"
+				class="hidden text-xs text-ink-gray-6 sm:inline"
 			>
 				{{ attemptsAllowedLabel(details.doc.max_attempts) }}
 			</span>
@@ -68,7 +68,7 @@
 			<div
 				class="min-w-0 space-y-2 border-b border-outline-gray-1 p-3.5 md:border-b-0 md:border-e"
 			>
-				<div class="text-sm text-ink-gray-5">{{ __('Brief') }}</div>
+				<div class="text-sm text-ink-gray-6">{{ __('Brief') }}</div>
 				<div
 					v-safe-html:rich="details.doc.question"
 					class="ProseMirror prose prose-table:table-fixed prose-td:p-2 prose-th:p-2 prose-td:border prose-th:border prose-td:border-outline-gray-2 prose-th:border-outline-gray-2 prose-td:relative prose-th:relative prose-th:bg-surface-gray-2 prose-sm max-w-none !whitespace-normal"
@@ -123,7 +123,7 @@
 			<div
 				class="min-w-0 space-y-2 border-b border-outline-gray-1 p-3.5 md:border-b-0 md:border-e"
 			>
-				<div class="text-sm text-ink-gray-5">{{ __('Problem') }}</div>
+				<div class="text-sm text-ink-gray-6">{{ __('Problem') }}</div>
 				<div
 					v-safe-html:rich="details.doc.problem_statement"
 					class="ProseMirror prose prose-sm max-w-none !whitespace-normal prose-pre:bg-surface-gray-3 prose-pre:text-ink-gray-9"

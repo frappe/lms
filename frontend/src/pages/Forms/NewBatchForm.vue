@@ -88,7 +88,9 @@
 							v-model="batch.instructors"
 							doctype="User"
 							url="lms.lms.api.search_users_by_role"
-							:searchParams="{ roles: JSON.stringify(['Batch Evaluator']) }"
+							:searchParams="{
+								roles: JSON.stringify(['Batch Evaluator', 'Course Creator']),
+							}"
 							:label="__('Instructors')"
 							:placeholder="__('Select instructors')"
 							:required="true"
@@ -108,11 +110,13 @@
 						>
 							<RichTextEditor
 								:id="batchDetailsId"
+								:ariaLabelledby="batchDetailsLabelId"
 								:content="batch.batch_details"
 								@change="(val: string) => (batch.batch_details = val)"
 								:editable="true"
 								:fixedMenu="true"
-								editorClass="prose-sm max-w-none border-b border-x border-outline-gray-2 hover:border-outline-gray-3 hover:shadow-sm focus-within:border-outline-gray-4 focus-within:shadow-sm rounded-b-5 py-1 px-2 min-h-[10rem] max-h-[14rem] overflow-auto transition-colors"
+								minHeight="10rem"
+								maxHeight="14rem"
 							/>
 						</div>
 					</div>

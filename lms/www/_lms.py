@@ -3,6 +3,7 @@ import re
 import frappe
 from bs4 import BeautifulSoup
 from frappe import _
+from frappe.core.api.file import get_max_file_size
 from frappe.translate import get_user_lang
 from frappe.utils.data import escape_html
 from frappe.utils.telemetry import capture
@@ -37,6 +38,7 @@ def get_boot():
 			"frappe_version": frappe.__version__,
 			"read_only_mode": frappe.flags.read_only,
 			"csrf_token": frappe.sessions.get_csrf_token(),
+			"max_file_size": get_max_file_size(),
 			"site_name": frappe.local.site,
 			"lms_path": get_lms_path(),
 			"lang": lang,

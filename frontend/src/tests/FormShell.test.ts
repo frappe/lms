@@ -413,6 +413,19 @@ describe('FormShell', () => {
 		document.body.removeChild(outside)
 	})
 
+	it('focuses an [autofocus] field instead of the page on mobile', () => {
+		const wrapper = mountShell(390, {
+			default: '<input class="other" /><input class="title" autofocus />',
+		})
+		expect(document.activeElement).toBe(wrapper.find('input.title').element)
+	})
+
+	it('keeps the page focused when [autofocus] marks an unfocusable node', () => {
+		const wrapper = mountShell(390, { default: '<div autofocus>x</div>' })
+		const page = wrapper.find('[data-testid="form-shell-page"]')
+		expect(document.activeElement).toBe(page.element)
+	})
+
 	// The trigger that opened the form usually survives, because forms are child
 	// routes and the list behind stays mounted. But a save reloads the list
 	// resource and re-renders its rows, so the captured node is replaced and

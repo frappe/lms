@@ -32,10 +32,10 @@ interface UploadedFile {
 }
 
 // An iframe cannot clip its own corners in every browser, so it sits in a
-// wrapper drawn like the assessment cards.
+// rounded wrapper.
 const embedCard = (child: HTMLElement): HTMLDivElement => {
 	const card = document.createElement('div')
-	card.className = 'overflow-hidden rounded-7 border border-outline-gray-2'
+	card.className = 'overflow-hidden rounded-7'
 	card.append(child)
 	return card
 }
@@ -123,12 +123,16 @@ export class Upload {
 			// pdf.js worker + render tasks down. Everywhere else keeps the native
 			// plugin. See utils/pdfViewer.
 			if (!usesWebkitPdfViewer()) {
-				const frame = embedFrame(file.file_url, {
-					width: '100%',
-					height: '700px',
-					class: 'block',
-					type: 'application/pdf',
-				})
+				const frame = embedFrame(
+					file.file_url,
+					{
+						width: '100%',
+						height: '700px',
+						class: 'block',
+						type: 'application/pdf',
+					},
+					__('PDF document')
+				)
 				this.wrapper.replaceChildren(...(frame ? [embedCard(frame)] : []))
 				return
 			}
@@ -144,8 +148,7 @@ export class Upload {
 			if (src) {
 				const img = document.createElement('img')
 				img.setAttribute('src', src)
-				img.className =
-					'block w-full rounded-7 overflow-hidden border border-outline-gray-2'
+				img.className = 'block w-full rounded-7 overflow-hidden'
 				img.setAttribute('width', '100%')
 				this.wrapper.replaceChildren(img)
 			}

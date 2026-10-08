@@ -44,7 +44,7 @@
 						</div>
 						<span
 							v-if="chapter.lessons?.length"
-							class="text-sm text-ink-gray-5 shrink-0"
+							class="text-sm text-ink-gray-6 shrink-0"
 						>
 							{{ chapter.lessons.length }}
 						</span>
@@ -99,10 +99,13 @@
 										/>
 										<span class="sr-only">{{ __('Locked') }}</span>
 									</template>
-									<CircleCheck
-										v-else-if="lesson.is_complete"
-										class="size-4 stroke-1.5 shrink-0 text-ink-green-8 fill-none"
-									/>
+									<template v-else-if="lesson.is_complete">
+										<CircleCheck
+											class="size-4 stroke-1.5 shrink-0 text-ink-green-8 fill-none"
+											aria-hidden="true"
+										/>
+										<span class="sr-only">{{ __('Completed') }}</span>
+									</template>
 									<Circle
 										v-else
 										class="size-4 stroke-1.5 shrink-0 text-ink-gray-4"

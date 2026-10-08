@@ -36,11 +36,13 @@ from frappe.utils import (
 from frappe.utils.response import Response
 from pypika import functions as fn
 
+from lms.lms.code_runner import code_to_store, run_test_cases
 from lms.lms.course_import_export import export_course_zip, import_course_zip, validate_archive
 from lms.lms.doctype.course_lesson.course_lesson import (
 	cleanup_lesson_backreferences,
 	save_progress,
 )
+from lms.lms.doctype.lms_certificate.lms_certificate import evaluates_certificate, get_latest_certificate
 from lms.lms.sidebar import LEGACY_VISIBILITY_FIELDS, ROW_FIELDS, get_sidebar_rows
 from lms.lms.utils import (
 	LMS_ROLES,
@@ -995,8 +997,11 @@ def delete_lesson(lesson: str, chapter: str):
 
 
 @frappe.whitelist()
-def create_lesson(chapter: str) -> str:
-	"""Create a draft "Untitled lesson" appended to the chapter, atomically via add_lesson() (inserts the Course Lesson + its Lesson Reference in one request that rolls back together; returns the new docname)."""
+def create_lesson(chapter: str, title: str | None = None) -> str:
+	"""Append a lesson to the chapter, titled `title` or "Untitled lesson", atomically via add_lesson() (inserts the Course Lesson + its Lesson Reference in one request that rolls back together; returns the new docname)."""
+	if not isinstance(chapter, str):
+		frappe.throw(_("Chapter must be a string."))
+	title = _clean_lesson_title(title)
 	course = frappe.db.get_value("Course Chapter", chapter, "course")
 	if not course:
 		frappe.throw(_("Invalid chapter."))
@@ -1004,7 +1009,30 @@ def create_lesson(chapter: str) -> str:
 		frappe.throw(_("You do not have permission to add a lesson."), frappe.PermissionError)
 
 	idx = frappe.db.count("Lesson Reference", {"parent": chapter}) + 1
-	return add_lesson(_("Untitled lesson"), chapter, course, idx)
+	return add_lesson(title or _("Untitled lesson"), chapter, course, idx)
+
+
+def _clean_lesson_title(title: str | None) -> str | None:
+	if title is None:
+		return None
+	if not isinstance(title, str):
+		frappe.throw(_("Lesson title must be a string."))
+	title = title.strip()
+	if not title:
+		frappe.throw(_("Lesson title cannot be empty."))
+	max_length = _new_lesson_title_max_length()
+	if len(title) > max_length:
+		frappe.throw(_("Lesson title cannot be longer than {0} characters.").format(max_length))
+	return title
+
+
+def _new_lesson_title_max_length() -> int:
+	"""Course Lesson autonames "{####} {title}" into a 140-character name column, so the
+	title gets whatever the next number of the shared "" series leaves."""
+	series = frappe.qb.DocType("Series")
+	current = frappe.qb.from_(series).select(series.current).where(series.name == "").run()
+	next_number = cint(current[0][0]) + 1 if current else 1
+	return 140 - len(f"{next_number:04d} ")
 
 
 @frappe.whitelist()
@@ -1200,7 +1228,7 @@ def check_app_permission():
 	return has_lms_role()
 
 
-@frappe.whitelist()
+@frappe.whitelist(methods=["POST"])
 def save_evaluation_details(
 	member: str,
 	course: str,
@@ -1224,7 +1252,15 @@ def save_evaluation_details(
 		)
 	evaluator = assigned_evaluator or frappe.session.user
 
-	evaluation = frappe.db.exists("LMS Certificate Evaluation", {"member": member, "course": course})
+	# Serialise saves per member; the locking read below then sees rows another
+	# request committed after this one's snapshot.
+	frappe.db.get_value("User", member, "name", for_update=True)
+	evaluation = frappe.db.get_value(
+		"LMS Certificate Evaluation",
+		{"member": member, "course": course, "batch_name": batch_name or ("is", "not set")},
+		"name",
+		for_update=True,
+	)
 
 	details = {
 		"date": date_value,
@@ -1253,7 +1289,7 @@ def save_evaluation_details(
 		return doc.name
 
 
-@frappe.whitelist()
+@frappe.whitelist(methods=["POST"])
 def save_certificate_details(
 	member: str,
 	issue_date: str,
@@ -1267,15 +1303,22 @@ def save_certificate_details(
 	Save certificate details for a member against a course.
 	"""
 	frappe.only_for(["Batch Evaluator", "Moderator"])
-	assigned_evaluator = get_evaluator(course, batch_name)
-	if not has_moderator_role() and frappe.session.user != assigned_evaluator:
+	if not has_moderator_role() and not evaluates_certificate(
+		course, batch_name, member, frappe.session.user
+	):
 		frappe.throw(
 			_("You are not the assigned evaluator for this course and batch."),
 			frappe.PermissionError,
 		)
-	evaluator = assigned_evaluator or frappe.session.user
+	evaluator = get_evaluator(course, batch_name) or frappe.session.user
 
-	certificate = frappe.db.exists("LMS Certificate", {"member": member, "course": course})
+	frappe.db.get_value("User", member, "name", for_update=True)
+	certificate = frappe.db.get_value(
+		"LMS Certificate",
+		{"member": member, "course": course, "batch_name": batch_name or ("is", "not set")},
+		"name",
+		for_update=True,
+	)
 
 	details = {
 		"published": published,
@@ -1398,11 +1441,13 @@ def get_new_gateway_fields(doctype: str):
 
 @frappe.whitelist()
 def get_announcements(batch: str):
+	from lms.lms.permissions import can_author_batch
+
 	roles = frappe.get_roles()
 	is_batch_student = frappe.db.exists(
 		"LMS Batch Enrollment", {"batch": batch, "member": frappe.session.user}
 	)
-	is_admin = "Moderator" in roles or "Batch Evaluator" in roles
+	is_admin = "Moderator" in roles or "Batch Evaluator" in roles or can_author_batch(batch)
 
 	if not (is_batch_student or is_admin):
 		frappe.throw(
@@ -2208,12 +2253,7 @@ def get_certification_details(course: str) -> dict:
 		)
 		or frappe._dict()
 	)
-	certificate = frappe.db.get_value(
-		"LMS Certificate",
-		{"member": frappe.session.user, "course": course},
-		["name", "template", "issue_date"],
-		as_dict=1,
-	)
+	certificate = get_latest_certificate(frappe.session.user, course)
 
 	return {
 		"title": details.title,
@@ -2452,7 +2492,10 @@ def evaluate_programming_exercise(exercise: str, outputs: list) -> list[dict]:
 
 	doc = frappe.get_doc("LMS Programming Exercise", exercise)
 	doc.check_permission("read")
+	return _score_outputs(doc, outputs)
 
+
+def _score_outputs(doc, outputs: list) -> list[dict]:
 	if len(outputs) != len(doc.test_cases):
 		frappe.throw(_("Expected {0} outputs, got {1}").format(len(doc.test_cases), len(outputs)))
 
@@ -2476,44 +2519,70 @@ def _score_test_case(case, produced, author: bool) -> dict:
 
 
 @frappe.whitelist()
-def create_programming_exercise_submission(exercise: str, submission: str, code: str, test_cases: list):
-	frappe.only_for(["Moderator", "Course Creator", "Batch Evaluator"])
+def create_programming_exercise_submission(exercise: str, submission: str, code: str):
+	frappe.only_for(["Moderator", "Course Creator", "Batch Evaluator", "LMS Student"])
 	if submission == "new":
-		return make_new_exercise_submission(exercise, code, test_cases)
-	else:
-		update_exercise_submission(submission, code, test_cases)
+		return make_new_exercise_submission(exercise, code)
+	update_exercise_submission(submission, code)
+	# The page takes the reply as the submission's name for its next save.
+	return submission
 
 
-def make_new_exercise_submission(exercise: str, code: str, test_cases: list):
+def run_submitted_code(exercise: str, code: str) -> tuple[list[dict], str]:
+	"""Run `code`, as the page ran it, against every test case on the code runner
+	and score it. Nothing the browser reports about a run is trusted, so a learner
+	cannot save a pass it did not earn, nor store a hidden case's answer in a row
+	it can read back. Returns the scored rows and the code to store."""
+	doc = frappe.get_doc("LMS Programming Exercise", exercise)
+	doc.check_permission("read")
+
+	outputs = run_test_cases(doc.language, code, doc.test_cases)
+	scored = _score_outputs(doc, outputs)
+	rows = [
+		{
+			"input": case.input,
+			"output": row["output"],
+			"expected_output": row["expected_output"],
+			"status": row["status"],
+		}
+		for case, row in zip(doc.test_cases, scored, strict=True)
+	]
+	return rows, code_to_store(doc.language, doc.starter_code, code)
+
+
+def make_new_exercise_submission(exercise: str, code: str):
+	rows, stored_code = run_submitted_code(exercise, code)
+
 	submission = frappe.new_doc("LMS Programming Exercise Submission")
 	submission.exercise = exercise
 	submission.member = frappe.session.user
-	submission.code = code
+	submission.code = stored_code
+	# Nothing stripped: tells the page not to add the boilerplate back on load.
+	submission.full_code = stored_code == code
+	for row in rows:
+		submission.append("test_cases", row)
 
-	for test_case in test_cases:
-		submission.append(
-			"test_cases",
-			{
-				"input": test_case.get("input"),
-				"output": test_case.get("output"),
-				"expected_output": test_case.get("expected_output"),
-				"status": test_case.get("status", test_case.get("status", "Failed")),
-			},
-		)
-
-	submission.status = get_exercise_status(test_cases)
+	submission.status = get_exercise_status(rows)
 	submission.insert()
 	return submission.name
 
 
-def update_exercise_submission(submission: str, code: str, test_cases: list):
-	member = frappe.db.get_value("LMS Programming Exercise Submission", submission, "member")
+def update_exercise_submission(submission: str, code: str):
+	member, exercise = frappe.db.get_value(
+		"LMS Programming Exercise Submission", submission, ["member", "exercise"]
+	) or (None, None)
 	if member != frappe.session.user:
 		frappe.throw(_("You do not have permission to update this submission."), frappe.PermissionError)
 
-	update_test_cases(test_cases, submission)
-	status = get_exercise_status(test_cases)
-	frappe.db.set_value("LMS Programming Exercise Submission", submission, {"status": status, "code": code})
+	# Run against the submission's own exercise, never one named in the request.
+	rows, stored_code = run_submitted_code(exercise, code)
+	update_test_cases(rows, submission)
+	status = get_exercise_status(rows)
+	frappe.db.set_value(
+		"LMS Programming Exercise Submission",
+		submission,
+		{"status": status, "code": stored_code, "full_code": stored_code == code},
+	)
 
 
 def get_exercise_status(test_cases: list):

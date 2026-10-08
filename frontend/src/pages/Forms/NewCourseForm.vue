@@ -59,7 +59,7 @@
 						<template #item-label="{ item }">
 							<div class="min-w-0 flex justify-between gap-2">
 								<div class="truncate">{{ item.label }}</div>
-								<div class="truncate text-xs text-ink-gray-5">
+								<div class="truncate text-xs text-ink-gray-6">
 									{{ item.value }}
 								</div>
 							</div>
@@ -88,11 +88,13 @@
 						/>
 						<RichTextEditor
 							:id="descriptionId"
+							:ariaLabelledby="descriptionLabelId"
 							:content="course.description"
 							@change="(val: string) => (course.description = val)"
 							:editable="true"
 							:fixedMenu="true"
-							editorClass="prose-sm max-w-none border-b border-x border-outline-elevation-2 bg-surface-gray-2 rounded-b-5 py-1 px-2 min-h-[10rem] max-h-[17rem] overflow-auto"
+							minHeight="10rem"
+							maxHeight="17rem"
 						/>
 					</div>
 				</div>

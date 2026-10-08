@@ -33,7 +33,7 @@
 				</template>
 			</Button>
 			<div
-				class="min-w-0 flex-1 text-center text-p-xs font-medium tabular-nums text-ink-gray-5"
+				class="min-w-0 flex-1 text-center text-p-xs font-medium tabular-nums text-ink-gray-6"
 			>
 				{{ lessonIndex }} / {{ lessonTotal }}
 			</div>
@@ -121,18 +121,20 @@
 
 								<div
 									v-if="zenModeEnabled"
+									tabindex="0"
 									class="relative flex items-center gap-x-2 text-sm text-ink-gray-7 group w-fit mt-2"
 								>
 									<span>
 										{{ lesson.data.chapter_title }} -
 										{{ lesson.data.course_title }}
 									</span>
-									<span class="lucide-info size-3" />
+									<span class="lucide-info size-3" aria-hidden="true" />
+									<span class="sr-only">{{ progressLabel }}</span>
 									<div
-										class="hidden group-hover:block [@media(hover:none)]:block [@media(hover:none)]:static [@media(hover:none)]:mt-0 rounded-4 bg-surface-gray-10 px-2 py-1 text-xs text-ink-base shadow-xl absolute start-0 top-full mt-2"
+										class="hidden group-hover:block group-focus-within:block [@media(hover:none)]:block [@media(hover:none)]:static [@media(hover:none)]:mt-0 rounded-4 bg-surface-gray-10 px-2 py-1 text-xs text-ink-base shadow-xl absolute start-0 top-full mt-2"
+										aria-hidden="true"
 									>
-										{{ Math.ceil(lesson.data.membership.progress) }}%
-										{{ __('completed') }}
+										{{ progressLabel }}
 									</div>
 								</div>
 							</div>
@@ -203,7 +205,7 @@
 							"
 							class="bg-surface-gray-2 p-3 rounded-5 mt-6"
 						>
-							<h2 class="text-ink-gray-5 font-medium">
+							<h2 class="text-ink-gray-6 font-medium">
 								{{ __('Instructor Notes') }}
 							</h2>
 							<div
@@ -765,6 +767,9 @@ const currentIndex = computed(() =>
 	lessonNumbers.value.indexOf(`${props.chapterNumber}-${props.lessonNumber}`)
 )
 const lessonTotal = computed(() => lessonNumbers.value.length)
+const progressLabel = computed(() =>
+	__('{0}% completed').format(Math.ceil(lesson.data?.membership?.progress ?? 0))
+)
 const lessonIndex = computed(() =>
 	currentIndex.value >= 0 ? currentIndex.value + 1 : 0
 )

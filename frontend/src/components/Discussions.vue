@@ -40,7 +40,7 @@
 						<div class="text-base-semibold mb-1 text-ink-gray-7 truncate">
 							{{ topic.title }}
 						</div>
-						<div class="flex items-center text-ink-gray-5">
+						<div class="flex items-center text-ink-gray-6">
 							<span class="text-sm">
 								{{ timeAgo(topic.creation) }}
 							</span>
@@ -86,7 +86,7 @@
 			<div v-if="emptyStateTitle" class="font-medium mb-2">
 				{{ __(emptyStateTitle) }}
 			</div>
-			<div class="text-ink-gray-5">
+			<div class="text-ink-gray-6">
 				{{ __(emptyStateText) }}
 			</div>
 		</div>

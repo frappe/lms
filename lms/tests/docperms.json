@@ -212,8 +212,7 @@
 			"export"
 		],
 		"LMS Student#0#if_owner": [
-			"read",
-			"create"
+			"read"
 		],
 		"Moderator#0": [
 			"read",
@@ -235,6 +234,13 @@
 			"report",
 			"export"
 		],
+		"Course Creator#0": [
+			"read",
+			"write",
+			"share",
+			"report",
+			"export"
+		],
 		"LMS Student#0": [
 			"read"
 		],
@@ -250,6 +256,15 @@
 	},
 	"LMS Batch Enrollment": {
 		"Batch Evaluator#0": [
+			"read",
+			"write",
+			"create",
+			"delete",
+			"share",
+			"report",
+			"export"
+		],
+		"Course Creator#0": [
 			"read",
 			"write",
 			"create",
@@ -614,6 +629,15 @@
 			"report",
 			"export"
 		],
+		"Course Creator#0": [
+			"read",
+			"write",
+			"create",
+			"delete",
+			"share",
+			"report",
+			"export"
+		],
 		"LMS Student#0": [
 			"read",
 			"share",
@@ -778,6 +802,10 @@
 			"report",
 			"export"
 		],
+		"Course Creator#1": [
+			"read",
+			"write"
+		],
 		"Moderator#0": [
 			"read",
 			"write",
@@ -786,6 +814,10 @@
 			"share",
 			"report",
 			"export"
+		],
+		"Moderator#1": [
+			"read",
+			"write"
 		]
 	},
 	"LMS Quiz": {

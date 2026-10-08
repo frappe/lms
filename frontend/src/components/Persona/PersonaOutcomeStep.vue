@@ -16,7 +16,7 @@
 				<span class="block text-p-sm font-medium text-ink-gray-9">
 					{{ option.label }}
 				</span>
-				<span v-if="option.description" class="block text-p-xs text-ink-gray-5">
+				<span v-if="option.description" class="block text-p-xs text-ink-gray-6">
 					{{ option.description }}
 				</span>
 			</span>

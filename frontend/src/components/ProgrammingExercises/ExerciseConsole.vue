@@ -2,7 +2,7 @@
 	<div
 		ref="root"
 		class="flex flex-col border-t border-outline-gray-1"
-		:class="open ? 'min-h-0 flex-1' : 'shrink-0'"
+		:class="open ? 'max-h-48 shrink-0' : 'shrink-0'"
 	>
 		<button
 			type="button"
@@ -21,12 +21,13 @@
 				}}</span>
 			</span>
 			<span class="flex items-center gap-x-2">
-				<span v-if="duration !== null" class="text-xs text-ink-gray-5">
+				<span v-if="duration !== null" class="text-xs text-ink-gray-6">
 					{{ __('Ran in {0}s').format(duration.toFixed(2)) }}
 				</span>
 				<KeyboardShortcut combo="Mod+`" class="shrink-0 opacity-60" />
 			</span>
 		</button>
+		<span role="status" class="sr-only">{{ runStatus }}</span>
 
 		<div v-if="open" class="min-h-0 flex-1 overflow-y-auto">
 			<div
@@ -71,14 +72,14 @@ export type ConsoleLine = {
 </script>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { KeyboardShortcut, Spinner } from 'frappe-ui'
 import {
 	sameBlock,
 	useKeyboardShortcuts,
 } from '@/composables/useKeyboardShortcuts'
 
-withDefaults(
+const props = withDefaults(
 	defineProps<{
 		lines: ConsoleLine[]
 		duration: number | null
@@ -87,7 +88,23 @@ withDefaults(
 	{ running: false }
 )
 
-const open = ref(true)
+// Collapsed by default: the test cases below carry each run's outcome. An error
+// only shows here, though, so one opens it rather than failing out of sight.
+const open = ref(false)
+const hasError = computed(() => props.lines.some((l) => l.stream === 'stderr'))
+watch(
+	hasError,
+	(error) => {
+		if (error) open.value = true
+	},
+	{ immediate: true }
+)
+
+const runStatus = computed(() => {
+	if (props.running) return __('Running your code…')
+	if (props.duration === null) return ''
+	return __('Ran in {0}s').format(props.duration.toFixed(2))
+})
 const root = ref<HTMLElement | null>(null)
 
 useKeyboardShortcuts({
@@ -105,7 +122,7 @@ useKeyboardShortcuts({
 
 const lineClass = (line: ConsoleLine) => {
 	if (line.stream === 'stderr') return 'text-ink-red-5'
-	if (line.stream === 'command') return 'text-ink-gray-5'
+	if (line.stream === 'command') return 'text-ink-gray-6'
 	return 'text-ink-gray-8'
 }
 </script>

@@ -54,7 +54,7 @@
 						>
 							{{ review.owner_details.full_name }}
 						</router-link>
-						<span class="text-ink-gray-5 shrink-0">
+						<span class="text-ink-gray-6 shrink-0">
 							{{ formatReviewDate(review.creation) }}
 						</span>
 					</div>

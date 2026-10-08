@@ -29,7 +29,7 @@
 					:class="{ 'border-b': index + 1 != replies.data.length }"
 				>
 					<div class="flex items-center justify-between mb-2">
-						<div class="flex items-center text-ink-gray-5">
+						<div class="flex items-center text-ink-gray-6">
 							<UserAvatar :user="reply.user" class="me-2" />
 							<span>
 								{{ reply.user.full_name }}
@@ -77,10 +77,12 @@
 						</div>
 					</div>
 					<RichTextEditor
+						:ariaLabel="__('Reply by {0}').format(reply.user.full_name)"
 						:content="reply.reply"
 						@change="(val) => (reply.reply = val)"
 						:editable="reply.editable || false"
 						:fixedMenu="reply.editable || false"
+						:variant="reply.editable ? 'outline' : 'ghost'"
 						:editorClass="
 							reply.editable
 								? 'prose-table:table-fixed prose-td:p-2 prose-th:p-2 prose-td:border prose-th:border prose-td:border-outline-gray-2 prose-th:border-outline-gray-2 prose-td:relative prose-th:relative prose-th:bg-surface-gray-2 prose-sm'
@@ -93,12 +95,14 @@
 
 		<RichTextEditor
 			v-if="renderEditor && !readOnlyMode"
+			:ariaLabel="__('Your reply')"
 			:content="newReply"
 			:mentions="mentionUsers"
 			@change="(val) => (newReply = val)"
 			:placeholder="__('Type your reply here...')"
 			:fixedMenu="true"
-			editorClass="prose-table:table-fixed prose-td:p-2 prose-th:p-2 prose-td:border prose-th:border prose-td:border-outline-gray-2 prose-th:border-outline-gray-2 prose-td:relative prose-th:relative prose-th:bg-surface-gray-2 prose-sm border border-outline-gray-2 rounded-b-5 min-h-[7rem] py-1 px-2"
+			minHeight="7rem"
+			editorClass="prose-table:table-fixed prose-td:p-2 prose-th:p-2 prose-td:border prose-th:border prose-td:border-outline-gray-2 prose-th:border-outline-gray-2 prose-td:relative prose-th:relative prose-th:bg-surface-gray-2 prose-sm"
 		/>
 		<div v-if="!readOnlyMode" class="flex justify-between mt-2">
 			<span> </span>

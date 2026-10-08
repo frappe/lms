@@ -58,6 +58,7 @@
 				v-model="currentCategory"
 				:options="categories.data.filter((c) => c.value)"
 				:placeholder="__('Category')"
+				:ariaLabel="__('Category')"
 				@update:modelValue="updateCourses()"
 			/>
 			<ToggleFilter
@@ -70,11 +71,10 @@
 		</template>
 
 		<template #card="{ row }">
-			<router-link
+			<CourseCard
+				:course="row"
 				:to="{ name: 'CourseDetail', params: { courseName: row.name } }"
-			>
-				<CourseCard :course="row" />
-			</router-link>
+			/>
 		</template>
 	</ListPage>
 

@@ -3,6 +3,7 @@ import { registerDirectives } from '@/directives'
 import AssessmentPlugin from '@/components/AssessmentPlugin.vue'
 import { createApp, h } from 'vue'
 import type { App } from 'vue'
+import type { BlockAPI } from '@editorjs/editorjs'
 import translationPlugin from '../translation'
 import { CircleHelp } from 'lucide-vue-next'
 import router from '@/router'
@@ -13,12 +14,22 @@ type QuizData = { quiz?: string }
 export class Quiz {
 	data: QuizData
 	readOnly: boolean
+	block?: BlockAPI
 	wrapper!: HTMLDivElement
 	quizApp: App | null = null
 
-	constructor({ data, readOnly }: { data: QuizData; readOnly: boolean }) {
+	constructor({
+		data,
+		readOnly,
+		block,
+	}: {
+		data: QuizData
+		readOnly: boolean
+		block?: BlockAPI
+	}) {
 		this.data = data
 		this.readOnly = readOnly
+		this.block = block
 	}
 
 	static get toolbox() {
@@ -72,13 +83,16 @@ export class Quiz {
 			type: 'quiz',
 			onAddition: (quiz: string) => {
 				this.data.quiz = quiz
+				this.quizApp?.unmount()
 				this.renderQuiz(quiz)
+				this.block?.dispatchChange()
 			},
 		})
 		registerDirectives(app)
 		app.use(translationPlugin)
 		app.use(router)
 		app.mount(this.wrapper)
+		this.quizApp = app
 	}
 
 	save(): QuizData {

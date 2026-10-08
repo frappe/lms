@@ -21,7 +21,7 @@
 				:combo="link.shortcut"
 				class="me-2"
 			/>
-			<span v-else-if="link.count" class="me-2 text-p-xs text-ink-gray-5">
+			<span v-else-if="link.count" class="me-2 text-p-xs text-ink-gray-6">
 				{{ link.count }}
 			</span>
 		</template>
