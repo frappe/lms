@@ -255,6 +255,15 @@ const updateTabFilter = () => {
 	if (currentTab.value == 'enrolled' && is_student.value) {
 		filters.value['enrolled'] = 1
 		delete filters.value['start_date']
+<<<<<<< HEAD
+=======
+		delete filters.value['end_date']
+		delete filters.value['published']
+		orderBy.value = 'start_date desc'
+	} else if (isAdmin.value) {
+		delete filters.value['enrolled']
+		delete filters.value['start_date']
+>>>>>>> 6e1a4f3 (fix(batches): show students active batches, not only upcoming)
 		delete filters.value['end_date']
 		delete filters.value['published']
 		orderBy.value = 'start_date desc'
@@ -280,9 +289,15 @@ const updateTabFilter = () => {
 // filter makes get_batches treat the list as upcoming, which also drops today's
 // batches whose start time has passed.
 const updateStudentFilter = () => {
+<<<<<<< HEAD
 	if (!isAdmin.value && currentTab.value != 'enrolled') {
 		delete filters.value['end_date']
 		filters.value['start_date'] = ['>=', dayjs().format('YYYY-MM-DD')]
+=======
+	if (!user.data || (is_student.value && currentTab.value != 'enrolled')) {
+		delete filters.value['start_date']
+		filters.value['end_date'] = ['>=', dayjs().format('YYYY-MM-DD')]
+>>>>>>> 6e1a4f3 (fix(batches): show students active batches, not only upcoming)
 		filters.value['published'] = 1
 	}
 }
