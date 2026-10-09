@@ -21,7 +21,9 @@ UNSCOPED_ROLES = ("Moderator", "Batch Evaluator")
 class LMSBatchEnrollment(Document):
 	def after_insert(self):
 		send_confirmation_email(self)
-		self.add_member_to_live_class()
+		from lms.lms.doctype.lms_live_class.lms_live_class import add_learner_to_live_classes
+
+		add_learner_to_live_classes(self.batch, self.member)
 
 	def validate(self):
 		validate_identity_unchanged(self, ("batch", "member"))
@@ -126,26 +128,6 @@ class LMSBatchEnrollment(Document):
 				enrollment.member = self.member
 				enrollment.enrollment_from_batch = self.batch
 				enrollment.save()
-
-	def add_member_to_live_class(self):
-		live_classes = frappe.get_all("LMS Live Class", {"batch_name": self.batch}, ["name", "event"])
-
-		for live_class in live_classes:
-			if live_class.event:
-				# Scoped bypass: adds only self.member to events of this batch's own live
-				# classes. A self-enrolling student has no create permission on Event
-				# Participants; the authorization boundary is enrollment creation itself.
-				frappe.get_doc(
-					{
-						"doctype": "Event Participants",
-						"reference_doctype": "User",
-						"reference_docname": self.member,
-						"email": self.member,
-						"parent": live_class.event,
-						"parenttype": "Event",
-						"parentfield": "event_participants",
-					}
-				).save(ignore_permissions=True)
 
 
 @frappe.whitelist()
