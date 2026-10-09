@@ -79,13 +79,24 @@ class TestSignupForm(UnitTestCase):
 	def test_optional_fields_render_only_when_configured(self):
 		html = self.render()
 		self.assertNotIn('id="user_category"', html)
+		self.assertNotIn('id="signup_user_category_select"', html)
 		self.assertNotIn('id="signup-terms"', html)
+		self.assertNotIn("signup-select.css", html)
+		self.assertNotIn("signup-select.js", html)
 
 		html = self.render(user_category=1, custom_signup_content="I agree to the terms")
 		self.assertIn('id="user_category"', html)
+		self.assertIn('id="signup_user_category_select"', html)
 		self.assertIn('id="signup-terms"', html)
 		self.assertIn("I agree to the terms", html)
-		self.assertIn("icon-chevrons-up-down", html)
+		self.assertIn("signup-select.css", html)
+		self.assertIn("signup-select.js", html)
+
+	def test_signup_category_reset_notifies_the_vue_select(self):
+		source = self.source()
+		reset_handler = source.split("const reset_signup_form = ")[1].split("\n    }")[0]
+		self.assertIn('userCategory.value = ""', reset_handler)
+		self.assertIn('userCategory.dispatchEvent(new Event("change", { bubbles: true }))', reset_handler)
 
 	def test_renders_without_the_frameworks_login_templates(self):
 		"""/login renders this template, so an include the running frappe does not
