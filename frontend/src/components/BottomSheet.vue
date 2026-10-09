@@ -37,9 +37,12 @@
 					</slot>
 				</div>
 
-				<div class="flex-1 overflow-y-auto overscroll-contain px-2 pb-4">
+				<ScrollArea
+					class="min-h-0 flex-1"
+					viewportClass="overscroll-contain px-2 pb-4"
+				>
 					<slot />
-				</div>
+				</ScrollArea>
 			</div>
 		</Transition>
 	</Teleport>
@@ -47,6 +50,7 @@
 
 <script setup>
 import { ref, computed, watch, nextTick, useId } from 'vue'
+import { ScrollArea } from 'frappe-ui'
 import { useScrollLock, useSwipe, useEventListener } from '@vueuse/core'
 import { focusStops, trapTab } from '@/composables/useFocusTrap'
 import { useInertBackground } from '@/composables/useInertBackground'

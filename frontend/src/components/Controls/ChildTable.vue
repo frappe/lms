@@ -7,75 +7,77 @@
 			:required="required"
 		/>
 		<div class="overflow-visible border border-outline-elevation-2 rounded-5">
-			<div
-				class="grid overflow-x-auto gap-x-4"
-				role="table"
-				:aria-labelledby="label ? labelId : undefined"
-				data-testid="child-table-grid"
-				:style="{ gridTemplateColumns: getGridTemplateColumns() }"
-			>
+			<ScrollArea orientation="horizontal" viewportClass="overflow-x-auto">
 				<div
-					role="row"
-					class="col-span-full grid grid-cols-subgrid items-center p-2 border-b border-outline-elevation-2"
+					class="grid gap-x-4"
+					role="table"
+					:aria-labelledby="label ? labelId : undefined"
+					data-testid="child-table-grid"
+					:style="{ gridTemplateColumns: getGridTemplateColumns() }"
 				>
 					<div
-						v-for="(column, index) in columns"
-						:key="index"
-						role="columnheader"
-						class="text-sm text-ink-gray-6"
-						:class="{ 'text-center': isCheckboxColumn(column) }"
+						role="row"
+						class="col-span-full grid grid-cols-subgrid items-center p-2 border-b border-outline-elevation-2"
 					>
-						{{ column }}
-					</div>
-					<div role="columnheader">
-						<span class="sr-only">{{ actionsLabel }}</span>
-					</div>
-				</div>
-				<div
-					v-for="(row, rowIndex) in rows"
-					:key="rowIndex"
-					role="row"
-					class="col-span-full grid grid-cols-subgrid items-center p-2"
-				>
-					<template v-for="key in Object.keys(row)" :key="key">
 						<div
-							v-if="showKey(key) && (checkboxKeys ?? []).includes(key)"
-							role="cell"
-							class="flex justify-center"
+							v-for="(column, index) in columns"
+							:key="index"
+							role="columnheader"
+							class="text-sm text-ink-gray-6"
+							:class="{ 'text-center': isCheckboxColumn(column) }"
 						>
-							<Checkbox
-								:model-value="!!row[key]"
-								:aria-label="cellLabel(key, rowIndex)"
-								@update:model-value="(checked) => (row[key] = !!checked)"
-							/>
+							{{ column }}
 						</div>
-						<div v-else-if="showKey(key)" role="cell" class="min-w-0">
-							<input
-								v-model="row[key]"
-								:aria-label="cellLabel(key, rowIndex)"
-								class="py-1.5 px-2 w-full rounded-5 border border-outline-gray-2 bg-surface-base text-sm text-ink-gray-8 placeholder-ink-gray-4 transition-colors hover:border-outline-gray-3 hover:shadow-sm focus:border-outline-gray-4 focus:shadow-sm focus:outline-none focus:ring-0"
-							/>
+						<div role="columnheader">
+							<span class="sr-only">{{ actionsLabel }}</span>
 						</div>
-					</template>
-
-					<div role="cell">
-						<Tooltip :text="removeRowTooltip">
-							<Button
-								variant="ghost"
-								:label="removeRowLabel(rowIndex)"
-								@click="deleteRow(rowIndex)"
+					</div>
+					<div
+						v-for="(row, rowIndex) in rows"
+						:key="rowIndex"
+						role="row"
+						class="col-span-full grid grid-cols-subgrid items-center p-2"
+					>
+						<template v-for="key in Object.keys(row)" :key="key">
+							<div
+								v-if="showKey(key) && (checkboxKeys ?? []).includes(key)"
+								role="cell"
+								class="flex justify-center"
 							>
-								<template #icon>
-									<span
-										class="lucide-x size-4 text-ink-gray-7"
-										aria-hidden="true"
-									/>
-								</template>
-							</Button>
-						</Tooltip>
+								<Checkbox
+									:model-value="!!row[key]"
+									:aria-label="cellLabel(key, rowIndex)"
+									@update:model-value="(checked) => (row[key] = !!checked)"
+								/>
+							</div>
+							<div v-else-if="showKey(key)" role="cell" class="min-w-0">
+								<input
+									v-model="row[key]"
+									:aria-label="cellLabel(key, rowIndex)"
+									class="py-1.5 px-2 w-full rounded-5 border border-outline-gray-2 bg-surface-base text-sm text-ink-gray-8 placeholder-ink-gray-4 transition-colors hover:border-outline-gray-3 hover:shadow-sm focus:border-outline-gray-4 focus:shadow-sm focus:outline-none focus:ring-0"
+								/>
+							</div>
+						</template>
+
+						<div role="cell">
+							<Tooltip :text="removeRowTooltip">
+								<Button
+									variant="ghost"
+									:label="removeRowLabel(rowIndex)"
+									@click="deleteRow(rowIndex)"
+								>
+									<template #icon>
+										<span
+											class="lucide-x size-4 text-ink-gray-7"
+											aria-hidden="true"
+										/>
+									</template>
+								</Button>
+							</Tooltip>
+						</div>
 					</div>
 				</div>
-			</div>
+			</ScrollArea>
 		</div>
 
 		<div class="mt-2">
@@ -97,7 +99,7 @@
 
 <script setup lang="ts">
 import { nextTick, ref, watch } from 'vue'
-import { Button, Checkbox, Tooltip } from 'frappe-ui'
+import { Button, Checkbox, ScrollArea, Tooltip } from 'frappe-ui'
 import {
 	InputDescription,
 	InputError,
@@ -160,10 +162,11 @@ const addRow = () => {
 
 const focusNewRowInput = () => {
 	nextTick(() => {
-		const rowElements = document.querySelectorAll('.overflow-x-auto .grid')[
-			rows.value!.length
-		]
-		const firstInput = rowElements.querySelector('input')
+		const rowElements = document.querySelectorAll(
+			'[data-testid="child-table-grid"] [role="row"]'
+		)
+		const newRow = rowElements[rowElements.length - 1]
+		const firstInput = newRow?.querySelector('input')
 		if (firstInput) {
 			;(firstInput as HTMLInputElement).focus()
 		}

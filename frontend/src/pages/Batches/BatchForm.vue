@@ -1,7 +1,11 @@
 <template>
 	<div class="">
 		<div class="grid grid-cols-1 lg:grid-cols-[3fr,2fr]">
-			<div v-if="batchDetail.doc" class="py-5 lg:h-[88vh] lg:overflow-y-auto">
+			<ScrollArea
+				v-if="batchDetail.doc"
+				class="lg:h-[88vh]"
+				viewportClass="py-5 lg:overflow-y-auto"
+			>
 				<div class="px-5 pb-5 space-y-5 border-b mb-5">
 					<h2 class="text-base-semibold text-ink-gray-9">
 						{{ __('Details') }}
@@ -274,7 +278,7 @@
 						/>
 					</div>
 				</div>
-			</div>
+			</ScrollArea>
 			<div class="border-s min-w-0">
 				<div class="border-b p-4">
 					<BatchCourses :batch="batch" />
@@ -311,6 +315,7 @@ import {
 	FormControl,
 	createDocumentResource,
 	createResource,
+	ScrollArea,
 	toast,
 	call,
 } from 'frappe-ui'

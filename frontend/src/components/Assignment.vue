@@ -1,5 +1,11 @@
 <template>
-	<div v-if="assignment.data" ref="root" :class="rootClass">
+	<component
+		v-if="assignment.data"
+		:is="embedded ? 'div' : ScrollArea"
+		:ref="setRoot"
+		:class="embedded ? '' : 'h-full min-h-0'"
+		:viewportClass="embedded ? undefined : scrollViewportClass"
+	>
 		<div v-if="showTitle" class="mb-4 text-lg-semibold text-ink-gray-9">
 			<div v-if="currentSubmission === 'new'">
 				{{ __('Submission by') }} {{ user.data?.full_name }}
@@ -242,7 +248,7 @@
 				</div>
 			</div>
 		</AssessmentCard>
-	</div>
+	</component>
 	<AssessmentCard
 		v-else-if="assignment.loading"
 		aria-busy="true"
@@ -285,9 +291,10 @@ import {
 	FileUploader,
 	FormControl,
 	Skeleton,
+	ScrollArea,
 	toast,
 } from 'frappe-ui'
-import type { FrappeResourceError } from 'frappe-ui'
+import type { FrappeResourceError, ScrollAreaExposed } from 'frappe-ui'
 import { InputLabel } from 'frappe-ui/experimental'
 import { computed, inject, ref, shallowRef, useId, watch } from 'vue'
 import AssessmentCard from '@/components/Assessment/AssessmentCard.vue'
@@ -362,9 +369,12 @@ const props = withDefaults(
 // push to remount the card inline).
 const currentSubmission = ref<string>(props.submissionName)
 const root = ref<HTMLElement | null>(null)
+const setRoot = (target: HTMLElement | ScrollAreaExposed | null) => {
+	root.value =
+		target && 'viewportElement' in target ? target.viewportElement : target
+}
 
-const rootClass = computed<string>(() => {
-	if (props.embedded) return ''
+const scrollViewportClass = computed<string>(() => {
 	return props.showTitle
 		? 'h-full overflow-y-auto p-5'
 		: 'h-full overflow-y-auto'

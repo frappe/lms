@@ -604,7 +604,9 @@
 			"
 			class="rounded-6 border border-outline-gray-2 p-3.5"
 		>
-			<QuizActivityLog :entries="summaryLog" />
+			<ScrollArea class="max-h-64" viewportClass="max-h-64">
+				<QuizActivityLog :entries="summaryLog" />
+			</ScrollArea>
 		</div>
 
 		<div
@@ -804,6 +806,7 @@ import {
 	Dialog,
 	FormControl,
 	Progress,
+	ScrollArea,
 	Skeleton,
 	toast,
 } from 'frappe-ui'

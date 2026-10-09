@@ -32,6 +32,11 @@ vi.mock('frappe-ui', () => ({
 		template: `<input data-testid="search" :value="modelValue" @input="$emit('update:modelValue', $event.target.value)" />`,
 	},
 	LoadingIndicator: { template: `<span data-testid="spinner" />` },
+	ScrollArea: {
+		inheritAttrs: false,
+		props: ['viewportClass'],
+		template: `<div v-bind="$attrs"><div :class="viewportClass"><slot /></div></div>`,
+	},
 	Switch: {
 		props: ['modelValue'],
 		template: `<button data-testid="switch" @click="$emit('update:modelValue', !modelValue)"><slot name="label" /></button>`,

@@ -163,6 +163,11 @@ vi.mock('frappe-ui', () => ({
 		template: `<span class="badge" :data-theme="theme"><slot /></span>`,
 	},
 	LoadingIndicator: { template: `<span />` },
+	ScrollArea: {
+		inheritAttrs: false,
+		props: ['viewportClass'],
+		template: `<div v-bind="$attrs"><div :class="viewportClass"><slot /></div></div>`,
+	},
 	Alert: {
 		props: {
 			title: String,

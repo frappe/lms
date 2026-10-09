@@ -1,5 +1,9 @@
 <template>
-	<div class="-mx-3 min-h-0 flex-1 overflow-y-auto" :style="scrollerStyle">
+	<ScrollArea
+		class="-mx-3 min-h-0 flex-1"
+		viewportClass="min-h-0 max-h-[inherit] overflow-y-auto"
+		:style="scrollerStyle"
+	>
 		<List :columns="tracks" :row-height="ROW_HEIGHT_PX" class="list-row-px-3">
 			<ListHeader class="sticky top-0 z-10 bg-surface-elevation-1">
 				<ListHeaderCell v-for="column in columns" :key="column.key">
@@ -124,7 +128,7 @@
 				{{ __('Load More') }}
 			</Button>
 		</div>
-	</div>
+	</ScrollArea>
 </template>
 
 <script setup lang="ts">
@@ -132,8 +136,7 @@
 // SettingsList so a table inside a page (Raven workspace's Channels tab)
 // shares the same header, grid and cells as one that's the whole page.
 //
-// Header and rows share one scroller: a scrollbar narrows the rows' content
-// box ~15px versus a header outside it, offsetting every fixed column after.
+// Header and rows share one scroller so every fixed column stays aligned.
 // `-mx-3` cancels `list-row-px-3` so the first column aligns with the title.
 //
 // Load More sits inside the scroller (it's the row after the last row) but
@@ -144,14 +147,12 @@
 // `surface-elevation-1`, the only surface here, so hovering did nothing.
 // It wins on source order, not specificity; reordering variants undoes it.
 //
-// `outline-offset: -3px` draws the focus ring inside the row: the scroller's
-// `overflow-y: auto` computes `overflow-x` to `auto` too, and a ring at the
-// default offset loses its left/right strokes to the clip.
+// `outline-offset: -3px` keeps each focus ring inside the clipped scroll area.
 //
 // An `actions` column renders its trigger only where the row has an action;
 // a trigger opening an empty menu answers nothing.
 import { computed } from 'vue'
-import { Avatar, Badge, Button, Dropdown, Switch } from 'frappe-ui'
+import { Avatar, Badge, Button, Dropdown, ScrollArea, Switch } from 'frappe-ui'
 import {
 	List,
 	ListCell,

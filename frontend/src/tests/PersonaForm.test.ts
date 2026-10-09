@@ -13,6 +13,7 @@ const { callMock, captureMock, pushMock } = vi.hoisted(() => ({
 }))
 
 vi.mock('frappe-ui', () => ({
+	ScrollArea: { name: 'ScrollArea', template: '<div><slot /></div>' },
 	call: callMock,
 	usePageMeta: vi.fn(),
 }))

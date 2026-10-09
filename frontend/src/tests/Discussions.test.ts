@@ -33,6 +33,10 @@ const TOPICS = [
 // pieces Discussions uses.
 vi.mock('frappe-ui', () => ({
 	Button: { template: '<button><slot /></button>' },
+	ScrollArea: {
+		props: ['viewportClass'],
+		template: `<div><div :class="viewportClass"><slot /></div></div>`,
+	},
 	createResource: () => ({ data: TOPICS, reload: vi.fn(), refresh: vi.fn() }),
 }))
 vi.mock('@/components/DiscussionReplies.vue', () => ({

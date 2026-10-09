@@ -99,200 +99,206 @@
 			<div
 				v-else
 				ref="lessonContainer"
+				data-testid="lesson-fullscreen-container"
 				class="bg-surface-base min-w-0"
-				:class="{
-					'overflow-y-auto': zenModeEnabled,
-				}"
 			>
-				<div
-					class="sm:border-e pt-8 sm:pt-5 pb-10 h-full"
-					:class="{
-						'w-full md:w-3/5 mx-auto border-none !pt-10': zenModeEnabled,
-					}"
+				<ScrollArea
+					:class="{ 'h-full': zenModeEnabled }"
+					:viewportClass="zenModeEnabled ? 'overflow-y-auto' : undefined"
 				>
-					<div class="px-5">
-						<div
-							class="flex flex-col space-y-3 md:space-y-0 md:flex-row md:items-center justify-between"
-						>
-							<div class="flex flex-col">
-								<h1 class="text-4xl-semibold text-ink-gray-9">
-									{{ lesson.data.title }}
-								</h1>
+					<div
+						class="sm:border-e pt-8 sm:pt-5 pb-10 h-full"
+						:class="{
+							'w-full md:w-3/5 mx-auto border-none !pt-10': zenModeEnabled,
+						}"
+					>
+						<div class="px-5">
+							<div
+								class="flex flex-col space-y-3 md:space-y-0 md:flex-row md:items-center justify-between"
+							>
+								<div class="flex flex-col">
+									<h1 class="text-4xl-semibold text-ink-gray-9">
+										{{ lesson.data.title }}
+									</h1>
+
+									<div
+										v-if="zenModeEnabled"
+										tabindex="0"
+										class="relative flex items-center gap-x-2 text-sm text-ink-gray-7 group w-fit mt-2"
+									>
+										<span>
+											{{ lesson.data.chapter_title }} -
+											{{ lesson.data.course_title }}
+										</span>
+										<span class="lucide-info size-3" aria-hidden="true" />
+										<span class="sr-only">{{ progressLabel }}</span>
+										<div
+											class="hidden group-hover:block group-focus-within:block [@media(hover:none)]:block [@media(hover:none)]:static [@media(hover:none)]:mt-0 rounded-4 bg-surface-gray-10 px-2 py-1 text-xs text-ink-base shadow-xl absolute start-0 top-full mt-2"
+											aria-hidden="true"
+										>
+											{{ progressLabel }}
+										</div>
+									</div>
+								</div>
+
+								<div
+									v-if="!zenModeEnabled && !isMobile"
+									class="flex items-center gap-x-2 mt-2 md:mt-0"
+								>
+									<Tooltip v-if="canGoZen()" :text="__('Zen Mode')">
+										<Button @click="goFullScreen()" :label="__('Zen Mode')">
+											<template #icon>
+												<span class="lucide-focus size-4" />
+											</template>
+										</Button>
+									</Tooltip>
+									<LessonNavButtons
+										:hasPrev="!!lesson.data.prev"
+										:hasNext="!!(lesson.data.next && canGoNext)"
+										:courseName="courseName"
+										@switch="switchLesson"
+									/>
+								</div>
 
 								<div
 									v-if="zenModeEnabled"
-									tabindex="0"
-									class="relative flex items-center gap-x-2 text-sm text-ink-gray-7 group w-fit mt-2"
+									class="flex items-center gap-x-2 mt-2 md:mt-0"
 								>
-									<span>
-										{{ lesson.data.chapter_title }} -
-										{{ lesson.data.course_title }}
-									</span>
-									<span class="lucide-info size-3" aria-hidden="true" />
-									<span class="sr-only">{{ progressLabel }}</span>
-									<div
-										class="hidden group-hover:block group-focus-within:block [@media(hover:none)]:block [@media(hover:none)]:static [@media(hover:none)]:mt-0 rounded-4 bg-surface-gray-10 px-2 py-1 text-xs text-ink-base shadow-xl absolute start-0 top-full mt-2"
-										aria-hidden="true"
+									<Button
+										@click="showDiscussionsInZenMode()"
+										:label="__('Toggle discussions')"
 									>
-										{{ progressLabel }}
-									</div>
+										<template #icon>
+											<span class="lucide-message-circle-question size-4" />
+										</template>
+									</Button>
+									<LessonNavButtons
+										:hasPrev="!!lesson.data.prev"
+										:hasNext="!!(lesson.data.next && canGoNext)"
+										:courseName="courseName"
+										@switch="switchLesson"
+									/>
 								</div>
 							</div>
 
 							<div
-								v-if="!zenModeEnabled && !isMobile"
-								class="flex items-center gap-x-2 mt-2 md:mt-0"
+								v-if="!zenModeEnabled"
+								class="flex items-center mt-4 md:mt-2"
 							>
-								<Tooltip v-if="canGoZen()" :text="__('Zen Mode')">
-									<Button @click="goFullScreen()" :label="__('Zen Mode')">
-										<template #icon>
-											<span class="lucide-focus size-4" />
-										</template>
-									</Button>
-								</Tooltip>
-								<LessonNavButtons
-									:hasPrev="!!lesson.data.prev"
-									:hasNext="!!(lesson.data.next && canGoNext)"
-									:courseName="courseName"
-									@switch="switchLesson"
-								/>
-							</div>
-
-							<div
-								v-if="zenModeEnabled"
-								class="flex items-center gap-x-2 mt-2 md:mt-0"
-							>
-								<Button
-									@click="showDiscussionsInZenMode()"
-									:label="__('Toggle discussions')"
+								<span
+									class="h-6 me-1"
+									:class="{
+										'avatar-group overlap': lesson.data.instructors?.length > 1,
+									}"
 								>
-									<template #icon>
-										<span class="lucide-message-circle-question size-4" />
-									</template>
-								</Button>
-								<LessonNavButtons
-									:hasPrev="!!lesson.data.prev"
-									:hasNext="!!(lesson.data.next && canGoNext)"
-									:courseName="courseName"
-									@switch="switchLesson"
+									<UserAvatar
+										v-for="instructor in lesson.data.instructors"
+										:key="instructor.name ?? instructor"
+										:user="instructor"
+									/>
+								</span>
+								<CourseInstructors
+									v-if="lesson.data?.instructors"
+									:instructors="lesson.data.instructors"
+								/>
+							</div>
+
+							<div
+								v-if="
+									hasInstructorNotesToRender(lesson.data.instructor_content) &&
+									allowInstructorContent()
+								"
+								class="bg-surface-gray-2 p-3 rounded-5 mt-6"
+							>
+								<h2 class="text-ink-gray-6 font-medium">
+									{{ __('Instructor Notes') }}
+								</h2>
+								<div
+									id="instructor-content"
+									class="ProseMirror prose prose-table:table-fixed prose-td:p-2 prose-th:p-2 prose-td:border prose-th:border prose-td:border-outline-gray-2 prose-th:border-outline-gray-2 prose-td:relative prose-th:relative prose-th:bg-surface-gray-2 prose-sm max-w-none !whitespace-normal"
+								></div>
+							</div>
+							<div
+								v-else-if="lesson.data.instructor_notes"
+								class="ProseMirror prose prose-table:table-fixed prose-td:p-2 prose-th:p-2 prose-td:border prose-th:border prose-td:border-outline-gray-2 prose-th:border-outline-gray-2 prose-td:relative prose-th:relative prose-th:bg-surface-gray-2 prose-sm max-w-none !whitespace-normal mt-8"
+							>
+								<LessonContent
+									:key="lesson.data.name"
+									:content="lesson.data.instructor_notes"
+								/>
+							</div>
+							<div
+								v-if="contentUnreadable"
+								class="flex items-center gap-3 rounded-6 bg-surface-amber-2 p-3 mt-8"
+							>
+								<div
+									class="grid size-7 shrink-0 place-items-center text-ink-amber-5"
+								>
+									<span class="lucide-circle-alert size-4" aria-hidden="true" />
+								</div>
+								<div class="flex min-w-0 flex-1 flex-col">
+									<span class="text-p-sm-medium text-ink-gray-8">
+										{{ __('This lesson could not be displayed') }}
+									</span>
+									<span class="text-p-sm text-ink-gray-6">
+										{{
+											__(
+												'Its content is stored in a form we cannot read. Reload the page, and tell your instructor if it keeps happening.'
+											)
+										}}
+									</span>
+								</div>
+							</div>
+							<div
+								v-else-if="lesson.data.content"
+								@mouseup="toggleInlineMenu"
+								class="ProseMirror prose prose-table:table-fixed prose-td:p-2 prose-th:p-2 prose-td:border prose-th:border prose-td:border-outline-gray-2 prose-th:border-outline-gray-2 prose-td:relative prose-th:relative prose-th:bg-surface-gray-2 prose-sm max-w-none !whitespace-normal mt-8"
+							>
+								<div id="editor"></div>
+							</div>
+							<div
+								v-else
+								class="ProseMirror prose prose-table:table-fixed prose-td:p-2 prose-th:p-2 prose-td:border prose-th:border prose-td:border-outline-gray-2 prose-th:border-outline-gray-2 prose-td:relative prose-th:relative prose-th:bg-surface-gray-2 prose-sm max-w-none !whitespace-normal mt-8"
+							>
+								<LessonContent
+									v-if="lesson.data?.body"
+									:key="lesson.data.name"
+									:content="lesson.data.body"
+									:youtube="lesson.data.youtube"
+									:quizId="lesson.data.quiz_id"
 								/>
 							</div>
 						</div>
-
-						<div v-if="!zenModeEnabled" class="flex items-center mt-4 md:mt-2">
-							<span
-								class="h-6 me-1"
-								:class="{
-									'avatar-group overlap': lesson.data.instructors?.length > 1,
-								}"
-							>
-								<UserAvatar
-									v-for="instructor in lesson.data.instructors"
-									:key="instructor.name ?? instructor"
-									:user="instructor"
-								/>
-							</span>
-							<CourseInstructors
-								v-if="lesson.data?.instructors"
-								:instructors="lesson.data.instructors"
+						<div
+							v-if="lesson.data && (allowDiscussions || tabs.length > 1)"
+							class="mt-10 pb-20 pt-5 border-t px-5"
+							ref="discussionsContainer"
+						>
+							<TabButtons
+								v-if="tabs.length > 1"
+								:options="tabs"
+								v-model="currentTab"
+								class="w-fit mb-10"
 							/>
-						</div>
-
-						<div
-							v-if="
-								hasInstructorNotesToRender(lesson.data.instructor_content) &&
-								allowInstructorContent()
-							"
-							class="bg-surface-gray-2 p-3 rounded-5 mt-6"
-						>
-							<h2 class="text-ink-gray-6 font-medium">
-								{{ __('Instructor Notes') }}
-							</h2>
-							<div
-								id="instructor-content"
-								class="ProseMirror prose prose-table:table-fixed prose-td:p-2 prose-th:p-2 prose-td:border prose-th:border prose-td:border-outline-gray-2 prose-th:border-outline-gray-2 prose-td:relative prose-th:relative prose-th:bg-surface-gray-2 prose-sm max-w-none !whitespace-normal"
-							></div>
-						</div>
-						<div
-							v-else-if="lesson.data.instructor_notes"
-							class="ProseMirror prose prose-table:table-fixed prose-td:p-2 prose-th:p-2 prose-td:border prose-th:border prose-td:border-outline-gray-2 prose-th:border-outline-gray-2 prose-td:relative prose-th:relative prose-th:bg-surface-gray-2 prose-sm max-w-none !whitespace-normal mt-8"
-						>
-							<LessonContent
-								:key="lesson.data.name"
-								:content="lesson.data.instructor_notes"
+							<Notes
+								v-if="currentTab === 'Notes'"
+								:lesson="lesson.data?.name"
+								v-model:notes="notes"
+								@updateNotes="updateNotes"
 							/>
-						</div>
-						<div
-							v-if="contentUnreadable"
-							class="flex items-center gap-3 rounded-6 bg-surface-amber-2 p-3 mt-8"
-						>
-							<div
-								class="grid size-7 shrink-0 place-items-center text-ink-amber-5"
-							>
-								<span class="lucide-circle-alert size-4" aria-hidden="true" />
-							</div>
-							<div class="flex min-w-0 flex-1 flex-col">
-								<span class="text-p-sm-medium text-ink-gray-8">
-									{{ __('This lesson could not be displayed') }}
-								</span>
-								<span class="text-p-sm text-ink-gray-6">
-									{{
-										__(
-											'Its content is stored in a form we cannot read. Reload the page, and tell your instructor if it keeps happening.'
-										)
-									}}
-								</span>
-							</div>
-						</div>
-						<div
-							v-else-if="lesson.data.content"
-							@mouseup="toggleInlineMenu"
-							class="ProseMirror prose prose-table:table-fixed prose-td:p-2 prose-th:p-2 prose-td:border prose-th:border prose-td:border-outline-gray-2 prose-th:border-outline-gray-2 prose-td:relative prose-th:relative prose-th:bg-surface-gray-2 prose-sm max-w-none !whitespace-normal mt-8"
-						>
-							<div id="editor"></div>
-						</div>
-						<div
-							v-else
-							class="ProseMirror prose prose-table:table-fixed prose-td:p-2 prose-th:p-2 prose-td:border prose-th:border prose-td:border-outline-gray-2 prose-th:border-outline-gray-2 prose-td:relative prose-th:relative prose-th:bg-surface-gray-2 prose-sm max-w-none !whitespace-normal mt-8"
-						>
-							<LessonContent
-								v-if="lesson.data?.body"
+							<Discussions
+								v-else-if="allowDiscussions"
+								:title="'Questions'"
+								:doctype="'Course Lesson'"
+								:docname="lesson.data.name"
 								:key="lesson.data.name"
-								:content="lesson.data.body"
-								:youtube="lesson.data.youtube"
-								:quizId="lesson.data.quiz_id"
+								:emptyStateText="
+									__('Ask a question to get help from the community.')
+								"
 							/>
 						</div>
 					</div>
-					<div
-						v-if="lesson.data && (allowDiscussions || tabs.length > 1)"
-						class="mt-10 pb-20 pt-5 border-t px-5"
-						ref="discussionsContainer"
-					>
-						<TabButtons
-							v-if="tabs.length > 1"
-							:options="tabs"
-							v-model="currentTab"
-							class="w-fit mb-10"
-						/>
-						<Notes
-							v-if="currentTab === 'Notes'"
-							:lesson="lesson.data?.name"
-							v-model:notes="notes"
-							@updateNotes="updateNotes"
-						/>
-						<Discussions
-							v-else-if="allowDiscussions"
-							:title="'Questions'"
-							:doctype="'Course Lesson'"
-							:docname="lesson.data.name"
-							:key="lesson.data.name"
-							:emptyStateText="
-								__('Ask a question to get help from the community.')
-							"
-						/>
-					</div>
-				</div>
+				</ScrollArea>
 			</div>
 			<aside v-if="!isMobile" class="sticky top-10 h-[94vh]">
 				<StudentLessonSidebar
@@ -352,6 +358,7 @@ import {
 	call,
 	createListResource,
 	createResource,
+	ScrollArea,
 	TabButtons,
 	Tooltip,
 	usePageMeta,

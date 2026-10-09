@@ -44,6 +44,7 @@ vi.mock('@/stores/user', () => ({ usersStore: () => ({ userResource }) }))
 
 // Stubbed so tests control call/resource responses without a network.
 vi.mock('frappe-ui', () => ({
+	ScrollArea: { name: 'ScrollArea', template: '<div><slot /></div>' },
 	call: callMock,
 	toast: { success: vi.fn(), error: vi.fn() },
 	FileUploadHandler: class {
@@ -243,7 +244,9 @@ describe('CourseImportForm as a route', () => {
 		// "...import_course_from_zip ValidationError" and dropped the reason.
 		await rejectImportWith(['Invalid course ZIP: Missing course.json'])
 
-		expect(toast.error).toHaveBeenCalledWith('Invalid course ZIP: Missing course.json')
+		expect(toast.error).toHaveBeenCalledWith(
+			'Invalid course ZIP: Missing course.json'
+		)
 	})
 
 	it('falls back to the raw error when the server sent no message', async () => {

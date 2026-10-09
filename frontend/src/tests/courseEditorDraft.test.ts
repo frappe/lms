@@ -31,6 +31,7 @@ vi.mock('vue-router', () => ({
 vi.mock('frappe-ui', async () => {
 	const { reactive } = await import('vue')
 	return {
+		ScrollArea: { name: 'ScrollArea', template: '<div><slot /></div>' },
 		createResource: () => {
 			const r: any = reactive({ data: null, loading: false })
 			r.fetch = vi.fn()

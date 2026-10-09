@@ -48,7 +48,10 @@
 		v-else-if="doc"
 		class="grid flex-1 grid-cols-1 lg:min-h-0 lg:grid-cols-[7fr,3fr]"
 	>
-		<div class="flex min-h-0 flex-col overflow-y-auto px-5 py-5">
+		<ScrollArea
+			class="min-h-0 flex-1"
+			viewportClass="min-h-0 flex flex-col overflow-y-auto px-5 py-5"
+		>
 			<div v-if="previewing" data-testid="quiz-preview" class="w-full">
 				<Quiz :quizName="quizDetails.doc.name" preview />
 			</div>
@@ -203,11 +206,12 @@
 					</div>
 				</template>
 			</template>
-		</div>
+		</ScrollArea>
 
-		<div
+		<ScrollArea
 			id="quiz-details-panel"
-			class="order-first min-w-0 border-b lg:order-none lg:min-h-0 lg:overflow-y-auto lg:border-b-0 lg:border-s"
+			class="order-first min-w-0 border-b lg:order-none lg:min-h-0 lg:border-b-0 lg:border-s"
+			viewportClass="lg:overflow-y-auto"
 		>
 			<QuestionBankPanel
 				v-if="rightPanel === 'bank' && doc?.name"
@@ -364,7 +368,7 @@
 					/>
 				</div>
 			</div>
-		</div>
+		</ScrollArea>
 	</div>
 </template>
 <script setup>
@@ -378,6 +382,7 @@ import {
 	createDocumentResource,
 	Badge,
 	LoadingIndicator,
+	ScrollArea,
 } from 'frappe-ui'
 import BooleanSwitch from '@/components/Controls/BooleanSwitch.vue'
 import HeaderButton from '@/components/HeaderButton.vue'

@@ -58,7 +58,10 @@
 						</FormControl>
 					</div>
 				</div>
-				<div class="sm:max-h-[63vh] sm:overflow-y-auto">
+				<ScrollArea
+					class="sm:max-h-[63vh]"
+					viewportClass="sm:max-h-[63vh] sm:overflow-y-auto"
+				>
 					<ResponsiveListView
 						v-if="students.loading || students.data?.length"
 						:columns="studentColumns"
@@ -108,7 +111,7 @@
 							{{ __('Load More') }}
 						</Button>
 					</div>
-				</div>
+				</ScrollArea>
 			</div>
 
 			<div class="order-1 lg:order-2 space-y-5">
@@ -151,6 +154,7 @@ import {
 	FormControl,
 	Avatar,
 	Button,
+	ScrollArea,
 } from 'frappe-ui'
 import { BarChart, ChartCard } from 'frappe-ui/charts'
 import { computed, inject, onMounted, ref, watch } from 'vue'

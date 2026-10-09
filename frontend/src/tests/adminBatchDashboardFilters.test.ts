@@ -51,6 +51,7 @@ vi.mock('frappe-ui', () => {
 		template: `<div />`,
 	})
 	return {
+		ScrollArea: { name: 'ScrollArea', template: '<div><slot /></div>' },
 		createListResource: (options: any): FakeList => {
 			const key = JSON.stringify(options.cache)
 			if (options.cache && h.listCache.has(key)) return h.listCache.get(key)

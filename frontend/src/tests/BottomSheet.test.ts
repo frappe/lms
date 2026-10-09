@@ -4,6 +4,10 @@ import { mount } from '@vue/test-utils'
 // Stub @vueuse/core so the sheet's scroll-lock / swipe / key-listener helpers
 // don't touch real globals in jsdom. We assert behavior via the component's
 // own emitted events and rendered DOM, not the library internals.
+vi.mock('frappe-ui', () => ({
+	ScrollArea: { name: 'ScrollArea', template: '<div><slot /></div>' },
+}))
+
 const keydownHandlers: Array<(e: KeyboardEvent) => void> = []
 vi.mock('@vueuse/core', () => ({
 	useScrollLock: () => ({ value: false }),
