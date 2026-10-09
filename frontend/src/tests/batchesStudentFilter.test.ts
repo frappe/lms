@@ -1,6 +1,12 @@
+<<<<<<< HEAD
 // Students and guests see one "Upcoming" tab: published batches they can still
 // join. The start_date filter makes get_batches treat the list as upcoming, so
 // a batch dated today drops off once its start time passes.
+=======
+// Students and guests see one "All" tab. It must hold what the admin Active tab
+// holds, published batches that have not ended, so a batch stays listed after
+// its start date instead of vanishing the day it begins.
+>>>>>>> 6e1a4f3 (fix(batches): show students active batches, not only upcoming)
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { reactive } from 'vue'
 import { flushPromises, mount } from '@vue/test-utils'
@@ -58,7 +64,11 @@ vi.mock('@/components/Controls/ToggleFilter.vue', () => ({
 vi.mock('@/pages/Batches/components/BatchCard.vue', () => ({
 	default: { template: '<div />' },
 }))
+<<<<<<< HEAD
 vi.mock('@/components/Layouts/ListPage.vue', () => ({
+=======
+vi.mock('@/components/Layouts/pages/ListPage.vue', () => ({
+>>>>>>> 6e1a4f3 (fix(batches): show students active batches, not only upcoming)
 	default: {
 		template: '<div><slot name="filters" /></div>',
 	},
@@ -97,7 +107,11 @@ async function mountAs(userData: Record<string, unknown> | null) {
 	return wrapper
 }
 
+<<<<<<< HEAD
 const UPCOMING = { start_date: ['>=', TODAY], published: 1 }
+=======
+const ACTIVE = { end_date: ['>=', TODAY], published: 1 }
+>>>>>>> 6e1a4f3 (fix(batches): show students active batches, not only upcoming)
 
 beforeEach(() => {
 	sent.filters = null
@@ -105,6 +119,7 @@ beforeEach(() => {
 })
 
 describe('batch list filters for students and guests', () => {
+<<<<<<< HEAD
 	it('a student on Upcoming gets the upcoming filter, with no end_date', async () => {
 		await mountAs({ name: 'student@test.com', is_student: true })
 		expect(sent.filters).toEqual(UPCOMING)
@@ -118,6 +133,16 @@ describe('batch list filters for students and guests', () => {
 	it('a learner without the student flag also gets the upcoming filter', async () => {
 		await mountAs({ name: 'member@test.com' })
 		expect(sent.filters).toEqual(UPCOMING)
+=======
+	it('a student on All gets the active filter, with no start_date', async () => {
+		await mountAs({ name: 'student@test.com', is_student: true })
+		expect(sent.filters).toEqual(ACTIVE)
+	})
+
+	it('a guest gets the active filter, with no start_date', async () => {
+		await mountAs(null)
+		expect(sent.filters).toEqual(ACTIVE)
+>>>>>>> 6e1a4f3 (fix(batches): show students active batches, not only upcoming)
 	})
 
 	it('a student moving to Enrolled drops the date filter', async () => {
@@ -130,15 +155,25 @@ describe('batch list filters for students and guests', () => {
 		expect(sent.filters).toEqual({ enrolled: 1 })
 	})
 
+<<<<<<< HEAD
 	it('a student back on Upcoming gets the upcoming filter again', async () => {
+=======
+	it('a student back on All gets the active filter again', async () => {
+>>>>>>> 6e1a4f3 (fix(batches): show students active batches, not only upcoming)
 		const wrapper = await mountAs({
 			name: 'student@test.com',
 			is_student: true,
 		})
 		await wrapper.find('[data-tab="enrolled"]').trigger('click')
 		await flushPromises()
+<<<<<<< HEAD
 		await wrapper.find('[data-tab="upcoming"]').trigger('click')
 		await flushPromises()
 		expect(sent.filters).toEqual(UPCOMING)
+=======
+		await wrapper.find('[data-tab="all"]').trigger('click')
+		await flushPromises()
+		expect(sent.filters).toEqual(ACTIVE)
+>>>>>>> 6e1a4f3 (fix(batches): show students active batches, not only upcoming)
 	})
 })
