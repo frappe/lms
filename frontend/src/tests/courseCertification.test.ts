@@ -29,10 +29,10 @@ vi.mock('frappe-ui', () => ({
 	toast: toastMock,
 	call: callMock,
 }))
-vi.mock('@/components/Layouts/PageHeader.vue', () => ({
+vi.mock('@/components/Layouts/pages/PageHeader.vue', () => ({
 	default: { template: '<div><slot /></div>' },
 }))
-vi.mock('@/components/Layouts/PageBody.vue', () => ({
+vi.mock('@/components/Layouts/pages/PageBody.vue', () => ({
 	default: { template: '<div><slot /></div>' },
 }))
 vi.mock('@/components/UpcomingEvaluations.vue', () => ({

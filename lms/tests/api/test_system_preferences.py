@@ -27,7 +27,6 @@ class TestSystemPreferences(BaseTestUtils):
 
 	def test_set_system_preferences_requires_system_manager(self):
 		student = self._create_user("prefs.student@example.com", "Prefs", "Student", roles=["LMS Student"])
-		self.cleanup_items.append(("User", student.name))
 
 		frappe.set_user(student.name)
 		try:
@@ -35,25 +34,14 @@ class TestSystemPreferences(BaseTestUtils):
 		finally:
 			frappe.set_user("Administrator")
 
-	def test_set_system_preferences_rejects_unknown_language(self):
-		self.assertRaises(
-			frappe.ValidationError,
-			set_system_preferences,
-			language="not-a-real-language",
-		)
-
-	def test_set_system_preferences_rejects_unknown_timezone(self):
-		self.assertRaises(
-			frappe.ValidationError,
-			set_system_preferences,
-			time_zone="Not/A_Real_Zone",
-		)
-
-	def test_set_system_preferences_writes_valid_values(self):
-		set_system_preferences(language="de", time_zone="Asia/Kolkata")
-
-		self.assertEqual(frappe.db.get_single_value("System Settings", "language"), "de")
-		self.assertEqual(frappe.db.get_single_value("System Settings", "time_zone"), "Asia/Kolkata")
+	def test_set_system_preferences_rejects_unknown_value_by_field(self):
+		cases = [
+			("language", {"language": "not-a-real-language"}),
+			("time_zone", {"time_zone": "Not/A_Real_Zone"}),
+		]
+		for case, kwargs in cases:
+			with self.subTest(case=case):
+				self.assertRaises(frappe.ValidationError, set_system_preferences, **kwargs)
 
 	def test_set_system_preferences_leaves_unset_fields_untouched(self):
 		frappe.db.set_single_value("System Settings", "language", "fr")
@@ -63,3 +51,10 @@ class TestSystemPreferences(BaseTestUtils):
 
 		self.assertEqual(frappe.db.get_single_value("System Settings", "language"), "de")
 		self.assertEqual(frappe.db.get_single_value("System Settings", "time_zone"), "UTC")
+
+		# Folded in from test_set_system_preferences_writes_valid_values: setting
+		# both fields writes both through.
+		set_system_preferences(language="de", time_zone="Asia/Kolkata")
+
+		self.assertEqual(frappe.db.get_single_value("System Settings", "language"), "de")
+		self.assertEqual(frappe.db.get_single_value("System Settings", "time_zone"), "Asia/Kolkata")

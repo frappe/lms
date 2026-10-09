@@ -64,7 +64,6 @@ class TestEmailAccountEndpointPermissions(BaseTestUtils, UnitTestCase):
 			}
 		)
 		doc.insert(ignore_permissions=True)
-		self.cleanup_items.append(("Email Account", doc.name))
 		return doc.name
 
 	def _calls(self):
