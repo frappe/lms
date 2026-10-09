@@ -32,10 +32,9 @@
 
         {% if user_category %}
         <div class="form-group flex flex-col items-start gap-1.5 mb-0">
-            <label class="text-base text-ink-gray-6 w-full mb-0" for="user_category">{{ _("User Category") }}</label>
-            <div class="select-input-wrapper">
-                <select id="user_category" class="form-control ellipsis text-base" data-fieldname="user_category"
-                    data-fieldtype="Select" required>
+            <div id="signup_user_category_select" class="w-full" data-label="{{ _('User Category') | e }}"></div>
+            <select id="user_category" class="hidden" data-fieldname="user_category"
+                    data-fieldtype="Select" aria-hidden="true" tabindex="-1" required>
                     <option value="" disabled selected hidden>{{ _("Select a category") }}</option>
                     <option value="Business Owner">{{ _("Business Owner") }}</option>
                     <option value="Manager (Sales/Marketing/Customer)">{{ _("Manager (Sales/Marketing/Customer)") }}</option>
@@ -43,14 +42,8 @@
                     <option value="Student">{{ _("Student") }}</option>
                     <option value="Freelancer/Just looking">{{ _("Freelancer/Just looking") }}</option>
                     <option value="Others">{{ _("Others") }}</option>
-                </select>
-                <div class="select-icon">
-                    <svg class="icon icon-sm" aria-hidden="true">
-                        <use href="#icon-chevrons-up-down"></use>
-                    </svg>
-                </div>
-            </div>
-            <p class="field-error text-base text-ink-red-8 mb-0"></p>
+            </select>
+            <p id="user_category_error" class="field-error text-base text-ink-red-8 mb-0 hidden" aria-hidden="true"></p>
         </div>
         {% endif %}
 
@@ -75,44 +68,12 @@
     </div>
 </form>
 
+{% if user_category %}
+<link rel="stylesheet" href="/assets/lms/frontend/signup-select/signup-select.css">
+<script defer src="/assets/lms/frontend/signup-select/signup-select.js"></script>
+{% endif %}
+
 <style>
-    .signup-form .select-input-wrapper {
-        position: relative;
-        width: 100%;
-    }
-
-    .signup-form select.form-control {
-        appearance: none;
-        height: 28px;
-        padding: 2px 8px;
-        padding-inline-end: 28px;
-        border: 1px solid var(--outline-gray-2);
-        border-radius: var(--radius);
-        background-color: var(--surface-base);
-        cursor: pointer;
-    }
-
-    .signup-form select.form-control:invalid {
-        color: var(--ink-gray-5);
-    }
-
-    .signup-form .form-group.invalid select.form-control {
-        border-color: var(--outline-red-3);
-    }
-
-    .signup-form .select-icon {
-        position: absolute;
-        top: 50%;
-        inset-inline-end: 8px;
-        transform: translateY(-50%);
-        pointer-events: none;
-        line-height: 0;
-    }
-
-    .signup-form .select-icon use {
-        stroke: var(--ink-gray-5);
-    }
-
     .signup-form input[type="checkbox"] {
         accent-color: var(--surface-gray-7);
     }
@@ -161,7 +122,11 @@
     const reset_signup_form = () => {
         const form = $(".signup-form");
         form.find("input:not([type='submit'])").val("").prop("checked", false);
-        form.find("#user_category").val("");
+        const userCategory = form.find("#user_category")[0];
+        if (userCategory) {
+            userCategory.value = "";
+            userCategory.dispatchEvent(new Event("change", { bubbles: true }));
+        }
         form.find(".form-group").removeClass("invalid").find(".field-error").text("");
         form.find(".page-card-body").removeClass("invalid");
         form.find(".login-error-banner, .login-success-banner").addClass("hidden");

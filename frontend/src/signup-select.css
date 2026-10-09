@@ -1,0 +1,9 @@
+@import 'frappe-ui/style.css';
+
+.signup-form #signup_user_category_select [data-slot='trigger'] {
+	width: 100%;
+}
+
+.signup-form #signup_user_category_select [data-slot='label'] {
+	margin-bottom: 0;
+}
