@@ -15,6 +15,7 @@ import { registerDirectives } from './directives'
 let pinia = createPinia()
 let app = createApp(App)
 setConfig('resourceFetcher', frappeRequest)
+setConfig('maxFileSize', window.max_file_size)
 
 app.use(FrappeUI)
 app.use(pinia)

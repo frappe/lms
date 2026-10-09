@@ -105,9 +105,9 @@ class TestResultVisibility(FrappeTestCase):
 
 
 class TestQuizAndAssignmentScope(BaseTestUtils):
-	"""LMS Quiz and LMS Assignment grant read to LMS Student and register no
-	permission_query_conditions hook, so get_list alone handed a student every
-	row on the site."""
+	"""LMS Quiz and LMS Assignment grant read to LMS Student site-wide; a registered
+	permission_query_conditions hook now narrows get_list too. The palette's own
+	scope stays as the narrower of the two readings."""
 
 	@classmethod
 	def setUpClass(cls):
@@ -130,14 +130,15 @@ class TestQuizAndAssignmentScope(BaseTestUtils):
 		finally:
 			frappe.set_user("Administrator")
 
-	def test_a_student_can_read_these_doctypes_directly(self):
-		"""Pins why the hand-written scope is needed: frappe itself allows it."""
+	def test_the_registered_condition_refuses_what_the_palette_already_hid(self):
+		"""The quiz is placed in no lesson and run by no batch, so the registered
+		condition refuses it too -- the two readings now agree."""
 		frappe.set_user(self.student.email)
 		try:
 			readable = frappe.get_list("LMS Quiz", pluck="name", limit_page_length=0)
 		finally:
 			frappe.set_user("Administrator")
-		self.assertIn(self.quiz.name, readable)
+		self.assertNotIn(self.quiz.name, readable)
 
 	def test_a_moderator_is_given_them(self):
 		permitted = get_permitted_names([row("LMS Quiz", self.quiz.name)])

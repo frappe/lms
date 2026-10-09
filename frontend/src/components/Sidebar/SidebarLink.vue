@@ -60,21 +60,6 @@
 			>
 				{{ link.count }}
 			</span>
-			<div
-				v-if="showControls && !isCollapsed"
-				class="flex items-center gap-x-2 !ms-auto block text-p-xs text-ink-gray-5 group-hover:visible invisible"
-			>
-				<component
-					:is="icons['Edit']"
-					class="h-3 w-3 stroke-1.5 text-ink-gray-7"
-					@click.stop="openModal(link)"
-				/>
-				<component
-					:is="icons['X']"
-					class="h-3 w-3 stroke-1.5 text-ink-gray-7"
-					@click.stop="deletePage(link)"
-				/>
-			</div>
 		</div>
 	</button>
 	<ContactUsEmail v-model="showContactForm" />
@@ -89,25 +74,20 @@ import { toggleNotifications } from '@/stores/notifications'
 import { useSettings } from '@/stores/settings'
 import type { SidebarLink } from '@/types'
 import { openExternal } from '@/utils/openExternal'
+import { safeUrl } from '@/utils/safeUrl'
 
 const router = useRouter()
 const settingsStore = useSettings()
-const emit = defineEmits<{
-	openModal: [link: SidebarLink]
-	deletePage: [link: SidebarLink]
-}>()
 const showContactForm = ref<boolean>(false)
 
 const props = withDefaults(
 	defineProps<{
 		link: SidebarLink
 		isCollapsed?: boolean
-		showControls?: boolean
 		activeTab?: string
 	}>(),
 	{
 		isCollapsed: false,
-		showControls: false,
 		activeTab: '',
 	}
 )
@@ -123,14 +103,29 @@ function handleClick(): void {
 	}
 	if (props.link.to && router.hasRoute(props.link.to)) {
 		router.push({ name: props.link.to })
-	} else if (props.link.to?.includes('@')) {
+		// A URL can carry an `@` in its path, and an External row's target is
+		// whatever an admin typed, so the mailto guess only applies without a scheme.
+	} else if (
+		props.link.to?.includes('@') &&
+		!props.link.to.startsWith('http')
+	) {
 		showContactForm.value = true
 	} else if (props.link.to) {
 		if (props.link.to.startsWith('http')) {
+			if (props.link.open_in_new_window === 0) {
+				const href = safeUrl(props.link.to)
+				if (href) window.location.href = href
+				return
+			}
 			openExternal(props.link.to)
 			return
 		}
-		window.location.href = `/${props.link.to}`
+		// A Route row's target already begins with /; a Web Page's route does
+		// not. Prefixing a second slash would make it scheme-relative and send
+		// the browser off-site.
+		window.location.href = props.link.to.startsWith('/')
+			? props.link.to
+			: `/${props.link.to}`
 	}
 }
 
@@ -140,12 +135,4 @@ const isActive = computed<boolean>(() => {
 			(props.activeTab && props.link?.label?.includes(props.activeTab))
 	)
 })
-
-function openModal(link: SidebarLink): void {
-	emit('openModal', link)
-}
-
-function deletePage(link: SidebarLink): void {
-	emit('deletePage', link)
-}
 </script>

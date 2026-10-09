@@ -120,7 +120,7 @@ import Discussions from '@/components/Discussions.vue'
 import HeaderButton from '@/components/HeaderButton.vue'
 import ShortcutTooltip from '@/components/ShortcutTooltip.vue'
 import SkeletonLoader from '@/components/SkeletonLoader.vue'
-import TabbedDetailPage from '@/components/Layouts/TabbedDetailPage.vue'
+import TabbedDetailPage from '@/components/Layouts/pages/TabbedDetailPage.vue'
 import { openBatchForm } from '@/composables/useBatchForms'
 
 const router = useRouter()
@@ -171,7 +171,11 @@ watch(
 provide('reloadBatchDetails', () => batch.reload())
 
 const isAdmin = computed(() => {
-	return Boolean(user.data?.is_moderator || user.data?.is_evaluator)
+	// is_moderator/is_evaluator are session-wide roles; can_manage is this
+	// batch's own tag, since a Course Creator only manages batches they author.
+	return Boolean(
+		user.data?.is_moderator || user.data?.is_evaluator || batch.data?.can_manage
+	)
 })
 
 const isStudent = computed(() => {

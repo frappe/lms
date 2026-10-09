@@ -77,6 +77,11 @@ setup_wizard_complete = "lms.demo.demo_data.create_demo_data"
 after_migrate = [
 	"lms.sqlite.build_index_in_background",
 	"lms.lms.doctype.lms_payment.lms_payment.add_unique_payment_id_constraint",
+	# Also on migrate, not only after_sync. Both seeders are create-if-absent, and
+	# running the sidebar one on fresh installs alone means a fourteenth built-in
+	# added to `standard_sidebar_items` later never reaches a site that has
+	# already run the v2_0 patch -- which is what its own docstring promises.
+	"lms.lms.sidebar.seed_sidebar_items",
 	"lms.lms.docperm_shadow.warn_about_shadowed_permlevels",
 ]
 
@@ -96,12 +101,20 @@ permission_query_conditions = {
 	"LMS Course Progress": "lms.lms.permissions.course_record_query_conditions",
 	"LMS Video Watch Duration": "lms.lms.permissions.course_record_query_conditions",
 	"LMS Course Review": "lms.lms.permissions.course_record_query_conditions",
+	"LMS Coupon": "lms.lms.permissions.coupon_query_conditions",
 	"LMS Certificate": "lms.lms.doctype.lms_certificate.lms_certificate.get_permission_query_conditions",
 	"LMS Live Class": "lms.lms.doctype.lms_live_class.lms_live_class.get_permission_query_conditions",
 	"LMS Batch": "lms.lms.doctype.lms_batch.lms_batch.get_permission_query_conditions",
 	"LMS Program": "lms.lms.doctype.lms_program.lms_program.get_permission_query_conditions",
 	"Course Lesson": "lms.lms.doctype.course_lesson.course_lesson.get_permission_query_conditions",
 	"LMS Certificate Evaluation": "lms.lms.doctype.lms_certificate_evaluation.lms_certificate_evaluation.get_permission_query_conditions",
+	"LMS Batch Enrollment": "lms.lms.doctype.lms_batch_enrollment.lms_batch_enrollment.get_permission_query_conditions",
+	"LMS Quiz": "lms.lms.permissions.quiz_query_conditions",
+	"LMS Assignment": "lms.lms.permissions.assignment_query_conditions",
+	"LMS Programming Exercise": "lms.lms.permissions.programming_exercise_query_conditions",
+	"LMS Quiz Submission": "lms.lms.permissions.quiz_submission_query_conditions",
+	"LMS Assignment Submission": "lms.lms.permissions.assignment_submission_query_conditions",
+	"LMS Programming Exercise Submission": "lms.lms.permissions.programming_exercise_submission_query_conditions",
 }
 
 has_permission = {
@@ -110,17 +123,22 @@ has_permission = {
 	"LMS Course Progress": "lms.lms.permissions.course_record_has_permission",
 	"LMS Video Watch Duration": "lms.lms.permissions.course_record_has_permission",
 	"LMS Course Review": "lms.lms.permissions.course_record_has_permission",
+	"LMS Coupon": "lms.lms.permissions.coupon_has_permission",
 	"LMS Live Class": "lms.lms.doctype.lms_live_class.lms_live_class.has_permission",
 	"LMS Batch": "lms.lms.doctype.lms_batch.lms_batch.has_permission",
 	"LMS Program": "lms.lms.doctype.lms_program.lms_program.has_permission",
 	"LMS Certificate": "lms.lms.doctype.lms_certificate.lms_certificate.has_permission",
 	"Course Lesson": "lms.lms.doctype.course_lesson.course_lesson.has_permission",
 	"LMS Certificate Evaluation": "lms.lms.doctype.lms_certificate_evaluation.lms_certificate_evaluation.has_permission",
+	"LMS Batch Enrollment": "lms.lms.doctype.lms_batch_enrollment.lms_batch_enrollment.has_permission",
 	"File": "lms.lms.permissions.file_has_permission",
-	"LMS Quiz": "lms.lms.permissions.has_authored_content_permission",
-	"LMS Programming Exercise": "lms.lms.permissions.has_authored_content_permission",
-	"LMS Assignment": "lms.lms.permissions.has_authored_content_permission",
+	"LMS Quiz": "lms.lms.permissions.assessment_has_permission",
+	"LMS Assignment": "lms.lms.permissions.assessment_has_permission",
+	"LMS Programming Exercise": "lms.lms.permissions.assessment_has_permission",
 	"LMS Question": "lms.lms.permissions.has_authored_content_permission",
+	"LMS Quiz Submission": "lms.lms.permissions.assessment_submission_has_permission",
+	"LMS Assignment Submission": "lms.lms.permissions.assessment_submission_has_permission",
+	"LMS Programming Exercise Submission": "lms.lms.permissions.assessment_submission_has_permission",
 }
 
 # DocType Class
@@ -350,3 +368,23 @@ raven_membership_providers = ["lms.raven_provider.get_provider"]
 # on System Manager plus whatever this hook names, and grants the named roles the
 # permissions its own doctypes need on install/migrate.
 raven_integration_manager_roles = ["Moderator"]
+
+# The sidebar's built-in rows, and their default order — which reproduces what
+# getSidebarItems() renders today, exactly. An app that wants a fourteenth adds
+# it here; the row says where it sits and whether it shows, and the JavaScript
+# entry of the same name1 says what it is.
+standard_sidebar_items = [
+	{"name1": "home", "is_standard": 1, "item_type": "Built-in"},
+	{"name1": "search", "is_standard": 1, "item_type": "Built-in"},
+	{"name1": "notifications", "is_standard": 1, "item_type": "Built-in"},
+	{"name1": "courses", "is_standard": 1, "item_type": "Built-in"},
+	{"name1": "programs", "is_standard": 1, "item_type": "Built-in"},
+	{"name1": "batches", "is_standard": 1, "item_type": "Built-in"},
+	{"name1": "certifications", "is_standard": 1, "item_type": "Built-in"},
+	{"name1": "jobs", "is_standard": 1, "item_type": "Built-in"},
+	{"name1": "statistics", "is_standard": 1, "item_type": "Built-in"},
+	{"name1": "contact_us", "is_standard": 1, "item_type": "Built-in"},
+	{"name1": "quizzes", "is_standard": 1, "item_type": "Built-in"},
+	{"name1": "assignments", "is_standard": 1, "item_type": "Built-in"},
+	{"name1": "programming_exercises", "is_standard": 1, "item_type": "Built-in"},
+]

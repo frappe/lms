@@ -113,7 +113,7 @@ import { computed, inject, onMounted, ref } from 'vue'
 import { sessionStore } from '../stores/session'
 import { useRouter } from 'vue-router'
 import UserAvatar from '@/components/UserAvatar.vue'
-import ListPage from '@/components/Layouts/ListPage.vue'
+import ListPage from '@/components/Layouts/pages/ListPage.vue'
 import { profileRoute } from '@/utils/routes'
 
 const filters = ref({})

@@ -51,7 +51,7 @@ import { computed, inject, onMounted, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { sessionStore } from '../stores/session'
 import Link from '@/components/Controls/Link.vue'
-import ListPage from '@/components/Layouts/ListPage.vue'
+import ListPage from '@/components/Layouts/pages/ListPage.vue'
 
 const user = inject('$user')
 const dayjs = inject('$dayjs')
@@ -65,6 +65,7 @@ const pageLength = ref(24)
 onMounted(() => {
 	if (!user.data?.is_instructor && !user.data?.is_moderator) {
 		router.push({ name: 'Courses' })
+		return
 	}
 	assignmentID.value = router.currentRoute.value.query.assignmentID
 	member.value = router.currentRoute.value.query.member

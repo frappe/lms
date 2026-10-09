@@ -6,6 +6,8 @@ from frappe import _
 from frappe.model.document import Document
 from frappe.utils import cint, get_url_to_list, validate_email_address, validate_url
 
+from lms.lms.sidebar import validate_sidebar_items
+
 
 class LMSSettings(Document):
 	def validate(self):
@@ -13,6 +15,7 @@ class LMSSettings(Document):
 		self.validate_signup()
 		self.validate_contact_us_details()
 		self.validate_lesson_dwell_time()
+		validate_sidebar_items(self)
 
 	def validate_lesson_dwell_time(self):
 		if cint(self.lesson_dwell_time) < 1:
