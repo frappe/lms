@@ -9,7 +9,6 @@ has to be asserted directly for every endpoint that carries one.
 """
 
 import frappe
-from frappe.tests import UnitTestCase
 
 from lms.lms.email_account import (
 	ACCOUNT_READ_FIELDS,
@@ -23,7 +22,7 @@ from lms.lms.email_account import (
 from lms.lms.test_helpers import BaseTestUtils
 
 
-class TestEmailAccountEndpointPermissions(BaseTestUtils, UnitTestCase):
+class TestEmailAccountEndpointPermissions(BaseTestUtils):
 	"""Anonymous and wrong-role callers for every Moderator-gated endpoint.
 
 	Before this suite, only `create_email_account` (anonymous only) and
@@ -64,7 +63,6 @@ class TestEmailAccountEndpointPermissions(BaseTestUtils, UnitTestCase):
 			}
 		)
 		doc.insert(ignore_permissions=True)
-		self.cleanup_items.append(("Email Account", doc.name))
 		return doc.name
 
 	def _calls(self):

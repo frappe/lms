@@ -1,6 +1,7 @@
 from unittest.mock import patch
 
 import frappe
+from frappe.exceptions import FrappeTypeError
 from frappe.tests.utils import FrappeTestCase
 
 from lms.lms.email_account import create_email_account, set_default_email_account
@@ -63,6 +64,18 @@ class TestCreateEmailAccount(FrappeTestCase):
 				},
 				"Support",
 				{"use_imap": 1, "use_tls": 1, "smtp_port": 587, "email_sync_option": "ALL"},
+			),
+			(
+				"custom_service_is_stored_as_no_service",
+				{
+					"service": "Custom",
+					"email_account_name": "Relay",
+					"email_id": "relay@example.com",
+					"password": "app-pass",
+					"smtp_server": "smtp.acme.com",
+				},
+				"Relay",
+				{"service": ""},
 			),
 		]
 		for case, payload, doc_name, expected in cases:
@@ -172,23 +185,7 @@ class TestCreateEmailAccount(FrappeTestCase):
 				)
 
 	# --- custom server ------------------------------------------------------
-
-	@patch("frappe.model.document.Document.save")
-	def test_custom_service_is_stored_as_no_service(self, mock_save):
-		"""Email Account's `service` Select has no Custom option — a
-		hand-entered server is stored with no service at all."""
-		with patch("lms.lms.email_account.frappe.get_doc") as mock_get_doc:
-			mock_get_doc.return_value.name = "Relay"
-			create_email_account(
-				{
-					"service": "Custom",
-					"email_account_name": "Relay",
-					"email_id": "relay@example.com",
-					"password": "app-pass",
-					"smtp_server": "smtp.acme.com",
-				}
-			)
-			self.assertEqual(mock_get_doc.call_args[0][0]["service"], "")
+	# test_custom_service_is_stored_as_no_service lives in the presets table above.
 
 	@patch("frappe.model.document.Document.save")
 	def test_custom_server_carries_host_port_and_encryption(self, mock_save):
@@ -266,7 +263,7 @@ class TestCreateEmailAccount(FrappeTestCase):
 				)
 
 
-class TestSetDefaultEmailAccount(UnitTestCase):
+class TestSetDefaultEmailAccount(FrappeTestCase):
 	def setUp(self):
 		frappe.set_user("Administrator")
 

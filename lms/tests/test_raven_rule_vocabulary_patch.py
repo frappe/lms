@@ -1,7 +1,6 @@
 import json
 
 import frappe
-from frappe.tests import UnitTestCase
 from frappe.tests.utils import FrappeTestCase
 
 from lms.patches.v2_0.migrate_raven_rule_vocabulary import execute, migrate_tree
@@ -33,7 +32,7 @@ CONVERTIBLE = [
 ]
 
 
-class TestRavenRuleVocabularyMigration(UnitTestCase):
+class TestRavenRuleVocabularyMigration(FrappeTestCase):
 	"""What the patch rewrites, and what it deliberately leaves where it is.
 
 	Schema-free: the conversion is a tree rewrite, and the doctype it reads on a
@@ -332,7 +331,7 @@ class TestExecuteAgainstStoredMappings(FrappeTestCase):
 		self.assertEqual(after_second.modified, after_first.modified)
 
 
-class TestMigrationWithoutRavenIntegration(UnitTestCase):
+class TestMigrationWithoutRavenIntegration(FrappeTestCase):
 	def test_execute_is_a_noop_when_the_mapping_doctype_is_absent(self):
 		if frappe.db.table_exists("Raven Channel Mapping"):
 			self.skipTest("raven_integration is installed on this site")
