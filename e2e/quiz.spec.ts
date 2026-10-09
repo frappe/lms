@@ -214,10 +214,11 @@ test.describe("Quiz", () => {
 			await button(page, "Submit").click();
 			await submitQuiz;
 
-			// Result panel appears after submission
-			await expect(page.getByText(/score|correct|result/i)).toBeVisible({
+			// The result leads with a Passed or Failed badge, then the marks.
+			await expect(page.getByTestId("quiz-verdict")).toBeVisible({
 				timeout: 10000,
 			});
+			await expect(page.getByText(/of \d+ marks/)).toBeVisible();
 		});
 	});
 });
