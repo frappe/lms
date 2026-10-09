@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 
 import {
+	isLinkEnabled,
 	overflowLinks,
 	pickPrimaryTabs,
 	sectionFor,
@@ -166,6 +167,38 @@ describe('pickPrimaryTabs for a signed-out visitor', () => {
 			'Jobs',
 			'Statistics',
 		])
+	})
+})
+
+describe('isLinkEnabled', () => {
+	const webPage = {
+		name: 'row-handbook',
+		name1: 'handbook',
+		item_type: 'Web Page',
+		hidden: 0,
+	}
+
+	it('reads a built-in row rather than the legacy key it replaced', () => {
+		const visibility = {
+			sidebar_rows: [{ name1: 'jobs', item_type: 'Built-in', hidden: 1 }],
+			jobs: 1,
+		}
+		expect(isLinkEnabled('Jobs', visibility)).toBe(false)
+	})
+
+	// Same unseeded site as buildSidebarRows' fallback: rows are present but
+	// none is a built-in, so the legacy keys are still the only word on the
+	// built-ins. The two must not disagree about which links show.
+	it('reads the legacy keys when no row is a built-in', () => {
+		const visibility = { sidebar_rows: [webPage], jobs: 0 }
+		expect(isLinkEnabled('Jobs', visibility)).toBe(false)
+	})
+
+	it('keeps Home locked visible whatever the rows say', () => {
+		const visibility = {
+			sidebar_rows: [{ name1: 'home', item_type: 'Built-in', hidden: 1 }],
+		}
+		expect(isLinkEnabled('Home', visibility)).toBe(true)
 	})
 })
 

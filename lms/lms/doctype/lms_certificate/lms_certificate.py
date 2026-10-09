@@ -8,6 +8,10 @@ from frappe.model.document import Document
 from frappe.model.naming import make_autoname
 from frappe.utils import nowdate
 from frappe.utils.telemetry import capture
+from pypika import Case
+
+from lms.lms.permissions import is_site_administrator
+from lms.lms.utils import get_evaluator
 
 
 class LMSCertificate(Document):
@@ -106,6 +110,8 @@ class LMSCertificate(Document):
 					"member": self.member,
 					"name": ["!=", self.name],
 					"course": self.course,
+					# A member may hold one certificate per batch of the same course.
+					"batch_name": self.batch_name or ["is", "not set"],
 				},
 				fields=["name", "course", "course_title"],
 			)
@@ -155,11 +161,30 @@ def has_website_permission(doc, ptype, user, verbose=False):
 	return False
 
 
+def get_latest_certificate(member, course):
+	"""A member can hold one certificate per batch of a course plus one
+	course-level (no batch) certificate; prefer the course-level one, else
+	the most recently issued."""
+	Certificate = frappe.qb.DocType("LMS Certificate")
+	no_batch = Certificate.batch_name.isnull() | (Certificate.batch_name == "")
+	has_batch = Case().when(no_batch, 0).else_(1)
+	rows = (
+		frappe.qb.from_(Certificate)
+		.select(Certificate.name, Certificate.template, Certificate.issue_date)
+		.where(Certificate.member == member)
+		.where(Certificate.course == course)
+		.orderby(has_batch)
+		.orderby(Certificate.issue_date, order=frappe.qb.desc)
+		.orderby(Certificate.creation, order=frappe.qb.desc)
+		.limit(1)
+		.run(as_dict=True)
+	)
+	return rows[0] if rows else None
+
+
 def is_certified(course):
-	certificate = frappe.get_all("LMS Certificate", {"member": frappe.session.user, "course": course})
-	if len(certificate):
-		return certificate[0].name
-	return
+	certificate = get_latest_certificate(frappe.session.user, course)
+	return certificate.name if certificate else None
 
 
 @frappe.whitelist()
@@ -223,13 +248,50 @@ def validate_certification_eligibility(course):
 def has_permission(doc, ptype="read", user=None):
 	user = user or frappe.session.user
 	roles = frappe.get_roles(user)
-	if "Moderator" in roles or "Course Creator" in roles or "Batch Evaluator" in roles:
+	if is_site_administrator(user) or "Moderator" in roles or "Course Creator" in roles:
 		return True
+	if "Batch Evaluator" in roles:
+		return ptype in ("read", "select", "print") or is_assigned_evaluator(doc, ptype, user)
 	if doc.owner == user:
 		return True
 	if ptype not in ("read", "select", "print"):
 		return False
 	return doc.published
+
+
+def is_assigned_evaluator(doc, ptype, user):
+	"""Scope comes from the stored row: the caller controls every in-memory field,
+	`evaluator` included, and must not re-home the certificate outside their batch."""
+	if ptype == "create":
+		return evaluates_certificate(doc.course, doc.batch_name, doc.member, user)
+
+	stored = frappe.db.get_value(
+		"LMS Certificate", doc.name, ["evaluator", "course", "batch_name", "member"], as_dict=True
+	)
+	if not stored:
+		return False
+	if stored.evaluator != user and not evaluates_certificate(
+		stored.course, stored.batch_name, stored.member, user
+	):
+		return False
+	if (doc.course, doc.batch_name, doc.member) == (stored.course, stored.batch_name, stored.member):
+		return True
+	return evaluates_certificate(doc.course, doc.batch_name, doc.member, user)
+
+
+def evaluates_certificate(course, batch_name, member, user):
+	"""A course certificate belongs to that course's evaluator in the batch. A batch
+	certificate (no course, issued from Generate Certificates) belongs to any evaluator
+	tagged on the batch, and only for a student enrolled in it."""
+	if course:
+		return get_evaluator(course, batch_name) == user
+	if not batch_name:
+		return False
+	tagged = {"parent": batch_name, "parenttype": "LMS Batch"}
+	return bool(
+		frappe.db.exists("Batch Course", {**tagged, "evaluator": user})
+		and frappe.db.exists("LMS Batch Enrollment", {"batch": batch_name, "member": member})
+	)
 
 
 def get_permission_query_conditions(user):
@@ -238,3 +300,8 @@ def get_permission_query_conditions(user):
 	if "Moderator" in roles or "Course Creator" in roles or "Batch Evaluator" in roles:
 		return None
 	return """(`tabLMS Certificate`.published = 1)"""
+
+
+def on_doctype_update():
+	# Backs the locking (member, course, batch_name) read in api.save_*_details.
+	frappe.db.add_index("LMS Certificate", ["member", "course", "batch_name"])

@@ -125,7 +125,7 @@ import {
 	toast,
 } from 'frappe-ui'
 import { computed, ref, watch } from 'vue'
-import SettingsLayout from '@/components/Layouts/SettingsLayout.vue'
+import SettingsLayout from '@/components/Layouts/settings/desktop/SettingsLayout.vue'
 import RuleConditions from './RuleConditions.vue'
 import MassRemovalConfirmDialog from './MassRemovalConfirmDialog.vue'
 import UnsavedChangesDialog from './UnsavedChangesDialog.vue'

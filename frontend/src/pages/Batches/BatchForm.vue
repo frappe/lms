@@ -147,7 +147,9 @@
 							v-model="instructors"
 							doctype="User"
 							url="lms.lms.api.search_users_by_role"
-							:searchParams="{ roles: JSON.stringify(['Batch Evaluator']) }"
+							:searchParams="{
+								roles: JSON.stringify(['Batch Evaluator', 'Course Creator']),
+							}"
 							:label="__('Instructors')"
 							:placeholder="__('Select instructors')"
 							:required="true"
@@ -225,7 +227,7 @@
 							variant="outline"
 							:onCreate="
 								(value, close) => {
-									openSettings('Zoom Accounts', close)
+									openSettings('zoom', close)
 								}
 							"
 						/>
@@ -237,7 +239,7 @@
 							variant="outline"
 							:onCreate="
 								(value, close) => {
-									openSettings('Google Meet Accounts', close)
+									openSettings('google-meet', close)
 								}
 							"
 						/>
@@ -276,7 +278,10 @@
 					<BatchCourses :batch="batch" />
 				</div>
 				<div class="p-4">
-					<Assessments :batch="batch.data?.name" />
+					<Assessments
+						:batch="batch.data?.name"
+						:can-manage="Boolean(batch.data?.can_manage)"
+					/>
 				</div>
 			</div>
 		</div>
@@ -609,6 +614,27 @@ const timezoneResource = createResource({
 
 const timezoneOptions = computed(() =>
 	(timezoneResource.data || []).map((tz: string) => ({ label: tz, value: tz }))
+)
+
+const systemTimezone = ref<string | null>(null)
+
+createResource({
+	url: 'lms.lms.api.get_system_preferences',
+	auto: true,
+	onSuccess: (data: { time_zone: string }) => {
+		systemTimezone.value = data.time_zone
+	},
+})
+
+// A new batch opens on the site's own timezone rather than an empty picker.
+// Sampling batchDetail.doc once inside that onSuccess dropped the default
+// whenever the preferences answered before the full document fetch, the common case.
+watch(
+	[() => batchDetail.doc, systemTimezone],
+	([doc, zone]) => {
+		if (doc && zone && !doc.timezone) doc.timezone = zone
+	},
+	{ immediate: true }
 )
 
 const mediumOptions = computed(() => {
