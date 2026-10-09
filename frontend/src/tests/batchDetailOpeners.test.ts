@@ -26,6 +26,11 @@ const { batchResource, createResourceMock } = vi.hoisted(() => ({
 	createResourceMock: vi.fn(),
 }))
 
+const { completeStepMock } = vi.hoisted(() => ({ completeStepMock: vi.fn() }))
+vi.mock('@/onboarding/useLearningOnboarding', () => ({
+	useLearningOnboarding: () => ({ completeStep: completeStepMock }),
+}))
+
 vi.mock('frappe-ui', () => ({
 	createResource: createResourceMock,
 	usePageMeta: () => {},
@@ -182,5 +187,45 @@ describe("BatchDetail's form openers", () => {
 		await router.push('/batches/B1/announcement/new#announcements')
 		const wrapper = await mountPage(router)
 		expect(wrapper.text()).toContain('FORM')
+	})
+})
+
+describe("BatchDetail's publish toggle", () => {
+	beforeEach(() => {
+		completeStepMock.mockReset()
+		createResourceMock.mockReset()
+		createResourceMock.mockReturnValue(batchResource)
+	})
+
+	function publishOptions() {
+		const call = createResourceMock.mock.calls.find(
+			([options]) => options?.url === 'frappe.client.set_value'
+		)
+		return call![0] as { onSuccess: () => void }
+	}
+
+	// Guards: publishing a batch not ticking Publish the batch. Introduced in
+	// this branch (feat/onboarding-flows, PR pending); test added there to
+	// cover the tick.
+	it('completes the publish step when it publishes the batch', async () => {
+		batchResource.data.published = 0
+		const router = makeRouter()
+		await router.push('/batches/B1')
+		await mountPage(router)
+		publishOptions().onSuccess()
+		expect(completeStepMock).toHaveBeenCalledWith('publish_batch')
+	})
+
+	// Guards: unpublishing a batch ticking Publish the batch. Introduced in
+	// this branch (feat/onboarding-flows, PR pending); test added there to
+	// cover the no-tick.
+	it('leaves the step alone when it unpublishes', async () => {
+		batchResource.data.published = 1
+		const router = makeRouter()
+		await router.push('/batches/B1')
+		await mountPage(router)
+		publishOptions().onSuccess()
+		expect(completeStepMock).not.toHaveBeenCalled()
+		delete batchResource.data.published
 	})
 })

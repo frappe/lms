@@ -100,6 +100,7 @@ import {
 import { useDirtyGuard } from '@/composables/useDirtyGuard'
 import { runSave, useSaveState } from '@/composables/useSettingsSave'
 import { safeUrl } from '@/utils/safeUrl'
+import { useLearningOnboarding } from '@/onboarding/useLearningOnboarding'
 import type { EmailService } from '@/types'
 import type { FieldsSection } from '@/types/settingsSchema'
 
@@ -134,6 +135,7 @@ const NEW_RECORD = 'new'
 const NEW_RECORD_WITH_SERVICE = `${NEW_RECORD}:`
 
 const { capture } = useTelemetry()
+const { completeStep } = useLearningOnboarding()
 
 const isNew = computed(
 	() =>
@@ -315,6 +317,7 @@ const createAccount = async () => {
 	})
 	toast.success(__('Email account created'))
 	capture('email_account_created', { data: { service: state.service } })
+	if (state.enable_outgoing) completeStep('setup_email')
 }
 
 const updateAccount = async () => {

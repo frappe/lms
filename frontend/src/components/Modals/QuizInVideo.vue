@@ -9,12 +9,14 @@
 						type="text"
 						placeholder="2:15"
 						class="flex-1"
+						variant="outline"
 					/>
 					<Link
 						v-model="quiz.quiz"
 						:label="__('Quiz')"
 						doctype="LMS Quiz"
 						class="flex-1"
+						variant="outline"
 					/>
 					<Button @click="addQuiz()" variant="solid">
 						<template #prefix>

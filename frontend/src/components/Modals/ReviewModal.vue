@@ -19,6 +19,7 @@
 					type="textarea"
 					v-model="review.review"
 					:rows="5"
+					variant="outline"
 				/>
 			</div>
 		</template>

@@ -62,3 +62,11 @@ export function validateBatch(input: BatchValidationInput): string | null {
 	}
 	return null
 }
+
+// Details count as filled once the batch has an image: the new-batch form
+// never asks for one, so a fresh batch does not count on its own.
+export function hasBatchDetails(
+	doc: { meta_image?: string | null } | null | undefined
+): boolean {
+	return Boolean(doc?.meta_image)
+}

@@ -56,6 +56,11 @@ const documentResourceStub = (doc: unknown) => (options: { name?: string }) =>
 	options.name ? { doc } : undefined
 createDocumentResourceMock.mockImplementation(documentResourceStub(null))
 
+const { completeStepMock } = vi.hoisted(() => ({ completeStepMock: vi.fn() }))
+vi.mock('@/onboarding/useLearningOnboarding', () => ({
+	useLearningOnboarding: () => ({ completeStep: completeStepMock }),
+}))
+
 // HeaderButton wraps frappe-ui's Button in a Tooltip below the mobile
 // breakpoint, and the hand-written frappe-ui mock here has no Tooltip. Stub it
 // down to the bare button so the fallthrough attrs the assertions use
@@ -439,6 +444,27 @@ describe('ProgrammingExerciseForm as a route', () => {
 		await flushPromises()
 		expect(insertSubmit).toHaveBeenCalledTimes(1)
 		expect(setValueSubmit).not.toHaveBeenCalled()
+	})
+
+	// Guards: Create a programming exercise ticking early, or never. Introduced
+	// in this branch (feat/onboarding-flows, PR pending); test added there to
+	// cover the tick.
+	it('ticks the onboarding exercise step once the exercise is created', async () => {
+		completeStepMock.mockReset()
+		insertSubmit.mockImplementation(
+			(_doc: unknown, options: { onSuccess: (d: { name: string }) => void }) =>
+				options.onSuccess({ name: 'reverse-a-string' })
+		)
+		const router = makeRouter()
+		await router.push('/programming-exercises/new')
+		const wrapper = await mountForm(router, moderator)
+		const title = wrapper.find('[data-testid="programming-exercise-title"]')
+		await title.find('input').setValue('Reverse a string')
+		await fillRequired(wrapper)
+		expect(completeStepMock).not.toHaveBeenCalled()
+		await title.trigger('blur')
+		await flushPromises()
+		expect(completeStepMock).toHaveBeenCalledWith('add_programming_exercise')
 	})
 
 	// Guards an edit being written without a Save button.

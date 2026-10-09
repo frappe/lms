@@ -82,15 +82,13 @@ vi.mock('lucide-vue-next', () => ({
 	ChevronRight: { render: () => null },
 	NotebookPen: { render: () => null },
 }))
-vi.mock(
-	'@framework/ui/components/Onboarding/index',
-	async (importOriginal) => ({
-		...(await importOriginal<
-			typeof import('@framework/ui/components/Onboarding/index')
-		>()),
-		useOnboarding: () => ({ updateOnboardingStep: vi.fn() }),
-	})
-)
+const { completeStepMock } = vi.hoisted(() => ({ completeStepMock: vi.fn() }))
+vi.mock('@/onboarding/useLearningOnboarding', () => ({
+	useLearningOnboarding: () => ({
+		completeStep: completeStepMock,
+		refetchFacts: vi.fn(),
+	}),
+}))
 vi.mock('@framework/ui/telemetry/index', async (importOriginal) => ({
 	...(await importOriginal<typeof import('@framework/ui/telemetry/index')>()),
 	useTelemetry: () => ({ capture: vi.fn() }),
@@ -131,12 +129,30 @@ async function mountDraft() {
 			provide: {
 				$user: { data: { is_moderator: true, is_instructor: true } },
 			},
+			// ComponentCustomProperties types $dialog; the mock only records calls.
+			config: { globalProperties: { $dialog: dialogMock } as never },
 		},
 		attachTo: document.body,
 	})
 	await flushPromises()
 	return wrapper
 }
+
+type DialogAction = {
+	label: string
+	onClick: (c: { close: () => void }) => void
+}
+const dialogMock = vi.fn()
+const lastDialog = () =>
+	dialogMock.mock.calls.at(-1)![0] as {
+		title: string
+		message: string
+		actions: DialogAction[]
+	}
+const press = (label: string) =>
+	lastDialog()
+		.actions.find((a) => a.label === label)!
+		.onClick({ close: () => {} })
 
 const titleField = (wrapper: VueWrapper) =>
 	wrapper.find('textarea.lesson-title')
@@ -182,6 +198,66 @@ describe('LessonForm draft: a new lesson is created from its title', () => {
 		}
 		document.body.innerHTML = ''
 		vi.useRealTimers()
+	})
+
+	// A textarea matches :focus-visible on click and programmatic focus too, so
+	// the ring follows the last input modality: only a Tab arrival rings it.
+	describe('title focus ring', () => {
+		const ringed = (w: VueWrapper) => {
+			const classes = titleField(w).classes()
+			return (
+				classes.includes('ring-2') && classes.includes('ring-outline-gray-5')
+			)
+		}
+
+		async function refocus(w: VueWrapper, before: Event) {
+			const title = titleField(w).element as HTMLTextAreaElement
+			title.blur()
+			await flushPromises()
+			document.body.dispatchEvent(before)
+			title.focus()
+			await flushPromises()
+		}
+
+		// Guards: keyboard users losing the title's focus ring. The ring rules come
+		// from develop (frappe/lms#2848); test added in this branch
+		// (feat/onboarding-flows, PR pending) with the Tab-only ring fix.
+		it('rings the title when focus arrives by Tab', async () => {
+			wrapper = await mountDraft()
+			await refocus(
+				wrapper,
+				new KeyboardEvent('keydown', { key: 'Tab', bubbles: true })
+			)
+			expect(ringed(wrapper)).toBe(true)
+			expect(titleField(wrapper).classes()).not.toContain('focus:ring-0')
+			;(titleField(wrapper).element as HTMLTextAreaElement).blur()
+			await flushPromises()
+			expect(ringed(wrapper)).toBe(false)
+		})
+
+		// Guards: a click ringing the title. Introduced in frappe/lms#2848; test
+		// added in this branch (feat/onboarding-flows, PR pending) for that fix.
+		it('does not ring the title when focus follows a pointerdown', async () => {
+			wrapper = await mountDraft()
+			document.body.dispatchEvent(
+				new KeyboardEvent('keydown', { key: 'Tab', bubbles: true })
+			)
+			await refocus(wrapper, new Event('pointerdown', { bubbles: true }))
+			expect(ringed(wrapper)).toBe(false)
+			expect(titleField(wrapper).classes()).toContain('focus:ring-0')
+		})
+
+		// Guards: every new lesson opening with a ringed title from its autofocus.
+		// Introduced in frappe/lms#2848; test added in this branch
+		// (feat/onboarding-flows, PR pending) for that fix.
+		it('does not ring the title on programmatic focus', async () => {
+			wrapper = await mountDraft()
+			expect(document.activeElement).toBe(titleField(wrapper).element)
+			expect(ringed(wrapper)).toBe(false)
+			expect(titleField(wrapper).classes()).toEqual(
+				expect.arrayContaining(['focus:outline-none', 'focus:ring-0'])
+			)
+		})
 	})
 
 	it('opens empty and focused, loading and creating nothing', async () => {
@@ -304,6 +380,131 @@ describe('LessonForm draft: a new lesson is created from its title', () => {
 		// Nothing changed since the create, so there is nothing to save.
 		await idle(800)
 		expect(setValue().submit).not.toHaveBeenCalled()
+	})
+
+	// Guards: the draft create never ticking Add a lesson (only the old insert
+	// path did). Introduced in this branch (feat/onboarding-flows, PR pending)
+	// on rebase onto develop's draft lessons; test added there as the fix guard.
+	it('ticks the onboarding lesson step once the lesson is created', async () => {
+		completeStepMock.mockClear()
+		wrapper = await mountDraft()
+		await typeTitle(wrapper, 'Intro')
+		await idle(3000)
+		expect(completeStepMock).not.toHaveBeenCalled()
+		await settleCreate()
+		expect(completeStepMock).toHaveBeenCalledWith('create_first_lesson')
+	})
+
+	// Guards: Add a lesson ticking for a lesson that was never created.
+	// Introduced in this branch (feat/onboarding-flows, PR pending); test added
+	// there with the draft-create tick.
+	it('does not tick the step when the create fails', async () => {
+		completeStepMock.mockClear()
+		wrapper = await mountDraft()
+		await typeTitle(wrapper, 'Intro')
+		await idle(3000)
+		await settleCreate('fail')
+		expect(completeStepMock).not.toHaveBeenCalled()
+	})
+
+	// Guards: an untitled lesson being created from body edits alone. Introduced
+	// in this branch (feat/onboarding-flows, PR pending); test added there with
+	// the discard prompt, which relies on nothing being saved.
+	it('creates nothing from a body with no title, on save or on leaving', async () => {
+		wrapper = await mountDraft()
+		await editBody(wrapper)
+		;(wrapper.vm as any).saveLesson({ flush: true })
+		await idle(3000)
+		wrapper.unmount()
+		await flushPromises()
+		expect(createLesson().submit).not.toHaveBeenCalled()
+	})
+
+	// Guards: a draft lesson looking saved before it exists. Introduced in this
+	// branch (feat/onboarding-flows, PR pending); test added there to pin when
+	// the Not saved badge shows and what it says is missing.
+	it('says Not saved beside the title until the lesson is created', async () => {
+		wrapper = await mountDraft()
+		const badge = () => wrapper.findComponent({ name: 'UnsavedBadge' })
+		expect(badge().props('missing')).toEqual(['a title'])
+		await typeTitle(wrapper, 'Intro')
+		expect(badge().props('missing')).toEqual([])
+		await idle(3000)
+		await settleCreate()
+		expect(badge().exists()).toBe(false)
+	})
+
+	describe('leaving an unsaved lesson', () => {
+		const guard = (w: VueWrapper, leave: () => void) =>
+			(w.vm as any).guardLeave(leave) as boolean
+
+		beforeEach(() => dialogMock.mockReset())
+
+		// Guards: a discard prompt on a lesson with nothing to lose. Introduced in
+		// this branch (feat/onboarding-flows, PR pending); test added there.
+		it('leaves an empty new lesson silently', async () => {
+			wrapper = await mountDraft()
+			expect(guard(wrapper, vi.fn())).toBe(true)
+			expect(dialogMock).not.toHaveBeenCalled()
+		})
+
+		// Guards: a discard prompt on a titled lesson, which leaving saves anyway.
+		// Introduced in this branch (feat/onboarding-flows, PR pending); test
+		// added there.
+		it('leaves a titled one silently, since leaving creates it', async () => {
+			wrapper = await mountDraft()
+			await typeTitle(wrapper, 'Intro')
+			expect(guard(wrapper, vi.fn())).toBe(true)
+			expect(dialogMock).not.toHaveBeenCalled()
+		})
+
+		// Guards: body edits on an untitled lesson vanishing without a prompt.
+		// Introduced in this branch (feat/onboarding-flows, PR pending); test
+		// added there to pin the prompt's wording and actions.
+		it('asks before discarding a body that has no title to save it under', async () => {
+			wrapper = await mountDraft()
+			await editBody(wrapper)
+			const leave = vi.fn()
+			expect(guard(wrapper, leave)).toBe(false)
+			expect(lastDialog().title).toBe('Discard changes?')
+			expect(lastDialog().message).toBe(
+				"This lesson hasn't been saved. Your changes will be lost."
+			)
+			expect(lastDialog().actions.map((a) => a.label)).toEqual([
+				'Discard',
+				'Keep editing',
+			])
+		})
+
+		// Guards: the prompt's buttons doing the wrong thing or Discard re-asking.
+		// Introduced in this branch (feat/onboarding-flows, PR pending); test
+		// added there.
+		it('Keep editing stays; Discard leaves and does not ask again', async () => {
+			wrapper = await mountDraft()
+			await editBody(wrapper)
+			const leave = vi.fn()
+			guard(wrapper, leave)
+			press('Keep editing')
+			expect(leave).not.toHaveBeenCalled()
+			guard(wrapper, leave)
+			press('Discard')
+			expect(leave).toHaveBeenCalledTimes(1)
+			expect(guard(wrapper, vi.fn())).toBe(true)
+		})
+
+		// Guards: closing the tab silently dropping an untitled lesson's body.
+		// Introduced in this branch (feat/onboarding-flows, PR pending); test
+		// added there for the beforeunload prompt.
+		it('has the browser ask before closing the tab', async () => {
+			wrapper = await mountDraft()
+			const event = new Event('beforeunload', { cancelable: true })
+			window.dispatchEvent(event)
+			expect(event.defaultPrevented).toBe(false)
+			await editBody(wrapper)
+			const lost = new Event('beforeunload', { cancelable: true })
+			window.dispatchEvent(lost)
+			expect(lost.defaultPrevented).toBe(true)
+		})
 	})
 
 	it('saves body edits made during the draft right after the create', async () => {

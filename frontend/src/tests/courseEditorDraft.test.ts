@@ -12,6 +12,8 @@ const state = vi.hoisted(() => ({
 	route: null as any,
 	reloads: [] as Array<(chapters: Chapter[] | null) => void>,
 	formMounts: 0,
+	blockLeave: false,
+	pendingLeave: null as null | (() => void),
 	course: null as any,
 }))
 
@@ -58,8 +60,15 @@ vi.mock('@/pages/LessonForm.vue', async () => {
 			name: 'LessonForm',
 			props: ['courseName', 'chapterNumber', 'lessonNumber', 'draftChapter'],
 			emits: ['saved', 'created'],
-			setup() {
+			setup(_props, { expose }) {
 				onMounted(() => state.formMounts++)
+				expose({
+					guardLeave: (leave: () => void) => {
+						if (!state.blockLeave) return true
+						state.pendingLeave = leave
+						return false
+					},
+				})
 				return () => h('div', { class: 'lesson-form-stub' })
 			},
 		}),
@@ -169,7 +178,28 @@ describe('CourseEditor draft lesson identity', () => {
 
 	beforeEach(() => {
 		state.reloads.length = 0
+		state.blockLeave = false
+		state.pendingLeave = null
 		localStorage.clear()
+	})
+
+	// Guards: switching lessons in the outline skipping the open lesson's discard
+	// prompt. Introduced in this branch (feat/onboarding-flows, PR pending); test
+	// added there to check the switch waits for guardLeave.
+	it('asks the open lesson before switching away, and switches once it agrees', async () => {
+		wrapper = await mountEditor([chapterA(1), chapterB(2)])
+		await addLesson(wrapper, chapterB(2))
+		state.blockLeave = true
+		outline(wrapper).vm.$emit('select-lesson', {
+			chapterNumber: '1',
+			lessonNumber: '1',
+		})
+		await addLesson(wrapper, chapterA(1))
+		expect(form(wrapper).props('draftChapter')).toBe('CH-B')
+
+		state.pendingLeave!()
+		await flushPromises()
+		expect(form(wrapper).props('draftChapter')).toBe('CH-A')
 	})
 
 	afterEach(() => wrapper?.unmount())

@@ -68,17 +68,29 @@
 				</div>
 			</BottomSheet>
 
-			<textarea
-				ref="titleRef"
-				v-model="lesson.title"
-				:placeholder="__('Lesson title')"
-				:aria-label="__('Lesson title')"
-				rows="1"
-				class="lesson-title block w-full resize-none overflow-hidden border-0 bg-transparent p-0 text-2xl font-bold leading-tight text-ink-gray-9 placeholder:text-ink-gray-4 focus:outline-none focus:ring-0 focus-visible:ring-2 focus-visible:ring-outline-gray-5"
-				@input="onTitleInput"
-				@keydown.enter="onTitleEnter"
-				@blur="onTitleBlur"
-			/>
+			<div class="flex items-start gap-2">
+				<textarea
+					ref="titleRef"
+					v-model="lesson.title"
+					:placeholder="__('Lesson title')"
+					:aria-label="__('Lesson title')"
+					rows="1"
+					class="lesson-title block w-full resize-none overflow-hidden border-0 bg-transparent p-0 text-2xl font-bold leading-tight text-ink-gray-9 placeholder:text-ink-gray-4 focus:outline-none focus-visible:outline-none"
+					:class="
+						titleKeyboardFocus ? 'ring-2 ring-outline-gray-5' : 'focus:ring-0'
+					"
+					@input="onTitleInput"
+					@keydown.enter="onTitleEnter"
+					@focus="onTitleFocus"
+					@blur="onTitleBlur"
+				/>
+				<UnsavedBadge
+					v-if="isDraft"
+					class="mt-1.5 shrink-0"
+					:missing="lesson.title.trim() ? [] : [__('a title')]"
+					:hint="__('This lesson saves once you pause typing')"
+				/>
+			</div>
 
 			<details
 				class="instructor-notes rounded-6 border border-outline-gray-2"
@@ -138,8 +150,12 @@ import {
 	ref,
 	nextTick,
 	onBeforeUnmount,
+	onUnmounted,
 	useId,
+	getCurrentInstance,
 } from 'vue'
+import { onBeforeRouteLeave, onBeforeRouteUpdate, useRouter } from 'vue-router'
+import UnsavedBadge from '@/components/UnsavedBadge.vue'
 import { ChevronRight, NotebookPen } from 'lucide-vue-next'
 import { useDebounceFn } from '@vueuse/core'
 import { enablePlyr, sanitizeEditorJs } from '@/utils'
@@ -155,7 +171,7 @@ import { hasVideoContent } from '@/utils/video'
 import BlockEditor from '@/components/BlockEditor.vue'
 import BottomSheet from '@/components/BottomSheet.vue'
 import { useScreenSize } from '@/utils/composables'
-import { useOnboarding } from '@framework/ui/components/Onboarding/index'
+import { useLearningOnboarding } from '@/onboarding/useLearningOnboarding'
 import { useTelemetry } from '@framework/ui/telemetry/index'
 import {
 	useKeyboardShortcuts,
@@ -188,9 +204,39 @@ function onTitleInput() {
 	markDirty({ fromTitle: true })
 }
 
+// A textarea matches :focus-visible on click and on programmatic focus too, so
+// the ring is driven by the last input modality: only a Tab arrival shows it.
+const titleKeyboardFocus = ref(false)
+let lastWasTab = false
+
+function onTitleFocus() {
+	titleKeyboardFocus.value = lastWasTab
+}
+
 function onTitleBlur() {
+	titleKeyboardFocus.value = false
 	if (isDraft.value) createDraftLesson()
 }
+
+function onModalityKeydown(event) {
+	if (event.key === 'Tab') lastWasTab = true
+}
+
+function onModalityPointerdown() {
+	lastWasTab = false
+}
+
+onMounted(() => {
+	document.addEventListener('keydown', onModalityKeydown, true)
+	document.addEventListener('pointerdown', onModalityPointerdown, true)
+	document.addEventListener('mousedown', onModalityPointerdown, true)
+})
+
+onUnmounted(() => {
+	document.removeEventListener('keydown', onModalityKeydown, true)
+	document.removeEventListener('pointerdown', onModalityPointerdown, true)
+	document.removeEventListener('mousedown', onModalityPointerdown, true)
+})
 
 // EditorJS can't focus while the card is collapsed (display:none).
 function onInstructorNotesToggle(event) {
@@ -211,7 +257,7 @@ const instructorUploadContext = reactive({
 	fieldname: 'instructor_content',
 })
 const { capture } = useTelemetry()
-const { updateOnboardingStep } = useOnboarding('learning')
+const { completeStep, refetchFacts } = useLearningOnboarding()
 
 const emit = defineEmits(['saved', 'created'])
 
@@ -301,7 +347,65 @@ function markDirty({ fromTitle = false } = {}) {
 	autoSave()
 }
 
+// A draft is created from its title, and leaving creates a titled one, so only
+// a body with no title is lost on the way out.
+const draftWouldBeLost = computed(
+	() => isDraft.value && !lesson.title.trim() && isDirty.value
+)
+const { $dialog } = getCurrentInstance().appContext.config.globalProperties
+const router = useRouter()
+let discardConfirmed = false
+
+// True when leaving loses nothing. Otherwise asks, and calls `leave` on Discard:
+// createDialog reports no dismissal, so the caller cancels and is re-run.
+function guardLeave(leave) {
+	if (discardConfirmed || !draftWouldBeLost.value) return true
+	askToDiscard(leave)
+	return false
+}
+
+function askToDiscard(leave) {
+	$dialog({
+		title: __('Discard changes?'),
+		message: __("This lesson hasn't been saved. Your changes will be lost."),
+		actions: [
+			{
+				label: __('Discard'),
+				theme: 'red',
+				variant: 'solid',
+				onClick({ close }) {
+					discardConfirmed = true
+					close()
+					leave()
+				},
+			},
+			{
+				label: __('Keep editing'),
+				onClick({ close }) {
+					close()
+				},
+			},
+		],
+	})
+}
+
+onBeforeRouteLeave((to) => guardLeave(() => router.push(to)))
+// Another tab of the course page unmounts the editor too.
+onBeforeRouteUpdate(
+	(to, from) => to.hash === from.hash || guardLeave(() => router.push(to))
+)
+
+// The browser writes the text. Both calls are needed for the prompt to appear.
+function warnOnUnload(event) {
+	if (!draftWouldBeLost.value) return
+	event.preventDefault()
+	event.returnValue = ''
+}
+window.addEventListener('beforeunload', warnOnUnload)
+onBeforeUnmount(() => window.removeEventListener('beforeunload', warnOnUnload))
+
 defineExpose({
+	guardLeave,
 	saveLesson,
 	markDeleted,
 	isDirty,
@@ -387,6 +491,7 @@ function promoteDraft(name) {
 	contentUploadContext.docname = name
 	instructorUploadContext.docname = name
 	capture('lesson_created')
+	completeStep('create_first_lesson')
 	emit('created', { name, chapter: draftChapter })
 	// Typed while the create was in flight.
 	if (lesson.title.trim() !== createdTitle) isDirty.value = true
@@ -674,9 +779,8 @@ const linkLesson = (lessonName) =>
 		{ lesson: lessonName },
 		{
 			onSuccess() {
-				if (user.data?.is_system_manager)
-					updateOnboardingStep('create_first_lesson')
-
+				completeStep('create_first_lesson')
+				refetchFacts()
 				capture('lesson_created')
 				toast.success(__('Lesson created successfully'))
 				isDirty.value = false
@@ -704,6 +808,7 @@ const editCurrentLesson = (isRetry = false) => {
 				},
 				onSuccess() {
 					isDirty.value = false
+					refetchFacts()
 					emit('saved', {
 						name: lessonDetails.data.lesson.name,
 						title: lesson.title,

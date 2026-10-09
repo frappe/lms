@@ -42,6 +42,11 @@ const {
 	}
 })
 
+const { completeStepMock } = vi.hoisted(() => ({ completeStepMock: vi.fn() }))
+vi.mock('@/onboarding/useLearningOnboarding', () => ({
+	useLearningOnboarding: () => ({ completeStep: completeStepMock }),
+}))
+
 // HeaderButton wraps frappe-ui's Button in a Tooltip below the mobile
 // breakpoint, and the hand-written frappe-ui mock here has no Tooltip. Stub it
 // down to the bare button so the fallthrough attrs the assertions use
@@ -289,6 +294,21 @@ describe('LiveClassForm as a route', () => {
 			'B1',
 		])
 		expect(liveClassList.reload).toHaveBeenCalledTimes(1)
+	})
+
+	// Guards: a new live class not ticking Schedule a live class. Introduced in
+	// this branch (feat/onboarding-flows, PR pending); test added there to
+	// cover the tick.
+	it('completes the live class onboarding step after a create', async () => {
+		const router = makeRouter()
+		await router.push('/batches/B1/live-class/new')
+		const wrapper = await mountForm(router, moderator)
+		zoomSubmit.mockImplementation(
+			(_doc: unknown, options: { onSuccess: () => void }) => options.onSuccess()
+		)
+		await wrapper.find('[data-testid="live-class-save"]').trigger('click')
+		await flushPromises()
+		expect(completeStepMock).toHaveBeenCalledWith('schedule_live_class')
 	})
 
 	it('mobile: the back control pops the router back to the page', async () => {

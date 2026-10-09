@@ -56,6 +56,7 @@
 						@update:modelValue="markDirty()"
 					/>
 					<FormControl
+						ref="coursePriceInput"
 						v-model="doc.course_price"
 						type="number"
 						min="0"
@@ -198,15 +199,17 @@
 <script setup lang="ts">
 import { Dialog, FormControl, createResource } from 'frappe-ui'
 import BooleanSwitch from '@/components/Controls/BooleanSwitch.vue'
-import { computed, inject, ref } from 'vue'
+import { computed, inject, nextTick, ref } from 'vue'
 import CollapsibleSection from '@/components/CollapsibleSection.vue'
 import Link from '@/components/Controls/Link.vue'
 import NewMemberModal from '@/components/Modals/NewMemberModal.vue'
 import { useSettings } from '@/stores/settings'
 import type { CourseFormContext, Resource } from '@/types'
 import { openExternal } from '@/utils/openExternal'
+import { useRouteIntent } from '@/composables/useRouteIntent'
 
-const { resource, markDirty } = inject<CourseFormContext>('courseForm')!
+const { resource, markDirty, markUnsaved } =
+	inject<CourseFormContext>('courseForm')!
 const dayjs = inject('$dayjs') as typeof import('dayjs')
 
 const settingsStore = useSettings()
@@ -238,17 +241,46 @@ const selfEnrollment = computed<boolean>({
 	},
 })
 
-function setPaidCourse(val: boolean) {
-	if (!resource.doc) return
+function applyPaidCourse(val: boolean): boolean {
+	if (!resource.doc) return false
 	if (val && paymentsAppMissing.value) {
 		showPaymentsAppModal.value = true
-		return
+		return false
 	}
 	resource.doc.paid_course = val ? 1 : 0
 	// A paid course is already monetized: the paid-certificate flow only
 	// applies to free courses, so clear it when switching to paid.
 	if (val) resource.doc.paid_certificate = 0
-	markDirty()
+	return true
+}
+
+function setPaidCourse(val: boolean) {
+	if (applyPaidCourse(val)) markDirty()
+}
+
+const coursePriceInput = ref<{ focus: () => void } | null>(null)
+
+// A cached course shows while it reloads; the reload would undo the switch.
+const docLoaded = computed<boolean>(
+	() => Boolean(resource.doc) && !resource.get?.loading
+)
+
+// Onboarding's Set pricing step lands here with ?pricing=paid.
+useRouteIntent({
+	param: 'pricing',
+	value: 'paid',
+	ready: docLoaded,
+	run: openPaidPricing,
+})
+
+// No autosave: the switch waits for a price and the user's own save.
+async function openPaidPricing() {
+	if (!resource.doc?.paid_course) {
+		if (!applyPaidCourse(true)) return
+		markUnsaved()
+	}
+	await nextTick()
+	coursePriceInput.value?.focus()
 }
 
 function setPaidCertificate(val: boolean) {

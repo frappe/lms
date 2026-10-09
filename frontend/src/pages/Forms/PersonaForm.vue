@@ -25,15 +25,17 @@
 import PersonaCard from '@/components/Persona/PersonaCard.vue'
 import { call, usePageMeta } from 'frappe-ui'
 import { useTelemetry } from '@framework/ui/telemetry/index'
-import { BookOpen, Users, Award, Rocket, Compass } from 'lucide-vue-next'
+import { BookOpen, Users, Video } from 'lucide-vue-next'
 import { computed, inject, markRaw, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { sessionStore } from '@/stores/session'
+import { useLearningOnboarding } from '@/onboarding/useLearningOnboarding'
 
 const user = inject('$user')
 const router = useRouter()
 const { brand } = sessionStore()
 const { capture } = useTelemetry()
+const { openCardScreen } = useLearningOnboarding()
 
 const leaving = ref(false)
 const FADE_MS = 300
@@ -147,34 +149,25 @@ const steps = computed(() => [
 				description: __('Set up your first course and lessons.'),
 				icon: markRaw(BookOpen),
 				route: { name: 'Courses' },
+				flow: 'publish_course',
 			},
 			{
-				label: __('Onboard my existing learners'),
-				value: 'Onboard my existing learners',
-				description: __('Bring your learners into a batch.'),
-				icon: markRaw(Users),
+				label: __('Run my first live class'),
+				value: 'Run my first live class',
+				description: __(
+					'Create a batch, pick a meeting tool and schedule a class.'
+				),
+				icon: markRaw(Video),
 				route: { name: 'Batches' },
+				flow: 'live_class',
 			},
 			{
-				label: __('Award my first certificate'),
-				value: 'Award my first certificate',
-				description: __('Configure certification for a course.'),
-				icon: markRaw(Award),
-				route: { name: 'Courses' },
-			},
-			{
-				label: __('Launch a paid course'),
-				value: 'Launch a paid course',
-				description: __('Add pricing and go live.'),
-				icon: markRaw(Rocket),
-				route: { name: 'Courses' },
-			},
-			{
-				label: __('Just exploring'),
-				value: 'Just exploring',
-				description: __('Poke around a sample course.'),
-				icon: markRaw(Compass),
-				route: { name: 'Courses' },
+				label: __('Onboard existing users'),
+				value: 'Onboard existing users',
+				description: __('Set up email and bring your users in.'),
+				icon: markRaw(Users),
+				route: { name: 'Home' },
+				flow: 'onboard_learners',
 			},
 		],
 	},
@@ -205,6 +198,7 @@ const handleChoose = (step, option) => {
 	call('lms.lms.api.capture_user_persona', {
 		responses: JSON.stringify({ site: user.data?.sitename, ...answers }),
 	})
+	if (option.flow) openCardScreen(option.flow)
 	leaveTo(option.route ?? { name: 'Home' }, persistCaptured())
 }
 

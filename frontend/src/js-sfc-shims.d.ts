@@ -53,3 +53,11 @@ declare module '@/components/UploadPlugin.vue' {
 	const component: Component
 	export default component
 }
+
+// AppSidebar.vue is a plain-JS SFC that the sidebar tests import.
+// DELETE this entry the moment it gains `lang="ts"`.
+declare module '@/components/Sidebar/AppSidebar.vue' {
+	import type { Component } from 'vue'
+	const component: Component
+	export default component
+}

@@ -16,6 +16,7 @@
 					:label="__('Student')"
 					:required="true"
 					:onCreate="openMemberSettings"
+					variant="outline"
 				/>
 				<Link
 					doctype="LMS Payment"
@@ -23,6 +24,7 @@
 					placeholder=" "
 					:label="__('Payment')"
 					:onCreate="openPaymentSettings"
+					variant="outline"
 				/>
 			</div>
 		</template>
@@ -47,7 +49,6 @@ import {
 	getCachedResource,
 	toast,
 } from 'frappe-ui'
-import { useOnboarding } from '@framework/ui/components/Onboarding/index'
 import { useRoute } from 'vue-router'
 import { openSettings } from '@/utils'
 import Link from '@/components/Controls/Link.vue'
@@ -70,7 +71,6 @@ const props = defineProps({
 const user = inject('$user')
 const route = useRoute()
 const readOnlyMode = window.read_only_mode
-const { updateOnboardingStep } = useOnboarding('learning')
 const batch = useBatchDetails(() => props.batchName)
 
 const student = ref(null)
@@ -156,9 +156,6 @@ const submit = () => {
 		{},
 		{
 			onSuccess() {
-				if (user.data?.is_system_manager) {
-					updateOnboardingStep('add_batch_student')
-				}
 				reloadDashboard()
 				toast.success(__('Student enrolled successfully'))
 				saveAndReplace(

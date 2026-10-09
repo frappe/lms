@@ -25,6 +25,7 @@
 				/>
 				<Button
 					v-if="user.data?.is_moderator && !isMobile"
+					ref="publishButton"
 					:variant="course.data?.published ? 'subtle' : 'solid'"
 					:theme="course.data?.published ? 'red' : 'gray'"
 					:loading="publishToggle.loading"
@@ -210,6 +211,7 @@
 <script setup lang="ts">
 import { computed, inject, markRaw, ref, useTemplateRef, watch } from 'vue'
 import type { ComputedRef } from 'vue'
+import { useLearningOnboarding } from '@/onboarding/useLearningOnboarding'
 import { useRoute, useRouter } from 'vue-router'
 import type { Router } from 'vue-router'
 import {
@@ -235,6 +237,7 @@ import LessonHelp from '@/components/LessonHelp.vue'
 import ShortcutTooltip from '@/components/ShortcutTooltip.vue'
 import HeaderButton from '@/components/HeaderButton.vue'
 import { openFormRoute } from '@/composables/useFormRoute'
+import { useRouteIntent } from '@/composables/useRouteIntent'
 import type {
 	CourseDetails,
 	CourseInstructorInfo,
@@ -248,6 +251,7 @@ const { brand } = sessionStore() as { brand: Brand }
 const router: Router = useRouter()
 const route = useRoute()
 const user = inject<SessionUser>('$user')!
+const { completeStep } = useLearningOnboarding()
 const { isMobile } = useScreenSize()
 
 interface EditorSelection {
@@ -317,6 +321,7 @@ const publishToggle = createResource({
 		toast.success(
 			course.data?.published ? __('Course unpublished') : __('Course published')
 		)
+		if (!course.data?.published) completeStep('publish_course')
 		course.reload()
 	},
 	onError(err: FrappeResourceError) {
@@ -345,6 +350,18 @@ const courseOptions = computed<CourseMenuItem[]>(() => {
 function togglePublishCourse() {
 	publishToggle.submit()
 }
+
+// Onboarding's Publish the course step lands here with ?publish=1: Publish
+// takes focus, without being pressed, once the settings header shows it.
+const publishButton = useTemplateRef<{ $el: HTMLElement }>('publishButton')
+
+useRouteIntent({
+	param: 'publish',
+	value: '1',
+	ready: publishButton,
+	run: () => publishButton.value?.$el.focus(),
+	flush: 'post',
+})
 
 // The enrollment form is a child route now, not a modal the dashboard tab owned,
 // so the button navigates instead of reaching into the tab instance. Hash and

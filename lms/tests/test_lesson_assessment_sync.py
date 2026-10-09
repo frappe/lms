@@ -189,6 +189,13 @@ class TestSyncLessonAssessments(BaseTestUtils):
 		lesson = self._lesson("Sync lesson empty")
 		self.assertEqual(lesson.assessments, [])
 
+	# Guards: truncated lesson JSON failing the save or leaving placement rows. Sync introduced
+	# in frappe/lms#2826; test added in this branch (feat/onboarding-flows, PR pending) because
+	# the Add assessments flow reads these rows.
+	def test_malformed_content_gets_no_rows(self):
+		lesson = self._lesson("Sync lesson broken", content='{"blocks": [{"type": "quiz"')
+		self.assertEqual(lesson.assessments, [])
+
 	def test_a_reference_to_a_missing_assessment_is_dropped_not_placed(self):
 		"""assessment_name is a Dynamic Link, so a row naming a deleted assessment
 		cannot save at all -- dropping it here is required, not a preference."""

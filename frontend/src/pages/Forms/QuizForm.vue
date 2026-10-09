@@ -5,6 +5,11 @@
 				<Badge v-if="doc?.name" :theme="hasUnsavedWork ? 'amber' : 'green'">
 					{{ hasUnsavedWork ? __('Not saved') : __('Saved') }}
 				</Badge>
+				<UnsavedBadge
+					v-else-if="isNew"
+					:missing="missingToCreate"
+					:hint="__('Press Enter in the title to save this quiz')"
+				/>
 				<template v-if="doc?.name">
 					<HeaderButton
 						variant="subtle"
@@ -226,11 +231,11 @@
 						{{ __('Details') }}
 					</h2>
 					<FormControl
+						ref="titleInput"
 						v-model="doc.title"
 						:label="__('Title')"
 						variant="outline"
 						:required="true"
-						autofocus
 						@blur="createIfNamed"
 						@keydown.enter.prevent="createIfNamed"
 					/>
@@ -405,6 +410,7 @@ import {
 	inject,
 	watch,
 	getCurrentInstance,
+	nextTick,
 } from 'vue'
 import {
 	useKeyboardShortcuts,
@@ -417,7 +423,9 @@ import { onBeforeRouteLeave, useRouter } from 'vue-router'
 import { sanitizeOnWrite } from '@/utils/sanitizeOnWrite'
 import { getLmsRoute } from '@/utils/basePath'
 import { useTelemetry } from '@framework/ui/telemetry/index'
+import { useLearningOnboarding } from '@/onboarding/useLearningOnboarding'
 import { resourceErrorMessage, submitResource } from '@/utils/resource'
+import UnsavedBadge from '@/components/UnsavedBadge.vue'
 
 const { brand } = sessionStore()
 const rightPanel = ref('settings') // 'settings' | 'bank'
@@ -467,6 +475,7 @@ const user = inject('$user')
 const router = useRouter()
 const readOnlyMode = window.read_only_mode
 const { capture } = useTelemetry()
+const { completeStep } = useLearningOnboarding()
 const { $dialog } = getCurrentInstance().appContext.config.globalProperties
 
 const deleteQuiz = () => {
@@ -861,7 +870,10 @@ onMounted(() => {
 		router.push({ name: 'Courses' })
 		return
 	}
-	if (isNew.value) return
+	if (isNew.value) {
+		focusNewTitle()
+		return
+	}
 	quizDetails.value.reload().then(() => refreshQuestionMeta())
 })
 
@@ -882,6 +894,22 @@ useKeyboardShortcuts({
 // Created on the title's blur, not on a keystroke: the docname comes from the title.
 const creating = ref(false)
 
+// LMS Quiz requires both; the insert fails without either.
+const missingToCreate = computed(() => [
+	...(newQuiz.title.trim() ? [] : [__('a title')]),
+	...(String(newQuiz.passing_percentage ?? '').trim()
+		? []
+		: [__('a passing percentage')]),
+])
+
+// Every new-quiz entry lands here, including a patch from an open quiz, so the
+// caret goes in the title whenever the page turns new.
+const titleInput = ref(null)
+const focusNewTitle = () => {
+	if (isNew.value) nextTick(() => titleInput.value?.focus())
+}
+watch(isNew, focusNewTitle)
+
 const createIfNamed = async () => {
 	if (!isNew.value || creating.value) return
 	newQuiz.title = sanitizeOnWrite(newQuiz.title.trim())
@@ -893,6 +921,7 @@ const createIfNamed = async () => {
 			auto: false,
 		}).submit({ doc: { doctype: 'LMS Quiz', ...newQuiz } })
 		capture('quiz_created')
+		completeStep('add_quiz')
 		// The page is not remounted by this: the quizID watch above picks the quiz up.
 		router.replace({ name: 'QuizForm', params: { quizID: created.name } })
 	} catch (error) {

@@ -18,6 +18,7 @@
 					type="select"
 					:label="__('Course')"
 					:options="getCourses()"
+					variant="outline"
 				/>
 				<div v-if="slots.data?.length" class="space-y-4 overflow-y-auto mt-4">
 					<div class="flex items-baseline justify-between gap-x-3">
