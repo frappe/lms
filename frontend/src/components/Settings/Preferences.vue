@@ -49,7 +49,11 @@
 							:placeholder="__('Search timezone')"
 							class="w-48"
 							@update:model-value="
-								(value) => onSystemSelect('time_zone', value)
+								(value) =>
+									onSystemSelect(
+										'time_zone',
+										value == null ? null : String(value)
+									)
 							"
 						/>
 					</div>
