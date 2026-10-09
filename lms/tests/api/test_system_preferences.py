@@ -1,12 +1,13 @@
 import frappe
 
 from lms.lms.api import get_system_preferences, set_system_preferences
-from lms.lms.test_helpers import BaseTestUtils
+from lms.lms.test_helpers import BaseTestUtils, enforce_role_gates
 
 
 class TestSystemPreferences(BaseTestUtils):
 	def setUp(self):
 		super().setUp()
+		enforce_role_gates(self)
 		self.language = frappe.db.get_single_value("System Settings", "language")
 		self.time_zone = frappe.db.get_single_value("System Settings", "time_zone")
 

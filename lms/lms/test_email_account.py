@@ -5,11 +5,13 @@ from frappe.exceptions import FrappeTypeError
 from frappe.tests.utils import FrappeTestCase
 
 from lms.lms.email_account import create_email_account, set_default_email_account
+from lms.lms.test_helpers import enforce_role_gates
 
 
 class TestCreateEmailAccount(FrappeTestCase):
 	def setUp(self):
 		frappe.set_user("Administrator")
+		enforce_role_gates(self)
 
 	# --- input validation ---------------------------------------------------
 
@@ -266,6 +268,7 @@ class TestCreateEmailAccount(FrappeTestCase):
 class TestSetDefaultEmailAccount(FrappeTestCase):
 	def setUp(self):
 		frappe.set_user("Administrator")
+		enforce_role_gates(self)
 
 	def test_rejects_an_unknown_kind(self):
 		with self.assertRaises(frappe.ValidationError):
