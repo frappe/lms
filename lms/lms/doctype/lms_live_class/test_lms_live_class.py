@@ -6,6 +6,7 @@ from unittest.mock import MagicMock, patch
 import frappe
 from frappe.utils import add_days, nowdate
 
+from lms.lms.doctype.lms_live_class.lms_live_class import GoogleCalendarMissingError
 from lms.lms.test_helpers import BaseTestUtils
 
 GOOGLE_CALENDAR_MODULE = "frappe.integrations.doctype.google_calendar.google_calendar"
@@ -64,6 +65,8 @@ class TestLMSLiveClass(BaseTestUtils):
 				"calendar_name": f"Test GCal {frappe.generate_hash(length=6)}",
 				"user": "Administrator",
 				"google_account": "test@gmail.com",
+				"refresh_token": "test-refresh-token",
+				"push_to_google_calendar": 1,
 			}
 		)
 		calendar.insert(ignore_permissions=True)
@@ -127,22 +130,34 @@ class TestLMSLiveClass(BaseTestUtils):
 		self.assertIn("10:00", str(event.starts_on))
 		self.assertIn("11:00", str(event.ends_on))
 
-	# --- #2800: calendar only for Google Meet, and no learner on the shared invite ---
+	# --- #2800: no learner sees another on the shared invite ---
 
 	def _zoom_account(self):
-		name = "Live Class Test Zoom"
-		if not frappe.db.exists("LMS Zoom Settings", name):
+		return (
 			frappe.get_doc(
 				{
 					"doctype": "LMS Zoom Settings",
-					"account_name": name,
+					"account_name": f"Live Class Test Zoom {frappe.generate_hash(length=6)}",
 					"account_id": "test-account",
 					"client_id": "test-client",
 					"client_secret": "test-secret",
 					"member": "Administrator",
+					"enabled": 1,
 				}
-			).insert(ignore_permissions=True)
-		return name
+			)
+			.insert()
+			.name
+		)
+
+	def _only_the_fixture_calendar(self):
+		"""Zoom classes use the scheduler's enabled calendar; leave just this class's
+		own, so a calendar left behind by another run cannot stand in for it."""
+		others = frappe.get_all(
+			"Google Calendar", {"enable": 1, "name": ["!=", self.google_calendar.name]}, pluck="name"
+		)
+		for name in others:
+			frappe.db.set_value("Google Calendar", name, "enable", 0)
+		self.addCleanup(lambda: [frappe.db.set_value("Google Calendar", n, "enable", 1) for n in others])
 
 	def _student(self):
 		email = f"live-class-student-{frappe.generate_hash(length=6)}@example.com"
@@ -154,18 +169,140 @@ class TestLMSLiveClass(BaseTestUtils):
 			"Event Participants", {"parent": live_class.event, "parenttype": "Event"}, pluck="email"
 		)
 
-	def test_zoom_live_class_needs_no_calendar(self):
-		"""A Zoom class brings its own link: it must not require or create a calendar event."""
-		# With no enabled calendar anywhere, so the class cannot lean on one.
+	def test_zoom_live_class_without_a_calendar_raises_error(self):
+		"""Google Calendar sends a Zoom class's invites, so it is still required."""
 		calendars = frappe.get_all("Google Calendar", {"enable": 1}, pluck="name")
 		for name in calendars:
 			frappe.db.set_value("Google Calendar", name, "enable", 0)
 		self.addCleanup(lambda: [frappe.db.set_value("Google Calendar", n, "enable", 1) for n in calendars])
 
+		with self.assertRaisesRegex(GoogleCalendarMissingError, "Connect your Google Calendar"):
+			self._create_live_class(provider="Zoom", zoom_account=self._zoom_account())
+
+	def test_scheduling_a_zoom_class_without_a_calendar_makes_no_zoom_meeting(self):
+		"""The save would fail for want of a calendar; a meeting made first is orphaned."""
+		from lms.lms.doctype.lms_batch.lms_batch import create_live_class
+
+		calendars = frappe.get_all("Google Calendar", {"enable": 1}, pluck="name")
+		for name in calendars:
+			frappe.db.set_value("Google Calendar", name, "enable", 0)
+		self.addCleanup(lambda: [frappe.db.set_value("Google Calendar", n, "enable", 1) for n in calendars])
+
+		zoom = "lms.lms.doctype.lms_batch.lms_batch.requests"
+		token = MagicMock(**{"json.return_value": {"access_token": "test-token"}})
+		with patch(f"{zoom}.request", return_value=token), patch(f"{zoom}.post") as zoom_call:
+			with self.assertRaises(frappe.exceptions.ValidationError):
+				create_live_class(
+					batch_name=self.batch.name,
+					zoom_account=self._zoom_account(),
+					title="No calendar",
+					duration=60,
+					date=add_days(nowdate(), 1),
+					time="10:00:00",
+					timezone="Asia/Kolkata",
+					auto_recording="No Recording",
+				)
+		zoom_call.assert_not_called()
+
+	def test_a_zoom_meeting_is_deleted_when_its_class_fails_to_save(self):
+		"""The calendar can be set up yet unusable (never authorised, say); the class
+		then fails to save after the Zoom meeting exists, which must not be left behind."""
+		from lms.lms.doctype.lms_batch.lms_batch import create_live_class
+		from lms.lms.doctype.lms_live_class.lms_live_class import LMSLiveClass
+
+		zoom = "lms.lms.doctype.lms_batch.lms_batch.requests"
+		token = MagicMock(**{"json.return_value": {"access_token": "test-token"}})
+		meeting = MagicMock(status_code=201, text='{"id": 4242, "join_url": "https://zoom.us/j/4242"}')
+		with (
+			patch(f"{zoom}.request", return_value=token),
+			patch(f"{zoom}.post", return_value=meeting),
+			patch(f"{zoom}.delete") as delete_call,
+			patch.object(
+				LMSLiveClass,
+				"create_calendar_event",
+				side_effect=frappe.ValidationError("Google Calendar is not authorised"),
+			),
+		):
+			with self.assertRaises(frappe.ValidationError):
+				create_live_class(
+					batch_name=self.batch.name,
+					zoom_account=self._zoom_account(),
+					title="Unsynced calendar",
+					duration=60,
+					date=add_days(nowdate(), 1),
+					time="10:00:00",
+					timezone="Asia/Kolkata",
+					auto_recording="No Recording",
+				)
+		self.assertIn("/meetings/4242", delete_call.call_args.args[0])
+
+	def test_an_unauthorised_calendar_is_reported_before_the_class_is_made(self):
+		"""Never authorised, the sync would fail midway; say what to fix up front."""
+		self._only_the_fixture_calendar()
+		self.google_calendar.reload()
+		token = self.google_calendar.get_password("refresh_token", raise_exception=False)
+		from frappe.utils.password import remove_encrypted_password, set_encrypted_password
+
+		remove_encrypted_password("Google Calendar", self.google_calendar.name, "refresh_token")
+		self.addCleanup(
+			set_encrypted_password, "Google Calendar", self.google_calendar.name, token, "refresh_token"
+		)
+
+		with self.assertRaisesRegex(GoogleCalendarMissingError, "not authorised"):
+			self._create_live_class(provider="Zoom", zoom_account=self._zoom_account())
+
+	def test_a_calendar_that_does_not_push_to_google_is_reported(self):
+		"""With push off nothing reaches Google, so no learner would be invited."""
+		self._only_the_fixture_calendar()
+		frappe.db.set_value("Google Calendar", self.google_calendar.name, "push_to_google_calendar", 0)
+		self.addCleanup(
+			frappe.db.set_value, "Google Calendar", self.google_calendar.name, "push_to_google_calendar", 1
+		)
+
+		with self.assertRaisesRegex(GoogleCalendarMissingError, "Push to Google Calendar"):
+			self._create_live_class(provider="Zoom", zoom_account=self._zoom_account())
+
+	def test_a_late_learner_is_not_added_to_an_old_public_event(self):
+		"""Events from before were Public: any staff member could read their guests."""
+		live_class = self._create_live_class()
+		live_class.reload()
+		frappe.db.set_value("Event", live_class.event, "event_type", "Public")
+
+		student = self._student()
+		self._create_batch_enrollment(student, self.batch.name)
+
+		self.assertNotIn(student, self._event_guests(live_class))
+
+	def test_a_zoom_meeting_that_cannot_be_deleted_is_logged(self):
+		from lms.lms.doctype.lms_batch.lms_batch import delete_zoom_meeting
+
+		refused = MagicMock(ok=False, status_code=404, text="no such meeting")
+		with (
+			patch("lms.lms.doctype.lms_batch.lms_batch.requests.delete", return_value=refused),
+			patch("lms.lms.doctype.lms_batch.lms_batch.frappe.log_error") as log_error,
+		):
+			delete_zoom_meeting(4242, {})
+
+		self.assertIn("404", log_error.call_args.kwargs["message"])
+		self.assertTrue(log_error.call_args.kwargs["defer_insert"])
+
+	def test_zoom_live_class_invites_learners_with_the_guest_list_hidden(self):
+		self._only_the_fixture_calendar()
+		student = self._student()
+		self._create_batch_enrollment(student, self.batch.name)
+		patch_call = self.mock_api.events.return_value.patch
+		patch_call.reset_mock()
+
 		live_class = self._create_live_class(provider="Zoom", zoom_account=self._zoom_account())
 		live_class.reload()
 
-		self.assertFalse(live_class.event)
+		self.assertTrue(live_class.event)
+		self.assertEqual(
+			patch_call.call_args.kwargs["body"],
+			{"guestsCanSeeOtherGuests": False, "guestsCanInviteOthers": False},
+		)
+		self.assertIn(student, self._event_guests(live_class))
+		self.assertEqual(frappe.db.get_value("Event", live_class.event, "add_video_conferencing"), 0)
 
 	def test_learners_are_invited_only_after_the_guest_list_is_hidden(self):
 		"""Learners join the Meet from their invite, but must not see each other: the
@@ -221,17 +358,6 @@ class TestLMSLiveClass(BaseTestUtils):
 
 		self.assertNotIn(student, self._event_guests(live_class))
 
-	def test_a_late_learner_is_not_invited_to_an_old_zoom_event(self):
-		"""Zoom classes made before this change still have events that were never hidden."""
-		live_class = self._create_live_class()
-		live_class.reload()
-		frappe.db.set_value("LMS Live Class", live_class.name, "conferencing_provider", "Zoom")
-
-		student = self._student()
-		self._create_batch_enrollment(student, self.batch.name)
-
-		self.assertNotIn(student, self._event_guests(live_class))
-
 	def test_a_learner_enrolling_while_google_fails_still_enrolls_quietly(self):
 		live_class = self._create_live_class()
 		live_class.reload()
@@ -245,6 +371,44 @@ class TestLMSLiveClass(BaseTestUtils):
 
 		self.assertTrue(frappe.db.exists("LMS Batch Enrollment", enrollment.name))
 		self.assertEqual(frappe.local.message_log, [])
+
+	def test_the_guest_list_stays_hidden_through_later_updates(self):
+		"""Frappe's sync rewrites the Google event on every save. It must carry the
+		hidden guest list over, on a late invite and on an edit of the class."""
+		live_class = self._create_live_class()
+		live_class.reload()
+		hidden = {"guestsCanSeeOtherGuests": False, "guestsCanInviteOthers": False}
+		events = self.mock_api.events.return_value
+		events.get.return_value.execute.side_effect = lambda: {**hidden, "status": "confirmed"}
+		self.addCleanup(setattr, events.get.return_value.execute, "side_effect", None)
+		events.update.reset_mock()
+
+		self._create_batch_enrollment(self._student(), self.batch.name)
+		live_class.reload()
+		live_class.title = f"{live_class.title} (moved)"
+		live_class.save(ignore_permissions=True)
+
+		bodies = [call.kwargs["body"] for call in events.update.call_args_list]
+		self.assertGreaterEqual(len(bodies), 2)
+		for body in bodies:
+			self.assertFalse(body["guestsCanSeeOtherGuests"])
+			self.assertFalse(body["guestsCanInviteOthers"])
+
+	def test_a_class_is_kept_when_inviting_its_learners_fails(self):
+		"""Failing the class here would leave its Google event, already synced, with
+		nothing in LMS pointing at it. A Zoom class, so the learners' invite is the
+		only Google update: a Meet class also updates the event for its link."""
+		self._only_the_fixture_calendar()
+		self._create_batch_enrollment(self._student(), self.batch.name)
+		update = self.mock_api.events.return_value.update.return_value.execute
+		update.side_effect = Exception("Google rejected the update")
+		self.addCleanup(setattr, update, "side_effect", None)
+
+		live_class = self._create_live_class(provider="Zoom", zoom_account=self._zoom_account())
+		live_class.reload()
+
+		self.assertTrue(frappe.db.exists("LMS Live Class", live_class.name))
+		self.assertTrue(live_class.event)
 
 	def test_a_learner_enrolling_later_is_invited(self):
 		"""The old hook added the row but never saved the event, so Google never sent
@@ -320,7 +484,7 @@ class TestLMSLiveClass(BaseTestUtils):
 		self.google_meet_settings.flags.ignore_mandatory = True
 		self.google_meet_settings.save()
 
-		with self.assertRaises(frappe.exceptions.ValidationError):
+		with self.assertRaisesRegex(GoogleCalendarMissingError, "Add a Google Calendar"):
 			create_google_meet_live_class(
 				batch_name=self.batch.name,
 				google_meet_account=self.google_meet_settings.name,
