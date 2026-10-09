@@ -98,7 +98,9 @@ import {
 } from 'frappe-ui'
 import { computed, reactive, inject, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
-import { getTimezones, getUserTimezone } from '@/utils/'
+import { getTimezones, getUserTimezone, openSettings } from '@/utils/'
+import { canManageGoogleIntegrations } from '@/components/Settings/GoogleApi/googleApi'
+import { canManageGoogleMeet } from '@/components/Settings/GoogleMeet/googleMeet'
 import FormShell from '@/components/FormShell.vue'
 import HeaderButton from '@/components/HeaderButton.vue'
 import {
@@ -266,9 +268,40 @@ const submitLiveClass = () => {
 			close()
 		},
 		onError(err) {
+			if (err?.exc_type === 'GoogleCalendarMissingError') {
+				showCalendarMissing(err.messages?.[0] || err)
+				return
+			}
 			toast.error(err.messages?.[0] || err)
 			console.error(err)
 		},
+	})
+}
+
+// Classes go out through Google Calendar, so a missing one blocks scheduling.
+// The toast stays up long enough to act on, and takes the user straight to the
+// settings page that fixes it when they can open it: the settings window loads
+// only for moderators, and each page has its own access rule.
+const CALENDAR_TOAST_DURATION = 12000
+
+const showCalendarMissing = (message) => {
+	const meet = conferencingProvider.value === 'Google Meet'
+	const canOpen =
+		Boolean(user.data?.is_moderator) &&
+		(meet ? canManageGoogleMeet() : canManageGoogleIntegrations())
+	// A short title with the server's detail beneath and a one-word action, so the
+	// text keeps the toast's width instead of wrapping into a narrow column.
+	toast.error(__('Google Calendar needed'), {
+		duration: CALENDAR_TOAST_DURATION,
+		description: canOpen
+			? message
+			: `${message} ${__('Ask your site administrator to set it up for you.')}`,
+		...(canOpen && {
+			action: {
+				label: __('Set up'),
+				onClick: () => openSettings(meet ? 'google-meet' : 'google-calendar'),
+			},
+		}),
 	})
 }
 

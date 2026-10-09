@@ -19,6 +19,8 @@ const {
 	getCachedListResourceMock,
 	zoomSubmit,
 	meetSubmit,
+	access,
+	openSettingsMock,
 } = vi.hoisted(() => {
 	// @/utils reaches plyr, which touches matchMedia at import time.
 	window.matchMedia ??= (() => ({
@@ -39,8 +41,21 @@ const {
 		getCachedListResourceMock: vi.fn(),
 		zoomSubmit: vi.fn(),
 		meetSubmit: vi.fn(),
+		access: { calendar: true, meet: true },
+		openSettingsMock: vi.fn(),
 	}
 })
+
+vi.mock('@/components/Settings/GoogleApi/googleApi', () => ({
+	canManageGoogleIntegrations: () => access.calendar,
+}))
+vi.mock('@/components/Settings/GoogleMeet/googleMeet', () => ({
+	canManageGoogleMeet: () => access.meet,
+}))
+vi.mock('@/utils/', async (importOriginal) => ({
+	...(await importOriginal<object>()),
+	openSettings: openSettingsMock,
+}))
 
 // HeaderButton wraps frappe-ui's Button in a Tooltip below the mobile
 // breakpoint, and the hand-written frappe-ui mock here has no Tooltip. Stub it
@@ -292,6 +307,85 @@ describe('LiveClassForm as a route', () => {
 		const meetWrapper = await mountForm(meetRouter, moderator)
 		await meetWrapper.find('[data-testid="live-class-save"]').trigger('click')
 		expect(meetSubmit).toHaveBeenCalledTimes(1)
+	})
+
+	// Guards a missing Google Calendar flashing past as plain text: the toast stays
+	// up long enough to act on and opens the settings page that fixes it.
+	describe('when the Google Calendar is missing', () => {
+		const calendarMissing = (submit: ReturnType<typeof vi.fn>) =>
+			submit.mockImplementation(
+				(_doc: unknown, options: { onError: (e: unknown) => void }) =>
+					options.onError({
+						exc_type: 'GoogleCalendarMissingError',
+						messages: [
+							'Connect your Google Calendar to schedule Zoom classes.',
+						],
+					})
+			)
+
+		const lastToast = async () => {
+			const { toast } = await import('frappe-ui')
+			return vi.mocked(toast.error).mock.calls.at(-1)!
+		}
+
+		beforeEach(async () => {
+			access.calendar = true
+			access.meet = true
+			openSettingsMock.mockReset()
+			const { toast } = await import('frappe-ui')
+			vi.mocked(toast.error).mockClear()
+		})
+
+		it('stays up longer and opens the Google Calendar settings', async () => {
+			calendarMissing(zoomSubmit)
+			const router = makeRouter()
+			await router.push('/batches/B1/live-class/new')
+			const wrapper = await mountForm(router, moderator)
+			await wrapper.find('[data-testid="live-class-save"]').trigger('click')
+			await flushPromises()
+
+			const [title, options] = await lastToast()
+			expect(title).toBe('Google Calendar needed')
+			expect(options.description).toBe(
+				'Connect your Google Calendar to schedule Zoom classes.'
+			)
+			expect(options.duration).toBeGreaterThan(4000)
+			expect(options.action.label).toBe('Set up')
+			options.action.onClick()
+			expect(openSettingsMock).toHaveBeenCalledWith('google-calendar')
+		})
+
+		it('opens the Google Meet settings for a Google Meet batch', async () => {
+			batchResource.data = {
+				name: 'B1',
+				conferencing_provider: 'Google Meet',
+				google_meet_account: 'meet-1',
+			}
+			calendarMissing(meetSubmit)
+			const router = makeRouter()
+			await router.push('/batches/B1/live-class/new')
+			const wrapper = await mountForm(router, moderator)
+			await wrapper.find('[data-testid="live-class-save"]').trigger('click')
+			await flushPromises()
+
+			const [, options] = await lastToast()
+			options.action.onClick()
+			expect(openSettingsMock).toHaveBeenCalledWith('google-meet')
+		})
+
+		it('points anyone who cannot open the settings to their administrator', async () => {
+			access.calendar = false
+			calendarMissing(zoomSubmit)
+			const router = makeRouter()
+			await router.push('/batches/B1/live-class/new')
+			const wrapper = await mountForm(router, moderator)
+			await wrapper.find('[data-testid="live-class-save"]').trigger('click')
+			await flushPromises()
+
+			const [, options] = await lastToast()
+			expect(options.action).toBeUndefined()
+			expect(options.description).toContain('site administrator')
+		})
 	})
 
 	it('refreshes the Classes tab list after a create, by cache key', async () => {
