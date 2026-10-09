@@ -11,7 +11,7 @@ has to be asserted directly for every endpoint that carries one.
 import frappe
 
 from lms.lms.email_account import (
-	ACCOUNT_READ_FIELDS,
+	_account_read_fields,
 	create_email_account,
 	delete_email_account,
 	get_email_account,
@@ -19,7 +19,7 @@ from lms.lms.email_account import (
 	rename_email_account,
 	update_email_account,
 )
-from lms.lms.test_helpers import BaseTestUtils
+from lms.lms.test_helpers import BaseTestUtils, enforce_role_gates
 
 
 class TestEmailAccountEndpointPermissions(BaseTestUtils):
@@ -33,6 +33,7 @@ class TestEmailAccountEndpointPermissions(BaseTestUtils):
 
 	def setUp(self):
 		super().setUp()
+		enforce_role_gates(self)
 		self.hash = frappe.generate_hash(length=6)
 		self.student = self._create_user(
 			f"eaperm-student-{self.hash}@example.com", "Perm", "Student", ["LMS Student"]
@@ -162,6 +163,6 @@ class TestEmailAccountEndpointPermissions(BaseTestUtils):
 		frappe.set_user(moderator.name)
 
 		row = get_email_account(self.account)
-		self.assertEqual(set(row.keys()), set(ACCOUNT_READ_FIELDS))
+		self.assertEqual(set(row.keys()), set(_account_read_fields()))
 		for credential_field in ("password", "api_key", "api_secret"):
 			self.assertNotIn(credential_field, row)

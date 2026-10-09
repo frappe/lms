@@ -402,8 +402,14 @@ def _validated_update(data: dict) -> tuple[dict, dict]:
 	return values, credentials
 
 
+def _account_read_fields() -> list[str]:
+	"""ACCOUNT_READ_FIELDS that this frappe's Email Account has; v15 has no frappe_mail_site."""
+	meta = frappe.get_meta("Email Account")
+	return [field for field in ACCOUNT_READ_FIELDS if field == "name" or meta.has_field(field)]
+
+
 def _account_row(name: str) -> dict:
-	return frappe.db.get_value("Email Account", name, list(ACCOUNT_READ_FIELDS), as_dict=True)
+	return frappe.db.get_value("Email Account", name, _account_read_fields(), as_dict=True)
 
 
 @frappe.whitelist()
@@ -432,7 +438,7 @@ def get_email_accounts(search: str = "", start: int = 0) -> list[dict]:
 		"Email Account",
 		filters=[list(_EXAMPLE_ACCOUNTS)],
 		or_filters=or_filters,
-		fields=list(ACCOUNT_READ_FIELDS),
+		fields=_account_read_fields(),
 		order_by="email_account_name asc",
 		start=int(start),
 		page_length=EMAIL_ACCOUNTS_PAGE_LENGTH,
