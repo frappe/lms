@@ -102,8 +102,7 @@
 				data-testid="lesson-fullscreen-container"
 				class="bg-surface-base min-w-0"
 			>
-				<component
-					:is="zenModeEnabled ? ScrollArea : 'div'"
+				<ScrollArea
 					:class="{ 'h-full': zenModeEnabled }"
 					:viewportClass="zenModeEnabled ? 'overflow-y-auto' : undefined"
 				>
@@ -299,7 +298,7 @@
 							/>
 						</div>
 					</div>
-				</component>
+				</ScrollArea>
 			</div>
 			<aside v-if="!isMobile" class="sticky top-10 h-[94vh]">
 				<StudentLessonSidebar

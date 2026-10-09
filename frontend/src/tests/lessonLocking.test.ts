@@ -590,13 +590,15 @@ describe('Lesson.vue zen-mode progress chip', () => {
 })
 
 describe('Lesson.vue zen-mode fullscreen target', () => {
-	it('keeps fullscreen on the lesson while Zen Mode enables its ScrollArea', async () => {
+	it('keeps the lesson content mounted while Zen Mode toggles', async () => {
 		wrapper = await mountLesson()
 		findResource('lms.lms.utils.get_lesson').data = {
 			...baseLesson,
 			membership: { progress: 42.3 },
+			content: JSON.stringify({ blocks: [] }),
 		}
 		await flushPromises()
+		const editorHolder = wrapper.get('#editor').element
 
 		const pageScrollArea = document.createElement('div')
 		pageScrollArea.setAttribute('data-slot', 'scroll-area')
@@ -631,6 +633,17 @@ describe('Lesson.vue zen-mode fullscreen target', () => {
 		expect(
 			wrapper.get('[data-testid="lesson-fullscreen-container"]').element
 		).toBe(lessonFullscreenContainer)
+		expect(wrapper.get('#editor').element).toBe(editorHolder)
 		expect((wrapper.vm as any).zenModeEnabled).toBe(true)
+
+		Object.defineProperty(document, 'fullscreenElement', {
+			configurable: true,
+			value: null,
+		})
+		document.dispatchEvent(new Event('fullscreenchange'))
+		await flushPromises()
+
+		expect(wrapper.get('#editor').element).toBe(editorHolder)
+		expect((wrapper.vm as any).zenModeEnabled).toBe(false)
 	})
 })
