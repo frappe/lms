@@ -11,6 +11,7 @@ core (frappe/permissions.py), CRM (crm.permissions.*), and Raven (raven.permissi
 
 import frappe
 from frappe import _
+from frappe.core.doctype.file.file import has_permission as core_file_has_permission
 from frappe.query_builder import Bracket
 from pypika import Case
 from pypika import functions as fn
@@ -600,13 +601,15 @@ def file_has_permission(doc, ptype="read", user=None):
 	"""
 	user = user or frappe.session.user
 
+	# frappe v15 stops at the first hook that answers anything but None, and this
+	# one runs before core's, so a bare True here would skip core's own File check.
 	if doc.attached_to_doctype != "Course Lesson":
-		return True
+		return core_file_has_permission(doc, ptype, user)
 	if doc.attached_to_field not in INSTRUCTOR_FIELDS:
-		return True
+		return core_file_has_permission(doc, ptype, user)
 
 	if can_access_lesson(doc.attached_to_name, instructor_only=True, user=user):
-		return True
+		return core_file_has_permission(doc, ptype, user)
 
 	frappe.logger("lms.security").warning(
 		"Lesson resource access denied: user=%s file=%s field=%s lesson=%s",
