@@ -3,10 +3,18 @@ import vue from '@vitejs/plugin-vue'
 import tailwindcss from 'tailwindcss'
 import autoprefixer from 'autoprefixer'
 import path from 'node:path'
+import frappeui from 'frappe-ui/vite'
 
 export default defineConfig({
 	base: '/assets/lms/frontend/signup-select/',
-	plugins: [vue()],
+	plugins: [
+		frappeui({
+			frappeProxy: false,
+			jinjaBootData: false,
+			buildConfig: false,
+		}),
+		vue(),
+	],
 	publicDir: false,
 	resolve: { dedupe: ['vue', 'frappe-ui'] },
 	css: {
