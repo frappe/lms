@@ -189,7 +189,7 @@ describe('overlapping sidebar saves', () => {
 	})
 })
 
-describe('Customise the sidebar', () => {
+describe('Customize the sidebar', () => {
 	// Guards: saving the sidebar leaving the basic setup step open, since no
 	// stored value says the sidebar was customised. Introduced in this branch
 	// (feat/onboarding-flows, PR pending); test added there to tick it on save.

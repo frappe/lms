@@ -342,8 +342,8 @@ export const basicSetupFlow: OnboardingFlow = {
 		},
 		{
 			name: 'customise_sidebar',
-			actionLabel: __('Customise'),
-			title: __('Customise the sidebar'),
+			actionLabel: __('Customize'),
+			title: __('Customize the sidebar'),
 			icon: stepIcon(PanelLeft),
 			completed: false,
 			onClick: () => nav.openSettings('sidebar'),

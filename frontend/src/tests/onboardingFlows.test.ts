@@ -223,7 +223,7 @@ describe('flow registry', () => {
 				'Set up email',
 				'Add your branding',
 				'Set up sign-up',
-				'Customise the sidebar',
+				'Customize the sidebar',
 			],
 		},
 	])('$id keeps its step order', ({ id, titles }) => {
@@ -265,7 +265,7 @@ describe('flow registry', () => {
 			],
 		},
 		{ id: 'onboard_learners', actions: ['Set up', 'Import'] },
-		{ id: 'basic_setup', actions: ['Set up', 'Add', 'Review', 'Customise'] },
+		{ id: 'basic_setup', actions: ['Set up', 'Add', 'Review', 'Customize'] },
 	])('$id gives every step a short action verb', ({ id, actions }) => {
 		expect(stepsOf(id).map((s) => s.actionLabel)).toEqual(actions)
 	})
