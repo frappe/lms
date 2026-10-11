@@ -176,7 +176,7 @@ describe('list screen', () => {
 		expect(w.find('.logo').exists()).toBe(true)
 		expect(hero(w)).toEqual({
 			title: 'Welcome to Frappe Learning',
-			count: '0/4 flows completed',
+			count: '0/5 flows completed',
 		})
 	})
 
@@ -206,6 +206,7 @@ describe('list screen', () => {
 			'Add assessments0/4',
 			'Run my first live class1/6',
 			'Onboard existing users0/2',
+			'Basic setup0/4',
 		])
 		expect(w.html()).toContain('title="Set up email and bring your users in."')
 	})
@@ -227,14 +228,14 @@ describe('list screen', () => {
 	// Guards: a finished panel showing Skip all and no Reset all. Introduced in
 	// this branch (feat/onboarding-flows, PR pending); test added there to
 	// check Skip all ends at 100%.
-	it('Skip all finishes everything: 100%, green, 4/4', async () => {
+	it('Skip all finishes everything: 100%, green, 5/5', async () => {
 		const { w } = await setUp()
 		await w
 			.findAll('button')
 			.find((b) => b.text() === 'Skip all')!
 			.trigger('click')
 		await flushPromises()
-		expect(hero(w).count).toBe('4/4 flows completed')
+		expect(hero(w).count).toBe('5/5 flows completed')
 		const badge = w.find('.badge')
 		expect(badge.text()).toBe('100% completed')
 		expect(badge.attributes('data-theme')).toBe('green')
@@ -459,7 +460,7 @@ describe('stale stored ids', () => {
 		localStorage.setItem('learningOnboardingFlow' + USER, 'live_class')
 		const { o, w } = await setUp()
 		expect(o.screen.value).toBe('list')
-		expect(w.findAll('[data-testid="flow-row"]')).toHaveLength(4)
+		expect(w.findAll('[data-testid="flow-row"]')).toHaveLength(5)
 	})
 
 	// Guards: a stale saved answer crashing the live class card. Introduced in

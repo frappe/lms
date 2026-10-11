@@ -32,7 +32,7 @@ describe('flow registry', () => {
 	// Guards: a renamed or dropped flow key, which orphans the progress stored
 	// under it. Introduced in this branch (feat/onboarding-flows, PR pending);
 	// test added there to pin the six keys.
-	it('ships six flows with their framework keys', () => {
+	it('ships seven flows with their framework keys', () => {
 		expect(FLOWS.map((f) => [f.id, f.key])).toEqual([
 			['publish_course', 'learning_publish_course'],
 			['add_assessments', 'learning_add_assessments'],
@@ -40,13 +40,14 @@ describe('flow registry', () => {
 			['live_class_zoom', 'learning_live_class_zoom'],
 			['live_class_meet', 'learning_live_class_meet'],
 			['onboard_learners', 'learning_onboard_learners'],
+			['basic_setup', 'learning_basic_setup'],
 		])
 	})
 
 	// Guards: the panel's cards losing a title or changing order. Introduced in
 	// this branch (feat/onboarding-flows, PR pending); test added there to pin
 	// the card list.
-	it('groups them into four cards, assessments after the first course', () => {
+	it('groups them into five cards, assessments after the first course', () => {
 		expect(CARDS.map((c) => [c.id, c.title, c.description])).toEqual([
 			[
 				'publish_course',
@@ -67,6 +68,11 @@ describe('flow registry', () => {
 				'onboard_learners',
 				'Onboard existing users',
 				'Set up email and bring your users in.',
+			],
+			[
+				'basic_setup',
+				'Basic setup',
+				'Set up email, your branding, sign-up and the sidebar.',
 			],
 		])
 	})
@@ -211,6 +217,15 @@ describe('flow registry', () => {
 			id: 'onboard_learners',
 			titles: ['Set up email', 'Import users in bulk'],
 		},
+		{
+			id: 'basic_setup',
+			titles: [
+				'Set up email',
+				'Add your branding',
+				'Set up sign-up',
+				'Customise the sidebar',
+			],
+		},
 	])('$id keeps its step order', ({ id, titles }) => {
 		expect(stepsOf(id).map((s) => s.title)).toEqual(titles)
 	})
@@ -250,6 +265,7 @@ describe('flow registry', () => {
 			],
 		},
 		{ id: 'onboard_learners', actions: ['Set up', 'Import'] },
+		{ id: 'basic_setup', actions: ['Set up', 'Add', 'Review', 'Customise'] },
 	])('$id gives every step a short action verb', ({ id, actions }) => {
 		expect(stepsOf(id).map((s) => s.actionLabel)).toEqual(actions)
 	})
@@ -311,6 +327,45 @@ describe('flow registry', () => {
 	// the next card.
 	it('offers assessments next once the first course is published', () => {
 		expect(getCard('publish_course')!.next[0]).toBe('add_assessments')
+	})
+
+	// Guards: basic setup losing its server facts, or a save-ticked step gaining
+	// a fact the server never sends. Introduced in this branch
+	// (feat/onboarding-flows, PR pending); test added there to pin its facts.
+	it('basic setup ticks email and branding from facts, the rest on save', () => {
+		expect(stepsOf('basic_setup').map((s) => [s.name, s.fact])).toEqual([
+			['setup_email', 'has_email_account'],
+			['add_branding', 'has_branding'],
+			['setup_signup', undefined],
+			['customise_sidebar', undefined],
+		])
+	})
+
+	// Guards: the email step drifting apart between the two cards that share it,
+	// so one email account ticks only one of them. Introduced in this branch
+	// (feat/onboarding-flows, PR pending); test added there to keep them equal.
+	it('shares the email step with onboarding users', () => {
+		const pick = (id: string) => {
+			const step = stepsOf(id).find((s) => s.name === 'setup_email')!
+			return [step.title, step.actionLabel, step.fact]
+		}
+		expect(pick('basic_setup')).toEqual(pick('onboard_learners'))
+	})
+
+	// Guards: basic setup leading nowhere once done. Introduced in this branch
+	// (feat/onboarding-flows, PR pending); test added there to pin its next.
+	it('offers a first course, then a live class, after basic setup', () => {
+		expect(getCard('basic_setup')!.next).toEqual([
+			'publish_course',
+			'live_class',
+		])
+		for (const id of [
+			'publish_course',
+			'add_assessments',
+			'live_class',
+			'onboard_learners',
+		])
+			expect(getCard(id)!.next).toContain('basic_setup')
 	})
 
 	// Guards: a card offering itself or an unknown card under Try next.
@@ -499,6 +554,20 @@ describe('step targets', () => {
 	// Guards: Import users in bulk missing the User data import. Introduced in
 	// this branch (feat/onboarding-flows, PR pending); test added there to pin
 	// the target.
+	// Guards: a basic setup step opening the wrong settings tab. Introduced in
+	// this branch (feat/onboarding-flows, PR pending); test added there to pin
+	// each target.
+	it.each([
+		{ step: 'setup_email', args: ['email-accounts', 'new'] },
+		{ step: 'add_branding', args: ['branding'] },
+		{ step: 'setup_signup', args: ['signup'] },
+		{ step: 'customise_sidebar', args: ['sidebar'] },
+	])('basic setup $step opens its settings tab', ({ step, args }) => {
+		const nav = fakeNav()
+		stepsOf('basic_setup', nav).find((s) => s.name === step)!.onClick!()
+		expect(nav.openSettings).toHaveBeenCalledWith(...args)
+	})
+
 	it('opens the data import for users to import them in bulk', () => {
 		const nav = fakeNav()
 		click('onboard_learners', 'import_learners', nav)

@@ -25,6 +25,7 @@ import Services from '@/components/Settings/Services/Services.vue'
 import { googleCalendarSettingsPage } from '@/components/Settings/GoogleCalendar/googleCalendar'
 import RavenSettings from '@/components/Settings/Raven/RavenSettings.vue'
 import Preferences from '@/components/Settings/Preferences.vue'
+import { useLearningOnboarding } from '@/onboarding/useLearningOnboarding'
 
 // Loaded on demand, same as the Email Accounts form below it in the tree:
 // Communication > General renders every time Settings opens, and this reads
@@ -58,6 +59,9 @@ export const settingsTree: SettingsGroup[] = [
 					kind: 'fields',
 					source: { doc: 'LMS Settings' },
 					save: 'auto',
+					// Every sign-up value is a valid default, so a save is the only sign.
+					onAutosaved: () =>
+						useLearningOnboarding().completeStep('setup_signup'),
 					sections: [
 						{
 							label: 'Signup',

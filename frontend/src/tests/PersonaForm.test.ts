@@ -155,10 +155,10 @@ describe('PersonaForm', () => {
 		expect(pushMock).toHaveBeenCalledWith({ name: 'Courses' })
 	})
 
-	// Guards: the last persona question drifting from the three flow cards.
+	// Guards: the last persona question drifting from the flow cards it opens.
 	// Introduced in this branch (feat/onboarding-flows, PR pending); test added
 	// there to pin its options.
-	it('offers exactly the three onboarding flows as the last question', () => {
+	it('offers three flows and Just exploring as the last question', () => {
 		const wrapper = mountForm()
 		const outcome = wrapper
 			.findComponent({ name: 'PersonaCard' })
@@ -177,6 +177,7 @@ describe('PersonaForm', () => {
 					'Onboard existing users',
 					'onboard_learners',
 				],
+				['Just exploring', 'Just exploring', 'basic_setup'],
 			]
 		)
 		for (const option of outcome.options) {
@@ -192,6 +193,7 @@ describe('PersonaForm', () => {
 		{ value: 'Publish my first course', flow: 'publish_course' },
 		{ value: 'Run my first live class', flow: 'live_class' },
 		{ value: 'Onboard existing users', flow: 'onboard_learners' },
+		{ value: 'Just exploring', flow: 'basic_setup' },
 	])('choosing $value opens the $flow card', async ({ value, flow }) => {
 		const wrapper = mountForm()
 		const card = wrapper.findComponent({ name: 'PersonaCard' })

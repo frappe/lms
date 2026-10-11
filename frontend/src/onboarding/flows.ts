@@ -13,8 +13,11 @@ import {
 	ImagePlus,
 	KeyRound,
 	Laptop,
+	LogIn,
 	Mail,
 	MonitorPlay,
+	Palette,
+	PanelLeft,
 	Upload,
 	Users,
 	Video,
@@ -77,6 +80,19 @@ function liveClassHead(nav: FlowNavigation): FlowStep[] {
 			chooses: 'live_class',
 		},
 	]
+}
+
+// Shared by onboard_learners and basic_setup, so one email account ticks both.
+function setupEmail(nav: FlowNavigation): FlowStep {
+	return {
+		name: 'setup_email',
+		actionLabel: __('Set up'),
+		title: __('Set up email'),
+		icon: stepIcon(Mail),
+		completed: false,
+		fact: 'has_email_account',
+		onClick: () => nav.openSettings('email-accounts', 'new'),
+	}
 }
 
 function publishBatch(nav: FlowNavigation): FlowStep {
@@ -285,15 +301,7 @@ export const onboardLearnersFlow: OnboardingFlow = {
 	card: 'onboard_learners',
 	key: 'learning_onboard_learners',
 	steps: (nav) => [
-		{
-			name: 'setup_email',
-			actionLabel: __('Set up'),
-			title: __('Set up email'),
-			icon: stepIcon(Mail),
-			completed: false,
-			fact: 'has_email_account',
-			onClick: () => nav.openSettings('email-accounts', 'new'),
-		},
+		setupEmail(nav),
 		{
 			name: 'import_learners',
 			actionLabel: __('Import'),
@@ -307,6 +315,42 @@ export const onboardLearnersFlow: OnboardingFlow = {
 	],
 }
 
+// Sign-up and the sidebar have no fact: every value they hold is a valid
+// default, so their tabs tick the steps when they save.
+export const basicSetupFlow: OnboardingFlow = {
+	id: 'basic_setup',
+	card: 'basic_setup',
+	key: 'learning_basic_setup',
+	steps: (nav) => [
+		setupEmail(nav),
+		{
+			name: 'add_branding',
+			actionLabel: __('Add'),
+			title: __('Add your branding'),
+			icon: stepIcon(Palette),
+			completed: false,
+			fact: 'has_branding',
+			onClick: () => nav.openSettings('branding'),
+		},
+		{
+			name: 'setup_signup',
+			actionLabel: __('Review'),
+			title: __('Set up sign-up'),
+			icon: stepIcon(LogIn),
+			completed: false,
+			onClick: () => nav.openSettings('signup'),
+		},
+		{
+			name: 'customise_sidebar',
+			actionLabel: __('Customise'),
+			title: __('Customise the sidebar'),
+			icon: stepIcon(PanelLeft),
+			completed: false,
+			onClick: () => nav.openSettings('sidebar'),
+		},
+	],
+}
+
 export const FLOWS: readonly OnboardingFlow[] = [
 	publishCourseFlow,
 	addAssessmentsFlow,
@@ -314,6 +358,7 @@ export const FLOWS: readonly OnboardingFlow[] = [
 	liveClassZoomFlow,
 	liveClassMeetFlow,
 	onboardLearnersFlow,
+	basicSetupFlow,
 ]
 
 export function getFlow(

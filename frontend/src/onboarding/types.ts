@@ -9,6 +9,7 @@ export type FlowId =
 	| 'live_class_zoom'
 	| 'live_class_meet'
 	| 'onboard_learners'
+	| 'basic_setup'
 
 /** A list entry. A card with a question holds one flow per answer. */
 export type CardId =
@@ -16,6 +17,7 @@ export type CardId =
 	| 'add_assessments'
 	| 'onboard_learners'
 	| 'live_class'
+	| 'basic_setup'
 
 export const FACT_KEYS = [
 	'has_course',
@@ -37,6 +39,7 @@ export const FACT_KEYS = [
 	'has_meet_account',
 	'has_live_class',
 	'has_published_batch',
+	'has_branding',
 ] as const
 
 export type FactKey = typeof FACT_KEYS[number]

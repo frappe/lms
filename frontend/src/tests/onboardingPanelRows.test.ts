@@ -132,13 +132,14 @@ describe.each([
 	it('shows every list row with its title, count and chevron', async () => {
 		const { w } = await setUp(collapsed)
 		const rows = control(w, 'flow-row')
-		expect(rows).toHaveLength(4)
+		expect(rows).toHaveLength(5)
 		expect(rows.map((r) => r.find('[data-testid="row-title"]').text())).toEqual(
 			[
 				'Publish my first course',
 				'Add assessments',
 				'Run my first live class',
 				'Onboard existing users',
+				'Basic setup',
 			]
 		)
 		expect(rows.every((r) => r.text().includes('/'))).toBe(true)

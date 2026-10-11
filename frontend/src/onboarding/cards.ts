@@ -1,7 +1,14 @@
 import { markRaw } from 'vue'
-import { BookOpen, ClipboardCheck, Users, Video } from 'lucide-vue-next'
+import {
+	BookOpen,
+	ClipboardCheck,
+	Settings2,
+	Users,
+	Video,
+} from 'lucide-vue-next'
 import {
 	addAssessmentsFlow,
+	basicSetupFlow,
 	liveClassFlow,
 	liveClassMeetFlow,
 	liveClassZoomFlow,
@@ -22,7 +29,7 @@ export const CARDS: readonly FlowCard[] = [
 			return __('Set up your first course and lessons.')
 		},
 		icon: markRaw(BookOpen),
-		next: ['add_assessments', 'live_class', 'onboard_learners'],
+		next: ['add_assessments', 'live_class', 'onboard_learners', 'basic_setup'],
 		flows: [publishCourseFlow],
 	},
 	{
@@ -36,7 +43,7 @@ export const CARDS: readonly FlowCard[] = [
 			)
 		},
 		icon: markRaw(ClipboardCheck),
-		next: ['live_class', 'onboard_learners', 'publish_course'],
+		next: ['live_class', 'onboard_learners', 'publish_course', 'basic_setup'],
 		flows: [addAssessmentsFlow],
 	},
 	{
@@ -79,7 +86,12 @@ export const CARDS: readonly FlowCard[] = [
 			],
 		},
 		defaultFlow: liveClassFlow,
-		next: ['onboard_learners', 'publish_course', 'add_assessments'],
+		next: [
+			'onboard_learners',
+			'publish_course',
+			'add_assessments',
+			'basic_setup',
+		],
 		flows: [liveClassFlow, liveClassZoomFlow, liveClassMeetFlow],
 	},
 	{
@@ -91,8 +103,20 @@ export const CARDS: readonly FlowCard[] = [
 			return __('Set up email and bring your users in.')
 		},
 		icon: markRaw(Users),
-		next: ['publish_course', 'live_class', 'add_assessments'],
+		next: ['publish_course', 'live_class', 'add_assessments', 'basic_setup'],
 		flows: [onboardLearnersFlow],
+	},
+	{
+		id: 'basic_setup',
+		get title() {
+			return __('Basic setup')
+		},
+		get description() {
+			return __('Set up email, your branding, sign-up and the sidebar.')
+		},
+		icon: markRaw(Settings2),
+		next: ['publish_course', 'live_class'],
+		flows: [basicSetupFlow],
 	},
 ]
 

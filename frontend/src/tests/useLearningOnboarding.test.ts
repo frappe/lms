@@ -89,6 +89,7 @@ const ALL = [
 	'live_class_zoom',
 	'live_class_meet',
 	'onboard_learners',
+	'basic_setup',
 ]
 const nav = {
 	openRoute: vi.fn(),
@@ -274,10 +275,10 @@ describe('list', () => {
 	// added there to pin the step-weighted percent.
 	it('weighs the overall percent by steps across every card', async () => {
 		const o = await ready({ answers: { live_class: 'zoom' } })
-		// publish 5 + assessments 4 + zoom 6 + users 2 = 17.
+		// publish 5 + assessments 4 + zoom 6 + users 2 + basic setup 4 = 21.
 		o.toggleStep('publish_course', 'create_first_course')
 		o.toggleStep('live_class_zoom', 'connect_zoom')
-		expect(o.overallPercent.value).toBe(Math.floor((2 / 17) * 100))
+		expect(o.overallPercent.value).toBe(Math.floor((2 / 21) * 100))
 	})
 
 	// Guards: a finished card not counting toward the done total. Introduced in
@@ -292,9 +293,10 @@ describe('list', () => {
 			'add_assessments',
 			'onboard_learners',
 			'live_class_zoom',
+			'basic_setup',
 		])
 			finish(key)
-		expect(o.completedCards.value).toBe(4)
+		expect(o.completedCards.value).toBe(5)
 		expect(o.overallPercent.value).toBe(100)
 	})
 
@@ -343,7 +345,7 @@ describe('list', () => {
 		expect(handle('publish_course').skipAll).not.toHaveBeenCalled()
 		for (const key of ALL.slice(1))
 			expect(handle(key).skipAll).toHaveBeenCalledTimes(1)
-		expect(o.completedCards.value).toBe(4)
+		expect(o.completedCards.value).toBe(5)
 		expect(o.overallPercent.value).toBe(100)
 	})
 })
@@ -683,6 +685,7 @@ describe('next up', () => {
 		expect(o.nextCard(card(o, 'add_assessments'))?.id).toBe('live_class')
 		expect(o.nextCard(card(o, 'live_class'))?.id).toBe('onboard_learners')
 		expect(o.nextCard(card(o, 'onboard_learners'))?.id).toBe('publish_course')
+		expect(o.nextCard(card(o, 'basic_setup'))?.id).toBe('publish_course')
 	})
 
 	// Guards: Next up pointing at a finished card. Introduced in this branch
@@ -705,6 +708,7 @@ describe('next up', () => {
 		finish('add_assessments')
 		finish('onboard_learners')
 		finish('live_class_meet')
+		finish('basic_setup')
 		expect(o.nextCard(card(o, 'publish_course'))).toBeNull()
 	})
 })
@@ -760,7 +764,9 @@ describe('completeStep', () => {
 			owners: ['live_class_zoom', 'live_class_meet'],
 		},
 		{ step: 'add_meet_account', owners: ['live_class_meet'] },
-		{ step: 'setup_email', owners: ['onboard_learners'] },
+		{ step: 'setup_email', owners: ['onboard_learners', 'basic_setup'] },
+		{ step: 'setup_signup', owners: ['basic_setup'] },
+		{ step: 'customise_sidebar', owners: ['basic_setup'] },
 	])('$step completes in every owning flow', async ({ step, owners }) => {
 		const o = await ready()
 		o.completeStep(step)
@@ -960,6 +966,30 @@ describe('facts', () => {
 		o.applyFacts({ has_course: true, has_quiz: false })
 		expect(o.stepsOf('publish_course')[0].completed).toBe(true)
 		expect(o.stepsOf('add_assessments')[0].completed).toBe(true)
+	})
+
+	// Guards: one email account ticking Set up email in only one of the two
+	// cards that share it. Introduced in this branch (feat/onboarding-flows, PR
+	// pending); test added there to tick both from the one fact.
+	it('tick the shared email step in both cards from one fact', async () => {
+		const o = await ready()
+		o.applyFacts({ has_email_account: true })
+		for (const id of ['onboard_learners', 'basic_setup'] as const) {
+			const step = o.stepsOf(id).find((s) => s.name === 'setup_email')
+			expect(step?.completed).toBe(true)
+		}
+	})
+
+	// Guards: a branded site leaving Add your branding open. Introduced in this
+	// branch (feat/onboarding-flows, PR pending); test added there to pin the
+	// branding fact.
+	it('tick Add your branding from the branding fact', async () => {
+		const o = await ready()
+		o.applyFacts({ has_branding: true })
+		expect(o.stepsOf('basic_setup')[1]).toMatchObject({
+			name: 'add_branding',
+			completed: true,
+		})
 	})
 
 	// Guards: a fact leaving a skipped step skipped. Introduced in this branch

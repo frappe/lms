@@ -173,11 +173,13 @@ import {
 } from '@/components/Settings/Sidebar/sidebar'
 import { useSettings } from '@/stores/settings'
 import { cleanError } from '@/utils'
+import { useLearningOnboarding } from '@/onboarding/useLearningOnboarding'
 import type { LMSSidebarItem } from '@/types/lms/LMSSidebarItem'
 
 defineProps<{ label: string }>()
 
 const { loadSidebarSettings } = useSettings()
+const { completeStep } = useLearningOnboarding()
 
 // Same cache key Settings.vue uses, so this is the document the dialog already
 // loaded rather than a second copy of it.
@@ -353,6 +355,7 @@ const persist = async () => {
 			rows: withoutClientId(rows.value),
 		})
 		if (token !== requestToken) return
+		completeStep('customise_sidebar')
 		// The cached document is behind after a server-side write.
 		await settings.reload()
 		if (token !== requestToken) return
@@ -368,6 +371,7 @@ const persist = async () => {
 // The modal writes through its own endpoint and saves the parent server-side,
 // so the cached document is behind; refetch it and rebuild the table.
 const reloadFromServer = async () => {
+	completeStep('customise_sidebar')
 	await settings.reload()
 	syncFromDoc()
 	await loadSidebarSettings(true)

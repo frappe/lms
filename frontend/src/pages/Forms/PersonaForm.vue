@@ -25,7 +25,7 @@
 import PersonaCard from '@/components/Persona/PersonaCard.vue'
 import { call, usePageMeta } from 'frappe-ui'
 import { useTelemetry } from '@framework/ui/telemetry/index'
-import { BookOpen, Users, Video } from 'lucide-vue-next'
+import { BookOpen, Settings2, Users, Video } from 'lucide-vue-next'
 import { computed, inject, markRaw, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { sessionStore } from '@/stores/session'
@@ -168,6 +168,16 @@ const steps = computed(() => [
 				icon: markRaw(Users),
 				route: { name: 'Home' },
 				flow: 'onboard_learners',
+			},
+			{
+				label: __('Just exploring'),
+				value: 'Just exploring',
+				description: __(
+					'Set up email, your branding, sign-up and the sidebar.'
+				),
+				icon: markRaw(Settings2),
+				route: { name: 'Home' },
+				flow: 'basic_setup',
 			},
 		],
 	},
