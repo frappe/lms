@@ -9,6 +9,9 @@ DEMO_QUIZ_TITLE = "Do you know Frappe Learning?"
 IMPORT_DONE = ["Success", "Partial Success"]
 # The domain of frappe's fallback sender and of placeholder accounts.
 PLACEHOLDER_EMAIL_DOMAIN = "example.com"
+# Website Settings' own default app_name, and the title LMS falls back to without one.
+DEFAULT_BRAND_NAMES = {"Frappe", "Frappe Learning"}
+BRAND_IMAGES = ["banner_image", "app_logo", "favicon"]
 
 
 @frappe.whitelist()
@@ -24,6 +27,7 @@ def get_onboarding_facts(course: str | None = None) -> dict[str, str | bool | No
 		**_learner_facts(),
 		**_batch_facts(),
 		**_meeting_facts(),
+		"has_branding": _has_branding(),
 	}
 
 
@@ -146,6 +150,15 @@ def _has_google_api() -> bool:
 	"""Enabled, with a Client ID and a stored Client Secret (the column holds a mask once set)."""
 	settings = frappe.db.get_singles_dict("Google Settings", cast=True)
 	return bool(settings.get("enable") and settings.get("client_id") and settings.get("client_secret"))
+
+
+def _has_branding() -> bool:
+	"""A logo, brand logo or favicon in Website Settings, or a brand name other than a default."""
+	brand = frappe.db.get_singles_dict("Website Settings")
+	if any(brand.get(field) for field in BRAND_IMAGES):
+		return True
+	app_name = brand.get("app_name")
+	return bool(app_name and app_name not in DEFAULT_BRAND_NAMES)
 
 
 def _has_email_account() -> bool:

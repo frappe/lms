@@ -24,6 +24,7 @@ FLAG_KEYS = {
 	"has_meet_account",
 	"has_live_class",
 	"has_published_batch",
+	"has_branding",
 }
 
 
@@ -56,6 +57,7 @@ class TestOnboardingFacts(BaseTestUtils):
 		):
 			frappe.db.delete(doctype)
 		self._set_google_settings(enable=0, client_id=None, client_secret=None)
+		self._set_branding(app_name="Frappe")
 
 	def _facts(self, course=None):
 		return get_onboarding_facts(course)
@@ -304,6 +306,30 @@ class TestOnboardingFacts(BaseTestUtils):
 	def test_placeholder_notifications_account_does_not_count(self):
 		self._insert_email_account("Notifications", "notifications@example.com", enable_outgoing=1)
 		self.assertFalse(self._facts()["has_email_account"])
+
+	# Guards: an unbranded site ticking Add your branding from frappe's or LMS's default name, or a set
+	# logo, brand logo or favicon not ticking it. Introduced in this branch (feat/onboarding-flows, PR
+	# pending); test added there to pin what counts as branded.
+	def test_branding_needs_an_image_or_a_brand_name_of_its_own(self):
+		for default in ("", "Frappe", "Frappe Learning"):
+			self._set_branding(app_name=default)
+			self.assertFalse(self._facts()["has_branding"], default)
+
+		self._set_branding(app_name="Acme Academy")
+		self.assertTrue(self._facts()["has_branding"])
+
+		for image in ("banner_image", "app_logo", "favicon"):
+			self._set_branding(app_name="Frappe", **{image: "/files/brand.png"})
+			self.assertTrue(self._facts()["has_branding"], image)
+
+	def _set_branding(self, app_name, banner_image=None, app_logo=None, favicon=None):
+		for field, value in {
+			"app_name": app_name,
+			"banner_image": banner_image,
+			"app_logo": app_logo,
+			"favicon": favicon,
+		}.items():
+			frappe.db.set_single_value("Website Settings", field, value)
 
 	def _insert_email_account(self, name, email_id, enable_outgoing):
 		frappe.get_doc(
