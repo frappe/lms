@@ -144,7 +144,13 @@ describe('basic setup settings tabs', () => {
 	// there to check the slugs against the tree.
 	it('opens slugs the settings tree has', async () => {
 		const slugs = (await items()).map((item) => item.slug)
-		for (const slug of ['email-accounts', 'branding', 'signup', 'sidebar'])
+		for (const slug of [
+			'email-accounts',
+			'branding',
+			'signup',
+			'sidebar',
+			'communication-general',
+		])
 			expect(slugs).toContain(slug)
 	})
 
@@ -156,6 +162,19 @@ describe('basic setup settings tabs', () => {
 		const page = signup.page as FieldsPage
 		page.onAutosaved?.()
 		expect(completeStep).toHaveBeenCalledWith('setup_signup')
+	})
+
+	// Guards: saving a contact email leaving Set a contact email open until the
+	// window regains focus. Introduced in this branch (feat/onboarding-flows, PR
+	// pending); test added there to read the facts after a save.
+	it('reads the facts again when the communication tab saves', async () => {
+		const tab = (await items()).find(
+			(item) => item.slug === 'communication-general'
+		)!
+		const page = tab.page as FieldsPage
+		page.onAutosaved?.()
+		expect(refetchFacts).toHaveBeenCalledTimes(1)
+		expect(completeStep).not.toHaveBeenCalled()
 	})
 })
 

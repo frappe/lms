@@ -206,7 +206,7 @@ describe('list screen', () => {
 			'Add assessments0/4',
 			'Run my first live class1/6',
 			'Onboard existing users0/2',
-			'Basic setup0/4',
+			'Basic setup0/5',
 		])
 		expect(w.html()).toContain('title="Set up email and bring your users in."')
 	})

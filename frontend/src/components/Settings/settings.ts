@@ -193,6 +193,8 @@ export const settingsTree: SettingsGroup[] = [
 					kind: 'fields',
 					source: { doc: 'LMS Settings' },
 					save: 'auto',
+					// The server decides whether a contact email is set.
+					onAutosaved: () => useLearningOnboarding().refetchFacts(),
 					sections: [
 						{
 							label: 'Contact Information',

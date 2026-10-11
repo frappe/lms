@@ -275,10 +275,10 @@ describe('list', () => {
 	// added there to pin the step-weighted percent.
 	it('weighs the overall percent by steps across every card', async () => {
 		const o = await ready({ answers: { live_class: 'zoom' } })
-		// publish 5 + assessments 4 + zoom 6 + users 2 + basic setup 4 = 21.
+		// publish 5 + assessments 4 + zoom 6 + users 2 + basic setup 5 = 22.
 		o.toggleStep('publish_course', 'create_first_course')
 		o.toggleStep('live_class_zoom', 'connect_zoom')
-		expect(o.overallPercent.value).toBe(Math.floor((2 / 21) * 100))
+		expect(o.overallPercent.value).toBe(Math.floor((2 / 22) * 100))
 	})
 
 	// Guards: a finished card not counting toward the done total. Introduced in
@@ -988,6 +988,18 @@ describe('facts', () => {
 		o.applyFacts({ has_branding: true })
 		expect(o.stepsOf('basic_setup')[1]).toMatchObject({
 			name: 'add_branding',
+			completed: true,
+		})
+	})
+
+	// Guards: a site with a Contact Us address leaving Set a contact email
+	// open. Introduced in this branch (feat/onboarding-flows, PR pending); test
+	// added there to pin the contact email fact.
+	it('tick Set a contact email from the contact email fact', async () => {
+		const o = await ready()
+		o.applyFacts({ has_contact_email: true })
+		expect(o.stepsOf('basic_setup')[4]).toMatchObject({
+			name: 'setup_contact_email',
 			completed: true,
 		})
 	})

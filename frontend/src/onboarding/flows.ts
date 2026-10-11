@@ -1,5 +1,6 @@
 import { h, markRaw, type Component } from 'vue'
 import {
+	AtSign,
 	Banknote,
 	BookOpen,
 	CalendarCheck,
@@ -316,7 +317,8 @@ export const onboardLearnersFlow: OnboardingFlow = {
 }
 
 // Sign-up and the sidebar have no fact: every value they hold is a valid
-// default, so their tabs tick the steps when they save.
+// default, so their tabs tick the steps when they save. The contact email
+// step came after the first four shipped, so it stays last.
 export const basicSetupFlow: OnboardingFlow = {
 	id: 'basic_setup',
 	card: 'basic_setup',
@@ -347,6 +349,15 @@ export const basicSetupFlow: OnboardingFlow = {
 			icon: stepIcon(PanelLeft),
 			completed: false,
 			onClick: () => nav.openSettings('sidebar'),
+		},
+		{
+			name: 'setup_contact_email',
+			actionLabel: __('Set up'),
+			title: __('Set a contact email'),
+			icon: stepIcon(AtSign),
+			completed: false,
+			fact: 'has_contact_email',
+			onClick: () => nav.openSettings('communication-general'),
 		},
 	],
 }

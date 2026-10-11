@@ -112,7 +112,9 @@ export const CARDS: readonly FlowCard[] = [
 			return __('Basic setup')
 		},
 		get description() {
-			return __('Set up email, your branding, sign-up and the sidebar.')
+			return __(
+				'Set up email, your branding, sign-up, the sidebar and a contact email.'
+			)
 		},
 		icon: markRaw(Settings2),
 		next: ['publish_course', 'live_class'],

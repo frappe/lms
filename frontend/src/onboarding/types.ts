@@ -40,6 +40,7 @@ export const FACT_KEYS = [
 	'has_live_class',
 	'has_published_batch',
 	'has_branding',
+	'has_contact_email',
 ] as const
 
 export type FactKey = typeof FACT_KEYS[number]

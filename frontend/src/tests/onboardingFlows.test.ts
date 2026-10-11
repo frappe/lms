@@ -72,7 +72,7 @@ describe('flow registry', () => {
 			[
 				'basic_setup',
 				'Basic setup',
-				'Set up email, your branding, sign-up and the sidebar.',
+				'Set up email, your branding, sign-up, the sidebar and a contact email.',
 			],
 		])
 	})
@@ -224,6 +224,7 @@ describe('flow registry', () => {
 				'Add your branding',
 				'Set up sign-up',
 				'Customize the sidebar',
+				'Set a contact email',
 			],
 		},
 	])('$id keeps its step order', ({ id, titles }) => {
@@ -265,7 +266,10 @@ describe('flow registry', () => {
 			],
 		},
 		{ id: 'onboard_learners', actions: ['Set up', 'Import'] },
-		{ id: 'basic_setup', actions: ['Set up', 'Add', 'Review', 'Customize'] },
+		{
+			id: 'basic_setup',
+			actions: ['Set up', 'Add', 'Review', 'Customize', 'Set up'],
+		},
 	])('$id gives every step a short action verb', ({ id, actions }) => {
 		expect(stepsOf(id).map((s) => s.actionLabel)).toEqual(actions)
 	})
@@ -332,12 +336,13 @@ describe('flow registry', () => {
 	// Guards: basic setup losing its server facts, or a save-ticked step gaining
 	// a fact the server never sends. Introduced in this branch
 	// (feat/onboarding-flows, PR pending); test added there to pin its facts.
-	it('basic setup ticks email and branding from facts, the rest on save', () => {
+	it('basic setup ticks email, branding and contact from facts', () => {
 		expect(stepsOf('basic_setup').map((s) => [s.name, s.fact])).toEqual([
 			['setup_email', 'has_email_account'],
 			['add_branding', 'has_branding'],
 			['setup_signup', undefined],
 			['customise_sidebar', undefined],
+			['setup_contact_email', 'has_contact_email'],
 		])
 	})
 
@@ -562,6 +567,7 @@ describe('step targets', () => {
 		{ step: 'add_branding', args: ['branding'] },
 		{ step: 'setup_signup', args: ['signup'] },
 		{ step: 'customise_sidebar', args: ['sidebar'] },
+		{ step: 'setup_contact_email', args: ['communication-general'] },
 	])('basic setup $step opens its settings tab', ({ step, args }) => {
 		const nav = fakeNav()
 		stepsOf('basic_setup', nav).find((s) => s.name === step)!.onClick!()
