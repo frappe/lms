@@ -25,6 +25,7 @@ FLAG_KEYS = {
 	"has_live_class",
 	"has_published_batch",
 	"has_branding",
+	"has_contact_email",
 }
 
 
@@ -321,6 +322,19 @@ class TestOnboardingFacts(BaseTestUtils):
 		for image in ("banner_image", "app_logo", "favicon"):
 			self._set_branding(app_name="Frappe", **{image: "/files/brand.png"})
 			self.assertTrue(self._facts()["has_branding"], image)
+
+	# Guards: a site with no Contact Us address ticking Set a contact email, or a set address not ticking
+	# it. Introduced in this branch (feat/onboarding-flows, PR pending); test added there to pin the fact.
+	def test_contact_email_needs_an_address_in_lms_settings(self):
+		original = frappe.db.get_single_value("LMS Settings", "contact_us_email")
+		self.addCleanup(frappe.db.set_single_value, "LMS Settings", "contact_us_email", original)
+
+		for empty in (None, "", "   "):
+			frappe.db.set_single_value("LMS Settings", "contact_us_email", empty)
+			self.assertFalse(self._facts()["has_contact_email"], repr(empty))
+
+		frappe.db.set_single_value("LMS Settings", "contact_us_email", "hello@acme.test")
+		self.assertTrue(self._facts()["has_contact_email"])
 
 	def _set_branding(self, app_name, banner_image=None, app_logo=None, favicon=None):
 		for field, value in {

@@ -28,6 +28,7 @@ def get_onboarding_facts(course: str | None = None) -> dict[str, str | bool | No
 		**_batch_facts(),
 		**_meeting_facts(),
 		"has_branding": _has_branding(),
+		"has_contact_email": _has_contact_email(),
 	}
 
 
@@ -159,6 +160,11 @@ def _has_branding() -> bool:
 		return True
 	app_name = brand.get("app_name")
 	return bool(app_name and app_name not in DEFAULT_BRAND_NAMES)
+
+
+def _has_contact_email() -> bool:
+	"""An address in LMS Settings for the Contact Us form to deliver to."""
+	return bool((frappe.db.get_single_value("LMS Settings", "contact_us_email") or "").strip())
 
 
 def _has_email_account() -> bool:
