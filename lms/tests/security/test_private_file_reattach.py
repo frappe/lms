@@ -156,6 +156,8 @@ class TestPrivateFileReattach(BaseTestUtils):
 		)
 		batch.append("assessment", {"assessment_type": "LMS Assignment", "assessment_name": self.assignment})
 		batch.save()
+		# Batch staff grade only the batch's own students.
+		self._create_batch_enrollment(self.student, batch.name)
 		return evaluator
 
 	def test_evaluator_can_grade_a_submission_with_an_attachment(self):

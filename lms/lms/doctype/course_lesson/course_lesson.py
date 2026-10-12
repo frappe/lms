@@ -23,8 +23,10 @@ from lms.lms.lesson_assessments import lesson_assessment_rows
 from lms.lms.permissions import (
 	INSTRUCTOR_FIELDS,
 	can_access_lesson,
+	can_author_assessment,
 	courses_authored_by_each,
 	get_locked_lessons,
+	unplaceable_assessments,
 )
 from lms.lms.utils import (
 	get_course_progress,
@@ -58,9 +60,40 @@ class CourseLesson(Document):
 		"""Rebuild this lesson's placement rows from its own content, never hand-edited.
 		Runs in validate, not on_update: child rows are written during save, so an
 		on_update append would persist nothing."""
+		rows = lesson_assessment_rows(self.body, self.content, self.instructor_content)
+		self.validate_added_placements(rows)
 		self.set("assessments", [])
-		for row in lesson_assessment_rows(self.body, self.content, self.instructor_content):
+		for row in rows:
 			self.append("assessments", row)
+
+	def validate_added_placements(self, rows):
+		"""A lesson may newly place only assessments its editor can already administer,
+		the same rule a batch applies. Placements the lesson already had stay as they are."""
+		placements = {(row["assessment_type"], row["assessment_name"]) for row in rows}
+		if self.quiz_id and frappe.db.exists("LMS Quiz", self.quiz_id):
+			placements.add(("LMS Quiz", self.quiz_id))
+		refused = unplaceable_assessments(placements - self.stored_placements())
+		if refused:
+			frappe.throw(
+				_("You are not authorized to add {0} to this lesson.").format(next(iter(refused))[1]),
+				frappe.PermissionError,
+			)
+
+	def stored_placements(self) -> set:
+		if self.is_new():
+			return set()
+		stored = {
+			(row.assessment_type, row.assessment_name)
+			for row in frappe.get_all(
+				"LMS Lesson Assessment",
+				filters={"parent": self.name, "parenttype": "Course Lesson"},
+				fields=["assessment_type", "assessment_name"],
+			)
+		}
+		quiz_id = frappe.db.get_value("Course Lesson", self.name, "quiz_id")
+		if quiz_id:
+			stored.add(("LMS Quiz", quiz_id))
+		return stored
 
 	def on_update(self):
 		self.validate_quiz_id()
@@ -99,6 +132,8 @@ class CourseLesson(Document):
 				quiz = (block.get("data") or {}).get("quiz")
 				if not frappe.db.exists("LMS Quiz", quiz):
 					frappe.throw(_("Invalid Quiz ID in content"))
+				if not may_restamp_quiz(quiz, self.name):
+					continue
 				frappe.db.set_value(
 					"LMS Quiz",
 					quiz,
@@ -107,6 +142,27 @@ class CourseLesson(Document):
 						"lesson": self.name,
 					},
 				)
+
+
+def may_restamp_quiz(quiz: str, lesson: str) -> bool:
+	"""Placing a quiz grants use only, so a lesson moves another author's quiz stamp
+	only when that stamp no longer names a lesson placing it."""
+	if can_author_assessment("LMS Quiz", quiz):
+		return True
+	stamped = frappe.db.get_value("LMS Quiz", quiz, "lesson")
+	if not stamped or stamped == lesson:
+		return True
+	if frappe.db.get_value("Course Lesson", stamped, "quiz_id") == quiz:
+		return False
+	return not frappe.db.exists(
+		"LMS Lesson Assessment",
+		{
+			"parent": stamped,
+			"parenttype": "Course Lesson",
+			"assessment_type": "LMS Quiz",
+			"assessment_name": quiz,
+		},
+	)
 
 
 def cleanup_lesson_backreferences(lesson: str):
