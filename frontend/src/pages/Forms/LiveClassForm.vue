@@ -1,5 +1,10 @@
 <template>
-	<FormShell :title="__('Create a Live Class')" size="xl" @close="close">
+	<FormShell
+		:title="__('Create a Live Class')"
+		size="xl"
+		position="top"
+		@close="close"
+	>
 		<template #default>
 			<div v-if="loadingBatch" class="p-4 text-base text-ink-gray-6">
 				{{ __('Loading...') }}
@@ -67,6 +72,23 @@
 					type="textarea"
 					:label="__('Description')"
 				/>
+				<!-- Last in the body, so it sits right above Save on desktop. -->
+				<p
+					v-if="calendarMissing"
+					data-testid="live-class-calendar-missing"
+					role="alert"
+					class="text-p-sm text-ink-gray-7"
+				>
+					{{ calendarMissing.message }}
+					<button
+						v-if="calendarMissing.setUp"
+						type="button"
+						class="font-medium text-ink-gray-9 underline underline-offset-2"
+						@click="calendarMissing.setUp"
+					>
+						{{ __('Set up') }}
+					</button>
+				</p>
 			</div>
 		</template>
 		<template #actions>
@@ -96,8 +118,8 @@ import {
 	FormControl,
 	toast,
 } from 'frappe-ui'
-import { computed, reactive, inject, onMounted } from 'vue'
-import { useRoute } from 'vue-router'
+import { computed, reactive, inject, onMounted, ref } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 import { getTimezones, getUserTimezone, openSettings } from '@/utils/'
 import { canManageGoogleIntegrations } from '@/components/Settings/GoogleApi/googleApi'
 import { canManageGoogleMeet } from '@/components/Settings/GoogleMeet/googleMeet'
@@ -121,6 +143,7 @@ const props = defineProps({
 const user = inject('$user')
 const dayjs = inject('$dayjs')
 const route = useRoute()
+const router = useRouter()
 const readOnlyMode = window.read_only_mode
 const dateFormat = getDateFormat()
 
@@ -256,12 +279,13 @@ const submitLiveClass = () => {
 		conferencingProvider.value === 'Google Meet'
 			? createGoogleMeetLiveClass
 			: createLiveClass
+	calendarMissing.value = null
 	return submitResource(resource, liveClass, {
-		// NOTE: carried over verbatim — the return value is discarded, so
-		// validateFormFields() has never actually blocked a submit. Fixing it
-		// is a behaviour change, so it is not folded into this conversion.
+		// Returned, so a missing field blocks the submit with its own message. It
+		// used to be discarded, and an empty duration reached the server as an
+		// Internal Server Error.
 		validate() {
-			validateFormFields()
+			return validateFormFields()
 		},
 		onSuccess() {
 			reloadLiveClassList()
@@ -279,30 +303,46 @@ const submitLiveClass = () => {
 }
 
 // Classes go out through Google Calendar, so a missing one blocks scheduling.
-// The toast stays up long enough to act on, and takes the user straight to the
-// settings page that fixes it when they can open it: the settings window loads
-// only for moderators, and each page has its own access rule.
-const CALENDAR_TOAST_DURATION = 12000
+// One line above Save rather than a toast: a toast sits outside the Dialog, so
+// clicking its action first dismissed the form and took a second click to act.
+// Set up goes to the page that fixes it when the user can open it.
+const calendarMissing = ref(null)
 
 const showCalendarMissing = (message) => {
 	const meet = conferencingProvider.value === 'Google Meet'
-	const canOpen =
-		Boolean(user.data?.is_moderator) &&
-		(meet ? canManageGoogleMeet() : canManageGoogleIntegrations())
-	// A short title with the server's detail beneath and a one-word action, so the
-	// text keeps the toast's width instead of wrapping into a narrow column.
-	toast.error(__('Google Calendar needed'), {
-		duration: CALENDAR_TOAST_DURATION,
-		description: canOpen
+	const setUp = calendarSetUpAction(meet)
+	calendarMissing.value = {
+		message: setUp
 			? message
-			: `${message} ${__('Ask your site administrator to set it up for you.')}`,
-		...(canOpen && {
-			action: {
-				label: __('Set up'),
-				onClick: () => openSettings(meet ? 'google-meet' : 'google-calendar'),
-			},
-		}),
-	})
+			: meet
+			? __(
+					'Ask your site administrator to add a Google Calendar to this Google Meet account.'
+			  )
+			: __(
+					'Ask your site administrator to set up your Google Calendar to schedule Zoom classes.'
+			  ),
+		setUp,
+	}
+}
+
+// Where "Set up" goes. Moderators with access get the Settings page. Evaluators
+// have no Settings, but a Zoom class uses their own calendar, which they manage
+// on their profile's Slots tab. A Meet account's calendar is the admin's.
+const calendarSetUpAction = (meet) => {
+	if (
+		user.data?.is_moderator &&
+		(meet ? canManageGoogleMeet() : canManageGoogleIntegrations())
+	) {
+		return () => openSettings(meet ? 'google-meet' : 'google-calendar')
+	}
+	if (!meet && user.data?.is_evaluator && user.data?.username) {
+		return () =>
+			router.push({
+				name: 'ProfileEvaluator',
+				params: { username: user.data.username },
+			})
+	}
+	return null
 }
 
 const validateFormFields = () => {
@@ -340,7 +380,8 @@ const validateFormFields = () => {
 
 const valideTime = () => {
 	let time = liveClass.time.split(':')
-	if (time.length != 2) {
+	// HH:mm from the picker, or HH:mm:ss when seconds are typed.
+	if (time.length < 2 || time.length > 3) {
 		return false
 	}
 	if (time[0] < 0 || time[0] > 23) {
