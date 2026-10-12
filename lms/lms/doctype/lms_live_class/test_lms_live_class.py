@@ -4,6 +4,7 @@
 from unittest.mock import MagicMock, patch
 
 import frappe
+from frappe import _
 from frappe.utils import add_days, nowdate
 
 from lms.lms.doctype.lms_live_class.lms_live_class import GoogleCalendarMissingError
@@ -543,7 +544,7 @@ class TestLMSLiveClass(BaseTestUtils):
 
 		with patch(
 			f"{GOOGLE_CALENDAR_MODULE}.get_google_calendar_object",
-			side_effect=lambda *args: frappe.throw("Google Calendar - Could not find Calendar"),
+			side_effect=lambda *args: frappe.throw(_("Google Calendar - Could not find Calendar")),
 		):
 			self._create_batch_enrollment(self._student(), self.batch.name)
 
@@ -578,6 +579,7 @@ class TestLMSLiveClass(BaseTestUtils):
 		self._create_batch_enrollment(self._student(), self.batch.name)
 		live_class.reload()
 		live_class.title = f"{live_class.title} (moved)"
+		# nosemgrep: lms-unjustified-ignore-permissions - test fixture setup
 		live_class.save(ignore_permissions=True)
 
 		bodies = [call.kwargs["body"] for call in events.update.call_args_list]
@@ -747,6 +749,7 @@ class TestLMSLiveClass(BaseTestUtils):
 				event_name = live_class.event
 
 				check = mutate(live_class)
+				# nosemgrep: lms-unjustified-ignore-permissions - test fixture setup
 				live_class.save(ignore_permissions=True)
 
 				check(frappe.get_doc("Event", event_name))
