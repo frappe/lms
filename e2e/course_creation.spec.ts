@@ -130,11 +130,19 @@ test.describe("Course Creation", () => {
 		const tagInput = page.locator(
 			'[data-slot="content-body"] [data-slot="input"]'
 		);
+		// Enter selects the highlighted option, so wait for the "Create" option
+		// to render first or the keypress lands on an empty list and is lost.
 		for (const tag of ["Learning", "Frappe", "ERPNext"]) {
 			await tagInput.fill(tag);
+			await expect(
+				page.getByRole("option", { name: `Create "${tag}"` })
+			).toBeVisible();
 			await tagInput.press("Enter");
 		}
 		await page.keyboard.press("Escape");
+		await expect(
+			page.locator("label").filter({ hasText: "Tags" }).locator("xpath=..")
+		).toContainText("Learning, Frappe, ERPNext");
 
 		await button(page, "Save").click();
 
