@@ -379,6 +379,12 @@ vi.mock('@/components/Quiz/QuestionBankPanel.vue', () => ({
 vi.mock('@/stores/session', () => ({
 	sessionStore: () => ({ brand: { favicon: '' } }),
 }))
+// The server's write answer for the quiz, read at mount.
+const authorship = vi.hoisted(() => ({ canWrite: true as boolean | null }))
+vi.mock('@/composables/useCanWrite', async () => {
+	const { ref } = await import('vue')
+	return { useCanWrite: () => ref(authorship.canWrite) }
+})
 vi.mock('@/composables/useKeyboardShortcuts', () => ({
 	useKeyboardShortcuts: vi.fn(),
 	saveShortcut: (action: () => void) => ({ keys: 's', action }),
@@ -656,6 +662,7 @@ beforeEach(() => {
 	// The notice's dismissal lives here, and it outlives a mount by design.
 	sessionStorage.clear()
 	viewportWidth = 1280
+	authorship.canWrite = true
 	$dialog.mockReset()
 	vi.mocked(toast.success).mockClear()
 	vi.mocked(toast.error).mockClear()
@@ -778,6 +785,44 @@ describe('QuizForm: autosave', () => {
 
 		await idle(10000)
 		expect(setValueSubmit).toHaveBeenCalledTimes(1)
+	})
+})
+
+// Placing a quiz made its edit screen writable since #2826.
+// Added for audit finding #3 on branch fix/assessment-placement-use-only.
+describe('QuizForm: authorship', () => {
+	const detailsFields = (wrapper: any) =>
+		wrapper.find('[data-testid="quiz-details-fields"]')
+	const readOnlyNote = (wrapper: any) =>
+		wrapper.find('[data-testid="quiz-read-only-note"]')
+
+	it('opens the quiz read-only for someone who only placed it', async () => {
+		authorship.canWrite = false
+		const { wrapper } = await mountForm([CHOICE_ROW])
+		expect(readOnlyNote(wrapper).text()).toBe(
+			'Only the authors of this quiz can edit it.'
+		)
+		expect(wrapper.find('[data-testid="question-toolbar"]').exists()).toBe(
+			false
+		)
+		expect(headerButton(wrapper, 'Delete')).toBeUndefined()
+		expect(badge(wrapper).exists()).toBe(false)
+		expect(headerButton(wrapper, 'Submissions')).toBeTruthy()
+		expect(detailsFields(wrapper).attributes('disabled')).toBeDefined()
+		expect(rowComponent(wrapper, 'qq1')!.attributes('readonly')).toBe('true')
+
+		doc(wrapper).title = 'Edited title'
+		await pressSave()
+		expect(setValueSubmit).not.toHaveBeenCalled()
+	})
+
+	it('stays read-only until the server has answered', async () => {
+		authorship.canWrite = null
+		const { wrapper } = await mountForm([CHOICE_ROW])
+		expect(wrapper.find('[data-testid="question-toolbar"]').exists()).toBe(
+			false
+		)
+		expect(readOnlyNote(wrapper).exists()).toBe(false)
 	})
 })
 

@@ -376,3 +376,54 @@ describe('LessonForm draft: a new lesson is created from its title', () => {
 		expect(createLesson().submit).not.toHaveBeenCalled()
 	})
 })
+
+describe('LessonForm title focus ring', () => {
+	let wrapper: VueWrapper
+
+	afterEach(() => {
+		wrapper?.unmount()
+		document.body.innerHTML = ''
+	})
+
+	async function refocus(title: ReturnType<typeof titleField>) {
+		await title.trigger('blur')
+		await title.trigger('focus')
+	}
+
+	it('hides the ring when the title is focused on load or by a click', async () => {
+		wrapper = await mountDraft()
+		const title = titleField(wrapper)
+		expect(document.activeElement).toBe(title.element)
+		expect(title.classes()).not.toContain('focus:ring-2')
+
+		document.dispatchEvent(new Event('pointerdown'))
+		await refocus(title)
+		expect(title.classes()).not.toContain('focus:ring-2')
+	})
+
+	it('shows the ring when a key moved focus to the title', async () => {
+		wrapper = await mountDraft()
+		const title = titleField(wrapper)
+
+		for (const key of ['Tab', 'Enter']) {
+			document.dispatchEvent(new KeyboardEvent('keydown', { key }))
+			await refocus(title)
+			expect(title.classes()).toContain('focus:ring-2')
+
+			await title.trigger('blur')
+			expect(title.classes()).not.toContain('focus:ring-2')
+		}
+	})
+
+	it('ignores modifier shortcuts such as Ctrl+S', async () => {
+		wrapper = await mountDraft()
+		const title = titleField(wrapper)
+
+		document.dispatchEvent(new Event('pointerdown'))
+		document.dispatchEvent(
+			new KeyboardEvent('keydown', { key: 's', ctrlKey: true })
+		)
+		await refocus(title)
+		expect(title.classes()).not.toContain('focus:ring-2')
+	})
+})
