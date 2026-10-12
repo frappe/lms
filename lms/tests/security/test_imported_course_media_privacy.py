@@ -60,8 +60,14 @@ class TestImportedCourseMediaPrivacy(BaseTestUtils):
 		cls.listed_author = cls._create_user(
 			f"mp-author-{hash}@example.com", "Au", "Thor", ["Course Creator"]
 		).name
-		cls.private_asset = f"secret-{hash}.png"
-		cls.public_asset = f"banner-{hash}.png"
+
+	def setUp(self):
+		super().setUp()
+		# Fresh names per test: the rollback keeps an earlier import's files on disk,
+		# and frappe v15 renames an upload whose name is taken even by identical bytes.
+		hash = frappe.generate_hash(length=6).lower()
+		self.private_asset = f"secret-{hash}.png"
+		self.public_asset = f"banner-{hash}.png"
 
 	def _build_zip(self):
 		"""A course whose lesson embeds one private and one public asset."""
