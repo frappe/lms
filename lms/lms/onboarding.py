@@ -1,6 +1,7 @@
 import frappe
 
 
+@frappe.whitelist()
 def get_first_course():
 	course = frappe.get_all(
 		"LMS Course",
