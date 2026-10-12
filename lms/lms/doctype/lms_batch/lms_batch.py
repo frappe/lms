@@ -415,13 +415,11 @@ def create_google_meet_live_class(
 	if not google_meet_settings.enabled:
 		frappe.throw(_("Please enable the Google Meet account to use this feature."))
 
-	if not google_meet_settings.google_calendar:
-		from lms.lms.doctype.lms_live_class.lms_live_class import GoogleCalendarMissingError
+	# The same check as the Zoom path: a calendar that is set, authorised, and
+	# pushes to Google, before anything is made.
+	from lms.lms.doctype.lms_live_class.lms_live_class import get_live_class_calendar
 
-		frappe.throw(
-			_("Add a Google Calendar to this Google Meet account to schedule classes."),
-			GoogleCalendarMissingError,
-		)
+	get_live_class_calendar("Google Meet", google_meet_account)
 
 	class_details = frappe.get_doc(
 		{

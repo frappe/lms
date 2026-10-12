@@ -600,10 +600,42 @@ def rename_own_calendar(current: str, value) -> None:
 	if frappe.db.exists("Google Calendar", value):
 		frappe.throw(_("Another calendar already has this name. Pick a different one."))
 
+	rename_on_google(current, value)
+
+	# A sign-in started before the rename finishes against the calendar by name.
+	# Read first: renaming clears the cache.
+	key = f"{EVALUATOR_CALENDAR_CACHE}:{frappe.session.user}"
+	signing_in = frappe.cache.get_value(key) == current
+
 	from frappe.model.rename_doc import rename_doc
 
 	# nosemgrep: lms-unjustified-ignore-permissions - own calendar only (get_own_calendar_doc); portal evaluators have no Google Calendar write permission
 	rename_doc("Google Calendar", current, value, ignore_permissions=True, show_alert=False)
+
+	if signing_in:
+		frappe.cache.set_value(key, value, expires_in_sec=900)
+
+
+def rename_on_google(current: str, value: str) -> None:
+	"""Frappe names the Google calendar only when it first creates it, so a later
+	rename has to reach Google too. Done first: if Google refuses, nothing changes."""
+	calendar = frappe.db.get_value(
+		"Google Calendar", current, ["google_calendar_id", "refresh_token"], as_dict=True
+	)
+	if not (calendar.google_calendar_id and calendar.refresh_token):
+		# Not on Google yet; it is created there under the new name.
+		return
+
+	from frappe.integrations.doctype.google_calendar.google_calendar import get_google_calendar_object
+
+	try:
+		google_calendar, _account = get_google_calendar_object(current)
+		google_calendar.calendars().patch(
+			calendarId=calendar.google_calendar_id, body={"summary": value}
+		).execute()
+	except Exception:
+		frappe.log_error(title=f"Could not rename Google Calendar {current}")
+		frappe.throw(_("Google Calendar didn't take the new name. Try again in a few minutes."))
 
 
 EVALUATOR_CALENDAR_CACHE = "lms_evaluator_calendar_authorization"
@@ -653,6 +685,12 @@ def google_calendar_callback(code: str | None = None):
 	key = f"{EVALUATOR_CALENDAR_CACHE}:{user}"
 	calendar_name = frappe.cache.get_value(key) if user != "Guest" else None
 	if not calendar_name:
+		# Portal users reach this path only for the Slots tab sign-in (auth.py lets
+		# them through for it). Frappe's own callback saves the code onto whichever
+		# calendar a desk user last started authorising, and only then checks
+		# permission, so it must never run for them.
+		if frappe.get_cached_value("User", user, "user_type") != "System User":
+			frappe.throw(_("Start the sign-in again from your Slots tab."), frappe.PermissionError)
 		return frappe_google_calendar.google_callback(code)
 
 	frappe.cache.delete_value(key)

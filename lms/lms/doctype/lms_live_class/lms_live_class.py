@@ -48,16 +48,10 @@ class LMSLiveClass(Document):
 
 	def get_hosts(self):
 		"""Whoever scheduled the class, its host, and the batch's instructors."""
-		instructors = frappe.get_all(
-			"Course Instructor", {"parenttype": "LMS Batch", "parent": self.batch_name}, pluck="instructor"
-		)
-		hosts = {frappe.session.user, *instructors}
+		hosts = {frappe.session.user, *get_batch_instructors(self.batch_name)}
 		if self.host:
 			hosts.add(self.host)
 		return list(hosts)
-
-	def get_learners(self):
-		return frappe.get_all("LMS Batch Enrollment", {"batch": self.batch_name}, pluck="member")
 
 	def build_event_description(self):
 		description = f"A Live Class has been scheduled on {format_date(self.date, 'medium')} at {format_time(self.time, 'hh:mm a')}."
@@ -234,14 +228,8 @@ def hide_guest_list(event, calendar) -> bool:
 	return True
 
 
-def invite_learners_quietly(event, emails) -> bool:
-	"""Invite learners without letting a calendar failure undo what led here: a
-	class, or an enrollment, is kept, and the learner still has the class's link in
-	LMS and its reminder mail. Muted: Frappe's own sync reports to whoever saved,
-	which may be an enrolling learner who should not see it. Returns whether
-	Google took the invites."""
-	muted = frappe.flags.mute_messages
-	frappe.flags.mute_messages = True
+def invite_learners(event, emails) -> bool:
+	"""Returns whether Google took the invites."""
 	frappe.db.savepoint("invite_learners")
 	try:
 		invite_to_event(event, emails)
@@ -251,28 +239,47 @@ def invite_learners_quietly(event, emails) -> bool:
 		frappe.db.rollback(save_point="invite_learners")
 		frappe.log_error(title=f"Could not invite learners to live class event {event.name}")
 		return False
-	finally:
-		frappe.flags.mute_messages = muted
 	return True
 
 
-# Tries before the hosts are told. The first is made with the class or the
-# enrollment, the rest by retry_pending_invites, one per scheduler tick.
+# Tries before the hosts are told: the one made with the class, then one per
+# scheduler tick from retry_pending_invites.
 MAX_INVITE_ATTEMPTS = 5
 
 
-def send_learner_invites(live_class: str) -> bool:
+def send_learner_invites(live_class: str, count_attempt: bool = True) -> bool:
 	"""Invite the batch's learners who are not on the class's invite yet. If Google
 	fails, the class is marked Retrying and tried again on every scheduler tick;
 	after MAX_INVITE_ATTEMPTS it is marked Failed, the hosts are told, and the
-	class's Retry button takes over. Returns whether every learner is invited."""
+	class's Retry button takes over. Returns whether every learner is invited.
+
+	An enrollment passes count_attempt=False, so a burst of them during a short
+	outage leaves the class to the scheduler instead of using up its tries.
+
+	Never raises, and muted: a failure must not undo the class or the enrollment
+	that led here, and Frappe's own Google messages would otherwise reach
+	whoever triggered it, which may be an enrolling learner."""
+	# Locks the class, so two jobs for it cannot both see the same learners missing
+	# and invite them twice; the second waits and finds them invited.
+	frappe.db.get_value("LMS Live Class", live_class, "name", for_update=True)
+
+	muted = frappe.flags.mute_messages
+	frappe.flags.mute_messages = True
+	try:
+		invited = invite_missing_learners(live_class)
+	except Exception:
+		frappe.log_error(title=f"Could not invite learners to live class {live_class}")
+		invited = False
+	finally:
+		frappe.flags.mute_messages = muted
+
 	status, attempts = frappe.db.get_value("LMS Live Class", live_class, ["invite_status", "invite_attempts"])
-	if invite_missing_learners(live_class):
+	if invited:
 		if status:
 			set_invite_status(live_class, "", 0)
 		return True
 
-	attempts = cint(attempts) + 1
+	attempts = cint(attempts) + (1 if count_attempt else 0)
 	if status == "Failed":
 		# Already reported. A later enrollment or a retry that fails again leaves it
 		# for the Retry button rather than telling the hosts twice.
@@ -287,7 +294,8 @@ def send_learner_invites(live_class: str) -> bool:
 
 def invite_missing_learners(live_class: str) -> bool:
 	event_name, batch = frappe.db.get_value("LMS Live Class", live_class, ["event", "batch_name"])
-	if not event_name:
+	# No event, or one deleted since: nothing to invite anyone to.
+	if not event_name or not frappe.db.exists("Event", event_name):
 		return True
 
 	event = frappe.get_doc("Event", event_name)
@@ -306,7 +314,7 @@ def invite_missing_learners(live_class: str) -> bool:
 	# other one until it is.
 	if not hide_guest_list(event, event.google_calendar):
 		return False
-	return invite_learners_quietly(event, missing)
+	return invite_learners(event, missing)
 
 
 def set_invite_status(live_class: str, status: str, attempts: int):
@@ -326,10 +334,7 @@ def notify_hosts_of_missing_invites(live_class: str):
 	cls = frappe.db.get_value(
 		"LMS Live Class", live_class, ["title", "batch_name", "host", "owner"], as_dict=True
 	)
-	instructors = frappe.get_all(
-		"Course Instructor", {"parenttype": "LMS Batch", "parent": cls.batch_name}, pluck="instructor"
-	)
-	hosts = {cls.host, cls.owner, *instructors} - {None}
+	hosts = {cls.host, cls.owner, *get_batch_instructors(cls.batch_name)} - {None}
 	notification = frappe._dict(
 		{
 			"subject": _("Learners haven't been invited to {0}").format(frappe.bold(cls.title)),
@@ -353,7 +358,11 @@ def retry_pending_invites():
 		pluck="name",
 	)
 	for live_class in classes:
-		send_learner_invites(live_class)
+		# One class failing outside Google must not stop the others being retried.
+		try:
+			send_learner_invites(live_class)
+		except Exception:
+			frappe.log_error(title=f"Could not retry the invites of live class {live_class}")
 
 
 @frappe.whitelist(methods=["POST"])
@@ -364,14 +373,30 @@ def retry_invites(live_class: str) -> bool:
 
 
 def add_learner_to_live_classes(batch):
-	"""Invite a learner who joins the batch to its upcoming live classes."""
+	"""Invite a learner who joins the batch to its upcoming live classes. In the
+	background, after the enrollment commits: each class costs several Google
+	calls, too slow to make inside the enrollment request. A job finding no one
+	missing returns before calling Google, so a bulk import's later jobs are cheap."""
 	classes = frappe.get_all(
 		"LMS Live Class",
 		{"batch_name": batch, "event": ["is", "set"], "date": [">=", nowdate()]},
 		pluck="name",
 	)
 	for live_class in classes:
-		send_learner_invites(live_class)
+		frappe.enqueue(
+			send_learner_invites,
+			queue="short",
+			enqueue_after_commit=True,
+			now=frappe.flags.in_test,
+			live_class=live_class,
+			count_attempt=False,
+		)
+
+
+def get_batch_instructors(batch: str) -> list[str]:
+	return frappe.get_all(
+		"Course Instructor", {"parenttype": "LMS Batch", "parent": batch}, pluck="instructor"
+	)
 
 
 def send_live_class_reminder():

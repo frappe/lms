@@ -67,7 +67,7 @@
 						</span>
 					</div>
 					<div
-						v-if="isAdmin() && cls.invite_status === 'Failed'"
+						v-if="canRetryInvites() && cls.invite_status === 'Failed'"
 						class="flex items-center justify-between gap-2"
 					>
 						<div class="flex items-center gap-x-2 text-ink-amber-5">
@@ -251,6 +251,11 @@ const canCreateClass = () => {
 	if (!hasProviderAccount()) return false
 	return isAdmin()
 }
+
+// Who the server lets retry: moderators and the batch's own authors. isAdmin
+// also takes in every evaluator, who would only get a permission error.
+const canRetryInvites = () =>
+	Boolean(user.data?.is_moderator || props.batch.data?.can_manage)
 
 const isAdmin = () => {
 	return (

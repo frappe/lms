@@ -530,7 +530,7 @@ describe('the Classes tab opener', () => {
 		})
 	})
 
-	const mountTab = async (router: Router) =>
+	const mountTab = async (router: Router, user = moderator) =>
 		mount(LiveClass, {
 			props: {
 				batch: {
@@ -543,10 +543,48 @@ describe('the Classes tab opener', () => {
 			},
 			global: {
 				plugins: [router],
-				provide: provide(moderator),
+				provide: provide(user),
 				mocks: { __: (text: string) => text },
 			},
 		})
+
+	// Retry is refused by the server for anyone who cannot edit the class, so an
+	// evaluator who is not on the batch must not be offered it.
+	describe('a class whose invites failed', () => {
+		const failedClass = {
+			name: 'LC1',
+			title: 'Intro',
+			date: '2099-01-01',
+			time: '10:00:00',
+			duration: 60,
+			invite_status: 'Failed',
+		}
+
+		beforeEach(() => {
+			liveClassList.data = [failedClass] as never[]
+		})
+		afterEach(() => {
+			liveClassList.data = []
+		})
+
+		const retryButton = (wrapper: VueWrapper) =>
+			wrapper.findAll('button').find((b) => b.text() === 'Retry')
+
+		it('offers Retry to a moderator', async () => {
+			const router = makeRouter()
+			await router.push('/batches/B1#classes')
+			const wrapper = await mountTab(router)
+			expect(wrapper.text()).toContain('Invites not sent')
+			expect(retryButton(wrapper)).toBeTruthy()
+		})
+
+		it('does not offer Retry to an evaluator who is not on the batch', async () => {
+			const router = makeRouter()
+			await router.push('/batches/B1#classes')
+			const wrapper = await mountTab(router, evaluator)
+			expect(retryButton(wrapper)).toBeFalsy()
+		})
+	})
 
 	it('registers its list under the key the form refreshes', async () => {
 		const router = makeRouter()
