@@ -91,8 +91,8 @@ class TestServeResourceUnderscoreFilename(BaseTestUtils):
 	def test_content_search_yields_student_reference(self):
 		refs = _resolve_lesson_references(self.file_url)
 		self.assertIn(
-			(self.lesson.name, False),
-			refs,
+			(self.lesson.name, False, False),
+			[r[:3] for r in refs],
 			msg="content-field search must resolve a student-accessible reference for an underscore filename",
 		)
 
@@ -115,8 +115,14 @@ class TestServeResourceUnderscoreFilename(BaseTestUtils):
 				)
 				self.lesson.save(ignore_permissions=True)
 
-				self.assertIn((self.lesson.name, False), _resolve_lesson_references(embedded_url))
-				self.assertNotIn((self.lesson.name, False), _resolve_lesson_references(mismatched_query))
+				self.assertIn(
+					(self.lesson.name, False, False),
+					[r[:3] for r in _resolve_lesson_references(embedded_url)],
+				)
+				self.assertNotIn(
+					(self.lesson.name, False, False),
+					[r[:3] for r in _resolve_lesson_references(mismatched_query)],
+				)
 
 	def test_unattached_private_file_still_resolves(self):
 		"""The prod 'everyone incl. Administrator 403s' case: a private file not attached to

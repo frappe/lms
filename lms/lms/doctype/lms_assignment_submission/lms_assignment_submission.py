@@ -9,7 +9,7 @@ from frappe.utils import validate_url
 
 from lms.lms.html_sanitizer import sanitize_rich_text
 from lms.lms.schedule_utils import assert_within_schedule
-from lms.lms.utils import PRIVILEGED_ROLES, get_lms_route
+from lms.lms.utils import PRIVILEGED_ROLES, get_attachable_files, get_lms_route, validate_attachable_file
 
 
 class LMSAssignmentSubmission(Document):
@@ -20,6 +20,7 @@ class LMSAssignmentSubmission(Document):
 		self.validate_schedule_window()
 		self.validate_duplicates()
 		self.validate_url()
+		validate_attachable_file(self, "assignment_attachment")
 		self.validate_status()
 
 	def sanitize_rich_text_fields(self):
@@ -120,20 +121,25 @@ class LMSAssignmentSubmission(Document):
 			self.attach_images_to_document(images)
 
 	def attach_images_to_document(self, images):
+		sources = []
 		for img in images:
 			src = img.get("src", "")
 			if src.startswith("/private/files/"):
-				file_name = frappe.db.get_value("File", {"file_url": src}, "name")
-				if file_name:
-					frappe.db.set_value(
-						"File",
-						file_name,
-						{
-							"attached_to_doctype": self.doctype,
-							"attached_to_name": self.name,
-							"attached_to_field": "answer",
-						},
-					)
+				sources.append(src)
+
+		files = get_attachable_files(sources, self, frappe.session.user)
+		for src in sources:
+			file = files.get(src)
+			if file:
+				frappe.db.set_value(
+					"File",
+					file.name,
+					{
+						"attached_to_doctype": self.doctype,
+						"attached_to_name": self.name,
+						"attached_to_field": "answer",
+					},
+				)
 
 	def trigger_update_notification(self):
 		notification = frappe._dict(

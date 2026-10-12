@@ -83,8 +83,12 @@ const EXEMPT = new Map<string, string>([
 		'link comes from the services table in emailConfig.ts',
 	],
 	[
-		'../components/Settings/EmailAccount/EmailProviderIcon.vue',
+		'../components/Settings/EmailAccount/EmailProviderPicker.vue',
 		'logo comes from the services table in emailConfig.ts',
+	],
+	[
+		'../components/Settings/EmailAccount/EmailAccountForm.vue',
+		'logo comes from the same services table, for the picked-provider header',
 	],
 	['../components/Settings/Raven/RavenSetupRow.vue', 'constant https literal'],
 	[

@@ -51,12 +51,14 @@ class TestQuizAnswerImagePrivacy(BaseTestUtils):
 				"title": f"Open Ended Quiz {hash}",
 				"passing_percentage": 0,
 				"total_marks": 5,
-				"course": cls.course.name,
 			}
 		)
 		quiz.append("questions", {"question": question.name, "marks": 5})
 		quiz.save()
 		cls.quiz = quiz
+		# A bare LMS Quiz.course stamp reads as author-only now; a real placement is
+		# what makes it reachable by an enrolled member.
+		cls._place_in_lesson(cls.course.name, "LMS Quiz", cls.quiz.name)
 
 		# The onlooker is enrolled too: a peer sitting the same quiz is the caller this
 		# is meant to keep out, not a stranger who was never in the course.

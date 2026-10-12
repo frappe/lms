@@ -57,7 +57,6 @@
 							:inlineSelect="inlineSelect"
 							:editorLinks="editorLinks"
 							:selectedLessonNumber="selectedLessonNumber"
-							:creatingLesson="creatingLessonChapter === chapter.name"
 							@select-lesson="(payload) => emit('select-lesson', payload)"
 							@edit-chapter="openChapterForm"
 							@rename-chapter="renameChapter"
@@ -68,7 +67,7 @@
 									trashLesson(lesson, chapterName)
 							"
 							@move-lesson="updateOutline"
-							@create-lesson="createLessonInline"
+							@create-lesson="({ chapter }) => emit('add-lesson', { chapter })"
 						/>
 					</div>
 				</template>
@@ -123,11 +122,9 @@ const emit = defineEmits<{
 	// the wrong doc and an unrelated reload can't consume the signal.
 	'lesson-deleted': [{ lesson: string }]
 	'chapter-deleted': [{ chapter: string }]
+	// The parent opens a draft lesson; nothing is created until it has a title.
+	'add-lesson': [{ chapter: OutlineChapter }]
 }>()
-
-// The lesson currently being named inline (its docname), and the chapter whose
-// "Add Lesson" button is mid-create (for the button spinner).
-const creatingLessonChapter = ref<string>('')
 
 const props = withDefaults(
 	defineProps<{
@@ -269,62 +266,6 @@ const renameChapterResource = createResource({
 
 function renameChapter(payload: { chapter: OutlineChapter; title: string }) {
 	renameChapterResource.submit(payload)
-}
-
-const errorMessage = (err: { messages?: string[] } | string): string =>
-	typeof err === 'string' ? err : err.messages?.[0] ?? 'Error'
-
-// Inserts the Course Lesson and its chapter reference in one request, so a
-// failure on either rolls back atomically: no orphaned lesson. Returns the
-// new lesson's docname.
-const addLesson = createResource({
-	url: 'lms.lms.api.create_lesson',
-	makeParams(values: { chapter: string }) {
-		return { chapter: values.chapter }
-	},
-})
-
-// Create the lesson immediately as "Untitled lesson", then open it in the
-// editor so the title is edited inline on the lesson itself.
-function createLessonInline(payload: {
-	chapter: OutlineChapter
-	lessonIdx: number
-}) {
-	creatingLessonChapter.value = payload.chapter.name
-	addLesson.submit(
-		{ chapter: payload.chapter.name },
-		{
-			onSuccess(lessonName: string) {
-				creatingLessonChapter.value = ''
-				outline.reload().then(() => {
-					const created = (outline.data ?? [])
-						.flatMap((c) => c.lessons ?? [])
-						.find((l) => l.name === lessonName)
-					if (created) navigateToLesson(created)
-				})
-			},
-			onError(err: { messages?: string[] } | string) {
-				creatingLessonChapter.value = ''
-				toast.error(errorMessage(err))
-			},
-		}
-	)
-}
-
-function navigateToLesson(lesson: OutlineLesson) {
-	const [chapterNumber, lessonNumber] = lesson.number.split('-')
-	if (props.inlineSelect) {
-		emit('select-lesson', { chapterNumber, lessonNumber })
-		return
-	}
-	if (props.editorLinks) {
-		router.push({
-			name: 'CourseDetail',
-			params: { courseName: props.courseName },
-			hash: '#editor',
-			query: { editLesson: lesson.number },
-		})
-	}
 }
 
 function trashLesson(lessonName: string, chapterName: string) {

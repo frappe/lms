@@ -437,7 +437,7 @@
    "link_fieldname": "payment_for_document"
   }
  ],
- "modified": "2026-02-13 14:23:51.913875",
+ "modified": "2026-10-01 00:00:00.000000",
  "modified_by": "sayali@frappe.io",
  "module": "LMS",
  "name": "LMS Batch",
@@ -476,6 +476,16 @@
    "read": 1,
    "report": 1,
    "role": "Batch Evaluator",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Course Creator",
    "share": 1,
    "write": 1
   },

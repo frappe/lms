@@ -104,7 +104,7 @@
 import { Button, Combobox, Select, createResource, toast } from 'frappe-ui'
 import { computed, ref, watch } from 'vue'
 import EmptyStateLayout from '@/components/Layouts/EmptyStateLayout.vue'
-import SettingsTable from '@/components/Layouts/SettingsTable.vue'
+import SettingsTable from '@/components/Layouts/settings/desktop/SettingsTable.vue'
 import { usePagedRows } from '@/composables/usePagedRows'
 import type {
 	SettingsListColumn,
