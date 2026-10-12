@@ -1,6 +1,6 @@
 <template>
 	<Dialog
-		v-model="open"
+		v-model:open="open"
 		:title="title"
 		:message="message"
 		size="sm"

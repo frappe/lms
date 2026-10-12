@@ -8,15 +8,13 @@
 		<div
 			class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-4"
 		>
-			<router-link
+			<CourseCard
 				v-for="course in relatedCourses.data"
 				:key="course.name"
+				:course="course"
 				:to="{ name: 'CourseDetail', params: { courseName: course.name } }"
-				v-external
-				class="cursor-pointer"
-			>
-				<CourseCard :course="course" />
-			</router-link>
+				external
+			/>
 		</div>
 	</div>
 </template>

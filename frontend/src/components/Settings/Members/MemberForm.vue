@@ -97,15 +97,10 @@
 </template>
 
 <script setup lang="ts">
-import {
-	FormControl,
-	LoadingIndicator,
-	call,
-	createResource,
-	toast,
-} from 'frappe-ui'
+import { FormControl, LoadingIndicator, call, createResource } from 'frappe-ui'
 import { computed, inject, reactive, ref } from 'vue'
-import { useOnboarding, useTelemetry } from 'frappe-ui/frappe'
+import { useOnboarding } from '@framework/ui/components/Onboarding/index'
+import { useTelemetry } from '@framework/ui/telemetry/index'
 import RoleSwitches from '@/components/Controls/RoleSwitches.vue'
 import SettingsLayout from '@/components/Layouts/settings/desktop/SettingsLayout.vue'
 import {

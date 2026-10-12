@@ -305,7 +305,6 @@ export interface SettingsRoutableItem {
 
 export interface SettingsRoutableGroup {
 	label: string
-	hideLabel?: boolean
 	items: SettingsRoutableItem[]
 }
 

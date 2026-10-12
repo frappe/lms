@@ -1,6 +1,6 @@
 <template>
 	<Quiz v-if="user.data" :quizName="quiz"></Quiz>
-	<div v-else class="border rounded-md text-center py-20">
+	<div v-else class="border rounded-5 text-center py-20">
 		<div>
 			{{ __('Please login to access the quiz.') }}
 		</div>
@@ -11,20 +11,19 @@
 		</Button>
 	</div>
 </template>
-<script setup>
+<script setup lang="ts">
 import { inject } from 'vue'
 import { Button } from 'frappe-ui'
 import Quiz from '@/components/Quiz.vue'
+import type { SessionUser } from '@/types'
 
-const user = inject('$user')
-const props = defineProps({
-	quiz: {
-		type: String,
-		required: true,
-	},
-})
+const user = inject<SessionUser>('$user')!
 
-const redirectToLogin = () => {
+defineProps<{
+	quiz: string
+}>()
+
+const redirectToLogin = (): void => {
 	window.location.href = `/login`
 }
 </script>

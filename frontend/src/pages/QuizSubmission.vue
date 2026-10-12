@@ -25,7 +25,7 @@
 					</template>
 					<template #default>
 						<p
-							class="w-56 rounded-lg bg-surface-base p-3 text-sm leading-5 text-ink-gray-7 shadow-2xl ring-1 ring-black ring-opacity-5"
+							class="w-56 rounded-6 bg-surface-base p-3 text-sm leading-5 text-ink-gray-7 shadow-2xl ring-1 ring-outline-gray-2"
 						>
 							{{ ownSubmissionNotice }}
 						</p>
@@ -44,7 +44,7 @@
 					v-if="submissionDetails.isDirty"
 					:label="__('Not Saved')"
 					variant="subtle"
-					theme="orange"
+					theme="amber"
 				/>
 				<ShortcutTooltip :label="__('Save')" combo="Mod+S">
 					<HeaderButton
@@ -87,7 +87,7 @@
 				     sidebar reads as a page that failed to load. -->
 				<p
 					v-if="!submissionDetails.doc.result?.length"
-					class="px-5 text-base leading-6 text-ink-gray-5"
+					class="px-5 text-base leading-6 text-ink-gray-6"
 				>
 					{{ __('No questions were attempted in this submission.') }}
 				</p>
@@ -151,6 +151,7 @@
 								v-if="isOpenEnded"
 								v-model="row.marks"
 								type="number"
+								:aria-label="__('Marks for question {0}').format(index + 1)"
 								class="w-20"
 							/>
 							<span
@@ -159,7 +160,7 @@
 							>
 								{{ row.marks }}
 							</span>
-							<span class="text-sm text-ink-gray-5">
+							<span class="text-sm text-ink-gray-6">
 								/ {{ row.marks_out_of }}
 							</span>
 						</div>
@@ -188,7 +189,7 @@
 						<div class="truncate text-base text-ink-gray-8">
 							{{ submissionDetails.doc.member_name }}
 						</div>
-						<div class="mt-0.5 text-xs text-ink-gray-5">
+						<div class="mt-0.5 text-xs text-ink-gray-6">
 							{{ formatDate(submissionDetails.doc.creation) }}
 						</div>
 					</div>
@@ -197,7 +198,7 @@
 				<div class="border-t px-5 py-5">
 					<div class="flex gap-6">
 						<div>
-							<div class="mb-0.5 text-xs text-ink-gray-5">
+							<div class="mb-0.5 text-xs text-ink-gray-6">
 								{{ __('Score') }}
 							</div>
 							<div class="text-sm font-medium text-ink-gray-8">
@@ -206,7 +207,7 @@
 							</div>
 						</div>
 						<div>
-							<div class="mb-0.5 text-xs text-ink-gray-5">
+							<div class="mb-0.5 text-xs text-ink-gray-6">
 								{{ __('Percentage') }}
 							</div>
 							<div class="text-sm font-medium text-ink-gray-8">
@@ -214,10 +215,10 @@
 							</div>
 						</div>
 						<div v-if="submissionDetails.doc.violation_count">
-							<div class="mb-0.5 text-xs text-ink-gray-5">
+							<div class="mb-0.5 text-xs text-ink-gray-6">
 								{{ __('Violations') }}
 							</div>
-							<div class="text-sm font-medium text-ink-red-6">
+							<div class="text-sm font-medium text-ink-red-5">
 								{{ submissionDetails.doc.violation_count }}
 							</div>
 						</div>
@@ -274,8 +275,8 @@
 									class="absolute -start-[21px] top-1 size-2 rounded-full"
 									:class="
 										entry.severity === 'violation'
-											? 'bg-ink-red-6'
-											: 'bg-ink-orange-6'
+											? 'bg-surface-red-6'
+											: 'bg-surface-orange-6'
 									"
 								/>
 								<div class="text-xs font-medium leading-5 text-ink-gray-7">
@@ -288,8 +289,8 @@
 										class="font-medium"
 										:class="
 											entry.severity === 'violation'
-												? 'text-ink-red-6'
-												: 'text-ink-orange-6'
+												? 'text-ink-red-5'
+												: 'text-ink-orange-5'
 										"
 									>
 										{{ severityLabel(entry.severity) }}
@@ -312,7 +313,7 @@
 									     reader, and swaps on open so the control still describes
 									     what it does. -->
 									<summary
-										class="w-fit cursor-pointer list-none text-xs text-ink-gray-5 underline decoration-outline-gray-2 underline-offset-2 hover:text-ink-gray-7 hover:decoration-ink-gray-7 [&::-webkit-details-marker]:hidden"
+										class="w-fit cursor-pointer list-none text-xs text-ink-gray-6 underline underline-offset-2 hover:text-ink-gray-7 [&::-webkit-details-marker]:hidden"
 									>
 										{{ __('Snapshot') }}
 									</summary>
@@ -329,7 +330,7 @@
 														entry.event_type
 												)
 											"
-											class="w-full rounded border"
+											class="w-full rounded-4 border"
 										/>
 									</a>
 								</details>
@@ -339,7 +340,7 @@
 						<!-- The count is stored on the submission but the events are
 						     sent separately, so a submission can be flagged with
 						     nothing to show: say so rather than leave it blank. -->
-						<p v-else class="text-xs leading-5 text-ink-gray-5">
+						<p v-else class="text-xs leading-5 text-ink-gray-6">
 							{{ __('No event details were recorded for this attempt.') }}
 						</p>
 					</div>
@@ -498,8 +499,8 @@ const severityLabel = (severity) =>
 	severity === 'violation' ? __('Violation') : __('Warning')
 
 const markStatusClass = (row) => {
-	if (row.marks == row.marks_out_of) return 'bg-ink-green-6'
-	return row.marks > 0 ? 'bg-ink-orange-6' : 'bg-ink-red-6'
+	if (row.marks == row.marks_out_of) return 'bg-surface-green-6'
+	return row.marks > 0 ? 'bg-surface-orange-6' : 'bg-surface-red-6'
 }
 
 // The header renders before the doc lands, so this must not read `.quiz` off an

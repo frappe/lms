@@ -8,6 +8,7 @@
  "engine": "InnoDB",
  "field_order": [
   "title",
+  "authors",
   "max_attempts",
   "show_answers",
   "show_submission_history",
@@ -187,6 +188,12 @@
    "fieldname": "schedule_end",
    "fieldtype": "Datetime",
    "label": "Schedule End"
+  },
+  {
+   "fieldname": "authors",
+   "fieldtype": "Table MultiSelect",
+   "label": "Authors",
+   "options": "LMS Content Author"
   }
  ],
  "grid_page_length": 50,
@@ -197,7 +204,7 @@
    "link_fieldname": "quiz"
   }
  ],
- "modified": "2026-04-01 16:56:28.727089",
+ "modified": "2026-09-08 02:30:00.000000",
  "modified_by": "sayali@frappe.io",
  "module": "LMS",
  "name": "LMS Quiz",

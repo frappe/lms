@@ -18,6 +18,12 @@ vi.hoisted(() => {
 
 vi.stubGlobal('__', (s: string) => s)
 
+// The tree imports every settings page, and several of them import
+// `@framework/ui/telemetry` and/or `@framework/ui/components/Onboarding`. Both
+// must resolve, even though nothing here mounts a component.
+vi.mock('@framework/ui/telemetry/index', () => ({}))
+vi.mock('@framework/ui/components/Onboarding/index', () => ({}))
+
 import { settingsTree } from '@/components/Settings/settings'
 import { NEW_RECORD, useSettingsSource } from '@/composables/useSettingsSource'
 import type {
@@ -54,6 +60,22 @@ describe('the settings tree', () => {
 		)
 
 		expect(new Set(names).size).toBe(names.length)
+	})
+
+	// Settings.vue binds the record model only where `records` is declared.
+	// Without it the page keeps the record in local state: Back skips the
+	// dirty guard and a refresh loses the open record.
+	it('declares records on every custom page that opens a record', () => {
+		const undeclared = items
+			.filter((item) => item.page.kind === 'custom' && !item.records)
+			.filter((item) => {
+				const props = (item.page as { component: { props?: object } }).component
+					.props
+				return Boolean(props && 'record' in props)
+			})
+			.map((item) => item.slug)
+
+		expect(undeclared).toEqual([])
 	})
 })
 

@@ -93,3 +93,14 @@ describe('StudentLessonSidebar locked lesson', () => {
 		expect(wrapper.emitted('select-lesson')).toBeUndefined()
 	})
 })
+
+describe('StudentLessonSidebar completed lesson', () => {
+	// Guards: completion shown by an icon alone. Introduced in #2674; test added
+	// with the a11y audit remediation.
+	it('announces a completed lesson in text', () => {
+		const rows = mountSidebar().findAll('li li')
+
+		expect(rows[0].get('.sr-only').text()).toBe('Completed')
+		expect(rows[1].find('.sr-only').exists()).toBe(false)
+	})
+})

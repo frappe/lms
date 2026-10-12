@@ -3,6 +3,7 @@ import re
 import frappe
 from bs4 import BeautifulSoup
 from frappe import _
+from frappe.core.api.file import get_max_file_size
 from frappe.translate import get_user_lang
 from frappe.utils.data import escape_html
 from frappe.utils.telemetry import capture
@@ -37,10 +38,12 @@ def get_boot():
 			"frappe_version": frappe.__version__,
 			"read_only_mode": frappe.flags.read_only,
 			"csrf_token": frappe.sessions.get_csrf_token(),
+			"max_file_size": get_max_file_size(),
 			"site_name": frappe.local.site,
 			"lms_path": get_lms_path(),
 			"lang": lang,
 			"text_direction": resolve_text_direction(lang),
+			"date_format": frappe.get_system_settings("date_format"),
 		}
 	)
 
@@ -304,8 +307,8 @@ def get_meta_from_document(app_path):
 			"link": get_lms_route("assignments"),
 		}
 
-	if re.match(r"^assignments/[^/]+$", app_path):
-		assignment_name = app_path.split("/")[1]
+	if re.match(r"^assignments/edit/[^/]+$", app_path):
+		assignment_name = app_path.split("/")[2]
 		assignment = frappe.db.get_value(
 			"LMS Assignment",
 			assignment_name,
@@ -319,7 +322,7 @@ def get_meta_from_document(app_path):
 			return {
 				"title": assignment.title,
 				"keywords": assignment.title,
-				"link": get_lms_route(f"assignments/{assignment_name}"),
+				"link": get_lms_route(f"assignments/edit/{assignment_name}"),
 			}
 
 	if app_path == "programs":

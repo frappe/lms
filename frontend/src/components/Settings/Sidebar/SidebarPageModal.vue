@@ -1,43 +1,39 @@
 <template>
 	<Dialog
-		v-model="open"
-		:options="{
-			title: page ? __('Edit sidebar link') : __('Add link to sidebar'),
-			size: 'lg',
-			actions: [
-				{
-					label: page ? __('Save') : __('Add'),
-					variant: 'solid',
-					loading: resource.loading,
-					onClick: submit,
-				},
-			],
-		}"
+		v-model:open="open"
+		:title="page ? __('Edit sidebar link') : __('Add link to sidebar')"
+		size="lg"
+		:actions="[
+			{
+				label: page ? __('Save') : __('Add'),
+				variant: 'solid',
+				onClick: submit,
+			},
+		]"
 	>
-		<template #body-content>
-			<div class="flex flex-col gap-4 text-base">
-				<Link
-					data-testid="page-web-page"
-					v-model="draft.web_page"
-					doctype="Web Page"
-					:label="__('Web Page')"
-					:filters="{ published: 1 }"
-					:disabled="Boolean(page)"
-				/>
-				<IconPicker
-					data-testid="page-icon"
-					v-model="draft.icon"
-					:label="__('Icon')"
-				/>
-				<ErrorMessage v-if="error" :message="error" />
-			</div>
-		</template>
+		<div class="flex flex-col gap-4 text-base">
+			<Link
+				data-testid="page-web-page"
+				v-model="draft.web_page"
+				doctype="Web Page"
+				:label="__('Web Page')"
+				:filters="{ published: 1 }"
+				:disabled="Boolean(page)"
+			/>
+			<IconPicker
+				data-testid="page-icon"
+				v-model="draft.icon"
+				:label="__('Icon')"
+			/>
+			<ErrorMessage v-if="error" :message="error" />
+		</div>
 	</Dialog>
 </template>
 
 <script setup lang="ts">
 import { reactive, ref, watch } from 'vue'
 import { Dialog, ErrorMessage, createResource, toast } from 'frappe-ui'
+import type { FrappeResourceError } from 'frappe-ui'
 import Link from '@/components/Controls/Link.vue'
 import IconPicker from '@/components/Controls/IconPicker.vue'
 import { cleanError } from '@/utils'
@@ -78,23 +74,26 @@ const submit = ({ close }: { close: () => void }) => {
 		error.value = __('Choose the web page this link opens.')
 		return
 	}
-	resource.submit(
-		{},
-		{
-			onSuccess() {
-				emit('saved')
-				close()
-				toast.success(
-					props.page
-						? __('Sidebar link updated')
-						: __('Web page added to sidebar')
-				)
-			},
-			onError(err: any) {
-				error.value =
-					cleanError(err?.messages?.[0]) || __('Error saving the link')
-			},
-		}
-	)
+	// submit() rethrows after onError has shown the message.
+	return resource
+		.submit(
+			{},
+			{
+				onSuccess() {
+					emit('saved')
+					close()
+					toast.success(
+						props.page
+							? __('Sidebar link updated')
+							: __('Web page added to sidebar')
+					)
+				},
+				onError(err: FrappeResourceError) {
+					error.value =
+						cleanError(err.messages?.[0]) || __('Error saving the link')
+				},
+			}
+		)
+		.catch(() => {})
 }
 </script>

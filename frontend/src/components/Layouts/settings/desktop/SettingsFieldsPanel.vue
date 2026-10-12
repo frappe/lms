@@ -53,11 +53,13 @@ export function applyFieldMeta(
 <script setup lang="ts">
 import { computed, onMounted, reactive, ref, watch } from 'vue'
 import { call, toast } from 'frappe-ui'
+import type { FrappeResourceError } from 'frappe-ui'
 import SettingsFields from '@/components/Layouts/settings/desktop/SettingsFields.vue'
 import SettingsLayout from '@/components/Layouts/settings/desktop/SettingsLayout.vue'
 import { useAutosave, type CommitMode } from '@/composables/useAutosave'
 import { useDirtyGuard } from '@/composables/useDirtyGuard'
 import {
+	reportSaveFailure,
 	useSettingsSource,
 	type SettingsDocumentResource,
 } from '@/composables/useSettingsSource'
@@ -158,8 +160,8 @@ const firstProblem = (): string => {
 	return props.page.validate?.(source.doc) ?? ''
 }
 
-const reportFailure = (error: { messages?: string[]; message?: string }) => {
-	toast.error(error?.messages?.[0] || error?.message || __('Save failed'))
+const reportFailure = (error: FrappeResourceError) => {
+	reportSaveFailure(error)
 	console.error(error)
 }
 

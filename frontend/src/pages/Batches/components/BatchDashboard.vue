@@ -24,7 +24,7 @@
 							:columns="courseColumns"
 							:rows="batch.data?.courses"
 							row-key="name"
-							class="sm:border sm:rounded-lg"
+							class="sm:border sm:rounded-6"
 							:options="courseListOptions"
 						>
 							<template #cell="{ column, row, value }">

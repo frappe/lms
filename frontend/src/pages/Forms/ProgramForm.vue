@@ -5,7 +5,7 @@
 		@close="close"
 	>
 		<template #header-action>
-			<Badge theme="orange" v-if="dirty">
+			<Badge theme="amber" v-if="dirty">
 				{{ __('Not Saved') }}
 			</Badge>
 		</template>
@@ -64,7 +64,7 @@
 						:rowKey="'course'"
 					>
 						<ListHeader
-							class="mb-2 grid items-center gap-x-4 rounded bg-surface-gray-2 p-2"
+							class="mb-2 grid items-center gap-x-4 rounded-4 bg-surface-gray-2 p-2"
 						>
 							<ListHeaderItem
 								:item="item"
@@ -235,14 +235,17 @@ import {
 	createListResource,
 	Dialog,
 	FormControl,
+	toast,
+} from 'frappe-ui'
+import type { FrappeResourceError } from 'frappe-ui'
+import {
 	ListSelectBanner,
 	ListView,
 	ListHeader,
 	ListHeaderItem,
 	ListRows,
 	ListRow,
-	toast,
-} from 'frappe-ui'
+} from 'frappe-ui/experimental'
 import { computed, inject, ref, watch, getCurrentInstance } from 'vue'
 
 import { Program, ProgramCourse, ProgramMember } from '@/types'
@@ -255,7 +258,7 @@ import Link from '@/components/Controls/Link.vue'
 import ResponsiveListView from '@/components/ResponsiveListView.vue'
 import Draggable from 'vuedraggable'
 import ProgramProgressSummary from '@/components/Programs/ProgramProgressSummary.vue'
-import { submitResource } from '@/utils/resource'
+import { resourceErrorMessage, submitResource } from '@/utils/resource'
 import { reindexProgramCourses } from '@/utils/programOrder'
 
 const showFormDialog = ref(false)
@@ -338,8 +341,8 @@ const programDoc = createDocumentResource({
 	doctype: 'LMS Program',
 	name: isNew.value ? undefined : programId.value,
 	auto: !isNew.value,
-	onError(err: any) {
-		toast.warning(__(err.messages?.[0] || err))
+	onError(err: FrappeResourceError) {
+		toast.warning(resourceErrorMessage(err, __('Error')))
 	},
 })
 
@@ -448,8 +451,8 @@ const createNewProgram = () => {
 				toast.success(__('Program created successfully'))
 				afterSave()
 			},
-			onError(err: any) {
-				toast.warning(__(err.messages?.[0] || err))
+			onError(err: FrappeResourceError) {
+				toast.warning(resourceErrorMessage(err, __('Error')))
 			},
 		}
 	)
@@ -472,8 +475,8 @@ const updateProgram = () => {
 				toast.success(__('Program updated successfully'))
 				afterSave()
 			},
-			onError(err: any) {
-				toast.warning(__(err.messages?.[0] || err))
+			onError(err: FrappeResourceError) {
+				toast.warning(resourceErrorMessage(err, __('Error')))
 			},
 		}
 	)
@@ -573,7 +576,7 @@ const deleteProgram = () => {
 				label: __('Delete'),
 				theme: 'red',
 				variant: 'solid',
-				onClick(closeDialog: () => void) {
+				onClick({ close: closeDialog }: { close: () => void }) {
 					submitResource(programs.delete, programId.value, {
 						onSuccess() {
 							toast.success(__('Program deleted successfully'))
@@ -581,8 +584,8 @@ const deleteProgram = () => {
 							closeDialog()
 							close()
 						},
-						onError(err: any) {
-							toast.warning(__(err.messages?.[0] || err))
+						onError(err: FrappeResourceError) {
+							toast.warning(resourceErrorMessage(err, __('Error')))
 							closeDialog()
 						},
 					})

@@ -325,7 +325,18 @@ export const routes = [
 		component: () => import('@/pages/Assignments.vue'),
 		children: [
 			{
-				path: ':assignmentID',
+				// An assignment has no docname until it is written, so the
+				// create form takes no param; AssignmentForm's own default
+				// stands in for one.
+				path: 'new',
+				name: 'NewAssignment',
+				component: () => import('@/pages/Forms/AssignmentForm.vue'),
+			},
+			{
+				// `edit/` is load-bearing: docnames are title slugs, so a bare
+				// /assignments/:assignmentID for "Submissions" would lose to the
+				// static /assignments/submissions route.
+				path: 'edit/:assignmentID',
 				name: 'AssignmentForm',
 				component: () => import('@/pages/Forms/AssignmentForm.vue'),
 				props: true,
@@ -333,6 +344,13 @@ export const routes = [
 		],
 	},
 	{
+		path: '/assignments/submissions',
+		name: 'AssignmentSubmissions',
+		component: () => import('@/pages/AssignmentSubmissions.vue'),
+	},
+	{
+		// Keeps :assignmentID because :submissionName is `new` on a first
+		// attempt, with no submission to read the assignment from.
 		path: '/assignment-submission/:assignmentID/:submissionName',
 		name: 'AssignmentSubmission',
 		component: () => import('@/pages/AssignmentSubmission.vue'),
@@ -340,8 +358,26 @@ export const routes = [
 	},
 	{
 		path: '/assignment-submissions',
-		name: 'AssignmentSubmissionList',
-		component: () => import('@/pages/AssignmentSubmissionList.vue'),
+		redirect: (to) => {
+			const { assignmentID, ...rest } = to.query
+			return {
+				name: 'AssignmentSubmissions',
+				query: assignmentID
+					? { ...rest, assignment: assignmentID }
+					: rest,
+			}
+		},
+	},
+	{
+		// The form's old address. A bare `:assignmentID` never swallows the
+		// static siblings above: vue-router scores a fixed segment higher
+		// whatever the registration order.
+		path: '/assignments/:assignmentID',
+		redirect: (to) => ({
+			name: 'AssignmentForm',
+			params: { assignmentID: to.params.assignmentID },
+			query: to.query,
+		}),
 	},
 	{
 		path: '/persona',
@@ -353,20 +389,21 @@ export const routes = [
 		name: 'ProgrammingExercises',
 		component: () =>
 			import('@/pages/ProgrammingExercises/ProgrammingExercises.vue'),
-		children: [
-			{
-				// The `edit/` prefix is mandatory, not stylistic: a bare
-				// `:exerciseID` child would also match the sibling static
-				// `/programming-exercises/submissions` below, and vue-router
-				// scores the child higher than a later-registered static route
-				// only by accident of ordering. `edit/` keeps the two apart.
-				path: 'edit/:exerciseID',
-				name: 'ProgrammingExerciseForm',
-				component: () =>
-					import('@/pages/Forms/ProgrammingExerciseForm.vue'),
-				props: true,
-			},
-		],
+	},
+	{
+		// A page rather than a child of the list: the form is not drawn over
+		// the list any more, so it has no parent to render inside.
+		path: '/programming-exercises/new',
+		name: 'NewProgrammingExercise',
+		component: () => import('@/pages/Forms/ProgrammingExerciseForm.vue'),
+	},
+	{
+		// See the assignment form above: an exercise is named from its title
+		// too, so the segment is needed here for the same reason.
+		path: '/programming-exercises/edit/:exerciseID',
+		name: 'ProgrammingExerciseForm',
+		component: () => import('@/pages/Forms/ProgrammingExerciseForm.vue'),
+		props: true,
 	},
 	{
 		path: '/programming-exercises/submissions',
@@ -378,13 +415,26 @@ export const routes = [
 		props: true,
 	},
 	{
-		path: '/programming-exercises/:exerciseID/submission/:submissionID',
+		// Outside the plural namespace for the same reason its assignment
+		// counterpart is, and it keeps :exerciseID for the same reason too.
+		path: '/programming-exercise-submission/:exerciseID/:submissionID',
 		name: 'ProgrammingExerciseSubmission',
 		component: () =>
 			import(
 				'@/pages/ProgrammingExercises/ProgrammingExerciseSubmission.vue'
 			),
 		props: true,
+	},
+	{
+		path: '/programming-exercises/:exerciseID/submission/:submissionID',
+		redirect: (to) => ({
+			name: 'ProgrammingExerciseSubmission',
+			params: {
+				exerciseID: to.params.exerciseID,
+				submissionID: to.params.submissionID,
+			},
+			query: to.query,
+		}),
 	},
 	{
 		path: '/data-import',

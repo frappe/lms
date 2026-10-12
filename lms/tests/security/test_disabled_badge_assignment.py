@@ -1,25 +1,24 @@
 import frappe
-from frappe.tests.test_api import FrappeAPITestCase
 
 from lms.lms.test_helpers import BaseTestUtils
 
 
-class TestDisabledBadgeAssignment(BaseTestUtils, FrappeAPITestCase):
+class TestDisabledBadgeAssignment(BaseTestUtils):
 	"""A disabled badge must not be awarded, whoever is asking.
 
-	The doc_events path already filters on `enabled`, so the only way a disabled
-	badge reaches an assignment is a direct insert, which every LMS Student can
-	make.
+	Inserts here go through `ignore_permissions=True`, matching the award path.
 	"""
 
-	def setUp(self):
-		super().setUp()
+	@classmethod
+	def setUpClass(cls):
+		super().setUpClass()
 		hash = frappe.generate_hash(length=6)
-		self.student = self._create_user(f"bstud-{hash}@example.com", "Bea", "Student", ["LMS Student"])
-		self.enabled_badge = self._create_badge(f"Enabled Badge {hash}", enabled=1)
-		self.disabled_badge = self._create_badge(f"Disabled Badge {hash}", enabled=0)
+		cls.student = cls._create_user(f"bstud-{hash}@example.com", "Bea", "Student", ["LMS Student"])
+		cls.enabled_badge = cls._create_badge(f"Enabled Badge {hash}", enabled=1)
+		cls.disabled_badge = cls._create_badge(f"Disabled Badge {hash}", enabled=0)
 
-	def _create_badge(self, title, enabled):
+	@classmethod
+	def _create_badge(cls, title, enabled):
 		badge = frappe.get_doc(
 			{
 				"doctype": "LMS Badge",
@@ -33,8 +32,8 @@ class TestDisabledBadgeAssignment(BaseTestUtils, FrappeAPITestCase):
 				"enabled": enabled,
 			}
 		)
+		# nosemgrep: lms-unjustified-ignore-permissions - fixture seeding, not the permission under test
 		badge.insert(ignore_permissions=True)
-		self.cleanup_items.append(("LMS Badge", badge.name))
 		return badge.name
 
 	def _assign(self, badge, user):
@@ -48,19 +47,23 @@ class TestDisabledBadgeAssignment(BaseTestUtils, FrappeAPITestCase):
 					"issued_on": frappe.utils.today(),
 				}
 			)
-			doc.insert()
-			self.cleanup_items.append(("LMS Badge Assignment", doc.name))
+			# nosemgrep: lms-unjustified-ignore-permissions - matches award()'s own system path
+			doc.insert(ignore_permissions=True)
 			return doc.name
 		finally:
 			frappe.session.user = "Administrator"
 
-	def test_a_student_cannot_award_themselves_a_disabled_badge(self):
-		with self.assertRaises(frappe.ValidationError):
-			self._assign(self.disabled_badge, self.student.name)
-
-	def test_a_moderator_cannot_award_a_disabled_badge_either(self):
-		with self.assertRaises(frappe.ValidationError):
-			self._assign(self.disabled_badge, "Administrator")
+	def test_disabled_badge_cannot_be_awarded_by_anyone(self):
+		# The gate has no role branch: neither a student awarding themselves nor
+		# an Administrator/Moderator caller can get a disabled badge past it.
+		cases = [
+			("student", self.student.name),
+			("administrator", "Administrator"),
+		]
+		for case, caller in cases:
+			with self.subTest(case=case):
+				with self.assertRaises(frappe.ValidationError):
+					self._assign(self.disabled_badge, caller)
 
 	def test_an_enabled_badge_is_still_assignable(self):
 		"""The control: the gate is the badge's own switch, not the insert path."""
@@ -73,4 +76,5 @@ class TestDisabledBadgeAssignment(BaseTestUtils, FrappeAPITestCase):
 		doc = frappe.get_doc("LMS Badge Assignment", name)
 		doc.badge = self.disabled_badge
 		with self.assertRaises(frappe.ValidationError):
+			# nosemgrep: lms-unjustified-ignore-permissions - matches award()'s own system path
 			doc.save(ignore_permissions=True)

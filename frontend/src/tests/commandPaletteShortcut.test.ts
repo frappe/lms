@@ -20,12 +20,19 @@ vi.mock('frappe-ui', () => ({
 	createResource: resource,
 	createListResource: resource,
 	call: vi.fn(),
-	Button: { template: `<button><slot /></button>` },
 	Tooltip: { template: `<div><slot /></div>` },
+	Sidebar: { template: `<nav><slot /></nav>` },
+	SidebarCard: { template: `<div />` },
+	SidebarCollapseToggle: { template: `<button />` },
+	SidebarItem: { template: `<div />` },
+	SidebarSection: { template: `<div><slot /></div>` },
 }))
 
-vi.mock('frappe-ui/frappe', () => ({
+vi.mock('@framework/ui/components/TrialBanner/index', () => ({
 	TrialBanner: { template: `<div />` },
+}))
+
+vi.mock('@framework/ui/components/Onboarding/index', () => ({
 	HelpModal: { template: `<div />` },
 	GettingStartedBanner: { template: `<div />` },
 	IntermediateStepModal: { template: `<div />` },
@@ -35,6 +42,9 @@ vi.mock('frappe-ui/frappe', () => ({
 	}),
 	showHelpModal: { value: false },
 	minimize: { value: false },
+}))
+
+vi.mock('@framework/ui/telemetry/index', () => ({
 	useTelemetry: () => ({ capture: vi.fn() }),
 }))
 
@@ -56,9 +66,6 @@ vi.mock('@/components/Icons/InviteIcon.vue', () => ({
 	default: { template: `<div />` },
 }))
 vi.mock('@/components/Icons/LMSLogo.vue', () => ({
-	default: { template: `<div />` },
-}))
-vi.mock('@/components/Icons/CollapseSidebar.vue', () => ({
 	default: { template: `<div />` },
 }))
 vi.mock('@/components/Sidebar/UserDropdown.vue', () => ({
@@ -84,7 +91,7 @@ function press(init: KeyboardEventInit = {}) {
 			bubbles: true,
 			cancelable: true,
 			...init,
-		}),
+		})
 	)
 }
 

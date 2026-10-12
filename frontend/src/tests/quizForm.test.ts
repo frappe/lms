@@ -147,6 +147,11 @@ createDocumentResourceMock.mockImplementation((options: any) => {
 	return resource
 })
 
+// QuizForm.vue's `useTelemetry()` needs a stub here.
+vi.mock('@framework/ui/telemetry/index', () => ({
+	useTelemetry: () => ({ capture: vi.fn() }),
+}))
+
 vi.mock('frappe-ui', () => ({
 	createResource: createResourceMock,
 	createDocumentResource: createDocumentResourceMock,
@@ -163,11 +168,10 @@ vi.mock('frappe-ui', () => ({
 			title: String,
 			description: String,
 			theme: String,
-			variant: String,
-			dismissible: { type: Boolean, default: true },
+			dismissible: { type: Boolean, default: false },
 		},
 		emits: ['dismiss'],
-		template: `<div role="alert" :data-theme="theme"><span>{{ title }}</span><slot name="description">{{ description }}</slot><button v-if="dismissible" type="button" aria-label="Dismiss" @click="$emit('dismiss')" /><slot name="footer" /></div>`,
+		template: `<div role="alert" :data-theme="theme"><span>{{ title }}</span><slot name="description">{{ description }}</slot><button v-if="dismissible" type="button" aria-label="Dismiss" @click="$emit('dismiss')" /></div>`,
 	},
 	Tooltip: { template: `<span><slot /></span>` },
 	Button: {
@@ -219,7 +223,7 @@ vi.mock('frappe-ui', () => ({
 	},
 	// Menu options are rendered as real buttons so the route pushes behind Preview/Submissions/Delete are reachable, and `theme` is exposed so the destructive row can be asserted rather than assumed.
 	Dropdown: {
-		props: ['options', 'placement'],
+		props: ['options'],
 		template: `<div class="dropdown">
       <slot :open="false" />
       <button
@@ -375,6 +379,12 @@ vi.mock('@/components/Quiz/QuestionBankPanel.vue', () => ({
 vi.mock('@/stores/session', () => ({
 	sessionStore: () => ({ brand: { favicon: '' } }),
 }))
+// The server's write answer for the quiz, read at mount.
+const authorship = vi.hoisted(() => ({ canWrite: true as boolean | null }))
+vi.mock('@/composables/useCanWrite', async () => {
+	const { ref } = await import('vue')
+	return { useCanWrite: () => ref(authorship.canWrite) }
+})
 vi.mock('@/composables/useKeyboardShortcuts', () => ({
 	useKeyboardShortcuts: vi.fn(),
 	saveShortcut: (action: () => void) => ({ keys: 's', action }),
@@ -652,10 +662,99 @@ beforeEach(() => {
 	// The notice's dismissal lives here, and it outlives a mount by design.
 	sessionStorage.clear()
 	viewportWidth = 1280
+	authorship.canWrite = true
 	$dialog.mockReset()
 	vi.mocked(toast.success).mockClear()
 	vi.mocked(toast.error).mockClear()
 	vi.mocked(toast.dismiss).mockClear()
+})
+
+describe('QuizForm: page heading', () => {
+	// Guards: QuizForm had no h1. Introduced in #2662; test added with the a11y
+	// audit remediation.
+	it('names an existing quiz with one sr-only h1', async () => {
+		const { host } = await mountForm()
+		const headings = host.findAll('h1')
+		expect(headings.map((h1) => h1.text())).toEqual(['Saved title'])
+		expect(headings[0].classes()).toContain('sr-only')
+	})
+})
+
+// Guards an author having no way to find the link to share with learners: the
+// learner page lived at /quiz/:id with nothing pointing at it. Added on
+// quiz-share-link with the Copy link button.
+describe('QuizForm: copy link', () => {
+	const copyButton = (host: any) =>
+		host.findAll('button').find((b: any) => b.text() === 'Copy link')
+
+	afterEach(() => {
+		Object.defineProperty(navigator, 'clipboard', {
+			value: undefined,
+			configurable: true,
+		})
+	})
+
+	it('copies the learner page link', async () => {
+		const writeText = vi.fn(async () => {})
+		Object.defineProperty(navigator, 'clipboard', {
+			value: { writeText },
+			configurable: true,
+		})
+		const { host } = await mountForm()
+
+		await copyButton(host).trigger('click')
+		await flushPromises()
+
+		expect(writeText).toHaveBeenCalledWith(
+			`${window.location.origin}/lms/quiz/QZ-0001`
+		)
+		expect(vi.mocked(toast.success).mock.calls.at(-1)?.[0]).toBe('Link copied')
+	})
+
+	// navigator.clipboard is missing on plain http, as on a bench LAN hostname.
+	it('falls back to the copy command without the clipboard API', async () => {
+		const execCommand = vi.fn(() => true)
+		Object.defineProperty(document, 'execCommand', {
+			value: execCommand,
+			configurable: true,
+		})
+		const { host } = await mountForm([], {}, 'Quiz on Opening Balances')
+
+		await copyButton(host).trigger('click')
+		await flushPromises()
+
+		expect(execCommand).toHaveBeenCalledWith('copy')
+		expect(vi.mocked(toast.success)).toHaveBeenCalled()
+	})
+
+	it('encodes a quiz name with spaces in the link', async () => {
+		const writeText = vi.fn(async () => {})
+		Object.defineProperty(navigator, 'clipboard', {
+			value: { writeText },
+			configurable: true,
+		})
+		const { host } = await mountForm([], {}, 'Quiz on Opening Balances')
+
+		await copyButton(host).trigger('click')
+		await flushPromises()
+
+		expect(writeText).toHaveBeenCalledWith(
+			`${window.location.origin}/lms/quiz/Quiz%20on%20Opening%20Balances`
+		)
+	})
+
+	it('shows the link when the clipboard is unavailable', async () => {
+		Object.defineProperty(navigator, 'clipboard', {
+			value: { writeText: vi.fn(async () => Promise.reject(new Error('x'))) },
+			configurable: true,
+		})
+		const { host } = await mountForm()
+
+		await copyButton(host).trigger('click')
+		await flushPromises()
+
+		expect(vi.mocked(toast.error)).toHaveBeenCalled()
+	})
 })
 
 // frappe-ui's setValue.onError restores the doc by REPLACING the object
@@ -686,6 +785,44 @@ describe('QuizForm: autosave', () => {
 
 		await idle(10000)
 		expect(setValueSubmit).toHaveBeenCalledTimes(1)
+	})
+})
+
+// Placing a quiz made its edit screen writable since #2826.
+// Added for audit finding #3 on branch fix/assessment-placement-use-only.
+describe('QuizForm: authorship', () => {
+	const detailsFields = (wrapper: any) =>
+		wrapper.find('[data-testid="quiz-details-fields"]')
+	const readOnlyNote = (wrapper: any) =>
+		wrapper.find('[data-testid="quiz-read-only-note"]')
+
+	it('opens the quiz read-only for someone who only placed it', async () => {
+		authorship.canWrite = false
+		const { wrapper } = await mountForm([CHOICE_ROW])
+		expect(readOnlyNote(wrapper).text()).toBe(
+			'Only the authors of this quiz can edit it.'
+		)
+		expect(wrapper.find('[data-testid="question-toolbar"]').exists()).toBe(
+			false
+		)
+		expect(headerButton(wrapper, 'Delete')).toBeUndefined()
+		expect(badge(wrapper).exists()).toBe(false)
+		expect(headerButton(wrapper, 'Submissions')).toBeTruthy()
+		expect(detailsFields(wrapper).attributes('disabled')).toBeDefined()
+		expect(rowComponent(wrapper, 'qq1')!.attributes('readonly')).toBe('true')
+
+		doc(wrapper).title = 'Edited title'
+		await pressSave()
+		expect(setValueSubmit).not.toHaveBeenCalled()
+	})
+
+	it('stays read-only until the server has answered', async () => {
+		authorship.canWrite = null
+		const { wrapper } = await mountForm([CHOICE_ROW])
+		expect(wrapper.find('[data-testid="question-toolbar"]').exists()).toBe(
+			false
+		)
+		expect(readOnlyNote(wrapper).exists()).toBe(false)
 	})
 })
 

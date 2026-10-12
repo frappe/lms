@@ -128,10 +128,7 @@ const createAssessment = () => {
 		// The third type the picker offers had no branch, so Link closed its
 		// dropdown and nothing else happened — a dead control on a form that
 		// advertises the option.
-		router.push({
-			name: 'ProgrammingExerciseForm',
-			params: { exerciseID: 'new' },
-		})
+		router.push({ name: 'NewProgrammingExercise' })
 	}
 }
 

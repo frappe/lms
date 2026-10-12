@@ -7,35 +7,8 @@
 			<div v-else-if="refusal" class="p-4 text-base text-ink-gray-6">
 				{{ refusal }}
 			</div>
-			<div v-else data-testid="announcement-fields" class="flex flex-col gap-4">
-				<FormControl
-					:label="__('Subject')"
-					type="text"
-					v-model="announcement.subject"
-					:required="true"
-				/>
-				<FormControl
-					:label="__('Reply To')"
-					type="text"
-					v-model="announcement.replyTo"
-					:required="true"
-				/>
-				<div
-					role="group"
-					:aria-labelledby="announcementLabelId"
-					class="mb-4 space-y-1.5"
-				>
-					<InputLabel
-						:id="announcementLabelId"
-						:label="__('Announcement')"
-						:required="true"
-					/>
-					<RichTextEditor
-						:fixedMenu="true"
-						@change="(val) => (announcement.announcement = val)"
-						editorClass="prose-sm py-2 px-2 min-h-[200px] border-outline-gray-2 hover:border-outline-gray-3 rounded-b-md bg-surface-gray-3"
-					/>
-				</div>
+			<div v-else data-testid="announcement-fields">
+				<FormLayout v-model:doc="doc" :layout="layout" />
 			</div>
 		</template>
 		<template #actions>
@@ -55,13 +28,13 @@
 	</FormShell>
 </template>
 <script setup>
-import { FormControl, createResource, toast } from 'frappe-ui'
-import { computed, inject, reactive, useId } from 'vue'
+import { createResource, toast } from 'frappe-ui'
+import { FormLayout, CommitKey, NO_COMMIT } from '@framework/ui/FormLayout'
+import { computed, inject, provide, ref } from 'vue'
 import { useRoute } from 'vue-router'
 import FormShell from '@/components/FormShell.vue'
 import HeaderButton from '@/components/HeaderButton.vue'
-import RichTextEditor from '@/components/RichTextEditor.vue'
-import { InputLabel } from '@/components/Form/labeling'
+import RichTextEditorField from '@/components/FormLayout/RichTextEditorField.vue'
 import {
 	batchRouteLocation,
 	useBatchDetails,
@@ -76,10 +49,13 @@ const props = defineProps({
 	},
 })
 
+// A create dialog whose fields commit to nothing per field — the Save button
+// reads `doc` and submits it whole, so there is no per-field script to run.
+provide(CommitKey, NO_COMMIT)
+
 const user = inject('$user')
 const route = useRoute()
 const readOnlyMode = window.read_only_mode
-const announcementLabelId = useId()
 
 // C2: close()'s pop branch restores the hash by itself; its deep-link branch
 // replaces to this literal location, so the tab hash has to be carried here or
@@ -102,7 +78,9 @@ const batch = useBatchDetails(() => props.batchName)
 const loadingBatch = computed(() => !batch.data && batch.loading)
 
 const isAdmin = computed(() =>
-	Boolean(user.data?.is_moderator || user.data?.is_evaluator)
+	Boolean(
+		user.data?.is_moderator || user.data?.is_evaluator || batch.data?.can_manage
+	)
 )
 
 // Lifted off BatchDetail.vue's "Make Announcement" button, which renders only
@@ -119,22 +97,60 @@ const refusal = computed(() => {
 	return null
 })
 
-// Uncontrolled by design-doc decision: the editor gets no :content binding, so a
-// reloaded draft always starts empty. Accepted, out of scope for the conversion.
-const announcement = reactive({
+const doc = ref({
 	subject: '',
 	replyTo: '',
 	announcement: '',
 })
 
+const layout = [
+	{
+		sections: [
+			{
+				columns: [
+					{
+						fields: [
+							{
+								fieldname: 'subject',
+								fieldtype: 'Data',
+								label: __('Subject'),
+								reqd: true,
+							},
+							{
+								fieldname: 'replyTo',
+								fieldtype: 'Data',
+								label: __('Reply To'),
+								reqd: true,
+							},
+							{
+								fieldname: 'announcement',
+								fieldtype: 'Text Editor',
+								label: __('Announcement'),
+								reqd: true,
+								ui: {
+									component: RichTextEditorField,
+									props: {
+										fixedMenu: true,
+										minHeight: '200px',
+									},
+								},
+							},
+						],
+					},
+				],
+			},
+		],
+	},
+]
+
 const announcementResource = createResource({
 	url: 'frappe.core.doctype.communication.email.make',
 	makeParams() {
 		return {
-			recipients: announcement.replyTo,
+			recipients: doc.value.replyTo,
 			bcc: (batch.data?.students || []).join(', '),
-			subject: announcement.subject,
-			content: announcement.announcement,
+			subject: doc.value.subject,
+			content: doc.value.announcement,
 			doctype: 'LMS Batch',
 			name: props.batchName,
 			send_email: 1,
@@ -152,13 +168,13 @@ const makeAnnouncement = () => {
 				if (!batch.data?.students?.length) {
 					return __('No students in this batch')
 				}
-				if (!announcement.subject) {
+				if (!doc.value.subject) {
 					return __('Subject is required')
 				}
-				if (!announcement.announcement) {
+				if (!doc.value.announcement) {
 					return __('Announcement is required')
 				}
-				if (!announcement.replyTo) {
+				if (!doc.value.replyTo) {
 					return __('Reply To is required')
 				}
 			},

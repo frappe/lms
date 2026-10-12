@@ -77,7 +77,7 @@
 			</ResponsiveListView>
 			<div
 				v-if="!bank.loading && !displayRows.length"
-				class="py-10 text-center text-ink-gray-5"
+				class="py-10 text-center text-ink-gray-6"
 			>
 				{{ __('No questions found.') }}
 			</div>
@@ -207,7 +207,6 @@ const displayRows = computed(() =>
 	)
 )
 
-// Sets the state asked for, never flips it, because Checkbox reports a click twice.
 const setSelected = (row, value) => {
 	if (value) selected.add(row.name)
 	else selected.delete(row.name)

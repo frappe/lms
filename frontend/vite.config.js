@@ -35,9 +35,8 @@ function assertFrameworkUiLinked(frontend) {
 }
 
 export default defineConfig(async ({ mode }) => {
-	const isDev = mode === 'development'
 	assertFrameworkUiLinked(__dirname)
-	const frappeui = await importFrappeUIPlugin(isDev)
+	const frappeui = await importFrappeUIPlugin()
 
 	const config = {
 		define: {
@@ -148,17 +147,42 @@ export default defineConfig(async ({ mode }) => {
 				'prosemirror-state',
 				'prosemirror-view',
 				'prosemirror-transform',
+				// A nested second copy of these makes the html language throw
+				// while parsing and leaves javascript with no syntax tree.
+				'@codemirror/language',
+				'@codemirror/state',
+				'@codemirror/view',
+				'@lezer/common',
+				'@lezer/lr',
+				'@lezer/highlight',
 				'vue',
 				'frappe-ui',
 			],
 		},
 		optimizeDeps: {
 			include: [
-				'feather-icons',
 				'tailwind.config.js',
 				'highlight.js',
 				'plyr',
 				'interactjs',
+				// frappe-ui is excluded below, so a subpath only it imports is served
+				// raw beside a pre-bundled sibling: a second `echarts/core` or
+				// `@codemirror/state`. Bundle each family in one run, as Insights does.
+				'echarts/core',
+				'echarts/charts',
+				'echarts/components',
+				'echarts/renderers',
+				'echarts/features',
+				'@codemirror/state',
+				'@codemirror/view',
+				'@codemirror/language',
+				'@codemirror/commands',
+				'@codemirror/search',
+				'@codemirror/autocomplete',
+				'@codemirror/lang-html',
+				'@codemirror/lang-javascript',
+				'@lezer/common',
+				'@lezer/highlight',
 			],
 			exclude: mode === 'production' ? [] : ['frappe-ui'],
 		},
@@ -166,19 +190,7 @@ export default defineConfig(async ({ mode }) => {
 	return config
 })
 
-async function importFrappeUIPlugin(isDev) {
-	if (isDev) {
-		try {
-			const module = await import('../frappe-ui/vite')
-			return module.default
-		} catch (error) {
-			console.warn(
-				'Local frappe-ui not found, falling back to npm package:',
-				error.message
-			)
-		}
-	}
-	// Fall back to npm package if local import fails
+async function importFrappeUIPlugin() {
 	const module = await import('frappe-ui/vite')
 	return module.default
 }

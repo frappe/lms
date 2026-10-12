@@ -7,7 +7,7 @@
 					v-if="backTo"
 					:to="backTo"
 					:aria-label="__('Back')"
-					class="-ms-3 shrink-0 rounded p-1.5 text-ink-gray-9 transition-colors hover:bg-surface-gray-2"
+					class="-ms-3 shrink-0 rounded-4 p-1.5 text-ink-gray-9 transition-colors hover:bg-surface-gray-2"
 				>
 					<span class="lucide-chevron-left size-4 block" />
 				</router-link>

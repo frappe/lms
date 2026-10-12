@@ -11,7 +11,15 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        branch: ["develop"]
+        include:
+          - branch: develop
+            frappe_branch: develop
+          - branch: main-hotfix
+            frappe_branch: develop
+          - branch: version-16-hotfix
+            frappe_branch: version-16-hotfix
+          - branch: version-15-hotfix
+            frappe_branch: version-15-hotfix
     permissions:
       contents: write
 
@@ -37,3 +45,4 @@ jobs:
           env:
             GH_TOKEN: ${{ secrets.RELEASE_TOKEN }}
             BASE_BRANCH: ${{ matrix.branch }}
+            FRAPPE_BRANCH: ${{ matrix.frappe_branch }}

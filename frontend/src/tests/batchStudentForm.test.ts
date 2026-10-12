@@ -60,15 +60,17 @@ vi.mock('frappe-ui', () => ({
 		emits: ['update:open'],
 		template: `<div v-if="open" role="dialog"><h2>{{ title }}</h2><slot /><slot name="actions" /></div>`,
 	},
-	Button: {
-		inheritAttrs: false,
-		template: `<button v-bind="$attrs"><slot name="icon" /><slot /></button>`,
-	},
 }))
 
-vi.mock('frappe-ui/frappe', () => ({
-	useOnboarding: () => ({ updateOnboardingStep: updateOnboardingStepMock }),
-}))
+vi.mock(
+	'@framework/ui/components/Onboarding/index',
+	async (importOriginal) => ({
+		...(await importOriginal<
+			typeof import('@framework/ui/components/Onboarding/index')
+		>()),
+		useOnboarding: () => ({ updateOnboardingStep: updateOnboardingStepMock }),
+	})
+)
 
 // @/utils is the barrel that pulls in plyr and the settings store; only
 // openSettings is used here.

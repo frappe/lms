@@ -1,11 +1,10 @@
 /**
- * save_sidebar_items carries no request sequence. Two rapid edits fire two
- * overlapping full-table saves; if the older one's response arrives after
- * the newer one's, its completion handler must not run at all, or it
- * reloads a snapshot the newer edit has already moved past.
+ * save_sidebar_items replaces the whole table and carries no request
+ * sequence. Two overlapping saves could commit out of order on the server,
+ * leaving the older table, so a save waits for the one before it.
  */
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { mount } from '@vue/test-utils'
+import { flushPromises, mount } from '@vue/test-utils'
 
 type Row = {
 	name: string
@@ -140,7 +139,7 @@ const armCall = () => {
 }
 
 describe('overlapping sidebar saves', () => {
-	it('ignores a stale response that resolves after a newer one', async () => {
+	it('sends the next save only after the previous one has finished', async () => {
 		armCall()
 		const wrapper = build()
 		await wrapper.vm.$nextTick()
@@ -148,22 +147,24 @@ describe('overlapping sidebar saves', () => {
 		const boxes = wrapper.findAll('input[type="checkbox"]')
 		expect(boxes).toHaveLength(2)
 
-		// Two edits in quick succession, before either save resolves.
+		// Two edits in quick succession, before the first save resolves.
 		await boxes[0].setValue(false)
 		await boxes[1].setValue(false)
-		expect(call).toHaveBeenCalledTimes(2)
+		expect(call).toHaveBeenCalledTimes(1)
 
-		// The older request (call #1) resolves last.
-		resolvers[1](undefined)
-		await wrapper.vm.$nextTick()
-		await Promise.resolve()
 		resolvers[0](undefined)
-		await wrapper.vm.$nextTick()
-		await Promise.resolve()
-		await Promise.resolve()
+		await flushPromises()
 
-		// Only the newer call's completion should have reloaded and re-synced;
-		// the superseded one must not have run its own reload.
+		// The second save goes out after the first, carrying both edits, so the
+		// server cannot commit the older table last.
+		expect(call).toHaveBeenCalledTimes(2)
+		const hidden = call.mock.calls[1][1].rows.map((r: Row) => r.hidden)
+		expect(hidden).toEqual([1, 1])
+
+		resolvers[1](undefined)
+		await flushPromises()
+
+		// Only the newest save reloads; the superseded one must not.
 		expect(reload).toHaveBeenCalledTimes(1)
 		expect(toast.error).not.toHaveBeenCalled()
 	})

@@ -7,6 +7,7 @@ import {
 	type Router,
 } from 'vue-router'
 import { defineComponent, h } from 'vue'
+import type { FrappeResourceError } from 'frappe-ui'
 
 vi.stubGlobal('__', (text: string) => text)
 enableAutoUnmount(afterEach)
@@ -30,7 +31,7 @@ const { programResource, createResourceMock, enrollSubmit, toastSuccess } =
 		return {
 			programResource: {
 				data: null as Record<string, unknown> | null,
-				error: null as { messages?: string[] } | null,
+				error: null as FrappeResourceError | null,
 				loading: false,
 				fetch: vi.fn(),
 			},
@@ -51,7 +52,14 @@ vi.mock('@/components/HeaderButton.vue', () => ({
 	},
 }))
 
+vi.mock('@/stores/session', () => ({
+	sessionStore: () => ({ brand: { favicon: '' } }),
+}))
+
 vi.mock('frappe-ui', () => ({
+	usePageMeta: (fn: () => { title: string }) => {
+		document.title = fn().title
+	},
 	createResource: createResourceMock,
 	toast: { success: toastSuccess, error: vi.fn() },
 	Dialog: {
@@ -59,10 +67,6 @@ vi.mock('frappe-ui', () => ({
 		props: ['open', 'title', 'size'],
 		emits: ['update:open'],
 		template: `<div v-if="open" role="dialog"><slot name="title" /><slot /><slot name="actions" /></div>`,
-	},
-	Button: {
-		inheritAttrs: false,
-		template: `<button v-bind="$attrs"><slot /></button>`,
 	},
 	Tooltip: { inheritAttrs: false, template: `<div><slot /></div>` },
 }))
@@ -223,9 +227,14 @@ describe('the program enrollment page', () => {
 		// get_program_details throws for an unpublished program the viewer is not
 		// a member of. That throw IS the gate a URL newly exposes.
 		programResource.data = null
-		programResource.error = {
-			messages: ['You are not authorized to view the details of this program.'],
-		}
+		programResource.error = Object.assign(
+			new Error('You are not authorized to view the details of this program.'),
+			{
+				messages: [
+					'You are not authorized to view the details of this program.',
+				],
+			}
+		)
 		const router = makeRouter()
 		await router.push('/programs/secret/enroll')
 		const wrapper = await mountPage(router, student)
@@ -306,5 +315,19 @@ describe('the program enrollment page', () => {
 		await flushPromises()
 
 		expect(router.currentRoute.value.name).toBe('Programs')
+	})
+
+	// Guards: the enrollment dialog left the window untitled. Introduced in
+	// #1686; test added with the a11y audit remediation.
+	it('titles the window while open and hands it back on close', async () => {
+		document.title = 'Programs'
+		const router = makeRouter()
+		await router.push('/programs/data-science/enroll')
+		await mountPage(router, student)
+		expect(document.title).toBe('Enrollment for Program data-science')
+
+		await router.push('/programs')
+		await flushPromises()
+		expect(document.title).toBe('Programs')
 	})
 })

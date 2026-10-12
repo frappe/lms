@@ -1,7 +1,7 @@
 <template>
 	<PageHeader v-if="!fromLesson" :breadcrumbs="breadcrumbs" />
 	<div
-		class="md:w-7/12 md:mx-auto mx-4 py-10"
+		class="md:w-7/12 md:mx-auto mx-4 py-6"
 		:class="{ 'pt-4 md:w-full': fromLesson }"
 	>
 		<Quiz :quizName="quizID" />
@@ -49,14 +49,19 @@ const title = createResource({
 	auto: true,
 })
 
+const quizTitle = computed(() => title.data?.title || __('Quiz'))
+
 const breadcrumbs = computed(() => {
+	// A learner arrives from a shared link. The authoring trail would lead to pages
+	// they cannot open, and "Test Quiz" names the author's view, not theirs.
+	if (user.data?.is_student) return [{ label: quizTitle.value }]
 	return [
 		{
 			label: __('Quizzes'),
 			route: { name: 'Quizzes' },
 		},
 		{
-			label: title.data?.title,
+			label: quizTitle.value,
 			route: { name: 'QuizForm', params: { quizID: props.quizID } },
 		},
 		{ label: __('Test Quiz') },
@@ -65,7 +70,7 @@ const breadcrumbs = computed(() => {
 
 usePageMeta(() => {
 	return {
-		title: `${title.data?.title}`,
+		title: quizTitle.value,
 		icon: brand.favicon,
 	}
 })

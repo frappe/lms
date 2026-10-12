@@ -7,7 +7,7 @@ import type { CertificationInfo } from '@/types'
 // title and the evaluator from the whitelisted endpoint. Reading them with
 // frappe.client.get_value throws a PermissionError for the learner the page is
 // for, `courses` stays empty, and no Schedule button is ever rendered.
-const { createResourceMock, pushMock, callMock, toastMock } = vi.hoisted(() => {
+const { createResourceMock, pushMock, toastMock } = vi.hoisted(() => {
 	window.matchMedia ??= (() => ({
 		matches: false,
 		addEventListener: () => {},
@@ -16,7 +16,6 @@ const { createResourceMock, pushMock, callMock, toastMock } = vi.hoisted(() => {
 	return {
 		createResourceMock: vi.fn(),
 		pushMock: vi.fn(),
-		callMock: vi.fn(() => Promise.resolve({})),
 		toastMock: { success: vi.fn(), error: vi.fn() },
 	}
 })
@@ -27,7 +26,6 @@ vi.mock('frappe-ui', () => ({
 	createResource: createResourceMock,
 	usePageMeta: vi.fn(),
 	toast: toastMock,
-	call: callMock,
 }))
 vi.mock('@/components/Layouts/pages/PageHeader.vue', () => ({
 	default: { template: '<div><slot /></div>' },
@@ -122,7 +120,8 @@ describe('CourseCertification', () => {
 
 	it('never reads the course through frappe.client', () => {
 		mountPage()
-		expect(callMock).not.toHaveBeenCalled()
+		const urls = createResourceMock.mock.calls.map(([given]) => given.url)
+		expect(urls.filter((url) => url.startsWith('frappe.client'))).toEqual([])
 	})
 
 	// Without this the suite passes against a page that fetches nothing and

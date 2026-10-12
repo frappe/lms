@@ -18,9 +18,18 @@ export async function closeOnboardingModal(page: Page) {
 		.catch(() => false);
 	if (!appeared) return;
 
+	// @framework/ui's HelpModal.vue (Onboarding/HelpModal.vue) renders the
+	// close icon as `<LucideX class="size-3.5" />`, an inline SVG imported
+	// via unplugin-icons (`~icons/lucide/x`) — it carries neither a
+	// feather-x nor a lucide-x class, so a class-based selector never
+	// matches. The header (the modal's first div) always ends with the
+	// close button: an optional overflow-menu button, then minimize, then
+	// close, in that fixed order.
 	await modal
-		.locator("button:has(svg.feather-x), button:has(svg.lucide-x)")
+		.locator("div")
 		.first()
+		.getByRole("button")
+		.last()
 		.click({ force: true });
 	await modal.waitFor({ state: "detached" });
 }

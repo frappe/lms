@@ -4,13 +4,14 @@
 		<template v-if="phase === 'setup'">
 			<div
 				v-if="cameraError"
-				class="bg-surface-red-1 text-ink-red-6 rounded-lg p-3 text-sm leading-5 mb-3"
+				role="alert"
+				class="bg-surface-red-1 text-ink-red-5 rounded-6 p-3 text-sm leading-5 mb-3"
 			>
 				{{ cameraError }}
 			</div>
 
 			<div
-				class="relative rounded-xl overflow-hidden bg-surface-gray-3 flex-1 min-h-0"
+				class="relative rounded-7 overflow-hidden bg-surface-gray-3 flex-1 min-h-0"
 			>
 				<video
 					ref="videoEl"
@@ -20,49 +21,48 @@
 					class="absolute inset-0 w-full h-full object-cover"
 				/>
 
-				<!-- Status overlay -->
-				<div
-					v-if="setupStatus !== 'ready'"
-					class="absolute bottom-0 inset-x-0 flex items-center justify-center gap-1.5 py-2 text-xs font-medium"
-					:class="{
-						'bg-black/50 text-white':
-							setupStatus === 'loading' || setupStatus === 'detecting',
-						'bg-surface-red-2/90 text-ink-red-6':
-							setupStatus === 'no_face' || setupStatus === 'multiple_faces',
-					}"
-				>
-					<span
-						v-if="setupStatus === 'loading'"
-						class="lucide-loader-2 size-3.5 animate-spin"
-					/>
-					<span
-						v-else-if="setupStatus === 'no_face'"
-						class="lucide-alert-circle size-3.5"
-					/>
-					<span
-						v-else-if="setupStatus === 'multiple_faces'"
-						class="lucide-users size-3.5"
-					/>
-					<span v-else class="lucide-scan-face size-3.5" />
-					{{ setupStatusLabel }}
-				</div>
-
-				<!-- Ready indicator -->
-				<div
-					v-else
-					class="absolute inset-0 ring-2 ring-inset ring-ink-green-5 rounded-xl pointer-events-none"
-				>
+				<div role="status">
+					<!-- Status overlay -->
 					<div
-						class="absolute top-2 end-2 flex items-center gap-1 bg-surface-green-1 text-ink-green-6 text-xs font-medium px-2 py-1 rounded-full"
+						v-if="setupStatus !== 'ready'"
+						class="absolute bottom-0 inset-x-0 flex items-center justify-center gap-1.5 py-2 text-xs font-medium"
+						:class="{
+							'bg-black-overlay-500 text-white':
+								setupStatus === 'loading' || setupStatus === 'detecting',
+							'bg-surface-red-2/90 text-ink-red-5':
+								setupStatus === 'no_face' || setupStatus === 'multiple_faces',
+						}"
 					>
-						<span class="lucide-check size-3" />
-						{{ __('Ready') }}
+						<Spinner v-if="setupStatus === 'loading'" size="sm" />
+						<span
+							v-else-if="setupStatus === 'no_face'"
+							class="lucide-alert-circle size-3.5"
+						/>
+						<span
+							v-else-if="setupStatus === 'multiple_faces'"
+							class="lucide-users size-3.5"
+						/>
+						<span v-else class="lucide-scan-face size-3.5" />
+						{{ setupStatusLabel }}
+					</div>
+
+					<!-- Ready indicator -->
+					<div
+						v-else
+						class="absolute inset-0 ring-2 ring-inset ring-outline-green-4 rounded-7 pointer-events-none"
+					>
+						<div
+							class="absolute top-2 end-2 flex items-center gap-1 bg-surface-green-1 text-ink-green-5 text-xs font-medium px-2 py-1 rounded-full"
+						>
+							<span class="lucide-check size-3" />
+							{{ __('Ready') }}
+						</div>
 					</div>
 				</div>
 			</div>
 		</template>
 
-		<!-- Monitoring phase: the count stays inline in the status bar, the camera
+		<!-- Monitoring phase: the quiz header shows the count; the camera
 		     itself floats over the quiz so the student can see what is being
 		     watched. Teleported to the body so no scroll container or stacking
 		     context along the way can clip it. -->
@@ -74,10 +74,11 @@
 					     Minimising is meant to spare the student the distraction, not
 					     to stop the proctoring they agreed to. -->
 					<div
-						class="overflow-hidden rounded-xl bg-surface-base shadow-lg transition-all"
+						class="overflow-hidden rounded-7 bg-surface-base shadow-lg transition-all"
 						:class="
 							minimized ? 'pointer-events-none size-0 opacity-0' : 'w-44 border'
 						"
+						:inert="minimized || undefined"
 					>
 						<div class="relative">
 							<video
@@ -88,10 +89,11 @@
 								class="block aspect-[4/3] w-full bg-surface-gray-3 object-cover"
 							/>
 							<button
+								ref="minimiseButton"
 								type="button"
-								class="absolute end-1.5 top-1.5 rounded-md bg-black/50 p-1 text-white"
+								class="absolute end-1.5 top-1.5 flex size-6 items-center justify-center rounded-5 bg-black-overlay-500 p-1 text-white"
 								:aria-label="__('Minimise camera')"
-								@click="minimized = true"
+								@click="setMinimized(true)"
 							>
 								<span class="lucide-minus size-3.5" aria-hidden="true" />
 							</button>
@@ -100,41 +102,28 @@
 
 					<button
 						v-if="minimized"
+						ref="showCameraButton"
 						type="button"
-						class="flex items-center gap-1.5 rounded-md border bg-surface-base px-2.5 py-1.5 text-xs font-medium text-ink-gray-7 shadow-lg"
+						class="flex items-center gap-1.5 rounded-5 border bg-surface-base px-2.5 py-1.5 text-xs font-medium text-ink-gray-7 shadow-lg"
 						:aria-label="__('Show camera')"
-						@click="minimized = false"
+						@click="setMinimized(false)"
 					>
 						<span class="lucide-camera size-3.5" aria-hidden="true" />
 						{{ __('Show camera') }}
 					</button>
 				</div>
 			</Teleport>
-
-			<div
-				class="flex items-center gap-x-1.5 px-3 py-1.5 rounded-full text-sm font-medium"
-				:class="
-					violationCount > 0
-						? 'bg-surface-red-1 text-ink-red-6'
-						: 'bg-surface-green-1 text-ink-green-6'
-				"
-			>
-				<span class="lucide-camera size-4" />
-				{{ violationCount }} / {{ maxViolations }}
-				{{ maxViolations == 1 ? __('violation') : __('violations') }}
-			</div>
 		</template>
 	</div>
 </template>
 
 <script setup>
+import { Spinner } from 'frappe-ui'
 import * as faceapi from 'face-api.js'
 import { computed, nextTick, onMounted, onUnmounted, ref, watch } from 'vue'
 
 const props = defineProps({
-	maxViolations: { type: Number, required: true },
 	active: { type: Boolean, default: false },
-	violationCount: { type: Number, default: 0 },
 })
 
 const emit = defineEmits([
@@ -150,6 +139,8 @@ const videoEl = ref(null)
 // Whether the floating preview is collapsed during the quiz. Purely visual —
 // the stream and the detection loop keep running either way.
 const minimized = ref(false)
+const minimiseButton = ref(null)
+const showCameraButton = ref(null)
 const phase = ref('setup')
 const setupStatus = ref('loading')
 const cameraError = ref('')
@@ -183,6 +174,15 @@ const setupStatusLabel = computed(() => {
 	}
 	return labels[setupStatus.value] || ''
 })
+
+// The control that was clicked disappears either way, so focus follows to the
+// one that replaces it.
+const setMinimized = async (value) => {
+	minimized.value = value
+	await nextTick()
+	const target = value ? showCameraButton.value : minimiseButton.value
+	target?.focus()
+}
 
 // ─── Lifecycle ───────────────────────────────────────────────────────────────
 

@@ -9,7 +9,7 @@
 					<div class="text-p-base-medium text-ink-gray-7">
 						{{ __('Default Incoming') }}
 					</div>
-					<div class="text-p-sm text-ink-gray-5">
+					<div class="text-p-sm text-ink-gray-6">
 						{{ __('Replies to your organisation arrive at this account.') }}
 					</div>
 				</div>
@@ -20,7 +20,9 @@
 						:placeholder="__('No default set')"
 						:aria-label="__('Default Incoming account')"
 						class="w-56"
-						@update:model-value="(value) => pick('incoming', value)"
+						@update:model-value="
+							(value) => pick('incoming', value == null ? null : String(value))
+						"
 					/>
 				</div>
 			</div>
@@ -29,7 +31,7 @@
 					<div class="text-p-base-medium text-ink-gray-7">
 						{{ __('Default Outgoing') }}
 					</div>
-					<div class="text-p-sm text-ink-gray-5">
+					<div class="text-p-sm text-ink-gray-6">
 						{{ __('Outgoing mail is sent from this account.') }}
 					</div>
 				</div>
@@ -40,7 +42,9 @@
 						:placeholder="__('No default set')"
 						:aria-label="__('Default Outgoing account')"
 						class="w-56"
-						@update:model-value="(value) => pick('outgoing', value)"
+						@update:model-value="
+							(value) => pick('outgoing', value == null ? null : String(value))
+						"
 					/>
 				</div>
 			</div>

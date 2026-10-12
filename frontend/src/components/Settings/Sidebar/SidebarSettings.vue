@@ -14,10 +14,10 @@
 		</template>
 
 		<div data-testid="sidebar-panel">
-			<div class="overflow-hidden rounded border border-outline-elevation-2">
+			<div class="overflow-hidden rounded-4 border border-outline-elevation-2">
 				<div
 					data-testid="sidebar-grid-header"
-					class="flex items-center bg-surface-gray-2 text-p-sm text-ink-gray-5"
+					class="flex items-center bg-surface-gray-2 text-p-sm text-ink-gray-6"
 				>
 					<div class="h-8 w-8 shrink-0 border-e border-outline-gray-2" />
 					<div
@@ -66,7 +66,7 @@
 									tabindex="0"
 									role="button"
 									:aria-label="dragHandleLabel(element)"
-									class="lucide-grip-vertical size-4 cursor-grab rounded text-ink-gray-5 focus:outline-none focus-visible:ring-2 focus-visible:ring-outline-gray-3"
+									class="lucide-grip-vertical size-4 cursor-grab rounded-4 text-ink-gray-5"
 									@keydown.up.prevent="moveRow(element, -1)"
 									@keydown.down.prevent="moveRow(element, 1)"
 								/>
@@ -85,10 +85,7 @@
 									/>
 									<span
 										v-else
-										:class="[
-											iconClass(element),
-											'size-4 shrink-0 text-ink-gray-7',
-										]"
+										class="lucide-link size-4 shrink-0 text-ink-gray-7"
 									/>
 									<span
 										class="min-w-0 flex-1 truncate text-p-sm text-ink-gray-8"
@@ -187,8 +184,6 @@ const { loadSidebarSettings } = useSettings()
 const settings = createDocumentResource({
 	doctype: 'LMS Settings',
 	name: 'LMS Settings',
-	fields: ['*'],
-	cache: 'LMS Settings',
 	auto: true,
 })
 
@@ -275,16 +270,6 @@ const iconComponent = (row: SidebarRowDraft) => {
 const pascal = (icon: string): string =>
 	icon.replace(/(^|[-_ ])([a-z])/g, (_match, _sep, char) => char.toUpperCase())
 
-// Kept for a stored name that resolves to no component.
-const iconClass = (row: SidebarRowDraft): string => {
-	const icon =
-		row.icon || (row.item_type === 'Built-in' && builtInIcon(row.name1 ?? ''))
-	return icon ? `lucide-${kebab(icon)}` : 'lucide-link'
-}
-
-const kebab = (icon: string): string =>
-	icon.replace(/([a-z0-9])([A-Z])/g, '$1-$2').toLowerCase()
-
 const rowName = (row: SidebarRowDraft): string => rowLabel(row) || __('link')
 
 const dragHandleLabel = (row: SidebarRowDraft): string =>
@@ -355,14 +340,22 @@ const moveRow = async (row: SidebarRowDraft, delta: number) => {
 // settings.save. One cached 'LMS Settings' document is shared by every panel,
 // so saving from here would commit whatever another panel left dirty on it.
 //
-// call() carries no request sequence, so a rapid second edit can start a
-// second persist() before the first resolves. Each call takes a token, and a
-// superseded response is dropped instead of overwriting the table with a
-// now-stale snapshot.
+// Each save replaces the whole table and carries no request sequence, so two
+// in flight at once could commit out of order and leave the older table. Saves
+// run one after another; one superseded before it starts is skipped, since
+// the newer save sends the whole table anyway, and a superseded response is
+// dropped instead of overwriting the table with a stale snapshot.
 let requestToken = 0
+let queue: Promise<void> = Promise.resolve()
 
-const persist = async () => {
+const persist = () => {
 	const token = ++requestToken
+	queue = queue.then(() => write(token))
+	return queue
+}
+
+const write = async (token: number) => {
+	if (token !== requestToken) return
 	try {
 		await call('lms.lms.api.save_sidebar_items', {
 			rows: withoutClientId(rows.value),

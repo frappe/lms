@@ -106,7 +106,7 @@ const mountReviews = (props: Record<string, unknown> = {}) =>
 const renderedDates = async () => {
 	const wrapper = mountReviews()
 	await flushPromises()
-	return wrapper.findAll('article span.text-ink-gray-5').map((n) => n.text())
+	return wrapper.findAll('article span.text-ink-gray-6').map((n) => n.text())
 }
 
 beforeEach(() => {
@@ -179,7 +179,7 @@ describe('CourseReviews list rendering', () => {
 		const wrapper = mountReviews()
 		await flushPromises()
 		const row = wrapper.get('article')
-		expect(row.findAll('.fill-yellow-500')).toHaveLength(3)
+		expect(row.findAll('.fill-ink-amber-7')).toHaveLength(3)
 		expect(row.findAll('.fill-surface-gray-3')).toHaveLength(2)
 	})
 

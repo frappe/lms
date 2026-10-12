@@ -20,7 +20,7 @@
 					:aria-label="__('Livecode URL')"
 					@update:model-value="(value: string) => setLmsField('livecode_url', value)"
 				/>
-				<div class="text-p-sm text-ink-gray-5 mt-1">
+				<div class="text-p-sm text-ink-gray-6 mt-1">
 					{{
 						__(
 							"Address of the LiveCode server that runs the code learners write in programming exercises. Leave it blank to use Frappe's hosted server, or see https://docs.frappe.io/learning/falcon-self-hosting-guide to host your own."
@@ -32,8 +32,7 @@
 				<div class="text-p-base-medium text-ink-gray-7 mb-2">
 					{{ __('Unsplash Access Key') }}
 				</div>
-				<FormControl
-					type="password"
+				<Password
 					class="w-full"
 					:model-value="lmsSource.doc?.unsplash_access_key"
 					:aria-label="__('Unsplash Access Key')"
@@ -41,7 +40,7 @@
 						(value: string) => setLmsField('unsplash_access_key', value)
 					"
 				/>
-				<div class="text-p-sm text-ink-gray-5 mt-1">
+				<div class="text-p-sm text-ink-gray-6 mt-1">
 					{{
 						__(
 							'Allows users to pick a profile cover image from Unsplash. https://unsplash.com/documentation#getting-started.'
@@ -61,7 +60,7 @@
 						<div class="text-p-base-medium text-ink-gray-7">
 							{{ __('Enable') }}
 						</div>
-						<div class="text-p-sm text-ink-gray-5">
+						<div class="text-p-sm text-ink-gray-6">
 							{{ __('Turns on Google API access for this site.') }}
 						</div>
 					</div>
@@ -91,8 +90,7 @@
 					<div class="text-p-base-medium text-ink-gray-7 mb-2">
 						{{ __('Client Secret') }}
 					</div>
-					<FormControl
-						type="password"
+					<Password
 						class="w-full"
 						v-model="secretInput"
 						:error="clientSecretError"
@@ -115,10 +113,14 @@
 // loads as Frappe's dummy mask or empty, so `secretInput` lives outside
 // `googleSource.doc` and the write only carries it when actually typed into.
 import { computed, ref } from 'vue'
-import { FormControl, call, toast } from 'frappe-ui'
+import { FormControl, Password, call, toast } from 'frappe-ui'
 import BooleanSwitch from '@/components/Controls/BooleanSwitch.vue'
 import SettingsLayout from '@/components/Layouts/settings/desktop/SettingsLayout.vue'
-import { useSettingsSource } from '@/composables/useSettingsSource'
+import { useDirtyGuard } from '@/composables/useDirtyGuard'
+import {
+	reportSaveFailure,
+	useSettingsSource,
+} from '@/composables/useSettingsSource'
 import { canManageGoogleIntegrations } from '@/components/Settings/GoogleApi/googleApi'
 
 const GOOGLE_DOCTYPE = 'Google Settings'
@@ -177,11 +179,16 @@ const isDirty = computed(
 		Boolean(lmsSource.isDirty)
 )
 
-const saving = ref(false)
+useDirtyGuard(
+	() => isDirty.value,
+	() => {
+		secretInput.value = ''
+		if (googleSource?.isDirty) void googleSource.reload()
+		if (lmsSource.isDirty) void lmsSource.reload()
+	}
+)
 
-const reportFailure = (error: { messages?: string[]; message?: string }) => {
-	toast.error(error?.messages?.[0] || error?.message || __('Save failed'))
-}
+const saving = ref(false)
 
 const save = () => {
 	if (hasBlockingErrors.value) {
@@ -215,7 +222,7 @@ const save = () => {
 			toast.success(__('Services settings saved'))
 			secretInput.value = ''
 		})
-		.catch(reportFailure)
+		.catch(reportSaveFailure)
 		.finally(() => (saving.value = false))
 }
 </script>

@@ -27,7 +27,7 @@
 						</template>
 						<template v-if="Number(course.data.rating) > 0">
 							<div class="flex items-center gap-1">
-								<LucideStar class="size-4 text-transparent fill-yellow-500" />
+								<LucideStar class="size-4 text-transparent fill-ink-amber-7" />
 								<span class="font-medium text-ink-gray-9">{{
 									formatRating(course.data.rating)
 								}}</span>
@@ -92,11 +92,11 @@
 						<h2 class="text-3xl-semibold text-ink-gray-9">
 							{{ __('Course content') }}
 						</h2>
-						<div class="text-base text-ink-gray-5">
+						<div class="text-base text-ink-gray-6">
 							{{ outlineStats }}
 						</div>
 					</div>
-					<div class="border rounded-md p-2">
+					<div class="border rounded-5 p-2">
 						<SkeletonLoader
 							v-if="outline.loading && !outline.data"
 							variant="course-outline"
@@ -106,8 +106,8 @@
 							v-else-if="!hasCourseContent"
 							class="flex items-center justify-center px-4 py-10 text-center"
 						>
-							<span class="text-sm text-ink-gray-5">
-								{{ __('Course Content coming soon!') }}
+							<span class="text-sm text-ink-gray-6">
+								{{ __('Course content coming soon!') }}
 							</span>
 						</div>
 						<CourseOutline

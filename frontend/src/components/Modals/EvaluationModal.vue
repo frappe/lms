@@ -24,7 +24,7 @@
 						<div class="text-ink-gray-9 font-medium">
 							{{ __('Available Slots') }}
 						</div>
-						<div v-if="scheduleTimezone" class="text-sm text-ink-gray-5">
+						<div v-if="scheduleTimezone" class="text-sm text-ink-gray-6">
 							{{ __('All times in {0}').format(scheduleTimezone) }}
 						</div>
 					</div>
@@ -40,14 +40,14 @@
 									{{ dayjs(row.display_date).format('DD MMMM YYYY') }}
 								</div>
 								<div>&middot;</div>
-								<div class="text-ink-gray-5">
+								<div class="text-ink-gray-6">
 									{{ row.display_day }}
 								</div>
 								<template
 									v-if="row.display_timezone_label !== scheduleTimezone"
 								>
 									<div>&middot;</div>
-									<div class="text-ink-gray-5">
+									<div class="text-ink-gray-6">
 										{{ row.display_timezone_label }}
 									</div>
 								</template>
@@ -57,7 +57,7 @@
 									v-for="slot in row.slots"
 									:key="`${slot.date}-${slot.start_time}`"
 									type="button"
-									class="text-base text-center border rounded-md text-ink-gray-8 p-2 cursor-pointer text-ink-gray-7 hover:bg-surface-gray-2 hover:border-outline-gray-3"
+									class="text-base text-center border rounded-5 text-ink-gray-8 p-2 cursor-pointer text-ink-gray-7 hover:bg-surface-gray-2 hover:border-outline-gray-3"
 									@click="saveSlot(slot)"
 									:title="slotLabel(slot, row)"
 									:aria-label="slotLabel(slot, row)"
@@ -71,7 +71,7 @@
 									{{ formatTime(slot.display_end_time) }}
 									<sup
 										v-if="endsOnAnotherDay(slot, row)"
-										class="text-ink-gray-5 ms-0.5"
+										class="text-ink-gray-6 ms-0.5"
 									>
 										+1
 									</sup>
@@ -83,7 +83,7 @@
 				<div v-else-if="!evaluation.course" class="text-ink-gray-7">
 					{{ __('Please select a course to view available slots.') }}
 				</div>
-				<div v-else class="text-ink-red-6">
+				<div v-else class="text-ink-red-5">
 					{{ __('No slots available for the selected course.') }}
 				</div>
 			</div>
@@ -128,7 +128,7 @@ const evaluation = ref({
 function submitEvaluation(close) {
 	if (!evaluation.value.date || !evaluation.value.start_time) {
 		toast.warning(__('Please select a slot for your evaluation.'), {
-			duration: 10,
+			duration: 10000,
 		})
 		return
 	}
@@ -145,7 +145,7 @@ function submitEvaluation(close) {
 		})
 		.catch((err) => {
 			console.log(err.messages?.[0] || err)
-			toast.warning(__(err.messages?.[0] || err), { duration: 20 })
+			toast.warning(__(err.messages?.[0] || err), { duration: 20000 })
 		})
 }
 

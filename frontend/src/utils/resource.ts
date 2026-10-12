@@ -1,4 +1,5 @@
 import { toast } from 'frappe-ui'
+import type { FrappeResourceError } from 'frappe-ui'
 
 /**
  * Submitting a frappe-ui resource without leaking an unhandled rejection.
@@ -60,27 +61,52 @@ export const resourceErrorMessage = (
 	return fallback
 }
 
-export interface SubmitHandlers<T> {
+// A silent autosave failure skips the toast only. isDirty stays set, so the
+// "Not Saved" badge still shows the edit was not saved.
+export const reportAutosaveError = (
+	error: FrappeResourceError,
+	silent?: boolean
+): void => {
+	if (!silent) toast.error(resourceErrorMessage(error, __('Error')))
+	console.error(error)
+}
+
+export interface SubmitHandlers<T, E = FrappeResourceError> {
 	/** Return a user-facing message to block the submit; undefined to proceed. */
 	validate?: () => string | undefined
 	/** May be async — a chained submit is awaited before this call settles. */
 	onSuccess?: (data: T) => void | Promise<void>
 	/** Receives the validation string, or the resource's error object. */
-	onError?: (error: unknown) => void
+	onError?: (error: E) => void
 }
 
 interface SubmittableResource<T> {
 	submit: (params: unknown, options: Record<string, unknown>) => Promise<T>
 }
 
+// Only a caller passing `validate` can get a validation string, so only its
+// onError has to accept one.
+export function submitResource<T>(
+	resource: SubmittableResource<T>,
+	params?: unknown,
+	handlers?: SubmitHandlers<T> & { validate?: undefined }
+): Promise<void>
+export function submitResource<T>(
+	resource: SubmittableResource<T>,
+	params: unknown,
+	handlers: SubmitHandlers<T, string | FrappeResourceError>
+): Promise<void>
 export async function submitResource<T>(
 	resource: SubmittableResource<T>,
 	params: unknown = {},
-	handlers: SubmitHandlers<T> = {}
+	handlers: SubmitHandlers<T, never> = {}
 ): Promise<void> {
+	// Safe per the overloads. A string reaches onError only through validate.
+	const onError = handlers.onError as
+		| SubmitHandlers<T, string | FrappeResourceError>['onError']
 	const invalid = handlers.validate?.()
 	if (invalid) {
-		handlers.onError?.(invalid)
+		onError?.(invalid)
 		return
 	}
 
@@ -107,12 +133,12 @@ export async function submitResource<T>(
 					successError = error
 				}
 			},
-			onError(error: unknown) {
+			onError(error: FrappeResourceError) {
 				reported = true
 				// Without a caller handler nobody would tell the user: this helper
 				// swallows the rejection below, and installing our own onError
 				// suppresses frappe-ui's global fallback handler.
-				if (handlers.onError) handlers.onError(error)
+				if (onError) onError(error)
 				else toast.error(resourceErrorMessage(error))
 			},
 		})

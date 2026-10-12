@@ -45,7 +45,7 @@
 			</Badge>
 			<div
 				v-else-if="column.key === 'modified'"
-				class="text-sm text-ink-gray-5"
+				class="text-sm text-ink-gray-6"
 			>
 				{{ value }}
 			</div>

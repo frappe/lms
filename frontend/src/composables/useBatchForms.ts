@@ -53,6 +53,9 @@ export type BatchDetails = {
 	certification?: number
 	/** Not on a plain `LMS Batch` fetch — assembled by the endpoint. */
 	students?: string[]
+	/** Per-batch, unlike the session-wide `user.data.is_instructor`: a tagged
+	 * instructor/evaluator on THIS batch, or a Moderator/Batch Evaluator. */
+	can_manage?: boolean
 	/** Child table rows; `course` is the LMS Course docname. */
 	courses?: { course: string }[]
 	zoom_account?: string

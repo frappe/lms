@@ -17,14 +17,7 @@ export interface SettingsListAvatar {
  * Six is the ceiling on how many things a colour can tell apart in one
  * column: a page with more categories than that has to double up.
  */
-export type BadgeTheme =
-	| 'gray'
-	| 'blue'
-	| 'green'
-	| 'amber'
-	| 'orange'
-	| 'red'
-	| 'violet'
+export type BadgeTheme = 'gray' | 'blue' | 'green' | 'amber' | 'red' | 'violet'
 
 export interface SettingsListBadge {
 	label: string

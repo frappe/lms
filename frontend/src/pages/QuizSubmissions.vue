@@ -19,18 +19,21 @@
 				v-model="filters.quiz"
 				align="end"
 				:placeholder="__('Filter by Quiz')"
+				:aria-label="__('Filter by Quiz')"
 			/>
 			<Link
 				doctype="User"
 				v-model="filters.member"
 				align="end"
 				:placeholder="__('Filter by Member')"
+				:aria-label="__('Filter by Member')"
 			/>
 			<Link
 				doctype="LMS Course"
 				v-model="filters.course"
 				align="end"
 				:placeholder="__('Filter by Course')"
+				:aria-label="__('Filter by Course')"
 			/>
 		</template>
 
@@ -42,7 +45,7 @@
 			<span v-else-if="column.key === 'percentage'">{{ value }}%</span>
 			<div
 				v-else-if="column.key === 'creation'"
-				class="text-sm text-ink-gray-5"
+				class="text-sm text-ink-gray-6"
 			>
 				{{ value }}
 			</div>

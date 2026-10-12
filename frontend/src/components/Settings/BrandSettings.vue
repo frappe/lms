@@ -9,7 +9,7 @@
 					<div class="text-p-base-medium text-ink-gray-7 truncate">
 						{{ __('Brand Name') }}
 					</div>
-					<div class="text-p-sm text-ink-gray-5">
+					<div class="text-p-sm text-ink-gray-6">
 						{{ __('Set the name of your brand. Appears in the left sidebar.') }}
 					</div>
 				</div>
