@@ -1113,16 +1113,19 @@ def attach_file_to_doc(file_url: str, doctype: str, docname: str) -> None:
 	if frappe.db.exists("File", filters):
 		return
 
-	# A student cannot create a File row against a Communication they do not own.
-	# nosemgrep: lms-unjustified-ignore-permissions - prepare_inline_images already checked has_permission on this file
-	frappe.get_doc(
+	file = frappe.get_doc(
 		{
 			"doctype": "File",
 			"file_url": file_url,
 			"is_private": 1 if file_url.startswith("/private/") else 0,
 			**filters,
 		}
-	).insert(ignore_permissions=True)
+	)
+	# Reuse the blob. frappe v16 otherwise re-reads it as text and writes a renamed copy.
+	file.flags.copy_from_existing_file = True
+	# A student cannot create a File row against a Communication they do not own.
+	# nosemgrep: lms-unjustified-ignore-permissions - prepare_inline_images already checked has_permission on this file
+	file.insert(ignore_permissions=True)
 
 
 def check_multicurrency(amount: float, currency: str, country: str = None, amount_usd: float = None):
