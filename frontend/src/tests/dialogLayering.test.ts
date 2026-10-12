@@ -16,6 +16,23 @@ const openOverlay = (): HTMLElement => {
 	return overlay
 }
 
+// frappe-ui 1.0.0-beta.29's shape: DialogContent lives in a sibling
+// `.dialog-scroll-container`, not inside the overlay itself.
+const openDialog = (): { overlay: HTMLElement; panel: HTMLElement } => {
+	const overlay = document.createElement('div')
+	overlay.className = 'dialog-overlay'
+	document.body.appendChild(overlay)
+
+	const panel = document.createElement('div')
+	panel.className = 'dialog-scroll-container'
+	const content = document.createElement('div')
+	content.setAttribute('role', 'dialog')
+	panel.appendChild(content)
+	document.body.appendChild(panel)
+
+	return { overlay, panel }
+}
+
 const layerOf = (overlay: HTMLElement) => Number(overlay.style.zIndex || 0)
 
 describe('dialog layering', () => {
@@ -24,6 +41,8 @@ describe('dialog layering', () => {
 	beforeEach(() => {
 		document.body.innerHTML = ''
 		document.getElementById('dialog-layering')?.remove()
+		delete (window as unknown as { __dialogLayeringDebug?: unknown[] })
+			.__dialogLayeringDebug
 		scope = effectScope()
 		scope.run(() => useDialogLayering())
 	})
@@ -40,6 +59,36 @@ describe('dialog layering', () => {
 		await settle()
 
 		expect(layerOf(second)).toBeGreaterThan(layerOf(first))
+	})
+
+	// `inert` has been caught, live in CI only, still not enough to stop a
+	// click landing on a covered overlay — see dialogLayering.ts's own
+	// comment. pointer-events is set explicitly, redundantly, alongside it.
+	it('sets pointer-events none on a covered overlay and auto on the top one', async () => {
+		const first = openOverlay()
+		await settle()
+		const second = openOverlay()
+		await settle()
+
+		expect(first.style.pointerEvents).toBe('none')
+		expect(second.style.pointerEvents).toBe('auto')
+		expect(first.inert).toBe(true)
+		expect(second.inert).toBe(false)
+	})
+
+	it('records each restack in a bounded debug ring for forensics', async () => {
+		for (let i = 0; i < 60; i++) {
+			openOverlay()
+			await settle()
+		}
+
+		const ring = (
+			window as unknown as {
+				__dialogLayeringDebug: Array<{ openCount: number }>
+			}
+		).__dialogLayeringDebug
+		expect(ring.length).toBe(50)
+		expect(ring.at(-1)?.openCount).toBe(60)
 	})
 
 	it('keeps a stranded overlay below a dialog opened after it', async () => {
@@ -122,6 +171,49 @@ describe('dialog layering', () => {
 			const done = escapeDispatched()
 			pointerdownInside(overlay.querySelector('[role="dialog"]')!)
 			expect(await done).toBe(true)
+		})
+	})
+
+	// beta.29 moved DialogContent out of the overlay into a sibling
+	// `.dialog-scroll-container` — see dialogLayering.ts's top comment. The
+	// overlay's own explicit z-index otherwise paints over that sibling,
+	// covering a dialog's content with its own overlay.
+	describe('the beta.29 sibling panel shape', () => {
+		it("gives a dialog's panel the same z-index as its overlay", async () => {
+			openDialog()
+			await settle()
+			const { overlay, panel } = openDialog()
+			await settle()
+
+			expect(layerOf(panel)).toBe(layerOf(overlay))
+			expect(layerOf(panel)).toBeGreaterThan(0)
+		})
+
+		it('marks a covered panel inert with pointer-events none, and leaves the top panel interactive', async () => {
+			const first = openDialog()
+			await settle()
+			const second = openDialog()
+			await settle()
+
+			expect(first.panel.inert).toBe(true)
+			expect(first.panel.style.pointerEvents).toBe('none')
+
+			expect(second.panel.inert).toBe(false)
+			expect(second.panel.style.pointerEvents).toBe('')
+		})
+
+		it('applies data-dialog-interactive to the content inside the panel when a popper opens from the top dialog', async () => {
+			const { overlay, panel } = openDialog()
+			await settle()
+
+			const popper = document.createElement('div')
+			popper.setAttribute('data-reka-popper-content-wrapper', '')
+			document.body.appendChild(popper)
+			await settle()
+
+			const content = panel.querySelector('[role="dialog"]')!
+			expect(content.hasAttribute('data-dialog-interactive')).toBe(true)
+			expect(overlay.querySelector('[role="dialog"]')).toBeNull()
 		})
 	})
 })
