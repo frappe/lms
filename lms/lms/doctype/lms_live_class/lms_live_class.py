@@ -284,12 +284,27 @@ def send_learner_invites(live_class: str, count_attempt: bool = True) -> bool:
 		# Already reported. A later enrollment or a retry that fails again leaves it
 		# for the Retry button rather than telling the hosts twice.
 		set_invite_status(live_class, "Failed", attempts)
-	elif attempts >= MAX_INVITE_ATTEMPTS:
+	elif attempts >= MAX_INVITE_ATTEMPTS and notified_hosts(live_class):
 		set_invite_status(live_class, "Failed", attempts)
-		notify_hosts_of_missing_invites(live_class)
 	else:
+		# Also when the hosts could not be told: still Retrying, the next tick
+		# tries the invites again and, failing, the notice.
 		set_invite_status(live_class, "Retrying", attempts)
 	return False
+
+
+def notified_hosts(live_class: str) -> bool:
+	"""Failed is set only once this succeeds: the scheduler never picks a Failed
+	class up again, so a notice lost after it would never be sent."""
+	frappe.db.savepoint("notify_hosts")
+	try:
+		notify_hosts_of_missing_invites(live_class)
+	except Exception:
+		# No half-sent notices left to be sent again with the next try.
+		frappe.db.rollback(save_point="notify_hosts")
+		frappe.log_error(title=f"Could not tell the hosts of live class {live_class} about its invites")
+		return False
+	return True
 
 
 def invite_missing_learners(live_class: str) -> bool:

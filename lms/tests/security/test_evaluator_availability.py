@@ -530,6 +530,8 @@ class TestEvaluatorCalendarSettings(BaseTestUtils):
 		self.original_user = frappe.session.user
 		self.addCleanup(setattr, frappe.session, "user", self.original_user)
 		frappe.local.response = frappe._dict()
+		frappe.local.flags.commit = False
+		self.addCleanup(setattr, frappe.local.flags, "commit", False)
 		# The real URI is built from the request, which tests don't have.
 		uri = patch(
 			"lms.lms.api.google_callback_uri",
@@ -647,6 +649,8 @@ class TestEvaluatorCalendarSettings(BaseTestUtils):
 		self.assertEqual(frappe.local.response["type"], "redirect")
 		self.assertTrue(frappe.local.response["location"].endswith("/slots"))
 		self.assertIsNone(frappe.cache.get_value(f"{EVALUATOR_CALENDAR_CACHE}:{self.EVALUATOR}"))
+		# Google comes back with a GET, which Frappe rolls back unless told to commit.
+		self.assertTrue(frappe.local.flags.commit)
 
 	def test_callback_says_so_when_google_gives_no_token(self):
 		frappe.session.user = self.EVALUATOR
@@ -657,6 +661,7 @@ class TestEvaluatorCalendarSettings(BaseTestUtils):
 
 		self.assertTrue(frappe.local.response["location"].endswith("/slots?calendar=failed"))
 		self.assertFalse(get_evaluator_details(self.EVALUATOR)["calendar"].is_authorized)
+		self.assertFalse(frappe.local.flags.commit)
 
 	def test_a_desk_sign_in_keeps_frappes_own_callback(self):
 		frappe.session.user = "Administrator"

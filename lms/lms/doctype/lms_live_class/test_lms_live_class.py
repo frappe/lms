@@ -431,6 +431,36 @@ class TestLMSLiveClass(BaseTestUtils):
 		)
 		self.assertCountEqual(notices, instructors)
 
+	def test_a_notice_that_fails_is_sent_on_the_next_try(self):
+		"""Failed is never retried, so it must wait for the hosts' notice."""
+		from lms.lms.doctype.lms_live_class import lms_live_class
+
+		self._create_batch_enrollment(self._student(), self.batch.name)
+		self._fail_hiding_the_guest_list()
+		live_class = self._create_live_class()
+		live_class.reload()
+		frappe.db.set_value(
+			"LMS Live Class",
+			live_class.name,
+			"invite_attempts",
+			lms_live_class.MAX_INVITE_ATTEMPTS - 1,
+		)
+
+		with patch(
+			"frappe.desk.doctype.notification_log.notification_log.make_notification_logs",
+			side_effect=Exception("mail queue down"),
+		):
+			lms_live_class.retry_pending_invites()
+		self.assertEqual(self._invite_state(live_class).invite_status, "Retrying")
+
+		lms_live_class.retry_pending_invites()
+		self.assertEqual(self._invite_state(live_class).invite_status, "Failed")
+		self.assertTrue(
+			frappe.db.exists(
+				"Notification Log", {"document_type": "LMS Live Class", "document_name": live_class.name}
+			)
+		)
+
 	def test_retry_invites_a_failed_class_and_clears_it(self):
 		from lms.lms.doctype.lms_live_class.lms_live_class import retry_invites
 

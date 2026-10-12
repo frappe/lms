@@ -699,6 +699,11 @@ def google_calendar_callback(code: str | None = None):
 		frappe.throw(_("This calendar is not yours."), frappe.PermissionError)
 
 	authorized = bool(code) and save_calendar_tokens(calendar, code)
+	if authorized:
+		# Google comes back with a GET, whose writes Frappe rolls back unless told
+		# to commit. Lost, the calendar would stay disconnected, and Google's code
+		# is single use.
+		frappe.local.flags.commit = True
 
 	username = frappe.db.get_value("User", user, "username")
 	location = get_lms_route(f"user/{username}/slots")
