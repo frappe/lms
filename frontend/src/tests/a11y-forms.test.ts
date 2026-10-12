@@ -156,7 +156,12 @@ describe('named controls and focus outlines', () => {
 		for (const sw of switches)
 			expectIdsDeclared(file, attr(sw, 'aria-labelledby') ?? '')
 		const title = elements(file).find((el) => el.tag === 'textarea')!
-		expect(attr(title, 'class')).toMatch(/\bfocus-visible:ring-2\b/)
+		// The ring is bound, not static: it shows only after keyboard input.
+		const boundClass = (title.props ?? []).find(
+			(p) =>
+				p.type === DIRECTIVE && p.name === 'bind' && p.arg?.content === 'class'
+		)
+		expect(boundClass?.exp?.content).toMatch(/\bfocus:ring-2\b/)
 	})
 
 	it('names the marks input and tags trigger, and gives JobForm an h1', () => {
