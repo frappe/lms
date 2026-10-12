@@ -435,16 +435,22 @@ const calendar = computed(
 )
 const calendarName = ref('')
 
-watch(evaluator, () => {
-	from.value = evaluator.data?.slots?.unavailable_from || null
-	to.value = evaluator.data?.slots?.unavailable_to || null
-	calendarName.value = calendar.value.calendar_name || ''
+// On each load only. Watching the resource itself is deep, so a calendar
+// toggle (which edits evaluator.data.calendar in place) re-ran this and put the
+// last load's time off back over dates saved since.
+watch(
+	() => evaluator.data,
+	() => {
+		from.value = evaluator.data?.slots?.unavailable_from || null
+		to.value = evaluator.data?.slots?.unavailable_to || null
+		calendarName.value = calendar.value.calendar_name || ''
 
-	evaluator.data?.slots?.schedule.forEach((slot) => {
-		slot.start_time = formatTime(slot.start_time)
-		slot.end_time = formatTime(slot.end_time)
-	})
-})
+		evaluator.data?.slots?.schedule.forEach((slot) => {
+			slot.start_time = formatTime(slot.start_time)
+			slot.end_time = formatTime(slot.end_time)
+		})
+	}
+)
 
 const formatTime = (time) => {
 	if (!time) return ''

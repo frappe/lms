@@ -188,6 +188,32 @@ describe('ProfileEvaluator availability writes', () => {
 		})
 	})
 
+	// The watcher used to be deep, so a calendar toggle (which edits the loaded
+	// details in place) put the last load's empty time off back over a date
+	// the evaluator had just saved.
+	it('keeps a saved time-off date when a calendar setting changes', async () => {
+		const wrapper = await mountPanel()
+		await wrapper
+			.findAll('button')
+			.find((b) => b.text() === 'Add time off')!
+			.trigger('click')
+		const from = wrapper.findAll('[data-type="date"]')[0]
+		await from.setValue('2026-08-01')
+
+		findResource('lms.lms.api.update_evaluator_calendar').config.onSuccess({
+			enable: 1,
+			push_to_google_calendar: 0,
+			calendar_name: 'Eva',
+			is_authorized: true,
+		})
+		await flushPromises()
+
+		expect(
+			(wrapper.findAll('[data-type="date"]')[0].element as HTMLInputElement)
+				.value
+		).toBe('2026-08-01')
+	})
+
 	it('names each slot control for screen readers', async () => {
 		const wrapper = await mountPanel()
 		// The mocked resource is not reactive, so re-render to pick up the seed.

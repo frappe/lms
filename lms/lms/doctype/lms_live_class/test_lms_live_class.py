@@ -461,6 +461,65 @@ class TestLMSLiveClass(BaseTestUtils):
 		with self.assertRaises(frappe.PermissionError):
 			retry_invites(live_class.name)
 
+	def test_enrollments_during_an_outage_do_not_use_up_the_tries(self):
+		"""A burst of enrollments while Google is briefly down must leave the class
+		to the scheduler's retries, not mark it Failed before they run."""
+		self._fail_hiding_the_guest_list()
+		live_class = self._create_live_class()
+		live_class.reload()
+
+		for _student in range(6):
+			self._create_batch_enrollment(self._student(), self.batch.name)
+
+		self.assertEqual(self._invite_state(live_class), {"invite_status": "Retrying", "invite_attempts": 1})
+
+	def test_one_broken_class_does_not_stop_the_retries(self):
+		from lms.lms.doctype.lms_live_class import lms_live_class
+
+		first = self._create_live_class()
+		second = self._create_live_class()
+		for live_class in (first, second):
+			frappe.db.set_value("LMS Live Class", live_class.name, "invite_status", "Retrying")
+		tried = []
+
+		def send(live_class):
+			tried.append(live_class)
+			if live_class == first.name:
+				raise frappe.QueryTimeoutError("lock wait timeout")
+
+		with patch.object(lms_live_class, "send_learner_invites", side_effect=send):
+			lms_live_class.retry_pending_invites()
+
+		self.assertIn(first.name, tried)
+		self.assertIn(second.name, tried)
+
+	def test_a_class_whose_event_was_deleted_stops_retrying(self):
+		from lms.lms.doctype.lms_live_class.lms_live_class import send_learner_invites
+
+		live_class = self._create_live_class()
+		live_class.reload()
+		frappe.db.set_value("LMS Live Class", live_class.name, "invite_status", "Retrying")
+		frappe.db.delete("Event", live_class.event)
+
+		self.assertTrue(send_learner_invites(live_class.name))
+		self.assertEqual(self._invite_state(live_class).invite_status, "")
+
+	def test_an_enrolling_learner_never_sees_google_errors(self):
+		"""Frappe's Google helpers report through frappe.throw, which logs the
+		message before raising; hiding the guest list must be muted too."""
+		live_class = self._create_live_class()
+		live_class.reload()
+		frappe.local.message_log = []
+
+		with patch(
+			f"{GOOGLE_CALENDAR_MODULE}.get_google_calendar_object",
+			side_effect=lambda *args: frappe.throw("Google Calendar - Could not find Calendar"),
+		):
+			self._create_batch_enrollment(self._student(), self.batch.name)
+
+		self.assertEqual(frappe.local.message_log, [])
+		self.assertEqual(self._invite_state(live_class).invite_status, "Retrying")
+
 	def test_a_learner_enrolling_while_google_fails_still_enrolls_quietly(self):
 		live_class = self._create_live_class()
 		live_class.reload()
@@ -577,6 +636,32 @@ class TestLMSLiveClass(BaseTestUtils):
 
 		self.google_meet_settings.enabled = 1
 		self.google_meet_settings.save()
+
+	def test_google_meet_unauthorised_calendar_is_reported_before_the_class_is_made(self):
+		"""The Meet path checks its calendar as the Zoom path does, not only that
+		one is set."""
+		from frappe.utils.password import remove_encrypted_password, set_encrypted_password
+
+		from lms.lms.doctype.lms_batch.lms_batch import create_google_meet_live_class
+
+		token = self.google_calendar.get_password("refresh_token", raise_exception=False)
+		remove_encrypted_password("Google Calendar", self.google_calendar.name, "refresh_token")
+		self.addCleanup(
+			set_encrypted_password, "Google Calendar", self.google_calendar.name, token, "refresh_token"
+		)
+		classes_before = frappe.db.count("LMS Live Class")
+
+		with self.assertRaisesRegex(GoogleCalendarMissingError, "Authorise your Google Calendar"):
+			create_google_meet_live_class(
+				batch_name=self.batch.name,
+				google_meet_account=self.google_meet_settings.name,
+				title="Test Unauthorised Calendar",
+				duration=30,
+				date=add_days(nowdate(), 1),
+				time="10:00:00",
+				timezone="Asia/Kolkata",
+			)
+		self.assertEqual(frappe.db.count("LMS Live Class"), classes_before)
 
 	def test_google_meet_missing_calendar_raises_error(self):
 		"""Creating a live class with a Google Meet account without a calendar should raise an error."""
