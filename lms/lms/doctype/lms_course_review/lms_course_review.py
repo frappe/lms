@@ -9,7 +9,8 @@ from frappe.utils import cint
 
 class LMSCourseReview(Document):
 	def validate(self):
-		self.validate_enrollment()
+		if self.is_new() or self.has_value_changed("course"):
+			self.validate_enrollment()
 		self.validate_if_already_reviewed()
 
 	def validate_enrollment(self):
@@ -18,5 +19,9 @@ class LMSCourseReview(Document):
 			frappe.throw(_("You must be enrolled in the course to submit a review"))
 
 	def validate_if_already_reviewed(self):
-		if frappe.db.exists("LMS Course Review", {"course": self.course, "owner": self.owner}):
+		filters = {"course": self.course, "owner": self.owner}
+		if not self.is_new():
+			filters["name"] = ["!=", self.name]
+
+		if frappe.db.exists("LMS Course Review", filters):
 			frappe.throw(_("You have already reviewed this course"))
