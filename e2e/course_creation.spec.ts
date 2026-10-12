@@ -67,9 +67,11 @@ test.describe("Course Creation", () => {
 		// wait (~30s combined); a single Playwright `.click({timeout})` covers
 		// both the find and the actionability wait in one window, so match
 		// the combined budget rather than just the find half of it.
+		// The creator is already picked, and their option lists first, so
+		// clicking .first() would untick them. Pick the Frappe user by email.
 		await page
 			.locator('[data-slot="content-body"] [role="option"]')
-			.first()
+			.filter({ hasText: "frappe@example.com" })
 			.click({ timeout: 30000 });
 		await page.keyboard.press("Escape");
 
