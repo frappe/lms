@@ -3,6 +3,7 @@
 
 import inspect
 from functools import cache
+from typing import NamedTuple
 from urllib.parse import unquote
 
 import frappe
@@ -18,10 +19,11 @@ from lms.lms.doctype.lms_enrollment.lms_enrollment import (
 	batched_enrollment_updates,
 	update_enrollment,
 )
+from lms.lms.lesson_assessments import lesson_assessment_rows
 from lms.lms.permissions import (
 	INSTRUCTOR_FIELDS,
 	can_access_lesson,
-	courses_authored_by,
+	courses_authored_by_each,
 	get_locked_lessons,
 )
 from lms.lms.utils import (
@@ -29,6 +31,7 @@ from lms.lms.utils import (
 	get_editorjs_blocks,
 	guest_access_allowed,
 	is_demo_course,
+	moderators_among,
 	recalculate_course_progress,
 	sanitize_editorjs,
 )
@@ -49,6 +52,15 @@ class CourseLesson(Document):
 	def validate(self):
 		self.content = sanitize_editorjs(self.content)
 		self.instructor_content = sanitize_editorjs(self.instructor_content)
+		self.sync_lesson_assessments()
+
+	def sync_lesson_assessments(self):
+		"""Rebuild this lesson's placement rows from its own content, never hand-edited.
+		Runs in validate, not on_update: child rows are written during save, so an
+		on_update append would persist nothing."""
+		self.set("assessments", [])
+		for row in lesson_assessment_rows(self.body, self.content, self.instructor_content):
+			self.append("assessments", row)
 
 	def on_update(self):
 		self.validate_quiz_id()
@@ -170,26 +182,64 @@ def get_permission_query_conditions(user=None):
 STUDENT_CONTENT_FIELDS = ("content", "body")
 
 
-def _resolve_lesson_references(file_url: str) -> list[tuple[str, bool]]:
-	"""Every (lesson, instructor_only) pair that references file_url.
+class _LessonReference(NamedTuple):
+	"""One claim that `lesson` uses the bytes, plus the evidence behind the claim.
+
+	`owner`/`canonical`/`untouched` describe the File row the claim came from; a claim
+	found by searching lesson content carries the canonical row's owner instead.
+	"""
+
+	lesson: str
+	instructor_only: bool
+	attached: bool  # from a File row rather than a content match
+	owner: str | None  # the File row's own owner
+	canonical: bool  # that owner uploaded these bytes (the earliest File row for the url)
+	untouched: bool  # the File row has not been edited since it was inserted
+
+
+def _resolve_lesson_references(file_url: str) -> list[_LessonReference]:
+	"""Every reference to file_url, tagged with the evidence it carries.
 
 	Two sources, unioned:
 	- File attachments (fast path). Gives the exact attached_to_field.
 	- A search of the lesson content fields (the source of truth: uploaded files
 	  are frequently private-but-unattached, and pre-existing/seeded files always are).
 	An empty/unknown attachment field is treated as instructor-only (fail-closed).
-	"""
-	refs: list[tuple[str, bool]] = []
 
-	for r in frappe.db.get_all(
+	Nothing is judged here, and nothing is dropped: the rows anybody could have written
+	are kept and tagged so that the whole set is weighed in one place, by
+	_references_vouched_by_owner.
+	"""
+	file_rows = frappe.db.get_all(
 		"File",
-		filters={"file_url": file_url, "is_private": 1, "attached_to_doctype": "Course Lesson"},
-		fields=["attached_to_name", "attached_to_field"],
-	):
-		if r.attached_to_name:
-			refs.append(
-				(r.attached_to_name, r.attached_to_field in INSTRUCTOR_FIELDS or not r.attached_to_field)
-			)
+		filters={"file_url": file_url, "is_private": 1},
+		fields=[
+			"owner",
+			"creation",
+			"modified",
+			"attached_to_doctype",
+			"attached_to_name",
+			"attached_to_field",
+		],
+		order_by="creation asc, name asc",
+	)
+	# The earliest row is the upload. Every later row only *names* the same url: frappe
+	# hands a duplicate upload the existing file's url, and a File row naming any url at
+	# all is cheap for any account to insert.
+	canonical_owner = file_rows[0].owner if file_rows else None
+
+	refs = [
+		_LessonReference(
+			lesson=r.attached_to_name,
+			instructor_only=r.attached_to_field in INSTRUCTOR_FIELDS or not r.attached_to_field,
+			attached=True,
+			owner=r.owner,
+			canonical=r.owner == canonical_owner,
+			untouched=r.creation == r.modified,
+		)
+		for r in file_rows
+		if r.attached_to_doctype == "Course Lesson" and r.attached_to_name
+	]
 
 	# Match the url as a literal substring via LOCATE (the query builder maps it to
 	# STRPOS/INSTR per dialect) instead of a LIKE pattern: LIKE needs %/_ escaped, and
@@ -207,30 +257,59 @@ def _resolve_lesson_references(file_url: str) -> list[tuple[str, bool]]:
 			.run(pluck=True)
 		)
 		for name in names:
-			refs.append((name, instructor_only))
+			refs.append(_LessonReference(name, instructor_only, False, canonical_owner, True, True))
 
 	return refs
 
 
-def _references_vouched_by_owner(references: list[tuple[str, bool]], owner: str) -> list[tuple[str, bool]]:
-	"""The references whose lesson the file's owner authors (a moderator authors every one).
+def _references_vouched_by_owner(references: list[_LessonReference]) -> list[tuple[str, bool]]:
+	"""The references entitled to speak for the bytes.
 
-	Both sources are attacker-writable -- a url pasted into your own lesson body, or
-	File.attached_to_name -- so otherwise any author adopts another's private file."""
-	lesson_course = {
-		row.name: row.course
-		for row in frappe.db.get_all(
-			"Course Lesson",
-			filters={"name": ("in", list({lesson for lesson, _ in references}))},
-			fields=["name", "course"],
-		)
-	}
-	vouching = courses_authored_by(owner, lesson_course.values())
-	return [
-		(lesson, instructor_only)
-		for lesson, instructor_only in references
-		if lesson_course.get(lesson) in vouching
-	]
+	Everything a reference carries is attacker-writable except the identity of the
+	canonical File row -- the earliest one, the upload of record. Any account may insert
+	a File row naming another user's file_url, and any lesson's author may paste that url
+	into their own lesson body. So a reference vouches only when:
+
+	1. its owner uploaded the bytes and currently authors the lesson's course, or
+	2. its owner uploaded the bytes and placed them on that lesson themselves: they own
+	   the lesson, or their never-since-edited File row is attached to someone else's.
+	   This is what keeps a course's media alive once its uploader stops authoring the
+	   course, and covers the co-instructor who uploaded into a colleague's lesson.
+
+	A row that did NOT upload the bytes is weighed only while its owner still holds
+	blanket authority over every lesson -- a Moderator, who therefore satisfies (1) for
+	every course -- and is refused once that ends. The site keeps no record of who could
+	write which lesson when, and "a File row says so" is exactly the claim a forged row
+	makes, so a former moderator's second row for someone else's upload loses its vouch:
+	the deliberate fail-closed side. Guessing the other way would hand every Course
+	Creator any private file whose url they can name.
+	"""
+	lessons = {ref.lesson for ref in references}
+	rows = frappe.db.get_all(
+		"Course Lesson",
+		filters={"name": ("in", list(lessons))},
+		fields=["name", "course", "owner"],
+	)
+	lesson_course = {row.name: row.course for row in rows}
+	lesson_owner = {row.name: row.owner for row in rows}
+
+	# Rows that only name the url. Kept solely for an owner with blanket lesson authority.
+	borrowed = {ref.owner for ref in references if ref.attached and not ref.canonical}
+	trusted = references
+	if borrowed:
+		moderators = moderators_among(borrowed)
+		trusted = [ref for ref in references if ref.canonical or ref.owner in moderators]
+
+	authored = courses_authored_by_each({ref.owner for ref in trusted}, lesson_course.values())
+
+	vouched = []
+	for ref in trusted:
+		placed_by_uploader = ref.attached and ref.canonical and lesson_owner.get(ref.lesson) is not None
+		if lesson_course.get(ref.lesson) in authored.get(ref.owner, ()):
+			vouched.append((ref.lesson, ref.instructor_only))
+		elif placed_by_uploader and (lesson_owner[ref.lesson] == ref.owner or ref.untouched):
+			vouched.append((ref.lesson, ref.instructor_only))
+	return vouched
 
 
 # One flat ceiling, deliberately. A per-audience limit does not work here:
@@ -268,8 +347,10 @@ def serve_resource(file_url: str):
 	if ".." in file_url:
 		frappe.throw(_("Invalid file path"))
 
+	# Just for existence + the filename to serve; ownership is resolved per-reference
+	# inside _resolve_lesson_references, not from whichever row this happens to pick.
 	file_row = frappe.db.get_value(
-		"File", {"file_url": file_url, "is_private": 1}, ["file_name", "owner"], as_dict=True
+		"File", {"file_url": file_url, "is_private": 1}, ["file_name"], as_dict=True
 	)
 	if not file_row:
 		_deny(file_url, "no matching private file")
@@ -280,7 +361,7 @@ def serve_resource(file_url: str):
 		_deny(file_url, "file not referenced by any lesson")
 		raise frappe.PermissionError
 
-	references = _references_vouched_by_owner(references, file_row.owner)
+	references = _references_vouched_by_owner(references)
 	if not references:
 		_deny(file_url, "no referencing lesson belongs to a course the file owner authors")
 		raise frappe.PermissionError
@@ -342,10 +423,22 @@ def apply_enforcement_flags(quiz_done: bool, assignment_done: bool, settings: di
 
 
 @frappe.whitelist()
-def save_progress(lesson: str, course: str, scorm_details: dict = None):
+def save_progress(lesson: str, course: str | None = None, scorm_details: dict = None):
 	"""
 	Note: Pass the argument scorm_details as a dict if it is SCORM related save_progress
 	"""
+	if not isinstance(lesson, str) or not isinstance(course, str | None):
+		frappe.throw(_("Lesson and course must be strings."))
+
+	# Enrollment and the lock are checked against the course the progress row is filed
+	# under, which is the lesson's own. `course` is kept for existing callers.
+	lesson_course = get_lesson_course(lesson)
+	if not lesson_course:
+		frappe.throw(_("Invalid lesson."))
+	if course and course != lesson_course:
+		frappe.throw(_("This lesson does not belong to the course."))
+	course = lesson_course
+
 	# The completion path writes the enrollment twice: LMS Course Progress.on_update
 	# recalculates progress, then this advances current_lesson. Batch them so the
 	# request emits a single on_update, as the pre-regression .save() did.
@@ -466,6 +559,12 @@ def _save_progress(lesson: str, course: str, scorm_details: dict = None):
 	)
 
 	return progress
+
+
+def get_lesson_course(lesson: str) -> str | None:
+	"""The course LMS Course Progress fetches for this lesson (lesson.chapter.course)."""
+	chapter = frappe.db.get_value("Course Lesson", lesson, "chapter")
+	return chapter and frappe.db.get_value("Course Chapter", chapter, "course")
 
 
 def get_next_lesson(course: str, lesson: str):

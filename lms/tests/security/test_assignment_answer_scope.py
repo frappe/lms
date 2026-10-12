@@ -76,6 +76,25 @@ class TestAssignmentAnswerScope(BaseTestUtils):
 			user_type="System User",
 		)
 		self.assignment = self._create_answered_assignment(hash)
+
+		# assessment_has_permission now reaches the row too, not only its `answer`
+		# field: `creator` and `evaluator` need a real relationship to it, and
+		# `student` needs to be enrolled in the course it is placed in.
+		course = self._create_course(title=f"Answer Scope Course {hash}", instructor=self.creator.email)
+		self._place_in_lesson(course.name, "LMS Assignment", self.assignment.name)
+		self._create_enrollment(self.student.name, course.name)
+		self._create_evaluator(self.evaluator.email)
+		batch = self._create_batch(
+			course.name,
+			title=f"Answer Scope Batch {hash}",
+			instructor="Administrator",
+			evaluator=self.evaluator.email,
+		)
+		batch.append(
+			"assessment", {"assessment_type": "LMS Assignment", "assessment_name": self.assignment.name}
+		)
+		batch.save()
+
 		self._assert_actor_roles()
 		self.custom_docperms: list[str] = []
 

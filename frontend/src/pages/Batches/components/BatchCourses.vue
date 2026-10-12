@@ -109,6 +109,10 @@ const isAdmin = () => {
 	if (readOnlyMode) {
 		return false
 	}
-	return user.data?.is_moderator || user.data?.is_evaluator
+	return (
+		user.data?.is_moderator ||
+		user.data?.is_evaluator ||
+		Boolean(props.batch.data?.can_manage)
+	)
 }
 </script>
