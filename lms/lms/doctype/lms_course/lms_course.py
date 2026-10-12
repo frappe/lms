@@ -16,6 +16,7 @@ from ...utils import (
 	get_lesson_count,
 	get_lms_route,
 	update_payment_record,
+	validate_attachable_file,
 	validate_image,
 )
 
@@ -29,6 +30,7 @@ class LMSCourse(Document):
 		self.validate_payments_app()
 		self.validate_certification()
 		self.validate_amount_and_currency()
+		validate_attachable_file(self, "image")
 		self.image = validate_image(self.image)
 		self.validate_card_gradient()
 

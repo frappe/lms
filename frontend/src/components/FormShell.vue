@@ -156,18 +156,26 @@ useEventListener(document, 'keydown', (e: KeyboardEvent) => {
 let previouslyFocused: HTMLElement | null = null
 let tookFocus = false
 
+// Same opt-in as frappe-ui's Dialog (useAutofocusOnOpen), so one `autofocus`
+// on a field works in both branches. Forms without one keep the container.
+const seatFocus = (): void => {
+	const marked = pageRef.value?.querySelector<HTMLElement>('[autofocus]')
+	marked?.focus()
+	if (!marked || document.activeElement !== marked) pageRef.value?.focus()
+}
+
 onMounted(() => {
 	if (!isMobile.value) return
 	previouslyFocused = document.activeElement as HTMLElement | null
 	tookFocus = true
-	pageRef.value?.focus()
+	seatFocus()
 })
 
 // Re-seat focus across that branch swap; the desktop Dialog seats its own.
 watch(isMobile, async (mobile) => {
 	if (!tookFocus || !mobile) return
 	await nextTick()
-	pageRef.value?.focus()
+	seatFocus()
 })
 
 // The trigger usually survives — forms are child routes, so the list behind

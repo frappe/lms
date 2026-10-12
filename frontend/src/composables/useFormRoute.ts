@@ -1,5 +1,10 @@
 import { onScopeDispose } from 'vue'
-import { useRouter, type RouteLocationRaw, type Router } from 'vue-router'
+import {
+	useRouter,
+	type HistoryState,
+	type RouteLocationRaw,
+	type Router,
+} from 'vue-router'
 
 /**
  * Marker written into history.state when we open a form route ourselves.
@@ -8,26 +13,77 @@ import { useRouter, type RouteLocationRaw, type Router } from 'vue-router'
  */
 const FORM_ENTRY = 'lmsFormEntry'
 
-// Normalizes `to` and stamps FORM_ENTRY, preserving whatever state the caller
-// already set rather than clobbering it — both openFormRoute (true) and
-// saveAndReplace (false) go through this.
+/**
+ * The location openFormRoute is leaving. router.push() would unmount that
+ * page, floating the form's Dialog over a blank app; App.vue keeps it rendered.
+ */
+const FORM_BACKGROUND = 'lmsFormBackground'
+
+// Reads the state of the CURRENT history entry through the router rather than
+// window.history: createMemoryHistory (used in tests) never touches
+// window.history, and vue-router mirrors the web history's state here too.
+const historyState = (router: Router): Record<string, unknown> =>
+	(router.options.history.state as Record<string, unknown> | null) ?? {}
+
+/**
+ * The fullPath App.vue should render behind the current form route, or null
+ * when nothing stamped one (a deep link, a reload, a hand-typed URL).
+ */
+export function formBackgroundPath(router: Router): string | null {
+	const stored = historyState(router)[FORM_BACKGROUND]
+	return typeof stored === 'string' && stored ? stored : null
+}
+
+/**
+ * Merges the CURRENT entry's background stamp into an entry that overlays
+ * the same page (settings, addressed by hash). Without it, a settings entry
+ * pushed over a form route carries no stamp, so App.vue paints nothing
+ * behind settings and the next openFormRoute would record settings itself
+ * as the background. Written unconditionally, null included: replace()
+ * merges state, so an omitted key would leak the old value.
+ */
+export function withFormBackground(
+	router: Router,
+	state: HistoryState = {}
+): HistoryState {
+	return { ...state, [FORM_BACKGROUND]: formBackgroundPath(router) }
+}
+
+// Normalizes `to` and stamps FORM_ENTRY without clobbering existing state.
+// FORM_BACKGROUND is always written, null included: replace() MERGES state
+// over the entry it replaces, so an omitted key would leak the form's
+// background onto a destination that isn't a modal at all.
 const withFormEntry = (
 	to: RouteLocationRaw,
-	value: boolean
+	value: boolean,
+	background: string | null = null
 ): Exclude<RouteLocationRaw, string> & { state: Record<string, unknown> } => {
 	const location = typeof to === 'string' ? { path: to } : to
 	const priorState =
 		'state' in location && location.state
 			? (location.state as Record<string, unknown>)
 			: {}
-	return { ...location, state: { ...priorState, [FORM_ENTRY]: value } }
+	return {
+		...location,
+		state: {
+			...priorState,
+			[FORM_ENTRY]: value,
+			[FORM_BACKGROUND]: background,
+		},
+	}
 }
 
 export function openFormRoute(
 	router: Router,
 	to: RouteLocationRaw
 ): Promise<unknown> {
-	return router.push(withFormEntry(to, true))
+	const current = router.currentRoute.value
+	// Carry an existing background forward: opening form B from form A must
+	// still show the page A was opened over, not form A itself.
+	const background = current.matched.length
+		? formBackgroundPath(router) ?? current.fullPath
+		: null
+	return router.push(withFormEntry(to, true, background))
 }
 
 export function useFormRoute(parent: RouteLocationRaw): {
@@ -39,10 +95,7 @@ export function useFormRoute(parent: RouteLocationRaw): {
 	// Read once, at setup. By close time this is still the same history entry.
 	// Going through the router rather than window.history keeps it readable
 	// under createMemoryHistory, which never touches window.history.
-	const openedByUs =
-		(router.options.history.state as Record<string, unknown> | null)?.[
-			FORM_ENTRY
-		] === true
+	const openedByUs = historyState(router)[FORM_ENTRY] === true
 
 	// router.back()/replace() are async, and the component stays mounted until
 	// the navigation actually flushes — so a second close() call inside that
