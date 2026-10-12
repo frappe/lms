@@ -67,15 +67,10 @@ vi.mock('@framework/ui/telemetry/index', async (importOriginal) => ({
 	...(await importOriginal<typeof import('@framework/ui/telemetry/index')>()),
 	useTelemetry: () => ({ capture: vi.fn() }),
 }))
-vi.mock(
-	'@framework/ui/components/Onboarding/index',
-	async (importOriginal) => ({
-		...(await importOriginal<
-			typeof import('@framework/ui/components/Onboarding/index')
-		>()),
-		useOnboarding: () => ({ updateOnboardingStep: vi.fn() }),
-	})
-)
+const { completeStepMock } = vi.hoisted(() => ({ completeStepMock: vi.fn() }))
+vi.mock('@/onboarding/useLearningOnboarding', () => ({
+	useLearningOnboarding: () => ({ completeStep: completeStepMock }),
+}))
 
 vi.mock('@/components/Controls/BooleanSwitch.vue', () => ({
 	default: { props: ['modelValue', 'label'], template: `<label />` },

@@ -64,10 +64,13 @@ import SettingsLayout from '@/components/Layouts/settings/desktop/SettingsLayout
 import ImageUploadField from '@/components/Controls/ImageUploadField.vue'
 import { ref, watch } from 'vue'
 import { useAutosave } from '@/composables/useAutosave'
+import { useLearningOnboarding } from '@/onboarding/useLearningOnboarding'
 
 defineProps({
 	label: { type: String },
 })
+
+const { refetchFacts } = useLearningOnboarding()
 
 const branding = createResource({
 	url: 'lms.lms.api.get_branding',
@@ -125,9 +128,11 @@ const autosave = useAutosave({
 		// again on the response absorbs anything typed while the write was in
 		// flight, and useAutosave's queued replay then drops it as not dirty.
 		const sent = getFieldsToSave()
-		return saveSettings
-			.submit({ fields: sent })
-			.then(() => (savedFields.value = JSON.stringify(sent)))
+		return saveSettings.submit({ fields: sent }).then(() => {
+			savedFields.value = JSON.stringify(sent)
+			// The server decides whether this counts as branded.
+			refetchFacts()
+		})
 	},
 })
 </script>

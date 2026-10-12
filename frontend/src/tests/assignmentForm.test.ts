@@ -55,6 +55,11 @@ const {
 	}
 })
 
+const { completeStepMock } = vi.hoisted(() => ({ completeStepMock: vi.fn() }))
+vi.mock('@/onboarding/useLearningOnboarding', () => ({
+	useLearningOnboarding: () => ({ completeStep: completeStepMock }),
+}))
+
 // HeaderButton wraps frappe-ui's Button in a Tooltip below the mobile
 // breakpoint, and the hand-written frappe-ui mock here has no Tooltip. Stub it
 // down to the bare button so the fallthrough attrs the assertions use
@@ -315,6 +320,23 @@ describe('AssignmentForm as a route', () => {
 		await mountForm(router, moderator)
 
 		expect(docOptions.current).toMatchObject({ name: undefined, auto: false })
+	})
+
+	// Guards: Create an assignment ticking early, or never. Introduced in this
+	// branch (feat/onboarding-flows, PR pending); test added there to cover the
+	// tick.
+	it('ticks the onboarding assignment step once the assignment is created', async () => {
+		completeStepMock.mockReset()
+		const router = makeRouter()
+		await router.push({
+			name: 'AssignmentForm',
+			params: { assignmentID: 'new' },
+		})
+		await mountForm(router, moderator)
+		expect(completeStepMock).not.toHaveBeenCalled()
+		insertOptions.current.onSuccess()
+		await flushPromises()
+		expect(completeStepMock).toHaveBeenCalledWith('add_assignment')
 	})
 
 	it('creates through its own resource, not a parent-supplied one', async () => {

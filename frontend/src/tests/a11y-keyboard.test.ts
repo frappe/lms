@@ -74,7 +74,13 @@ vi.mock('@framework/ui/components/Onboarding/index', () => ({
 	HelpModal: { template: '<div />' },
 	GettingStartedBanner: { template: '<div />' },
 	IntermediateStepModal: { template: '<div />' },
-	useOnboarding: () => ({ setUp: vi.fn(), isOnboardingStepsCompleted: true }),
+	useOnboarding: () => ({
+		steps: [],
+		setUp: vi.fn(),
+		syncStatus: vi.fn(),
+		updateOnboardingStep: vi.fn(),
+		isOnboardingStepsCompleted: { value: true },
+	}),
 	showHelpModal: { value: false },
 	minimize: { value: false },
 }))

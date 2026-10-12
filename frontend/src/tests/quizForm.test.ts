@@ -2,7 +2,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { enableAutoUnmount, flushPromises, mount } from '@vue/test-utils'
 import { createMemoryHistory, createRouter, type Router } from 'vue-router'
-import { effectScope, reactive, watch } from 'vue'
+import { effectScope, nextTick, reactive, watch } from 'vue'
 
 vi.stubGlobal('__', (text: string) => text)
 
@@ -147,6 +147,11 @@ createDocumentResourceMock.mockImplementation((options: any) => {
 	return resource
 })
 
+const { completeStepMock } = vi.hoisted(() => ({ completeStepMock: vi.fn() }))
+vi.mock('@/onboarding/useLearningOnboarding', () => ({
+	useLearningOnboarding: () => ({ completeStep: completeStepMock }),
+}))
+
 // QuizForm.vue's `useTelemetry()` needs a stub here.
 vi.mock('@framework/ui/telemetry/index', () => ({
 	useTelemetry: () => ({ capture: vi.fn() }),
@@ -217,6 +222,12 @@ vi.mock('frappe-ui', () => ({
 			inputAttrs(this: any) {
 				const { class: _c, style: _s, ...rest } = this.$attrs
 				return rest
+			},
+		},
+		// FormControl exposes focus(), forwarded to its input.
+		methods: {
+			focus(this: any) {
+				this.$el.querySelector('input').focus()
 			},
 		},
 		template: `<label :class="$attrs.class" :data-variant="variant" :data-disabled="disabled ? 'true' : 'false'">{{ label }}<slot name="label" /><input v-bind="inputAttrs" :type="type" :placeholder="placeholder" :value="modelValue" :disabled="disabled" @input="$emit('update:modelValue', $event.target.value)" /></label>`,
@@ -470,7 +481,8 @@ const makeRouter = (): Router =>
 const mountForm = async (
 	questions: Doc[] = [],
 	overrides: Doc = {},
-	quizID = 'QZ-0001'
+	quizID = 'QZ-0001',
+	attachTo?: HTMLElement
 ) => {
 	server.doc = quizDoc(questions, { name: quizID, ...overrides })
 	const router = makeRouter()
@@ -486,6 +498,7 @@ const mountForm = async (
 				config: { globalProperties: { $dialog } },
 				mocks: { __: (text: string) => text },
 			},
+			attachTo,
 		}
 	)
 	await flushPromises()
@@ -494,7 +507,7 @@ const mountForm = async (
 }
 
 // The Create button's destination: a form with no quiz behind it at all.
-const mountNewQuiz = async () => {
+const mountNewQuiz = async (attachTo?: HTMLElement) => {
 	const router = makeRouter()
 	await router.push({ name: 'NewQuiz' })
 	await router.isReady()
@@ -507,6 +520,7 @@ const mountNewQuiz = async () => {
 				config: { globalProperties: { $dialog } },
 				mocks: { __: (text: string) => text },
 			},
+			attachTo,
 		}
 	)
 	await flushPromises()
@@ -778,6 +792,91 @@ describe('QuizForm: autosave', () => {
 
 		await idle(10000)
 		expect(setValueSubmit).toHaveBeenCalledTimes(1)
+	})
+})
+
+describe('QuizForm: onboarding', () => {
+	// Guards: the Add a quiz onboarding step never ticking. Introduced in this
+	// branch (feat/onboarding-flows, PR pending); test added there.
+	it('completes the quiz step once a new quiz is created', async () => {
+		completeStepMock.mockReset()
+		const { wrapper } = await mountNewQuiz()
+		wrapper.vm.newQuiz.title = 'First quiz'
+		await wrapper.vm.createIfNamed()
+		await flushPromises()
+		expect(calls.inserts.at(-1)).toMatchObject({
+			doc: { doctype: 'LMS Quiz', title: 'First quiz' },
+		})
+		expect(completeStepMock).toHaveBeenCalledWith('add_quiz')
+	})
+
+	// Guards: Add a quiz ticking when no quiz was created. Introduced in this
+	// branch (feat/onboarding-flows, PR pending); test added there.
+	it('leaves the step alone when there is no title to create from', async () => {
+		completeStepMock.mockReset()
+		const { wrapper } = await mountNewQuiz()
+		wrapper.vm.newQuiz.title = ''
+		await wrapper.vm.createIfNamed()
+		await flushPromises()
+		expect(completeStepMock).not.toHaveBeenCalled()
+	})
+})
+
+describe('QuizForm: a new quiz', () => {
+	const titleInput = (wrapper: any) =>
+		wrapper
+			.findAll('label')
+			.find((l: any) => l.text().startsWith('Title'))
+			.find('input').element
+	const badge = (wrapper: any) =>
+		wrapper.findComponent({ name: 'UnsavedBadge' })
+
+	afterEach(() => {
+		document.body.innerHTML = ''
+	})
+
+	// Guards: a new quiz opening without focus in its title. Introduced in this
+	// branch (feat/onboarding-flows, PR pending); test added there
+	// (jsdom sees the focus move; the visible caret needs a browser check).
+	it('puts the caret in the empty title', async () => {
+		const { wrapper } = await mountNewQuiz(document.body)
+		expect(document.activeElement).toBe(titleInput(wrapper))
+	})
+
+	// Guards: an existing quiz stealing focus into its title on open.
+	// Introduced in this branch (feat/onboarding-flows, PR pending); test added
+	// there.
+	it('leaves the focus alone on an existing quiz', async () => {
+		const { wrapper } = await mountForm([], {}, 'QZ-0001', document.body)
+		expect(document.activeElement).not.toBe(titleInput(wrapper))
+	})
+
+	// Guards: a new quiz looking saved, or the badge naming the wrong missing
+	// fields. Introduced in this branch (feat/onboarding-flows, PR pending); test
+	// added there.
+	it('says Not saved, naming what saving still needs', async () => {
+		const { wrapper } = await mountNewQuiz()
+		expect(badge(wrapper).props('missing')).toEqual(['a title'])
+		wrapper.vm.newQuiz.title = 'First quiz'
+		wrapper.vm.newQuiz.passing_percentage = ''
+		await nextTick()
+		expect(badge(wrapper).props('missing')).toEqual(['a passing percentage'])
+		wrapper.vm.newQuiz.passing_percentage = 70
+		await nextTick()
+		expect(badge(wrapper).props('missing')).toEqual([])
+		expect(badge(wrapper).props('hint')).toBe(
+			'Press Enter in the title to save this quiz'
+		)
+	})
+
+	// Guards: Not saved lingering after the quiz exists. Introduced in this
+	// branch (feat/onboarding-flows, PR pending); test added there.
+	it('drops the Not saved badge once the quiz is created', async () => {
+		const { wrapper } = await mountNewQuiz()
+		wrapper.vm.newQuiz.title = 'First quiz'
+		await wrapper.vm.createIfNamed()
+		await flushPromises()
+		expect(badge(wrapper).exists()).toBe(false)
 	})
 })
 

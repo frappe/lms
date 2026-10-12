@@ -5,7 +5,7 @@
  * reloads a snapshot the newer edit has already moved past.
  */
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { mount } from '@vue/test-utils'
+import { flushPromises, mount } from '@vue/test-utils'
 
 type Row = {
 	name: string
@@ -34,7 +34,7 @@ const row = (overrides: Partial<Row>): Row => ({
 	...overrides,
 })
 
-const { settingsDoc, reload, call, toast } = vi.hoisted(() => {
+const { settingsDoc, reload, call, toast, completeStep } = vi.hoisted(() => {
 	const settingsDoc = {
 		doc: {
 			name: 'LMS Settings',
@@ -46,8 +46,13 @@ const { settingsDoc, reload, call, toast } = vi.hoisted(() => {
 		reload: vi.fn(async () => settingsDoc.doc),
 		call: vi.fn(),
 		toast: { error: vi.fn(), success: vi.fn() },
+		completeStep: vi.fn(),
 	}
 })
+
+vi.mock('@/onboarding/useLearningOnboarding', () => ({
+	useLearningOnboarding: () => ({ completeStep }),
+}))
 
 vi.mock('frappe-ui', () => ({
 	Button: { template: '<button><slot /></button>' },
@@ -77,7 +82,7 @@ vi.mock('@/components/Layouts/settings/desktop/SettingsLayout.vue', () => ({
 }))
 
 vi.mock('@/components/Settings/Sidebar/SidebarPageModal.vue', () => ({
-	default: { template: '<div />' },
+	default: { name: 'SidebarPageModal', emits: ['saved'], template: '<div />' },
 }))
 
 vi.mock('@/stores/settings', () => ({
@@ -119,6 +124,7 @@ beforeEach(() => {
 	reload.mockClear()
 	call.mockReset()
 	toast.error.mockClear()
+	completeStep.mockClear()
 })
 
 const build = () =>
@@ -180,5 +186,43 @@ describe('overlapping sidebar saves', () => {
 		await Promise.resolve()
 
 		expect(reload).toHaveBeenCalledTimes(1)
+	})
+})
+
+describe('Customize the sidebar', () => {
+	// Guards: saving the sidebar leaving the basic setup step open, since no
+	// stored value says the sidebar was customised. Introduced in this branch
+	// (feat/onboarding-flows, PR pending); test added there to tick it on save.
+	it('ticks once a sidebar save lands', async () => {
+		call.mockResolvedValue(undefined)
+		const wrapper = build()
+		await wrapper.vm.$nextTick()
+		await wrapper.findAll('input[type="checkbox"]')[0].setValue(false)
+		await flushPromises()
+		expect(completeStep).toHaveBeenCalledWith('customise_sidebar')
+	})
+
+	// Guards: a page added through the modal leaving the step open. Introduced
+	// in this branch (feat/onboarding-flows, PR pending); test added there to
+	// tick it on the modal's save too.
+	it('ticks once the page modal saves', async () => {
+		const wrapper = build()
+		await wrapper.vm.$nextTick()
+		wrapper.findComponent({ name: 'SidebarPageModal' }).vm.$emit('saved')
+		await flushPromises()
+		expect(completeStep).toHaveBeenCalledWith('customise_sidebar')
+	})
+
+	// Guards: a refused save ticking the step as if it saved. Introduced in this
+	// branch (feat/onboarding-flows, PR pending); test added there to tick on
+	// success only.
+	it('stays open when the save is refused', async () => {
+		call.mockRejectedValue({ messages: ['refused'] })
+		const wrapper = build()
+		await wrapper.vm.$nextTick()
+		await wrapper.findAll('input[type="checkbox"]')[0].setValue(false)
+		await flushPromises()
+		expect(toast.error).toHaveBeenCalled()
+		expect(completeStep).not.toHaveBeenCalled()
 	})
 })

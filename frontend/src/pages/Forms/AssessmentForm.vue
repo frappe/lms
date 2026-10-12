@@ -12,6 +12,7 @@
 					:label="__('Type')"
 					placeholder=" "
 					@update:modelValue="() => (assessment = null)"
+					variant="outline"
 				/>
 				<Link
 					v-if="assessmentType"
@@ -20,6 +21,7 @@
 					:label="__('Assessment')"
 					placeholder=" "
 					:onCreate="createAssessment"
+					variant="outline"
 				/>
 			</div>
 		</template>

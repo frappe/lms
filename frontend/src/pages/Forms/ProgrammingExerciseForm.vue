@@ -158,6 +158,7 @@ import {
 	useKeyboardShortcuts,
 } from '@/composables/useKeyboardShortcuts'
 import { resourceErrorMessage, submitResource } from '@/utils/resource'
+import { useLearningOnboarding } from '@/onboarding/useLearningOnboarding'
 
 const user = inject<any>('$user')
 const router = useRouter()
@@ -178,6 +179,7 @@ const props = withDefaults(
 )
 
 const isNew = computed(() => props.exerciseID === 'new')
+const { completeStep } = useLearningOnboarding()
 
 // Its own list resource, but every option here is deliberately byte-identical
 // to ProgrammingExercises.vue:131-138. createListResource returns whichever
@@ -393,6 +395,7 @@ const createIfReady = () => {
 	sentOnCreate = JSON.stringify(payload)
 	submitResource(exercises.insert, payload, {
 		onSuccess(doc: { name: string }) {
+			completeStep('add_programming_exercise')
 			// insert already refetched the list itself (listResource.js:123).
 			exerciseCount.reload()
 			// Only if still here: the blur that created it may have been a click away.

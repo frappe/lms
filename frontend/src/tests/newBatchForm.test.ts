@@ -99,15 +99,10 @@ vi.mock('@framework/ui/telemetry/index', async (importOriginal) => ({
 	...(await importOriginal<typeof import('@framework/ui/telemetry/index')>()),
 	useTelemetry: () => ({ capture: vi.fn() }),
 }))
-vi.mock(
-	'@framework/ui/components/Onboarding/index',
-	async (importOriginal) => ({
-		...(await importOriginal<
-			typeof import('@framework/ui/components/Onboarding/index')
-		>()),
-		useOnboarding: () => ({ updateOnboardingStep: vi.fn() }),
-	})
-)
+const { completeStepMock } = vi.hoisted(() => ({ completeStepMock: vi.fn() }))
+vi.mock('@/onboarding/useLearningOnboarding', () => ({
+	useLearningOnboarding: () => ({ completeStep: completeStepMock }),
+}))
 
 // The rich text editor drags in ProseMirror; the form's behaviour under test
 // does not involve it.
@@ -338,5 +333,26 @@ describe('NewBatchForm as a route', () => {
 		router.back()
 		await flushPromises()
 		expect(router.currentRoute.value.name).toBe('Batches')
+	})
+
+	// Guards: a new batch not ticking its step, or later steps aiming
+	// elsewhere. Introduced in this branch (feat/onboarding-flows, PR pending);
+	// test added there to pin the batch.
+	it('completes the onboarding step with the new batch as its target', async () => {
+		const router = makeRouter()
+		await router.push({ name: 'Batches' })
+		await router.push({ name: 'NewBatch', state: { lmsFormEntry: true } })
+		const wrapper = await mountForm(router, moderator)
+
+		insertSubmit.mockImplementation(
+			(_doc: unknown, options: { onSuccess: (d: unknown) => void }) => {
+				options.onSuccess({ name: 'BATCH-0001' })
+			}
+		)
+		await wrapper.find('[data-testid="new-batch-save"]').trigger('click')
+		await flushPromises()
+		expect(completeStepMock).toHaveBeenCalledWith('create_first_batch', {
+			first_batch: 'BATCH-0001',
+		})
 	})
 })

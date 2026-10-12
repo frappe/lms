@@ -21,6 +21,7 @@
 						type="text"
 						:required="true"
 						@change="dirty = true"
+						variant="outline"
 					/>
 					<div class="flex flex-col space-y-3">
 						<FormControl
@@ -181,6 +182,7 @@
 							v-model="course"
 							doctype="LMS Course"
 							:label="__('Course')"
+							variant="outline"
 						/>
 
 						<Link
@@ -195,6 +197,7 @@
 								(value: string, close: () => void) =>
 									openSettings('members', close)
 							"
+							variant="outline"
 						/>
 					</div>
 				</template>

@@ -2,7 +2,7 @@ import type { ChartValueFormatter } from 'frappe-ui/charts'
 
 const formatters = new Map<string, Intl.NumberFormat>()
 
-function documentLocale(): string {
+export function documentLocale(): string {
 	const lang = document.documentElement.lang
 	if (!lang) return 'en-US'
 	try {
