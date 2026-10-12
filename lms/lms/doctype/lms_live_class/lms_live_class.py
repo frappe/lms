@@ -91,10 +91,7 @@ class LMSLiveClass(Document):
 		self.sync_with_google_calendar(event, calendar)
 		if self.conferencing_provider == "Google Meet":
 			self.add_video_conferencing_to_event(event)
-		# If the guest list could not be hidden, learners stay off the invite: they
-		# still have the link in LMS and its reminder mail, and no one is exposed.
-		if hide_guest_list(event, calendar):
-			invite_learners_quietly(event, set(self.get_learners()) - set(self.get_hosts()))
+		send_learner_invites(self.name)
 
 	def create_event(self):
 		start = f"{self.date} {self.time}"
@@ -162,7 +159,7 @@ def get_live_class_calendar(conferencing_provider, google_meet_account=None):
 		calendar = frappe.db.get_value("Google Calendar", {"user": frappe.session.user, "enable": 1}, "name")
 		if not calendar:
 			frappe.throw(
-				_("Connect your Google Calendar to schedule Zoom classes. Class invites are sent from it."),
+				_("A Google Calendar connection is needed to send invites for live classes."),
 				GoogleCalendarMissingError,
 			)
 
@@ -177,16 +174,12 @@ def ensure_calendar_can_send_invites(calendar):
 	doc = frappe.get_doc("Google Calendar", calendar)
 	if not doc.get_password("refresh_token", raise_exception=False):
 		frappe.throw(
-			_(
-				"Your Google Calendar is not authorised yet. Authorise it in its settings to schedule classes."
-			),
+			_("Authorise your Google Calendar to schedule classes."),
 			GoogleCalendarMissingError,
 		)
 	if not doc.push_to_google_calendar:
 		frappe.throw(
-			_(
-				"Turn on Push to Google Calendar in your Google Calendar settings to schedule classes. Class invites are sent from it."
-			),
+			_("Turn on Push to Google Calendar to schedule classes."),
 			GoogleCalendarMissingError,
 		)
 
@@ -241,41 +234,144 @@ def hide_guest_list(event, calendar) -> bool:
 	return True
 
 
-def invite_learners_quietly(event, emails):
+def invite_learners_quietly(event, emails) -> bool:
 	"""Invite learners without letting a calendar failure undo what led here: a
 	class, or an enrollment, is kept, and the learner still has the class's link in
 	LMS and its reminder mail. Muted: Frappe's own sync reports to whoever saved,
-	which may be an enrolling learner who should not see it."""
+	which may be an enrolling learner who should not see it. Returns whether
+	Google took the invites."""
 	muted = frappe.flags.mute_messages
 	frappe.flags.mute_messages = True
+	frappe.db.savepoint("invite_learners")
 	try:
 		invite_to_event(event, emails)
 	except Exception:
+		# Drop the guest rows too, or the learners would look invited and never be
+		# retried.
+		frappe.db.rollback(save_point="invite_learners")
 		frappe.log_error(title=f"Could not invite learners to live class event {event.name}")
+		return False
 	finally:
 		frappe.flags.mute_messages = muted
+	return True
 
 
-def add_learner_to_live_classes(batch, member):
+# Tries before the hosts are told. The first is made with the class or the
+# enrollment, the rest by retry_pending_invites, one per scheduler tick.
+MAX_INVITE_ATTEMPTS = 5
+
+
+def send_learner_invites(live_class: str) -> bool:
+	"""Invite the batch's learners who are not on the class's invite yet. If Google
+	fails, the class is marked Retrying and tried again on every scheduler tick;
+	after MAX_INVITE_ATTEMPTS it is marked Failed, the hosts are told, and the
+	class's Retry button takes over. Returns whether every learner is invited."""
+	status, attempts = frappe.db.get_value("LMS Live Class", live_class, ["invite_status", "invite_attempts"])
+	if invite_missing_learners(live_class):
+		if status:
+			set_invite_status(live_class, "", 0)
+		return True
+
+	attempts = cint(attempts) + 1
+	if status == "Failed":
+		# Already reported. A later enrollment or a retry that fails again leaves it
+		# for the Retry button rather than telling the hosts twice.
+		set_invite_status(live_class, "Failed", attempts)
+	elif attempts >= MAX_INVITE_ATTEMPTS:
+		set_invite_status(live_class, "Failed", attempts)
+		notify_hosts_of_missing_invites(live_class)
+	else:
+		set_invite_status(live_class, "Retrying", attempts)
+	return False
+
+
+def invite_missing_learners(live_class: str) -> bool:
+	event_name, batch = frappe.db.get_value("LMS Live Class", live_class, ["event", "batch_name"])
+	if not event_name:
+		return True
+
+	event = frappe.get_doc("Event", event_name)
+	# An event from before this was Public, readable by any staff member and in
+	# their event digests, so adding learners there would expose them.
+	if event.event_type != "Private":
+		return True
+
+	invited = {guest.email for guest in event.event_participants}
+	learners = frappe.get_all("LMS Batch Enrollment", {"batch": batch}, pluck="member")
+	missing = [learner for learner in learners if learner not in invited]
+	if not missing:
+		return True
+
+	# Hidden again before every invite: the guest list shows every learner to every
+	# other one until it is.
+	if not hide_guest_list(event, event.google_calendar):
+		return False
+	return invite_learners_quietly(event, missing)
+
+
+def set_invite_status(live_class: str, status: str, attempts: int):
+	frappe.db.set_value(
+		"LMS Live Class",
+		live_class,
+		{"invite_status": status, "invite_attempts": attempts},
+		update_modified=False,
+	)
+
+
+def notify_hosts_of_missing_invites(live_class: str):
+	from frappe.desk.doctype.notification_log.notification_log import make_notification_logs
+
+	from lms.lms.utils import get_lms_route
+
+	cls = frappe.db.get_value(
+		"LMS Live Class", live_class, ["title", "batch_name", "host", "owner"], as_dict=True
+	)
+	instructors = frappe.get_all(
+		"Course Instructor", {"parenttype": "LMS Batch", "parent": cls.batch_name}, pluck="instructor"
+	)
+	hosts = {cls.host, cls.owner, *instructors} - {None}
+	notification = frappe._dict(
+		{
+			"subject": _("Learners haven't been invited to {0}").format(frappe.bold(cls.title)),
+			"email_content": _(
+				"Google Calendar didn't take their invites. Open the class and select Retry to send them."
+			),
+			"document_type": "LMS Live Class",
+			"document_name": live_class,
+			"type": "Alert",
+			"link": get_lms_route(f"batches/{cls.batch_name}#classes"),
+		}
+	)
+	make_notification_logs(notification, list(hosts))
+
+
+def retry_pending_invites():
+	"""Scheduled. Tries again for upcoming classes whose invites Google failed."""
+	classes = frappe.get_all(
+		"LMS Live Class",
+		{"invite_status": "Retrying", "date": [">=", nowdate()]},
+		pluck="name",
+	)
+	for live_class in classes:
+		send_learner_invites(live_class)
+
+
+@frappe.whitelist(methods=["POST"])
+def retry_invites(live_class: str) -> bool:
+	"""The Retry button on a class whose learners could not be invited."""
+	frappe.get_doc("LMS Live Class", live_class).check_permission("write")
+	return send_learner_invites(live_class)
+
+
+def add_learner_to_live_classes(batch):
 	"""Invite a learner who joins the batch to its upcoming live classes."""
-	events = frappe.get_all(
+	classes = frappe.get_all(
 		"LMS Live Class",
 		{"batch_name": batch, "event": ["is", "set"], "date": [">=", nowdate()]},
-		pluck="event",
+		pluck="name",
 	)
-	for event_name in events:
-		if frappe.db.exists("Event Participants", {"parent": event_name, "email": member}):
-			continue
-		event = frappe.get_doc("Event", event_name)
-		# An event from before this was Public, readable by any staff member and in
-		# their event digests, so adding the learner there would expose them.
-		if event.event_type != "Private":
-			continue
-		# Hidden again before every invite: it may have failed when the class was
-		# made, and then the invite would show the learner every other guest.
-		if not hide_guest_list(event, event.google_calendar):
-			continue
-		invite_learners_quietly(event, [member])
+	for live_class in classes:
+		send_learner_invites(live_class)
 
 
 def send_live_class_reminder():

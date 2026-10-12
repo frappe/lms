@@ -176,7 +176,7 @@ class TestLMSLiveClass(BaseTestUtils):
 			frappe.db.set_value("Google Calendar", name, "enable", 0)
 		self.addCleanup(lambda: [frappe.db.set_value("Google Calendar", n, "enable", 1) for n in calendars])
 
-		with self.assertRaisesRegex(GoogleCalendarMissingError, "Connect your Google Calendar"):
+		with self.assertRaisesRegex(GoogleCalendarMissingError, "Google Calendar connection is needed"):
 			self._create_live_class(provider="Zoom", zoom_account=self._zoom_account())
 
 	def test_scheduling_a_zoom_class_without_a_calendar_makes_no_zoom_meeting(self):
@@ -248,7 +248,7 @@ class TestLMSLiveClass(BaseTestUtils):
 			set_encrypted_password, "Google Calendar", self.google_calendar.name, token, "refresh_token"
 		)
 
-		with self.assertRaisesRegex(GoogleCalendarMissingError, "not authorised"):
+		with self.assertRaisesRegex(GoogleCalendarMissingError, "Authorise your Google Calendar"):
 			self._create_live_class(provider="Zoom", zoom_account=self._zoom_account())
 
 	def test_a_calendar_that_does_not_push_to_google_is_reported(self):
@@ -357,6 +357,109 @@ class TestLMSLiveClass(BaseTestUtils):
 		self._create_batch_enrollment(student, self.batch.name)
 
 		self.assertNotIn(student, self._event_guests(live_class))
+
+	def _fail_hiding_the_guest_list(self):
+		patch_call = self.mock_api.events.return_value.patch
+		patch_call.side_effect = Exception("Google said no")
+		self.addCleanup(setattr, patch_call, "side_effect", None)
+		return patch_call
+
+	def _invite_state(self, live_class):
+		return frappe.db.get_value(
+			"LMS Live Class", live_class.name, ["invite_status", "invite_attempts"], as_dict=True
+		)
+
+	def test_learners_are_invited_on_a_retry_once_google_recovers(self):
+		from lms.lms.doctype.lms_live_class.lms_live_class import retry_pending_invites
+
+		student = self._student()
+		self._create_batch_enrollment(student, self.batch.name)
+		patch_call = self._fail_hiding_the_guest_list()
+
+		live_class = self._create_live_class()
+		live_class.reload()
+		self.assertEqual(self._invite_state(live_class), {"invite_status": "Retrying", "invite_attempts": 1})
+
+		patch_call.side_effect = None
+		retry_pending_invites()
+
+		self.assertIn(student, self._event_guests(live_class))
+		self.assertEqual(self._invite_state(live_class), {"invite_status": "", "invite_attempts": 0})
+
+	def test_a_failed_invite_leaves_no_guest_rows_behind(self):
+		"""Rows left behind would make the learners look invited, so the retry would
+		skip them and Google would never send their invites."""
+		student = self._student()
+		self._create_batch_enrollment(student, self.batch.name)
+		update = self.mock_api.events.return_value.update.return_value.execute
+		update.side_effect = Exception("Google rejected the update")
+		self.addCleanup(setattr, update, "side_effect", None)
+
+		live_class = self._create_live_class(provider="Zoom", zoom_account=self._zoom_account())
+		live_class.reload()
+
+		self.assertNotIn(student, self._event_guests(live_class))
+		self.assertEqual(self._invite_state(live_class).invite_status, "Retrying")
+
+	def test_the_hosts_are_told_once_the_retries_run_out(self):
+		from lms.lms.doctype.lms_live_class.lms_live_class import (
+			MAX_INVITE_ATTEMPTS,
+			retry_pending_invites,
+		)
+
+		self._create_batch_enrollment(self._student(), self.batch.name)
+		self._fail_hiding_the_guest_list()
+		live_class = self._create_live_class()
+		live_class.reload()
+
+		for _attempt in range(MAX_INVITE_ATTEMPTS + 2):
+			retry_pending_invites()
+
+		self.assertEqual(
+			self._invite_state(live_class),
+			{"invite_status": "Failed", "invite_attempts": MAX_INVITE_ATTEMPTS},
+		)
+		notices = frappe.get_all(
+			"Notification Log",
+			{"document_type": "LMS Live Class", "document_name": live_class.name},
+			pluck="for_user",
+		)
+		# Once each. The class's host and owner are Administrator, who Frappe never
+		# notifies of their own doing, so here only the batch's instructors are told.
+		instructors = frappe.get_all(
+			"Course Instructor", {"parenttype": "LMS Batch", "parent": self.batch.name}, pluck="instructor"
+		)
+		self.assertCountEqual(notices, instructors)
+
+	def test_retry_invites_a_failed_class_and_clears_it(self):
+		from lms.lms.doctype.lms_live_class.lms_live_class import retry_invites
+
+		student = self._student()
+		self._create_batch_enrollment(student, self.batch.name)
+		patch_call = self._fail_hiding_the_guest_list()
+		live_class = self._create_live_class()
+		live_class.reload()
+		frappe.db.set_value("LMS Live Class", live_class.name, "invite_status", "Failed")
+
+		self.assertFalse(retry_invites(live_class.name))
+		self.assertEqual(self._invite_state(live_class).invite_status, "Failed")
+
+		patch_call.side_effect = None
+		self.assertTrue(retry_invites(live_class.name))
+		self.assertIn(student, self._event_guests(live_class))
+		self.assertEqual(self._invite_state(live_class).invite_status, "")
+
+	def test_a_learner_cannot_retry_a_class_invite(self):
+		from lms.lms.doctype.lms_live_class.lms_live_class import retry_invites
+
+		live_class = self._create_live_class()
+		student = self._student()
+		self._create_batch_enrollment(student, self.batch.name)
+
+		frappe.set_user(student)
+		self.addCleanup(frappe.set_user, "Administrator")
+		with self.assertRaises(frappe.PermissionError):
+			retry_invites(live_class.name)
 
 	def test_a_learner_enrolling_while_google_fails_still_enrolls_quietly(self):
 		live_class = self._create_live_class()

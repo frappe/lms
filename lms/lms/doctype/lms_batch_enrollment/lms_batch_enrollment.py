@@ -23,7 +23,7 @@ class LMSBatchEnrollment(Document):
 		send_confirmation_email(self)
 		from lms.lms.doctype.lms_live_class.lms_live_class import add_learner_to_live_classes
 
-		add_learner_to_live_classes(self.batch, self.member)
+		add_learner_to_live_classes(self.batch)
 
 	def validate(self):
 		validate_identity_unchanged(self, ("batch", "member"))

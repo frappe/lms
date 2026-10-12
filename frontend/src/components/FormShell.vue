@@ -4,6 +4,7 @@
 		:open="true"
 		:title="title"
 		:size="size"
+		:position="position"
 		@update:open="onDialogToggle"
 	>
 		<template #title>
@@ -81,7 +82,7 @@
 // applies square icon-button sizing when the slot's vnode type name starts with
 // `lucide-`, which a plain `<span class="lucide-save">` does not satisfy.
 import { Dialog } from 'frappe-ui'
-import type { DialogSize } from 'frappe-ui'
+import type { DialogPosition, DialogSize } from 'frappe-ui'
 import { nextTick, onBeforeUnmount, onMounted, ref, useId, watch } from 'vue'
 import { useEventListener, useMediaQuery } from '@vueuse/core'
 import { useScreenSize } from '@/utils/composables'
@@ -96,9 +97,19 @@ import { focusedElementOwnsLayer, trapTab } from '@/composables/useFocusTrap'
 // and browser-back would hard-cut regardless.
 const reduceMotion = useMediaQuery('(prefers-reduced-motion: reduce)')
 
-withDefaults(defineProps<{ title: string; size?: DialogSize }>(), {
-	size: '3xl',
-})
+// `position="top"` keeps a form whose height changes (a message appearing above
+// Save) from shifting the whole dialog, as a centred one does.
+withDefaults(
+	defineProps<{
+		title: string
+		size?: DialogSize
+		position?: DialogPosition
+	}>(),
+	{
+		size: '3xl',
+		position: 'center',
+	}
+)
 
 const emit = defineEmits<{ close: [] }>()
 const { isMobile } = useScreenSize()
