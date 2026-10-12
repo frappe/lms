@@ -33,6 +33,8 @@ class LMSBatchEnrollment(Document):
 		self.validate_payment()
 		self.validate_self_enrollment()
 		self.validate_seat_availability()
+		if not self.is_new():
+			self.validate_course_enrollment()
 
 	def validate_owner(self):
 		if self.owner == self.member:
