@@ -26,5 +26,14 @@ setup("authenticate", async ({ request }) => {
 		);
 	}
 
+	// frappe mints a session's CSRF token lazily, on the first page that asks
+	// for one. Left to the specs, two workers load /lms at once on this one
+	// sid, each mints and saves its own token, and the loser's requests all
+	// fail with CSRFTokenError. Mint it here, once, before the sid is shared.
+	const page = await request.get("/lms");
+	if (!page.ok()) {
+		throw new Error(`Loading /lms failed: ${page.status()}`);
+	}
+
 	await request.storageState({ path: authFile });
 });

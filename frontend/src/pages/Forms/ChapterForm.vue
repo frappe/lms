@@ -14,6 +14,7 @@
 					v-model="chapter.title"
 					:required="true"
 					autocomplete="off"
+					autofocus
 				/>
 				<BooleanSwitch
 					size="sm"

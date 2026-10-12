@@ -159,7 +159,7 @@ vi.mock('@/components/CourseCard.vue', () => stub('<article />'))
 vi.mock('@/components/Controls/ClearableCombobox.vue', () => stub('<div />'))
 
 // Stands in for the whole page shell, so this file stays about filter state.
-vi.mock('@/components/Layouts/ListPage.vue', () => ({
+vi.mock('@/components/Layouts/pages/ListPage.vue', () => ({
 	default: {
 		props: ['rows', 'breadcrumbs', 'title'],
 		template: `<div>

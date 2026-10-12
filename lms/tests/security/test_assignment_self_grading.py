@@ -14,6 +14,23 @@ class TestAssignmentSelfGrading(BaseTestUtils):
 		cls.evaluator = cls._create_user(f"aeval-{hash}@example.com", "Eve", "Aluator", ["Batch Evaluator"])
 		cls.assignment = cls._create_assignment(title=f"Grade Assignment {hash}")
 
+		# assessment_submission_has_permission requires an evaluator to be tagged on
+		# a batch that actually runs this assignment; a bystander role grants nothing.
+		course = cls._create_course(title=f"Grade Course {hash}", instructor="Administrator")
+		cls._create_evaluator(cls.evaluator.email)
+		batch = cls._create_batch(
+			course.name,
+			title=f"Grade Batch {hash}",
+			instructor="Administrator",
+			evaluator=cls.evaluator.email,
+		)
+		batch.append(
+			"assessment", {"assessment_type": "LMS Assignment", "assessment_name": cls.assignment.name}
+		)
+		batch.save()
+		# Batch staff grade only the batch's own students.
+		cls._create_batch_enrollment(cls.student.name, batch.name)
+
 	def _make_submission(self, user, status="Not Graded"):
 		frappe.session.user = user
 		try:

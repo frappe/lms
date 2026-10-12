@@ -15,7 +15,7 @@ vi.mock('@/utils/composables', async () => {
 	}
 })
 
-vi.mock('@/components/Layouts/PageHeader.vue', () => ({
+vi.mock('@/components/Layouts/pages/PageHeader.vue', () => ({
 	default: {
 		name: 'PageHeader',
 		props: ['breadcrumbs', 'published', 'loading'],
@@ -145,7 +145,7 @@ async function mountPage(options: {
 	await router.isReady()
 
 	const { default: TabbedDetailPage } = await import(
-		'@/components/Layouts/TabbedDetailPage.vue'
+		'@/components/Layouts/pages/TabbedDetailPage.vue'
 	)
 	const wrapper = mount(TabbedDetailPage, {
 		props: {
