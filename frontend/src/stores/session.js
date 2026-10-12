@@ -10,7 +10,9 @@ export const sessionStore = defineStore('lms-session', () => {
 	function sessionUser() {
 		let cookies = new URLSearchParams(document.cookie.split('; ').join('&'))
 		let _sessionUser = cookies.get('user_id')
-		if (_sessionUser === 'Guest') {
+		// A first visit carries no user_id cookie at all, and is a guest too:
+		// get_user_info is not open to guests, so asking would only fail.
+		if (!_sessionUser || _sessionUser === 'Guest') {
 			_sessionUser = null
 		} else {
 			userResource.reload()

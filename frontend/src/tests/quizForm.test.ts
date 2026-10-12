@@ -673,6 +673,83 @@ describe('QuizForm: page heading', () => {
 	})
 })
 
+// Guards an author having no way to find the link to share with learners: the
+// learner page lived at /quiz/:id with nothing pointing at it. Added on
+// quiz-share-link with the Copy link button.
+describe('QuizForm: copy link', () => {
+	const copyButton = (host: any) =>
+		host.findAll('button').find((b: any) => b.text() === 'Copy link')
+
+	afterEach(() => {
+		Object.defineProperty(navigator, 'clipboard', {
+			value: undefined,
+			configurable: true,
+		})
+	})
+
+	it('copies the learner page link', async () => {
+		const writeText = vi.fn(async () => {})
+		Object.defineProperty(navigator, 'clipboard', {
+			value: { writeText },
+			configurable: true,
+		})
+		const { host } = await mountForm()
+
+		await copyButton(host).trigger('click')
+		await flushPromises()
+
+		expect(writeText).toHaveBeenCalledWith(
+			`${window.location.origin}/lms/quiz/QZ-0001`
+		)
+		expect(vi.mocked(toast.success).mock.calls.at(-1)?.[0]).toBe('Link copied')
+	})
+
+	// navigator.clipboard is missing on plain http, as on a bench LAN hostname.
+	it('falls back to the copy command without the clipboard API', async () => {
+		const execCommand = vi.fn(() => true)
+		Object.defineProperty(document, 'execCommand', {
+			value: execCommand,
+			configurable: true,
+		})
+		const { host } = await mountForm([], {}, 'Quiz on Opening Balances')
+
+		await copyButton(host).trigger('click')
+		await flushPromises()
+
+		expect(execCommand).toHaveBeenCalledWith('copy')
+		expect(vi.mocked(toast.success)).toHaveBeenCalled()
+	})
+
+	it('encodes a quiz name with spaces in the link', async () => {
+		const writeText = vi.fn(async () => {})
+		Object.defineProperty(navigator, 'clipboard', {
+			value: { writeText },
+			configurable: true,
+		})
+		const { host } = await mountForm([], {}, 'Quiz on Opening Balances')
+
+		await copyButton(host).trigger('click')
+		await flushPromises()
+
+		expect(writeText).toHaveBeenCalledWith(
+			`${window.location.origin}/lms/quiz/Quiz%20on%20Opening%20Balances`
+		)
+	})
+
+	it('shows the link when the clipboard is unavailable', async () => {
+		Object.defineProperty(navigator, 'clipboard', {
+			value: { writeText: vi.fn(async () => Promise.reject(new Error('x'))) },
+			configurable: true,
+		})
+		const { host } = await mountForm()
+
+		await copyButton(host).trigger('click')
+		await flushPromises()
+
+		expect(vi.mocked(toast.error)).toHaveBeenCalled()
+	})
+})
+
 // frappe-ui's setValue.onError restores the doc by REPLACING the object
 // (documentResource.js:58), tripping the deep watcher, so the failed tick
 // re-arms every 1.2s. A mock leaving doc alone would pass with no guard at all.

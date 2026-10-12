@@ -15,6 +15,7 @@ from frappe.utils import (
 	cint,
 	comma_and,
 	convert_utc_to_system_timezone,
+	cstr,
 	escape_html,
 	get_datetime,
 	now_datetime,
@@ -44,7 +45,7 @@ from lms.lms.utils import (
 ALLOWED_DATAURL_IMAGE_EXTENSIONS = {".png", ".jpg", ".jpeg", ".gif", ".webp", ".avif", ".bmp"}
 
 VIOLATION_EVENT_TYPES = {"tab_switch", "no_face", "multiple_faces", "focus_loss", "camera_disconnect"}
-SUBMISSION_REASONS = {"manual", "timer_expired", "max_violations", "browser_closed"}
+SUBMISSION_REASONS = {"manual", "timer_expired", "max_violations", "browser_closed", "left_page"}
 # One attempt cannot plausibly produce more proctoring events than this; the rest is a flood.
 MAX_VIOLATION_EVENTS = 500
 # Proctoring frames are ~320px JPEGs, so a frame past this is not a frame. Held as a
@@ -191,6 +192,7 @@ def submit_quiz(
 			"marks_to_cut",
 			"enable_proctoring",
 			"max_violations",
+			"limit_questions_to",
 			"enable_scheduling",
 			"schedule_start",
 			"schedule_end",
@@ -241,6 +243,28 @@ def submit_quiz(
 		"pass": percentage >= quiz_details.passing_percentage,
 		"percentage": percentage,
 		"is_open_ended": is_open_ended,
+		**_answer_counts(data["results"], _attempt_size(quiz_details)),
+	}
+
+
+def _attempt_size(quiz_details: dict) -> int:
+	"""How many questions one attempt shows. A quiz limited to part of its questions
+	draws that many per attempt; the rest were never seen, so not unanswered."""
+	total = frappe.db.count("LMS Quiz Question", {"parent": quiz_details.name})
+	limit = cint(quiz_details.limit_questions_to)
+	return min(limit, total) if limit else total
+
+
+def _answer_counts(results: list, total_questions: int) -> dict:
+	"""Correct, wrong and not answered, for the result screen. A blank answer counts
+	as not answered, and so does a question the attempt never reached, which has no
+	result row at all."""
+	answered = [row for row in results if cstr(row.get("answer")).strip()]
+	correct = sum(1 for row in answered if row.get("is_correct"))
+	return {
+		"correct": correct,
+		"wrong": len(answered) - correct,
+		"unanswered": max(total_questions - len(answered), 0),
 	}
 
 

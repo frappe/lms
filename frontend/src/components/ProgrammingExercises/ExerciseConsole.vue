@@ -2,7 +2,7 @@
 	<div
 		ref="root"
 		class="flex flex-col border-t border-outline-gray-1"
-		:class="open ? 'min-h-0 flex-1' : 'shrink-0'"
+		:class="open ? 'max-h-48 shrink-0' : 'shrink-0'"
 	>
 		<button
 			type="button"
@@ -72,7 +72,7 @@ export type ConsoleLine = {
 </script>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { KeyboardShortcut, Spinner } from 'frappe-ui'
 import {
 	sameBlock,
@@ -88,7 +88,17 @@ const props = withDefaults(
 	{ running: false }
 )
 
-const open = ref(true)
+// Collapsed by default: the test cases below carry each run's outcome. An error
+// only shows here, though, so one opens it rather than failing out of sight.
+const open = ref(false)
+const hasError = computed(() => props.lines.some((l) => l.stream === 'stderr'))
+watch(
+	hasError,
+	(error) => {
+		if (error) open.value = true
+	},
+	{ immediate: true }
+)
 
 const runStatus = computed(() => {
 	if (props.running) return __('Running your code…')

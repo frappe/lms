@@ -1,6 +1,7 @@
 import type { TestCaseResult } from '@/components/ProgrammingExercises/ExerciseTestCases.vue'
 import type { ConsoleLine } from '@/components/ProgrammingExercises/ExerciseConsole.vue'
 
+// Keep in sync with BOILERPLATE in lms/lms/code_runner.py, which strips it before storing.
 const BOILERPLATE: Record<string, string> = {
 	python: `with open("stdin", "r") as f:\n    data = f.read()\n\ninputs = data.split() if len(data) else []\n\n# inputs is a list of strings\n# write your code below\n\n`,
 	javascript: `const fs = require('fs');\n\nlet input = fs.readFileSync('/app/stdin', 'utf8').trim();\nconst inputs = input.split("\\n");\n// inputs is an array of strings\n// write your code below\n`,

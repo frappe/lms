@@ -38,7 +38,7 @@ declare const LiveCodeSession: new (options: {
 	code: string
 	files: { filename: string; contents: string }[]
 	onMessage: (msg: LiveCodeMessage) => void
-}) => unknown
+}) => { ws?: WebSocket | null }
 
 const RUN_TIMEOUT_MS = 20000
 
@@ -53,7 +53,7 @@ export function runLiveCode(options: {
 	return new Promise((resolve, reject) => {
 		const stdout: string[] = []
 		let exited = false
-		new LiveCodeSession({
+		const session = new LiveCodeSession({
 			base_url: options.baseUrl,
 			runtime: options.runtime,
 			code: options.code,
@@ -67,6 +67,18 @@ export function runLiveCode(options: {
 				exited = true
 				resolve(stdout.join('').trim())
 			},
+		})
+		// The runner script ignores a closed socket, so a runner that drops the
+		// run would otherwise leave this waiting out the full timeout below.
+		session.ws?.addEventListener('close', () => {
+			if (exited) return
+			reject(
+				new Error(
+					__(
+						'The code runner closed the connection before your code finished. Please try again.'
+					)
+				)
+			)
 		})
 		setTimeout(() => {
 			if (exited) return

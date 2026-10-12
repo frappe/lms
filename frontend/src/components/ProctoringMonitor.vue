@@ -62,7 +62,7 @@
 			</div>
 		</template>
 
-		<!-- Monitoring phase: the count stays inline in the status bar, the camera
+		<!-- Monitoring phase: the quiz header shows the count; the camera
 		     itself floats over the quiz so the student can see what is being
 		     watched. Teleported to the body so no scroll container or stacking
 		     context along the way can clip it. -->
@@ -113,19 +113,6 @@
 					</button>
 				</div>
 			</Teleport>
-
-			<div
-				class="flex items-center gap-x-1.5 px-3 py-1.5 rounded-full text-sm font-medium"
-				:class="
-					violationCount > 0
-						? 'bg-surface-red-1 text-ink-red-5'
-						: 'bg-surface-green-1 text-ink-green-5'
-				"
-			>
-				<span class="lucide-camera size-4" />
-				{{ violationCount }} / {{ maxViolations }}
-				{{ maxViolations == 1 ? __('violation') : __('violations') }}
-			</div>
 		</template>
 	</div>
 </template>
@@ -136,9 +123,7 @@ import * as faceapi from 'face-api.js'
 import { computed, nextTick, onMounted, onUnmounted, ref, watch } from 'vue'
 
 const props = defineProps({
-	maxViolations: { type: Number, required: true },
 	active: { type: Boolean, default: false },
-	violationCount: { type: Number, default: 0 },
 })
 
 const emit = defineEmits([

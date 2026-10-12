@@ -142,7 +142,9 @@ def process_user_names(first_name, last_name, full_name):
 	return first_name, last_name or "", full_name
 
 
-def create_user_document(email, first_name, last_name, full_name, user_image=None, roles=None):
+def create_user_document(
+	email, first_name, last_name, full_name, user_image=None, roles=None, ignore_permissions=False
+):
 	user_doc = frappe.new_doc("User")
 	user_doc.email = email
 	user_doc.first_name = first_name
@@ -154,11 +156,19 @@ def create_user_document(email, first_name, last_name, full_name, user_image=Non
 		roles = ["LMS Student"]
 	for role in roles:
 		user_doc.append("roles", {"role": role})
-	user_doc.insert()
+	user_doc.insert(ignore_permissions=ignore_permissions)
 	return user_doc
 
 
-def create_user(email, first_name=None, last_name=None, full_name=None, user_image=None, roles=None):
+def create_user(
+	email,
+	first_name=None,
+	last_name=None,
+	full_name=None,
+	user_image=None,
+	roles=None,
+	ignore_permissions=False,
+):
 	validate_email_address(email, True)
 	print(email)
 	print(frappe.db.exists("User", email))
@@ -169,7 +179,9 @@ def create_user(email, first_name=None, last_name=None, full_name=None, user_ima
 		return frappe.get_doc("User", email)
 
 	first_name, last_name, full_name = process_user_names(first_name, last_name, full_name)
-	user_doc = create_user_document(email, first_name, last_name, full_name, user_image, roles)
+	user_doc = create_user_document(
+		email, first_name, last_name, full_name, user_image, roles, ignore_permissions=ignore_permissions
+	)
 	return user_doc
 
 
@@ -301,10 +313,24 @@ def get_lesson_icon(body: str, content: str):
 	return "icon-list"
 
 
-def rewrite_private_media(content: str) -> str:
+LESSON_PRIVATE_MEDIA_ENDPOINT = (
+	"/api/method/lms.lms.doctype.course_lesson.course_lesson.serve_resource?file_url="
+)
+QUESTION_PRIVATE_MEDIA_ENDPOINT = (
+	"/api/method/lms.lms.doctype.lms_question.lms_question.serve_question_resource?file_url="
+)
+
+
+def rewrite_private_media(content: str, endpoint: str | None = None) -> str:
+	"""Rewrite embedded /private/files/ URLs to an access-gated serve endpoint.
+
+	Lessons and quiz questions both keep editor uploads private; native
+	/private/files/ is unreadable to LMS students, so every reader — enrolled
+	member and author alike — is routed through the matching serve_* method.
+	"""
 	if not content:
 		return content
-	endpoint = "/api/method/lms.lms.doctype.course_lesson.course_lesson.serve_resource?file_url="
+	endpoint = endpoint or LESSON_PRIVATE_MEDIA_ENDPOINT
 	return re.sub(
 		r"/private/files/([^\"'\\]+)",
 		lambda m: endpoint + quote(m.group(0)),
@@ -2209,9 +2235,31 @@ def get_quiz_with_questions(quiz: str) -> dict:
 				fields=fields,
 				ignore_permissions=True,
 			)
-			questions_by_name = {row["name"]: row for row in rows}
+			questions_by_name = {row["name"]: _rewrite_question_private_media(row) for row in rows}
+			for child in quiz_doc.get("questions") or []:
+				if child.get("question_detail"):
+					child["question_detail"] = rewrite_private_media(
+						child["question_detail"], QUESTION_PRIVATE_MEDIA_ENDPOINT
+					)
 
 	return {"quiz": quiz_doc, "questions_by_name": questions_by_name}
+
+
+def _rewrite_question_private_media(row: dict) -> dict:
+	"""Route private images in a quiz question through serve_question_resource.
+
+	Mirrors get_lesson's rewrite of lesson body media: the File rows stay private,
+	and every reader hits the access-gated endpoint instead of /private/files/.
+	"""
+	from lms.lms.doctype.lms_question.lms_question import (
+		QUESTION_EXPLANATION_FIELDS,
+		QUESTION_OPTION_FIELDS,
+	)
+
+	for field in ("question", *QUESTION_OPTION_FIELDS, *QUESTION_EXPLANATION_FIELDS):
+		if row.get(field):
+			row[field] = rewrite_private_media(row[field], QUESTION_PRIVATE_MEDIA_ENDPOINT)
+	return row
 
 
 @frappe.whitelist()
@@ -2841,9 +2889,9 @@ def calculate_discount_amount(base_amount: float, coupon: dict) -> float:
 	if coupon.discount_type == "Percentage":
 		discount_amount = (base_amount * coupon.percentage_discount) / 100
 	elif coupon.discount_type == "Fixed Amount":
-		discount_amount = base_amount - coupon.fixed_amount_discount
+		discount_amount = coupon.fixed_amount_discount
 
-	return discount_amount
+	return max(min(flt(discount_amount), flt(base_amount)), 0)
 
 
 @frappe.whitelist()
