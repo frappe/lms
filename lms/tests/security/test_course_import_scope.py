@@ -101,16 +101,22 @@ class TestCourseImportScope(BaseTestUtils):
 		return f"/private/files/{os.path.basename(path)}"
 
 	def _import_as(self, user, zip_path):
+		# Uploaded as bytes, as the browser does. A File pointed at the zip by file_url
+		# makes frappe v16 re-read it, decode it as windows-1250 and write it back broken.
+		with open(frappe.get_site_path(zip_path.lstrip("/")), "rb") as archive:
+			content = archive.read()
 		frappe.set_user(user)
 		try:
 			upload = frappe.get_doc(
 				{
 					"doctype": "File",
-					"file_url": zip_path,
 					"file_name": os.path.basename(zip_path),
 					"is_private": 1,
+					"content": content,
 				}
 			).insert(ignore_permissions=True)
+			uploaded_path = upload.get_full_path()
+			self.addCleanup(lambda: os.path.exists(uploaded_path) and os.remove(uploaded_path))
 			return import_course_from_zip(upload.file_url)
 		finally:
 			frappe.set_user("Administrator")
