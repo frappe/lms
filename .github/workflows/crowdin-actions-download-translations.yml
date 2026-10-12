@@ -25,6 +25,12 @@ jobs:
           # one head branch. A new branch here needs its own explicit name.
           - branch: develop
             l10n_branch: l10n_develop2
+          - branch: main-hotfix
+            l10n_branch: l10n_crowdin_main-hotfix
+          - branch: version-16-hotfix
+            l10n_branch: l10n_crowdin_version-16-hotfix
+          - branch: version-15-hotfix
+            l10n_branch: l10n_crowdin_version-15-hotfix
 
     steps:
       - name: Checkout ${{ matrix.branch }}
