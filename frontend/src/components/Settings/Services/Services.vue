@@ -118,6 +118,7 @@ import { computed, ref } from 'vue'
 import { FormControl, call, toast } from 'frappe-ui'
 import BooleanSwitch from '@/components/Controls/BooleanSwitch.vue'
 import SettingsLayout from '@/components/Layouts/settings/desktop/SettingsLayout.vue'
+import { useDirtyGuard } from '@/composables/useDirtyGuard'
 import { useSettingsSource } from '@/composables/useSettingsSource'
 import { canManageGoogleIntegrations } from '@/components/Settings/GoogleApi/googleApi'
 
@@ -175,6 +176,15 @@ const isDirty = computed(
 		(Boolean(googleSource) &&
 			(Boolean(googleSource?.isDirty) || secretInput.value.length > 0)) ||
 		Boolean(lmsSource.isDirty)
+)
+
+useDirtyGuard(
+	() => isDirty.value,
+	() => {
+		secretInput.value = ''
+		if (googleSource?.isDirty) void googleSource.reload()
+		if (lmsSource.isDirty) void lmsSource.reload()
+	}
 )
 
 const saving = ref(false)

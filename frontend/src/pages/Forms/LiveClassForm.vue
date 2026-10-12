@@ -140,10 +140,10 @@ const conferencingProvider = computed(
 	() => batch.data?.conferencing_provider || null
 )
 
+// can_manage, not the Batch Evaluator role: create_live_class accepts only an
+// evaluator the batch tags.
 const isAdmin = computed(() =>
-	Boolean(
-		user.data?.is_moderator || user.data?.is_evaluator || batch.data?.can_manage
-	)
+	Boolean(user.data?.is_moderator || batch.data?.can_manage)
 )
 
 // Copied from LiveClass.vue's canCreateClass()/hasProviderAccount(), which gate

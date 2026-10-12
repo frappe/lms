@@ -363,6 +363,16 @@ describe('useSettingsHash records', () => {
 		expect(api.activeRecord.value).toBe('new')
 	})
 
+	it('keeps a record name that contains a slash whole', async () => {
+		const { router, api } = await setup('/courses#settings/badges')
+		api.selectRecord('Sales/Support')
+		await flushPromises()
+		expect(router.currentRoute.value.hash).toBe(
+			'#settings/badges/Sales/Support'
+		)
+		expect(api.activeRecord.value).toBe('Sales/Support')
+	})
+
 	it('pushes an entry for a record, and back returns to the list', async () => {
 		const { router, api } = await setup('/courses')
 
