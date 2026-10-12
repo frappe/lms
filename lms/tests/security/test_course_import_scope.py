@@ -170,7 +170,10 @@ class TestCourseImportScope(BaseTestUtils):
 
 		self._import_as(self.course_creator, self._archive(test_case_parent=name, exercise=exercise))
 
-		cases = frappe.get_all("LMS Test Case", {"parent": name}, pluck="expected_output")
+		# Found by title: without #2823's title autoname the insert names it by hash.
+		imported = frappe.db.get_value("LMS Programming Exercise", {"title": name})
+		self.assertTrue(imported, "the exercise was not imported")
+		cases = frappe.get_all("LMS Test Case", {"parent": imported}, pluck="expected_output")
 		self.assertEqual(cases, ["5"])
 
 	def test_a_moderator_import_creates_instructors_and_the_evaluator(self):
