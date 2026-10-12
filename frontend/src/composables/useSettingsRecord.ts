@@ -70,7 +70,12 @@ export function useSettingsRecord(
 		options.dirty ? Boolean(options.dirty(source)) : source.isDirty
 	)
 
-	useDirtyGuard(() => isDirty.value)
+	// The document resource is cached by name, so a discarded edit would be
+	// waiting in it the next time the record opens.
+	useDirtyGuard(
+		() => isDirty.value,
+		() => void source.reload()
+	)
 
 	const enabled = computed<boolean | undefined>({
 		get: () => (doc.value ? Boolean(doc.value[enabledField]) : undefined),

@@ -43,6 +43,7 @@ class LMSBatch(Document):
 		self.validate_batch_end_date()
 		self.validate_batch_time()
 		self.validate_duplicate_courses()
+		self.validate_duplicate_instructors()
 		self.validate_payments_app()
 		self.validate_amount_and_currency()
 		self.validate_duplicate_assessments()
@@ -134,6 +135,15 @@ class LMSBatch(Document):
 		if len(duplicates):
 			title = frappe.db.get_value("LMS Course", next(iter(duplicates)), "title")
 			frappe.throw(_("Course {0} has already been added to this batch.").format(frappe.bold(title)))
+
+	def validate_duplicate_instructors(self):
+		instructors = [row.instructor for row in self.instructors]
+		duplicates = {instructor for instructor in instructors if instructors.count(instructor) > 1}
+		if len(duplicates):
+			full_name = frappe.db.get_value("User", next(iter(duplicates)), "full_name")
+			frappe.throw(
+				_("Instructor {0} has already been added to this batch.").format(frappe.bold(full_name))
+			)
 
 	def validate_payments_app(self):
 		if self.paid_batch:

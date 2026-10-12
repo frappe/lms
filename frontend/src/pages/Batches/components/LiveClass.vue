@@ -249,7 +249,8 @@ const hasProviderAccount = () => {
 const canCreateClass = () => {
 	if (readOnlyMode) return false
 	if (!hasProviderAccount()) return false
-	return isAdmin()
+	// create_live_class accepts only an evaluator the batch tags.
+	return Boolean(user.data?.is_moderator || props.batch.data?.can_manage)
 }
 
 // Who the server lets retry: moderators and the batch's own authors. isAdmin
