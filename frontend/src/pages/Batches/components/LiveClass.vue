@@ -67,7 +67,7 @@
 						</span>
 					</div>
 					<div
-						v-if="canRetryInvites() && cls.invite_status === 'Failed'"
+						v-if="canManageClasses() && cls.invite_status === 'Failed'"
 						class="flex items-center justify-between gap-2"
 					>
 						<div class="flex items-center gap-x-2 text-ink-amber-5">
@@ -246,17 +246,17 @@ const hasProviderAccount = () => {
 	return false
 }
 
+// Moderators and the batch's own authors: the only users the server lets
+// create a class or retry its invites. isAdmin also takes in every evaluator,
+// who would only get a permission error.
+const canManageClasses = () =>
+	Boolean(user.data?.is_moderator || props.batch.data?.can_manage)
+
 const canCreateClass = () => {
 	if (readOnlyMode) return false
 	if (!hasProviderAccount()) return false
-	// create_live_class accepts only an evaluator the batch tags.
-	return Boolean(user.data?.is_moderator || props.batch.data?.can_manage)
+	return canManageClasses()
 }
-
-// Who the server lets retry: moderators and the batch's own authors. isAdmin
-// also takes in every evaluator, who would only get a permission error.
-const canRetryInvites = () =>
-	Boolean(user.data?.is_moderator || props.batch.data?.can_manage)
 
 const isAdmin = () => {
 	return (
