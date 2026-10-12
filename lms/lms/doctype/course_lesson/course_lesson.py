@@ -152,6 +152,8 @@ def may_restamp_quiz(quiz: str, lesson: str) -> bool:
 	stamped = frappe.db.get_value("LMS Quiz", quiz, "lesson")
 	if not stamped or stamped == lesson:
 		return True
+	if frappe.db.get_value("Course Lesson", stamped, "quiz_id") == quiz:
+		return False
 	return not frappe.db.exists(
 		"LMS Lesson Assessment",
 		{

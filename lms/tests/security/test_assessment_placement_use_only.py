@@ -151,6 +151,23 @@ class TestAssessmentPlacementGrantsUseOnly(BaseTestUtils):
 		)
 		self.assertEqual(stamp, self.stamp_before)
 
+	def test_placing_does_not_restamp_a_quiz_placed_by_quiz_id(self):
+		quiz = self.assessments["LMS Quiz"]
+		chapter = self._create_chapter(f"Quiz ID Chapter {self.course_a.name}", self.course_a.name)
+		lesson = self._create_lesson(f"Quiz ID Lesson {self.course_a.name}", chapter.name, self.course_a.name)
+		lesson.quiz_id = quiz
+		lesson.save()
+		self._stamp_legacy_quiz_placement(quiz, self.course_a.name, lesson.name)
+
+		frappe.set_user(self.placer.name)
+		try:
+			placer_lesson = frappe.get_doc("Course Lesson", self.placer_lesson)
+			placer_lesson.title = f"{placer_lesson.title} edited"
+			placer_lesson.save()
+		finally:
+			frappe.set_user("Administrator")
+		self.assertEqual(frappe.db.get_value("LMS Quiz", quiz, "lesson"), lesson.name)
+
 	def test_the_placer_reads_only_their_own_students_submissions(self):
 		"""Placing an assessment exposed every student's submissions since #2826.
 		Added for audit finding #3 on branch fix/assessment-placement-use-only."""
