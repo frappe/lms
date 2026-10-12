@@ -5,12 +5,12 @@ import io
 from contextlib import redirect_stdout
 
 import frappe
-from frappe.client import get as client_get
 from frappe.permissions import rights
 from frappe.tests import IntegrationTestCase
 from frappe.utils import cint
 
 from lms.lms.docperm_shadow import get_shadowed_permlevel_rows, warn_about_shadowed_permlevels
+from lms.lms.test_helpers import client_get
 from lms.patches.v2_0.reconcile_custom_docperm_permlevels import reconcile
 
 ASSIGNMENT_DOCTYPE = "LMS Assignment"

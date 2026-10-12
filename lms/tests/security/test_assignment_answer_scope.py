@@ -2,10 +2,9 @@
 # For license information, please see license.txt
 
 import frappe
-from frappe.client import get as client_get
 from frappe.permissions import rights
 
-from lms.lms.test_helpers import BaseTestUtils
+from lms.lms.test_helpers import BaseTestUtils, client_get
 from lms.lms.utils import get_assignment
 from lms.patches.v2_0 import reconcile_custom_docperm_permlevels
 

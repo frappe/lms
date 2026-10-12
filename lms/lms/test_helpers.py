@@ -4,6 +4,7 @@ from unittest.mock import patch
 
 import frappe
 from frappe.cache_manager import user_cache_keys
+from frappe.client import get as frappe_client_get
 from frappe.tests import IntegrationTestCase
 from frappe.utils import add_days, nowdate
 from frappe.utils.html_utils import sanitize_html
@@ -34,6 +35,12 @@ def released_sanitize_html(html, *args, always_sanitize=False, **kwargs):
 		except ValueError:
 			pass
 	return sanitize_html(html, *args, always_sanitize=always_sanitize, **kwargs)
+
+
+def client_get(doctype, name):
+	"""frappe.client.get as develop serves it, nulls dropped (frappe 9e687317a7). v16 pads
+	a field apply_fieldlevel_read_permissions stripped back in as None."""
+	return {key: value for key, value in frappe_client_get(doctype, name).items() if value is not None}
 
 
 @contextmanager

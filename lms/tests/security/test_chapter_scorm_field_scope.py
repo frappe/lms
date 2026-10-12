@@ -2,9 +2,8 @@
 # For license information, please see license.txt
 
 import frappe
-from frappe.client import get as client_get
 
-from lms.lms.test_helpers import BaseTestUtils
+from lms.lms.test_helpers import BaseTestUtils, client_get
 
 # Asserted live in setUp rather than trusted. LMS Student is on every actor:
 # add_lms_student_role is registered on User.before_insert and appends it
