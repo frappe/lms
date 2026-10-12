@@ -62,7 +62,7 @@ vi.stubGlobal('__', translate)
 	return args.reduce((out, arg, i) => out.replace(`{${i}}`, arg), String(this))
 }
 
-import SettingsTable from '@/components/Layouts/SettingsTable.vue'
+import SettingsTable from '@/components/Layouts/settings/desktop/SettingsTable.vue'
 
 const channelsColumn = (over: Partial<BadgeColumn> = {}): BadgeColumn => ({
 	key: 'channels',

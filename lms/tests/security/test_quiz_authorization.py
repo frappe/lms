@@ -2,6 +2,7 @@ import json
 
 import frappe
 
+from lms.lms.doctype.lms_quiz.lms_quiz import check_answer
 from lms.lms.test_helpers import BaseTestUtils
 from lms.lms.utils import get_quiz_with_questions
 
@@ -43,6 +44,7 @@ class TestQuizAuthorization(BaseTestUtils):
 
 		# A second quiz never linked to any lesson or batch (e.g. mid-authoring).
 		cls.unlinked_quiz = cls._create_quiz(cls.questions, title=f"Unlinked Quiz {hash}")
+		frappe.db.set_value("LMS Quiz", cls.quiz.name, "show_answers", 1)
 
 	def _call(self, user, quiz=None):
 		frappe.session.user = user
@@ -73,3 +75,19 @@ class TestQuizAuthorization(BaseTestUtils):
 			with self.subTest(case=case):
 				with self.assertRaises(frappe.PermissionError):
 					self._call(self.outsider.email, quiz=quiz)
+
+	def _check_answer(self, user):
+		frappe.session.user = user
+		try:
+			return check_answer(self.quiz.name, self.questions[0].name, "Choices", "[]")
+		finally:
+			frappe.session.user = "Administrator"
+
+	def test_non_enrolled_user_cannot_check_an_answer(self):
+		with self.assertRaises(frappe.PermissionError):
+			self._check_answer(self.outsider.email)
+
+	def test_allowed_readers_can_check_an_answer(self):
+		for case, user in (("enrolled", self.enrolled.email), ("moderator", self.instructor.email)):
+			with self.subTest(case=case):
+				self.assertEqual(len(self._check_answer(user)), 10)

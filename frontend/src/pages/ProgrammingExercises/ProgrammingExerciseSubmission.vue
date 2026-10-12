@@ -7,7 +7,7 @@
 		<span>
 			{{ falconError }}
 		</span>
-		<Button v-if="user.data?.is_moderator" @click="openSettings('General')">
+		<Button v-if="user.data?.is_moderator" @click="openSettings('general')">
 			<template #prefix>
 				<span class="lucide-settings size-4" />
 			</template>
@@ -143,7 +143,7 @@ import {
 	usePageMeta,
 } from 'frappe-ui'
 import { computed, inject, onMounted, ref, watch } from 'vue'
-import PageHeader from '@/components/Layouts/PageHeader.vue'
+import PageHeader from '@/components/Layouts/pages/PageHeader.vue'
 import { sessionStore } from '@/stores/session'
 import { useRouter } from 'vue-router'
 import { openSettings } from '@/utils'

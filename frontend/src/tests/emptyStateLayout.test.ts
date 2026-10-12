@@ -15,10 +15,8 @@ if (!('format' in String.prototype)) {
 
 import EmptyStateLayout from '@/components/Layouts/EmptyStateLayout.vue'
 
-// The class strings ARE the behaviour here — this component renders nothing but
-// layout, and the bug being fixed was a width that had no mobile treatment at
-// all. Each assertion below fails if its class is removed; there is no
-// behavioural proxy to assert instead.
+// The class strings ARE the behaviour, since this component renders nothing
+// but layout. Each assertion below fails if its class is removed.
 const mountEmpty = (props: Record<string, unknown> = {}) =>
 	mount(EmptyStateLayout, {
 		props: { name: 'Courses', ...props },
@@ -26,8 +24,18 @@ const mountEmpty = (props: Record<string, unknown> = {}) =>
 	})
 
 describe('EmptyStateLayout', () => {
+	// Was `absolute` with `top-1/3`, which sits near the top of any container
+	// taller than a phone screen instead of centered. Flex on the root is
+	// what actually centers it regardless of container height.
+	it('centers vertically, not just horizontally', () => {
+		const outer = mountEmpty().element
+
+		expect(outer.className).toContain('items-center')
+		expect(outer.className).not.toContain('top-1/3')
+	})
+
 	it('fills the phone width, and only narrows from sm up', () => {
-		const panel = mountEmpty().get('[class*="absolute"]')
+		const panel = mountEmpty().get('[class*="flex-col"]')
 
 		expect(panel.classes()).toContain('w-full')
 		expect(panel.classes()).toContain('sm:w-4/12')
@@ -37,10 +45,10 @@ describe('EmptyStateLayout', () => {
 
 	it('keeps the desktop widths behind sm for every size', () => {
 		expect(
-			mountEmpty({ width: 'sm' }).get('[class*="absolute"]').classes()
+			mountEmpty({ width: 'sm' }).get('[class*="flex-col"]').classes()
 		).toContain('sm:w-2/12')
 		expect(
-			mountEmpty({ width: 'lg' }).get('[class*="absolute"]').classes()
+			mountEmpty({ width: 'lg' }).get('[class*="flex-col"]').classes()
 		).toContain('sm:w-8/12')
 	})
 
@@ -60,12 +68,12 @@ describe('EmptyStateLayout', () => {
 		expect(description.classes()).toContain('sm:text-p-base')
 	})
 
-	it('centres without a physical offset, so RTL is unaffected', () => {
-		const panel = mountEmpty().get('[class*="absolute"]')
+	it('centres via flex, not a physical offset, so RTL is unaffected', () => {
+		const outer = mountEmpty().element
 
-		expect(panel.classes()).toContain('inset-x-0')
-		expect(panel.classes()).toContain('mx-auto')
-		expect(panel.classes()).not.toContain('left-1/2')
+		expect(outer.className).toContain('items-center')
+		expect(outer.className).toContain('justify-center')
+		expect(outer.className).not.toContain('left-1/2')
 	})
 
 	it('still renders the copy it is given', () => {

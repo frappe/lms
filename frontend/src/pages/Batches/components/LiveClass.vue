@@ -73,7 +73,11 @@
 						class="flex items-center gap-x-2 text-ink-gray-9 mt-auto"
 					>
 						<a
-							v-if="user.data?.is_moderator || user.data?.is_evaluator"
+							v-if="
+								user.data?.is_moderator ||
+								user.data?.is_evaluator ||
+								batch.data?.can_manage
+							"
 							:href="safeUrl(cls.start_url || cls.join_url)"
 							v-external
 							class="cursor-pointer inline-flex items-center justify-center gap-2 transition-colors focus:outline-none text-ink-gray-8 bg-surface-gray-2 hover:bg-surface-gray-3 active:bg-surface-gray-4 focus-visible:ring focus-visible:ring-outline-gray-3 h-7 text-base px-2 rounded"
@@ -190,11 +194,16 @@ const hasProviderAccount = () => {
 const canCreateClass = () => {
 	if (readOnlyMode) return false
 	if (!hasProviderAccount()) return false
-	return isAdmin()
+	// create_live_class accepts only an evaluator the batch tags.
+	return Boolean(user.data?.is_moderator || props.batch.data?.can_manage)
 }
 
 const isAdmin = () => {
-	return user.data?.is_moderator || user.data?.is_evaluator
+	return (
+		user.data?.is_moderator ||
+		user.data?.is_evaluator ||
+		Boolean(props.batch.data?.can_manage)
+	)
 }
 
 const canAccessClass = (cls) => {

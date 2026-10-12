@@ -7,6 +7,7 @@ import base64
 import re
 import unittest
 from functools import partial
+from unittest.mock import patch
 
 import frappe
 from frappe.exceptions import ValidationError
@@ -194,6 +195,9 @@ class TestCheckAnswerEmptyInput(unittest.TestCase):
 		frappe.db.exists = lambda *a, **k: True
 		frappe.db.get_value = lambda *a, **k: 1
 		frappe.get_roles = lambda *a, **k: ["System Manager"]
+		access = patch("lms.lms.permissions.can_access_quiz", return_value=True)
+		access.start()
+		self.addCleanup(access.stop)
 
 	def tearDown(self):
 		for name, fn in self._orig.items():

@@ -1,7 +1,7 @@
 <template>
 	<FormShell :title="title" size="4xl" @close="close">
 		<template #header-action>
-			<Badge v-if="isDirty && canManageExercise" theme="orange">
+			<Badge v-if="isDirty && canManageExercise && canEdit" theme="orange">
 				{{ __('Not Saved') }}
 			</Badge>
 		</template>
@@ -9,11 +9,19 @@
 			<div v-if="!canManageExercise" class="p-4 text-base text-ink-gray-6">
 				{{ __('You are not permitted to manage programming exercises.') }}
 			</div>
-			<div
+			<fieldset
 				v-else
+				:disabled="!canEdit"
 				data-testid="programming-exercise-fields"
-				class="grid grid-cols-1 sm:grid-cols-2 gap-10"
+				class="m-0 grid min-w-0 grid-cols-1 gap-10 border-0 p-0 sm:grid-cols-2"
 			>
+				<p
+					v-if="canWrite === false"
+					data-testid="programming-exercise-read-only-note"
+					class="text-base text-ink-gray-6 sm:col-span-2"
+				>
+					{{ __('Only the authors of this programming exercise can edit it.') }}
+				</p>
 				<div class="space-y-4">
 					<FormControl
 						v-model="exercise.title"
@@ -32,9 +40,9 @@
 						:label="__('Test Cases')"
 						:columns="testCaseColumns"
 						:required="true"
-						:addable="true"
-						:deletable="true"
-						:editable="true"
+						:addable="canEdit"
+						:deletable="canEdit"
+						:editable="canEdit"
 						:placeholder="__('Add Test Case')"
 					/>
 				</div>
@@ -48,13 +56,13 @@
 						<RichTextEditor
 							:content="exercise.problem_statement"
 							@change="(val: string) => (exercise.problem_statement = val)"
-							:editable="true"
+							:editable="canEdit"
 							:fixedMenu="true"
 							editorClass="prose-sm max-w-none border-b border-x border-outline-elevation-2 bg-surface-gray-2 rounded-b-md py-1 px-2 min-h-[10rem] max-h-[21rem] overflow-y-auto"
 						/>
 					</div>
 				</div>
-			</div>
+			</fieldset>
 		</template>
 		<template #actions>
 			<div
@@ -62,7 +70,7 @@
 				class="flex items-center justify-end gap-2 group"
 			>
 				<HeaderButton
-					v-if="exerciseID != 'new'"
+					v-if="exerciseID != 'new' && canEdit"
 					data-testid="programming-exercise-delete"
 					:label="__('Delete exercise')"
 					icon="lucide-trash-2"
@@ -101,6 +109,7 @@
 					/>
 				</router-link>
 				<HeaderButton
+					v-if="canEdit"
 					data-testid="programming-exercise-save"
 					:label="__('Save')"
 					variant="solid"
@@ -127,6 +136,7 @@ import ChildTable from '@/components/Controls/ChildTable.vue'
 import FormShell from '@/components/FormShell.vue'
 import HeaderButton from '@/components/HeaderButton.vue'
 import RichTextEditor from '@/components/RichTextEditor.vue'
+import { useCanWrite } from '@/composables/useCanWrite'
 import { useFormRoute } from '@/composables/useFormRoute'
 import { submitResource } from '@/utils/resource'
 
@@ -145,6 +155,12 @@ const props = withDefaults(
 )
 
 const { close, saveAndReplace } = useFormRoute({ name: 'ProgrammingExercises' })
+
+// Placing an exercise grants use only, so a non-author opens it read-only.
+const canWrite = useCanWrite('LMS Programming Exercise', () =>
+	props.exerciseID === 'new' ? undefined : props.exerciseID
+)
+const canEdit = computed(() => canWrite.value === true)
 
 // Its own list resource, but every option here is deliberately byte-identical
 // to ProgrammingExercises.vue:131-138. createListResource returns whichever
@@ -340,7 +356,7 @@ const updateTestCasesInExercise = () => {
 }
 
 const saveExercise = () => {
-	if (!canManageExercise.value) return
+	if (!canManageExercise.value || !canEdit.value) return
 	validateTitle()
 	updateTestCasesInExercise()
 	if (props.exerciseID == 'new') createNewExercise()
@@ -400,7 +416,7 @@ const testCaseColumns = computed(() => {
 
 const deleteExercise = () => {
 	if (props.exerciseID == 'new') return
-	if (!canManageExercise.value) return
+	if (!canManageExercise.value || !canEdit.value) return
 	submitResource(exercises.delete, props.exerciseID, {
 		onSuccess() {
 			// delete refetches the list (listResource.js:161); the count was

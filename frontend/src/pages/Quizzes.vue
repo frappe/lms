@@ -66,7 +66,7 @@
 </template>
 <script setup>
 import { Button, Checkbox, createListResource, usePageMeta } from 'frappe-ui'
-import ListPage from '@/components/Layouts/ListPage.vue'
+import ListPage from '@/components/Layouts/pages/ListPage.vue'
 import HeaderButton from '@/components/HeaderButton.vue'
 import { useRouter } from 'vue-router'
 import { computed, inject, onMounted, ref, watch } from 'vue'

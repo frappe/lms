@@ -36,7 +36,7 @@
             <div class="select-input-wrapper">
                 <select id="user_category" class="form-control ellipsis text-base" data-fieldname="user_category"
                     data-fieldtype="Select" required>
-                    <option value="">{{ _("Category") }}</option>
+                    <option value="" disabled selected hidden>{{ _("Select a category") }}</option>
                     <option value="Business Owner">{{ _("Business Owner") }}</option>
                     <option value="Manager (Sales/Marketing/Customer)">{{ _("Manager (Sales/Marketing/Customer)") }}</option>
                     <option value="Employee">{{ _("Employee") }}</option>
@@ -92,6 +92,10 @@
         cursor: pointer;
     }
 
+    .signup-form select.form-control:invalid {
+        color: var(--ink-gray-5);
+    }
+
     .signup-form .form-group.invalid select.form-control {
         border-color: var(--outline-red-3);
     }
@@ -126,8 +130,7 @@
     frappe.ready(function () {
         signup_button_label = $(".signup-form .btn-signup").text().trim();
 
-        $("#user_category").on("change", (e) => {
-            style_category(e);
+        $("#user_category").on("change", () => {
             clear_field_error("user_category");
         });
 
@@ -146,11 +149,6 @@
         toggle_signup_button();
     });
 
-    const style_category = (e) => {
-        let category_color = $(e.currentTarget).val() ? "var(--text-color)" : "var(--text-muted)";
-        $("#user_category").css("color", category_color);
-    }
-
     const clear_field_error = (field) => {
         $("#" + field).closest(".form-group").removeClass("invalid").find(".field-error").text("");
     }
@@ -163,7 +161,7 @@
     const reset_signup_form = () => {
         const form = $(".signup-form");
         form.find("input:not([type='submit'])").val("").prop("checked", false);
-        form.find("#user_category").val("").css("color", "var(--text-muted)");
+        form.find("#user_category").val("");
         form.find(".form-group").removeClass("invalid").find(".field-error").text("");
         form.find(".page-card-body").removeClass("invalid");
         form.find(".login-error-banner, .login-success-banner").addClass("hidden");
