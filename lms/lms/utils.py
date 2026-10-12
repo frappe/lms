@@ -1043,7 +1043,8 @@ def prepare_inline_images(html: str | None) -> tuple[str, list[dict]]:
 				)
 			)
 
-		content = file.get_content()
+		# No encodings: frappe v16 otherwise decodes a PNG as windows-1250 text.
+		content = file.get_content(encodings=[])
 		total_bytes += len(content)
 		if total_bytes > MAX_INLINE_IMAGE_BYTES:
 			frappe.throw(
