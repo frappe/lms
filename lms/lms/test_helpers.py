@@ -39,6 +39,17 @@ def enforce_role_gates(test_case):
 	test_case.addCleanup(patcher.stop)
 
 
+def client_get(doctype, name):
+	"""`frappe.client.get` as develop returns it, nulls dropped (frappe 9e687317a7).
+
+	frappe v15 keeps a field the reader may not see as `None`, so a masked field would
+	still show up as a key. The value is masked on both; this only aligns the shape.
+	"""
+	from frappe.client import get
+
+	return {key: value for key, value in get(doctype, name).items() if value is not None}
+
+
 def normalise_inline_styles(html):
 	"""Rewrite each style attribute as `prop:value;prop:value`.
 
