@@ -20,6 +20,7 @@ UNSCOPED_ROLES = ("Moderator", "Batch Evaluator")
 
 class LMSBatchEnrollment(Document):
 	def after_insert(self):
+		self.validate_course_enrollment()
 		send_confirmation_email(self)
 		from lms.lms.doctype.lms_live_class.lms_live_class import add_learner_to_live_classes
 
@@ -32,7 +33,6 @@ class LMSBatchEnrollment(Document):
 		self.validate_payment()
 		self.validate_self_enrollment()
 		self.validate_seat_availability()
-		self.validate_course_enrollment()
 
 	def validate_owner(self):
 		if self.owner == self.member:
