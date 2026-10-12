@@ -522,12 +522,10 @@ def get_evaluator_details(evaluator: str):
 		doc = frappe.new_doc("Course Evaluator")
 		doc.evaluator = evaluator
 
-	calendar = get_evaluator_calendar(evaluator)
-
 	return {
 		"slots": doc.as_dict(),
-		"calendar": calendar.name if calendar else None,
-		"is_authorized": calendar.authorization_code if calendar else None,
+		"calendar": get_evaluator_calendar(evaluator),
+		"google_enabled": is_google_calendar_enabled(),
 		# Evaluator Schedule holds bare wall-clock times and the whole booking
 		# pipeline reads them as system time, so the editor has to say so.
 		"timezone": format_timezone(get_system_timezone()),
@@ -538,9 +536,172 @@ def get_evaluator_calendar(evaluator: str):
 	"""Read-only. Provisioning moved to ensure_evaluator_calendar: creating a
 	Google Calendar document is a write, and this runs on a plain GET of the
 	profile page."""
-	return frappe.db.get_value(
-		"Google Calendar", {"user": evaluator}, ["name", "authorization_code"], as_dict=1
+	calendar = frappe.db.get_value(
+		"Google Calendar",
+		{"user": evaluator},
+		["name", "enable", "calendar_name", "push_to_google_calendar", "refresh_token"],
+		as_dict=1,
 	)
+	if not calendar:
+		return None
+
+	# Authorised means Google gave a refresh token. An authorization code alone
+	# is left behind when the token exchange fails, and sends nothing.
+	calendar.is_authorized = bool(calendar.pop("refresh_token"))
+	return calendar
+
+
+def is_google_calendar_enabled() -> bool:
+	settings = frappe.get_cached_doc("Google Settings")
+	return bool(settings.enable and settings.client_id)
+
+
+def get_own_calendar_doc():
+	"""The caller's Google Calendar, created on first use. Evaluators manage
+	only their own; anyone else's goes through Settings."""
+	if not is_google_calendar_enabled():
+		frappe.throw(
+			_("Google Calendar is not set up on this site yet. Ask your site administrator to turn it on.")
+		)
+	return frappe.get_doc("Google Calendar", ensure_evaluator_calendar())
+
+
+EVALUATOR_CALENDAR_FIELDS = {"enable", "calendar_name", "push_to_google_calendar"}
+
+
+@frappe.whitelist(methods=["POST"])
+def update_evaluator_calendar(fieldname: str, value: str | int | None = None):
+	"""Save one setting of the caller's own Google Calendar. Evaluators are
+	portal users with no write permission on Google Calendar, so this is their
+	only way to change it, and it never reaches anyone else's."""
+	if fieldname not in EVALUATOR_CALENDAR_FIELDS:
+		frappe.throw(_("{0} cannot be changed.").format(fieldname))
+
+	calendar = get_own_calendar_doc()
+	if fieldname == "calendar_name":
+		rename_own_calendar(calendar.name, value)
+	else:
+		calendar.set(fieldname, 1 if cint(value) else 0)
+		# nosemgrep: lms-unjustified-ignore-permissions - own calendar only (get_own_calendar_doc); portal evaluators have no Google Calendar write permission
+		calendar.save(ignore_permissions=True)
+	return get_evaluator_calendar(frappe.session.user)
+
+
+def rename_own_calendar(current: str, value) -> None:
+	"""The calendar's name is its record name (autoname field:calendar_name),
+	so changing it is a rename, as in Settings."""
+	value = cstr(value).strip()
+	if not value:
+		frappe.throw(_("Give your calendar a name."))
+	if len(value) > 140:
+		frappe.throw(_("Keep the calendar name under 140 characters."))
+	if value == current:
+		return
+	if frappe.db.exists("Google Calendar", value):
+		frappe.throw(_("Another calendar already has this name. Pick a different one."))
+
+	from frappe.model.rename_doc import rename_doc
+
+	# nosemgrep: lms-unjustified-ignore-permissions - own calendar only (get_own_calendar_doc); portal evaluators have no Google Calendar write permission
+	rename_doc("Google Calendar", current, value, ignore_permissions=True, show_alert=False)
+
+
+EVALUATOR_CALENDAR_CACHE = "lms_evaluator_calendar_authorization"
+
+
+@frappe.whitelist(methods=["POST"])
+def authorize_evaluator_calendar():
+	"""Start Google sign-in for the caller's own calendar.
+
+	Frappe's authorize_access checks desk write permission, which portal
+	evaluators don't have. The redirect URI must stay Frappe's callback, since
+	that is the one registered with Google; lms overrides the callback (see
+	google_calendar_callback) to finish the flow for these users.
+	"""
+	from frappe.integrations.doctype.google_calendar.google_calendar import get_authentication_url
+
+	calendar = get_own_calendar_doc()
+	# Keyed by user, unlike Frappe's single shared slot, so two people signing
+	# in at once can't swap calendars. It expires so an abandoned sign-in can't
+	# capture a later one started from the desk.
+	frappe.cache.set_value(
+		f"{EVALUATOR_CALENDAR_CACHE}:{frappe.session.user}", calendar.name, expires_in_sec=900
+	)
+
+	client_id = frappe.get_cached_doc("Google Settings").client_id
+	return get_authentication_url(client_id=client_id, redirect_uri=google_callback_uri())
+
+
+def google_callback_uri() -> str:
+	from frappe.integrations.doctype.google_calendar.google_calendar import google_callback
+	from frappe.utils import get_request_site_address
+
+	return (
+		f"{get_request_site_address(full_address=True)}"
+		f"?cmd={google_callback.__module__}.{google_callback.__qualname__}"
+	)
+
+
+@frappe.whitelist()
+def google_calendar_callback(code: str | None = None):
+	"""Overrides Frappe's google_callback. A sign-in started from the Slots tab
+	is finished here and lands back on it; every other sign-in goes to Frappe's
+	own callback unchanged."""
+	from frappe.integrations.doctype.google_calendar import google_calendar as frappe_google_calendar
+
+	user = frappe.session.user
+	key = f"{EVALUATOR_CALENDAR_CACHE}:{user}"
+	calendar_name = frappe.cache.get_value(key) if user != "Guest" else None
+	if not calendar_name:
+		return frappe_google_calendar.google_callback(code)
+
+	frappe.cache.delete_value(key)
+	calendar = frappe.get_doc("Google Calendar", calendar_name)
+	if calendar.user != user:
+		frappe.throw(_("This calendar is not yours."), frappe.PermissionError)
+
+	authorized = bool(code) and save_calendar_tokens(calendar, code)
+
+	username = frappe.db.get_value("User", user, "username")
+	location = get_lms_route(f"user/{username}/slots")
+	if not authorized:
+		location += "?calendar=failed"
+	frappe.local.response["type"] = "redirect"
+	frappe.local.response["location"] = location
+
+
+def save_calendar_tokens(calendar, code: str) -> bool:
+	"""Swap Google's one-time code for a refresh token, as Frappe's
+	authorize_access does, without its desk permission check."""
+	import requests
+	from frappe.integrations.google_oauth import GoogleOAuth
+
+	settings = frappe.get_cached_doc("Google Settings")
+	try:
+		response = requests.post(
+			GoogleOAuth.OAUTH_URL,
+			data={
+				"code": code,
+				"client_id": settings.client_id,
+				"client_secret": settings.get_password(fieldname="client_secret", raise_exception=False),
+				"redirect_uri": google_callback_uri(),
+				"grant_type": "authorization_code",
+			},
+			timeout=30,
+		).json()
+	except Exception:
+		frappe.log_error(title="Google Calendar authorization failed")
+		return False
+
+	if not response.get("refresh_token"):
+		frappe.log_error(title="Google Calendar authorization failed", message=frappe.as_json(response))
+		return False
+
+	calendar.authorization_code = code
+	calendar.refresh_token = response["refresh_token"]
+	# nosemgrep: lms-unjustified-ignore-permissions - the caller's own calendar, checked in google_calendar_callback
+	calendar.save(ignore_permissions=True)
+	return True
 
 
 @frappe.whitelist()
