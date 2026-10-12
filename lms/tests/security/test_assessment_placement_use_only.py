@@ -26,8 +26,9 @@ def lists_for(doctype: str, name: str, user: str) -> bool:
 
 
 class TestAssessmentPlacementGrantsUseOnly(BaseTestUtils):
-	"""Course Creator B embeds Course Creator A's assessments in B's own lesson.
-	B may use them; A stays their only author, and B reaches only B's students' work."""
+	"""Course Creator B, who already runs A's assessments in a batch with no students,
+	embeds them in B's own lesson. B may use them; A stays their only author, and B
+	reaches only B's students' work."""
 
 	def setUp(self):
 		super().setUp()
@@ -72,6 +73,16 @@ class TestAssessmentPlacementGrantsUseOnly(BaseTestUtils):
 		super().tearDown()
 
 	def _place_as_placer(self):
+		self._create_evaluator(self.moderator.name)
+		batch = self._create_batch(
+			self.course_b.name,
+			instructor=self.placer.name,
+			title=f"Placer Batch {self.course_b.name}",
+			evaluator=self.moderator.name,
+		)
+		for doctype, name in self.assessments.items():
+			batch.append("assessment", {"assessment_type": doctype, "assessment_name": name})
+		batch.save()
 		chapter = self._create_chapter(f"Placer Chapter {self.course_b.name}", self.course_b.name)
 		blocks = [
 			{"type": "quiz", "data": {"quiz": self.assessments["LMS Quiz"]}},
@@ -80,7 +91,7 @@ class TestAssessmentPlacementGrantsUseOnly(BaseTestUtils):
 		]
 		frappe.set_user(self.placer.name)
 		try:
-			frappe.client.insert(
+			self.placer_lesson = frappe.client.insert(
 				{
 					"doctype": "Course Lesson",
 					"course": self.course_b.name,
@@ -88,7 +99,7 @@ class TestAssessmentPlacementGrantsUseOnly(BaseTestUtils):
 					"title": f"Placer Lesson {self.course_b.name}",
 					"content": frappe.as_json({"blocks": blocks}),
 				}
-			)
+			)["name"]
 		finally:
 			frappe.set_user("Administrator")
 
@@ -190,6 +201,110 @@ class TestAssessmentPlacementGrantsUseOnly(BaseTestUtils):
 		for doctype, name in self.assessments.items():
 			with self.subTest(doctype=doctype):
 				self.assertTrue(frappe.has_permission(doctype, "read", doc=name, user=self.placer.name))
+
+	def test_the_placer_can_still_edit_the_lesson_that_places_it(self):
+		frappe.set_user(self.placer.name)
+		try:
+			lesson = frappe.get_doc("Course Lesson", self.placer_lesson)
+			lesson.title = f"{lesson.title} edited"
+			lesson.save()
+		finally:
+			frappe.set_user("Administrator")
+		self.assertEqual(len(frappe.get_doc("Course Lesson", self.placer_lesson).assessments), 3)
+
+
+class TestPlacingNeedsExistingUse(BaseTestUtils):
+	"""A lesson save may newly place only assessments its editor can already administer."""
+
+	def setUp(self):
+		super().setUp()
+		frappe.set_user("Administrator")
+		suffix = frappe.generate_hash(length=6)
+		self.author = self._create_user(f"apn-a-{suffix}@example.com", "Ann", "Author", ["Course Creator"])
+		self.placer = self._create_user(f"apn-b-{suffix}@example.com", "Ben", "Placer", ["Course Creator"])
+		course_a = self._create_course(f"APN Author Course {suffix}", instructor=self.author.name)
+		course_b = self._create_course(f"APN Placer Course {suffix}", instructor=self.placer.name)
+		self.chapter_b = self._create_chapter(f"APN Placer Chapter {suffix}", course_b.name)
+		self.course_b = course_b.name
+		self.titles = {
+			"LMS Quiz": f"APN Quiz {suffix}",
+			"LMS Assignment": f"APN Assignment {suffix}",
+			"LMS Programming Exercise": f"APN Exercise {suffix}",
+		}
+		self.assessments = {
+			"LMS Quiz": self._create_quiz(self._create_quiz_questions(), title=self.titles["LMS Quiz"]).name,
+			"LMS Assignment": self._create_assignment(title=self.titles["LMS Assignment"]).name,
+			"LMS Programming Exercise": self._create_programming_exercise(
+				title=self.titles["LMS Programming Exercise"]
+			).name,
+		}
+		for doctype, name in self.assessments.items():
+			self._set_authors(doctype, name, [self.author.name])
+			self._place_in_lesson(course_a.name, doctype, name)
+
+	def tearDown(self):
+		frappe.set_user("Administrator")
+		super().tearDown()
+
+	def _insert_lesson_as_placer(self, **values):
+		frappe.set_user(self.placer.name)
+		try:
+			return frappe.client.insert(
+				{
+					"doctype": "Course Lesson",
+					"course": self.course_b,
+					"chapter": self.chapter_b.name,
+					"title": f"APN Lesson {frappe.generate_hash(length=6)}",
+					**values,
+				}
+			)
+		finally:
+			frappe.set_user("Administrator")
+
+	def _content(self, doctype: str, name: str) -> str:
+		block_type, key = {
+			"LMS Quiz": ("quiz", "quiz"),
+			"LMS Assignment": ("assignment", "assignment"),
+			"LMS Programming Exercise": ("program", "exercise"),
+		}[doctype]
+		return frappe.as_json({"blocks": [{"type": block_type, "data": {key: name}}]})
+
+	def test_placing_an_assessment_does_not_make_it_editable(self):
+		for doctype, name in self.assessments.items():
+			with self.subTest(doctype=doctype):
+				try:
+					self._insert_lesson_as_placer(content=self._content(doctype, name))
+				except frappe.PermissionError:
+					pass
+				frappe.set_user(self.placer.name)
+				try:
+					frappe.client.set_value(doctype, name, "title", "Renamed by the placer")
+				except frappe.PermissionError:
+					pass
+				finally:
+					frappe.set_user("Administrator")
+				self.assertEqual(frappe.db.get_value(doctype, name, "title"), self.titles[doctype])
+
+	def test_a_lesson_cannot_place_an_assessment_its_editor_cannot_use(self):
+		for doctype, name in self.assessments.items():
+			for field in ("content", "instructor_content"):
+				with self.subTest(doctype=doctype, field=field):
+					with self.assertRaises(frappe.PermissionError):
+						self._insert_lesson_as_placer(**{field: self._content(doctype, name)})
+					self.assertFalse(frappe.has_permission(doctype, "read", doc=name, user=self.placer.name))
+
+	def test_a_lesson_cannot_name_an_unusable_quiz_by_quiz_id(self):
+		with self.assertRaises(frappe.PermissionError):
+			self._insert_lesson_as_placer(quiz_id=self.assessments["LMS Quiz"])
+
+	def test_an_assessment_the_editor_authored_can_be_placed(self):
+		own = self._create_assignment(title=f"APN Own {frappe.generate_hash(length=6)}").name
+		self._set_authors("LMS Assignment", own, [self.placer.name])
+		lesson = self._insert_lesson_as_placer(content=self._content("LMS Assignment", own))
+		self.assertEqual(
+			[row["assessment_name"] for row in lesson["assessments"]],
+			[own],
+		)
 
 
 class TestBatchPlacementGrantsUseOnly(BaseTestUtils):

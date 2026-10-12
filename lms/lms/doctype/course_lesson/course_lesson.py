@@ -26,6 +26,7 @@ from lms.lms.permissions import (
 	can_author_assessment,
 	courses_authored_by_each,
 	get_locked_lessons,
+	unplaceable_assessments,
 )
 from lms.lms.utils import (
 	get_course_progress,
@@ -59,9 +60,40 @@ class CourseLesson(Document):
 		"""Rebuild this lesson's placement rows from its own content, never hand-edited.
 		Runs in validate, not on_update: child rows are written during save, so an
 		on_update append would persist nothing."""
+		rows = lesson_assessment_rows(self.body, self.content, self.instructor_content)
+		self.validate_added_placements(rows)
 		self.set("assessments", [])
-		for row in lesson_assessment_rows(self.body, self.content, self.instructor_content):
+		for row in rows:
 			self.append("assessments", row)
+
+	def validate_added_placements(self, rows):
+		"""A lesson may newly place only assessments its editor can already administer,
+		the same rule a batch applies. Placements the lesson already had stay as they are."""
+		placements = {(row["assessment_type"], row["assessment_name"]) for row in rows}
+		if self.quiz_id and frappe.db.exists("LMS Quiz", self.quiz_id):
+			placements.add(("LMS Quiz", self.quiz_id))
+		refused = unplaceable_assessments(placements - self.stored_placements())
+		if refused:
+			frappe.throw(
+				_("You are not authorized to add {0} to this lesson.").format(next(iter(refused))[1]),
+				frappe.PermissionError,
+			)
+
+	def stored_placements(self) -> set:
+		if self.is_new():
+			return set()
+		stored = {
+			(row.assessment_type, row.assessment_name)
+			for row in frappe.get_all(
+				"LMS Lesson Assessment",
+				filters={"parent": self.name, "parenttype": "Course Lesson"},
+				fields=["assessment_type", "assessment_name"],
+			)
+		}
+		quiz_id = frappe.db.get_value("Course Lesson", self.name, "quiz_id")
+		if quiz_id:
+			stored.add(("LMS Quiz", quiz_id))
+		return stored
 
 	def on_update(self):
 		self.validate_quiz_id()

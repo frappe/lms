@@ -789,6 +789,22 @@ def can_author_assessment(doctype: str, name: str, *, user: str | None = None) -
 	return _is_unrestricted(user) or is_content_author(doctype, name, user)
 
 
+def unplaceable_assessments(placements: set, user: str | None = None) -> set:
+	"""The (doctype, name) pairs in `placements` that `user` may not place in a
+	lesson: those they cannot already administer. One query per doctype."""
+	user = user or frappe.session.user
+	if _is_unrestricted(user):
+		return set()
+	by_doctype: dict[str, set] = {}
+	for doctype, name in placements:
+		by_doctype.setdefault(doctype, set()).add(name)
+	refused = set()
+	for doctype, names in by_doctype.items():
+		usable = set(frappe.db.sql_list(administrable_assessment_names(doctype, user)))
+		refused |= {(doctype, name) for name in names - usable}
+	return refused
+
+
 # The ptypes that read an assessment rather than author it, matching Course Lesson's
 # own hook. Everything else -- write, delete, share, export, report, email -- is the
 # authors' alone, so a course or batch that places it reaches the content and nothing more.
