@@ -152,7 +152,10 @@ import { Badge, Button, call, createResource, toast } from 'frappe-ui'
 import { useRouter } from 'vue-router'
 import CertificationLinks from '@/components/CertificationLinks.vue'
 import VideoPreview from '@/components/VideoPreview.vue'
+<<<<<<< HEAD
 import { useTelemetry } from 'frappe-ui/frappe'
+=======
+>>>>>>> fb6838b (feat(telemetry): send each step a site takes to Pulse)
 import { openExternal } from '@/utils/openExternal'
 import type {
 	CourseDetails,
@@ -165,7 +168,6 @@ const router = useRouter()
 const user = inject<SessionUser>('$user')!
 const readOnlyMode = (window as Window & { read_only_mode?: boolean })
 	.read_only_mode
-const { capture } = useTelemetry()
 
 const props = withDefaults(
 	defineProps<{
@@ -192,7 +194,6 @@ function enrollStudent() {
 		},
 	})
 		.then(() => {
-			capture('enrolled_in_course', { course: courseName })
 			toast.success(__('You have been enrolled in this course'))
 			setTimeout(() => {
 				router.push({
