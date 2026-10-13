@@ -2,8 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { enableAutoUnmount, flushPromises, mount } from '@vue/test-utils'
 import { createMemoryHistory, createRouter, type Router } from 'vue-router'
 import { reactive } from 'vue'
-
-vi.stubGlobal('__', (text: string) => text)
+import { toast } from 'frappe-ui'
 
 const { createResourceMock, passthrough } = vi.hoisted(() => {
 	// @/utils pulls in plyr, which touches matchMedia at import time.
@@ -117,6 +116,13 @@ const mountForm = (router: Router, username: string) =>
 		},
 	})
 
+const saveResource = () => {
+	const index = createResourceMock.mock.calls.findIndex(
+		([options]) => options.url === 'frappe.client.set_value'
+	)
+	return createResourceMock.mock.results[index].value
+}
+
 // The route components are lazy imports, so a navigation started by a close
 // resolves a real module load — flushPromises only drains microtasks and would
 // return while the navigation is still pending. Wait for the router instead.
@@ -155,6 +161,8 @@ describe('the profile edit route', () => {
 			twitter: null,
 		}
 		profileResource.reload.mockClear()
+		createResourceMock.mockClear()
+		vi.mocked(toast.error).mockClear()
 	})
 
 	// resolve(), not push(): matching is synchronous and does not pull in the
@@ -355,5 +363,22 @@ describe('the profile edit route', () => {
 		await linkedin.setValue('')
 		await flushPromises()
 		expect(wrapper.text()).not.toContain('Not Saved')
+	})
+
+	// The server strips a mandatory value before checking it, so spaces got past
+	// the form only to come back as its raw "Value missing" error.
+	it('refuses a first name of only spaces before posting it', async () => {
+		const router = makeRouter()
+		await router.push(`/user/${USERNAME}/edit`)
+		const wrapper = mountForm(router, USERNAME)
+		await flushPromises()
+
+		await wrapper.find('input[data-label="First Name"]').setValue('   ')
+		await wrapper.get('[data-testid="profile-save"]').trigger('click')
+
+		expect(saveResource().submit).not.toHaveBeenCalled()
+		expect(toast.error).toHaveBeenCalledWith(
+			'Please fill the mandatory fields: First Name'
+		)
 	})
 })
