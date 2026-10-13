@@ -196,4 +196,33 @@ describe('AdminBatchDashboard students filters', () => {
 		expect(chart.props('y')).toBe('value')
 		wrapper.unmount()
 	})
+
+	// A student's login email is sent to no one, and the username copied onto
+	// the enrollment goes stale on a rename, so the modal opens on the enrollment.
+	it("opens a student's progress by enrollment", async () => {
+		const wrapper = mountDashboard()
+		await flushPromises()
+		cachedList().data = [
+			{ name: 'E1', member_name: 'Sam Stud', member_username: 'sam' },
+		]
+		await flushPromises()
+
+		// The stub declares no props, so the bindings arrive as attrs.
+		const list = wrapper
+			.findAllComponents({ name: 'ResponsiveListView' })
+			.find((c) => (c.vm.$attrs.options as any)?.onRowClick)
+		expect(list).toBeDefined()
+		;(list?.vm.$attrs.options as any).onRowClick({
+			name: 'E1',
+			member_username: 'sam',
+		})
+		await flushPromises()
+
+		expect(
+			wrapper
+				.findComponent({ name: 'BatchStudentProgress' })
+				.attributes('student')
+		).toBe('E1')
+		wrapper.unmount()
+	})
 })

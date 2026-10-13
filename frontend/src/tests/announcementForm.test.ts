@@ -72,7 +72,7 @@ vi.mock('@/components/RichTextEditor.vue', () => ({
 import AnnouncementForm from '@/pages/Forms/AnnouncementForm.vue'
 
 const BATCH_URL = 'lms.lms.utils.get_batch_details'
-const EMAIL_URL = 'frappe.core.doctype.communication.email.make'
+const EMAIL_URL = 'lms.lms.api.send_batch_announcement'
 
 const Parent = defineComponent({
 	render: () => h('div', ['BATCH', h(RouterView)]),
@@ -126,10 +126,7 @@ describe('AnnouncementForm as a route', () => {
 				? batchResource
 				: { submit: announcementSubmit, loading: false, data: null }
 		)
-		batchResource.data = {
-			name: 'B1',
-			students: ['a@example.com', 'b@example.com'],
-		}
+		batchResource.data = { name: 'B1', student_count: 2 }
 		batchResource.loading = false
 		Object.defineProperty(window, 'innerWidth', {
 			value: 1024,
@@ -163,17 +160,17 @@ describe('AnnouncementForm as a route', () => {
 		expect(batchCall?.[0].makeParams()).toEqual({ batch: 'B1' })
 	})
 
-	it('BCCs the batch students it fetched, not a prop', async () => {
+	// The students' addresses never reach the client: the server BCCs them.
+	it('sends the batch, not a student list, to the server', async () => {
 		const router = makeRouter()
 		await router.push('/batches/B1/announcement/new')
 		await mountForm(router, moderator)
 		const emailCall = createResourceMock.mock.calls.find(
 			(call) => call[0].url === EMAIL_URL
 		)
-		expect(emailCall?.[0].makeParams()).toMatchObject({
-			bcc: 'a@example.com, b@example.com',
-			name: 'B1',
-		})
+		const params = emailCall?.[0].makeParams()
+		expect(params).toMatchObject({ batch: 'B1' })
+		expect(params).not.toHaveProperty('bcc')
 	})
 
 	it('refuses for a user who is not a batch admin', async () => {
@@ -187,7 +184,7 @@ describe('AnnouncementForm as a route', () => {
 	})
 
 	it('refuses when the batch has no students to announce to', async () => {
-		batchResource.data = { name: 'B1', students: [] }
+		batchResource.data = { name: 'B1', student_count: 0 }
 		const router = makeRouter()
 		await router.push('/batches/B1/announcement/new')
 		const wrapper = await mountForm(router, moderator)

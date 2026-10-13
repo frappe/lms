@@ -92,7 +92,7 @@ const refusal = computed(() => {
 	if (readOnlyMode) return __('This site is in read-only mode.')
 	if (!isAdmin.value)
 		return __('You are not permitted to make an announcement for this batch.')
-	if (!batch.data?.students?.length)
+	if (!batch.data?.student_count)
 		return __('Add students to the batch to make an announcement')
 	return null
 })
@@ -143,17 +143,15 @@ const layout = [
 	},
 ]
 
+// The students are BCC'd on the server; this form never holds their addresses.
 const announcementResource = createResource({
-	url: 'frappe.core.doctype.communication.email.make',
+	url: 'lms.lms.api.send_batch_announcement',
 	makeParams() {
 		return {
-			recipients: doc.value.replyTo,
-			bcc: (batch.data?.students || []).join(', '),
+			batch: props.batchName,
 			subject: doc.value.subject,
 			content: doc.value.announcement,
-			doctype: 'LMS Batch',
-			name: props.batchName,
-			send_email: 1,
+			reply_to: doc.value.replyTo,
 		}
 	},
 })
@@ -165,7 +163,7 @@ const makeAnnouncement = () => {
 		{},
 		{
 			validate() {
-				if (!batch.data?.students?.length) {
+				if (!batch.data?.student_count) {
 					return __('No students in this batch')
 				}
 				if (!doc.value.subject) {
