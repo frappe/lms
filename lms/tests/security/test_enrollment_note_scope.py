@@ -179,3 +179,7 @@ class TestEnrollmentAndNoteScope(BaseTestUtils):
 		self.assertTrue(
 			frappe.db.exists("LMS Enrollment", {"course": self.closed_course.name, "member": newcomer.name})
 		)
+
+	def test_adding_a_learner_to_a_batch_enrols_them_in_its_batch_only_courses(self):
+		frappe.db.set_value("LMS Course", self.closed_course.name, "disable_self_learning", 1)
+		self.test_adding_a_learner_to_a_batch_enrols_them_in_its_closed_courses()
