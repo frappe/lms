@@ -99,6 +99,7 @@ class TestTelemetry(BaseTestUtils):
 		self.assertEqual(self._events(), [])
 
 	def test_is_first_says_whether_the_site_has_another(self):
+		frappe.db.delete("DefaultValue", {"defkey": "lms_telemetry_sent:probe"})
 		course = self._course()
 		other = self._course()
 
@@ -109,6 +110,7 @@ class TestTelemetry(BaseTestUtils):
 
 	def test_publishing_again_is_not_a_second_first(self):
 		frappe.db.set_value("LMS Course", {"published_on": ["is", "set"]}, "published_on", None)
+		frappe.db.delete("DefaultValue", {"defkey": "lms_telemetry_sent:course_published"})
 		course = self._course()
 		course.published = 1
 		course.save()
@@ -119,10 +121,30 @@ class TestTelemetry(BaseTestUtils):
 
 		self.assertEqual(self._first("course_published"), [True, False])
 
-	def test_nothing_is_sent_when_pulse_is_off(self):
-		with patch("lms.lms.telemetry.pulse_enabled", return_value=False):
-			self._course(published=1)
+	def test_nothing_is_looked_up_when_pulse_is_off(self):
+		with (
+			patch("lms.lms.telemetry.pulse_enabled", return_value=False),
+			patch("lms.lms.telemetry.has_earlier") as has_earlier,
+			patch("lms.lms.telemetry.demo_course") as demo_course,
+		):
+			course = self._course(published=1)
+			self._create_chapter(None, course.name)
 		self.assertEqual(self._events(), [])
+		has_earlier.assert_not_called()
+		demo_course.assert_not_called()
+
+	def test_a_first_is_sent_once_even_when_the_flag_comes_back(self):
+		frappe.db.delete("DefaultValue", {"defkey": "lms_telemetry_sent:batch_published"})
+		frappe.db.set_value("LMS Batch", {"published": 1}, "published", 0)
+		batch = self._create_batch(
+			self._course(published=1).name, title=f"Batch {frappe.generate_hash(length=6)}"
+		)
+		batch.published = 0
+		batch.save()
+		batch.published = 1
+		batch.save()
+
+		self.assertEqual(self._first("batch_published"), [True, False])
 
 	def test_a_received_payment_is_sent(self):
 		payment = frappe.get_doc(
@@ -157,6 +179,8 @@ class TestTelemetry(BaseTestUtils):
 			telemetry.payment_gateway_saved(switched)
 
 		self.assertEqual(self._events().count("payment_gateway_configured"), 1)
+		self.assertEqual(len(self._first("payment_gateway_configured")), 1)
+		self.assertIsNotNone(self._first("payment_gateway_configured")[0])
 
 	def test_no_title_or_name_is_sent(self):
 		course = self._course(published=1)
