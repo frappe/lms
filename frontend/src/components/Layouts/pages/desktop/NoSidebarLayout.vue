@@ -10,13 +10,11 @@
 		<div class="h-full flex-1">
 			<div class="flex h-dvh text-base bg-surface-base">
 				<main
-					class="w-full overflow-hidden focus:outline-none"
+					class="w-full overflow-auto focus:outline-none"
 					id="scrollContainer"
 					tabindex="-1"
 				>
-					<ScrollArea class="h-full w-full" viewportClass="min-h-full">
-						<slot />
-					</ScrollArea>
+					<slot />
 				</main>
 			</div>
 		</div>
@@ -24,5 +22,4 @@
 </template>
 <script setup lang="ts">
 import { skipToContent } from '@/utils/a11y'
-import { ScrollArea } from 'frappe-ui'
 </script>

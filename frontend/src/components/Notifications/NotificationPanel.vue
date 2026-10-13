@@ -53,10 +53,9 @@
 					class="px-4 py-1"
 				/>
 				<div class="flex h-full overflow-hidden">
-					<ScrollArea
+					<div
 						v-if="filtered.length"
-						class="min-h-0 w-full"
-						viewportClass="divide-y divide-outline-gray-2 text-p-base"
+						class="w-full divide-y divide-outline-gray-2 overflow-auto text-p-base"
 					>
 						<component
 							:is="route ? 'router-link' : 'button'"
@@ -87,7 +86,7 @@
 								</div>
 							</div>
 						</component>
-					</ScrollArea>
+					</div>
 					<EmptyStateLayout
 						v-else
 						name="Notifications"
@@ -102,7 +101,7 @@
 	</Teleport>
 </template>
 <script setup>
-import { Avatar, Button, ScrollArea, TabButtons, Tooltip } from 'frappe-ui'
+import { Avatar, Button, TabButtons, Tooltip } from 'frappe-ui'
 import { computed, inject, ref, watch } from 'vue'
 import { onClickOutside } from '@vueuse/core'
 import { decodeEntities } from '@/utils'

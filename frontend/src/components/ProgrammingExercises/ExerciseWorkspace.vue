@@ -56,16 +56,15 @@
 				>
 					<h3 class="text-sm-semibold text-ink-gray-9">{{ __('Problem') }}</h3>
 				</div>
-				<ScrollArea
+				<div
 					data-testid="problem-pane"
-					class="min-h-0 flex-1"
-					viewportClass="min-h-0 overflow-y-auto p-3.5"
+					class="min-h-0 flex-1 overflow-y-auto p-3.5"
 				>
 					<div
 						v-safe-html:rich="problemStatement"
 						class="ProseMirror prose prose-sm max-w-none !whitespace-normal prose-pre:bg-surface-gray-3 prose-pre:text-ink-gray-9"
 					></div>
-				</ScrollArea>
+				</div>
 			</div>
 
 			<div class="flex min-h-0 flex-col">
@@ -82,34 +81,26 @@
 						{{ __('autosaved') }}
 					</span>
 				</div>
-				<ScrollArea
-					class="exercise-editor min-h-0 flex-1"
-					viewportClass="min-h-0 overflow-y-auto"
-				>
+				<div class="exercise-editor min-h-0 flex-1 overflow-y-auto">
 					<slot name="editor" />
-				</ScrollArea>
+				</div>
 				<ExerciseConsole
 					:lines="consoleLines"
 					:duration="duration"
 					:running="running"
 				/>
-				<ScrollArea
-					class="max-h-80 shrink-0 border-t border-outline-gray-1"
-					viewportClass="max-h-80 overflow-y-auto"
-				>
-					<ExerciseTestCases
-						data-testid="tests-pane"
-						class="min-h-0"
-						:results="results"
-					/>
-				</ScrollArea>
+				<ExerciseTestCases
+					data-testid="tests-pane"
+					class="max-h-80 shrink-0 overflow-y-auto border-t border-outline-gray-1"
+					:results="results"
+				/>
 			</div>
 		</div>
 	</component>
 </template>
 
 <script setup lang="ts">
-import { Badge, Button, KeyboardShortcut, ScrollArea, Tooltip } from 'frappe-ui'
+import { Badge, Button, KeyboardShortcut, Tooltip } from 'frappe-ui'
 import AssessmentCard from '@/components/Assessment/AssessmentCard.vue'
 import AssessmentCardHeader from '@/components/Assessment/AssessmentCardHeader.vue'
 import ExerciseTestCases, {

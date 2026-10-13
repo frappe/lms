@@ -54,7 +54,6 @@ const {
 }))
 
 vi.mock('frappe-ui', () => ({
-	ScrollArea: { name: 'ScrollArea', template: '<div><slot /></div>' },
 	usePageMeta: vi.fn(),
 }))
 

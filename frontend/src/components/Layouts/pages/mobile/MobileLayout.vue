@@ -8,13 +8,11 @@
 			{{ __('Skip to main content') }}
 		</a>
 		<main
-			class="flex min-h-0 flex-1 flex-col overflow-hidden focus:outline-none"
+			class="flex min-h-0 flex-1 flex-col overflow-y-auto focus:outline-none"
 			id="scrollContainer"
 			tabindex="-1"
 		>
-			<ScrollArea class="min-h-0 flex-1" viewportClass="min-h-0 flex flex-col">
-				<slot />
-			</ScrollArea>
+			<slot />
 		</main>
 
 		<div class="relative z-20 shrink-0">
@@ -65,8 +63,9 @@
 // Two browser constraints the markup depends on. The frame is `h-dvh`, not
 // `h-screen`: 100vh is the URL-bar-retracted viewport, so the tab bar would
 // sit below the visible area, and nothing above main scrolls to retract it.
-// `main` is `min-h-0` so the ScrollArea viewport can shrink between the header
-// and tab bar instead of pushing the tabs below the visible screen.
+// `main` is `min-h-0` so it can shrink and scroll its own overflow; padding
+// can't do that job, since Chromium drops a flex column's bottom padding
+// from the scrollable area, hiding the last row under the bar.
 import { skipToContent } from '@/utils/a11y'
 import { useRouter } from 'vue-router'
 import { ref, computed, watch } from 'vue'
@@ -75,7 +74,7 @@ import { sessionStore } from '@/stores/session'
 import { useSettings } from '@/stores/settings'
 import { usersStore } from '@/stores/user'
 import * as icons from 'lucide-vue-next'
-import { Avatar, ScrollArea } from 'frappe-ui'
+import { Avatar } from 'frappe-ui'
 import { ensureMobileNavLinks, sidebarLinks } from '@/stores/mobileNavLinks'
 import { pickPrimaryTabs, tabLabel } from '@/utils/mobileNav'
 

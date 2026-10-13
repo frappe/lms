@@ -4,14 +4,7 @@ import { onScopeDispose, readonly, ref, watch } from 'vue'
    which would overwrite the hash that pages like CourseDetail use for tab
    state. The target carries tabindex="-1" so it can take focus. */
 export function skipToContent(id: string) {
-	const target = document.getElementById(id)
-	const viewport = target?.querySelector<HTMLElement>(
-		'[data-slot="scroll-area-viewport"]'
-	)
-	const focusTarget = viewport ?? target
-	if (!focusTarget) return
-	if (viewport) viewport.tabIndex = -1
-	focusTarget.focus()
+	document.getElementById(id)?.focus()
 }
 
 const ANNOUNCE_DELAY = 500

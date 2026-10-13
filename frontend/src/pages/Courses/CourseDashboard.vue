@@ -57,10 +57,7 @@
 						</FormControl>
 					</div>
 				</div>
-				<ScrollArea
-					class="sm:max-h-[63vh]"
-					viewportClass="sm:max-h-[63vh] sm:overflow-y-auto"
-				>
+				<div class="sm:max-h-[63vh] sm:overflow-y-auto">
 					<ResponsiveListView
 						v-if="progressList.loading || progressList.data?.length"
 						:columns="progressColumns"
@@ -114,7 +111,7 @@
 							{{ __('Load More') }}
 						</Button>
 					</div>
-				</ScrollArea>
+				</div>
 			</div>
 			<div class="space-y-5">
 				<div
@@ -178,42 +175,37 @@
 							class="!w-32"
 						/>
 					</div>
-					<ScrollArea
-						class="sm:max-h-[40vh]"
-						viewportClass="sm:max-h-[40vh] sm:overflow-y-auto"
+					<ul
+						class="divide-y sm:max-h-[40vh] divide-outline-elevation-2 text-ink-gray-7 sm:overflow-y-auto list-none"
 					>
-						<ul
-							class="divide-y divide-outline-elevation-2 text-ink-gray-7 list-none"
+						<li
+							v-for="progress in lessonProgress.data"
+							:key="`${progress.chapter_idx}-${progress.idx}`"
+							class="flex justify-between text-sm py-2 my-1 text-ink-gray-9"
 						>
-							<li
-								v-for="progress in lessonProgress.data"
-								:key="`${progress.chapter_idx}-${progress.idx}`"
-								class="flex justify-between text-sm py-2 my-1 text-ink-gray-9"
-							>
-								<div class="">
-									<span class="me-3 text-xs">
-										{{ progress.chapter_idx }}.{{ progress.idx }}
-									</span>
-									<span>
-										{{ progress.title }}
-									</span>
+							<div class="">
+								<span class="me-3 text-xs">
+									{{ progress.chapter_idx }}.{{ progress.idx }}
+								</span>
+								<span>
+									{{ progress.title }}
+								</span>
+							</div>
+							<Tooltip :text="String(progress.completion_count)">
+								<div>
+									{{
+										course.data?.enrollments
+											? Math.ceil(
+													(progress.completion_count /
+														course.data.enrollments) *
+														100
+											  )
+											: 0
+									}}%
 								</div>
-								<Tooltip :text="String(progress.completion_count)">
-									<div>
-										{{
-											course.data?.enrollments
-												? Math.ceil(
-														(progress.completion_count /
-															course.data.enrollments) *
-															100
-												  )
-												: 0
-										}}%
-									</div>
-								</Tooltip>
-							</li>
-						</ul>
-					</ScrollArea>
+							</Tooltip>
+						</li>
+					</ul>
 				</div>
 			</div>
 		</div>
@@ -233,7 +225,6 @@ import {
 	createListResource,
 	createResource,
 	FormControl,
-	ScrollArea,
 	Tooltip,
 } from 'frappe-ui'
 import type { SelectOptionValue } from 'frappe-ui'

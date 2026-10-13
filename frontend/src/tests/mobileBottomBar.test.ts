@@ -34,7 +34,6 @@ const {
 }))
 
 vi.mock('frappe-ui', () => ({
-	ScrollArea: { name: 'ScrollArea', template: '<div><slot /></div>' },
 	Avatar: {
 		props: ['image', 'label', 'size'],
 		// Renders no text of its own: the tab's own caption is what a label

@@ -30,7 +30,7 @@
 			/>
 		</div>
 
-		<ScrollArea class="min-h-0 flex-1" viewportClass="overflow-y-auto px-5">
+		<div class="flex-1 overflow-y-auto px-5">
 			<ResponsiveListView
 				force-cards
 				no-detail-separator
@@ -81,7 +81,7 @@
 			>
 				{{ __('No questions found.') }}
 			</div>
-		</ScrollArea>
+		</div>
 	</div>
 </template>
 
@@ -93,7 +93,6 @@ import {
 	Dropdown,
 	Badge,
 	createResource,
-	ScrollArea,
 } from 'frappe-ui'
 import { ref, reactive, computed, watch, onMounted } from 'vue'
 import ResponsiveListView from '@/components/ResponsiveListView.vue'

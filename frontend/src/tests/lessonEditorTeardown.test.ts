@@ -70,7 +70,6 @@ vi.mock('frappe-ui', async () => {
 			template: `<button><slot name="prefix" /><slot name="icon" /><slot /><slot name="suffix" /></button>`,
 		},
 		TabButtons: passthrough('TabButtons'),
-		ScrollArea: passthrough('ScrollArea'),
 		Tooltip: { name: 'Tooltip', template: `<span><slot /></span>` },
 	}
 })

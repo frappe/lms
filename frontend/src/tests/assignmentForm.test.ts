@@ -100,6 +100,15 @@ vi.mock('@/components/Controls/Link.vue', () => ({
 vi.mock('@/components/Controls/BooleanSwitch.vue', () => ({
 	default: { props: ['modelValue', 'label'], template: `<div />` },
 }))
+// The server's write answer for the assignment, read at mount.
+const authorship = vi.hoisted(() => ({ canWrite: true as boolean | null }))
+vi.mock('@/composables/useCanWrite', async () => {
+	const { ref } = await import('vue')
+	return {
+		useCanWrite: (_doctype: string, name: () => string | undefined) =>
+			ref(name() ? authorship.canWrite : true),
+	}
+})
 
 import { toast } from 'frappe-ui'
 import AssignmentForm from '@/pages/Forms/AssignmentForm.vue'
@@ -178,6 +187,7 @@ const inputs = (wrapper: any) =>
 
 describe('AssignmentForm as a route', () => {
 	beforeEach(() => {
+		authorship.canWrite = true
 		insertSubmit.mockReset()
 		setValueSubmit.mockReset()
 		created.mockReset()
@@ -364,6 +374,32 @@ describe('AssignmentForm as a route', () => {
 			schedule_end: null,
 		})
 		expect(insertSubmit).not.toHaveBeenCalled()
+	})
+
+	// Placing an assignment made its edit screen writable since #2826.
+	// Added for audit finding #3 on branch fix/assessment-placement-use-only.
+	it('opens read-only for someone who only placed the assignment', async () => {
+		authorship.canWrite = false
+		const router = makeRouter()
+		docResource.current.doc = RECORD
+		await router.push({
+			name: 'AssignmentForm',
+			params: { assignmentID: 'ASG-0001' },
+		})
+		const wrapper = await mountForm(router, moderator)
+
+		expect(
+			wrapper.find('[data-testid="assignment-read-only-note"]').text()
+		).toBe('Only the authors of this assignment can edit it.')
+		expect(wrapper.find('[data-testid="assignment-save"]').exists()).toBe(false)
+		expect(
+			wrapper.find('[data-testid="assignment-fields"]').attributes('disabled')
+		).toBeDefined()
+
+		const vm = wrapper.findComponent(AssignmentForm).vm as any
+		vm.saveAssignment()
+		await flushPromises()
+		expect(setValueSubmit).not.toHaveBeenCalled()
 	})
 
 	it('ignores a save from a user who cannot manage assignments', async () => {

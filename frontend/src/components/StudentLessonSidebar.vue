@@ -24,10 +24,7 @@
 			</div>
 		</div>
 
-		<ScrollArea
-			class="min-h-0 flex-1"
-			viewportClass="overflow-y-auto px-2 py-3"
-		>
+		<ScrollArea class="min-h-0 flex-1" viewportClass="px-2 py-3">
 			<ul class="list-none">
 				<li v-for="chapter in outline.data || []" :key="chapter.name">
 					<Disclosure

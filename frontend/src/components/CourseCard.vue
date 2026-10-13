@@ -1,8 +1,7 @@
 <template>
-	<ScrollArea
+	<div
 		v-if="course.title"
-		class="relative isolate h-full rounded-5 text-ink-gray-9 bg-surface-elevation-1"
-		viewportClass="flex h-full flex-col overflow-y-auto"
+		class="relative isolate flex flex-col h-full rounded-5 overflow-auto text-ink-gray-9 bg-surface-elevation-1"
 		style="min-height: 350px"
 	>
 		<div
@@ -161,11 +160,11 @@
 				</div>
 			</div>
 		</div>
-	</ScrollArea>
+	</div>
 </template>
 <script setup>
 import { sessionStore } from '@/stores/session'
-import { ScrollArea, Tooltip } from 'frappe-ui'
+import { Tooltip } from 'frappe-ui'
 import { formatAmount, formatRating } from '@/utils'
 import { computed, watch } from 'vue'
 import CardLink from '@/components/CardLink.vue'

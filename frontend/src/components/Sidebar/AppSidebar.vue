@@ -7,10 +7,7 @@
 		@update:collapsed="setCollapsed"
 	>
 		<UserDropdown />
-		<ScrollArea
-			class="min-h-0 flex-1"
-			viewportClass="min-h-0 overflow-y-auto px-2 pt-2"
-		>
+		<ScrollArea class="min-h-0 flex-1" viewportClass="px-2 pt-2">
 			<div v-if="sidebarSettings.data" class="flex flex-col gap-0.5">
 				<template v-for="row in sidebarRows" :key="row.key">
 					<div v-if="row.kind === 'gap'" class="h-2.5" aria-hidden="true" />

@@ -244,9 +244,7 @@ describe('CourseImportForm as a route', () => {
 		// "...import_course_from_zip ValidationError" and dropped the reason.
 		await rejectImportWith(['Invalid course ZIP: Missing course.json'])
 
-		expect(toast.error).toHaveBeenCalledWith(
-			'Invalid course ZIP: Missing course.json'
-		)
+		expect(toast.error).toHaveBeenCalledWith('Invalid course ZIP: Missing course.json')
 	})
 
 	it('falls back to the raw error when the server sent no message', async () => {

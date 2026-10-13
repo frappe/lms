@@ -90,11 +90,7 @@ vi.mock('frappe-ui', () => ({
 		template: `<nav><span v-for="i in items" :key="i.label">{{ i.label }}</span></nav>`,
 	},
 	LoadingIndicator: { template: `<span />` },
-	ScrollArea: {
-		inheritAttrs: false,
-		props: ['viewportClass'],
-		template: `<div v-bind="$attrs"><div :class="viewportClass"><slot /></div></div>`,
-	},
+	ScrollArea: { name: 'ScrollArea', template: '<div><slot /></div>' },
 }))
 
 // Preview mounts the learner's submission page, which pulls in the code
@@ -105,6 +101,16 @@ vi.mock(
 		default: defineComponent({ render: () => h('div') }),
 	})
 )
+
+// The server's write answer for the exercise, read at mount.
+const authorship = vi.hoisted(() => ({ canWrite: true as boolean | null }))
+vi.mock('@/composables/useCanWrite', async () => {
+	const { ref } = await import('vue')
+	return {
+		useCanWrite: (_doctype: string, name: () => string | undefined) =>
+			ref(name() ? authorship.canWrite : true),
+	}
+})
 
 // The rich text editor drags in ProseMirror; a button stands in for typing.
 vi.mock('@/components/RichTextEditor.vue', () => ({
@@ -241,6 +247,7 @@ const FIELD_LABELS = [
 
 describe('ProgrammingExerciseForm as a route', () => {
 	beforeEach(() => {
+		authorship.canWrite = true
 		insertSubmit.mockReset()
 		setValueSubmit.mockReset()
 		deleteSubmit.mockReset()
@@ -474,6 +481,44 @@ describe('ProgrammingExerciseForm as a route', () => {
 			name: 'EX-0001',
 			title: 'Renamed',
 		})
+		vi.useRealTimers()
+	})
+
+	// Placing an exercise made its edit screen writable since #2826.
+	// Added for audit finding #3 on branch fix/assessment-placement-use-only.
+	it('opens read-only for someone who only placed the exercise', async () => {
+		vi.useFakeTimers()
+		authorship.canWrite = false
+		createDocumentResourceMock.mockImplementation(
+			documentResourceStub({
+				name: 'EX-0001',
+				title: 'T',
+				language: 'Python',
+				test_cases: [],
+			})
+		)
+		const router = makeRouter()
+		await router.push('/programming-exercises/edit/EX-0001')
+		const wrapper = await mountForm(router, moderator)
+
+		expect(
+			wrapper.find('[data-testid="programming-exercise-read-only-note"]').text()
+		).toBe('Only the authors of this programming exercise can edit it.')
+		expect(
+			wrapper.find('[data-testid="programming-exercise-delete"]').exists()
+		).toBe(false)
+		expect(
+			wrapper
+				.find('[data-testid="programming-exercise-fields"]')
+				.attributes('disabled')
+		).toBeDefined()
+		expect(
+			wrapper.find('[data-testid="programming-exercise-submissions"]').exists()
+		).toBe(true)
+
+		await wrapper.get('[data-testid="add-case"]').trigger('click')
+		await vi.advanceTimersByTimeAsync(1500)
+		expect(setValueSubmit).not.toHaveBeenCalled()
 		vi.useRealTimers()
 	})
 

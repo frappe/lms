@@ -1,6 +1,31 @@
 @import 'frappe-ui/style.css';
 @import './styles/blockEditor.css';
 
+/* Match Helpdesk's native scrollbars, including editors and dropdowns. */
+* {
+	scrollbar-width: thin;
+	scrollbar-color: var(--outline-gray-3) transparent;
+}
+
+*::-webkit-scrollbar {
+	width: 6px;
+	height: 6px;
+}
+
+*::-webkit-scrollbar-track,
+*::-webkit-scrollbar-corner {
+	background: transparent;
+}
+
+*::-webkit-scrollbar-thumb {
+	background-color: var(--outline-gray-3);
+	border-radius: 9999px;
+}
+
+*::-webkit-scrollbar-thumb:hover {
+	background-color: var(--outline-gray-4);
+}
+
 /* frappe-ui paints no document background, so dark mode showed the UA's white
    wherever no element covers the canvas. Precedent: helpdesk/desk/src/index.css. */
 html {
@@ -25,8 +50,8 @@ svg.lucide {
 }
 
 /* Keep focused elements from hiding under the sticky header. */
-main#scrollContainer [data-slot='scroll-area-viewport'],
-main#main-content [data-slot='scroll-area-viewport'] {
+main#scrollContainer,
+main#main-content {
 	scroll-padding-block-start: var(--header-frame-h);
 }
 

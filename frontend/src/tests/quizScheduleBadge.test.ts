@@ -56,7 +56,6 @@ vi.mock('frappe-ui', async () => {
 
 	return {
 		createResource,
-		ScrollArea: empty,
 		call: vi.fn(),
 		toast: { warning: vi.fn(), error: vi.fn() },
 		Button: {

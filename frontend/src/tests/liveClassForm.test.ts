@@ -54,7 +54,6 @@ vi.mock('@/components/HeaderButton.vue', () => ({
 }))
 
 vi.mock('frappe-ui', () => ({
-	ScrollArea: { name: 'ScrollArea', template: '<div><slot /></div>' },
 	createResource: createResourceMock,
 	createListResource: createListResourceMock,
 	getCachedListResource: getCachedListResourceMock,
@@ -146,6 +145,7 @@ const mountForm = async (router: Router, user: Record<string, unknown>) => {
 
 const moderator = { name: 'mod@example.com', is_moderator: true }
 const student = { name: 'student@example.com' }
+const evaluator = { name: 'eval@example.com', is_evaluator: true }
 
 const norm = (text: string) =>
 	text
@@ -227,6 +227,26 @@ describe('LiveClassForm as a route', () => {
 			false
 		)
 		expect(wrapper.html()).toContain('not permitted')
+	})
+
+	it('refuses an evaluator the batch does not tag', async () => {
+		const router = makeRouter()
+		await router.push('/batches/B1/live-class/new')
+		const wrapper = await mountForm(router, evaluator)
+		expect(wrapper.find('[data-testid="live-class-fields"]').exists()).toBe(
+			false
+		)
+		expect(wrapper.html()).toContain('not permitted')
+	})
+
+	it('opens for an evaluator the batch tags', async () => {
+		batchResource.data = { ...batchResource.data, can_manage: true }
+		const router = makeRouter()
+		await router.push('/batches/B1/live-class/new')
+		const wrapper = await mountForm(router, evaluator)
+		expect(wrapper.find('[data-testid="live-class-fields"]').exists()).toBe(
+			true
+		)
 	})
 
 	it('refuses when the batch has no conferencing account', async () => {
@@ -352,7 +372,10 @@ describe('the Classes tab opener', () => {
 		})
 	})
 
-	const mountTab = async (router: Router) =>
+	const mountTab = async (
+		router: Router,
+		user: Record<string, unknown> = moderator
+	) =>
 		mount(LiveClass, {
 			props: {
 				batch: {
@@ -365,7 +388,7 @@ describe('the Classes tab opener', () => {
 			},
 			global: {
 				plugins: [router],
-				provide: provide(moderator),
+				provide: provide(user),
 				mocks: { __: (text: string) => text },
 			},
 		})
@@ -377,6 +400,13 @@ describe('the Classes tab opener', () => {
 		expect(createListResourceMock).toHaveBeenCalledWith(
 			expect.objectContaining({ cache: ['liveClasses', 'B1'] })
 		)
+	})
+
+	it('offers no Add to an evaluator the batch does not tag', async () => {
+		const router = makeRouter()
+		await router.push('/batches/B1#classes')
+		const wrapper = await mountTab(router, evaluator)
+		expect(wrapper.find('[data-testid="live-class-add"]').exists()).toBe(false)
 	})
 
 	it('opens the form route carrying the current tab hash (C2)', async () => {
