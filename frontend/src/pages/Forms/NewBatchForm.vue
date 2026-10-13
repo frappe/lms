@@ -274,7 +274,6 @@ const saveBatch = () => {
 		{
 			onSuccess(data: any) {
 				toast.success(__('Batch created successfully'))
-				capture('batch_created')
 				// replace, not push: the form entry is consumed so Back reaches
 				// the list rather than a stale empty form.
 				saveAndReplace({
