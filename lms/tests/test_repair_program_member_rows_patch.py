@@ -1,6 +1,9 @@
+from unittest.mock import patch
+
 import frappe
 
 from lms.lms.test_helpers import BaseTestUtils
+from lms.patches.v2_0 import repair_program_member_rows
 from lms.patches.v2_0.repair_program_member_rows import execute
 
 
@@ -113,3 +116,16 @@ class TestRepairProgramMemberRowsPatch(BaseTestUtils):
 
 		self.assertEqual(self._rows(), before)
 		self.assertEqual(frappe.db.get_value("LMS Program", self.program.name, "modified"), modified)
+
+	def test_over_the_cap_migrate_names_an_entry_point_that_finishes(self):
+		self._seed_orphans()
+
+		with patch.object(repair_program_member_rows, "MAX_ROWS", 1):
+			with self.assertRaises(frappe.ValidationError) as raised:
+				execute()
+			self.assertIn("repair_program_member_rows.repair_all", str(raised.exception))
+			repair_program_member_rows.repair_all()
+			execute()
+
+		self.assertEqual({row.parentfield for row in self._rows()}, {"program_members"})
+		self.assertEqual(frappe.db.get_value("LMS Program", self.program.name, "member_count"), 3)

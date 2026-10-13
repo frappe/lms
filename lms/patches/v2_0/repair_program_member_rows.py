@@ -5,26 +5,38 @@ from frappe import _
 # (2025-08-19) onward, so no stray row can be older than that.
 CUTOFF = "2025-08-19"
 # Each affected program is rewritten row by row. Past this, migrate would hold
-# the table for minutes, so the operator should run it as a job instead.
+# the table for minutes, so the operator runs repair_all outside migrate instead.
 MAX_ROWS = 10_000
 PARENTTYPE = "LMS Program"
 TABLE_FIELD = "program_members"
 
 
 def execute():
-	stray = frappe.get_all(
+	stray = get_stray_rows(limit=MAX_ROWS + 1)
+	if len(stray) > MAX_ROWS:
+		frappe.throw(
+			_(
+				"More than {0} LMS Program Member rows need repair. Run bench --site {1} execute lms.patches.v2_0.repair_program_member_rows.repair_all, then migrate again."
+			).format(MAX_ROWS, frappe.local.site)
+		)
+	repair(stray)
+
+
+def repair_all():
+	repair(get_stray_rows())
+
+
+def get_stray_rows(limit: int | None = None):
+	return frappe.get_all(
 		"LMS Program Member",
 		filters={"creation": [">=", CUTOFF]},
 		or_filters={"parenttype": ["!=", PARENTTYPE], "parentfield": ["!=", TABLE_FIELD]},
 		fields=["name", "parent"],
-		limit=MAX_ROWS + 1,
+		limit=limit,
 	)
-	if len(stray) > MAX_ROWS:
-		frappe.throw(
-			_(
-				"More than {0} LMS Program Member rows need repair; run the repair as a background job."
-			).format(MAX_ROWS)
-		)
+
+
+def repair(stray):
 	if not stray:
 		return
 
