@@ -514,6 +514,19 @@ describe('ProgramForm as a route', () => {
 			expect(payload.program_members).toHaveLength(30)
 		})
 
+		it('keeps the unsaved badge when the save fails', async () => {
+			const wrapper = await loadProgram(THREE_COURSES, MEMBER_ROWS)
+			setValueSubmit.mockImplementation(
+				(_doc: unknown, options: { onError: (err: unknown) => void }) =>
+					options.onError(new Error('Not permitted'))
+			)
+
+			await drag(wrapper, 0, 2)
+			await wrapper.find('[data-testid="program-save"]').trigger('click')
+			await flushPromises()
+			expect(wrapper.text()).toContain('Not Saved')
+		})
+
 		it('offers Delete only for a real program', async () => {
 			const { wrapper } = await deepLink('data-science')
 			await wrapper.find('[data-testid="program-delete"]').trigger('click')
