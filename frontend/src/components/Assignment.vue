@@ -83,67 +83,77 @@
 					}}
 					{{ __('Feel free to make edits to your submission if needed.') }}
 				</div>
-				<div
-					v-if="showUploader() && canModifyAssignment && !scheduleBlocked"
-					class="border rounded-lg p-3"
-				>
-					<div class="font-semibold mb-2">
-						{{ __('Upload Assignment') }}
-					</div>
-					<div class="text-ink-gray-5 text-sm mt-1 mb-4">
-						{{
-							__('You can only upload {0} files').format(assignment.data.type)
-						}}
-					</div>
-					<FileUploader
-						v-if="!attachment"
-						:fileTypes="getType()"
-						:uploadArgs="{
-							private: true,
-						}"
-						:validateFile="
-							(file) =>
-								validateFile(file, true, assignment.data.type.toLowerCase())
-						"
-						@success="(file) => saveSubmission(file)"
+				<template v-if="showUploader()">
+					<div
+						v-if="attachment || canModifyAssignment"
+						class="border rounded-lg p-3"
 					>
-						<template #default="{ uploading, progress, openFileSelector }">
-							<Button @click="openFileSelector" :loading="uploading">
+						<template v-if="canModifyAssignment">
+							<div class="font-semibold mb-2">
+								{{ __('Upload Assignment') }}
+							</div>
+							<div class="text-ink-gray-5 text-sm mt-1 mb-4">
 								{{
-									uploading
-										? __('Uploading {0}%').format(progress)
-										: __('Upload File')
+									__('You can only upload {0} files').format(
+										assignment.data.type
+									)
 								}}
-							</Button>
+							</div>
 						</template>
-					</FileUploader>
-					<div v-else>
-						<div class="flex items-center text-ink-gray-7">
-							<a
-								:href="safeUrl(attachment)"
-								v-external
-								class="cursor-pointer !no-underline text-sm leading-5"
-							>
-								<div class="flex items-center">
-									<div class="border rounded-md p-2 me-2">
-										<span class="lucide-file-text h-5 w-5" />
+						<FileUploader
+							v-if="!attachment"
+							:fileTypes="getType()"
+							:uploadArgs="{
+								private: true,
+							}"
+							:validateFile="
+								(file) =>
+									validateFile(file, true, assignment.data.type.toLowerCase())
+							"
+							@success="(file) => saveSubmission(file)"
+						>
+							<template #default="{ uploading, progress, openFileSelector }">
+								<Button @click="openFileSelector" :loading="uploading">
+									{{
+										uploading
+											? __('Uploading {0}%').format(progress)
+											: __('Upload File')
+									}}
+								</Button>
+							</template>
+						</FileUploader>
+						<div v-else>
+							<div class="flex items-center text-ink-gray-7">
+								<a
+									:href="safeUrl(attachment)"
+									v-external
+									class="cursor-pointer !no-underline text-sm leading-5"
+								>
+									<div class="flex items-center">
+										<div class="border rounded-md p-2 me-2">
+											<span class="lucide-file-text h-5 w-5" />
+										</div>
+										<span>
+											{{ attachment.split('/').pop() }}
+										</span>
 									</div>
-									<span>
-										{{ attachment.split('/').pop() }}
-									</span>
-								</div>
-							</a>
-							<button
-								v-if="canModifyAssignment"
-								type="button"
-								:aria-label="__('Remove submission')"
-								@click="removeSubmission()"
-								class="lucide-x bg-surface-gray-3 rounded-md cursor-pointer w-5 h-5 p-1 ms-4"
-							/>
+								</a>
+								<button
+									v-if="canModifyAssignment"
+									type="button"
+									:aria-label="__('Remove submission')"
+									@click="removeSubmission()"
+									class="lucide-x bg-surface-gray-3 rounded-md cursor-pointer w-5 h-5 p-1 ms-4"
+								/>
+							</div>
 						</div>
 					</div>
-				</div>
-				<div v-else-if="assignment.data.type == 'URL' && !scheduleBlocked">
+				</template>
+				<div
+					v-else-if="
+						assignment.data.type == 'URL' && (!scheduleBlocked || answer)
+					"
+				>
 					<div class="text-p-sm-medium text-ink-gray-7 mb-1.5">
 						{{ __('Enter a URL') }}
 					</div>
@@ -154,7 +164,7 @@
 						:disabled="!canModifyAssignment"
 					/>
 				</div>
-				<div v-else-if="!showUploader() && !scheduleBlocked">
+				<div v-else-if="!scheduleBlocked || answer">
 					<div class="text-sm mb-2 text-ink-gray-7">
 						{{ __('Write your answer here') }}
 					</div>
