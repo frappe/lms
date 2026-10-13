@@ -168,12 +168,14 @@ const outline = createResource({
 			progress: props.withProgress,
 		}
 	},
-	auto: true,
+	auto: Boolean(props.courseName),
 })
 
 watch(
 	() => props.courseName,
-	() => outline.reload()
+	() => {
+		if (props.courseName) outline.reload()
+	}
 )
 
 // Re-runs whenever either source updates so a completion event that

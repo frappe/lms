@@ -1,7 +1,7 @@
 <template>
-	<div class="relative flex h-full min-h-64 w-full grow justify-center">
+	<div class="flex h-full min-h-64 w-full grow items-center justify-center">
 		<div
-			class="absolute inset-x-0 top-1/3 mx-auto flex w-full flex-col items-center gap-3 px-6 sm:top-[35%] sm:px-4"
+			class="flex w-full flex-col items-center gap-3 px-6 sm:px-4"
 			:class="widthClass"
 		>
 			<span class="size-10 text-ink-gray-5 sm:size-7.5" :class="icon" />
@@ -52,9 +52,8 @@ const computedDescription = computed(
 // on a 390px phone, which wrapped the copy into a sliver a word or two wide.
 // The base `w-full` holds until `sm`, and these take over from there.
 //
-// Centring is `inset-x-0 mx-auto` rather than the half-offset-and-translate
-// pair it replaced: same result, no physical inline-axis class for the RTL
-// rule to catch.
+// Centered via flex on the parent, not a physical inline-axis class, so
+// the RTL rule has nothing to catch here.
 const widthClass = computed(() => {
 	switch (props.width) {
 		case 'sm':

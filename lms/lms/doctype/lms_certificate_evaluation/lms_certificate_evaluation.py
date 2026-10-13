@@ -5,8 +5,10 @@ import frappe
 from frappe import _
 from frappe.model.document import Document
 from frappe.model.mapper import get_mapped_doc
+from frappe.query_builder import Bracket
+from pypika.terms import LiteralValue
 
-from lms.lms.utils import has_moderator_role
+from lms.lms.utils import get_evaluator, has_moderator_role
 
 
 class LMSCertificateEvaluation(Document):
@@ -24,8 +26,101 @@ def has_website_permission(doc, ptype, user, verbose=False):
 	return False
 
 
+def is_evaluation_admin(user=None):
+	user = user or frappe.session.user
+	return bool(has_moderator_role(user)) or "System Manager" in frappe.get_roles(user)
+
+
+def has_permission(doc, ptype="read", user=None):
+	"""The Batch Evaluator DocPerm grants CRUD on the whole doctype, so without
+	this every evaluator could grade, retitle or delete any other evaluator's
+	evaluations over the generic REST path. Returning False is what denies them.
+
+	`has_website_permission` above only covers portal routes; the desk, reports,
+	Data Import and /api/resource never consult it.
+	"""
+	user = user or frappe.session.user
+	if is_evaluation_admin(user):
+		return True
+
+	if ptype in ("read", "select", "print"):
+		return doc.evaluator == user or doc.member == user
+
+	if ptype == "create":
+		# The caller picks `evaluator` on a new row, so trusting that field alone
+		# would let any evaluator mint a Pass for any member on any course. Ask the
+		# same question save_evaluation_details asks: who is assigned to this
+		# course/batch? Members never create their own evaluation -- they book an
+		# LMS Certificate Request that an evaluator or Moderator converts.
+		return is_assigned_evaluator(doc, user)
+
+	if ptype in ("write", "delete"):
+		# The write check sees the caller's in-memory values, so ask the create
+		# question of both those and the stored row: either alone lets an evaluator
+		# move an evaluation onto, or off, a course they do not evaluate.
+		stored = frappe.db.get_value(
+			"LMS Certificate Evaluation", doc.name, ["evaluator", "course", "batch_name"], as_dict=True
+		)
+		if not stored or not is_assigned_evaluator(stored, user):
+			return False
+		return ptype == "delete" or is_assigned_evaluator(doc, user)
+
+	return False
+
+
+def is_assigned_evaluator(evaluation, user):
+	return evaluation.evaluator == user and get_evaluator(evaluation.course, evaluation.batch_name) == user
+
+
+def get_permission_query_conditions(user=None):
+	"""List-read counterpart of has_permission above: a hook is consulted on
+	single-document reads but not on list queries, and this is the reverse, so
+	registering one without the other leaves half the doctype open."""
+	user = user or frappe.session.user
+	if user == "Administrator":
+		return ""
+
+	if is_evaluation_admin(user):
+		return ""
+
+	evaluation = frappe.qb.DocType("LMS Certificate Evaluation")
+	# LiteralValue around frappe.db.escape, not the bare string: pypika inlines a value
+	# by doubling quotes alone, which leaves a backslash live on MariaDB. Bracket keeps
+	# the OR together once the caller ANDs this onto the rest of the where clause.
+	member = LiteralValue(frappe.db.escape(user))
+	condition = Bracket((evaluation.evaluator == member) | (evaluation.member == member))
+	return condition.get_sql(with_namespace=True, quote_char="`" if frappe.db.db_type == "mariadb" else '"')
+
+
 @frappe.whitelist()
 def create_lms_certificate(source_name: str, target_doc: dict = None):
+	# The type hint alone only raises under frappe.flags.in_test; in production
+	# typing_validations logs and lets the value through.
+	if not isinstance(source_name, str):
+		frappe.throw(_("Evaluation must be a string."))
+
+	evaluation = (
+		frappe.db.get_value(
+			"LMS Certificate Evaluation", source_name, ["evaluator", "course", "batch_name"], as_dict=True
+		)
+		or frappe._dict()
+	)
+	if not is_evaluation_admin() and evaluation.evaluator != frappe.session.user:
+		frappe.throw(
+			_("You are not the assigned evaluator for this evaluation."),
+			frappe.PermissionError,
+		)
+
+	# get_mapped_doc checks create before it maps, so seed the scope that check reads.
+	# A Document, not a dict: frappe v15's get_mapped_doc calls has_permission on it.
+	target_doc = target_doc or frappe.get_doc(
+		{
+			"doctype": "LMS Certificate",
+			"course": evaluation.course,
+			"batch_name": evaluation.batch_name,
+		}
+	)
+
 	doc = get_mapped_doc(
 		"LMS Certificate Evaluation",
 		source_name,
@@ -33,3 +128,8 @@ def create_lms_certificate(source_name: str, target_doc: dict = None):
 		target_doc,
 	)
 	return doc
+
+
+def on_doctype_update():
+	# Backs the locking (member, course, batch_name) read in api.save_*_details.
+	frappe.db.add_index("LMS Certificate Evaluation", ["member", "course", "batch_name"])

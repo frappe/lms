@@ -12,8 +12,8 @@ import postcss from 'postcss'
 const ROOT = resolve(__dirname, '../..')
 
 const WEARERS = [
-	'src/components/Layouts/PageHeader.vue',
-	'src/components/Layouts/MobilePageLayout.vue',
+	'src/components/Layouts/pages/PageHeader.vue',
+	'src/components/Layouts/pages/mobile/MobilePageLayout.vue',
 	'src/components/FormShell.vue',
 	'src/components/SkeletonLoader.vue',
 ]
@@ -86,7 +86,9 @@ describe('the shared header frame', () => {
 
 		it('covers every scroll container the layouts declare', () => {
 			const selectors = paddingRule()?.selectors ?? []
-			const layouts = globSync('src/components/Layouts/*.vue', { cwd: ROOT })
+			// Recursive: the layouts were filed under pages/{,desktop,mobile}, and a
+			// flat glob silently returned nothing rather than failing loudly.
+			const layouts = globSync('src/components/Layouts/**/*.vue', { cwd: ROOT })
 			expect(layouts.length).toBeGreaterThan(0)
 
 			const ids = new Set<string>()

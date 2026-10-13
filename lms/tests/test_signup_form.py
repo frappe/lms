@@ -2,20 +2,29 @@
 # See license.txt
 
 import os
+import re
+from contextlib import contextmanager
 from pathlib import Path
 from unittest.mock import patch
 
 import frappe
+from bs4 import BeautifulSoup
 from frappe import _
-from frappe.tests import UnitTestCase
+from frappe.tests.utils import FrappeTestCase
 from jinja2 import ChoiceLoader, Environment, FileSystemLoader, PrefixLoader
 
 import lms
 
 SIGNUP_FORM = "lms/templates/signup-form.html"
 
+# The `login.*` helpers a released frappe actually ships. This template is rendered
+# into frappe's own login page, so it may lean on these and nothing else: #2691 was a
+# 500 on /login caused by reaching for one that exists only on develop.
+RELEASED_LOGIN_HELPERS = {"login_handlers", "set_status", "show_field_error"}
 
-class TestSignupForm(UnitTestCase):
+
+class TestSignupForm(FrappeTestCase):
+	@contextmanager
 	def patched_settings(self, lms_settings):
 		original = frappe.db.get_single_value
 
@@ -24,7 +33,19 @@ class TestSignupForm(UnitTestCase):
 				return lms_settings.get(fieldname)
 			return original(doctype, fieldname, *args, **kwargs)
 
-		return patch.object(frappe.db, "get_single_value", side_effect=get_single_value)
+		with patch.object(frappe.db, "get_single_value", get_single_value):
+			# The unrestricted jenv binds get_single_value when it is built and is cached on
+			# frappe.local, so rebuild it inside the patch and again after it.
+			self.drop_cached_jenv()
+			try:
+				yield
+			finally:
+				self.drop_cached_jenv()
+
+	def drop_cached_jenv(self):
+		for key in ("jenv_restricted", "jenv_unrestricted"):
+			if hasattr(frappe.local, key):
+				delattr(frappe.local, key)
 
 	def render(self, **lms_settings):
 		with self.patched_settings(lms_settings):
@@ -46,6 +67,9 @@ class TestSignupForm(UnitTestCase):
 
 		with self.patched_settings(lms_settings):
 			return env.get_template(SIGNUP_FORM).render({})
+
+	def source(self):
+		return Path(os.path.dirname(lms.__file__), "templates", "signup-form.html").read_text()
 
 	def test_renders_the_result_banners(self):
 		html = self.render()
@@ -69,13 +93,24 @@ class TestSignupForm(UnitTestCase):
 	def test_optional_fields_render_only_when_configured(self):
 		html = self.render()
 		self.assertNotIn('id="user_category"', html)
+		self.assertNotIn('id="signup_user_category_select"', html)
 		self.assertNotIn('id="signup-terms"', html)
+		self.assertNotIn("signup-select.css", html)
+		self.assertNotIn("signup-select.js", html)
 
 		html = self.render(user_category=1, custom_signup_content="I agree to the terms")
 		self.assertIn('id="user_category"', html)
+		self.assertIn('id="signup_user_category_select"', html)
 		self.assertIn('id="signup-terms"', html)
 		self.assertIn("I agree to the terms", html)
-		self.assertIn("icon-chevrons-up-down", html)
+		self.assertIn("signup-select.css", html)
+		self.assertIn("signup-select.js", html)
+
+	def test_signup_category_reset_notifies_the_vue_select(self):
+		source = self.source()
+		reset_handler = source.split("const reset_signup_form = ")[1].split("\n    }")[0]
+		self.assertIn('userCategory.value = ""', reset_handler)
+		self.assertIn('userCategory.dispatchEvent(new Event("change", { bubbles: true }))', reset_handler)
 
 	def test_renders_without_the_frameworks_login_templates(self):
 		"""/login renders this template, so an include the running frappe does not
@@ -84,7 +119,34 @@ class TestSignupForm(UnitTestCase):
 		self.assertIn("login-error-banner", html)
 		self.assertIn("login-success-banner", html)
 
-	def test_does_not_call_login_helpers_missing_from_released_frappe(self):
-		source = Path(os.path.dirname(lms.__file__), "templates", "signup-form.html").read_text()
-		self.assertNotIn("login.show_success_banner", source)
-		self.assertNotIn("login.hide_loading", source)
+	def test_only_calls_login_helpers_released_frappe_ships(self):
+		"""An allowlist rather than a denylist, so a newly added `login.*` call has to
+		be checked against a released frappe before it can land."""
+		used = set(re.findall(r"\blogin\.(\w+)", self.source()))
+		self.assertEqual(used - RELEASED_LOGIN_HELPERS, set())
+
+	def test_both_result_handlers_go_through_the_reveal_helper(self):
+		"""Released frappe ships these banners as `display: none`, and its own login.js
+		re-hides them inline on every keystroke, so dropping the `hidden` class is not
+		enough to make one visible. Nothing in python runs this script, so this pins the
+		wiring rather than the visibility it buys, which needs a released frappe in a
+		browser."""
+		source = self.source()
+		self.assertIn('const reveal_banner = (banner) => banner.css("display", "flex")', source)
+
+		for handler in ("show_signup_success", "show_signup_error"):
+			body = source.split(f"const {handler} = ")[1].split("\n    }")[0]
+			self.assertIn("reveal_banner(banner)", body)
+
+	def test_banner_icons_carry_their_size_and_an_inline_fill(self):
+		"""Released frappe's `.login-*-banner svg` rule sets a fill and no size. A
+		`fill` presentation attribute loses to that rule, which paints the stroked
+		lucide glyph as a solid dot, and nothing anywhere sizes the icon."""
+		soup = BeautifulSoup(self.render_without_framework_templates(), "html.parser")
+		icons = soup.select(".login-error-banner svg, .login-success-banner svg")
+
+		self.assertEqual(len(icons), 2)
+		for icon in icons:
+			self.assertEqual((icon["width"], icon["height"]), ("16", "16"))
+			self.assertIsNone(icon.get("fill"))
+			self.assertIn("fill: none", icon["style"])

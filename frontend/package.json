@@ -6,7 +6,8 @@
 	"scripts": {
 		"dev": "vite",
 		"serve": "vite preview",
-		"build": "vite build --base=/assets/lms/frontend/ && yarn copy-html-entry",
+		"build": "vite build --base=/assets/lms/frontend/ && yarn copy-html-entry && yarn build:signup-select",
+		"build:signup-select": "vite build --config vite.signup-select.config.js",
 		"copy-html-entry": "cp ../lms/public/frontend/index.html ../lms/www/_lms.html",
 		"test": "vitest run",
 		"test:watch": "vitest"
@@ -20,6 +21,7 @@
 		"@editorjs/paragraph": "2.11.3",
 		"@editorjs/simple-image": "1.6.0",
 		"@editorjs/table": "2.4.2",
+		"@framework/ui": "link:../../frappe/ui",
 		"@headlessui/vue": "1.7.23",
 		"@vueuse/core": "^14.1.0",
 		"ace-builds": "1.36.2",

@@ -1,9 +1,11 @@
 import { describe, expect, it } from 'vitest'
 import {
+	draftLessonNumber,
 	findLessonNameByNumber,
+	findLessonNumberByName,
 	lessonExistsByNumber,
 	lessonExistsByName,
-	isSelectionStale,
+	resolveTarget,
 	isLessonInChapter,
 } from '@/utils/courseOutline'
 
@@ -41,50 +43,67 @@ describe('lessonExistsByNumber / lessonExistsByName', () => {
 	})
 })
 
-describe('isSelectionStale (delete clears the editor)', () => {
-	it('is not stale while the selected lesson is still in the outline', () => {
-		const selected = { number: '1-1', name: 'LESSON-A' }
-		expect(isSelectionStale(selected, outline)).toBe(false)
-	})
+describe('resolveTarget (what the editor opens)', () => {
+	const afterDelete = [
+		{
+			name: 'CH-1',
+			title: 'Chapter 1',
+			idx: 1,
+			lessons: [{ name: 'LESSON-B', title: 'Deep dive', number: '1-1' }],
+		},
+	]
 
-	it('is stale once the selected lesson is deleted from the outline', () => {
+	it('follows a lesson by docname when its number shifts', () => {
 		// LESSON-A was deleted; LESSON-B resequenced into its old number "1-1".
-		const afterDelete = [
-			{
-				name: 'CH-1',
-				title: 'Chapter 1',
-				idx: 1,
-				lessons: [{ name: 'LESSON-B', title: 'Deep dive', number: '1-1' }],
-			},
-		]
-		// The open lesson was LESSON-A at number 1-1. Tracking by number alone
-		// would wrongly match LESSON-B's new 1-1; tracking by name catches it.
-		const selected = { number: '1-1', name: 'LESSON-A' }
-		expect(isSelectionStale(selected, afterDelete)).toBe(true)
+		const b = { kind: 'lesson', name: 'LESSON-B' } as const
+		expect(resolveTarget(b, outline, null)?.number).toBe('1-2')
+		expect(resolveTarget(b, afterDelete, null)?.number).toBe('1-1')
 	})
 
-	it('does not flag a surviving lesson whose number shifted after a delete', () => {
-		const afterDelete = [
-			{
-				name: 'CH-1',
-				title: 'Chapter 1',
-				idx: 1,
-				lessons: [{ name: 'LESSON-B', title: 'Deep dive', number: '1-1' }],
-			},
-		]
-		// LESSON-B is still open; only its number changed from 1-2 to 1-1.
-		const selected = { number: '1-2', name: 'LESSON-B' }
-		expect(isSelectionStale(selected, afterDelete)).toBe(false)
+	it('resolves nothing for a lesson the outline no longer has', () => {
+		const a = { kind: 'lesson', name: 'LESSON-A' } as const
+		expect(resolveTarget(a, afterDelete, null)).toBeNull()
+		expect(resolveTarget(a, null, null)).toBeNull()
 	})
 
-	it('falls back to the number when no name was resolved', () => {
-		expect(isSelectionStale({ number: '1-2' }, outline)).toBe(false)
-		expect(isSelectionStale({ number: '9-9' }, outline)).toBe(true)
+	it('resolves a number to the lesson there', () => {
+		expect(
+			resolveTarget({ kind: 'number', number: '1-2' }, outline, null)?.name
+		).toBe('LESSON-B')
+		expect(
+			resolveTarget({ kind: 'number', number: '9-9' }, outline, null)
+		).toBeNull()
 	})
 
-	it('is never stale with no selection or no outline', () => {
-		expect(isSelectionStale(null, outline)).toBe(false)
-		expect(isSelectionStale({ name: 'LESSON-A' }, null)).toBe(false)
+	it('opens the stored lesson by default, else the first one', () => {
+		const d = { kind: 'default' } as const
+		expect(resolveTarget(d, outline, '1-2')?.name).toBe('LESSON-B')
+		expect(resolveTarget(d, outline, '9-9')?.name).toBe('LESSON-A')
+	})
+})
+
+describe('draft lesson selection', () => {
+	const draft = { kind: 'draft', chapter: 'CH-1', token: 'draft-1' } as const
+
+	it('numbers a draft by its chapter', () => {
+		expect(draftLessonNumber(1)).toBe('1-new')
+	})
+
+	it('resolves while its chapter is in the outline, though no lesson matches', () => {
+		expect(resolveTarget(draft, outline, null)).toMatchObject({
+			number: '1-new',
+			draftChapter: 'CH-1',
+			formKey: 'draft-1',
+		})
+	})
+
+	it('resolves nothing once its chapter is gone', () => {
+		expect(resolveTarget(draft, [], null)).toBeNull()
+	})
+
+	it('finds a created lesson number by its docname', () => {
+		expect(findLessonNumberByName(outline, 'LESSON-B')).toBe('1-2')
+		expect(findLessonNumberByName(outline, 'NOPE')).toBeNull()
 	})
 })
 

@@ -4,6 +4,7 @@
 		:open="true"
 		:title="title"
 		:size="size"
+		:position="position"
 		@update:open="onDialogToggle"
 	>
 		<template #title>
@@ -81,7 +82,7 @@
 // applies square icon-button sizing when the slot's vnode type name starts with
 // `lucide-`, which a plain `<span class="lucide-save">` does not satisfy.
 import { Dialog } from 'frappe-ui'
-import type { DialogSize } from 'frappe-ui'
+import type { DialogPosition, DialogSize } from 'frappe-ui'
 import { nextTick, onBeforeUnmount, onMounted, ref, useId, watch } from 'vue'
 import { useEventListener, useMediaQuery } from '@vueuse/core'
 import { useScreenSize } from '@/utils/composables'
@@ -96,9 +97,19 @@ import { focusedElementOwnsLayer, trapTab } from '@/composables/useFocusTrap'
 // and browser-back would hard-cut regardless.
 const reduceMotion = useMediaQuery('(prefers-reduced-motion: reduce)')
 
-withDefaults(defineProps<{ title: string; size?: DialogSize }>(), {
-	size: '3xl',
-})
+// `position="top"` keeps a form whose height changes (a message appearing above
+// Save) from shifting the whole dialog, as a centred one does.
+withDefaults(
+	defineProps<{
+		title: string
+		size?: DialogSize
+		position?: DialogPosition
+	}>(),
+	{
+		size: '3xl',
+		position: 'center',
+	}
+)
 
 const emit = defineEmits<{ close: [] }>()
 const { isMobile } = useScreenSize()
@@ -156,18 +167,26 @@ useEventListener(document, 'keydown', (e: KeyboardEvent) => {
 let previouslyFocused: HTMLElement | null = null
 let tookFocus = false
 
+// Same opt-in as frappe-ui's Dialog (useAutofocusOnOpen), so one `autofocus`
+// on a field works in both branches. Forms without one keep the container.
+const seatFocus = (): void => {
+	const marked = pageRef.value?.querySelector<HTMLElement>('[autofocus]')
+	marked?.focus()
+	if (!marked || document.activeElement !== marked) pageRef.value?.focus()
+}
+
 onMounted(() => {
 	if (!isMobile.value) return
 	previouslyFocused = document.activeElement as HTMLElement | null
 	tookFocus = true
-	pageRef.value?.focus()
+	seatFocus()
 })
 
 // Re-seat focus across that branch swap; the desktop Dialog seats its own.
 watch(isMobile, async (mobile) => {
 	if (!tookFocus || !mobile) return
 	await nextTick()
-	pageRef.value?.focus()
+	seatFocus()
 })
 
 // The trigger usually survives — forms are child routes, so the list behind

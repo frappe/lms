@@ -2,8 +2,8 @@
 # See license.txt
 
 # import frappe
-from frappe.tests import UnitTestCase
+from frappe.tests.utils import FrappeTestCase
 
 
-class TestLMSSource(UnitTestCase):
+class TestLMSSource(FrappeTestCase):
 	pass

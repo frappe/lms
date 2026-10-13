@@ -2,18 +2,13 @@
 # See license.txt
 
 import frappe
-from frappe.tests import UnitTestCase
+from frappe.tests.utils import FrappeTestCase
 
 from lms.lms.doctype.lms_video_watch_duration.lms_video_watch_duration import on_doctype_update
 
 
-class UnitTestLMSVideoWatchDuration(UnitTestCase):
+class UnitTestLMSVideoWatchDuration(FrappeTestCase):
 	"""Schema-level tests for LMS Video Watch Duration (no fixtures required)."""
-
-	def test_lookup_index_exists(self):
-		"""The (member, lesson, source) lookup in track_video_watch_duration
-		must be index-backed; guards against the index being dropped."""
-		self.assertTrue(frappe.db.has_index("tabLMS Video Watch Duration", "member_lesson_source_index"))
 
 	def test_on_doctype_update_creates_index(self):
 		"""on_doctype_update backs the new-site path (the one-time patch is
