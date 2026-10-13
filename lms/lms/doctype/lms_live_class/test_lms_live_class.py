@@ -387,6 +387,27 @@ class TestLMSLiveClass(BaseTestUtils):
 		self.assertIn(student, self._event_guests(live_class))
 		self.assertEqual(self._invite_state(live_class), {"invite_status": "", "invite_attempts": 0})
 
+	def test_a_learner_is_retried_while_the_calendar_does_not_push(self):
+		"""With push off, Frappe saves the guest rows but never sends them to Google,
+		so the learner would look invited and never be retried."""
+		from lms.lms.doctype.lms_live_class.lms_live_class import retry_pending_invites
+
+		live_class = self._create_live_class()
+		live_class.reload()
+		frappe.db.set_value("Google Calendar", self.google_calendar.name, "push_to_google_calendar", 0)
+
+		student = self._student()
+		self._create_batch_enrollment(student, self.batch.name)
+
+		self.assertNotIn(student, self._event_guests(live_class))
+		self.assertEqual(self._invite_state(live_class).invite_status, "Retrying")
+
+		frappe.db.set_value("Google Calendar", self.google_calendar.name, "push_to_google_calendar", 1)
+		retry_pending_invites()
+
+		self.assertIn(student, self._event_guests(live_class))
+		self.assertEqual(self._invite_state(live_class).invite_status, "")
+
 	def test_a_failed_invite_leaves_no_guest_rows_behind(self):
 		"""Rows left behind would make the learners look invited, so the retry would
 		skip them and Google would never send their invites."""
