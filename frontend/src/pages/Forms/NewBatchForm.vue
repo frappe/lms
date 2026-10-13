@@ -96,7 +96,15 @@
 							:required="true"
 							variant="outline"
 							:onCreate="() => (showMemberModal = true)"
-						/>
+						>
+							<template #summary="{ selected, summary }">
+								{{
+									selected.length
+										? summarisePeople(selected.map((o) => o.label))
+										: summary
+								}}
+							</template>
+						</MultiLink>
 					</div>
 					<div class="space-y-1.5">
 						<InputLabel
@@ -156,6 +164,7 @@ import FormShell from '@/components/FormShell.vue'
 import HeaderButton from '@/components/HeaderButton.vue'
 import { useFormRoute } from '@/composables/useFormRoute'
 import MultiLink from '@/components/Controls/MultiLink.vue'
+import { summarisePeople } from '@/utils/peopleSummary'
 import Link from '@/components/Controls/Link.vue'
 import Select from '@/components/Controls/Select.vue'
 import NewMemberModal from '@/components/Modals/NewMemberModal.vue'
