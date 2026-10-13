@@ -8,6 +8,7 @@ import io
 import json
 import os
 import zipfile
+from unittest.mock import patch
 
 import frappe
 
@@ -180,3 +181,20 @@ class TestCourseExportFiles(BaseTestUtils):
 
 		self.assertNotIn(asset_member_path(gone.file_url), archive.namelist())
 		self.assertIn(asset_member_path(kept.file_url), archive.namelist())
+
+	def test_an_export_failure_does_not_reveal_the_server_path(self):
+		site_path = os.path.abspath(frappe.get_site_path())
+		frappe.local.message_log = []
+		failure = OSError(f"[Errno 2] No such file or directory: '{site_path}/private/files/x.png'")
+
+		with (
+			patch("lms.lms.course_import_export.build_course_zip", side_effect=failure),
+			patch.object(frappe, "log_error") as log_error,
+		):
+			frappe.set_user(self.creator)
+			with self.assertRaises(frappe.ValidationError) as raised:
+				export_course_as_zip(self.course.name)
+
+		self.assertNotIn(site_path, str(raised.exception))
+		self.assertNotIn(site_path, json.dumps(frappe.local.message_log, default=str))
+		log_error.assert_called_once()
