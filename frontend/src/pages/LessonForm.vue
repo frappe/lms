@@ -411,7 +411,6 @@ function promoteDraft(name) {
 	}
 	contentUploadContext.docname = name
 	instructorUploadContext.docname = name
-	capture('lesson_created')
 	emit('created', { name, chapter: draftChapter })
 	// Typed while the create was in flight.
 	if (lesson.title.trim() !== createdTitle) isDirty.value = true
@@ -702,7 +701,6 @@ const linkLesson = (lessonName) =>
 				if (user.data?.is_system_manager)
 					updateOnboardingStep('create_first_lesson')
 
-				capture('lesson_created')
 				toast.success(__('Lesson created successfully'))
 				isDirty.value = false
 				emit('saved', { isNew: true })
