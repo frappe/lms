@@ -13,6 +13,9 @@ from lms.lms.html_sanitizer import sanitize_rich_text
 class LMSQuizSubmission(Document):
 	def validate(self):
 		self.validate_if_max_attempts_exceeded()
+		# Graded submissions must stay saveable after the quiz's questions change.
+		if self.is_new():
+			self.validate_result_questions()
 		self.sanitize_result_html()
 		self.validate_marks()
 		self.set_percentage()
@@ -42,6 +45,28 @@ class LMSQuizSubmission(Document):
 				),
 				MaximumAttemptsExceededError,
 			)
+
+	def validate_result_questions(self):
+		quiz_questions = set(
+			frappe.get_all(
+				"LMS Quiz Question",
+				filters={"parent": self.quiz, "parenttype": "LMS Quiz"},
+				pluck="question",
+			)
+		)
+		answered = set()
+		for row in self.result:
+			if row.question_name not in quiz_questions:
+				frappe.throw(_("Row {0}: this question is not part of the quiz.").format(row.idx))
+			if row.question_name in answered:
+				frappe.throw(
+					_("Row {0}: this question is already answered in this submission.").format(row.idx)
+				)
+			answered.add(row.question_name)
+
+		limit = cint(frappe.db.get_value("LMS Quiz", self.quiz, "limit_questions_to"))
+		if limit and len(self.result) > limit:
+			frappe.throw(_("This quiz takes answers to at most {0} questions.").format(limit))
 
 	def validate_marks(self):
 		self.score = 0
