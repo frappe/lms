@@ -84,14 +84,8 @@ class LMSEnrollment(Document):
 			as_dict=True,
 		)
 
-		managed = self.managed_by_caller()
-		if course_details.disable_self_learning and not managed:
-			frappe.throw(
-				_(
-					"You cannot enroll in this course as self-learning is disabled. Please contact the Administrator."
-				)
-			)
-
+		# A batch's learners take its courses through the batch, so its own checks
+		# (seats, payment) stand in for these, self-learning included.
 		if self.enrollment_from_batch:
 			if not frappe.db.exists(
 				"Batch Course", {"parent": self.enrollment_from_batch, "course": self.course}
@@ -103,6 +97,14 @@ class LMSEnrollment(Document):
 				"LMS Batch Enrollment", {"batch": self.enrollment_from_batch, "member": self.member}
 			):
 				return
+
+		managed = self.managed_by_caller()
+		if course_details.disable_self_learning and not managed:
+			frappe.throw(
+				_(
+					"You cannot enroll in this course as self-learning is disabled. Please contact the Administrator."
+				)
+			)
 
 		if not course_details.published and not managed:
 			frappe.throw(_("You cannot enroll in an unpublished course."))
