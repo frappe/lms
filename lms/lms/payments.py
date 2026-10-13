@@ -1,6 +1,7 @@
 import frappe
 from frappe import _
 
+from lms.lms import telemetry
 from lms.lms.utils import (
 	complete_enrollment,
 	get_lms_route,
@@ -98,6 +99,7 @@ def get_payment_link(
 
 	if total_amount <= 0:
 		frappe.db.set_value("LMS Payment", payment.name, "payment_received", 1)
+		telemetry.payment_received(payment.name)
 		complete_enrollment(payment.name, doctype, docname)
 		return redirect_to
 

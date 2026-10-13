@@ -36,6 +36,7 @@ from frappe.utils.html_utils import sanitize_html
 from pypika import Case
 from pypika import functions as fn
 
+from lms.lms import telemetry
 from lms.lms.doctype.lms_enrollment.lms_enrollment import (
 	update_enrollment,
 	update_program_progress,
@@ -2892,9 +2893,9 @@ def calculate_discount_amount(base_amount: float, coupon: dict) -> float:
 	if coupon.discount_type == "Percentage":
 		discount_amount = (base_amount * coupon.percentage_discount) / 100
 	elif coupon.discount_type == "Fixed Amount":
-		discount_amount = base_amount - coupon.fixed_amount_discount
+		discount_amount = coupon.fixed_amount_discount
 
-	return discount_amount
+	return max(min(flt(discount_amount), flt(base_amount)), 0)
 
 
 @frappe.whitelist()
@@ -3086,6 +3087,7 @@ def update_payment_details(data: dict):
 			"order_id": data.get("order_id"),
 		},
 	)
+	telemetry.payment_received(data.payment)
 
 
 def get_payment_id(data: dict) -> str:
