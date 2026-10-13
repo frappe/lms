@@ -16,35 +16,57 @@ import { flushPromises, mount } from '@vue/test-utils'
 
 const { resources } = vi.hoisted(() => ({ resources: { value: [] as any[] } }))
 
-vi.mock('frappe-ui', () => ({
-	createResource: (config: any) => {
-		const res: any = { loading: false, config, data: null }
-		res.submit = vi.fn((values: any) => {
-			res.lastParams = config.makeParams ? config.makeParams(values) : values
-		})
-		res.reload = vi.fn()
-		resources.value.push(res)
-		return res
-	},
-	toast: { success: vi.fn(), error: vi.fn(), info: vi.fn() },
-	Button: {
-		props: ['label'],
-		emits: ['click'],
-		template: `<button @click="$emit('click')"><slot /></button>`,
-	},
-	FormLabel: {
-		props: ['id', 'label'],
-		template: `<label :for="id">{{ label }}</label>`,
-	},
-	FormControl: {
-		props: ['modelValue', 'type', 'label', 'options', 'id', 'disabled'],
-		emits: ['update:modelValue'],
-		template: `<input :id="id" :data-type="type" :data-label="label"
+vi.mock('frappe-ui', async () => {
+	// Reactive, like the real resource, so seeding `data` re-renders the panel.
+	const { reactive } = await import('vue')
+	return {
+		createResource: (config: any) => {
+			const res: any = reactive({ loading: false, config, data: null })
+			res.submit = vi.fn((values: any) => {
+				res.lastParams = config.makeParams ? config.makeParams(values) : values
+				return Promise.resolve()
+			})
+			res.reload = vi.fn()
+			resources.value.push(res)
+			return res
+		},
+		toast: { success: vi.fn(), error: vi.fn(), info: vi.fn() },
+		Button: {
+			props: ['label'],
+			emits: ['click'],
+			template: `<button @click="$emit('click')">{{ label }}<slot /></button>`,
+		},
+		Badge: { props: ['label', 'theme'], template: `<span>{{ label }}</span>` },
+		Switch: {
+			props: ['modelValue'],
+			emits: ['update:modelValue'],
+			template: `<input type="checkbox" :checked="modelValue"
+			@change="$emit('update:modelValue', $event.target.checked)" />`,
+		},
+		FormControl: {
+			props: ['modelValue', 'type', 'label', 'options', 'id', 'disabled'],
+			emits: ['update:modelValue'],
+			template: `<input :id="id" :data-type="type" :data-label="label"
 			:value="modelValue" @input="$emit('update:modelValue', $event.target.value)" />`,
-	},
+		},
+	}
+})
+
+const { routeQuery, routerReplace } = vi.hoisted(() => ({
+	routeQuery: { value: {} as Record<string, string> },
+	routerReplace: vi.fn(),
+}))
+vi.mock('vue-router', () => ({
+	useRoute: () => ({ query: routeQuery.value }),
+	useRouter: () => ({ replace: routerReplace }),
 }))
 
 vi.mock('@/utils', () => ({ convertToTitleCase: (s: string) => s }))
+
+// translation.js installs String.prototype.format at app boot.
+String.prototype.format = function (...args: unknown[]) {
+	return this.replace(/\{(\d+)\}/g, (_: string, i: number) => String(args[i]))
+}
 
 const EVALUATOR = 'eva@example.com'
 
@@ -80,7 +102,7 @@ async function mountPanel(sessionUser = EVALUATOR) {
 			],
 		},
 		calendar: null,
-		is_authorized: false,
+		google_enabled: true,
 	}
 	await flushPromises()
 	return wrapper
@@ -150,6 +172,10 @@ describe('ProfileEvaluator availability writes', () => {
 			'lms.lms.api.set_evaluator_unavailability'
 		)
 
+		await wrapper
+			.findAll('button')
+			.find((b) => b.text() === 'Add time off')!
+			.trigger('click')
 		const dateFields = wrapper.findAll('[data-type="date"]')
 		expect(dateFields.length).toBe(2)
 
@@ -162,22 +188,93 @@ describe('ProfileEvaluator availability writes', () => {
 		})
 	})
 
-	it('points each time label at its slot input', async () => {
+	// The watcher used to be deep, so a calendar toggle (which edits the loaded
+	// details in place) put the last load's empty time off back over a date
+	// the evaluator had just saved.
+	it('keeps a saved time-off date when a calendar setting changes', async () => {
+		const wrapper = await mountPanel()
+		await wrapper
+			.findAll('button')
+			.find((b) => b.text() === 'Add time off')!
+			.trigger('click')
+		const from = wrapper.findAll('[data-type="date"]')[0]
+		await from.setValue('2026-08-01')
+
+		findResource('lms.lms.api.update_evaluator_calendar').config.onSuccess({
+			enable: 1,
+			push_to_google_calendar: 0,
+			calendar_name: 'Eva',
+			is_authorized: true,
+		})
+		await flushPromises()
+
+		expect(
+			(wrapper.findAll('[data-type="date"]')[0].element as HTMLInputElement)
+				.value
+		).toBe('2026-08-01')
+	})
+
+	it('names each slot control for screen readers', async () => {
 		const wrapper = await mountPanel()
 		// The mocked resource is not reactive, so re-render to pick up the seed.
 		wrapper.vm.$forceUpdate()
 		await flushPromises()
-		for (const [text, id] of [
-			['Start Time', 'start-time-42'],
-			['End Time', 'end-time-42'],
-			['Start Time', 'new-slot-start-time'],
-			['End Time', 'new-slot-end-time'],
-		]) {
-			const label = wrapper
-				.findAll('label')
-				.find((l) => l.text() === text && l.attributes('for') === id)
-			expect(label).toBeTruthy()
-			expect(wrapper.find(`input#${id}`).exists()).toBe(true)
-		}
+		const slot = wrapper.find('[data-testid="slot"]')
+		const labels = slot.findAll('input').map((i) => i.attributes('aria-label'))
+		expect(labels).toEqual(['Day', 'Start time', 'End time'])
+		expect(slot.find('button').attributes('aria-label')).toBe('Remove Monday')
+	})
+})
+
+// Portal evaluators have no Settings modal and no write permission on Google
+// Calendar, so the Slots tab is where they manage it, through lms.lms.api only.
+describe('ProfileEvaluator calendar settings', () => {
+	beforeEach(() => {
+		vi.stubGlobal('__', (s: string) => s)
+		resources.value = []
+		routeQuery.value = {}
+		routerReplace.mockReset()
+	})
+
+	it('saves each setting through the own-calendar endpoint', async () => {
+		await mountPanel()
+		const update = findResource('lms.lms.api.update_evaluator_calendar')
+		update.submit({ fieldname: 'push_to_google_calendar', value: 0 })
+		expect(update.lastParams).toEqual({
+			fieldname: 'push_to_google_calendar',
+			value: 0,
+		})
+	})
+
+	it("signs in through lms, not Frappe's desk-only authorize_access", async () => {
+		await mountPanel()
+		expect(
+			findResource('lms.lms.api.authorize_evaluator_calendar')
+		).toBeTruthy()
+		const frappeEndpoints = resources.value.filter((r) =>
+			String(r.config.url).startsWith('frappe.integrations.')
+		)
+		expect(frappeEndpoints).toEqual([])
+	})
+
+	it('has no Save button: every change saves itself', async () => {
+		const wrapper = await mountPanel()
+		const labels = wrapper.findAll('button').map((b) => b.text())
+		expect(labels).not.toContain('Save')
+	})
+
+	it('hides the calendar from a Moderator viewing someone else', async () => {
+		const wrapper = await mountPanel('mod@example.com')
+		expect(wrapper.find('[data-testid="calendar"]').exists()).toBe(false)
+	})
+
+	it('says so when Google did not finish signing in', async () => {
+		routeQuery.value = { calendar: 'failed' }
+		await mountPanel()
+		const { toast } = await import('frappe-ui')
+		expect(toast.error).toHaveBeenCalledWith(
+			expect.stringContaining('Try authorizing again')
+		)
+		expect(routerReplace).toHaveBeenCalled()
 	})
 })
