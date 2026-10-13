@@ -41,6 +41,7 @@ from frappe.utils.html_utils import (
 from pypika import Case
 from pypika import functions as fn
 
+from lms.lms import telemetry
 from lms.lms.doctype.lms_enrollment.lms_enrollment import (
 	update_enrollment,
 	update_program_progress,
@@ -3082,6 +3083,7 @@ def update_payment_details(data: dict):
 			"order_id": data.get("order_id"),
 		},
 	)
+	telemetry.payment_received(data.payment)
 
 
 def get_payment_id(data: dict) -> str:
