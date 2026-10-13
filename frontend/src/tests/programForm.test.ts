@@ -52,8 +52,11 @@ createListResourceMock.mockImplementation((options: any) => {
 					`answered ${options.doctype}, which the form never reloaded`
 				)
 			}
-			resource.data = rows
-			options.onSuccess?.(rows)
+			// The server returns at most one page: frappe-ui sends
+			// `options.pageLength || 20` as limit_page_length.
+			const page = rows.slice(0, resource.options.pageLength || 20)
+			resource.data = page
+			options.onSuccess?.(page)
 		},
 	})
 	resources.lists.push(resource)
@@ -492,6 +495,20 @@ describe('ProgramForm as a route', () => {
 
 			await drag(wrapper, 1, 1)
 			expect(wrapper.text()).not.toContain('Not Saved')
+		})
+
+		it('saves every child row, not just the first page of 20', async () => {
+			// set_value replaces both tables, so a row left out is deleted.
+			const members = Array.from({ length: 30 }, (_, index) => ({
+				name: `row-m${index}`,
+				member: `member${index}@example.com`,
+				full_name: `Member ${index}`,
+			}))
+			const wrapper = await loadProgram(THREE_COURSES, members)
+
+			await wrapper.find('[data-testid="program-save"]').trigger('click')
+			const payload = setValueSubmit.mock.calls[0][0]
+			expect(payload.program_members).toHaveLength(30)
 		})
 
 		it('offers Delete only for a real program', async () => {
