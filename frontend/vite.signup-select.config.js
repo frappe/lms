@@ -1,12 +1,13 @@
 import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
+import { lucideIcons } from 'frappe-ui/vite'
 import tailwindcss from 'tailwindcss'
 import autoprefixer from 'autoprefixer'
 import path from 'node:path'
 
 export default defineConfig({
 	base: '/assets/lms/frontend/signup-select/',
-	plugins: [vue()],
+	plugins: [lucideIcons(), vue()],
 	publicDir: false,
 	resolve: { dedupe: ['vue', 'frappe-ui'] },
 	css: {
