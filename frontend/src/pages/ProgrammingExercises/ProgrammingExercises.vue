@@ -94,7 +94,7 @@ import {
 	toast,
 	usePageMeta,
 } from 'frappe-ui'
-import ListPage from '@/components/Layouts/ListPage.vue'
+import ListPage from '@/components/Layouts/pages/ListPage.vue'
 import Select from '@/components/Controls/Select.vue'
 import type { ListRow } from '@/types'
 

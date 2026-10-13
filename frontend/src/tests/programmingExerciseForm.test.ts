@@ -120,6 +120,16 @@ vi.mock('frappe-ui', () => ({
 	Select: passthrough,
 }))
 
+// The server's write answer for the exercise, read at mount.
+const authorship = vi.hoisted(() => ({ canWrite: true as boolean | null }))
+vi.mock('@/composables/useCanWrite', async () => {
+	const { ref } = await import('vue')
+	return {
+		useCanWrite: (_doctype: string, name: () => string | undefined) =>
+			ref(name() ? authorship.canWrite : true),
+	}
+})
+
 // The rich text editor drags in ProseMirror; nothing under test involves it.
 vi.mock('@/components/RichTextEditor.vue', () => ({
 	default: defineComponent({ render: () => h('div') }),
@@ -209,6 +219,7 @@ const FIELD_LABELS = ['Title', 'Language', 'Test Cases', 'Problem Statement']
 
 describe('ProgrammingExerciseForm as a route', () => {
 	beforeEach(() => {
+		authorship.canWrite = true
 		insertSubmit.mockReset()
 		setValueSubmit.mockReset()
 		deleteSubmit.mockReset()
@@ -401,6 +412,40 @@ describe('ProgrammingExerciseForm as a route', () => {
 		expect(setValueSubmit).toHaveBeenCalledTimes(1)
 		expect(setValueSubmit.mock.calls[0][0]).toMatchObject({ name: 'EX-0001' })
 		expect(exercisesReload).toHaveBeenCalledTimes(1)
+	})
+
+	// Placing an exercise made its edit screen writable since #2826.
+	// Added for audit finding #3 on branch fix/assessment-placement-use-only.
+	it('opens read-only for someone who only placed the exercise', async () => {
+		authorship.canWrite = false
+		createDocumentResourceMock.mockImplementation(
+			documentResourceStub({ name: 'EX-0001', title: 'T', language: 'Python' })
+		)
+		const router = makeRouter()
+		await router.push('/programming-exercises/edit/EX-0001')
+		const wrapper = await mountForm(router, moderator)
+
+		expect(
+			wrapper.find('[data-testid="programming-exercise-read-only-note"]').text()
+		).toBe('Only the authors of this programming exercise can edit it.')
+		expect(
+			wrapper.find('[data-testid="programming-exercise-delete"]').exists()
+		).toBe(false)
+		expect(
+			wrapper.find('[data-testid="programming-exercise-save"]').exists()
+		).toBe(false)
+		expect(
+			wrapper
+				.find('[data-testid="programming-exercise-fields"]')
+				.attributes('disabled')
+		).toBeDefined()
+
+		const vm = wrapper.findComponent(ProgrammingExerciseForm).vm as any
+		vm.saveExercise()
+		vm.deleteExercise()
+		await flushPromises()
+		expect(setValueSubmit).not.toHaveBeenCalled()
+		expect(deleteSubmit).not.toHaveBeenCalled()
 	})
 
 	it('reloads the header count after a create', async () => {

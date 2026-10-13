@@ -1,54 +1,52 @@
 <template>
-	<CouponList
-		v-if="step === 'list'"
-		:label="props.label"
-		:description="props.description"
-		:list="list"
-		@updateStep="updateStep"
+	<SettingsList
+		v-if="!record"
+		:title="label"
+		:columns="couponColumns"
+		:rows="list.rows"
+		:loading="list.loading"
+		:has-next-page="list.hasNextPage"
+		v-model:search="list.search"
+		searchable
+		empty-name="Coupons"
+		empty-icon="lucide-ticket"
+		@new="openForm(NEW_RECORD)"
+		@load-more="list.loadMore()"
+		@row-click="(row) => openForm(row.name)"
 	/>
-	<CouponDetails
-		v-else-if="step == 'details'"
-		:key="data?.name || 'new'"
-		:coupons="list.resource"
-		:data="data"
-		@updateStep="updateStep"
-	/>
+
+	<CouponForm v-else :name="record" @back="closeForm()" />
 </template>
 <script setup lang="ts">
-import { ref } from 'vue'
 import { useSettingsListResource } from '@/composables/useSettingsListResource'
-import CouponList from '@/components/Settings/Coupons/CouponList.vue'
-import CouponDetails from '@/components/Settings/Coupons/CouponDetails.vue'
-import type { Coupon } from '@/types'
+import { NEW_RECORD } from '@/composables/useSettingsSource'
+import CouponForm from '@/components/Settings/Coupons/CouponForm.vue'
+import SettingsList from '@/components/Layouts/settings/desktop/SettingsList.vue'
+import {
+	couponColumns,
+	couponListOptions,
+} from '@/components/Settings/Coupons/coupons'
 
-const step = ref('list')
-const data = ref<Coupon | null>(null)
+// The list of one settings page, and the form behind a row as its own
+// component: three files per list page, config, list, form. CouponForm is
+// imported statically since an async component renders nothing until its chunk resolves.
 
-const props = defineProps<{
+defineProps<{
 	label: string
-	description: string
 }>()
 
-const updateStep = (newStep: 'list' | 'new' | 'edit', newData: Coupon) => {
-	step.value = newStep
-	if (newData) {
-		data.value = newData
-	}
+// The open record, as a model rather than state of its own, the same
+// contract SettingsListPanel has. Whether the form is showing is read off
+// this and never stored beside it, since a second copy could disagree with the URL.
+const record = defineModel<string | null>('record', { default: null })
+
+const list = useSettingsListResource(couponListOptions)
+
+const openForm = (name: string) => {
+	record.value = name
 }
 
-const list = useSettingsListResource<Coupon>({
-	doctype: 'LMS Coupon',
-	fields: [
-		'name',
-		'code',
-		'discount_type',
-		'percentage_discount',
-		'fixed_amount_discount',
-		'expires_on',
-		'usage_limit',
-		'redemption_count',
-		'enabled',
-	],
-	searchFields: ['code'],
-})
+const closeForm = () => {
+	record.value = null
+}
 </script>

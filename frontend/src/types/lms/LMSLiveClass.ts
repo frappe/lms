@@ -35,6 +35,10 @@ export interface LMSLiveClass {
 	auto_recording?: 'No Recording' | 'Local' | 'Cloud'
 	/**	Event : Link - Event	*/
 	event?: string
+	/**	Invite Status : Select	*/
+	invite_status?: '' | 'Retrying' | 'Failed'
+	/**	Invite Attempts : Int	*/
+	invite_attempts?: number
 	/**	Conferencing Provider : Select	*/
 	conferencing_provider?: 'Zoom' | 'Google Meet'
 	/**	Zoom Account : Link - LMS Zoom Settings	*/

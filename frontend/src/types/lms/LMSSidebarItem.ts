@@ -9,12 +9,24 @@ export interface LMSSidebarItem {
 	parentfield?: string
 	parenttype?: string
 	idx?: number
+	/**	Name : Data	*/
+	name1?: string
+	/**	Type : Select	*/
+	item_type?: 'Built-in' | 'Web Page' | 'Route' | 'External'
+	/**	Is Standard : Check	*/
+	is_standard?: 0 | 1
+	/**	Hidden : Check	*/
+	hidden?: 0 | 1
 	/**	Icon : Data	*/
-	icon: string
+	icon?: string
 	/**	Web Page : Link - Web Page	*/
-	web_page: string
+	web_page?: string
 	/**	Route : Data	*/
 	route?: string
+	/**	URL : Data	*/
+	url?: string
+	/**	Open in new window : Check	*/
+	open_in_new_window?: 0 | 1
 	/**	Title : Data	*/
 	title?: string
 }

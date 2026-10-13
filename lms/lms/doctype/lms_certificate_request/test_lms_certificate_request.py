@@ -4,29 +4,26 @@
 import frappe
 from frappe.utils import add_days, getdate
 
-from lms.lms.test_helpers import BaseTestUtils
+from lms.lms.test_helpers import BaseTestUtils, MemberOwnershipTestMixin
 
 
-class TestLMSCertificateRequest(BaseTestUtils):
-	def setUp(self):
-		super().setUp()
-		self.student_a = self._create_user(
-			"rtv.cr.student.a@example.com", "Student", "Alpha", ["LMS Student"]
-		)
-		self.student_b = self._create_user(
-			"rtv.cr.student.b@example.com", "Student", "Bravo", ["LMS Student"]
-		)
-		self.moderator = self._create_user("rtv.cr.moderator@example.com", "Mod", "Erator", ["Moderator"])
-		self.evaluator_user = self._create_user(
+class TestLMSCertificateRequest(MemberOwnershipTestMixin, BaseTestUtils):
+	@classmethod
+	def setUpClass(cls):
+		super().setUpClass()
+		cls.student_a = cls._create_user("rtv.cr.student.a@example.com", "Student", "Alpha", ["LMS Student"])
+		cls.student_b = cls._create_user("rtv.cr.student.b@example.com", "Student", "Bravo", ["LMS Student"])
+		cls.moderator = cls._create_user("rtv.cr.moderator@example.com", "Mod", "Erator", ["Moderator"])
+		cls.evaluator_user = cls._create_user(
 			"rtv.cr.evaluator@example.com", "Eval", "Uator", ["Batch Evaluator"]
 		)
-		self._create_evaluator("rtv.cr.evaluator@example.com")
+		cls._create_evaluator("rtv.cr.evaluator@example.com")
 		# _create_course() defaults instructor="frappe@example.com"; create it so the
 		# course's instructor Link resolves on a fresh DB (mirrors TestLMSCourse.setUp).
-		self.instructor = self._create_user(
+		cls.instructor = cls._create_user(
 			"frappe@example.com", "Frappe", "Admin", ["Moderator", "Course Creator"]
 		)
-		self.course = self._create_course()
+		cls.course = cls._create_course()
 
 	def tearDown(self):
 		frappe.set_user("Administrator")
@@ -45,29 +42,5 @@ class TestLMSCertificateRequest(BaseTestUtils):
 			doc.member = member
 		return doc
 
-	def test_student_cannot_book_for_another_member(self):
-		frappe.set_user(self.student_a.name)
-		doc = self._new_request(member=self.student_b.name, day_offset=1)
-		with self.assertRaises(frappe.PermissionError):
-			doc.insert()
-
-	def test_student_member_defaults_to_session_user(self):
-		frappe.set_user(self.student_a.name)
-		doc = self._new_request(member=None, day_offset=2)
-		doc.insert()
-		self.cleanup_items.append(("LMS Certificate Request", doc.name))
-		self.assertEqual(doc.member, self.student_a.name)
-
-	def test_student_can_book_for_self(self):
-		frappe.set_user(self.student_a.name)
-		doc = self._new_request(member=self.student_a.name, day_offset=3)
-		doc.insert()
-		self.cleanup_items.append(("LMS Certificate Request", doc.name))
-		self.assertEqual(doc.member, self.student_a.name)
-
-	def test_privileged_user_can_book_on_behalf_of_member(self):
-		frappe.set_user(self.moderator.name)
-		doc = self._new_request(member=self.student_b.name, day_offset=4)
-		doc.insert()
-		self.cleanup_items.append(("LMS Certificate Request", doc.name))
-		self.assertEqual(doc.member, self.student_b.name)
+	def _new_doc(self, member=None, variant=0):
+		return self._new_request(member=member, day_offset=variant)

@@ -8,6 +8,7 @@
  "engine": "InnoDB",
  "field_order": [
   "title",
+  "authors",
   "published",
   "column_break_cwjx",
   "enforce_course_order",
@@ -21,6 +22,12 @@
   "member_count"
  ],
  "fields": [
+  {
+   "fieldname": "authors",
+   "fieldtype": "Table MultiSelect",
+   "label": "Authors",
+   "options": "LMS Content Author"
+  },
   {
    "fieldname": "program_courses",
    "fieldtype": "Table",
@@ -93,7 +100,7 @@
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2026-02-03 10:51:50.616781",
+ "modified": "2026-09-20 10:00:00.000000",
  "modified_by": "sayali@frappe.io",
  "module": "LMS",
  "name": "LMS Program",

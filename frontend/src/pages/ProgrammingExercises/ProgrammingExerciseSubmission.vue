@@ -7,7 +7,7 @@
 		<span>
 			{{ falconError }}
 		</span>
-		<Button v-if="user.data?.is_moderator" @click="openSettings('General')">
+		<Button v-if="user.data?.is_moderator" @click="openSettings('general')">
 			<template #prefix>
 				<span class="lucide-settings size-4" />
 			</template>
@@ -46,7 +46,6 @@
 						@click="submitCode"
 						:loading="running"
 						:disabled="running"
-						class="text-ink-gray-9"
 					>
 						<template #prefix>
 							<span class="lucide-play size-3" />
@@ -70,7 +69,7 @@
 						v-if="error"
 						v-model="errorMessage"
 						:aria-label="__('Compiler Message')"
-						class="font-mono text-ink-red-3 bg-surface-gray-1 border-none text-sm h-32 leading-6"
+						class="font-mono text-ink-red-6 bg-surface-gray-1 border-none text-sm h-32 leading-6"
 						readonly
 					/>
 				</div>
@@ -144,7 +143,7 @@ import {
 	usePageMeta,
 } from 'frappe-ui'
 import { computed, inject, onMounted, ref, watch } from 'vue'
-import PageHeader from '@/components/Layouts/PageHeader.vue'
+import PageHeader from '@/components/Layouts/pages/PageHeader.vue'
 import { sessionStore } from '@/stores/session'
 import { useRouter } from 'vue-router'
 import { openSettings } from '@/utils'

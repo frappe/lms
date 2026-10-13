@@ -17,6 +17,7 @@
 						v-model="batch.start_date"
 						:label="__('Start Date')"
 						type="date"
+						:format="dateFormat"
 						:required="true"
 						variant="outline"
 					/>
@@ -24,6 +25,7 @@
 						v-model="batch.end_date"
 						:label="__('End Date')"
 						type="date"
+						:format="dateFormat"
 						:required="true"
 						variant="outline"
 					/>
@@ -86,13 +88,23 @@
 							v-model="batch.instructors"
 							doctype="User"
 							url="lms.lms.api.search_users_by_role"
-							:searchParams="{ roles: JSON.stringify(['Batch Evaluator']) }"
+							:searchParams="{
+								roles: JSON.stringify(['Batch Evaluator', 'Course Creator']),
+							}"
 							:label="__('Instructors')"
 							:placeholder="__('Select instructors')"
 							:required="true"
 							variant="outline"
 							:onCreate="() => (showMemberModal = true)"
-						/>
+						>
+							<template #summary="{ selected, summary }">
+								{{
+									selected.length
+										? summarisePeople(selected.map((o) => o.label))
+										: summary
+								}}
+							</template>
+						</MultiLink>
 					</div>
 					<div class="space-y-1.5">
 						<InputLabel
@@ -146,11 +158,13 @@ import {
 import { useOnboarding, useTelemetry } from 'frappe-ui/frappe'
 import { computed, inject, onMounted, onBeforeUnmount, ref } from 'vue'
 import { createLMSCategory, cleanError } from '@/utils'
+import { getDateFormat } from '@/utils/format'
 import { sanitizeOnWrite } from '@/utils/sanitizeOnWrite'
 import FormShell from '@/components/FormShell.vue'
 import HeaderButton from '@/components/HeaderButton.vue'
 import { useFormRoute } from '@/composables/useFormRoute'
 import MultiLink from '@/components/Controls/MultiLink.vue'
+import { summarisePeople } from '@/utils/peopleSummary'
 import Link from '@/components/Controls/Link.vue'
 import Select from '@/components/Controls/Select.vue'
 import NewMemberModal from '@/components/Modals/NewMemberModal.vue'
@@ -160,6 +174,7 @@ import { submitResource } from '@/utils/resource'
 
 const { capture } = useTelemetry()
 const { updateOnboardingStep } = useOnboarding('learning')
+const dateFormat = getDateFormat()
 const user = inject<any>('$user')
 const showMemberModal = ref(false)
 const { inputId: batchDetailsId, labelId: batchDetailsLabelId } =
@@ -259,7 +274,6 @@ const saveBatch = () => {
 		{
 			onSuccess(data: any) {
 				toast.success(__('Batch created successfully'))
-				capture('batch_created')
 				// replace, not push: the form entry is consumed so Back reaches
 				// the list rather than a stale empty form.
 				saveAndReplace({

@@ -1367,6 +1367,10 @@
     "@floating-ui/utils" "^0.2.10"
     vue-demi ">=0.13.0"
 
+"@framework/ui@link:../../frappe/ui":
+  version "0.0.0"
+  uid ""
+
 "@headlessui/vue@1.7.23", "@headlessui/vue@^1.7.14":
   version "1.7.23"
   resolved "https://registry.yarnpkg.com/@headlessui/vue/-/vue-1.7.23.tgz#7fe19dbeca35de9e6270c82c78c4864e6a6f7391"

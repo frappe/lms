@@ -160,8 +160,15 @@
 					</div>
 				</template>
 			</Draggable>
+			<div
+				v-if="isDraftInChapter"
+				class="ps-8 py-2 pe-4 bg-surface-gray-3 rounded-5 text-sm leading-5 text-ink-gray-6"
+				data-testid="outline-draft-lesson"
+			>
+				{{ __('New lesson') }}
+			</div>
 			<div v-if="allowEdit" class="flex mt-2 mb-4 ps-8">
-				<Button :loading="creatingLesson" @click="addLesson">
+				<Button @click="addLesson">
 					<template #prefix>
 						<span class="lucide-plus size-4" />
 					</template>
@@ -180,6 +187,7 @@ import { Disclosure, DisclosureButton, DisclosurePanel } from '@headlessui/vue'
 import { useRoute, useRouter } from 'vue-router'
 import type { RouteLocationRaw } from 'vue-router'
 import type { OutlineChapter, OutlineLesson, SessionUser } from '@/types'
+import { draftLessonNumber } from '@/utils/courseOutline'
 
 interface DraggableEvent {
 	item: { __draggable_context: { element: OutlineChapter | OutlineLesson } }
@@ -197,14 +205,12 @@ const props = withDefaults(
 		inlineSelect?: boolean
 		editorLinks?: boolean
 		selectedLessonNumber?: string
-		creatingLesson?: boolean
 	}>(),
 	{
 		allowEdit: false,
 		inlineSelect: false,
 		editorLinks: false,
 		selectedLessonNumber: '',
-		creatingLesson: false,
 	}
 )
 
@@ -286,6 +292,13 @@ const isScormChapterLocked = computed<boolean>(() =>
 			props.chapter.lessons?.length &&
 			props.chapter.lessons.every((l) => l.locked)
 	)
+)
+
+// The editor's open lesson is a draft in this chapter, not yet in its lessons.
+const isDraftInChapter = computed<boolean>(
+	() =>
+		props.inlineSelect &&
+		props.selectedLessonNumber === draftLessonNumber(props.chapter.idx)
 )
 
 function isActiveLesson(lessonNumber: string): boolean {

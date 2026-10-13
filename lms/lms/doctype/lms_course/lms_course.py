@@ -16,6 +16,7 @@ from ...utils import (
 	get_lesson_count,
 	get_lms_route,
 	update_payment_record,
+	validate_attachable_file,
 	validate_image,
 )
 
@@ -24,11 +25,13 @@ class LMSCourse(Document):
 	def validate(self):
 		self.validate_published()
 		self.validate_instructors()
+		self.validate_duplicate_instructors()
 		self.validate_video_link()
 		self.validate_status()
 		self.validate_payments_app()
 		self.validate_certification()
 		self.validate_amount_and_currency()
+		validate_attachable_file(self, "image")
 		self.image = validate_image(self.image)
 		self.validate_card_gradient()
 
@@ -40,15 +43,16 @@ class LMSCourse(Document):
 
 	def validate_instructors(self):
 		if self.is_new() and not self.instructors:
-			frappe.get_doc(
-				{
-					"doctype": "Course Instructor",
-					"instructor": self.owner,
-					"parent": self.name,
-					"parentfield": "instructors",
-					"parenttype": "LMS Course",
-				}
-			).save(ignore_permissions=True)
+			self.append("instructors", {"instructor": self.owner})
+
+	def validate_duplicate_instructors(self):
+		instructors = [row.instructor for row in self.instructors]
+		duplicates = {instructor for instructor in instructors if instructors.count(instructor) > 1}
+		if len(duplicates):
+			full_name = frappe.db.get_value("User", next(iter(duplicates)), "full_name")
+			frappe.throw(
+				_("Instructor {0} has already been added to this course.").format(frappe.bold(full_name))
+			)
 
 	def validate_video_link(self):
 		# Store video_link exactly as entered: a YouTube/Vimeo link or an uploaded

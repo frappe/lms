@@ -40,6 +40,9 @@ ALLOWED_PATHS = [
 	"/api/method/frappe.client.delete",
 	"/api/method/frappe.client.get_list",
 	"/api/method/frappe.client.rename_doc",
+	# Google sends evaluators back here after Calendar sign-in. lms overrides it
+	# (lms.lms.api.google_calendar_callback), which checks the calendar is theirs.
+	"/api/method/frappe.integrations.doctype.google_calendar.google_calendar.google_callback",
 	"/api/method/frappe.onboarding.get_onboarding_status",
 	"/api/method/frappe.utils.print_format.download_pdf",
 	"/api/method/frappe.desk.search.search_link",
