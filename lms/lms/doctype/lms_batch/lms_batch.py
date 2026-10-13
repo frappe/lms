@@ -43,6 +43,7 @@ class LMSBatch(Document):
 		self.validate_batch_end_date()
 		self.validate_batch_time()
 		self.validate_duplicate_courses()
+		self.validate_duplicate_instructors()
 		self.validate_payments_app()
 		self.validate_amount_and_currency()
 		self.validate_duplicate_assessments()
@@ -135,6 +136,15 @@ class LMSBatch(Document):
 			title = frappe.db.get_value("LMS Course", next(iter(duplicates)), "title")
 			frappe.throw(_("Course {0} has already been added to this batch.").format(frappe.bold(title)))
 
+	def validate_duplicate_instructors(self):
+		instructors = [row.instructor for row in self.instructors]
+		duplicates = {instructor for instructor in instructors if instructors.count(instructor) > 1}
+		if len(duplicates):
+			full_name = frappe.db.get_value("User", next(iter(duplicates)), "full_name")
+			frappe.throw(
+				_("Instructor {0} has already been added to this batch.").format(frappe.bold(full_name))
+			)
+
 	def validate_payments_app(self):
 		if self.paid_batch:
 			installed_apps = frappe.get_installed_apps()
@@ -218,7 +228,7 @@ class LMSBatch(Document):
 
 			if not google_meet_settings.google_calendar:
 				frappe.throw(
-					_("The selected Google Meet account does not have a Google Calendar configured.")
+					_("Add a Google Calendar to the selected Google Meet account to use it for live classes.")
 				)
 
 		elif self.conferencing_provider == "Zoom":
@@ -320,6 +330,12 @@ def create_live_class(
 			_("You do not have permission to create a live class for this batch."), frappe.PermissionError
 		)
 
+	# Also before the Zoom call: the class cannot be saved without a calendar, and
+	# a meeting made first would be left on the Zoom account with no class for it.
+	from lms.lms.doctype.lms_live_class.lms_live_class import get_live_class_calendar
+
+	get_live_class_calendar("Zoom")
+
 	payload = {
 		"topic": title,
 		"start_time": format_datetime(f"{date} {time}", "yyyy-MM-ddTHH:mm:ssZ"),
@@ -360,10 +376,33 @@ def create_live_class(
 			}
 		)
 		class_details = frappe.get_doc(payload)
-		class_details.save()
+		try:
+			class_details.save()
+		except Exception:
+			# The meeting already exists on Zoom; without its class nothing points at it.
+			delete_zoom_meeting(data.get("id"), headers)
+			raise
 		return class_details
 	else:
 		frappe.throw(_("Error creating live class. Please try again. {0}").format(response.text))
+
+
+def delete_zoom_meeting(meeting_id, headers):
+	"""Best effort: the save's own error is the one to report, not this one. Logged
+	deferred, because that error rolls back the request and an Error Log written in
+	it would go with it."""
+	try:
+		response = requests.delete(
+			f"https://api.zoom.us/v2/meetings/{meeting_id}", headers=headers, timeout=10
+		)
+		if response.ok:
+			return
+		detail = f"Zoom answered {response.status_code}: {response.text}"
+	except Exception:
+		detail = frappe.get_traceback()
+	frappe.log_error(
+		title=f"Could not delete orphaned Zoom meeting {meeting_id}", message=detail, defer_insert=True
+	)
 
 
 @frappe.whitelist()
@@ -386,12 +425,11 @@ def create_google_meet_live_class(
 	if not google_meet_settings.enabled:
 		frappe.throw(_("Please enable the Google Meet account to use this feature."))
 
-	if not google_meet_settings.google_calendar:
-		frappe.throw(
-			_(
-				"The Google Meet account does not have a Google Calendar configured. Please set up a Google Calendar first."
-			)
-		)
+	# The same check as the Zoom path: a calendar that is set, authorised, and
+	# pushes to Google, before anything is made.
+	from lms.lms.doctype.lms_live_class.lms_live_class import get_live_class_calendar
+
+	get_live_class_calendar("Google Meet", google_meet_account)
 
 	class_details = frappe.get_doc(
 		{

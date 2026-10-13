@@ -427,7 +427,6 @@ import { useDebounceFn } from '@vueuse/core'
 
 import { onBeforeRouteLeave, useRouter } from 'vue-router'
 import { sanitizeOnWrite } from '@/utils/sanitizeOnWrite'
-import { useTelemetry } from 'frappe-ui/frappe'
 import { resourceErrorMessage, submitResource } from '@/utils/resource'
 import { useCanWrite } from '@/composables/useCanWrite'
 
@@ -478,7 +477,6 @@ const questionMeta = ref({})
 const user = inject('$user')
 const router = useRouter()
 const readOnlyMode = window.read_only_mode
-const { capture } = useTelemetry()
 const { $dialog } = getCurrentInstance().appContext.config.globalProperties
 
 const deleteQuiz = () => {
@@ -877,7 +875,6 @@ const createIfNamed = async () => {
 			url: 'frappe.client.insert',
 			auto: false,
 		}).submit({ doc: { doctype: 'LMS Quiz', ...newQuiz } })
-		capture('quiz_created')
 		// The page is not remounted by this: the quizID watch above picks the quiz up.
 		router.replace({ name: 'QuizForm', params: { quizID: created.name } })
 	} catch (error) {

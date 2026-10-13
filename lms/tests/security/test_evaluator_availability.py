@@ -1,11 +1,17 @@
+from unittest.mock import MagicMock, patch
+
 import frappe
 
 from lms.lms.api import (
+	EVALUATOR_CALENDAR_CACHE,
 	add_evaluator_slot,
+	authorize_evaluator_calendar,
 	delete_evaluator_slot,
 	ensure_evaluator_calendar,
 	get_evaluator_details,
+	google_calendar_callback,
 	set_evaluator_unavailability,
+	update_evaluator_calendar,
 	update_evaluator_slot,
 )
 from lms.lms.test_helpers import BaseTestUtils, enforce_role_gates
@@ -459,3 +465,308 @@ class TestEvaluatorAvailability(BaseTestUtils):
 
 		with self.assertRaises(frappe.DoesNotExistError):
 			add_evaluator_slot("no-such-user@example.com", "Monday", "09:00:00", "10:00:00")
+
+
+class TestEvaluatorCalendarSettings(BaseTestUtils):
+	"""The Slots tab is where a portal evaluator manages their Google Calendar:
+	they have no Settings modal and no desk write permission on Google Calendar,
+	and Frappe's authorize_access needs that permission. These endpoints manage
+	the caller's own calendar only."""
+
+	EVALUATOR = "calendar-eval@example.com"
+	OTHER = "calendar-eval2@example.com"
+	STUDENT = "calendar-stu@example.com"
+
+	@classmethod
+	def setUpClass(cls):
+		super().setUpClass()
+		original_in_import = frappe.flags.in_import
+		frappe.flags.in_import = True
+		try:
+			for email, role in (
+				(cls.EVALUATOR, "Batch Evaluator"),
+				(cls.OTHER, "Batch Evaluator"),
+				(cls.STUDENT, "LMS Student"),
+			):
+				# nosemgrep: lms-exists-then-insert - test fixture setup
+				if not frappe.db.exists("User", email):
+					user = frappe.new_doc("User")
+					user.update(
+						{
+							"email": email,
+							"first_name": email.split("@")[0],
+							"user_type": "Website User",
+							"send_welcome_email": False,
+						}
+					)
+					user.append("roles", {"role": role})
+					# nosemgrep: lms-unjustified-ignore-permissions - test fixture setup
+					user.insert(ignore_permissions=True)
+		finally:
+			frappe.flags.in_import = original_in_import
+
+		settings = frappe.get_doc("Google Settings")
+		cls.original_google_settings = (settings.enable, settings.client_id)
+		settings.enable = 1
+		settings.client_id = "test-client-id"
+		settings.client_secret = "test-client-secret"
+		# nosemgrep: lms-unjustified-ignore-permissions - test fixture setup
+		settings.save(ignore_permissions=True)
+		frappe.db.commit()
+
+	@classmethod
+	def tearDownClass(cls):
+		frappe.db.delete("Google Calendar", {"user": ("in", [cls.EVALUATOR, cls.OTHER])})
+		settings = frappe.get_doc("Google Settings")
+		settings.enable, settings.client_id = cls.original_google_settings
+		# nosemgrep: lms-unjustified-ignore-permissions - test fixture setup
+		settings.save(ignore_permissions=True)
+		frappe.db.commit()
+		super().tearDownClass()
+
+	def setUp(self):
+		super().setUp()
+		enforce_role_gates(self)
+		frappe.db.delete("Google Calendar", {"user": ("in", [self.EVALUATOR, self.OTHER])})
+		frappe.cache.delete_value(f"{EVALUATOR_CALENDAR_CACHE}:{self.EVALUATOR}")
+		self.original_user = frappe.session.user
+		self.addCleanup(setattr, frappe.session, "user", self.original_user)
+		frappe.local.response = frappe._dict()
+		frappe.local.flags.commit = False
+		self.addCleanup(setattr, frappe.local.flags, "commit", False)
+		# The real URI is built from the request, which tests don't have.
+		uri = patch(
+			"lms.lms.api.google_callback_uri",
+			return_value="https://lms.test/?cmd=frappe.integrations.doctype.google_calendar.google_calendar.google_callback",
+		)
+		uri.start()
+		self.addCleanup(uri.stop)
+
+	def _calendar_of(self, user):
+		return frappe.db.get_value("Google Calendar", {"user": user}, "name")
+
+	def test_details_show_the_calendar_settings(self):
+		frappe.session.user = self.EVALUATOR
+		update_evaluator_calendar("calendar_name", "Eva's classes")
+
+		calendar = get_evaluator_details(self.EVALUATOR)["calendar"]
+
+		self.assertEqual(calendar.calendar_name, "Eva's classes")
+		self.assertEqual(calendar.enable, 1)
+		self.assertEqual(calendar.push_to_google_calendar, 1)
+		self.assertFalse(calendar.is_authorized)
+		self.assertNotIn("refresh_token", calendar)
+
+	def test_an_authorization_code_alone_is_not_authorized(self):
+		"""The code is saved before the token swap, so it is left behind when
+		the swap fails. Only a refresh token sends invites."""
+		frappe.session.user = self.EVALUATOR
+		name = ensure_evaluator_calendar()
+		calendar = frappe.get_doc("Google Calendar", name)
+		calendar.authorization_code = "left-behind"
+		# nosemgrep: lms-unjustified-ignore-permissions - test fixture setup
+		calendar.save(ignore_permissions=True)
+
+		self.assertFalse(get_evaluator_details(self.EVALUATOR)["calendar"].is_authorized)
+
+	def test_evaluator_can_change_their_own_calendar(self):
+		frappe.session.user = self.EVALUATOR
+		update_evaluator_calendar("push_to_google_calendar", 0)
+		update_evaluator_calendar("enable", "0")
+
+		values = frappe.db.get_value(
+			"Google Calendar", {"user": self.EVALUATOR}, ["push_to_google_calendar", "enable"], as_dict=1
+		)
+		self.assertEqual(values, {"push_to_google_calendar": 0, "enable": 0})
+
+	def test_a_change_never_reaches_another_users_calendar(self):
+		frappe.session.user = self.OTHER
+		update_evaluator_calendar("calendar_name", "Other's classes")
+
+		frappe.session.user = self.EVALUATOR
+		update_evaluator_calendar("calendar_name", "Mine")
+
+		self.assertEqual(
+			frappe.db.get_value("Google Calendar", {"user": self.OTHER}, "calendar_name"), "Other's classes"
+		)
+
+	def test_only_the_shown_fields_can_change(self):
+		frappe.session.user = self.EVALUATOR
+		for fieldname in ("user", "refresh_token", "google_calendar_id", "sync_as_public"):
+			with self.assertRaises(frappe.ValidationError):
+				update_evaluator_calendar(fieldname, "x")
+
+	def test_a_calendar_name_taken_by_someone_else_is_refused(self):
+		frappe.session.user = self.OTHER
+		update_evaluator_calendar("calendar_name", "Taken name")
+
+		frappe.session.user = self.EVALUATOR
+		with self.assertRaises(frappe.ValidationError):
+			update_evaluator_calendar("calendar_name", "Taken name")
+
+	def test_the_calendar_name_cannot_be_blank(self):
+		frappe.session.user = self.EVALUATOR
+		with self.assertRaises(frappe.ValidationError):
+			update_evaluator_calendar("calendar_name", "   ")
+
+	def test_a_student_cannot_manage_a_calendar_here(self):
+		frappe.session.user = self.STUDENT
+		with self.assertRaises(frappe.PermissionError):
+			update_evaluator_calendar("enable", 1)
+		with self.assertRaises(frappe.PermissionError):
+			authorize_evaluator_calendar()
+
+	def test_without_google_settings_the_error_says_who_can_fix_it(self):
+		frappe.session.user = self.EVALUATOR
+		with patch("lms.lms.api.is_google_calendar_enabled", return_value=False):
+			with self.assertRaises(frappe.ValidationError) as error:
+				update_evaluator_calendar("enable", 1)
+		self.assertIn("site administrator", str(error.exception))
+
+	def test_sign_in_remembers_the_callers_calendar(self):
+		frappe.session.user = self.EVALUATOR
+		result = authorize_evaluator_calendar()
+
+		self.assertIn("accounts.google.com", result["url"])
+		self.assertIn("google_calendar.google_callback", result["url"])
+		pending = frappe.cache.get_value(f"{EVALUATOR_CALENDAR_CACHE}:{self.EVALUATOR}")
+		self.assertEqual(pending["calendar"], self._calendar_of(self.EVALUATOR))
+		self.assertIn(f"&state={pending['state']}", result["url"])
+
+	def _state(self):
+		return frappe.cache.get_value(f"{EVALUATOR_CALENDAR_CACHE}:{self.EVALUATOR}")["state"]
+
+	def _token_response(self, body):
+		response = MagicMock()
+		response.json.return_value = body
+		return patch("requests.post", return_value=response)
+
+	def test_callback_saves_the_token_and_returns_to_the_slots_tab(self):
+		frappe.session.user = self.EVALUATOR
+		authorize_evaluator_calendar()
+
+		with self._token_response({"refresh_token": "fresh"}):
+			google_calendar_callback(code="one-time-code", state=self._state())
+
+		calendar = frappe.get_doc("Google Calendar", self._calendar_of(self.EVALUATOR))
+		self.assertEqual(calendar.get_password("refresh_token"), "fresh")
+		self.assertEqual(frappe.local.response["type"], "redirect")
+		self.assertTrue(frappe.local.response["location"].endswith("/slots"))
+		self.assertIsNone(frappe.cache.get_value(f"{EVALUATOR_CALENDAR_CACHE}:{self.EVALUATOR}"))
+		# Google comes back with a GET, which Frappe rolls back unless told to commit.
+		self.assertTrue(frappe.local.flags.commit)
+
+	def test_callback_says_so_when_google_gives_no_token(self):
+		frappe.session.user = self.EVALUATOR
+		authorize_evaluator_calendar()
+
+		with self._token_response({"error": "invalid_grant"}):
+			google_calendar_callback(code="stale-code", state=self._state())
+
+		self.assertTrue(frappe.local.response["location"].endswith("/slots?calendar=failed"))
+		self.assertFalse(get_evaluator_details(self.EVALUATOR)["calendar"].is_authorized)
+		self.assertFalse(frappe.local.flags.commit)
+
+	def test_a_code_from_another_sign_in_is_refused(self):
+		"""Someone sends the evaluator the callback link with a code for their own
+		Google account while the evaluator's sign-in is pending."""
+		frappe.session.user = self.EVALUATOR
+		authorize_evaluator_calendar()
+		key = f"{EVALUATOR_CALENDAR_CACHE}:{self.EVALUATOR}"
+		pending = frappe.cache.get_value(key)
+
+		for state in (None, "forged-state"):
+			with self._token_response({"refresh_token": "attackers"}) as token_request:
+				with self.assertRaises(frappe.PermissionError):
+					google_calendar_callback(code="attackers-code", state=state)
+			token_request.assert_not_called()
+
+		self.assertFalse(get_evaluator_details(self.EVALUATOR)["calendar"].is_authorized)
+		self.assertFalse(frappe.local.flags.commit)
+		# The real sign-in can still finish.
+		self.assertEqual(frappe.cache.get_value(key), pending)
+
+	def test_a_sign_in_from_before_state_is_refused_cleanly(self):
+		"""Stored as the calendar name alone, before `state` existed."""
+		frappe.session.user = self.EVALUATOR
+		frappe.cache.set_value(f"{EVALUATOR_CALENDAR_CACHE}:{self.EVALUATOR}", ensure_evaluator_calendar())
+
+		with self.assertRaises(frappe.PermissionError):
+			google_calendar_callback(code="code", state="s")
+		update_evaluator_calendar("calendar_name", "Renamed after deploy")
+		self.assertEqual(self._calendar_of(self.EVALUATOR), "Renamed after deploy")
+
+	def test_a_desk_sign_in_keeps_frappes_own_callback(self):
+		frappe.session.user = "Administrator"
+		with patch(
+			"frappe.integrations.doctype.google_calendar.google_calendar.google_callback"
+		) as frappe_callback:
+			google_calendar_callback(code="desk-code")
+		frappe_callback.assert_called_once_with("desk-code")
+
+	def test_a_portal_user_never_reaches_frappes_callback(self):
+		"""Frappe's callback saves the code onto whichever calendar a desk user last
+		started authorising, before it checks permission. auth.py lets portal users
+		reach this URL for the Slots tab sign-in only."""
+		frappe.session.user = self.EVALUATOR
+		with patch(
+			"frappe.integrations.doctype.google_calendar.google_calendar.google_callback"
+		) as frappe_callback:
+			with self.assertRaises(frappe.PermissionError):
+				google_calendar_callback(code="someone-elses-code")
+		frappe_callback.assert_not_called()
+
+	def _connected_calendar(self):
+		frappe.session.user = self.EVALUATOR
+		calendar = frappe.get_doc("Google Calendar", ensure_evaluator_calendar())
+		calendar.google_calendar_id = "eva@group.calendar.google.com"
+		calendar.refresh_token = "token"
+		# nosemgrep: lms-unjustified-ignore-permissions - test fixture setup
+		calendar.save(ignore_permissions=True)
+		return calendar.name
+
+	def test_a_rename_reaches_google(self):
+		"""Frappe names the Google calendar only when it creates it."""
+		self._connected_calendar()
+		google = MagicMock()
+		with patch(
+			"frappe.integrations.doctype.google_calendar.google_calendar.get_google_calendar_object",
+			return_value=(google, MagicMock()),
+		):
+			update_evaluator_calendar("calendar_name", "Evaluations")
+
+		google.calendars.return_value.patch.assert_called_once_with(
+			calendarId="eva@group.calendar.google.com", body={"summary": "Evaluations"}
+		)
+		self.assertEqual(self._calendar_of(self.EVALUATOR), "Evaluations")
+
+	def test_a_rename_google_refuses_changes_nothing(self):
+		name = self._connected_calendar()
+		with patch(
+			"frappe.integrations.doctype.google_calendar.google_calendar.get_google_calendar_object",
+			side_effect=Exception("Google is down"),
+		):
+			with self.assertRaises(frappe.ValidationError):
+				update_evaluator_calendar("calendar_name", "Evaluations")
+
+		self.assertEqual(self._calendar_of(self.EVALUATOR), name)
+
+	def test_a_pending_sign_in_follows_a_rename(self):
+		frappe.session.user = self.EVALUATOR
+		key = f"{EVALUATOR_CALENDAR_CACHE}:{self.EVALUATOR}"
+		frappe.cache.set_value(key, {"calendar": ensure_evaluator_calendar(), "state": "s"})
+
+		update_evaluator_calendar("calendar_name", "Renamed mid sign-in")
+
+		self.assertEqual(frappe.cache.get_value(key), {"calendar": "Renamed mid sign-in", "state": "s"})
+
+	def test_callback_refuses_a_calendar_that_is_not_the_callers(self):
+		frappe.session.user = self.OTHER
+		other_calendar = ensure_evaluator_calendar()
+		frappe.session.user = self.EVALUATOR
+		frappe.cache.set_value(
+			f"{EVALUATOR_CALENDAR_CACHE}:{self.EVALUATOR}", {"calendar": other_calendar, "state": "s"}
+		)
+
+		with self.assertRaises(frappe.PermissionError):
+			google_calendar_callback(code="code", state="s")

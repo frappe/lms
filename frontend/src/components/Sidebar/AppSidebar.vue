@@ -374,7 +374,7 @@ const steps = reactive([
 				router.push({
 					name: 'CourseDetail',
 					params: { courseName: course },
-					hash: '#settings',
+					hash: '#editor',
 				})
 			} else {
 				openFormRoute(router, { name: 'NewCourse' })
@@ -394,7 +394,7 @@ const steps = reactive([
 				router.push({
 					name: 'CourseDetail',
 					params: { courseName: course },
-					hash: '#settings',
+					hash: '#editor',
 				})
 			} else {
 				openFormRoute(router, { name: 'NewCourse' })

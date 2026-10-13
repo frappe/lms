@@ -179,9 +179,12 @@ doc_events = {
 	# own children, and Document.update_child_table db_updates every submitted row by
 	# name with no ownership check. A save of the thief's own quiz naming a foreign row
 	# is checked for `write` on the destination only, and reaches the child gate never.
-	"LMS Quiz": {"validate": CHILD_ROW_MOVE_GATE},
+	"LMS Quiz": {"validate": CHILD_ROW_MOVE_GATE, "after_insert": "lms.lms.telemetry.quiz_created"},
 	"LMS Programming Exercise": {"validate": CHILD_ROW_MOVE_GATE},
-	"LMS Assignment": {"validate": CHILD_ROW_MOVE_GATE},
+	"LMS Assignment": {
+		"validate": CHILD_ROW_MOVE_GATE,
+		"after_insert": "lms.lms.telemetry.assignment_created",
+	},
 	"LMS Question": {"validate": CHILD_ROW_MOVE_GATE},
 	"LMS Quiz Question": {"validate": CHILD_ROW_MOVE_GATE},
 	"LMS Test Case": {"validate": CHILD_ROW_MOVE_GATE},
@@ -196,6 +199,16 @@ doc_events = {
 		"validate": "lms.lms.user.validate_username_duplicates",
 		"before_insert": "lms.lms.user.add_lms_student_role",
 	},
+	# Product events for Pulse: one per step a site takes (see lms.lms.telemetry).
+	"LMS Course": {"on_update": "lms.lms.telemetry.course_saved"},
+	"Course Chapter": {"after_insert": "lms.lms.telemetry.chapter_created"},
+	"Course Lesson": {"after_insert": "lms.lms.telemetry.lesson_created"},
+	"LMS Batch": {"on_update": "lms.lms.telemetry.batch_saved"},
+	"LMS Live Class": {"after_insert": "lms.lms.telemetry.live_class_created"},
+	"LMS Enrollment": {"after_insert": "lms.lms.telemetry.enrolled_in_course"},
+	"LMS Batch Enrollment": {"after_insert": "lms.lms.telemetry.enrolled_in_batch"},
+	"LMS Certificate": {"after_insert": "lms.lms.telemetry.certificate_issued"},
+	"LMS Settings": {"on_update": "lms.lms.telemetry.payment_gateway_saved"},
 }
 
 # Scheduled Tasks
@@ -203,6 +216,7 @@ doc_events = {
 scheduler_events = {
 	"all": [
 		"lms.sqlite.build_index_in_background",
+		"lms.lms.doctype.lms_live_class.lms_live_class.retry_pending_invites",
 	],
 	"hourly": [
 		"lms.lms.doctype.lms_certificate_request.lms_certificate_request.schedule_evals",
@@ -231,7 +245,8 @@ fixtures = ["Custom Field", "Function", "Industry", "LMS Category"]
 # ------------------------------
 #
 override_whitelisted_methods = {
-	# "frappe.desk.search.get_names_for_mentions": "lms.lms.utils.get_names_for_mentions",
+	# Finishes Google Calendar sign-in started from an evaluator's Slots tab.
+	"frappe.integrations.doctype.google_calendar.google_calendar.google_callback": "lms.lms.api.google_calendar_callback",
 }
 #
 # each overriding function accepts a `data` argument;
