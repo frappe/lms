@@ -271,12 +271,16 @@ class TestBatchAuthoringScope(BaseTestUtils):
 		self.assertTrue(lms_batch.can_author_batch(self.course_creator_batch))
 		self.assertTrue(frappe.has_permission("LMS Live Class", "create"))
 
-		# Zoom auth and the calendar side effect of saving a live class are not
-		# what this test is about; both are stubbed out.
+		# Zoom auth and the calendar, checked before the Zoom call and used when the
+		# live class saves, are not what this test is about; all are stubbed out.
 		with (
 			patch.object(lms_batch, "authenticate", return_value="fake-token"),
 			patch.object(lms_batch, "requests") as mocked_requests,
 			patch.object(LMSLiveClass, "create_calendar_event"),
+			patch(
+				"lms.lms.doctype.lms_live_class.lms_live_class.get_live_class_calendar",
+				return_value="test-calendar",
+			),
 		):
 			mocked_requests.post.return_value.status_code = 201
 			mocked_requests.post.return_value.text = json.dumps(
