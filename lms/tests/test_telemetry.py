@@ -136,9 +136,21 @@ class TestTelemetry(BaseTestUtils):
 	def test_a_first_is_sent_once_even_when_the_flag_comes_back(self):
 		frappe.db.delete("DefaultValue", {"defkey": "lms_telemetry_sent:batch_published"})
 		frappe.db.set_value("LMS Batch", {"published": 1}, "published", 0)
-		batch = self._create_batch(
-			self._course(published=1).name, title=f"Batch {frappe.generate_hash(length=6)}"
-		)
+		batch = frappe.get_doc(
+			{
+				"doctype": "LMS Batch",
+				"title": f"Telemetry Batch {frappe.generate_hash(length=6)}",
+				"start_date": frappe.utils.nowdate(),
+				"end_date": frappe.utils.add_days(frappe.utils.nowdate(), 10),
+				"start_time": "09:00:00",
+				"end_time": "11:00:00",
+				"timezone": "Asia/Kolkata",
+				"description": "A batch for telemetry tests",
+				"batch_details": "A batch for telemetry tests",
+				"published": 1,
+				"instructors": [{"instructor": self.instructor.name}],
+			}
+		).insert()
 		batch.published = 0
 		batch.save()
 		batch.published = 1
