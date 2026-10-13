@@ -152,7 +152,6 @@ import { resourceErrorMessage } from '@/utils/resource'
 import { useRouter } from 'vue-router'
 import CertificationLinks from '@/components/CertificationLinks.vue'
 import VideoPreview from '@/components/VideoPreview.vue'
-import { useTelemetry } from '@framework/ui/telemetry/index'
 import { openExternal } from '@/utils/openExternal'
 import type {
 	CourseDetails,
@@ -165,7 +164,6 @@ const router = useRouter()
 const user = inject<SessionUser>('$user')!
 const readOnlyMode = (window as Window & { read_only_mode?: boolean })
 	.read_only_mode
-const { capture } = useTelemetry()
 
 const props = withDefaults(
 	defineProps<{
@@ -192,7 +190,6 @@ function enrollStudent() {
 		},
 	})
 		.then(() => {
-			capture('enrolled_in_course', { course: courseName })
 			toast.success(__('You have been enrolled in this course'))
 			setTimeout(() => {
 				router.push({
