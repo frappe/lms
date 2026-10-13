@@ -1,8 +1,11 @@
 import frappe
 
+ONBOARDING_ROLES = ("System Manager", "Moderator")
+
 
 @frappe.whitelist()
-def get_first_course():
+def get_first_course() -> str | None:
+	frappe.only_for(ONBOARDING_ROLES)
 	course = frappe.get_all(
 		"LMS Course",
 		fields=["name"],
@@ -12,7 +15,9 @@ def get_first_course():
 	return course[0].name if course else None
 
 
-def get_first_batch():
+@frappe.whitelist()
+def get_first_batch() -> str | None:
+	frappe.only_for(ONBOARDING_ROLES)
 	batch = frappe.get_all(
 		"LMS Batch",
 		fields=["name"],
