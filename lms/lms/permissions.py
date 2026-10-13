@@ -40,6 +40,7 @@ COURSE_RECORD_MEMBER_FIELDS = {
 	"LMS Course Progress": "member",
 	"LMS Video Watch Duration": "member",
 	"LMS Course Review": "owner",
+	"LMS Enrollment": "member",
 }
 
 
@@ -263,6 +264,54 @@ def course_record_query_conditions(user=None, doctype=None) -> str:
 	)
 	condition = Bracket((getattr(record, member_field) == member) | record.course.isin(taught))
 	return _render(condition)
+
+
+def enrollment_has_permission(doc, ptype="read", user=None) -> bool:
+	"""An enrolment belongs to its learner, to the authors of its course, and to
+	the tagged instructors of the batch it came from: adding a learner to a batch
+	enrols them in its courses as whoever added them."""
+	user = user or frappe.session.user
+	# A saved row is judged by its stored batch: enrollment_from_batch cannot change
+	# after insert (validate_identity_unchanged).
+	batch = (
+		doc.get("enrollment_from_batch")
+		if doc.is_new()
+		else frappe.db.get_value(doc.doctype, doc.name, "enrollment_from_batch")
+	)
+	if batch and doc.get("enrollment_from_batch") == batch and can_author_batch(batch, user=user):
+		return True
+	return course_record_has_permission(doc, ptype, user)
+
+
+def enrollment_query_conditions(user=None, doctype=None) -> str:
+	"""List-read counterpart of :func:`enrollment_has_permission`, as SQL."""
+	user = user or frappe.session.user
+	course_scope = course_record_query_conditions(user, "LMS Enrollment")
+	if not course_scope:
+		return ""
+	enrollment = frappe.qb.DocType("LMS Enrollment")
+	batch_scope = _render(Bracket(authored_batch_condition(enrollment.enrollment_from_batch, user)))
+	return f"({course_scope} or {batch_scope})"
+
+
+def lesson_note_has_permission(doc, ptype="read", user=None) -> bool:
+	"""A lesson note is private to the learner who wrote it. Moderators and site
+	administrators keep access; the instructors of the course do not."""
+	user = user or frappe.session.user
+	if _course_read_condition(user) is None:
+		return True
+	# Judged by the STORED member too, or relabelling it would hand a note over.
+	stored = None if doc.is_new() else frappe.db.get_value(doc.doctype, doc.name, "member")
+	return doc.get("member") == user and (doc.is_new() or stored == user)
+
+
+def lesson_note_query_conditions(user=None, doctype=None) -> str:
+	"""List-read counterpart of :func:`lesson_note_has_permission`, as SQL."""
+	user = user or frappe.session.user
+	if _course_read_condition(user) is None:
+		return ""
+	note = frappe.qb.DocType("LMS Lesson Note")
+	return _render(note.member == LiteralValue(frappe.db.escape(user)))
 
 
 def _unrestricted_coupon_access(user: str) -> bool:
