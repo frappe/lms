@@ -8,6 +8,7 @@ import { defineComponent, h, reactive } from 'vue'
 const state = vi.hoisted(() => ({
 	assignment: null as Record<string, unknown> | null,
 	loading: false,
+	submission: null as { doc: Record<string, unknown> | null } | null,
 }))
 
 vi.mock('frappe-ui', () => {
@@ -20,6 +21,10 @@ vi.mock('frappe-ui', () => {
 					h(tag, slots.default?.()),
 		})
 	return {
+		Alert: defineComponent({
+			props: ['title'],
+			setup: (props) => () => h('div', props.title),
+		}),
 		Badge: passthrough('span'),
 		Button: defineComponent({
 			setup:
@@ -41,9 +46,14 @@ vi.mock('frappe-ui', () => {
 					),
 		}),
 		FormControl: defineComponent({
-			props: ['placeholder'],
+			props: ['placeholder', 'modelValue', 'disabled'],
 			setup: (props) => () =>
-				h('input', { 'data-testid': 'url-input', ...props }),
+				h('input', {
+					'data-testid': 'url-input',
+					placeholder: props.placeholder,
+					value: props.modelValue,
+					disabled: props.disabled,
+				}),
 		}),
 		Skeleton: defineComponent({ render: () => h('div') }),
 		Tooltip: passthrough('div'),
@@ -56,8 +66,15 @@ vi.mock('frappe-ui', () => {
 				loading: state.loading,
 				reload: vi.fn(),
 			}),
-		createDocumentResource: () =>
-			reactive({ doc: null, reload: vi.fn(), setValue: { submit: vi.fn() } }),
+		createDocumentResource: () => {
+			const resource = reactive({
+				doc: null as Record<string, unknown> | null,
+				reload: vi.fn(),
+				setValue: { submit: vi.fn() },
+			})
+			state.submission = resource
+			return resource
+		},
 	}
 })
 
@@ -68,7 +85,15 @@ vi.mock('@/router', () => ({
 	},
 }))
 vi.mock('@/components/RichTextEditor.vue', () => ({
-	default: defineComponent({ render: () => h('div') }),
+	default: defineComponent({
+		props: ['content', 'editable'],
+		setup: (props) => () =>
+			h('div', {
+				'data-testid': 'text-answer',
+				'data-editable': String(props.editable),
+				innerHTML: props.content,
+			}),
+	}),
 }))
 vi.mock('@/utils', () => ({ validateFile: vi.fn() }))
 
@@ -82,21 +107,45 @@ const translate = (message: string) => {
 	}
 }
 
-const mountAssignment = async () => {
+const learner = { name: 'learner@example.com' }
+const evaluator = { name: 'evaluator@example.com', is_evaluator: true }
+
+const mountAssignment = async (
+	user: Record<string, unknown> = learner,
+	submission?: Record<string, unknown>
+) => {
 	const wrapper = mount(Assignment, {
-		props: { assignmentID: 'ASG-1', showTitle: false },
+		props: {
+			assignmentID: 'ASG-1',
+			showTitle: false,
+			submissionName: submission ? 'SUB-1' : 'new',
+		},
 		global: {
-			provide: { $user: { data: { name: 'learner@example.com' } } },
+			provide: { $user: { data: user } },
 			mocks: { __: translate },
 		},
 	})
+	if (submission && state.submission) state.submission.doc = submission
 	await flushPromises()
 	return wrapper
 }
 
+const ended = {
+	enable_scheduling: 1,
+	schedule_end: '2020-01-01T00:00:00Z',
+}
+
+const learnerSubmission = (fields: Record<string, unknown>) => ({
+	name: 'SUB-1',
+	owner: learner.name,
+	status: 'Not Graded',
+	...fields,
+})
+
 beforeEach(() => {
 	state.assignment = null
 	state.loading = false
+	state.submission = null
 })
 
 describe('the assignment card', () => {
@@ -158,5 +207,83 @@ describe('the assignment card', () => {
 		expect(wrapper.find('[data-testid="assignment-dropzone"]').exists()).toBe(
 			false
 		)
+	})
+
+	it("shows an evaluator the learner's attachment, without upload or remove", async () => {
+		state.assignment = { title: 'Report', type: 'PDF', question: '<p>Q</p>' }
+		const wrapper = await mountAssignment(
+			evaluator,
+			learnerSubmission({ assignment_attachment: '/private/files/report.pdf' })
+		)
+
+		const file = wrapper.get('[data-testid="assignment-attachment"]')
+		expect(file.text()).toContain('report.pdf')
+		expect(file.find('button').exists()).toBe(false)
+		expect(wrapper.find('[data-testid="assignment-dropzone"]').exists()).toBe(
+			false
+		)
+	})
+
+	it('shows an evaluator no empty drop zone when nothing was attached', async () => {
+		state.assignment = { title: 'Report', type: 'PDF', question: '<p>Q</p>' }
+		const wrapper = await mountAssignment(evaluator, learnerSubmission({}))
+
+		expect(wrapper.find('[data-testid="assignment-attachment"]').exists()).toBe(
+			false
+		)
+		expect(wrapper.find('[data-testid="assignment-dropzone"]').exists()).toBe(
+			false
+		)
+	})
+
+	it('still shows the URL answer read-only after the schedule ended', async () => {
+		state.assignment = {
+			title: 'Portfolio',
+			type: 'URL',
+			question: '<p>Q</p>',
+			...ended,
+		}
+		const wrapper = await mountAssignment(
+			evaluator,
+			learnerSubmission({ answer: 'https://example.com/repo' })
+		)
+
+		const input = wrapper.get('[data-testid="url-input"]')
+		expect((input.element as HTMLInputElement).value).toBe(
+			'https://example.com/repo'
+		)
+		expect(input.attributes('disabled')).toBeDefined()
+	})
+
+	it('still shows the text answer read-only after the schedule ended', async () => {
+		state.assignment = {
+			title: 'Essay',
+			type: 'Text',
+			question: '<p>Q</p>',
+			...ended,
+		}
+		const wrapper = await mountAssignment(
+			evaluator,
+			learnerSubmission({ answer: '<p>My essay</p>' })
+		)
+
+		const answer = wrapper.get('[data-testid="text-answer"]')
+		expect(answer.text()).toBe('My essay')
+		expect(answer.attributes('data-editable')).toBe('false')
+	})
+
+	it('shows only the schedule message to a learner with no submission', async () => {
+		state.assignment = {
+			title: 'Portfolio',
+			type: 'URL',
+			question: '<p>Q</p>',
+			...ended,
+		}
+		const wrapper = await mountAssignment()
+
+		expect(wrapper.text()).toContain(
+			'The schedule for this assignment has ended.'
+		)
+		expect(wrapper.find('[data-testid="url-input"]').exists()).toBe(false)
 	})
 })
