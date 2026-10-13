@@ -526,6 +526,7 @@ class TestEvaluatorCalendarSettings(BaseTestUtils):
 
 	def setUp(self):
 		super().setUp()
+		enforce_role_gates(self)
 		frappe.db.delete("Google Calendar", {"user": ("in", [self.EVALUATOR, self.OTHER])})
 		frappe.cache.delete_value(f"{EVALUATOR_CALENDAR_CACHE}:{self.EVALUATOR}")
 		self.original_user = frappe.session.user

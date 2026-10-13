@@ -1,12 +1,16 @@
 import frappe
 
 from lms.lms.onboarding import get_first_batch, get_first_course
-from lms.lms.test_helpers import BaseTestUtils
+from lms.lms.test_helpers import BaseTestUtils, enforce_role_gates
 
 ENDPOINTS = (get_first_course, get_first_batch)
 
 
 class TestOnboarding(BaseTestUtils):
+	def setUp(self):
+		super().setUp()
+		enforce_role_gates(self)
+
 	def tearDown(self):
 		frappe.set_user("Administrator")
 		super().tearDown()
