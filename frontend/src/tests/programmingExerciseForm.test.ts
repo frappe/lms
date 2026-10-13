@@ -120,18 +120,6 @@ vi.mock('frappe-ui', () => ({
 	Select: passthrough,
 }))
 
-<<<<<<< HEAD
-// The rich text editor drags in ProseMirror; nothing under test involves it.
-=======
-// Preview mounts the learner's submission page, which pulls in the code
-// runner. Nothing here previews.
-vi.mock(
-	'@/pages/ProgrammingExercises/ProgrammingExerciseSubmission.vue',
-	() => ({
-		default: defineComponent({ render: () => h('div') }),
-	})
-)
-
 // The server's write answer for the exercise, read at mount.
 const authorship = vi.hoisted(() => ({ canWrite: true as boolean | null }))
 vi.mock('@/composables/useCanWrite', async () => {
@@ -142,8 +130,7 @@ vi.mock('@/composables/useCanWrite', async () => {
 	}
 })
 
-// The rich text editor drags in ProseMirror; a button stands in for typing.
->>>>>>> 648e841 (fix(ui): open an assessment read-only for someone who only placed it)
+// The rich text editor drags in ProseMirror; nothing under test involves it.
 vi.mock('@/components/RichTextEditor.vue', () => ({
 	default: defineComponent({ render: () => h('div') }),
 }))
@@ -408,84 +395,7 @@ describe('ProgrammingExerciseForm as a route', () => {
 		expect(setValueSubmit).not.toHaveBeenCalled()
 	})
 
-<<<<<<< HEAD
 	it('updates through its own resource in edit mode and refreshes the count', async () => {
-=======
-	// Guards an edit being written without a Save button.
-	// Came with this branch's autosaving-document composable.
-	// Added on feat/assessment-visual-redesign when the Save button went away.
-	it('autosaves an edit through its own resource', async () => {
-		vi.useFakeTimers()
-		createDocumentResourceMock.mockImplementation(
-			documentResourceStub({
-				name: 'EX-0001',
-				title: 'T',
-				language: 'Python',
-				test_cases: [],
-			})
-		)
-		setValueSubmit.mockResolvedValue({})
-		const router = makeRouter()
-		await router.push('/programming-exercises/edit/EX-0001')
-		const wrapper = await mountForm(router, moderator)
-
-		await wrapper
-			.find('[data-testid="programming-exercise-title"] input')
-			.setValue('Renamed')
-		await vi.advanceTimersByTimeAsync(1500)
-
-		expect(setValueSubmit).toHaveBeenCalledTimes(1)
-		expect(setValueSubmit.mock.calls[0][0]).toMatchObject({
-			name: 'EX-0001',
-			title: 'Renamed',
-		})
-		vi.useRealTimers()
-	})
-
-	// Placing an exercise made its edit screen writable since #2826.
-	// Added for audit finding #3 on branch fix/assessment-placement-use-only.
-	it('opens read-only for someone who only placed the exercise', async () => {
-		vi.useFakeTimers()
-		authorship.canWrite = false
-		createDocumentResourceMock.mockImplementation(
-			documentResourceStub({
-				name: 'EX-0001',
-				title: 'T',
-				language: 'Python',
-				test_cases: [],
-			})
-		)
-		const router = makeRouter()
-		await router.push('/programming-exercises/edit/EX-0001')
-		const wrapper = await mountForm(router, moderator)
-
-		expect(
-			wrapper.find('[data-testid="programming-exercise-read-only-note"]').text()
-		).toBe('Only the authors of this programming exercise can edit it.')
-		expect(
-			wrapper.find('[data-testid="programming-exercise-delete"]').exists()
-		).toBe(false)
-		expect(
-			wrapper
-				.find('[data-testid="programming-exercise-fields"]')
-				.attributes('disabled')
-		).toBeDefined()
-		expect(
-			wrapper.find('[data-testid="programming-exercise-submissions"]').exists()
-		).toBe(true)
-
-		await wrapper.get('[data-testid="add-case"]').trigger('click')
-		await vi.advanceTimersByTimeAsync(1500)
-		expect(setValueSubmit).not.toHaveBeenCalled()
-		vi.useRealTimers()
-	})
-
-	// Guards a failed autosave being silently remembered and never retried.
-	// Came with this branch's autosaving-document composable.
-	// Added on feat/assessment-visual-redesign to pin the toast and Mod+S retry.
-	it('reports a failed autosave and retries it on Mod+S', async () => {
-		vi.useFakeTimers()
->>>>>>> 648e841 (fix(ui): open an assessment read-only for someone who only placed it)
 		createDocumentResourceMock.mockImplementation(
 			documentResourceStub({ name: 'EX-0001', title: 'T', language: 'Python' })
 		)
@@ -502,6 +412,40 @@ describe('ProgrammingExerciseForm as a route', () => {
 		expect(setValueSubmit).toHaveBeenCalledTimes(1)
 		expect(setValueSubmit.mock.calls[0][0]).toMatchObject({ name: 'EX-0001' })
 		expect(exercisesReload).toHaveBeenCalledTimes(1)
+	})
+
+	// Placing an exercise made its edit screen writable since #2826.
+	// Added for audit finding #3 on branch fix/assessment-placement-use-only.
+	it('opens read-only for someone who only placed the exercise', async () => {
+		authorship.canWrite = false
+		createDocumentResourceMock.mockImplementation(
+			documentResourceStub({ name: 'EX-0001', title: 'T', language: 'Python' })
+		)
+		const router = makeRouter()
+		await router.push('/programming-exercises/edit/EX-0001')
+		const wrapper = await mountForm(router, moderator)
+
+		expect(
+			wrapper.find('[data-testid="programming-exercise-read-only-note"]').text()
+		).toBe('Only the authors of this programming exercise can edit it.')
+		expect(
+			wrapper.find('[data-testid="programming-exercise-delete"]').exists()
+		).toBe(false)
+		expect(
+			wrapper.find('[data-testid="programming-exercise-save"]').exists()
+		).toBe(false)
+		expect(
+			wrapper
+				.find('[data-testid="programming-exercise-fields"]')
+				.attributes('disabled')
+		).toBeDefined()
+
+		const vm = wrapper.findComponent(ProgrammingExerciseForm).vm as any
+		vm.saveExercise()
+		vm.deleteExercise()
+		await flushPromises()
+		expect(setValueSubmit).not.toHaveBeenCalled()
+		expect(deleteSubmit).not.toHaveBeenCalled()
 	})
 
 	it('reloads the header count after a create', async () => {

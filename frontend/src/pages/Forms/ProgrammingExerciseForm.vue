@@ -1,8 +1,7 @@
 <template>
-<<<<<<< HEAD
 	<FormShell :title="title" size="4xl" @close="close">
 		<template #header-action>
-			<Badge v-if="isDirty && canManageExercise" theme="orange">
+			<Badge v-if="isDirty && canManageExercise && canEdit" theme="orange">
 				{{ __('Not Saved') }}
 			</Badge>
 		</template>
@@ -10,11 +9,19 @@
 			<div v-if="!canManageExercise" class="p-4 text-base text-ink-gray-6">
 				{{ __('You are not permitted to manage programming exercises.') }}
 			</div>
-			<div
+			<fieldset
 				v-else
+				:disabled="!canEdit"
 				data-testid="programming-exercise-fields"
-				class="grid grid-cols-1 sm:grid-cols-2 gap-10"
+				class="m-0 grid min-w-0 grid-cols-1 gap-10 border-0 p-0 sm:grid-cols-2"
 			>
+				<p
+					v-if="canWrite === false"
+					data-testid="programming-exercise-read-only-note"
+					class="text-base text-ink-gray-6 sm:col-span-2"
+				>
+					{{ __('Only the authors of this programming exercise can edit it.') }}
+				</p>
 				<div class="space-y-4">
 					<FormControl
 						v-model="exercise.title"
@@ -27,128 +34,18 @@
 						type="select"
 						:options="languageOptions"
 						:required="true"
-=======
-	<PageHeader :breadcrumbs="breadcrumbs">
-		<template #actions>
-			<template v-if="canManageExercise">
-				<Badge v-if="!isNew && canEdit" :theme="saved ? 'green' : 'amber'">
-					{{ saved ? __('Saved') : __('Not saved') }}
-				</Badge>
-				<template v-if="!isNew">
-					<HeaderButton
-						data-testid="programming-exercise-preview"
-						variant="subtle"
-						icon="lucide-eye"
-						:label="previewing ? __('Back to editing') : __('Preview')"
-						:aria-pressed="previewing"
-						:disabled="!previewing && !saved"
-						@click="togglePreview()"
-					/>
-					<HeaderButton
-						data-testid="programming-exercise-submissions"
-						variant="subtle"
-						icon="lucide-clipboard-list"
-						:label="__('Submissions')"
-						@click="goToSubmissions()"
-					/>
-					<HeaderButton
-						v-if="canEdit"
-						data-testid="programming-exercise-delete"
-						variant="subtle"
-						theme="red"
-						icon="lucide-trash-2"
-						:label="__('Delete')"
-						@click="deleteExercise()"
-					/>
-				</template>
-			</template>
-		</template>
-	</PageHeader>
-	<div v-if="!canManageExercise" class="p-5 text-base text-ink-gray-6">
-		{{ __('You are not permitted to manage programming exercises.') }}
-	</div>
-	<fieldset
-		v-else
-		:disabled="!canEdit"
-		data-testid="programming-exercise-fields"
-		class="m-0 grid min-w-0 flex-1 grid-cols-1 border-0 p-0 lg:min-h-0 lg:grid-cols-[7fr,3fr]"
-	>
-		<div
-			class="flex min-h-0 flex-col gap-8 overflow-y-auto p-5"
-			@focusout="createIfReady()"
-		>
-			<div
-				v-if="previewing"
-				data-testid="programming-exercise-preview-pane"
-				class="h-[900px] w-full"
-			>
-				<ProgrammingExerciseSubmission
-					:exerciseID="props.exerciseID"
-					submissionID="new"
-					preview
-				/>
-			</div>
-			<template v-else>
-				<p
-					v-if="canWrite === false"
-					data-testid="programming-exercise-read-only-note"
-					class="text-base text-ink-gray-6"
-				>
-					{{ __('Only the authors of this programming exercise can edit it.') }}
-				</p>
-				<div class="flex flex-col gap-1.5">
-					<InputLabel
-						:id="problemStatementLabelId"
-						:label="__('Problem Statement')"
-						:required="true"
-					/>
-					<div data-testid="programming-exercise-problem-statement">
-						<RichTextEditor
-							:ariaLabelledby="problemStatementLabelId"
-							:ariaRequired="true"
-							:content="exercise.problem_statement"
-							@change="onProblemStatementChange"
-							:editable="canEdit"
-							:fixedMenu="true"
-							minHeight="12rem"
-						/>
-					</div>
-				</div>
-				<div class="flex flex-col gap-1.5">
-					<InputLabel :id="starterCodeLabelId" :label="__('Starter Code')" />
-					<div
-						class="overflow-hidden rounded-5 border border-outline-gray-2"
-						data-testid="programming-exercise-starter-code"
-					>
-						<ExerciseCodeEditor
-							v-model="exercise.starter_code"
-							:language="exercise.language"
-							:label="__('Starter Code')"
-							:readonly="!canEdit"
-							contentClass="min-h-[24rem]"
-						/>
-					</div>
-					<InputDescription
-						:id="starterCodeDescriptionId"
-						:description="
-							__(
-								'Prefills the learner’s editor. Leave empty for the language default.'
-							)
-						"
->>>>>>> 648e841 (fix(ui): open an assessment read-only for someone who only placed it)
 					/>
 					<ChildTable
 						v-model="testCases.data"
 						:label="__('Test Cases')"
 						:columns="testCaseColumns"
 						:required="true"
-						:addable="true"
-						:deletable="true"
-						:editable="true"
+						:addable="canEdit"
+						:deletable="canEdit"
+						:editable="canEdit"
 						:placeholder="__('Add Test Case')"
 					/>
 				</div>
-<<<<<<< HEAD
 				<div>
 					<div class="space-y-1.5">
 						<InputLabel
@@ -159,13 +56,13 @@
 						<RichTextEditor
 							:content="exercise.problem_statement"
 							@change="(val: string) => (exercise.problem_statement = val)"
-							:editable="true"
+							:editable="canEdit"
 							:fixedMenu="true"
 							editorClass="prose-sm max-w-none border-b border-x border-outline-elevation-2 bg-surface-gray-2 rounded-b-md py-1 px-2 min-h-[10rem] max-h-[21rem] overflow-y-auto"
 						/>
 					</div>
 				</div>
-			</div>
+			</fieldset>
 		</template>
 		<template #actions>
 			<div
@@ -173,7 +70,7 @@
 				class="flex items-center justify-end gap-2 group"
 			>
 				<HeaderButton
-					v-if="exerciseID != 'new'"
+					v-if="exerciseID != 'new' && canEdit"
 					data-testid="programming-exercise-delete"
 					:label="__('Delete exercise')"
 					icon="lucide-trash-2"
@@ -212,6 +109,7 @@
 					/>
 				</router-link>
 				<HeaderButton
+					v-if="canEdit"
 					data-testid="programming-exercise-save"
 					:label="__('Save')"
 					variant="solid"
@@ -220,31 +118,6 @@
 			</div>
 		</template>
 	</FormShell>
-=======
-			</template>
-		</div>
-		<div
-			class="order-first min-w-0 space-y-4 border-b p-5 lg:order-none lg:min-h-0 lg:overflow-y-auto lg:border-b-0 lg:border-s"
-		>
-			<FormControl
-				v-model="exercise.title"
-				data-testid="programming-exercise-title"
-				variant="outline"
-				:label="__('Title')"
-				:required="true"
-				@blur="onTitleBlur()"
-			/>
-			<FormControl
-				v-model="exercise.language"
-				:label="__('Language')"
-				variant="outline"
-				type="select"
-				:options="languageOptions"
-				:required="true"
-			/>
-		</div>
-	</fieldset>
->>>>>>> 648e841 (fix(ui): open an assessment read-only for someone who only placed it)
 </template>
 <script setup lang="ts">
 import { computed, inject, ref, watch, useId } from 'vue'
@@ -263,18 +136,9 @@ import ChildTable from '@/components/Controls/ChildTable.vue'
 import FormShell from '@/components/FormShell.vue'
 import HeaderButton from '@/components/HeaderButton.vue'
 import RichTextEditor from '@/components/RichTextEditor.vue'
-<<<<<<< HEAD
+import { useCanWrite } from '@/composables/useCanWrite'
 import { useFormRoute } from '@/composables/useFormRoute'
 import { submitResource } from '@/utils/resource'
-=======
-import { useAutosaveDoc } from '@/composables/useAutosaveDoc'
-import { useCanWrite } from '@/composables/useCanWrite'
-import {
-	saveShortcut,
-	useKeyboardShortcuts,
-} from '@/composables/useKeyboardShortcuts'
-import { resourceErrorMessage, submitResource } from '@/utils/resource'
->>>>>>> 648e841 (fix(ui): open an assessment read-only for someone who only placed it)
 
 const user = inject<any>('$user')
 const problemStatementLabelId = useId()
@@ -294,7 +158,7 @@ const { close, saveAndReplace } = useFormRoute({ name: 'ProgrammingExercises' })
 
 // Placing an exercise grants use only, so a non-author opens it read-only.
 const canWrite = useCanWrite('LMS Programming Exercise', () =>
-	isNew.value ? undefined : props.exerciseID
+	props.exerciseID === 'new' ? undefined : props.exerciseID
 )
 const canEdit = computed(() => canWrite.value === true)
 
@@ -418,7 +282,6 @@ watch(
 	{ immediate: true }
 )
 
-<<<<<<< HEAD
 const testCases = createListResource({
 	doctype: 'LMS Test Case',
 	fields: ['input', 'expected_output', 'name'],
@@ -431,17 +294,6 @@ const testCases = createListResource({
 	onError(err: any) {
 		toast.error(__(err.messages?.[0] || err))
 		console.error('Error loading testCases:', err)
-=======
-const autosave = useAutosaveDoc({
-	payload: () => (isNew.value || !canEdit.value ? null : formPayload()),
-	// frappe-ui's submit() never rejects, so the error is read off the resource.
-	async save(body) {
-		await exercises.setValue.submit({ name: props.exerciseID, ...body })
-		const error = exercises.setValue.error
-		if (!error) return
-		toast.error(resourceErrorMessage(error, __('Error')))
-		throw error
->>>>>>> 648e841 (fix(ui): open an assessment read-only for someone who only placed it)
 	},
 })
 
@@ -504,7 +356,7 @@ const updateTestCasesInExercise = () => {
 }
 
 const saveExercise = () => {
-	if (!canManageExercise.value) return
+	if (!canManageExercise.value || !canEdit.value) return
 	validateTitle()
 	updateTestCasesInExercise()
 	if (props.exerciseID == 'new') createNewExercise()
@@ -563,12 +415,8 @@ const testCaseColumns = computed(() => {
 })
 
 const deleteExercise = () => {
-<<<<<<< HEAD
 	if (props.exerciseID == 'new') return
-	if (!canManageExercise.value) return
-=======
-	if (isNew.value || !canManageExercise.value || !canEdit.value) return
->>>>>>> 648e841 (fix(ui): open an assessment read-only for someone who only placed it)
+	if (!canManageExercise.value || !canEdit.value) return
 	submitResource(exercises.delete, props.exerciseID, {
 		onSuccess() {
 			// delete refetches the list (listResource.js:161); the count was
