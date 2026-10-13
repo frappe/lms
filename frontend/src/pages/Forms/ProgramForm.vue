@@ -259,7 +259,6 @@ import ResponsiveListView from '@/components/ResponsiveListView.vue'
 import Draggable from 'vuedraggable'
 import ProgramProgressSummary from '@/components/Programs/ProgramProgressSummary.vue'
 import { resourceErrorMessage, submitResource } from '@/utils/resource'
-import { reindexProgramCourses } from '@/utils/programOrder'
 
 const showFormDialog = ref(false)
 const currentForm = ref<'course' | 'member'>('course')
@@ -539,9 +538,12 @@ const addMember = (close: () => void) => {
 	}
 }
 
-const updateOrder = () => {
+const updateOrder = (e: { oldIndex: number; newIndex: number }) => {
+	if (e.oldIndex === e.newIndex) return
 	// vuedraggable updates the bound array before emitting `end`.
-	reindexProgramCourses(program.value.program_courses)
+	program.value.program_courses.forEach((course, index) => {
+		course.idx = index + 1
+	})
 	dirty.value = true
 }
 

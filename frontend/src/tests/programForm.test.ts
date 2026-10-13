@@ -100,7 +100,7 @@ vi.mock('frappe-ui', () => ({
 		name: 'Dialog',
 		props: ['open', 'title', 'size', 'actions'],
 		emits: ['update:open'],
-		template: `<div v-if="open" role="dialog"><h2>{{ title }}</h2><slot /><slot name="actions" /></div>`,
+		template: `<div v-if="open" role="dialog"><h2>{{ title }}</h2><slot name="title" /><slot /><slot name="actions" /></div>`,
 	},
 	Button: {
 		inheritAttrs: false,
@@ -127,7 +127,12 @@ vi.mock('@/utils', () => ({
 	openSettings: vi.fn(),
 }))
 vi.mock('vuedraggable', () => ({
-	default: defineComponent({ render: () => h('div') }),
+	default: defineComponent({
+		name: 'Draggable',
+		props: ['list'],
+		emits: ['end'],
+		render: () => h('div'),
+	}),
 }))
 vi.mock('@/components/Controls/Link.vue', () => ({
 	default: defineComponent({ render: () => h('div') }),
@@ -431,6 +436,65 @@ describe('ProgramForm as a route', () => {
 			expect(payload.program_courses).toEqual(COURSE_ROWS)
 			expect(payload.program_members).toEqual(MEMBER_ROWS)
 			expect(payload.published).toBe(true)
+		})
+
+		const loadProgram = async (courses: any[], members: any[]) => {
+			const { wrapper } = await deepLink('data-science')
+			listFor('LMS Program Course').answer(courses)
+			listFor('LMS Program Member').answer(members)
+			resources.docs[0].answer({
+				name: 'data-science',
+				title: 'data-science',
+				published: 1,
+				enforce_course_order: 0,
+			})
+			await flushPromises()
+			return wrapper
+		}
+
+		const THREE_COURSES = ['a', 'b', 'c'].map((key, index) => ({
+			name: `row-c${key}`,
+			course: `course-${key}`,
+			course_title: `Course ${key}`,
+			idx: index + 1,
+		}))
+
+		// vuedraggable moves the item inside the bound array before it emits
+		// `end`, so the stub does the same.
+		const drag = async (
+			wrapper: Awaited<ReturnType<typeof loadProgram>>,
+			oldIndex: number,
+			newIndex: number
+		) => {
+			const draggable = wrapper.findComponent({ name: 'Draggable' })
+			const list = draggable.props('list')
+			list.splice(newIndex, 0, list.splice(oldIndex, 1)[0])
+			draggable.vm.$emit('end', { oldIndex, newIndex })
+			await flushPromises()
+		}
+
+		it('saves the dragged course order with idx to match', async () => {
+			const wrapper = await loadProgram(THREE_COURSES, MEMBER_ROWS)
+
+			await drag(wrapper, 0, 2)
+			expect(wrapper.text()).toContain('Not Saved')
+
+			await wrapper.find('[data-testid="program-save"]').trigger('click')
+			const payload = setValueSubmit.mock.calls[0][0]
+			expect(
+				payload.program_courses.map((row: any) => [row.course, row.idx])
+			).toEqual([
+				['course-b', 1],
+				['course-c', 2],
+				['course-a', 3],
+			])
+		})
+
+		it('does not mark the form unsaved when a course is dropped in place', async () => {
+			const wrapper = await loadProgram(THREE_COURSES, MEMBER_ROWS)
+
+			await drag(wrapper, 1, 1)
+			expect(wrapper.text()).not.toContain('Not Saved')
 		})
 
 		it('offers Delete only for a real program', async () => {
