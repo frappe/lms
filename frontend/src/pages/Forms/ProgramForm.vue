@@ -347,6 +347,7 @@ const programDoc = createDocumentResource({
 
 const programCourses = createListResource({
 	doctype: 'LMS Program Course',
+	pageLength: 99999,
 	fields: ['course', 'course_title', 'name', 'idx'],
 	parent: 'LMS Program',
 	orderBy: 'idx',
@@ -357,6 +358,7 @@ const programCourses = createListResource({
 
 const programMembers = createListResource({
 	doctype: 'LMS Program Member',
+	pageLength: 99999,
 	fields: ['member', 'full_name', 'progress', 'name'],
 	parent: 'LMS Program',
 	orderBy: 'creation desc',
