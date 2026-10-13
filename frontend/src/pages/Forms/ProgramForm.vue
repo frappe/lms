@@ -259,7 +259,6 @@ import ResponsiveListView from '@/components/ResponsiveListView.vue'
 import Draggable from 'vuedraggable'
 import ProgramProgressSummary from '@/components/Programs/ProgramProgressSummary.vue'
 import { resourceErrorMessage, submitResource } from '@/utils/resource'
-import { reindexProgramCourses } from '@/utils/programOrder'
 
 const showFormDialog = ref(false)
 const currentForm = ref<'course' | 'member'>('course')
@@ -348,6 +347,7 @@ const programDoc = createDocumentResource({
 
 const programCourses = createListResource({
 	doctype: 'LMS Program Course',
+	pageLength: 99999,
 	fields: ['course', 'course_title', 'name', 'idx'],
 	parent: 'LMS Program',
 	orderBy: 'idx',
@@ -358,6 +358,7 @@ const programCourses = createListResource({
 
 const programMembers = createListResource({
 	doctype: 'LMS Program Member',
+	pageLength: 99999,
 	fields: ['member', 'full_name', 'progress', 'name'],
 	parent: 'LMS Program',
 	orderBy: 'creation desc',
@@ -429,7 +430,6 @@ const saveProgram = () => {
 	validateTitle()
 	if (isNew.value) createNewProgram()
 	else updateProgram()
-	dirty.value = false
 }
 
 // Saving navigates onward by REPLACING, so the entry this form was opened on is
@@ -448,6 +448,7 @@ const createNewProgram = () => {
 		},
 		{
 			onSuccess() {
+				dirty.value = false
 				toast.success(__('Program created successfully'))
 				afterSave()
 			},
@@ -472,6 +473,7 @@ const updateProgram = () => {
 		},
 		{
 			onSuccess() {
+				dirty.value = false
 				toast.success(__('Program updated successfully'))
 				afterSave()
 			},
@@ -539,9 +541,12 @@ const addMember = (close: () => void) => {
 	}
 }
 
-const updateOrder = () => {
+const updateOrder = (e: { oldIndex: number; newIndex: number }) => {
+	if (e.oldIndex === e.newIndex) return
 	// vuedraggable updates the bound array before emitting `end`.
-	reindexProgramCourses(program.value.program_courses)
+	program.value.program_courses.forEach((course, index) => {
+		course.idx = index + 1
+	})
 	dirty.value = true
 }
 
