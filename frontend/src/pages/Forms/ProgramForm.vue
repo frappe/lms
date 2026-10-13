@@ -431,7 +431,6 @@ const saveProgram = () => {
 	validateTitle()
 	if (isNew.value) createNewProgram()
 	else updateProgram()
-	dirty.value = false
 }
 
 // Saving navigates onward by REPLACING, so the entry this form was opened on is
@@ -450,6 +449,7 @@ const createNewProgram = () => {
 		},
 		{
 			onSuccess() {
+				dirty.value = false
 				toast.success(__('Program created successfully'))
 				afterSave()
 			},
@@ -474,6 +474,7 @@ const updateProgram = () => {
 		},
 		{
 			onSuccess() {
+				dirty.value = false
 				toast.success(__('Program updated successfully'))
 				afterSave()
 			},
