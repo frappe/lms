@@ -507,10 +507,17 @@ describe('ProgramForm as a route', () => {
 				member: `member${index}@example.com`,
 				full_name: `Member ${index}`,
 			}))
-			const wrapper = await loadProgram(THREE_COURSES, members)
+			const courses = Array.from({ length: 30 }, (_, index) => ({
+				name: `row-c${index}`,
+				course: `course-${index}`,
+				course_title: `Course ${index}`,
+				idx: index + 1,
+			}))
+			const wrapper = await loadProgram(courses, members)
 
 			await wrapper.find('[data-testid="program-save"]').trigger('click')
 			const payload = setValueSubmit.mock.calls[0][0]
+			expect(payload.program_courses).toHaveLength(30)
 			expect(payload.program_members).toHaveLength(30)
 		})
 
