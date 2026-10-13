@@ -43,15 +43,7 @@ class LMSCourse(Document):
 
 	def validate_instructors(self):
 		if self.is_new() and not self.instructors:
-			frappe.get_doc(
-				{
-					"doctype": "Course Instructor",
-					"instructor": self.owner,
-					"parent": self.name,
-					"parentfield": "instructors",
-					"parenttype": "LMS Course",
-				}
-			).save(ignore_permissions=True)
+			self.append("instructors", {"instructor": self.owner})
 
 	def validate_duplicate_instructors(self):
 		instructors = [row.instructor for row in self.instructors]
