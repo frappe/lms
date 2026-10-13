@@ -325,6 +325,11 @@ def invite_missing_learners(live_class: str) -> bool:
 	if not missing:
 		return True
 
+	# With push off, Frappe saves the guest rows but never sends them to Google, so
+	# the learners would look invited and never be retried.
+	if not frappe.db.get_value("Google Calendar", event.google_calendar, "push_to_google_calendar"):
+		return False
+
 	# Hidden again before every invite: the guest list shows every learner to every
 	# other one until it is.
 	if not hide_guest_list(event, event.google_calendar):
