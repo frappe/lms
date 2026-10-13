@@ -422,6 +422,59 @@ describe('LessonForm title is single-line', () => {
 	})
 })
 
+describe('LessonForm title focus ring', () => {
+	let wrapper: VueWrapper
+
+	beforeEach(() => {
+		created.list.length = 0
+		editorState.saveData = {}
+	})
+
+	afterEach(() => {
+		wrapper?.unmount()
+		document.body.innerHTML = ''
+	})
+
+	const titleField = () => wrapper.find('textarea.lesson-title')
+
+	async function refocus() {
+		await titleField().trigger('blur')
+		await titleField().trigger('focus')
+	}
+
+	it('hides the ring when the title is focused by a click', async () => {
+		wrapper = await mountLoaded()
+
+		document.dispatchEvent(new Event('pointerdown'))
+		await refocus()
+		expect(titleField().classes()).not.toContain('focus:ring-2')
+	})
+
+	it('shows the ring when a key moved focus to the title', async () => {
+		wrapper = await mountLoaded()
+
+		for (const key of ['Tab', 'Enter']) {
+			document.dispatchEvent(new KeyboardEvent('keydown', { key }))
+			await refocus()
+			expect(titleField().classes()).toContain('focus:ring-2')
+
+			await titleField().trigger('blur')
+			expect(titleField().classes()).not.toContain('focus:ring-2')
+		}
+	})
+
+	it('ignores modifier shortcuts such as Ctrl+S', async () => {
+		wrapper = await mountLoaded()
+
+		document.dispatchEvent(new Event('pointerdown'))
+		document.dispatchEvent(
+			new KeyboardEvent('keydown', { key: 's', ctrlKey: true })
+		)
+		await refocus()
+		expect(titleField().classes()).not.toContain('focus:ring-2')
+	})
+})
+
 // A lesson whose stored content is not valid JSON. The editor cannot render it,
 // so it sits empty, indistinguishable from a lesson that has no body. Rather
 // than let that emptiness be persisted, the form refuses to save at all and
