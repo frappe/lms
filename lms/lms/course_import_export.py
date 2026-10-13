@@ -263,11 +263,14 @@ def create_course_zip(
 		final_path = move_zip_to_private(tmp_path, zip_filename)
 		schedule_file_deletion(final_path, delay_seconds=600)  # 10 minutes
 		serve_zip(final_path, zip_filename)
-	except Exception as e:
-		frappe.throw(
-			_("Could not create the course ZIP file. Please try again later. Error: {0}").format(str(e))
+	except Exception:
+		frappe.log_error(
+			title="Course export failed", reference_doctype="LMS Course", reference_name=course.name
 		)
-		return None
+		frappe.throw(
+			_("Could not create the course ZIP file. Please try again later."),
+			title=_("Course export failed"),
+		)
 
 
 def build_course_zip(
