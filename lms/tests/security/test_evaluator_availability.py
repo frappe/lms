@@ -627,10 +627,12 @@ class TestEvaluatorCalendarSettings(BaseTestUtils):
 
 		self.assertIn("accounts.google.com", result["url"])
 		self.assertIn("google_calendar.google_callback", result["url"])
-		self.assertEqual(
-			frappe.cache.get_value(f"{EVALUATOR_CALENDAR_CACHE}:{self.EVALUATOR}"),
-			self._calendar_of(self.EVALUATOR),
-		)
+		pending = frappe.cache.get_value(f"{EVALUATOR_CALENDAR_CACHE}:{self.EVALUATOR}")
+		self.assertEqual(pending["calendar"], self._calendar_of(self.EVALUATOR))
+		self.assertIn(f"&state={pending['state']}", result["url"])
+
+	def _state(self):
+		return frappe.cache.get_value(f"{EVALUATOR_CALENDAR_CACHE}:{self.EVALUATOR}")["state"]
 
 	def _token_response(self, body):
 		response = MagicMock()
@@ -642,7 +644,7 @@ class TestEvaluatorCalendarSettings(BaseTestUtils):
 		authorize_evaluator_calendar()
 
 		with self._token_response({"refresh_token": "fresh"}):
-			google_calendar_callback(code="one-time-code")
+			google_calendar_callback(code="one-time-code", state=self._state())
 
 		calendar = frappe.get_doc("Google Calendar", self._calendar_of(self.EVALUATOR))
 		self.assertEqual(calendar.get_password("refresh_token"), "fresh")
@@ -657,11 +659,40 @@ class TestEvaluatorCalendarSettings(BaseTestUtils):
 		authorize_evaluator_calendar()
 
 		with self._token_response({"error": "invalid_grant"}):
-			google_calendar_callback(code="stale-code")
+			google_calendar_callback(code="stale-code", state=self._state())
 
 		self.assertTrue(frappe.local.response["location"].endswith("/slots?calendar=failed"))
 		self.assertFalse(get_evaluator_details(self.EVALUATOR)["calendar"].is_authorized)
 		self.assertFalse(frappe.local.flags.commit)
+
+	def test_a_code_from_another_sign_in_is_refused(self):
+		"""Someone sends the evaluator the callback link with a code for their own
+		Google account while the evaluator's sign-in is pending."""
+		frappe.session.user = self.EVALUATOR
+		authorize_evaluator_calendar()
+		key = f"{EVALUATOR_CALENDAR_CACHE}:{self.EVALUATOR}"
+		pending = frappe.cache.get_value(key)
+
+		for state in (None, "forged-state"):
+			with self._token_response({"refresh_token": "attackers"}) as token_request:
+				with self.assertRaises(frappe.PermissionError):
+					google_calendar_callback(code="attackers-code", state=state)
+			token_request.assert_not_called()
+
+		self.assertFalse(get_evaluator_details(self.EVALUATOR)["calendar"].is_authorized)
+		self.assertFalse(frappe.local.flags.commit)
+		# The real sign-in can still finish.
+		self.assertEqual(frappe.cache.get_value(key), pending)
+
+	def test_a_sign_in_from_before_state_is_refused_cleanly(self):
+		"""Stored as the calendar name alone, before `state` existed."""
+		frappe.session.user = self.EVALUATOR
+		frappe.cache.set_value(f"{EVALUATOR_CALENDAR_CACHE}:{self.EVALUATOR}", ensure_evaluator_calendar())
+
+		with self.assertRaises(frappe.PermissionError):
+			google_calendar_callback(code="code", state="s")
+		update_evaluator_calendar("calendar_name", "Renamed after deploy")
+		self.assertEqual(self._calendar_of(self.EVALUATOR), "Renamed after deploy")
 
 	def test_a_desk_sign_in_keeps_frappes_own_callback(self):
 		frappe.session.user = "Administrator"
@@ -721,17 +752,19 @@ class TestEvaluatorCalendarSettings(BaseTestUtils):
 	def test_a_pending_sign_in_follows_a_rename(self):
 		frappe.session.user = self.EVALUATOR
 		key = f"{EVALUATOR_CALENDAR_CACHE}:{self.EVALUATOR}"
-		frappe.cache.set_value(key, ensure_evaluator_calendar())
+		frappe.cache.set_value(key, {"calendar": ensure_evaluator_calendar(), "state": "s"})
 
 		update_evaluator_calendar("calendar_name", "Renamed mid sign-in")
 
-		self.assertEqual(frappe.cache.get_value(key), "Renamed mid sign-in")
+		self.assertEqual(frappe.cache.get_value(key), {"calendar": "Renamed mid sign-in", "state": "s"})
 
 	def test_callback_refuses_a_calendar_that_is_not_the_callers(self):
 		frappe.session.user = self.OTHER
 		other_calendar = ensure_evaluator_calendar()
 		frappe.session.user = self.EVALUATOR
-		frappe.cache.set_value(f"{EVALUATOR_CALENDAR_CACHE}:{self.EVALUATOR}", other_calendar)
+		frappe.cache.set_value(
+			f"{EVALUATOR_CALENDAR_CACHE}:{self.EVALUATOR}", {"calendar": other_calendar, "state": "s"}
+		)
 
 		with self.assertRaises(frappe.PermissionError):
-			google_calendar_callback(code="code")
+			google_calendar_callback(code="code", state="s")

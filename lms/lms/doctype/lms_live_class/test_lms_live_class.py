@@ -495,6 +495,9 @@ class TestLMSLiveClass(BaseTestUtils):
 	def test_enrollments_during_an_outage_do_not_use_up_the_tries(self):
 		"""A burst of enrollments while Google is briefly down must leave the class
 		to the scheduler's retries, not mark it Failed before they run."""
+		# A learner already in the batch, so creating the class makes the one
+		# counted try; without one, the attempt count depends on earlier tests.
+		self._create_batch_enrollment(self._student(), self.batch.name)
 		self._fail_hiding_the_guest_list()
 		live_class = self._create_live_class()
 		live_class.reload()

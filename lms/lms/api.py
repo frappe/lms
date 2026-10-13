@@ -604,8 +604,8 @@ def rename_own_calendar(current: str, value) -> None:
 
 	# A sign-in started before the rename finishes against the calendar by name.
 	# Read first: renaming clears the cache.
-	key = f"{EVALUATOR_CALENDAR_CACHE}:{frappe.session.user}"
-	signing_in = frappe.cache.get_value(key) == current
+	pending = get_pending_sign_in(frappe.session.user)
+	signing_in = bool(pending) and pending["calendar"] == current
 
 	from frappe.model.rename_doc import rename_doc
 
@@ -613,7 +613,7 @@ def rename_own_calendar(current: str, value) -> None:
 	rename_doc("Google Calendar", current, value, ignore_permissions=True, show_alert=False)
 
 	if signing_in:
-		frappe.cache.set_value(key, value, expires_in_sec=900)
+		set_pending_sign_in(frappe.session.user, value, pending["state"])
 
 
 def rename_on_google(current: str, value: str) -> None:
@@ -641,6 +641,19 @@ def rename_on_google(current: str, value: str) -> None:
 EVALUATOR_CALENDAR_CACHE = "lms_evaluator_calendar_authorization"
 
 
+def get_pending_sign_in(user: str) -> dict | None:
+	pending = frappe.cache.get_value(f"{EVALUATOR_CALENDAR_CACHE}:{user}")
+	# A sign-in started before `state` existed was stored as the calendar name
+	# alone; it can't be checked, so it is treated as none.
+	return pending if isinstance(pending, dict) else None
+
+
+def set_pending_sign_in(user: str, calendar: str, state: str):
+	frappe.cache.set_value(
+		f"{EVALUATOR_CALENDAR_CACHE}:{user}", {"calendar": calendar, "state": state}, expires_in_sec=900
+	)
+
+
 @frappe.whitelist(methods=["POST"])
 def authorize_evaluator_calendar():
 	"""Start Google sign-in for the caller's own calendar.
@@ -655,13 +668,16 @@ def authorize_evaluator_calendar():
 	calendar = get_own_calendar_doc()
 	# Keyed by user, unlike Frappe's single shared slot, so two people signing
 	# in at once can't swap calendars. It expires so an abandoned sign-in can't
-	# capture a later one started from the desk.
-	frappe.cache.set_value(
-		f"{EVALUATOR_CALENDAR_CACHE}:{frappe.session.user}", calendar.name, expires_in_sec=900
-	)
+	# capture a later one started from the desk. Google hands `state` back, so the
+	# callback knows the code came from this sign-in and not from a link someone
+	# sent with a code for their own Google account.
+	state = frappe.generate_hash(length=32)
+	set_pending_sign_in(frappe.session.user, calendar.name, state)
 
 	client_id = frappe.get_cached_doc("Google Settings").client_id
-	return get_authentication_url(client_id=client_id, redirect_uri=google_callback_uri())
+	auth = get_authentication_url(client_id=client_id, redirect_uri=google_callback_uri())
+	auth["url"] += f"&state={state}"
+	return auth
 
 
 def google_callback_uri() -> str:
@@ -675,16 +691,19 @@ def google_callback_uri() -> str:
 
 
 @frappe.whitelist()
-def google_calendar_callback(code: str | None = None):
+def google_calendar_callback(code: str | None = None, state: str | None = None):
 	"""Overrides Frappe's google_callback. A sign-in started from the Slots tab
 	is finished here and lands back on it; every other sign-in goes to Frappe's
 	own callback unchanged."""
+	import secrets
+
 	from frappe.integrations.doctype.google_calendar import google_calendar as frappe_google_calendar
 
 	user = frappe.session.user
-	key = f"{EVALUATOR_CALENDAR_CACHE}:{user}"
-	calendar_name = frappe.cache.get_value(key) if user != "Guest" else None
-	if not calendar_name:
+	pending = get_pending_sign_in(user) if user != "Guest" else None
+	# A wrong or missing state is not this sign-in: the pending one is kept, so a
+	# forged link neither connects someone else's Google account nor cancels it.
+	if not (pending and state and secrets.compare_digest(state, pending["state"])):
 		# Portal users reach this path only for the Slots tab sign-in (auth.py lets
 		# them through for it). Frappe's own callback saves the code onto whichever
 		# calendar a desk user last started authorising, and only then checks
@@ -693,8 +712,8 @@ def google_calendar_callback(code: str | None = None):
 			frappe.throw(_("Start the sign-in again from your Slots tab."), frappe.PermissionError)
 		return frappe_google_calendar.google_callback(code)
 
-	frappe.cache.delete_value(key)
-	calendar = frappe.get_doc("Google Calendar", calendar_name)
+	frappe.cache.delete_value(f"{EVALUATOR_CALENDAR_CACHE}:{user}")
+	calendar = frappe.get_doc("Google Calendar", pending["calendar"])
 	if calendar.user != user:
 		frappe.throw(_("This calendar is not yours."), frappe.PermissionError)
 
