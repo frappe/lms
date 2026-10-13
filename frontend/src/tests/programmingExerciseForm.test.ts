@@ -90,6 +90,7 @@ vi.mock('frappe-ui', () => ({
 		template: `<nav><span v-for="i in items" :key="i.label">{{ i.label }}</span></nav>`,
 	},
 	LoadingIndicator: { template: `<span />` },
+	ScrollArea: { name: 'ScrollArea', template: '<div><slot /></div>' },
 }))
 
 // Preview mounts the learner's submission page, which pulls in the code

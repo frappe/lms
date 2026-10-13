@@ -46,6 +46,7 @@ vi.mock('@/stores/settings', () => ({ useSettings: () => ({}) }))
 vi.mock('@/stores/user', () => ({ usersStore: () => ({ userResource: {} }) }))
 
 vi.mock('frappe-ui', () => ({
+	ScrollArea: { name: 'ScrollArea', template: '<div><slot /></div>' },
 	createResource: createResourceMock,
 	getCachedResource: getCachedResourceMock,
 	call: vi.fn(),

@@ -62,12 +62,13 @@
 					</div>
 				</header>
 
-				<div
+				<ScrollArea
 					data-testid="form-shell-body"
-					class="flex-1 overflow-y-auto overscroll-contain px-5 py-4"
+					class="min-h-0 flex-1"
+					viewportClass="overflow-y-auto overscroll-contain px-5 py-4"
 				>
 					<slot />
-				</div>
+				</ScrollArea>
 			</div>
 		</Transition>
 	</Teleport>
@@ -80,7 +81,7 @@
 // desktop. Pass HeaderButton, never a bare frappe-ui Button — Button.vue only
 // applies square icon-button sizing when the slot's vnode type name starts with
 // `lucide-`, which a plain `<span class="lucide-save">` does not satisfy.
-import { Dialog } from 'frappe-ui'
+import { Dialog, ScrollArea } from 'frappe-ui'
 import type { DialogSize } from 'frappe-ui'
 import { nextTick, onBeforeUnmount, onMounted, ref, useId, watch } from 'vue'
 import { useEventListener, useMediaQuery } from '@vueuse/core'

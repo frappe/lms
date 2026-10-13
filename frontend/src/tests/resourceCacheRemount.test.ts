@@ -84,6 +84,7 @@ vi.mock('frappe-ui', async () => {
 	const passthrough = { template: '<div><slot /></div>' }
 	return {
 		createListResource,
+		ScrollArea: passthrough,
 		Avatar: passthrough,
 		Dialog: { props: ['open'], template: '<div><slot /></div>' },
 		TabButtons: passthrough,

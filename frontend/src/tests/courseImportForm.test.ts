@@ -44,6 +44,7 @@ vi.mock('@/stores/user', () => ({ usersStore: () => ({ userResource }) }))
 
 // Stubbed so tests control call/resource responses without a network.
 vi.mock('frappe-ui', () => ({
+	ScrollArea: { name: 'ScrollArea', template: '<div><slot /></div>' },
 	call: callMock,
 	toast: { success: vi.fn(), error: vi.fn() },
 	FileUploadHandler: class {

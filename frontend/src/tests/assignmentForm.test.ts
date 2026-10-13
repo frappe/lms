@@ -71,6 +71,7 @@ vi.mock('@/stores/user', () => ({ usersStore: () => ({ userResource: {} }) }))
 
 // Only the exports the form and FormShell use; the real barrel never loads.
 vi.mock('frappe-ui', () => ({
+	ScrollArea: { name: 'ScrollArea', template: '<div><slot /></div>' },
 	createDocumentResource: createDocumentResourceMock,
 	createResource: createResourceMock,
 	toast: { success: vi.fn(), error: vi.fn() },

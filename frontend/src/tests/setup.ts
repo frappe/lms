@@ -12,6 +12,15 @@ config.global.directives = {
 	external: vExternal,
 }
 
+config.global.stubs = {
+	...config.global.stubs,
+	ScrollArea: {
+		inheritAttrs: false,
+		props: ['viewportClass'],
+		template: '<div data-slot="scroll-area" v-bind="$attrs"><div data-slot="scroll-area-viewport" :class="viewportClass"><slot /></div></div>',
+	},
+}
+
 // main.js puts `__` on window; without it a script-block translation dies on a
 // bare ReferenceError. Mirrors translate(), including the contract that a
 // message with {0} returns a { format } object rather than a string.

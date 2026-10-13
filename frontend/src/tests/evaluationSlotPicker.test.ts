@@ -21,6 +21,7 @@ const { resources, calls } = vi.hoisted(() => ({
 }))
 
 vi.mock('frappe-ui', () => ({
+	ScrollArea: { name: 'ScrollArea', template: '<div><slot /></div>' },
 	createResource: (config: any) => {
 		const res: any = { loading: false, config, data: null }
 		res.reload = vi.fn()
