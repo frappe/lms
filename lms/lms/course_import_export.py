@@ -9,7 +9,7 @@ from datetime import date, datetime, timedelta
 
 import frappe
 from frappe import _
-from frappe.utils import escape_html, validate_email_address
+from frappe.utils import escape_html, get_files_path, validate_email_address
 from frappe.utils.file_manager import is_safe_path
 
 from lms.lms.utils import create_user as create_lms_user
@@ -178,20 +178,60 @@ def get_course_assets(course, lessons, instructors, evaluator):
 			assets.append(instructor["user_image"])
 	if len(evaluator):
 		assets.append(evaluator[0].user_image)
-	return assets
+
+	course_documents = get_course_documents(course, lessons)
+	files = (
+		get_exportable_file(url, course_documents) for url in set(assets) if url and isinstance(url, str)
+	)
+	return [file for file in files if file]
 
 
-def read_asset_content(url):
-	try:
-		file_doc = frappe.get_doc("File", {"file_url": url})
-		file_path = file_doc.get_full_path()
-		if not is_safe_path(file_path):
-			return None
-		with open(file_path, "rb") as f:
-			return f.read()
-	except Exception:
-		frappe.log_error(frappe.get_traceback(), f"Could not read asset: {url}")
+def get_course_documents(course, lessons):
+	documents = {("LMS Course", course.name)}
+	documents.update(("Course Chapter", row.chapter) for row in course.chapters)
+	documents.update(("Course Lesson", lesson.name) for lesson in lessons)
+	return documents
+
+
+def get_exportable_file(file_url, course_documents):
+	"""The earliest File row whose url matches file_url exactly (the column ignores case), if
+	attached to the course, its chapters or lessons, or readable by the exporter. A later row
+	naming the same url can be one the exporter made, so it never decides."""
+	rows = frappe.get_all(
+		"File",
+		filters={"file_url": file_url, "is_folder": 0},
+		fields=["name", "file_url"],
+		order_by="creation asc",
+	)
+	original = next((row.name for row in rows if row.file_url == file_url), None)
+	if not original:
 		return None
+
+	file_doc = frappe.get_doc("File", original)
+	attached_to = (file_doc.attached_to_doctype, file_doc.attached_to_name)
+	if attached_to in course_documents or frappe.has_permission("File", "read", doc=file_doc):
+		return file_doc
+	return None
+
+
+def get_local_file_path(file_doc):
+	"""The file's path on disk, only if it is inside the site's files folders and
+	file_doc.file_url is its canonical url there (no `//` or `./` aliases)."""
+	if not file_doc.file_url.startswith(("/files/", "/private/files/")):
+		return None
+	try:
+		file_path = os.path.realpath(file_doc.get_full_path())
+	except frappe.ValidationError:
+		frappe.clear_last_message()
+		return None
+
+	for url_prefix, is_private in (("/files/", 0), ("/private/files/", 1)):
+		root = os.path.realpath(get_files_path(is_private=is_private))
+		if os.path.commonpath((root, file_path)) != root or not os.path.isfile(file_path):
+			continue
+		if url_prefix + os.path.relpath(file_path, root) == file_doc.file_url:
+			return file_path
+	return None
 
 
 def create_course_zip(
@@ -290,16 +330,10 @@ def asset_member_path(asset):
 
 
 def write_assets(zip_file, assets):
-	assets = list(set(assets))
-	for asset in assets:
-		real_path = frappe.get_site_path(asset.lstrip("/"))
-		if not asset or not isinstance(asset, str) or not is_safe_path(real_path):
-			continue
-
-		file_doc = frappe.get_doc("File", {"file_url": asset})
-		file_path = os.path.abspath(file_doc.get_full_path())
-
-		zip_file.write(file_path, asset_member_path(asset))
+	for file_doc in assets:
+		file_path = get_local_file_path(file_doc)
+		if file_path:
+			zip_file.write(file_path, asset_member_path(file_doc.file_url))
 
 
 def move_zip_to_private(tmp_path, zip_filename):
