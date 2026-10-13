@@ -75,13 +75,6 @@ class LMSEnrollment(Document):
 			as_dict=True,
 		)
 
-		if course_details.disable_self_learning and not is_admin():
-			frappe.throw(
-				_(
-					"You cannot enroll in this course as self-learning is disabled. Please contact the Administrator."
-				)
-			)
-
 		if self.enrollment_from_batch:
 			if not frappe.db.exists(
 				"Batch Course", {"parent": self.enrollment_from_batch, "course": self.course}
@@ -92,6 +85,13 @@ class LMSEnrollment(Document):
 				"LMS Batch Enrollment", {"batch": self.enrollment_from_batch, "member": self.member}
 			):
 				return
+
+		if course_details.disable_self_learning and not is_admin():
+			frappe.throw(
+				_(
+					"You cannot enroll in this course as self-learning is disabled. Please contact the Administrator."
+				)
+			)
 
 		if not course_details.published and not is_admin():
 			frappe.throw(_("You cannot enroll in an unpublished course."))
