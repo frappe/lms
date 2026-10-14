@@ -41,7 +41,10 @@ vi.mock('@/components/HeaderButton.vue', () => ({
 	default: { inheritAttrs: false, template: `<button v-bind="$attrs" />` },
 }))
 vi.mock('@/components/Controls/BooleanSwitch.vue', () => ({
-	default: { props: ['modelValue', 'label', 'description', 'size'] },
+	default: {
+		props: ['modelValue', 'label', 'description', 'size'],
+		render: () => null,
+	},
 }))
 vi.mock('@framework/ui/telemetry/index', () => ({
 	useTelemetry: () => ({ capture: vi.fn() }),

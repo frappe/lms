@@ -256,32 +256,21 @@ describe('Billing: India state field', () => {
 		)
 	})
 
-	it('canonicalises an all-caps saved state so checkout proceeds', async () => {
-		const wrapper = await mountBilling({ state: 'GUJARAT' })
+	it.each([
+		// All-caps saved state.
+		{ stored: 'GUJARAT', sent: 'Gujarat' },
+		// Stray case and whitespace typed elsewhere.
+		{ stored: '  tamil nadu ', sent: 'Tamil Nadu' },
+		// A union territory.
+		{ stored: 'Chandigarh', sent: 'Chandigarh' },
+	])('checks out with $stored saved as $sent', async ({ stored, sent }) => {
+		const wrapper = await mountBilling({ state: stored })
 		await consent(wrapper)
 		await proceed(wrapper)
 
 		expect(toastMock.error).not.toHaveBeenCalled()
 		expect(checkout()).toBeTruthy()
-		expect(checkoutAddress().state).toBe('Gujarat')
-	})
-
-	it('canonicalises stray case and whitespace typed elsewhere', async () => {
-		const wrapper = await mountBilling({ state: '  tamil nadu ' })
-		await consent(wrapper)
-		await proceed(wrapper)
-
-		expect(checkout()).toBeTruthy()
-		expect(checkoutAddress().state).toBe('Tamil Nadu')
-	})
-
-	it('accepts a union territory', async () => {
-		const wrapper = await mountBilling({ state: 'Chandigarh' })
-		await consent(wrapper)
-		await proceed(wrapper)
-
-		expect(checkout()).toBeTruthy()
-		expect(checkoutAddress().state).toBe('Chandigarh')
+		expect(checkoutAddress().state).toBe(sent)
 	})
 
 	it('still blocks a state that is not a real one', async () => {

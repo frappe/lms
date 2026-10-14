@@ -1,3 +1,4 @@
+// @vitest-environment node
 /**
  * A directive registered on the app is a name every template may use and a
  * module every bundle carries. One that no template uses is neither: it ships

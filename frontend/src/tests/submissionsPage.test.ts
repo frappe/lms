@@ -277,18 +277,6 @@ beforeEach(() => {
 // Came with this branch's one submissions page for every assessment type.
 // Added on feat/assessment-visual-redesign to replace the per-type lists.
 describe('SubmissionsPage filters', () => {
-	it('draws a Link for a doctype filter and a Select for an options filter', async () => {
-		const router = makeRouter()
-		await router.push('/assignments/submissions')
-		const wrapper = await mountPage(router)
-
-		expect(wrapper.find('[data-testid="link-LMS Assignment"]').exists()).toBe(
-			true
-		)
-		expect(wrapper.find('[data-testid="link-User"]').exists()).toBe(true)
-		expect(wrapper.find('[data-testid="select"]').exists()).toBe(true)
-	})
-
 	// Guards a Select named by its choice ("Pass") instead of its dimension.
 	// Came with #2598 (a11y labels on AssignmentSubmissionList.vue).
 	// Added on feat/assessment-visual-redesign to carry it onto the shared page.

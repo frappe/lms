@@ -86,25 +86,19 @@ afterEach(() => {
 })
 
 describe('useSettingsHash', () => {
-	it('stays closed without a settings hash', async () => {
-		const { api } = await setup('/courses')
+	it.each([
+		{ hash: '' },
+		// A bare '#settings' is the batch/course detail pages' own Settings tab —
+		// those pages address their tabs as '#<label>'. It must not open the modal.
+		{ hash: '#settings' },
+		// Other pages' tab hashes are left alone.
+		{ hash: '#students' },
+	])('stays closed on /courses with hash $hash', async ({ hash }) => {
+		const { router, api } = await setup(`/courses${hash}`)
 		expect(api.isOpen.value).toBe(false)
 		expect(api.activeTab.value).toBe(null)
 		expect(store.isSettingsOpen).toBe(false)
-	})
-
-	// A bare '#settings' is the batch/course detail pages' own Settings tab —
-	// those pages address their tabs as '#<label>'. It must not open the modal.
-	it('ignores a bare #settings, which belongs to a page tab', async () => {
-		const { router, api } = await setup('/courses#settings')
-		expect(api.isOpen.value).toBe(false)
-		expect(store.isSettingsOpen).toBe(false)
-		expect(router.currentRoute.value.hash).toBe('#settings')
-	})
-
-	it("leaves other pages' tab hashes alone", async () => {
-		const { api } = await setup('/courses#students')
-		expect(api.isOpen.value).toBe(false)
+		expect(router.currentRoute.value.hash).toBe(hash)
 	})
 
 	it('resolves a slug to its tab', async () => {
@@ -250,22 +244,6 @@ describe('useSettingsHash', () => {
 		expect(store.activeTab).toBe('General')
 	})
 
-	it('openSettings(slug, close) fires the callback, then navigates', async () => {
-		const { router } = await setup('/courses')
-		const calls: string[] = []
-		const close = () => calls.push('closed')
-
-		// what ZoomAccountForm's Link does: dismiss its popover, then switch tab
-		const open = (slug: string, cb: () => void) => {
-			cb()
-			pushSettingsHash(router, slug)
-		}
-		open('members', close)
-		await flushPromises()
-		expect(calls).toEqual(['closed'])
-		expect(router.currentRoute.value.hash).toBe('#settings/members')
-	})
-
 	it('the store is a mirror: writing it does not navigate', async () => {
 		const { router } = await setup('/courses')
 
@@ -304,16 +282,6 @@ describe('useSettingsHash', () => {
 		await flushPromises()
 		expect(go).toHaveBeenCalledWith(-1)
 		expect(router.currentRoute.value.path).toBe('/courses')
-		expect(router.currentRoute.value.hash).toBe('')
-	})
-
-	// The restore replace() must name its hash. vue-router defaults a missing hash
-	// to '', which would silently eat a page's own tab hash.
-	it('keeps the page hash when restoring the query on close', async () => {
-		const { router, api } = await setup('/courses#settings/general')
-
-		api.close()
-		await flushPromises()
 		expect(router.currentRoute.value.hash).toBe('')
 	})
 

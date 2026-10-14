@@ -1,5 +1,5 @@
 import { test, expect } from "./fixtures";
-import { closeOnboardingModal, button } from "./helpers";
+import { button, deleteLeftovers } from "./helpers";
 import { authFile, baseURL } from "./config";
 import type { Browser, Page } from "@playwright/test";
 
@@ -41,7 +41,36 @@ function labeledField(page: Page, label: string | RegExp) {
 		.locator("input, textarea");
 }
 
+// Select-all on a list the page has narrowed to one row. The list only shows
+// the header's checkbox plus one per row, so a count of two means the filter or
+// the debounced search has landed; selecting any earlier would select whatever
+// the unfiltered list still shows.
+async function selectOnlyRow(page: Page) {
+	const checkboxes = page.locator('input[type="checkbox"]');
+	await expect(checkboxes).toHaveCount(2);
+	await checkboxes.first().click();
+}
+
 test.describe("Quiz", () => {
+	// Each test builds on the one before, down to deleting what they made, and
+	// quizName lives only in the worker whose beforeAll set it. Serial retries
+	// the whole chain from a fresh quiz instead of one test against a stale one.
+	test.describe.configure({ mode: "serial" });
+
+	// The last two tests delete all of this through the UI; this catches a chain
+	// that failed before them. Submissions first: LMS Quiz refuses to go while
+	// one links to it.
+	test.afterAll(async () => {
+		await deleteLeftovers([
+			{ doctype: "LMS Quiz Submission", filters: { quiz: quizName } },
+			{ doctype: "LMS Quiz", name: quizName },
+			{
+				doctype: "LMS Question",
+				filters: { question: ["like", `%(${runToken})%`] },
+			},
+		]);
+	});
+
 	// Seeds the quiz + question through the real authoring UI (/quizzes/new)
 	// instead of frappe.client.insert: this is a UI test, and QuizForm.vue's
 	// own flow is exactly what a real moderator would use to build one.
@@ -53,7 +82,6 @@ test.describe("Quiz", () => {
 		testInfo.setTimeout(90000);
 		await withPage(browser, async (page) => {
 			await page.goto("/lms/quizzes/new");
-			await closeOnboardingModal(page);
 
 			// Naming the quiz is what inserts the LMS Quiz doc (QuizForm.vue's
 			// createIfNamed, fired on the title field's blur).
@@ -107,57 +135,9 @@ test.describe("Quiz", () => {
 		});
 	});
 
-	// Mirrors the create flow: delete through the same Settings/authoring UI a
-	// moderator would use, not a bare API call.
-	test.afterAll(async ({ browser }, testInfo) => {
-		// Same reasoning as beforeAll's own setTimeout above — this is the hook
-		// that actually timed out in CI (30s default vs. submissions + quiz +
-		// questions page cleanup, each a real page load).
-		testInfo.setTimeout(90000);
-		await withPage(browser, async (page) => {
-			// The "submits the quiz" test above created a real LMS Quiz Submission;
-			// LMS Quiz's own delete refuses while one links to it (LinkExistsError),
-			// so it has to go first — same select-all-then-delete pattern as the
-			// question bank cleanup below, pre-scoped to this quiz via the same
-			// query param QuizForm.vue's own "Submissions" header button uses.
-			await page.goto(`/lms/quizzes/submissions?quiz=${quizName}`);
-			await closeOnboardingModal(page);
-			const submissionCheckbox = page.locator('input[type="checkbox"]').first();
-			if (await submissionCheckbox.isVisible()) {
-				await submissionCheckbox.click();
-				await button(page, "Delete").click();
-				await expect(submissionCheckbox).toBeHidden();
-			}
-
-			await page.goto(`/lms/quizzes/edit/${quizName}`);
-			await closeOnboardingModal(page);
-			await button(page, "Delete").click();
-			const dialog = page
-				.getByRole("dialog")
-				.filter({ hasText: "Delete this quiz?" });
-			await dialog.getByRole("button", { name: "Delete" }).click();
-			await page.waitForURL(/\/lms\/quizzes$/);
-
-			// The question bank record outlives the quiz (it's a shared, separately
-			// owned doctype) — delete it the same way a moderator tidying the
-			// question bank would: search it out, select it, bulk-delete.
-			await page.goto("/lms/quizzes/questions");
-			await closeOnboardingModal(page);
-			await page.getByRole("textbox", { name: "Search" }).fill(questionText);
-			await expect(page.getByText(questionText)).toBeVisible();
-			// The header's own "select all" checkbox, applied to a search result
-			// narrowed to this one row, is simpler than hunting a per-row checkbox
-			// that carries no accessible name of its own.
-			await page.locator('input[type="checkbox"]').first().click();
-			await button(page, "Delete").click();
-			await expect(page.getByText(questionText)).toHaveCount(0);
-		});
-	});
-
 	test.describe("multiple choice quiz", () => {
 		test("shows quiz info on the start screen", async ({ page }) => {
 			await page.goto(`/lms/quiz/${quizName}`);
-			await closeOnboardingModal(page);
 
 			await expect(page.getByText(quizTitle).first()).toBeVisible();
 
@@ -175,7 +155,6 @@ test.describe("Quiz", () => {
 			page,
 		}) => {
 			await page.goto(`/lms/quiz/${quizName}`);
-			await closeOnboardingModal(page);
 
 			const start = button(page, "Start Quiz");
 			await expect(start).toBeEnabled();
@@ -189,7 +168,6 @@ test.describe("Quiz", () => {
 
 		test("submits the quiz and shows the result", async ({ page }) => {
 			await page.goto(`/lms/quiz/${quizName}`);
-			await closeOnboardingModal(page);
 
 			await button(page, "Start Quiz").click();
 
@@ -219,6 +197,47 @@ test.describe("Quiz", () => {
 				timeout: 10000,
 			});
 			await expect(page.getByText(/of \d+ marks/)).toBeVisible();
+		});
+
+		// LMS Quiz refuses to delete while a submission links to it
+		// (LinkExistsError), so the one the test above made goes first.
+		test("deletes the submission", async ({ page }) => {
+			await page.goto(`/lms/quizzes/submissions?quiz=${quizName}`);
+			await selectOnlyRow(page);
+			await button(page, "Delete").click();
+			await expect(
+				page.getByText("Submissions deleted successfully")
+			).toBeVisible();
+			// The empty state's description: its title is echoed into a status
+			// region for screen readers, so matching that would find two.
+			await expect(
+				page.getByText("There are no quiz submissions currently.")
+			).toBeVisible();
+		});
+
+		test("deletes the quiz and its question", async ({ page }) => {
+			await page.goto(`/lms/quizzes/edit/${quizName}`);
+			await button(page, "Delete").click();
+			const dialog = page
+				.getByRole("dialog")
+				.filter({ hasText: "Delete this quiz?" });
+			await dialog.getByRole("button", { name: "Delete" }).click();
+			await expect(page.getByText("Quiz deleted successfully")).toBeVisible();
+			await page.waitForURL(/\/lms\/quizzes$/);
+
+			// The question bank record outlives the quiz (it's a shared, separately
+			// owned doctype), so delete it the way a moderator tidying the question
+			// bank would: search it out, select it, bulk-delete.
+			await page.goto("/lms/quizzes/questions");
+			await page.getByRole("textbox", { name: "Search" }).fill(questionText);
+			await selectOnlyRow(page);
+			await button(page, "Delete").click();
+			await expect(
+				page.getByText("Question deleted successfully")
+			).toBeVisible();
+			await expect(
+				page.getByText("There are no questions currently.")
+			).toBeVisible();
 		});
 	});
 });

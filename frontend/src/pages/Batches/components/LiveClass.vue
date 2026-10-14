@@ -1,7 +1,7 @@
 <template>
 	<div class="p-5">
 		<Alert
-			v-if="isAdmin() && !hasProviderAccount()"
+			v-if="canManageClasses() && !hasProviderAccount()"
 			theme="amber"
 			class="mb-5"
 			:title="__('No conferencing account')"
@@ -92,7 +92,7 @@
 								user.data?.is_evaluator ||
 								batch.data?.can_manage
 							"
-							:href="safeUrl(cls.start_url || cls.join_url)"
+							:href="safeUrl(startUrl(cls))"
 							v-external
 							class="cursor-pointer inline-flex items-center justify-center gap-2 transition-colors text-ink-gray-8 bg-surface-gray-2 hover:bg-surface-gray-3 active:bg-surface-gray-4 h-7 text-base px-2 rounded-4"
 							:class="cls.join_url ? 'w-full' : 'w-1/2'"
@@ -246,11 +246,11 @@ const hasProviderAccount = () => {
 	return false
 }
 
-// Moderators and the batch's own authors: the only users the server lets
+// Moderators and the batch's instructors: the only users the server lets
 // create a class or retry its invites. isAdmin also takes in every evaluator,
 // who would only get a permission error.
 const canManageClasses = () =>
-	Boolean(user.data?.is_moderator || props.batch.data?.can_manage)
+	Boolean(user.data?.is_moderator || props.batch.data?.can_schedule_classes)
 
 const canCreateClass = () => {
 	if (readOnlyMode) return false
@@ -265,6 +265,13 @@ const isAdmin = () => {
 		Boolean(props.batch.data?.can_manage)
 	)
 }
+
+// The start link is not sent to every instructor, so Start goes through the
+// server, which opens the class for the batch's staff.
+const startUrl = (cls) =>
+	`/api/method/lms.lms.api.start_live_class?live_class=${encodeURIComponent(
+		cls.name
+	)}`
 
 const canAccessClass = (cls) => {
 	if (cls.date < dayjs().format('YYYY-MM-DD')) return false

@@ -12,6 +12,7 @@ from lms.lms.docperm_shadow import (
 	get_shadowed_permlevel_rows,
 	warn_about_shadowed_permlevels,
 )
+from lms.lms.test_helpers import delete_error_logs_on_cleanup
 
 ALERT_TITLE_FRAGMENT = "Custom DocPerm"
 
@@ -24,6 +25,7 @@ class TestDocPermShadow(IntegrationTestCase):
 
 	def setUp(self):
 		super().setUp()
+		delete_error_logs_on_cleanup(self)
 		self.moved_permlevels: list[tuple[str, int]] = []
 		self.added_custom_perms: list[str] = []
 		self.touched_doctypes: set[str] = set()

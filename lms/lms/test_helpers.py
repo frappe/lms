@@ -45,6 +45,29 @@ def released_frappe_sanitizer():
 		yield
 
 
+def delete_error_logs_on_cleanup(test):
+	"""Error Log sits outside the test transaction, so no rollback removes the rows a test logs."""
+	created = []
+	log_error = frappe.log_error
+
+	def record(*args, **kwargs):
+		error_log = log_error(*args, **kwargs)
+		if error_log and error_log.name:
+			created.append(error_log.name)
+		return error_log
+
+	def delete_created():
+		# frappe.db cannot reach Error Log once it is virtual; delete_doc goes through its controller.
+		for name in created:
+			# nosemgrep: lms-unjustified-ignore-permissions - removing a row this test just made
+			frappe.delete_doc("Error Log", name, force=True, ignore_permissions=True)
+
+	stub = patch.object(frappe, "log_error", record)
+	stub.start()
+	test.addCleanup(delete_created)
+	test.addCleanup(stub.stop)
+
+
 class BaseTestUtils(IntegrationTestCase):
 	"""
 	Base class with helper methods for creating test data.
@@ -59,6 +82,7 @@ class BaseTestUtils(IntegrationTestCase):
 	def setUp(self):
 		super().setUp()
 		frappe.db.savepoint("lms_test")
+		delete_error_logs_on_cleanup(self)
 
 	def tearDown(self):
 		frappe.db.rollback(save_point="lms_test")
@@ -69,6 +93,22 @@ class BaseTestUtils(IntegrationTestCase):
 		frappe.cache.delete_key(user_cache_keys)
 		frappe.set_user("Administrator")
 		super().tearDown()
+
+	@classmethod
+	def _require(cls, holds: bool, message: str):
+		"""A setUpClass precondition: raising there errors every test in the class."""
+		if not holds:
+			raise AssertionError(message)
+
+	@classmethod
+	def _require_no_moderators(cls, *users):
+		"""A fixed-key fixture returns the existing row untouched, so declared roles are
+		decoration until read. A Moderator's refusal would prove nothing."""
+		for user in users:
+			cls._require(
+				"Moderator" not in frappe.get_roles(user),
+				f"{user} holds Moderator, so a refusal for it proves nothing",
+			)
 
 	@classmethod
 	def _create_user(cls, email, first_name, last_name, roles, user_type="Website User"):

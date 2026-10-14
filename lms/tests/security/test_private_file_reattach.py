@@ -189,8 +189,11 @@ class TestPrivateFileReattach(BaseTestUtils):
 				**values,
 			}
 		)
+		# The "New job alert" email is not under test, and premailer logs CSS
+		# warnings to stderr the first time it renders one.
 		try:
-			return job.insert()
+			with patch("frappe.email.doctype.notification.notification.evaluate_alert"):
+				return job.insert()
 		finally:
 			frappe.set_user("Administrator")
 

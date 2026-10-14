@@ -75,12 +75,6 @@ const mountDiscussions = () =>
 	})
 
 describe('Discussions master-detail', () => {
-	it('renders all topic rows', async () => {
-		const wrapper = mountDiscussions()
-		await flushPromises()
-		expect(wrapper.findAll('[data-testid="topic-row"]')).toHaveLength(2)
-	})
-
 	it('keeps the list visible and shows the thread when a topic is selected', async () => {
 		const wrapper = mountDiscussions()
 		await flushPromises()

@@ -1,8 +1,32 @@
 import { defineConfig } from 'vitest/config'
+import type { Plugin } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { lucideIcons } from 'frappe-ui/vite'
+import { lucideIconsPlugin } from 'frappe-ui/vite'
+import Components from 'unplugin-vue-components/vite'
+import IconsResolver from 'unplugin-icons/resolver'
+
+// autoprefixer's browserslist nags, once per run, that caniuse-lite is old.
+// That is a dependency-freshness notice for whoever bumps packages, and the
+// test output is not where anyone acts on it.
+process.env.BROWSERSLIST_IGNORE_OLD_DATA = 'true'
+
+// On a bench, @framework/ui links to apps/frappe/ui, whose own node_modules
+// hold a dompurify with sourcemaps into that tree. Under preserveSymlinks vite
+// reads those sources as outside the package and warns for each one. CI checks
+// out ui without node_modules, so the warning describes the bench, not the code.
+const quietLinkedSourcemaps: Plugin = {
+	name: 'quiet-linked-sourcemaps',
+	configResolved({ logger }) {
+		const warnOnce = logger.warnOnce
+		logger.warnOnce = (message, options) => {
+			if (!message.includes('points to a source file outside its package')) {
+				warnOnce(message, options)
+			}
+		}
+	},
+}
 
 export default defineConfig({
 	// `import { X } from 'frappe-ui'` resolves the entire barrel (src/index.ts,
@@ -18,15 +42,24 @@ export default defineConfig({
 	// in reverse (skips rewriting), so it was left out entirely rather than added
 	// for no effect. Net effect: mounting ANY unmocked frappe-ui export currently
 	// evaluates the whole barrel's module graph, same as a real (non-linked) dev
-	// server today, not a test-only gap. `lucideIcons` resolves LMS's own
-	// auto-registered `<LucideX>` tags and @framework/ui's `~icons/lucide/*`
-	// imports, mirroring the app build's `frappeui({ lucideIcons: true })`.
-	// Registering `lucideIcons` also turns on `unplugin-auto-import` /
-	// `unplugin-vue-components`, which write to the tracked
-	// `frontend/auto-imports.d.ts` / `frontend/components.d.ts` on every test run
-	// (same scan frappeuiPlugin runs in prod, so currently a no-op diff, but note
-	// it: `vitest run` now performs filesystem writes to version-controlled files).
-	plugins: [vue(), ...lucideIcons()],
+	// server today, not a test-only gap.
+	//
+	// The icon plugins are what frappe-ui/vite's `lucideIcons()` returns, minus
+	// two things a test run must not do: write `components.d.ts` and
+	// `auto-imports.d.ts` (both tracked), and register the auto-import plugin,
+	// which LMS gives nothing to import. `<LucideX>` tags and @framework/ui's
+	// `~icons/lucide/*` imports still resolve as in the app build.
+	plugins: [
+		quietLinkedSourcemaps,
+		vue(),
+		Components({
+			resolvers: [
+				IconsResolver({ prefix: false, enabledCollections: ['lucide'] }),
+			],
+			dts: false,
+		}),
+		lucideIconsPlugin(),
+	],
 	test: {
 		environment: 'jsdom',
 		globals: true,

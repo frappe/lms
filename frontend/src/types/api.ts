@@ -72,6 +72,9 @@ export interface BatchDetails extends Omit<LMSBatch, 'instructors'> {
 	student_count?: number
 	is_student?: boolean
 	batch_details_raw?: string
+	/** A listed instructor of this batch, or a Moderator: the server refuses
+	 * instructor-list changes from anyone else, a tagged evaluator included. */
+	can_change_instructors?: boolean
 }
 
 export interface CourseReviewInfo {

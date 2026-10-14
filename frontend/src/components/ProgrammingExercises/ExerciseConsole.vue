@@ -24,7 +24,7 @@
 				<span v-if="duration !== null" class="text-xs text-ink-gray-6">
 					{{ __('Ran in {0}s').format(duration.toFixed(2)) }}
 				</span>
-				<KeyboardShortcut combo="Mod+`" class="shrink-0 opacity-60" />
+				<KeyboardShortcut combo="Mod+Backtick" class="shrink-0 opacity-60" />
 			</span>
 		</button>
 		<span role="status" class="sr-only">{{ runStatus }}</span>
