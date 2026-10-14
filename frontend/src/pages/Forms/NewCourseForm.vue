@@ -201,7 +201,7 @@ type Course = {
 	description: string
 	instructors: string[]
 	category?: string
-	image?: string
+	image: string | null
 }
 
 const course = ref<Course>({
@@ -210,7 +210,7 @@ const course = ref<Course>({
 	description: '',
 	instructors: [],
 	category: undefined,
-	image: undefined,
+	image: null,
 })
 
 const INSTRUCTOR_ROLES = ['Course Creator', 'Batch Evaluator']
