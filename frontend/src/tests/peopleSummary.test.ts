@@ -1,3 +1,4 @@
+// @vitest-environment node
 // Guards a picker of people collapsing to "N selected", which says nothing about
 // who is chosen. Added on batch-instructor-names for the batch form's instructors.
 import { describe, expect, it } from 'vitest'

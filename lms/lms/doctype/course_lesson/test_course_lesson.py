@@ -6,7 +6,8 @@ import unittest
 from unittest.mock import patch
 
 import frappe
-from frappe.utils import add_to_date, now_datetime
+from frappe.utils import add_to_date, escape_html, now_datetime
+from frappe.www.printview import get_html_and_style
 
 from lms.lms.doctype.course_lesson.course_lesson import (
 	UNTITLED_LESSON_TITLE,
@@ -442,6 +443,96 @@ class TestLessonContentSurvivesSave(BaseTestUtils):
 		saved = self._saved_text('<a href="https://frappe.io/">here</a>', "Lesson link")
 		self.assertIn('href="https://frappe.io/"', saved)
 		self.assertIn('rel="noopener noreferrer"', saved)
+
+	def test_markup_that_is_not_json_is_escaped_on_save(self):
+		markup = "<img src=x onerror=alert(1)>"
+		lesson = self._create_lesson("Lesson plain markup", self.chapter.name, self.course.name, markup)
+		lesson.instructor_content = markup
+		lesson.save()
+		stored = frappe.db.get_value("Course Lesson", lesson.name, ["content", "instructor_content"])
+		self.assertEqual(list(stored), [escape_html(markup)] * 2)
+
+		# A later save must not escape it again.
+		lesson.reload()
+		lesson.save()
+		self.assertEqual(frappe.db.get_value("Course Lesson", lesson.name, "content"), escape_html(markup))
+
+	def test_inline_formatting_survives_a_save(self):
+		# The link carries the rel nh3 adds to every <a>, as the editor stores it after a save.
+		link = '<a href="https://frappe.io" rel="noopener noreferrer">site</a>'
+		content = _content(
+			{"type": "paragraph", "data": {"text": f"<b>bold</b> <i>italic</i> {link}"}},
+			{"type": "list", "data": {"style": "unordered", "items": ["<b>one</b>", f"<i>two</i> {link}"]}},
+		)
+		lesson = self._create_lesson("Lesson inline formatting", self.chapter.name, self.course.name, content)
+		stored = frappe.db.get_value("Course Lesson", lesson.name, "content")
+		self.assertEqual(json.loads(stored), json.loads(content))
+
+	def test_markup_in_a_key_is_cleaned_on_save(self):
+		content = json.dumps({"<svg onload=alert(1)>": "x", "blocks": []})
+		lesson = self._create_lesson("Lesson key markup", self.chapter.name, self.course.name, content)
+		self.assertNotIn("onload", frappe.db.get_value("Course Lesson", lesson.name, "content"))
+
+	def test_every_editor_block_saves_unchanged(self):
+		# Assessment blocks must point at real records, or validate refuses the lesson.
+		assessments = {
+			"quiz": {"quiz": self._create_quiz(self._create_quiz_questions()).name},
+			"assignment": {"assignment": self._create_assignment().name},
+			"program": {"exercise": self._create_programming_exercise().name},
+		}
+		blocks = [
+			{**block, "data": assessments.get(name, block["data"])}
+			for name, block in NON_EMBED_BLOCKS.items()
+		]
+		content = _content(*blocks, _embed_block("youtube", EMBED_SERVICE_URLS["youtube"]))
+		lesson = self._create_lesson("Lesson every block", self.chapter.name, self.course.name, content)
+		stored = frappe.db.get_value("Course Lesson", lesson.name, "content")
+		self.assertEqual(json.loads(stored), json.loads(content))
+
+	def test_a_row_the_old_sanitiser_mangled_stays_readable_after_a_title_only_save(self):
+		lesson = self._create_lesson("Lesson mangled", self.chapter.name, self.course.name)
+		mangled = (
+			'{"blocks":[{"type":"paragraph","data":{"text":"<a href="\\&quot;https://frappe.io/\\&quot;" '
+			'rel="noopener noreferrer">here</a>"}}]}'
+		)
+		frappe.db.set_value("Course Lesson", lesson.name, "content", mangled)
+		lesson.reload()
+		lesson.title = "Lesson mangled, renamed"
+		lesson.save()
+		stored = json.loads(frappe.db.get_value("Course Lesson", lesson.name, "content"))
+		self.assertEqual(
+			stored["blocks"][0]["data"]["text"],
+			'<a href="https://frappe.io/" rel="noopener noreferrer">here</a>',
+		)
+
+
+class TestLessonPrint(BaseTestUtils):
+	"""The Standard print view renders Text fields without escaping, and lesson
+	content is EditorJS JSON no reader wants on paper, so both fields are hidden."""
+
+	def setUp(self):
+		super().setUp()
+		self._create_user("frappe@example.com", "Frappe", "Admin", ["Moderator", "Course Creator"])
+		self.course = self._create_course(title="Print Course")
+		self.chapter = self._create_chapter("Print Chapter", self.course.name)
+
+	def test_content_fields_are_hidden_from_print(self):
+		meta = frappe.get_meta("Course Lesson")
+		for fieldname in ("content", "instructor_content"):
+			self.assertTrue(meta.get_field(fieldname).print_hide, f"{fieldname} must be print_hide")
+
+	def test_standard_print_has_no_event_handler(self):
+		lesson = self._create_lesson("Print lesson", self.chapter.name, self.course.name)
+		# Written past validate, the way a row saved before cleaning was stored.
+		frappe.db.set_value(
+			"Course Lesson",
+			lesson.name,
+			{"content": "<img src=x onerror=alert(1)>", "instructor_content": "<svg onload=alert(1)>"},
+		)
+		html = get_html_and_style("Course Lesson", lesson.name, print_format="Standard")["html"]
+		self.assertIn("Print lesson", html)
+		self.assertNotIn("onerror", html)
+		self.assertNotIn("onload", html)
 
 
 class TestServeResourceFileOwnership(BaseTestUtils):

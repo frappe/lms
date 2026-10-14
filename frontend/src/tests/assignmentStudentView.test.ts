@@ -143,19 +143,25 @@ describe('the assignment block in a lesson', () => {
 	})
 })
 
+// One table for both lesson blocks; programStudentView.test.ts mocks the
+// exercise side and leaves this to here.
 describe('getEditorTools wiring', () => {
-	it('hands the assignment tool the Student View flag', () => {
-		const tools = getEditorTools(false, {}, { studentView: true }) as Record<
-			string,
-			any
-		>
+	const tools = (...args: Parameters<typeof getEditorTools>) =>
+		getEditorTools(...args) as Record<string, any>
 
-		expect(tools.assignment.config.studentView).toBe(true)
-	})
+	it.each(['assignment', 'program'])(
+		'hands the %s tool the Student View flag',
+		(name) => {
+			expect(
+				tools(false, {}, { studentView: true })[name].config.studentView
+			).toBe(true)
+		}
+	)
 
-	it('defaults the flag off', () => {
-		const tools = getEditorTools() as Record<string, any>
-
-		expect(tools.assignment.config.studentView).toBe(false)
-	})
+	it.each(['assignment', 'program'])(
+		'defaults the %s tool flag off',
+		(name) => {
+			expect(tools()[name].config.studentView).toBe(false)
+		}
+	)
 })

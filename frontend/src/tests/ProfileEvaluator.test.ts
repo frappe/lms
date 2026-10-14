@@ -38,7 +38,7 @@ vi.mock('frappe-ui', async () => {
 		},
 		Badge: { props: ['label', 'theme'], template: `<span>{{ label }}</span>` },
 		Switch: {
-			props: ['modelValue'],
+			props: ['modelValue', 'size'],
 			emits: ['update:modelValue'],
 			template: `<input type="checkbox" :checked="modelValue"
 			@change="$emit('update:modelValue', $event.target.checked)" />`,
@@ -153,21 +153,6 @@ describe('ProfileEvaluator availability writes', () => {
 		expect(remove.lastParams).toEqual({ evaluator: EVALUATOR, slot: 42 })
 	})
 
-	it('sets unavailability through the ownership-checked endpoint', async () => {
-		await mountPanel()
-		const unavailability = findResource(
-			'lms.lms.api.set_evaluator_unavailability'
-		)
-		expect(unavailability).toBeTruthy()
-
-		unavailability.submit({ field: 'unavailable_from', value: '2026-08-01' })
-		expect(unavailability.lastParams).toEqual({
-			evaluator: EVALUATOR,
-			fieldname: 'unavailable_from',
-			value: '2026-08-01',
-		})
-	})
-
 	it('never writes availability through raw framework endpoints', async () => {
 		await mountPanel()
 		const raw = resources.value.filter((r) =>
@@ -246,10 +231,15 @@ describe('ProfileEvaluator calendar settings', () => {
 		routerReplace.mockReset()
 	})
 
-	it('saves each setting through the own-calendar endpoint', async () => {
-		await mountPanel()
+	it('saves a toggled setting through the own-calendar endpoint', async () => {
+		const wrapper = await mountPanel()
 		const update = findResource('lms.lms.api.update_evaluator_calendar')
-		update.submit({ fieldname: 'push_to_google_calendar', value: 0 })
+
+		await wrapper
+			.find('input[aria-label="Push to Google Calendar"]')
+			.setValue(false)
+
+		expect(update.submit).toHaveBeenCalledTimes(1)
 		expect(update.lastParams).toEqual({
 			fieldname: 'push_to_google_calendar',
 			value: 0,

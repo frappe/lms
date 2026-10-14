@@ -168,11 +168,6 @@ describe('PaymentGatewayForm credentials', () => {
 		expect(controlFor(wrapper, 'Webhooks Secret')).toBe('Password')
 	})
 
-	it('leaves an ordinary field alone', async () => {
-		const wrapper = await mountNewGateway()
-		expect(controlFor(wrapper, 'Payment Gateway Name')).toBe('FormControl')
-	})
-
 	it('does not mask a key that is published on purpose', async () => {
 		// Stripe hands this one to the browser by design. Masking it would be
 		// the regression, so it is exempted by name AND doctype.

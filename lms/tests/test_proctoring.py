@@ -18,6 +18,7 @@ from datetime import timedelta
 from unittest.mock import patch
 
 import frappe
+from frappe.tests import IntegrationTestCase
 from frappe.utils import add_to_date, convert_utc_to_system_timezone, get_datetime, now_datetime
 
 from lms.lms.doctype.lms_quiz.lms_quiz import (
@@ -238,21 +239,15 @@ class TestViolationEventNormalization(unittest.TestCase):
 # ---------------------------------------------------------------------------
 
 
-class TestSaveViolationEventsDB(unittest.TestCase):
+class TestSaveViolationEventsDB(IntegrationTestCase):
 	"""_save_violation_events with a real DB submission."""
 
 	@classmethod
 	def setUpClass(cls):
+		super().setUpClass()
 		cls.question = _make_question()
 		cls.quiz = _make_quiz(cls.question)
 		cls.submission = _make_submission(cls.quiz.name)
-
-	@classmethod
-	def tearDownClass(cls):
-		frappe.db.delete("LMS Quiz Violation Log", {"quiz_submission": cls.submission.name})
-		frappe.db.delete("LMS Quiz Submission", cls.submission.name)
-		frappe.db.delete("LMS Quiz", cls.quiz.name)
-		frappe.db.delete("LMS Question", cls.question.name)
 
 	def setUp(self):
 		frappe.db.delete("LMS Quiz Violation Log", {"quiz_submission": self.submission.name})
@@ -298,29 +293,16 @@ class TestSaveViolationEventsDB(unittest.TestCase):
 # ---------------------------------------------------------------------------
 
 
-class TestSubmitQuizWithViolations(unittest.TestCase):
+class TestSubmitQuizWithViolations(IntegrationTestCase):
 	"""submit_quiz — violation_count, submission_reason, and violation_events are
 	all persisted correctly through the full submission path."""
 
 	@classmethod
 	def setUpClass(cls):
+		super().setUpClass()
 		cls.question = _make_question()
 		cls.quiz = _make_quiz(cls.question)
-		cls.original_user = frappe.session.user
 		frappe.session.user = "Administrator"
-
-	@classmethod
-	def tearDownClass(cls):
-		frappe.session.user = cls.original_user
-		# Resolved before the submissions go, because that is what identifies the rows.
-		# These classes run outside a transaction, so an unfiltered delete here does not
-		# roll back: it truncates the table on whatever site the suite is pointed at.
-		submissions = frappe.get_all("LMS Quiz Submission", filters={"quiz": cls.quiz.name}, pluck="name")
-		if submissions:
-			frappe.db.delete("LMS Quiz Violation Log", {"quiz_submission": ("in", submissions)})
-		frappe.db.delete("LMS Quiz Submission", {"quiz": cls.quiz.name})
-		frappe.db.delete("LMS Quiz", cls.quiz.name)
-		frappe.db.delete("LMS Question", cls.question.name)
 
 	def _results(self):
 		return json.dumps([{"question_name": self.question.name, "answer": ["Correct"]}])
@@ -545,12 +527,13 @@ class TestSubmitQuizWithViolations(unittest.TestCase):
 # ---------------------------------------------------------------------------
 
 
-class TestGetQuizViolationLogs(unittest.TestCase):
+class TestGetQuizViolationLogs(IntegrationTestCase):
 	"""get_quiz_violation_logs enforces that only the submission owner (or a
 	privileged user) can read violation logs."""
 
 	@classmethod
 	def setUpClass(cls):
+		super().setUpClass()
 		hash_ = frappe.generate_hash(length=6)
 
 		cls.student = frappe.get_doc(
@@ -586,15 +569,6 @@ class TestGetQuizViolationLogs(unittest.TestCase):
 				{"eventType": "no_face", "severity": "warning", "timestamp": "2026-07-01T09:01:00Z"},
 			),
 		)
-
-	@classmethod
-	def tearDownClass(cls):
-		frappe.db.delete("LMS Quiz Violation Log", {"quiz_submission": cls.submission.name})
-		frappe.db.delete("LMS Quiz Submission", cls.submission.name)
-		frappe.db.delete("LMS Quiz", cls.quiz.name)
-		frappe.db.delete("LMS Question", cls.question.name)
-		frappe.delete_doc("User", cls.student.name, force=True, ignore_permissions=True)
-		frappe.delete_doc("User", cls.outsider.name, force=True, ignore_permissions=True)
 
 	def _call(self, user):
 		original = frappe.session.user
@@ -645,21 +619,16 @@ class TestGetQuizViolationLogs(unittest.TestCase):
 # ---------------------------------------------------------------------------
 
 
-class TestIsOpenEndedSubmission(unittest.TestCase):
+class TestIsOpenEndedSubmission(IntegrationTestCase):
 	"""is_open_ended_submission returns True/False based on the linked quiz's
 	question type, enabling the frontend to decide whether marks are editable."""
 
 	@classmethod
 	def setUpClass(cls):
+		super().setUpClass()
 		cls.question = _make_question()  # Choices type
 		cls.quiz = _make_quiz(cls.question)
 		cls.submission = _make_submission(cls.quiz.name)
-
-	@classmethod
-	def tearDownClass(cls):
-		frappe.db.delete("LMS Quiz Submission", cls.submission.name)
-		frappe.db.delete("LMS Quiz", cls.quiz.name)
-		frappe.db.delete("LMS Question", cls.question.name)
 
 	def test_choice_quiz_returns_false(self):
 		result = is_open_ended_submission(self.submission.name)

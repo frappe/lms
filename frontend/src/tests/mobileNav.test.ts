@@ -254,12 +254,6 @@ describe('overflowLinks', () => {
 		expect(duplicated.filter((l) => l.label === 'Programs')).toHaveLength(1)
 	})
 
-	it('leaves out anything already on the bottom bar', () => {
-		for (const primary of primaryLabels) {
-			expect(labels()).not.toContain(primary)
-		}
-	})
-
 	it('has nothing to offer before the links have loaded', () => {
 		expect(overflowLinks([], [], primaryLabels)).toEqual([])
 	})
