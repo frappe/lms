@@ -12,6 +12,7 @@
 					:label="__('Type')"
 					placeholder=" "
 					@update:modelValue="() => (assessment = null)"
+					variant="outline"
 				/>
 				<Link
 					v-if="assessmentType"
@@ -20,6 +21,7 @@
 					:label="__('Assessment')"
 					placeholder=" "
 					:onCreate="createAssessment"
+					variant="outline"
 				/>
 			</div>
 		</template>
@@ -49,6 +51,7 @@ import FormShell from '@/components/FormShell.vue'
 import HeaderButton from '@/components/HeaderButton.vue'
 import { batchRouteLocation } from '@/composables/useBatchForms'
 import { useFormRoute } from '@/composables/useFormRoute'
+import { useLearningOnboarding } from '@/onboarding/useLearningOnboarding'
 import { submitResource } from '@/utils/resource'
 
 const props = defineProps({
@@ -63,6 +66,7 @@ const route = useRoute()
 const router = useRouter()
 const readOnlyMode = window.read_only_mode
 
+const { completeStep } = useLearningOnboarding()
 const assessmentType = ref(null)
 const assessment = ref(null)
 
@@ -140,6 +144,7 @@ const submit = () => {
 		{
 			onSuccess() {
 				reloadAssessments()
+				completeStep('add_batch_assessment', { first_batch: props.batchName })
 				toast.success(__('Assessment added successfully'))
 				saveAndReplace(
 					batchRouteLocation('BatchDetail', props.batchName, route.hash)
