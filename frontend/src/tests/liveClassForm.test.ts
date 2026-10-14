@@ -42,7 +42,13 @@ const {
 			reload: () => {},
 		},
 		liveClassList: { data: [], reload: vi.fn() },
-		createResourceMock: vi.fn(),
+		// A default the Classes tab suite relies on: only the form suite's
+		// beforeEach sets one, so that suite running first used to supply it.
+		createResourceMock: vi.fn(() => ({
+			submit: vi.fn(),
+			loading: false,
+			data: null,
+		})),
 		createListResourceMock: vi.fn(),
 		getCachedListResourceMock: vi.fn(),
 		zoomSubmit: vi.fn(),
@@ -312,9 +318,12 @@ describe('LiveClassForm as a route', () => {
 		const router = makeRouter()
 		await router.push('/batches/B1/live-class/new')
 		const wrapper = await mountForm(router, moderator)
+		// frappe-ui's resource logs the message its validate() returned.
+		const logged = vi.spyOn(console, 'error').mockImplementation(() => {})
 		await wrapper.find('[data-testid="live-class-save"]').trigger('click')
 		await flushPromises()
 
+		expect(logged).toHaveBeenCalledWith('Please enter a title.')
 		expect(zoomSubmit).not.toHaveBeenCalled()
 		const { toast } = await import('frappe-ui')
 		expect(toast.error).toHaveBeenLastCalledWith('Please enter a title.')

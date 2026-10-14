@@ -1,5 +1,12 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { defineComponent, h, inject, useId } from 'vue'
+import {
+	defineComponent,
+	h,
+	inject,
+	resolveDirective,
+	useId,
+	withDirectives,
+} from 'vue'
 import type { App } from 'vue'
 
 vi.mock('@/stores/user', () => ({
@@ -22,8 +29,18 @@ const Probe = defineComponent({
 	},
 })
 
+// A render function, as an SFC compiles to: a runtime-compiled template
+// reads `__` through a proxy that warns about the leading underscore.
 const Translated = defineComponent({
-	template: `<p data-testid="translated">{{ __('Submit') }}</p><div data-testid="html" v-safe-html="'<b>bold</b>'"></div>`,
+	render() {
+		const safeHtml = resolveDirective('safe-html')!
+		return [
+			h('p', { 'data-testid': 'translated' }, this.__('Submit')),
+			withDirectives(h('div', { 'data-testid': 'html' }), [
+				[safeHtml, '<b>bold</b>', 'rich'],
+			]),
+		]
+	},
 })
 
 const Broken = defineComponent({

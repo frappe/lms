@@ -162,6 +162,12 @@ vi.mock('@/components/Controls/ChildTable.vue', () => ({
 import ProgrammingExerciseForm from '@/pages/Forms/ProgrammingExerciseForm.vue'
 import { toast } from 'frappe-ui'
 
+// CodeMirror measures the selection with these; jsdom has neither, and
+// CodeMirror logs the TypeError instead of throwing it.
+Range.prototype.getBoundingClientRect ??= () => new DOMRect(0, 0, 0, 0)
+Range.prototype.getClientRects ??= () =>
+	Object.assign([], { item: () => null }) as unknown as DOMRectList
+
 // The form is its own page, so the list stub needs no nested RouterView.
 const List = defineComponent({
 	render: () => h('div', ['LIST']),

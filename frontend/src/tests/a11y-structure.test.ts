@@ -65,6 +65,7 @@ const mountWith = async (
 			{ path: '/a/:assignmentID', name: 'AssignmentSubmission', component: {} },
 		],
 	})
+	await router.push('/Home')
 	document.title = 'Stale title'
 	const wrapper = mount(component, {
 		props,

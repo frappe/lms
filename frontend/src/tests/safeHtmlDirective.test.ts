@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import { mount } from '@vue/test-utils'
 import safeHtml from '../directives/safeHtml'
 
@@ -50,16 +50,24 @@ describe('v-safe-html', () => {
 	})
 
 	it('an absent level falls back to the strictest profile, not the loosest', () => {
+		const warned = vi.spyOn(console, 'warn').mockImplementation(() => {})
 		const html = mountAt(
 			null,
 			'<table><tr><td>c</td></tr></table><h2>t</h2>'
 		).html()
 		expect(html).not.toContain('<td>')
 		expect(html).not.toContain('<h2>')
+		expect(warned).toHaveBeenCalledWith(
+			expect.stringContaining('level "(none)" is not one of')
+		)
 	})
 
 	it('an unknown level falls back to the strictest profile', () => {
+		const warned = vi.spyOn(console, 'warn').mockImplementation(() => {})
 		expect(mountAt('nonsense', '<h2>t</h2>').html()).not.toContain('<h2>')
+		expect(warned).toHaveBeenCalledWith(
+			expect.stringContaining('level "nonsense" is not one of')
+		)
 	})
 
 	it('forces safe anchor rel/target at every level', () => {

@@ -218,6 +218,7 @@ describe('CourseImportForm as a route', () => {
 	}
 
 	const rejectImportWith = async (messages: string[]) => {
+		const logged = vi.spyOn(console, 'error').mockImplementation(() => {})
 		callMock.mockRejectedValue(importError(messages))
 		const router = makeRouter()
 		await router.push({ name: 'CourseImport' })
@@ -226,6 +227,10 @@ describe('CourseImportForm as a route', () => {
 		await attachZip(wrapper)
 		await wrapper.find('[data-testid="course-import-submit"]').trigger('click')
 		await flushPromises()
+		expect(logged).toHaveBeenCalledWith(
+			'Error importing course:',
+			expect.any(Error)
+		)
 	}
 
 	it('reports the server message when the import is rejected', async () => {
@@ -233,7 +238,9 @@ describe('CourseImportForm as a route', () => {
 		// "...import_course_from_zip ValidationError" and dropped the reason.
 		await rejectImportWith(['Invalid course ZIP: Missing course.json'])
 
-		expect(toast.error).toHaveBeenCalledWith('Invalid course ZIP: Missing course.json')
+		expect(toast.error).toHaveBeenCalledWith(
+			'Invalid course ZIP: Missing course.json'
+		)
 	})
 
 	it('falls back to the raw error when the server sent no message', async () => {

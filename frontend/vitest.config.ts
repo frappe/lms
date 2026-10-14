@@ -1,10 +1,32 @@
 import { defineConfig } from 'vitest/config'
+import type { Plugin } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { lucideIconsPlugin } from 'frappe-ui/vite'
 import Components from 'unplugin-vue-components/vite'
 import IconsResolver from 'unplugin-icons/resolver'
+
+// autoprefixer's browserslist nags, once per run, that caniuse-lite is old.
+// That is a dependency-freshness notice for whoever bumps packages, and the
+// test output is not where anyone acts on it.
+process.env.BROWSERSLIST_IGNORE_OLD_DATA = 'true'
+
+// On a bench, @framework/ui links to apps/frappe/ui, whose own node_modules
+// hold a dompurify with sourcemaps into that tree. Under preserveSymlinks vite
+// reads those sources as outside the package and warns for each one. CI checks
+// out ui without node_modules, so the warning describes the bench, not the code.
+const quietLinkedSourcemaps: Plugin = {
+	name: 'quiet-linked-sourcemaps',
+	configResolved({ logger }) {
+		const warnOnce = logger.warnOnce
+		logger.warnOnce = (message, options) => {
+			if (!message.includes('points to a source file outside its package')) {
+				warnOnce(message, options)
+			}
+		}
+	},
+}
 
 export default defineConfig({
 	// `import { X } from 'frappe-ui'` resolves the entire barrel (src/index.ts,
@@ -28,6 +50,7 @@ export default defineConfig({
 	// which LMS gives nothing to import. `<LucideX>` tags and @framework/ui's
 	// `~icons/lucide/*` imports still resolve as in the app build.
 	plugins: [
+		quietLinkedSourcemaps,
 		vue(),
 		Components({
 			resolvers: [

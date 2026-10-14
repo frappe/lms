@@ -54,11 +54,14 @@ describe('safe-area padding utilities', () => {
 	// start/end are deliberately absent — `safe-area-inset-left` is physical, so
 	// a logical `ps-safe` would be wrong under RTL and a physical one would trip
 	// the RTL semgrep rule.
+	// pb-safe-3 is the control: it proves the plugin ran on this markup, and
+	// without one real utility tailwind warns that it found nothing to build.
 	it('generates no inline-axis variants', async () => {
 		const css = await compile(
-			'<div class="ps-safe-3 pe-safe-3 pl-safe-3"></div>'
+			'<div class="pb-safe-3 ps-safe-3 pe-safe-3 pl-safe-3"></div>'
 		)
 
+		expect(css).toContain('safe-area-inset-bottom')
 		expect(css).not.toContain('safe-area-inset-left')
 		expect(css).not.toContain('safe-area-inset-right')
 	})

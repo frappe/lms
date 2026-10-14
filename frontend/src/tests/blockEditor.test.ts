@@ -71,6 +71,9 @@ describe('BlockEditor', () => {
 	})
 
 	it('round-trips block content through render() and save()', async () => {
+		// Paragraph, standing in for markdown, rejects the empty trailing block
+		// that the real markdown tool keeps, and EditorJS logs the skip.
+		vi.spyOn(console, 'log').mockImplementation(() => {})
 		const out = await editorApi.save()
 		expect(out.blocks.map((b) => b.data.text)).toEqual(['first', 'second'])
 	})

@@ -131,6 +131,9 @@ async function mountListPage(props: Record<string, unknown> = {}, slots = {}) {
 		slots,
 		global: {
 			mocks: { __: (s: string) => s },
+			// frappe-ui's ListFooter uses <Button> without importing it; the app
+			// resolves it through the global registration app.use(FrappeUI) does.
+			components: { Button: passthrough('button') },
 			stubs: {
 				'router-link': { template: '<a><slot /></a>' },
 				// PageBody's mobile filter sheet teleports to body; without this

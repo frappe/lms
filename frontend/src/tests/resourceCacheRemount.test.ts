@@ -116,7 +116,10 @@ vi.stubGlobal('__', (s: string) => s)
 const mountDialog = () =>
 	mount(VideoStatistics, {
 		props: { modelValue: true, lessonName: 'lesson-1', lessonTitle: 'L1' },
-		global: { mocks: { __: (s: string) => s } },
+		global: {
+			mocks: { __: (s: string) => s },
+			stubs: { 'router-link': true },
+		},
 	})
 
 describe('VideoStatistics.vue across a remount', () => {

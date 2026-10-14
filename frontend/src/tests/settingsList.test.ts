@@ -8,6 +8,7 @@
  */
 import { describe, expect, it, vi } from 'vitest'
 import { mount } from '@vue/test-utils'
+import { markRaw } from 'vue'
 import type { SettingsListColumn } from '@/types'
 
 vi.mock('frappe-ui', () => ({
@@ -261,10 +262,10 @@ describe('SettingsList', () => {
 	})
 
 	describe('emptyContent', () => {
-		const EmptyContent = {
+		const EmptyContent = markRaw({
 			emits: ['pick'],
 			template: `<button data-testid="empty-content" @click="$emit('pick', 'GMail')" />`,
-		}
+		})
 
 		it('draws it instead of the generic caption when the list is truly empty', () => {
 			const wrapper = build({

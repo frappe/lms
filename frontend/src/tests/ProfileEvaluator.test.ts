@@ -38,7 +38,7 @@ vi.mock('frappe-ui', async () => {
 		},
 		Badge: { props: ['label', 'theme'], template: `<span>{{ label }}</span>` },
 		Switch: {
-			props: ['modelValue'],
+			props: ['modelValue', 'size'],
 			emits: ['update:modelValue'],
 			template: `<input type="checkbox" :checked="modelValue"
 			@change="$emit('update:modelValue', $event.target.checked)" />`,
