@@ -153,6 +153,7 @@
 							:label="__('Instructors')"
 							:placeholder="__('Select instructors')"
 							:required="true"
+							:disabled="!batch.data?.can_change_instructors"
 							variant="outline"
 							:onCreate="() => (showMemberModal = true)"
 						/>

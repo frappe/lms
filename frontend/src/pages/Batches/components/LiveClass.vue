@@ -1,5 +1,6 @@
 <template>
 	<div class="p-5">
+<<<<<<< HEAD
 		<div
 			v-if="isAdmin() && !hasProviderAccount()"
 			class="flex lg:items-center gap-x-2 mb-5 bg-surface-amber-1 px-3 py-2 rounded-lg text-ink-amber-6"
@@ -13,6 +14,19 @@
 				}}
 			</span>
 		</div>
+=======
+		<Alert
+			v-if="canManageClasses() && !hasProviderAccount()"
+			theme="amber"
+			class="mb-5"
+			:title="__('No conferencing account')"
+			:description="
+				__(
+					'Please select a conferencing provider and add an account to the batch to create live classes.'
+				)
+			"
+		/>
+>>>>>>> fb1cfe6 (fix(live-class): use only the batch's or your own conferencing account, and let only instructors schedule)
 
 		<div class="flex items-center justify-between">
 			<div class="text-lg-semibold text-ink-gray-9">
@@ -191,6 +205,15 @@ const hasProviderAccount = () => {
 	return false
 }
 
+<<<<<<< HEAD
+=======
+// Moderators and the batch's instructors: the only users the server lets
+// create a class or retry its invites. isAdmin also takes in every evaluator,
+// who would only get a permission error.
+const canManageClasses = () =>
+	Boolean(user.data?.is_moderator || props.batch.data?.can_schedule_classes)
+
+>>>>>>> fb1cfe6 (fix(live-class): use only the batch's or your own conferencing account, and let only instructors schedule)
 const canCreateClass = () => {
 	if (readOnlyMode) return false
 	if (!hasProviderAccount()) return false

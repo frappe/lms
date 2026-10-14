@@ -15,9 +15,12 @@ from frappe.utils import add_days, cint, format_datetime, get_time, nowdate
 from pypika.terms import LiteralValue
 
 from lms.lms.permissions import (
+	CONFERENCING_ACCOUNT_FIELDS,
 	administrable_assessment_names,
 	authored_batch_condition,
 	can_author_batch,
+	can_instruct_batch,
+	can_use_conferencing_account,
 	courses_authored_by,
 	is_site_administrator,
 )
@@ -44,6 +47,7 @@ class LMSBatch(Document):
 		self.validate_batch_time()
 		self.validate_duplicate_courses()
 		self.validate_duplicate_instructors()
+		self.validate_instructor_changes()
 		self.validate_payments_app()
 		self.validate_amount_and_currency()
 		self.validate_duplicate_assessments()
@@ -211,6 +215,7 @@ class LMSBatch(Document):
 				frappe.throw(_("Row #{0} Date cannot be outside the batch duration.").format(schedule.idx))
 
 	def validate_conferencing_provider(self):
+		self.validate_conferencing_accounts()
 		if self.is_new() or not self.conferencing_provider:
 			return
 
@@ -234,6 +239,36 @@ class LMSBatch(Document):
 		elif self.conferencing_provider == "Zoom":
 			if not self.zoom_account:
 				frappe.throw(_("Please select a Zoom account for this batch."))
+
+	def validate_conferencing_accounts(self):
+		"""An account newly set on the batch must be one the user may use. Not through the
+		batch's stored account: that is the one being replaced."""
+		for doctype, field in CONFERENCING_ACCOUNT_FIELDS.items():
+			account = self.get(field)
+			if (
+				account
+				and self.has_value_changed(field)
+				and not can_use_conferencing_account(doctype, account)
+			):
+				frappe.throw(
+					_(
+						"You can't set this account on the batch. Choose your own account, or ask its owner or a Moderator to set it."
+					),
+					frappe.PermissionError,
+				)
+
+	def validate_instructor_changes(self):
+		"""An evaluator may edit the batch, but listing themselves as its instructor
+		would let them schedule its live classes."""
+		if self.is_new():
+			return
+		stored = frappe.get_all(
+			"Course Instructor", {"parent": self.name, "parenttype": "LMS Batch"}, pluck="instructor"
+		)
+		if set(stored) == {row.instructor for row in self.instructors}:
+			return
+		if not can_instruct_batch(self.name):
+			frappe.throw(_("Only the batch's instructors can change who teaches it."), frappe.PermissionError)
 
 	def on_payment_authorized(self, payment_status):
 		if payment_status in ["Authorized", "Completed"]:
@@ -323,13 +358,25 @@ def create_live_class(
 	auto_recording: str,
 	description: str = None,
 ):
-	if not can_author_batch(batch_name) or not frappe.has_permission("LMS Live Class", "create"):
-		# Checked before any Zoom call, or an unauthorised request still burns a
-		# real meeting that the later save() only orphans.
-		frappe.throw(
-			_("You do not have permission to create a live class for this batch."), frappe.PermissionError
-		)
+	# Checked before any Zoom call, or an unauthorised request still burns a
+	# real meeting that the later save() only orphans.
+	check_can_schedule_live_class(batch_name)
+	if not zoom_account:
+		frappe.throw(_("Please select a Zoom account for this batch."))
 
+<<<<<<< HEAD
+=======
+	from lms.lms.doctype.lms_live_class.lms_live_class import (
+		check_class_can_use_account,
+		get_live_class_calendar,
+	)
+
+	check_class_can_use_account("LMS Zoom Settings", zoom_account, batch_name)
+	# Also before the Zoom call: the class cannot be saved without a calendar, and
+	# a meeting made first would be left on the Zoom account with no class for it.
+	get_live_class_calendar("Zoom")
+
+>>>>>>> fb1cfe6 (fix(live-class): use only the batch's or your own conferencing account, and let only instructors schedule)
 	payload = {
 		"topic": title,
 		"start_time": format_datetime(f"{date} {time}", "yyyy-MM-ddTHH:mm:ssZ"),
@@ -370,7 +417,17 @@ def create_live_class(
 			}
 		)
 		class_details = frappe.get_doc(payload)
+<<<<<<< HEAD
 		class_details.save()
+=======
+		class_details.flags.conferencing_account_checked = True
+		try:
+			class_details.save()
+		except Exception:
+			# The meeting already exists on Zoom; without its class nothing points at it.
+			delete_zoom_meeting(data.get("id"), headers)
+			raise
+>>>>>>> fb1cfe6 (fix(live-class): use only the batch's or your own conferencing account, and let only instructors schedule)
 		return class_details
 	else:
 		frappe.throw(_("Error creating live class. Please try again. {0}").format(response.text))
@@ -387,21 +444,32 @@ def create_google_meet_live_class(
 	timezone: str,
 	description: str = None,
 ):
-	if not can_author_batch(batch_name) or not frappe.has_permission("LMS Live Class", "create"):
-		frappe.throw(
-			_("You do not have permission to create a live class for this batch."), frappe.PermissionError
-		)
+	check_can_schedule_live_class(batch_name)
+	if not google_meet_account:
+		frappe.throw(_("Please select a Google Meet account for this batch."))
 
+	from lms.lms.doctype.lms_live_class.lms_live_class import (
+		check_class_can_use_account,
+		get_live_class_calendar,
+	)
+
+	check_class_can_use_account("LMS Google Meet Settings", google_meet_account, batch_name)
 	google_meet_settings = frappe.get_doc("LMS Google Meet Settings", google_meet_account)
 	if not google_meet_settings.enabled:
 		frappe.throw(_("Please enable the Google Meet account to use this feature."))
 
+<<<<<<< HEAD
 	if not google_meet_settings.google_calendar:
 		frappe.throw(
 			_(
 				"The Google Meet account does not have a Google Calendar configured. Please set up a Google Calendar first."
 			)
 		)
+=======
+	# The same check as the Zoom path: a calendar that is set, authorised, and
+	# pushes to Google, before anything is made.
+	get_live_class_calendar("Google Meet", google_meet_account)
+>>>>>>> fb1cfe6 (fix(live-class): use only the batch's or your own conferencing account, and let only instructors schedule)
 
 	class_details = frappe.get_doc(
 		{
@@ -418,8 +486,18 @@ def create_google_meet_live_class(
 			"google_meet_account": google_meet_account,
 		}
 	)
+	class_details.flags.conferencing_account_checked = True
 	class_details.save()
 	return class_details
+
+
+def check_can_schedule_live_class(batch_name):
+	if not can_instruct_batch(batch_name):
+		frappe.throw(_("Only the batch's instructors can schedule live classes."), frappe.PermissionError)
+	if not frappe.has_permission("LMS Live Class", "create"):
+		frappe.throw(
+			_("You do not have permission to create a live class for this batch."), frappe.PermissionError
+		)
 
 
 def authenticate(zoom_account):

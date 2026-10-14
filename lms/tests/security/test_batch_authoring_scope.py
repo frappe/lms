@@ -17,7 +17,7 @@ from frappe.utils import nowdate
 from lms.lms.api import get_announcements
 from lms.lms.doctype.lms_batch import lms_batch
 from lms.lms.doctype.lms_live_class.lms_live_class import LMSLiveClass
-from lms.lms.permissions import can_author_batch
+from lms.lms.permissions import can_author_batch, can_instruct_batch
 from lms.lms.test_helpers import BaseTestUtils
 from lms.lms.utils import get_batch_details
 
@@ -167,10 +167,141 @@ class TestBatchAuthoringScope(BaseTestUtils):
 			with self.subTest(ptype=ptype):
 				self.assertFalse(self._can(self.outsider.name, "LMS Live Class", self.live_class, ptype))
 
-	def test_tagged_users_can_author_a_live_class(self):
-		for user in (self.instructor.name, self.evaluator.name, self.moderator.name):
+	def test_instructors_and_moderators_can_author_a_live_class(self):
+		for user in (self.instructor.name, self.moderator.name):
 			with self.subTest(user=user):
 				self.assertTrue(self._can(user, "LMS Live Class", self.live_class, "write"))
+
+	def test_a_tagged_evaluator_reads_but_cannot_author_a_live_class(self):
+		# Only the batch's instructors schedule and change its classes.
+		self.assertTrue(self._can(self.evaluator.name, "LMS Live Class", self.live_class, "read"))
+		for ptype in AUTHORING:
+			with self.subTest(ptype=ptype):
+				self.assertFalse(self._can(self.evaluator.name, "LMS Live Class", self.live_class, ptype))
+
+	def test_a_tagged_evaluator_cannot_schedule_a_zoom_class(self):
+		frappe.db.set_value("LMS Batch", self.batch, "zoom_account", self.zoom_account)
+		frappe.set_user(self.evaluator.name)
+		with self.assertRaisesRegex(frappe.PermissionError, "Only the batch's instructors"):
+			self._book_zoom_class(self.batch)
+		self.zoom_requests.request.assert_not_called()
+		self.zoom_requests.post.assert_not_called()
+
+	def test_a_tagged_evaluator_cannot_schedule_a_google_meet_class(self):
+		frappe.set_user(self.evaluator.name)
+		with patch.object(LMSLiveClass, "create_calendar_event") as calendar_call:
+			with self.assertRaisesRegex(frappe.PermissionError, "Only the batch's instructors"):
+				lms_batch.create_google_meet_live_class(
+					batch_name=self.batch,
+					google_meet_account="does-not-matter",
+					title="Evaluator Class",
+					duration=30,
+					date=nowdate(),
+					time="10:00:00",
+					timezone="Asia/Kolkata",
+				)
+		calendar_call.assert_not_called()
+
+	def test_a_tagged_evaluator_cannot_create_a_live_class_through_the_document_api(self):
+		frappe.set_user(self.evaluator.name)
+		doc = frappe.get_doc(
+			{
+				"doctype": "LMS Live Class",
+				"batch_name": self.batch,
+				"title": "Evaluator Class",
+				"date": nowdate(),
+				"time": "10:00:00",
+				"duration": 60,
+				"timezone": "Asia/Kolkata",
+				"host": self.evaluator.name,
+			}
+		)
+		with patch.object(LMSLiveClass, "create_calendar_event"):
+			with self.assertRaises(frappe.PermissionError):
+				doc.insert()
+
+	def test_an_instructor_and_a_moderator_can_schedule_a_zoom_class(self):
+		frappe.db.set_value("LMS Batch", self.batch, "zoom_account", self.zoom_account)
+		for user in (self.instructor.name, self.moderator.name):
+			with self.subTest(user=user):
+				frappe.set_user(user)
+				self.assertEqual(self._book_zoom_class(self.batch).batch_name, self.batch)
+
+	def test_an_instructor_without_the_create_permission_cannot_schedule_a_class(self):
+		# Listed on the batch, but no role that may create an LMS Live Class.
+		batch = self._create_batch(
+			course=self.other_course,
+			instructor=self.student.name,
+			title=f"BAS Student Instructor Batch {frappe.generate_hash(length=6)}",
+			evaluator=self.evaluator.name,
+		).name
+		frappe.db.set_value("LMS Batch", batch, "zoom_account", self.zoom_account)
+		frappe.set_user(self.student.name)
+		self.assertFalse(get_batch_details(batch).get("can_schedule_classes"))
+		with self.assertRaisesRegex(
+			frappe.PermissionError, "You do not have permission to create a live class"
+		):
+			self._book_zoom_class(batch)
+		self.zoom_requests.request.assert_not_called()
+		self.zoom_requests.post.assert_not_called()
+
+	def test_only_an_instructor_is_told_they_can_schedule_classes(self):
+		for user, batch, expected in (
+			(self.course_author.name, self.course_creator_batch, True),
+			(self.moderator.name, self.batch, True),
+			(self.evaluator_tagged_creator.name, self.evaluator_only_batch, False),
+		):
+			with self.subTest(user=user):
+				frappe.set_user(user)
+				details = get_batch_details(batch)
+				self.assertTrue(details.get("can_manage"))
+				self.assertEqual(details.get("can_schedule_classes"), expected)
+				self.assertEqual(details.get("can_change_instructors"), expected)
+
+	def test_a_tagged_evaluator_cannot_add_themselves_as_an_instructor(self):
+		frappe.set_user(self.evaluator.name)
+		batch = frappe.get_doc("LMS Batch", self.batch)
+		batch.append("instructors", {"instructor": self.evaluator.name})
+		with self.assertRaisesRegex(frappe.PermissionError, "Only the batch's instructors"):
+			batch.save()
+
+		frappe.set_user("Administrator")
+		self.assertFalse(can_instruct_batch(self.batch, user=self.evaluator.name))
+
+	def test_an_instructor_can_add_a_co_instructor(self):
+		frappe.set_user(self.instructor.name)
+		batch = frappe.get_doc("LMS Batch", self.batch)
+		batch.append("instructors", {"instructor": self.outsider.name})
+		batch.save()
+
+		self.assertTrue(can_instruct_batch(self.batch, user=self.outsider.name))
+
+	def _book_zoom_class(self, batch):
+		"""create_live_class with Zoom's HTTP calls and the class's calendar stubbed out."""
+		with (
+			patch.object(lms_batch, "requests") as mocked_requests,
+			patch.object(LMSLiveClass, "create_calendar_event"),
+			patch(
+				"lms.lms.doctype.lms_live_class.lms_live_class.get_live_class_calendar",
+				return_value="test-calendar",
+			),
+		):
+			self.zoom_requests = mocked_requests
+			mocked_requests.request.return_value.json.return_value = {"access_token": "test-token"}
+			mocked_requests.post.return_value.status_code = 201
+			mocked_requests.post.return_value.text = json.dumps(
+				{"start_url": "https://zoom.us/s/1", "join_url": "https://zoom.us/j/1", "id": "1"}
+			)
+			return lms_batch.create_live_class(
+				batch_name=batch,
+				zoom_account=self.zoom_account,
+				title="Scheduled Class",
+				duration=30,
+				date=nowdate(),
+				time="10:00:00",
+				timezone="Asia/Kolkata",
+				auto_recording="No Recording",
+			)
 
 	def test_a_live_class_cannot_be_moved_out_of_a_batch_you_do_not_author(self):
 		doc = frappe.get_doc("LMS Live Class", self.live_class)
@@ -266,11 +397,14 @@ class TestBatchAuthoringScope(BaseTestUtils):
 		self.assertTrue(self._can(self.course_author.name, "LMS Live Class", live_class, "write"))
 
 	def test_a_tagged_course_creator_can_book_a_zoom_meeting(self):
-		# The gate create_live_class checks: batch tagging AND the create DocPerm.
+		# The account is not theirs, so it must be the batch's own.
+		frappe.db.set_value("LMS Batch", self.course_creator_batch, "zoom_account", self.zoom_account)
+		# The gate create_live_class checks: a listed instructor AND the create DocPerm.
 		frappe.set_user(self.course_author.name)
-		self.assertTrue(lms_batch.can_author_batch(self.course_creator_batch))
+		self.assertTrue(can_instruct_batch(self.course_creator_batch))
 		self.assertTrue(frappe.has_permission("LMS Live Class", "create"))
 
+<<<<<<< HEAD
 		# Zoom auth and the calendar side effect of saving a live class are not
 		# what this test is about; both are stubbed out.
 		with (
@@ -298,8 +432,14 @@ class TestBatchAuthoringScope(BaseTestUtils):
 				auto_recording="No Recording",
 			)
 			mocked_requests.post.assert_called_once()
+=======
+		class_details = self._book_zoom_class(self.course_creator_batch)
+>>>>>>> fb1cfe6 (fix(live-class): use only the batch's or your own conferencing account, and let only instructors schedule)
 
+		self.zoom_requests.request.assert_called_once()
+		self.zoom_requests.post.assert_called_once()
 		self.assertEqual(class_details.batch_name, self.course_creator_batch)
+		self.assertEqual(class_details.zoom_account, self.zoom_account)
 
 	def test_an_untagged_course_creator_cannot_book_a_meeting(self):
 		frappe.set_user(self.course_author.name)
