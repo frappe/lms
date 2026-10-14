@@ -219,7 +219,7 @@
    "link_fieldname": "live_class"
   }
  ],
- "modified": "2026-10-14 14:51:45.113226",
+ "modified": "2026-10-14 15:27:02.616374",
  "modified_by": "sayali@frappe.io",
  "module": "LMS",
  "name": "LMS Live Class",
@@ -295,12 +295,6 @@
    "permlevel": 1,
    "read": 1,
    "role": "Moderator",
-   "write": 1
-  },
-  {
-   "permlevel": 1,
-   "read": 1,
-   "role": "Course Creator",
    "write": 1
   },
   {

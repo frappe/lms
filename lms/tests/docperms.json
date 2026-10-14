@@ -642,10 +642,6 @@
 			"report",
 			"export"
 		],
-		"Course Creator#1": [
-			"read",
-			"write"
-		],
 		"LMS Student#0": [
 			"read",
 			"share",

@@ -92,7 +92,7 @@
 								user.data?.is_evaluator ||
 								batch.data?.can_manage
 							"
-							:href="safeUrl(cls.start_url || cls.join_url)"
+							:href="startUrl(cls)"
 							v-external
 							class="cursor-pointer inline-flex items-center justify-center gap-2 transition-colors text-ink-gray-8 bg-surface-gray-2 hover:bg-surface-gray-3 active:bg-surface-gray-4 h-7 text-base px-2 rounded-4"
 							:class="cls.join_url ? 'w-full' : 'w-1/2'"
@@ -265,6 +265,13 @@ const isAdmin = () => {
 		Boolean(props.batch.data?.can_manage)
 	)
 }
+
+// The start link is not sent to every instructor, so Start goes through the
+// server, which opens the class for the batch's staff.
+const startUrl = (cls) =>
+	`/api/method/lms.lms.api.start_live_class?live_class=${encodeURIComponent(
+		cls.name
+	)}`
 
 const canAccessClass = (cls) => {
 	if (cls.date < dayjs().format('YYYY-MM-DD')) return false

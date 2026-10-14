@@ -3251,6 +3251,20 @@ def can_start_live_class(batch: str) -> bool:
 
 
 @frappe.whitelist()
+def start_live_class(live_class: str):
+	"""The batch page's Start button. A batch's instructors open their class here, as
+	the start link is readable by role only, and a role spans every batch."""
+	details = frappe.db.get_value(
+		"LMS Live Class", live_class, ["batch_name", "start_url", "join_url"], as_dict=True
+	)
+	if not details or not can_start_live_class(details.batch_name):
+		frappe.throw(_("You cannot start this live class."), frappe.PermissionError)
+
+	frappe.local.response["type"] = "redirect"
+	frappe.local.response["location"] = details.start_url or details.join_url
+
+
+@frappe.whitelist()
 def get_my_live_classes():
 	my_live_classes = []
 
