@@ -125,7 +125,11 @@ class LMSBatchEnrollment(Document):
 				enrollment.course = course.course
 				enrollment.member = self.member
 				enrollment.enrollment_from_batch = self.batch
-				enrollment.save()
+				# Adding the learner to the batch is what was authorised and paid for;
+				# its courses come with it, whoever added them.
+				enrollment.flags.via_batch_enrollment = True
+				# nosemgrep: lms-unjustified-ignore-permissions - the batch enrolment saving this was already authorised; the course enrolment is part of it
+				enrollment.save(ignore_permissions=True)
 
 	def add_member_to_live_class(self):
 		live_classes = frappe.get_all("LMS Live Class", {"batch_name": self.batch}, ["name", "event"])

@@ -341,7 +341,6 @@ const saveCourse = () => {
 		{
 			onSuccess(data: any) {
 				toast.success(__('Course created successfully'))
-				capture('course_created')
 				courseCreated.value = true
 				// replace, not push: the form's history entry is consumed so Back
 				// reaches the list rather than a stale, empty form.

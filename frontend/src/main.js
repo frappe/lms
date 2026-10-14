@@ -15,6 +15,7 @@ import { registerDirectives } from './directives'
 let pinia = createPinia()
 let app = createApp(App)
 setConfig('resourceFetcher', frappeRequest)
+setConfig('maxFileSize', window.max_file_size)
 
 app.use(FrappeUI)
 app.use(pinia)
@@ -32,7 +33,9 @@ app.provide('$allUsers', allUsers)
 
 watch(userResource, () => {
 	if (userResource.data) {
-		app.use(telemetryPlugin, { app_name: 'lms' })
+		// The router lets the plugin record each page a new site's admins and
+		// learners visit (only for sites under 15 days old).
+		app.use(telemetryPlugin, { app_name: 'lms', router })
 	}
 })
 
