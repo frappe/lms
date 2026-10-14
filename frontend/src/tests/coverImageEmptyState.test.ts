@@ -1,3 +1,4 @@
+// @vitest-environment node
 /**
  * `createResource({auto: true, debounce})` calls the *debounced* fetch, so
  * `loading` stays false for the whole debounce window. Keying the empty state

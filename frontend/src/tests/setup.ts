@@ -1,16 +1,4 @@
 import { vi } from 'vitest'
-import { config } from '@vue/test-utils'
-import { safeHtml, vExternal } from '../directives'
-
-// main.js registers these on the app, so a component that uses one renders
-// wrong under a bare mount() and the failure looks like missing data rather
-// than a missing directive. Registering them here keeps component tests
-// rendering what the app renders.
-config.global.directives = {
-	...config.global.directives,
-	'safe-html': safeHtml,
-	external: vExternal,
-}
 
 // main.js puts `__` on window; without it a script-block translation dies on a
 // bare ReferenceError. Mirrors translate(), including the contract that a
@@ -24,3 +12,18 @@ vi.stubGlobal('__', (message: string) => {
 			),
 	}
 })
+
+// main.js registers these on the app, so a component that uses one renders
+// wrong under a bare mount() and the failure looks like missing data rather
+// than a missing directive. Registering them here keeps component tests
+// rendering what the app renders. Skipped under `@vitest-environment node`,
+// where nothing mounts and DOMPurify has no window to bind to.
+if (typeof window !== 'undefined') {
+	const { config } = await import('@vue/test-utils')
+	const { safeHtml, vExternal } = await import('../directives')
+	config.global.directives = {
+		...config.global.directives,
+		'safe-html': safeHtml,
+		external: vExternal,
+	}
+}
