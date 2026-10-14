@@ -587,7 +587,6 @@ const linkLesson = (lessonName) =>
 				if (user.data?.is_system_manager)
 					updateOnboardingStep('create_first_lesson')
 
-				capture('lesson_created')
 				toast.success(__('Lesson created successfully'))
 				isDirty.value = false
 				emit('saved', { isNew: true })

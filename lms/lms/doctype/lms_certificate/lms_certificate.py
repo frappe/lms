@@ -7,7 +7,6 @@ from frappe.email.doctype.email_template.email_template import get_email_templat
 from frappe.model.document import Document
 from frappe.model.naming import make_autoname
 from frappe.utils import nowdate
-from frappe.utils.telemetry import capture
 from pypika import Case
 
 from lms.lms.permissions import is_site_administrator
@@ -23,7 +22,6 @@ class LMSCertificate(Document):
 		self.name = make_autoname("hash", self.doctype)
 
 	def after_insert(self):
-		capture("certificate_issued", "lms")
 		self.send_certification_email()
 
 	def send_certification_email(self):
