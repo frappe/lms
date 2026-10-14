@@ -61,10 +61,10 @@ test.describe("Batch Creation", () => {
 		// second dialog on top of the settings one, and its submit says "Save".
 		// Two stacked dismissable layers make a label search ambiguous, so go
 		// by the form's own test id.
-		const userInsert = waitForApiCall(page, "/api/method/frappe.client.insert");
+		const memberAdd = waitForApiCall(page, "/api/method/lms.lms.api.add_member");
 		const saveRole = waitForApiCall(page, "/api/method/lms.lms.api.save_role");
 		await page.getByTestId("member-save").click();
-		await userInsert;
+		await memberAdd;
 		await saveRole;
 
 		// Modal closes on success
@@ -104,12 +104,9 @@ test.describe("Batch Creation", () => {
 			.click();
 		await fillMemberField(page, "Email", randomStudent);
 		await fillMemberField(page, "First Name", "Student");
-		const studentInsert = waitForApiCall(
-			page,
-			"/api/method/frappe.client.insert"
-		);
+		const studentAdd = waitForApiCall(page, "/api/method/lms.lms.api.add_member");
 		await page.getByTestId("member-save").click();
-		await studentInsert;
+		await studentAdd;
 		await expect(page.getByText("Add New Member")).toHaveCount(0);
 
 		// Back to the batch list to create the batch.

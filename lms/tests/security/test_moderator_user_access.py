@@ -85,6 +85,20 @@ class TestModeratorUserAccess(BaseTestUtils):
 		self.assertEqual(member["name"], email)
 		self.assertEqual(frappe.db.get_value("User", email, "user_type"), "Website User")
 
+	def test_a_member_is_added_with_its_profile(self):
+		frappe.set_user(self.moderator.name)
+		email = f"muaprof-{self.hash}@example.com"
+		add_member(
+			email,
+			"Pia",
+			profile={"phone": "123", "bio": "<p>Hi</p><form>x</form>", "user_type": "System User"},
+		)
+
+		row = frappe.db.get_value("User", email, ["phone", "bio", "user_type"], as_dict=True)
+		self.assertEqual(row.phone, "123")
+		self.assertNotIn("<form", row.bio)
+		self.assertEqual(row.user_type, "Website User")
+
 	def test_adding_an_existing_member_is_refused(self):
 		frappe.set_user(self.moderator.name)
 		with self.assertRaises(frappe.DuplicateEntryError):

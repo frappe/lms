@@ -39,13 +39,16 @@ vi.mock('@/components/Layouts/settings/desktop/SettingsLayout.vue', () => ({
 	},
 }))
 vi.mock('@/components/Controls/RoleSwitches.vue', () => ({
-	default: { template: '<div />' },
+	default: {
+		emits: ['toggle'],
+		template: `<button data-testid="role-student" @click="$emit('toggle', 'student', true)" />`,
+	},
 }))
 vi.mock('@/components/Settings/Members/members', () => ({
 	MEMBERS_DOCTYPE: 'User',
-	ROLE_ROWS: [],
+	ROLE_ROWS: [{ key: 'student', role: 'LMS Student' }],
 	memberError: (_error: unknown, fallback: string) => fallback,
-	noRoles: () => ({}),
+	noRoles: () => ({ student: false }),
 	rolesFrom: () => ({}),
 }))
 vi.mock('@/composables/useSettingsRecord', () => ({
@@ -90,7 +93,7 @@ beforeEach(() => {
 })
 
 describe('Settings member form', () => {
-	it('adds a member through add_member, then saves the profile fields', async () => {
+	it('adds a member and its profile in one add_member call', async () => {
 		record.doc = reactive({
 			email: ' ada@example.com ',
 			first_name: 'Ada',
@@ -102,13 +105,11 @@ describe('Settings member form', () => {
 		await w.get('[data-testid="save"]').trigger('click')
 		await flushPromises()
 
-		expect(callMock).toHaveBeenNthCalledWith(1, 'lms.lms.api.add_member', {
+		expect(callMock).toHaveBeenCalledTimes(1)
+		expect(callMock).toHaveBeenCalledWith('lms.lms.api.add_member', {
 			email: 'ada@example.com',
 			first_name: 'Ada',
 			last_name: 'Lovelace',
-		})
-		expect(callMock).toHaveBeenNthCalledWith(2, 'lms.lms.api.update_member', {
-			member: 'ada@example.com',
 			profile: {
 				first_name: 'Ada',
 				last_name: 'Lovelace',
@@ -121,6 +122,36 @@ describe('Settings member form', () => {
 		})
 		expect(record.save).not.toHaveBeenCalled()
 		expect(toastMock.success).toHaveBeenCalled()
+	})
+
+	it('finishes the added member on a retry instead of adding it again', async () => {
+		record.doc = reactive({ email: 'ada@example.com', first_name: 'Ada' })
+		callMock
+			.mockResolvedValueOnce({ name: 'ada@example.com' }) // add_member
+			.mockRejectedValueOnce(new Error('role refused')) // save_role
+			.mockResolvedValue({ name: 'ada@example.com' })
+		const w = mountForm('new')
+		await w.get('[data-testid="role-student"]').trigger('click')
+		await w.get('[data-testid="save"]').trigger('click')
+		await flushPromises()
+		expect(record.doc.email).toBe('ada@example.com')
+
+		await w.get('[data-testid="save"]').trigger('click')
+		await flushPromises()
+
+		const methods = callMock.mock.calls.map(([method]) => method)
+		expect(methods).toEqual([
+			'lms.lms.api.add_member',
+			'lms.lms.api.save_role',
+			'lms.lms.api.update_member',
+			'lms.lms.api.save_role',
+		])
+		expect(callMock).toHaveBeenNthCalledWith(
+			3,
+			'lms.lms.api.update_member',
+			expect.objectContaining({ member: 'ada@example.com' })
+		)
+		expect(w.emitted('back')).toHaveLength(1)
 	})
 
 	it('saves an edited member through update_member and reloads it', async () => {

@@ -244,6 +244,10 @@ const settleSaved = async (doc: SettingsListRow, creating: boolean) => {
 	for (const key of Object.keys(doc)) delete doc[key]
 }
 
+// Set once add_member succeeds. If a later step fails, a retry finishes this
+// member instead of adding it again, which the server refuses as a duplicate.
+let addedName: string | null = null
+
 const save = () => {
 	if (refusal.value || !isDirty.value) return
 
@@ -252,29 +256,32 @@ const save = () => {
 		validate,
 		toastInvalid: true,
 		run: async () => {
-			let name = record.value
-			if (source.isDirty && member.value) {
-				const doc = member.value
+			const doc = member.value
+			if (source.isDirty && doc) {
 				// The same treatment the user's own profile form gives it: a bio is
 				// drawn as HTML on the profile page.
 				if (doc.bio) doc.bio = sanitizeHTML(doc.bio)
 				// Moderators have no write on User, so both go through the members API.
-				if (creating) {
+				if (creating && !addedName) {
 					const added = await call('lms.lms.api.add_member', {
 						email: String(doc.email ?? '').trim(),
 						first_name: doc.first_name,
 						last_name: doc.last_name,
+						profile: profileOf(doc),
 					})
-					name = added.name
+					addedName = added.name
+				} else {
+					await call('lms.lms.api.update_member', {
+						member: creating ? addedName : record.value,
+						profile: profileOf(doc),
+					})
 				}
-				await call('lms.lms.api.update_member', {
-					member: name,
-					profile: profileOf(doc),
-				})
-				await settleSaved(doc, creating)
 			}
 
+			const name = creating ? addedName : record.value
 			if (name && name !== NEW_RECORD) await saveRoles(name)
+			// Last, so a failed step leaves the draft in place for the retry.
+			if (doc) await settleSaved(doc, creating)
 
 			if (creating) {
 				if (user.data?.is_system_manager)
