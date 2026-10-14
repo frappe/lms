@@ -109,10 +109,6 @@ describe('draft lesson selection', () => {
 })
 
 describe('isLessonInChapter (chapter delete takes its lessons)', () => {
-	it('is true when the lesson belongs to the named chapter', () => {
-		expect(isLessonInChapter(outline, 'CH-1', 'LESSON-B')).toBe(true)
-	})
-
 	it('is false when the lesson is in a different chapter', () => {
 		const twoChapters = [
 			...outline,

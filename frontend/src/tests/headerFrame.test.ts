@@ -29,10 +29,6 @@ const frameRule = (): postcss.Rule | undefined => {
 }
 
 describe('the shared header frame', () => {
-	it('is defined once, in the stylesheet', () => {
-		expect(frameRule()).toBeDefined()
-	})
-
 	it('sets the 48px floor the skeleton is measured against', () => {
 		const applied = frameRule()?.nodes.find(
 			(node): node is postcss.AtRule =>

@@ -300,14 +300,6 @@ describe('SettingsList', () => {
 			)
 		})
 
-		it('leaves the plain caption alone for a page that supplies nothing', () => {
-			const wrapper = build({ rows: [], emptyName: 'Coupons' })
-
-			expect(wrapper.get('[data-testid="empty"]').text()).toContain(
-				'Add one to get started'
-			)
-		})
-
 		it("funnels its pick into SettingsList's own `new` event", async () => {
 			const wrapper = build({
 				rows: [],

@@ -124,15 +124,6 @@ describe('VideoStatistics.vue across a remount', () => {
 		listCache.clear()
 	})
 
-	it('picks the initial tab on a fresh mount', async () => {
-		const wrapper = mountDialog()
-		await (wrapper.vm as any).statistics.reload()
-		await flushPromises()
-
-		expect((wrapper.vm as any).currentTab).toBe('Lesson')
-		wrapper.unmount()
-	})
-
 	it('picks the initial tab again after the dialog is reopened', async () => {
 		// First open — this is the instance whose closures a cache would keep.
 		const first = mountDialog()

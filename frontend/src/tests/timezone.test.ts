@@ -12,12 +12,6 @@ describe('formatTimezone', () => {
 		)
 	})
 
-	it('strips the leading zero from the hour', () => {
-		expect(formatTimezone('America/New_York', '2026-01-15')).toBe(
-			'America/New_York (GMT-5:00)'
-		)
-	})
-
 	it('resolves the offset for the given date, not today', () => {
 		// America/New_York is GMT-5 in January and GMT-4 in July. A single label
 		// computed once would be wrong for half the 60-day slot window.

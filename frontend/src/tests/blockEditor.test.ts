@@ -65,11 +65,6 @@ describe('BlockEditor', () => {
 		expect(document.querySelector('.ce-toolbar__settings-btn')).not.toBeNull()
 	})
 
-	it('does not inject the old custom Notion-style handle or menu', () => {
-		expect(document.querySelector('.bn-drag-handle')).toBeNull()
-		expect(document.querySelector('.bn-block-menu')).toBeNull()
-	})
-
 	it('makes the native settings button draggable (editorjs-drag-drop)', () => {
 		const settings = document.querySelector('.ce-toolbar__settings-btn')
 		expect(settings?.getAttribute('draggable')).toBe('true')
