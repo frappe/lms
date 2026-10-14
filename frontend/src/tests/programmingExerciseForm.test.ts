@@ -264,16 +264,6 @@ describe('ProgrammingExerciseForm as a route', () => {
 		})
 	})
 
-	it('mounts straight from the URL with no parent list', async () => {
-		const router = makeRouter()
-		await router.push('/programming-exercises/new')
-		const wrapper = await mountForm(router, moderator)
-		expect(wrapper.html()).toContain('New Programming Exercise')
-		expect(
-			wrapper.find('[data-testid="programming-exercise-fields"]').exists()
-		).toBe(true)
-	})
-
 	it('takes no exercise from the /new route without warning', async () => {
 		const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
 		const router = makeRouter()

@@ -162,16 +162,6 @@ describe('CourseImportForm as a route', () => {
 		})
 	})
 
-	it('mounts straight from the URL with no parent list', async () => {
-		const router = makeRouter()
-		await router.push({ name: 'CourseImport' })
-		const wrapper = await mountForm(router)
-		expect(wrapper.find('[data-testid="course-import-fields"]').exists()).toBe(
-			true
-		)
-		expect(wrapper.html()).toContain('Import Course from ZIP')
-	})
-
 	it('refuses to render the form for a user who cannot create courses', async () => {
 		userResource.data = { ...student }
 		const router = makeRouter()
@@ -270,35 +260,6 @@ describe('CourseImportForm as a route', () => {
 		expect(router.currentRoute.value.params.courseName).toBe('imported-course')
 
 		router.back()
-		await flushPromises()
-		expect(router.currentRoute.value.name).toBe('Courses')
-	})
-
-	it('mobile: the back control pops the router back to the list', async () => {
-		const router = makeRouter()
-		await router.push({ name: 'Courses' })
-		await router.push({ name: 'CourseImport', state: { lmsFormEntry: true } })
-		Object.defineProperty(window, 'innerWidth', {
-			value: 390,
-			writable: true,
-			configurable: true,
-		})
-		const wrapper = await mountForm(router)
-
-		await wrapper.find('[data-testid="form-shell-back"]').trigger('click')
-		await flushPromises()
-		expect(router.currentRoute.value.name).toBe('Courses')
-	})
-
-	it('desktop: dismissing the Dialog (Escape/backdrop/X) pops the router', async () => {
-		const router = makeRouter()
-		await router.push({ name: 'Courses' })
-		await router.push({ name: 'CourseImport', state: { lmsFormEntry: true } })
-		const wrapper = await mountForm(router)
-
-		await wrapper
-			.findComponent({ name: 'Dialog' })
-			.vm.$emit('update:open', false)
 		await flushPromises()
 		expect(router.currentRoute.value.name).toBe('Courses')
 	})

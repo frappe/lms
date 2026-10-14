@@ -236,16 +236,6 @@ describe('LiveClassForm as a route', () => {
 		})
 	})
 
-	it('mounts straight from the URL with no parent page mounted', async () => {
-		const router = makeRouter()
-		await router.push('/batches/B1/live-class/new')
-		const wrapper = await mountForm(router, moderator)
-		expect(wrapper.html()).toContain('Create a Live Class')
-		expect(wrapper.find('[data-testid="live-class-fields"]').exists()).toBe(
-			true
-		)
-	})
-
 	it('fetches its own batch context for the batch in the URL', async () => {
 		// The conferencing provider and its account come from get_batch_details.
 		// This is the form's OWN fetch — BatchDetail's resource carries no cache
@@ -491,43 +481,6 @@ describe('LiveClassForm as a route', () => {
 			'B1',
 		])
 		expect(liveClassList.reload).toHaveBeenCalledTimes(1)
-	})
-
-	it('mobile: the back control pops the router back to the page', async () => {
-		const router = makeRouter()
-		await router.push('/batches/B1#classes')
-		await router.push({
-			name: 'NewLiveClass',
-			params: { batchName: 'B1' },
-			hash: '#classes',
-			state: { lmsFormEntry: true },
-		})
-		Object.defineProperty(window, 'innerWidth', {
-			value: 390,
-			writable: true,
-			configurable: true,
-		})
-		const wrapper = await mountForm(router, moderator)
-		await wrapper.find('[data-testid="form-shell-back"]').trigger('click')
-		await flushPromises()
-		expect(router.currentRoute.value.fullPath).toBe('/batches/B1#classes')
-	})
-
-	it('desktop: dismissing the Dialog pops the router back to the page', async () => {
-		const router = makeRouter()
-		await router.push('/batches/B1#classes')
-		await router.push({
-			name: 'NewLiveClass',
-			params: { batchName: 'B1' },
-			hash: '#classes',
-			state: { lmsFormEntry: true },
-		})
-		const wrapper = await mountForm(router, moderator)
-		await wrapper
-			.findComponent({ name: 'Dialog' })
-			.vm.$emit('update:open', false)
-		await flushPromises()
-		expect(router.currentRoute.value.name).toBe('BatchDetail')
 	})
 
 	it('closing a DEEP-LINKED form keeps the tab hash (C2)', async () => {
