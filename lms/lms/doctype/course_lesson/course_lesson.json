@@ -136,7 +136,8 @@
    "fieldname": "content",
    "fieldtype": "Text",
    "ignore_xss_filter": 1,
-   "label": "Content"
+   "label": "Content",
+   "print_hide": 1
   },
   {
    "fieldname": "column_break_cjmf",
@@ -146,7 +147,8 @@
    "fieldname": "instructor_content",
    "fieldtype": "Text",
    "ignore_xss_filter": 1,
-   "label": "Instructor Content"
+   "label": "Instructor Content",
+   "print_hide": 1
   },
   {
    "fieldname": "column_break_syza",
@@ -172,7 +174,7 @@
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2026-09-22 10:00:00.000000",
+ "modified": "2026-10-14 00:00:00.000000",
  "modified_by": "sayali@frappe.io",
  "module": "LMS",
  "name": "Course Lesson",
