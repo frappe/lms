@@ -1,5 +1,5 @@
 import { test, expect } from "./fixtures";
-import { closeOnboardingModal, button } from "./helpers";
+import { button } from "./helpers";
 import { authFile, baseURL } from "./config";
 import type { Browser, Page } from "@playwright/test";
 
@@ -53,7 +53,6 @@ test.describe("Quiz", () => {
 		testInfo.setTimeout(90000);
 		await withPage(browser, async (page) => {
 			await page.goto("/lms/quizzes/new");
-			await closeOnboardingModal(page);
 
 			// Naming the quiz is what inserts the LMS Quiz doc (QuizForm.vue's
 			// createIfNamed, fired on the title field's blur).
@@ -121,7 +120,6 @@ test.describe("Quiz", () => {
 			// question bank cleanup below, pre-scoped to this quiz via the same
 			// query param QuizForm.vue's own "Submissions" header button uses.
 			await page.goto(`/lms/quizzes/submissions?quiz=${quizName}`);
-			await closeOnboardingModal(page);
 			const submissionCheckbox = page.locator('input[type="checkbox"]').first();
 			if (await submissionCheckbox.isVisible()) {
 				await submissionCheckbox.click();
@@ -130,7 +128,6 @@ test.describe("Quiz", () => {
 			}
 
 			await page.goto(`/lms/quizzes/edit/${quizName}`);
-			await closeOnboardingModal(page);
 			await button(page, "Delete").click();
 			const dialog = page
 				.getByRole("dialog")
@@ -142,7 +139,6 @@ test.describe("Quiz", () => {
 			// owned doctype) — delete it the same way a moderator tidying the
 			// question bank would: search it out, select it, bulk-delete.
 			await page.goto("/lms/quizzes/questions");
-			await closeOnboardingModal(page);
 			await page.getByRole("textbox", { name: "Search" }).fill(questionText);
 			await expect(page.getByText(questionText)).toBeVisible();
 			// The header's own "select all" checkbox, applied to a search result
@@ -157,7 +153,6 @@ test.describe("Quiz", () => {
 	test.describe("multiple choice quiz", () => {
 		test("shows quiz info on the start screen", async ({ page }) => {
 			await page.goto(`/lms/quiz/${quizName}`);
-			await closeOnboardingModal(page);
 
 			await expect(page.getByText(quizTitle).first()).toBeVisible();
 
@@ -175,7 +170,6 @@ test.describe("Quiz", () => {
 			page,
 		}) => {
 			await page.goto(`/lms/quiz/${quizName}`);
-			await closeOnboardingModal(page);
 
 			const start = button(page, "Start Quiz");
 			await expect(start).toBeEnabled();
@@ -189,7 +183,6 @@ test.describe("Quiz", () => {
 
 		test("submits the quiz and shows the result", async ({ page }) => {
 			await page.goto(`/lms/quiz/${quizName}`);
-			await closeOnboardingModal(page);
 
 			await button(page, "Start Quiz").click();
 
