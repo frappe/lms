@@ -11,6 +11,7 @@
 						:label="__('Title')"
 						:required="true"
 						autocomplete="off"
+						variant="outline"
 					/>
 					<Link
 						v-model="course.category"
@@ -18,6 +19,7 @@
 						:label="__('Category')"
 						:inlineCreate="true"
 						:onCreate="createCategory"
+						variant="outline"
 					/>
 					<MultiLink
 						ref="instructorsRef"
@@ -31,6 +33,7 @@
 						:placeholder="__('Select instructors')"
 						:required="true"
 						:onCreate="openMemberModal"
+						variant="outline"
 					>
 						<template #prefix>
 							<div
@@ -78,6 +81,7 @@
 						:label="__('Short introduction')"
 						type="textarea"
 						:required="true"
+						variant="outline"
 					/>
 					<div class="space-y-1.5">
 						<InputLabel
@@ -128,7 +132,7 @@ import {
 	toast,
 } from 'frappe-ui'
 import type { FrappeResourceError } from 'frappe-ui'
-import { useOnboarding } from '@framework/ui/components/Onboarding/index'
+import { useLearningOnboarding } from '@/onboarding/useLearningOnboarding'
 import { useTelemetry } from '@framework/ui/telemetry/index'
 import { computed, inject, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import FormShell from '@/components/FormShell.vue'
@@ -160,7 +164,7 @@ interface RawUserHit {
 }
 
 const { capture } = useTelemetry()
-const { updateOnboardingStep } = useOnboarding('learning')
+const { completeStep } = useLearningOnboarding()
 const user = inject<any>('$user')
 const courseCreated = ref(false)
 const showMemberModal = ref<boolean>(false)
@@ -270,6 +274,27 @@ watch(
 	}
 )
 
+// The creator starts as an instructor, once per open, and only on an empty
+// field. Their option comes from the session user because the role search
+// leaves out creators without an instructor role.
+let creatorPrefilled = false
+watch(
+	() => user.data?.name,
+	(name: string | undefined) => {
+		if (!name || creatorPrefilled) return
+		creatorPrefilled = true
+		if (course.value.instructors.length) return
+		resolvedDetails.value = new Map(resolvedDetails.value).set(name, {
+			label: user.data.full_name || name,
+			value: name,
+			image: user.data.user_image || '',
+			description: name,
+		})
+		course.value.instructors = [name]
+	},
+	{ immediate: true }
+)
+
 const resolvedSelected = computed<InstructorOption[]>(() =>
 	course.value.instructors
 		.map((v) => resolvedDetails.value.get(v))
@@ -344,11 +369,7 @@ const saveCourse = () => {
 					params: { courseName: data.name },
 					hash: '#settings',
 				})
-				if (user.data?.is_system_manager) {
-					updateOnboardingStep('create_first_course', true, false, () => {
-						localStorage.setItem('firstCourse', data.name)
-					})
-				}
+				completeStep('create_first_course', { first_course: data.name })
 			},
 			onError(err: FrappeResourceError) {
 				toast.error(cleanError(err.messages?.[0]))
