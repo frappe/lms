@@ -1,7 +1,22 @@
 /**
- * SettingsFields' `code` field glue. CodeMirror 5 `mode` loads the CodeMirror 6
- * language, `rows` caps the height, and autosave runs off the editor's emits
- * since CodeMirror edits a contenteditable, not a textarea.
+ * SettingsFields, one file so the component and its editor toolchain load once.
+ *
+ * Code fields: CodeMirror 5 `mode` loads the CodeMirror 6 language, `rows` caps
+ * the height, and autosave runs off the editor's emits since CodeMirror edits a
+ * contenteditable, not a textarea.
+ *
+ * Password fields render through frappe-ui's Password, so a secret gets a
+ * masked box with a reveal toggle instead of a bare `type="password"` input.
+ * Covers both paths: a plain password field, which lives in `data` like any
+ * other value, and a `secret` one, which is kept out of `data` and reported via
+ * `@secret`.
+ *
+ * Required marker: `reqd` already reached the underlying control (FormControl's
+ * `required` prop enforces it and, where FormControl draws its own `label`,
+ * shows a `*`), but SettingsFields draws every field's label itself, outside of
+ * that prop, so a required field looked identical to an optional one until you
+ * focused it. This is the fix, and it reaches every settings page that renders
+ * through SettingsFields, not just Email Accounts.
  */
 import { describe, expect, it, vi } from 'vitest'
 import { mount } from '@vue/test-utils'
@@ -9,6 +24,8 @@ import { EditorView } from '@codemirror/view'
 import type { SettingsField } from '@/types/settingsSchema'
 
 vi.hoisted(() => {
+	// SettingsFields reaches @/utils, which pulls in plyr. Plyr touches
+	// matchMedia at import time, and jsdom has none.
 	window.matchMedia ??= (() => ({
 		matches: false,
 		addEventListener: () => {},
@@ -23,7 +40,8 @@ const { loadLanguage } = vi.hoisted(() => ({
 }))
 
 // Real module pulls in CodeMirror, which jsdom cannot lay out. The stub reports
-// what the field hands the editor.
+// what the field hands the editor. No password or required case below renders
+// a code field.
 vi.mock('frappe-ui/code-editor', () => ({
 	CodeEditor: {
 		props: ['modelValue', 'extensions', 'editable'],
@@ -208,5 +226,122 @@ describe('SettingsFields draws the Content label the same either side of Use HTM
 		expect(labelId).toBeTruthy()
 		expect(editor.props('ariaLabelledby')).toBe(labelId)
 		expect(editor.props('ariaRequired')).toBe(true)
+	})
+})
+
+describe('SettingsFields renders a password field as Password', () => {
+	it('masks a plain password field and offers a reveal toggle', async () => {
+		const w = await mountFields([
+			{ name: 'client_secret', label: 'Client Secret', type: 'password' },
+		])
+
+		const input = w.get('input')
+		expect(input.attributes('type')).toBe('password')
+
+		await w.get('.lucide-eye').trigger('click')
+		expect(w.get('input').attributes('type')).toBe('text')
+	})
+
+	it('hides the reveal toggle when the value is a stored mask', async () => {
+		const w = await mountFields(
+			[{ name: 'client_secret', label: 'Client Secret', type: 'password' }],
+			{ client_secret: '*****' }
+		)
+
+		expect(w.get('.lucide-eye').isVisible()).toBe(false)
+	})
+
+	it('keeps a secret field out of data, reporting it via @secret', async () => {
+		const data: Record<string, unknown> = { api_secret: '*****' }
+		const w = await mountFields(
+			[
+				{
+					name: 'api_secret',
+					label: 'API Secret',
+					type: 'password',
+					secret: true,
+				},
+			],
+			data
+		)
+
+		const input = w.get('input')
+		expect(input.attributes('type')).toBe('password')
+		// A stored secret says so rather than showing itself.
+		expect(input.attributes('placeholder')).toBe('Saved, leave blank to keep it')
+		expect(w.text()).not.toContain('*****')
+
+		await input.setValue('typed-secret')
+
+		// TextInput reports on both `input` and `change`, so the count is the
+		// library's business; what matters is the payload and that `data` is
+		// left holding the stored mask.
+		expect(w.emitted('secret')?.at(-1)).toEqual(['api_secret', 'typed-secret'])
+		expect(data.api_secret).toBe('*****')
+	})
+
+	it('prompts with the field label when no secret is stored yet', async () => {
+		const w = await mountFields([
+			{
+				name: 'api_secret',
+				label: 'API Secret',
+				type: 'password',
+				secret: true,
+			},
+		])
+
+		expect(w.get('input').attributes('placeholder')).toBe('API Secret')
+	})
+})
+
+describe('SettingsFields marks a required field', () => {
+	it('adds * beside a required field in the default row layout', async () => {
+		const w = await mountFields([
+			{ name: 'account_name', label: 'Account name', type: 'text', reqd: true },
+			{ name: 'nickname', label: 'Nickname', type: 'text' },
+		])
+
+		expect(w.findAll('.text-ink-red-5')).toHaveLength(1)
+		expect(w.text()).toContain('Account name')
+		expect(w.text()).toContain('Nickname')
+	})
+
+	it('adds no * for a field that does not declare reqd', async () => {
+		const w = await mountFields([
+			{ name: 'nickname', label: 'Nickname', type: 'text' },
+		])
+
+		expect(w.find('.text-ink-red-5').exists()).toBe(false)
+	})
+
+	it('marks a required fullWidth field', async () => {
+		const w = await mountFields([
+			{
+				name: 'bio',
+				label: 'Bio',
+				type: 'text',
+				fullWidth: true,
+				reqd: true,
+			},
+		])
+
+		expect(w.findAll('.text-ink-red-5')).toHaveLength(1)
+	})
+
+	it('marks a required textarea field', async () => {
+		const w = await mountFields([
+			{ name: 'notes', label: 'Notes', type: 'textarea', reqd: true },
+		])
+
+		expect(w.findAll('.text-ink-red-5')).toHaveLength(1)
+	})
+
+	it('does not mark an optional checkbox, and still renders it', async () => {
+		const w = await mountFields([
+			{ name: 'enabled', label: 'Enabled', type: 'checkbox' },
+		])
+
+		expect(w.find('.text-ink-red-5').exists()).toBe(false)
+		expect(w.text()).toContain('Enabled')
 	})
 })
