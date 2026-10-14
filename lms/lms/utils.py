@@ -2140,12 +2140,14 @@ def get_batch_details(batch: str):
 	if not guest_access_allowed():
 		return {}
 
-	from lms.lms.permissions import can_author_batch
+	from lms.lms.permissions import can_instruct_batch, evaluates_batch
 
 	batch_students = frappe.get_all("LMS Batch Enrollment", {"batch": batch}, pluck="member")
-	# can_modify_batch only recognises the Course Instructor tag; can_author_batch also
-	# recognises a Batch Course evaluator tag, which a Course Creator may hold instead.
-	can_manage = can_author_batch(batch)
+	# can_modify_batch only recognises the Course Instructor tag; can_manage, like
+	# can_author_batch, also recognises a Batch Course evaluator tag, which a Course
+	# Creator may hold instead. Only instructors schedule live classes.
+	instructs = can_instruct_batch(batch)
+	can_manage = instructs or evaluates_batch(batch)
 	is_batch_published = frappe.db.get_value("LMS Batch", batch, "published")
 	is_student_enrolled = frappe.session.user in batch_students
 
@@ -2187,6 +2189,11 @@ def get_batch_details(batch: str):
 
 	batch_details.instructors = get_public_instructors("LMS Batch", batch)
 	batch_details.can_manage = can_manage
+	# The rule LMSBatch.validate_instructor_changes applies.
+	batch_details.can_change_instructors = instructs
+	# The rule check_can_schedule_live_class applies.
+	can_create_classes = frappe.has_permission("LMS Live Class", "create")
+	batch_details.can_schedule_classes = instructs and can_create_classes
 	batch_details.accept_enrollments = batch_details.start_date > getdate()
 
 	if (

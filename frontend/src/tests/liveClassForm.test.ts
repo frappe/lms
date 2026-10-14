@@ -268,7 +268,7 @@ describe('LiveClassForm as a route', () => {
 		expect(wrapper.find('[data-testid="live-class-fields"]').exists()).toBe(
 			false
 		)
-		expect(wrapper.html()).toContain('not permitted')
+		expect(wrapper.html()).toContain('Ask one of its instructors or a Moderator')
 	})
 
 	it('refuses an evaluator the batch does not tag', async () => {
@@ -278,11 +278,26 @@ describe('LiveClassForm as a route', () => {
 		expect(wrapper.find('[data-testid="live-class-fields"]').exists()).toBe(
 			false
 		)
-		expect(wrapper.html()).toContain('not permitted')
+		expect(wrapper.html()).toContain('Ask one of its instructors or a Moderator')
 	})
 
-	it('opens for an evaluator the batch tags', async () => {
+	it('refuses an evaluator the batch tags but does not list as an instructor', async () => {
 		batchResource.data = { ...batchResource.data, can_manage: true }
+		const router = makeRouter()
+		await router.push('/batches/B1/live-class/new')
+		const wrapper = await mountForm(router, evaluator)
+		expect(wrapper.find('[data-testid="live-class-fields"]').exists()).toBe(
+			false
+		)
+		expect(wrapper.html()).toContain('Ask one of its instructors or a Moderator')
+	})
+
+	it('opens for an instructor of the batch', async () => {
+		batchResource.data = {
+			...batchResource.data,
+			can_manage: true,
+			can_schedule_classes: true,
+		}
 		const router = makeRouter()
 		await router.push('/batches/B1/live-class/new')
 		const wrapper = await mountForm(router, evaluator)
@@ -435,8 +450,12 @@ describe('LiveClassForm as a route', () => {
 		// Evaluators have no Settings modal; their own calendar lives on their
 		// profile's Slots tab, which is where a Zoom class's invites come from.
 		it('sends an evaluator to their own Slots tab for a Zoom class', async () => {
-			// Tagged on the batch: only then may an evaluator schedule its classes.
-			batchResource.data = { ...batchResource.data, can_manage: true }
+			// Listed as the batch's instructor: only then may an evaluator schedule its classes.
+			batchResource.data = {
+				...batchResource.data,
+				can_manage: true,
+				can_schedule_classes: true,
+			}
 			calendarMissing(zoomSubmit)
 			const router = makeRouter()
 			await router.push('/batches/B1/live-class/new')
@@ -459,6 +478,7 @@ describe('LiveClassForm as a route', () => {
 				conferencing_provider: 'Google Meet',
 				google_meet_account: 'meet-1',
 				can_manage: true,
+				can_schedule_classes: true,
 			}
 			calendarMissing(meetSubmit)
 			const router = makeRouter()
@@ -555,7 +575,8 @@ describe('the Classes tab opener', () => {
 
 	const mountTab = async (
 		router: Router,
-		user: Record<string, unknown> = moderator
+		user: Record<string, unknown> = moderator,
+		access: Record<string, boolean> = {}
 	) =>
 		mount(LiveClass, {
 			props: {
@@ -564,6 +585,7 @@ describe('the Classes tab opener', () => {
 						name: 'B1',
 						conferencing_provider: 'Zoom',
 						zoom_account: 'zoom-1',
+						...access,
 					},
 				},
 			},
@@ -610,6 +632,23 @@ describe('the Classes tab opener', () => {
 			const wrapper = await mountTab(router, evaluator)
 			expect(retryButton(wrapper)).toBeFalsy()
 		})
+
+		it('does not offer Retry to an evaluator the batch tags but does not list as an instructor', async () => {
+			const router = makeRouter()
+			await router.push('/batches/B1#classes')
+			const wrapper = await mountTab(router, evaluator, { can_manage: true })
+			expect(retryButton(wrapper)).toBeFalsy()
+		})
+
+		it('offers Retry to an instructor of the batch', async () => {
+			const router = makeRouter()
+			await router.push('/batches/B1#classes')
+			const wrapper = await mountTab(router, evaluator, {
+				can_manage: true,
+				can_schedule_classes: true,
+			})
+			expect(retryButton(wrapper)).toBeTruthy()
+		})
 	})
 
 	it('registers its list under the key the form refreshes', async () => {
@@ -626,6 +665,23 @@ describe('the Classes tab opener', () => {
 		await router.push('/batches/B1#classes')
 		const wrapper = await mountTab(router, evaluator)
 		expect(wrapper.find('[data-testid="live-class-add"]').exists()).toBe(false)
+	})
+
+	it('offers no Add to an evaluator the batch tags but does not list as an instructor', async () => {
+		const router = makeRouter()
+		await router.push('/batches/B1#classes')
+		const wrapper = await mountTab(router, evaluator, { can_manage: true })
+		expect(wrapper.find('[data-testid="live-class-add"]').exists()).toBe(false)
+	})
+
+	it('offers Add to an instructor of the batch', async () => {
+		const router = makeRouter()
+		await router.push('/batches/B1#classes')
+		const wrapper = await mountTab(router, evaluator, {
+			can_manage: true,
+			can_schedule_classes: true,
+		})
+		expect(wrapper.find('[data-testid="live-class-add"]').exists()).toBe(true)
 	})
 
 	it('opens the form route carrying the current tab hash (C2)', async () => {
