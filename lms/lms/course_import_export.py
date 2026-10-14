@@ -461,6 +461,9 @@ def read_json_from_zip(zip_file, filename):
 		return json.loads(read_zip_member(zip_file, filename, MAX_ARCHIVE_JSON_BYTES))
 	except frappe.ValidationError:
 		raise
+	except KeyError:
+		# No such member: optional ones like instructors.json may be absent.
+		return None
 	except Exception as e:
 		frappe.log_error(f"Error reading {filename} from ZIP: {e}")
 		return None
