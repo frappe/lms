@@ -199,6 +199,8 @@ export interface FieldsPage {
 		name: string | null
 		back: () => void
 	}) => void
+	/** Ran once an autosave write lands. Never on a refused write. */
+	onAutosaved?: () => void
 	/**
 	 * A block rendered after the page's own fields, inside the same scrolling
 	 * body. For content the field/section schema can't express (Communication

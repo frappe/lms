@@ -68,6 +68,10 @@ vi.mock('@/utils/', async (importOriginal) => ({
 	...(await importOriginal<object>()),
 	openSettings: openSettingsMock,
 }))
+const { completeStepMock } = vi.hoisted(() => ({ completeStepMock: vi.fn() }))
+vi.mock('@/onboarding/useLearningOnboarding', () => ({
+	useLearningOnboarding: () => ({ completeStep: completeStepMock }),
+}))
 
 // HeaderButton wraps frappe-ui's Button in a Tooltip below the mobile
 // breakpoint, and the hand-written frappe-ui mock here has no Tooltip. Stub it
@@ -510,6 +514,22 @@ describe('LiveClassForm as a route', () => {
 			'B1',
 		])
 		expect(liveClassList.reload).toHaveBeenCalledTimes(1)
+	})
+
+	// Guards: a new live class not ticking Schedule a live class. Introduced in
+	// this branch (feat/onboarding-flows, PR pending); test added there to
+	// cover the tick.
+	it('completes the live class onboarding step after a create', async () => {
+		const router = makeRouter()
+		await router.push('/batches/B1/live-class/new')
+		const wrapper = await mountForm(router, moderator)
+		zoomSubmit.mockImplementation(
+			(_doc: unknown, options: { onSuccess: () => void }) => options.onSuccess()
+		)
+		await fillForm(wrapper)
+		await wrapper.find('[data-testid="live-class-save"]').trigger('click')
+		await flushPromises()
+		expect(completeStepMock).toHaveBeenCalledWith('schedule_live_class')
 	})
 
 	it('closing a DEEP-LINKED form keeps the tab hash (C2)', async () => {

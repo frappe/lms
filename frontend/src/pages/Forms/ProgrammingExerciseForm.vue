@@ -169,6 +169,7 @@ import {
 	useKeyboardShortcuts,
 } from '@/composables/useKeyboardShortcuts'
 import { resourceErrorMessage, submitResource } from '@/utils/resource'
+import { useLearningOnboarding } from '@/onboarding/useLearningOnboarding'
 
 const user = inject<any>('$user')
 const router = useRouter()
@@ -189,6 +190,7 @@ const props = withDefaults(
 )
 
 const isNew = computed(() => props.exerciseID === 'new')
+const { completeStep } = useLearningOnboarding()
 
 // Placing an exercise grants use only, so a non-author opens it read-only.
 const canWrite = useCanWrite('LMS Programming Exercise', () =>
@@ -410,6 +412,7 @@ const createIfReady = () => {
 	sentOnCreate = JSON.stringify(payload)
 	submitResource(exercises.insert, payload, {
 		onSuccess(doc: { name: string }) {
+			completeStep('add_programming_exercise')
 			// insert already refetched the list itself (listResource.js:123).
 			exerciseCount.reload()
 			// Only if still here: the blur that created it may have been a click away.

@@ -122,8 +122,10 @@ import {
 	useSettingsSource,
 } from '@/composables/useSettingsSource'
 import { canManageGoogleIntegrations } from '@/components/Settings/GoogleApi/googleApi'
+import { useLearningOnboarding } from '@/onboarding/useLearningOnboarding'
 
 const GOOGLE_DOCTYPE = 'Google Settings'
+const { refetchFacts } = useLearningOnboarding()
 const GOOGLE_NAME = 'Google Settings'
 
 // A Moderator without System Manager holds no permission on Google Settings,
@@ -221,6 +223,8 @@ const save = () => {
 		.then(() => {
 			toast.success(__('Services settings saved'))
 			secretInput.value = ''
+			// The server decides whether Google API is set up.
+			refetchFacts()
 		})
 		.catch(reportSaveFailure)
 		.finally(() => (saving.value = false))

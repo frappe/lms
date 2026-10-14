@@ -15,6 +15,7 @@
 					:required="true"
 					autocomplete="off"
 					autofocus
+					variant="outline"
 				/>
 				<BooleanSwitch
 					size="sm"
@@ -102,10 +103,9 @@ import { computed, inject, onMounted, reactive, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { getFileSize } from '@/utils/'
 import { resourceErrorMessage, submitResource } from '@/utils/resource'
-import { useOnboarding } from '@framework/ui/components/Onboarding/index'
+import { useLearningOnboarding } from '@/onboarding/useLearningOnboarding'
 import { useTelemetry } from '@framework/ui/telemetry/index'
 import { takeFormSource } from '@/composables/formTracking'
-import { seesOnboarding } from '@/utils/onboarding'
 import FormShell from '@/components/FormShell.vue'
 import HeaderButton from '@/components/HeaderButton.vue'
 import { useFormRoute } from '@/composables/useFormRoute'
@@ -142,7 +142,7 @@ const props = defineProps<{
 
 const route = useRoute()
 const user = inject<SessionUser>('$user')!
-const { updateOnboardingStep } = useOnboarding('learning')
+const { completeStep } = useLearningOnboarding()
 
 // House style for a route that serves both create and edit
 // (`/job-opening/:jobName/edit`, JobForm.vue:147-149).
@@ -276,8 +276,7 @@ const saveChapter = () => {
 	// submitResource, not a bare submit(): createResource's handleError calls
 	// onError and then RETHROWS, so a bare statement leaves a rejected promise
 	// nobody handles on every validation failure or 500. It also keeps a throw
-	// from onSuccess — updateOnboardingStep throws when onboarding is not
-	// registered — out of frappe-ui's error path, so a saved chapter is never
+	// from onSuccess out of frappe-ui's error path, so a saved chapter is never
 	// reported as a failed one. Validation runs in the helper because
 	// createResource's `validate` wraps the message in new Error(), which this
 	// onError could only ever render as a bare "Error".
@@ -286,14 +285,16 @@ const saveChapter = () => {
 		{},
 		{
 			validate: validateChapter,
-			onSuccess() {
+			onSuccess(data: { name?: string } | null) {
 				if (!isEdit.value) {
+					completeStep('create_first_chapter', {
+						first_course: props.courseName,
+						first_chapter: data?.name,
+					})
 					capture('chapter_created', {
 						course: props.courseName,
 						source: formSource,
 					})
-					if (seesOnboarding(user.data))
-						updateOnboardingStep('create_first_chapter')
 				}
 				// Stands in for the modal's `created`/`updated` emits: a route
 				// component has no parent listening, so refresh the outline the

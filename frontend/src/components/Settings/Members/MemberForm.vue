@@ -99,8 +99,6 @@
 <script setup lang="ts">
 import { FormControl, LoadingIndicator, call, createResource } from 'frappe-ui'
 import { computed, inject, reactive, ref, watch } from 'vue'
-import { useOnboarding } from '@framework/ui/components/Onboarding/index'
-import { seesOnboarding } from '@/utils/onboarding'
 import { useTelemetry } from '@framework/ui/telemetry/index'
 import RoleSwitches from '@/components/Controls/RoleSwitches.vue'
 import SettingsLayout from '@/components/Layouts/settings/desktop/SettingsLayout.vue'
@@ -133,7 +131,6 @@ const emit = defineEmits<{ back: [] }>()
 
 const user = inject<SessionUser>('$user')!
 const { capture } = useTelemetry()
-const { updateOnboardingStep } = useOnboarding('learning')
 
 const state = useSaveState()
 const saving = state.saving
@@ -289,7 +286,6 @@ const save = () => {
 			if (doc) await settleSaved(doc, creating)
 
 			if (creating) {
-				if (seesOnboarding(user.data)) updateOnboardingStep('invite_students')
 				capture('user_added')
 			}
 		},

@@ -20,7 +20,6 @@ const {
 	getCachedListResourceMock,
 	getCachedResourceMock,
 	openSettingsMock,
-	updateOnboardingStepMock,
 	toastMock,
 } = vi.hoisted(() => {
 	window.matchMedia ??= (() => ({
@@ -33,7 +32,6 @@ const {
 		getCachedListResourceMock: vi.fn(),
 		getCachedResourceMock: vi.fn(),
 		openSettingsMock: vi.fn(),
-		updateOnboardingStepMock: vi.fn(),
 		toastMock: { success: vi.fn(), error: vi.fn() },
 	}
 })
@@ -61,16 +59,6 @@ vi.mock('frappe-ui', () => ({
 		template: `<div v-if="open" role="dialog"><h2>{{ title }}</h2><slot /><slot name="actions" /></div>`,
 	},
 }))
-
-vi.mock(
-	'@framework/ui/components/Onboarding/index',
-	async (importOriginal) => ({
-		...(await importOriginal<
-			typeof import('@framework/ui/components/Onboarding/index')
-		>()),
-		useOnboarding: () => ({ updateOnboardingStep: updateOnboardingStepMock }),
-	})
-)
 
 // @/utils is the barrel that pulls in plyr and the settings store; only
 // openSettings is used here.
@@ -214,7 +202,6 @@ describe('BatchStudentForm as a route', () => {
 		// openSettings reports whether the dialog is actually mounted; the form
 		// only leaves for it when it is. Desktop is the default here.
 		openSettingsMock.mockReturnValue(true)
-		updateOnboardingStepMock.mockReset()
 		toastMock.success.mockReset()
 		toastMock.error.mockReset()
 		delete (window as Window & { read_only_mode?: boolean }).read_only_mode
@@ -356,35 +343,6 @@ describe('BatchStudentForm as a route', () => {
 
 		expect(list.reload).toHaveBeenCalledTimes(1)
 		expect(count.reload).toHaveBeenCalledTimes(1)
-	})
-
-	it('ticks the onboarding step for a moderator', async () => {
-		const router = makeRouter()
-		await openForm(router)
-		const wrapper = await mountForm(router)
-		await pickStudent(wrapper)
-		succeedOnSubmit()
-
-		await save(wrapper).trigger('click')
-		await flushPromises()
-
-		expect(updateOnboardingStepMock).toHaveBeenCalledWith('add_batch_student')
-	})
-
-	it('leaves the onboarding step alone for a user who does not see onboarding', async () => {
-		const router = makeRouter()
-		await openForm(router)
-		const wrapper = await mountForm(router, {
-			name: 'evaluator@example.com',
-			is_evaluator: true,
-		})
-		await pickStudent(wrapper)
-		succeedOnSubmit()
-
-		await save(wrapper).trigger('click')
-		await flushPromises()
-
-		expect(updateOnboardingStepMock).not.toHaveBeenCalled()
 	})
 
 	it('returns to the tab it was opened from', async () => {

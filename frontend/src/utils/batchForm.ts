@@ -17,6 +17,9 @@ type BatchFields = Pick<
 	| 'paid_batch'
 	| 'amount'
 	| 'currency'
+	| 'conferencing_provider'
+	| 'zoom_account'
+	| 'google_meet_account'
 >
 
 // Nullable so the create form's unset dates and times pass as-is.
@@ -57,6 +60,15 @@ export function validateBatch(input: BatchValidationInput): string | null {
 		return __('Add at least one {0} before saving.').format(__('Instructor'))
 	}
 
+	// LMS Batch's validate_conferencing_provider, with its messages. Without it
+	// a tool picked before its account fails every autosave.
+	if (doc.conferencing_provider === 'Zoom' && !doc.zoom_account) {
+		return __('Please select a Zoom account for this batch.')
+	}
+	if (doc.conferencing_provider === 'Google Meet' && !doc.google_meet_account) {
+		return __('Please select a Google Meet account for this batch.')
+	}
+
 	if (!doc.paid_batch) return null
 	if (!doc.currency) {
 		return __('Currency is required for {0}.').format(__('paid batches'))
@@ -67,4 +79,29 @@ export function validateBatch(input: BatchValidationInput): string | null {
 		)
 	}
 	return null
+}
+
+// What other places write while this form holds the copy it loaded: the
+// child tables BatchCourseForm, AssessmentForm and the timetable edit, and
+// the header's Publish toggle. Saving that copy would undo them.
+const FIELDS_EDITED_ELSEWHERE = new Set([
+	'courses',
+	'assessment',
+	'timetable',
+	'timetable_legends',
+	'published',
+])
+
+/** What BatchForm saves: its own fields and instructors, nothing written elsewhere. */
+export function batchFormPayload(
+	doc: LMSBatch,
+	instructors: readonly string[]
+): Record<string, unknown> {
+	const fields = Object.entries(doc).filter(
+		([key]) => !FIELDS_EDITED_ELSEWHERE.has(key)
+	)
+	return {
+		...Object.fromEntries(fields),
+		instructors: instructors.map((instructor) => ({ instructor })),
+	}
 }
