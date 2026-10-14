@@ -2201,10 +2201,19 @@ def get_certification_details(course: str) -> dict:
 	}
 
 
+MEMBER_PROFILE_FIELDS = ("first_name", "last_name", "username", "phone", "mobile_no", "location", "bio")
+
+
 @frappe.whitelist(methods=["POST"])
-def add_member(email: str, first_name: str | None = None, last_name: str | None = None) -> dict:
+def add_member(
+	email: str,
+	first_name: str | None = None,
+	last_name: str | None = None,
+	profile: dict | str | None = None,
+) -> dict:
 	"""Add a website user from the members screens. Moderators have no create on
-	User, so this is the one way in, and it only ever makes a website user."""
+	User, so this is the one way in, and it only ever makes a website user. The
+	profile is saved in the same request, so a failed save adds nobody."""
 	frappe.only_for("Moderator")
 	# Lowercased as User names are, so the duplicate check below matches them.
 	email = (email or "").strip().lower()
@@ -2224,12 +2233,10 @@ def add_member(email: str, first_name: str | None = None, last_name: str | None 
 			"user_type": "Website User",
 		}
 	)
+	set_member_profile(user, profile)
 	# nosemgrep: lms-unjustified-ignore-permissions - Moderators add members here only; the user is always a website user
 	user.insert(ignore_permissions=True)
 	return {"name": user.name, "email": user.email, "full_name": user.full_name}
-
-
-MEMBER_PROFILE_FIELDS = ("first_name", "last_name", "username", "phone", "mobile_no", "location", "bio")
 
 
 @frappe.whitelist(methods=["POST"])
@@ -2245,13 +2252,18 @@ def update_member(member: str, profile: dict | str) -> dict:
 		frappe.throw(_("Member {0} does not exist.").format(member), frappe.DoesNotExistError)
 	check_can_manage_member(member)
 
-	profile = frappe.parse_json(profile) or {}
 	user = frappe.get_doc("User", member)
-	user.update({field: profile[field] for field in MEMBER_PROFILE_FIELDS if field in profile})
-	user.bio = sanitize_rich_text(user.bio)
+	set_member_profile(user, profile)
 	# nosemgrep: lms-unjustified-ignore-permissions - Moderators edit only the profile fields above, never a System Manager's
 	user.save(ignore_permissions=True)
 	return {"name": user.name, "full_name": user.full_name}
+
+
+def set_member_profile(user, profile: dict | str | None):
+	"""Copy only the profile fields onto the user; the rest of the account stays as it is."""
+	profile = frappe.parse_json(profile) or {}
+	user.update({field: profile[field] for field in MEMBER_PROFILE_FIELDS if field in profile})
+	user.bio = sanitize_rich_text(user.bio)
 
 
 def check_can_manage_member(member: str):
