@@ -160,17 +160,27 @@ class TestListFilters(BaseTestUtils):
 						self.assert_refused(user, endpoint, filters={"category": value})
 
 	def test_batches_sort_only_by_start_date(self):
-		"""Any other sort falls back to start date rather than failing the list."""
+		"""Any other sort falls back to start date, earliest first, rather than failing the list."""
+		later = self._make_batch(f"Filters Later Batch {self.hash}")
+		later.start_date = add_days(nowdate(), 10)
+		later.save()
+		earliest_first = [self.batch.name, later.name]
+		expected = {
+			"start_date desc": earliest_first[::-1],
+			"Start_Date  DESC": earliest_first[::-1],
+			"start_date": earliest_first,
+			None: earliest_first,
+			"creation desc": earliest_first,
+			"zoom_account.account_id": earliest_first,
+			"start_date, (select 1)": earliest_first,
+		}
 		for user in self.callers():
-			for order_by in (
-				None,
-				"Start_Date  DESC",
-				"creation desc",
-				"zoom_account.account_id",
-				"start_date, (select 1)",
-			):
+			for order_by, names in expected.items():
 				with self.subTest(user=user, order_by=order_by):
-					self.assert_lists_batch(user, {"category": self.category}, order_by)
+					batches = self.as_user(
+						user, get_batches, filters={"category": self.category}, order_by=order_by
+					)
+					self.assertEqual([batch.name for batch in batches], names)
 
 	def test_a_comma_separated_in_filter_is_accepted(self):
 		for user in self.callers():
