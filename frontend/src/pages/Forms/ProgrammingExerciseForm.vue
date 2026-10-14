@@ -181,7 +181,7 @@ const creating = ref(false)
 
 const props = withDefaults(
 	defineProps<{
-		exerciseID: string
+		exerciseID?: string
 	}>(),
 	{
 		exerciseID: 'new',
