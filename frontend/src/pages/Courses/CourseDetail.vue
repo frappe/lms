@@ -424,7 +424,12 @@ watch(
 )
 
 watch(course, () => {
-	if (!isAdmin.value && !course.data?.published && !course.data?.upcoming) {
+	if (
+		!isAdmin.value &&
+		!course.data?.membership &&
+		!course.data?.published &&
+		!course.data?.upcoming
+	) {
 		router.push({
 			name: 'Courses',
 		})
