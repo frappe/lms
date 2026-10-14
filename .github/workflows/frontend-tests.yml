@@ -2,8 +2,28 @@ name: Frontend Tests
 
 on:
   pull_request:
+    paths:
+      - "frontend/**"
+      - "package.json"
+      # Read from disk by frontend/src/tests/ravenRuleModel.test.ts.
+      - "lms/raven_provider.py"
+      # Read from disk by frontend/src/tests/a11y-forms.test.ts.
+      - "lms/www/new-sign-up.html"
+      - ".github/workflows/frontend-tests.yml"
   push:
     branches: [main, develop, main-hotfix]
+    paths:
+      - "frontend/**"
+      - "package.json"
+      # Read from disk by frontend/src/tests/ravenRuleModel.test.ts.
+      - "lms/raven_provider.py"
+      # Read from disk by frontend/src/tests/a11y-forms.test.ts.
+      - "lms/www/new-sign-up.html"
+      - ".github/workflows/frontend-tests.yml"
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
   vitest:
@@ -33,14 +53,8 @@ jobs:
         with:
           node-version: 24
           check-latest: true
-
-      - name: Cache yarn
-        uses: actions/cache@v4
-        with:
-          path: ~/.cache/yarn
-          key: ${{ runner.os }}-yarn-${{ hashFiles('apps/lms/frontend/yarn.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-yarn-
+          cache: yarn
+          cache-dependency-path: apps/lms/frontend/yarn.lock
 
       - name: Install dependencies
         working-directory: apps/lms/frontend
