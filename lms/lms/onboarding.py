@@ -1,21 +1,194 @@
 import frappe
+from frappe import _
+from frappe.utils import cint, flt
+
+SAMPLE_COURSE_TITLE = "A guide to Frappe Learning"
+# Seeded with the sample course and removed by api.clear_demo_data.
+DEMO_QUIZ_TITLE = "Do you know Frappe Learning?"
+# Data Import statuses for an import that wrote rows.
+IMPORT_DONE = ["Success", "Partial Success"]
+# The domain of frappe's fallback sender and of placeholder accounts.
+PLACEHOLDER_EMAIL_DOMAIN = "example.com"
+# Website Settings' own default app_name, and the title LMS falls back to without one.
+DEFAULT_BRAND_NAMES = {"Frappe", "Frappe Learning"}
+BRAND_IMAGES = ["banner_image", "app_logo", "favicon"]
 
 
-def get_first_course():
-	course = frappe.get_all(
-		"LMS Course",
-		fields=["name"],
-		order_by="creation",
-		limit=1,
+@frappe.whitelist()
+def get_onboarding_facts(course: str | None = None, batch: str | None = None) -> dict[str, str | bool | None]:
+	"""What the site already has, so the onboarding flows can tick steps done before they shipped.
+	Course and batch facts are read for `course` and `batch`, the ones the admin created from the flow."""
+	frappe.only_for("System Manager")
+	if course is not None and not isinstance(course, str):
+		frappe.throw(_("course must be a string"))
+	if batch is not None and not isinstance(batch, str):
+		frappe.throw(_("batch must be a string"))
+	return {
+		**_course_facts(course),
+		**_assessment_facts(),
+		**_learner_facts(),
+		**_batch_facts(batch),
+		**_meeting_facts(),
+		"has_branding": _has_branding(),
+		"has_contact_email": _has_contact_email(),
+	}
+
+
+def _course_facts(target: str | None) -> dict[str, str | bool | None]:
+	fields = ["name", "paid_course", "course_price", "published"]
+	course = _target_course(target, fields) or _first_row(
+		"LMS Course", {"title": ["!=", SAMPLE_COURSE_TITLE]}, fields, order_by="creation desc"
 	)
-	return course[0].name if course else None
+	name = course.name if course else None
+	return {
+		"first_course": name,
+		"first_chapter": _first_chapter(name),
+		"has_course": bool(course),
+		"has_chapter": _exists_for(name, "Course Chapter", {"course": name}),
+		"has_lesson": _exists_for(name, "Course Lesson", {"course": name}),
+		"has_quiz": bool(_first("LMS Quiz", {"title": ["!=", DEMO_QUIZ_TITLE]})),
+		"has_course_pricing": bool(course and cint(course.paid_course) and flt(course.course_price) > 0),
+		"has_published_course": bool(course and cint(course.published)),
+	}
 
 
-def get_first_batch():
-	batch = frappe.get_all(
-		"LMS Batch",
-		fields=["name"],
-		order_by="creation",
-		limit=1,
+def _target_course(name: str | None, fields: list[str]) -> frappe._dict | None:
+	"""The flow's recorded course, unless it is gone or is the sample course."""
+	if not name:
+		return None
+	return _first_row("LMS Course", {"name": name, "title": ["!=", SAMPLE_COURSE_TITLE]}, fields)
+
+
+def _first_chapter(course: str | None) -> str | None:
+	"""The course's first chapter in outline order."""
+	if not course:
+		return None
+	return frappe.db.get_value(
+		"Chapter Reference",
+		{"parent": course, "parenttype": "LMS Course"},
+		"chapter",
+		order_by="idx asc",
 	)
-	return batch[0].name if batch else None
+
+
+def _assessment_facts() -> dict[str, bool]:
+	return {
+		"has_programming_exercise": bool(_first("LMS Programming Exercise", {})),
+		"has_assignment": bool(_first("LMS Assignment", {})),
+		"has_assessment_in_lesson": _has_assessment_in_lesson(),
+	}
+
+
+def _has_assessment_in_lesson() -> bool:
+	"""A student-visible assessment in a lesson outside the sample course, read from
+	the placement index each lesson save derives from its content."""
+	placement = frappe.qb.DocType("LMS Lesson Assessment")
+	lesson = frappe.qb.DocType("Course Lesson")
+	course = frappe.qb.DocType("LMS Course")
+	rows = (
+		frappe.qb.from_(placement)
+		.join(lesson)
+		.on(placement.parent == lesson.name)
+		.join(course)
+		.on(lesson.course == course.name)
+		.select(placement.name)
+		.where(placement.parenttype == "Course Lesson")
+		.where(placement.instructor_only == 0)
+		.where(course.title != SAMPLE_COURSE_TITLE)
+		.limit(1)
+		.run()
+	)
+	return bool(rows)
+
+
+def _learner_facts() -> dict[str, bool]:
+	return {
+		"has_imported_learners": bool(
+			_first("Data Import", {"reference_doctype": "User", "status": ["in", IMPORT_DONE]})
+		),
+		"has_email_account": _has_email_account(),
+	}
+
+
+def _batch_facts(target: str | None) -> dict[str, str | bool | None]:
+	fields = ["name", "published", "conferencing_provider", "zoom_account", "google_meet_account"]
+	batch = _target_batch(target, fields) or _first_row("LMS Batch", {}, fields, order_by="creation desc")
+	name = batch.name if batch else None
+	in_batch = {"parent": name, "parenttype": "LMS Batch"}
+	return {
+		"first_batch": name,
+		"has_batch": bool(batch),
+		"has_batch_course": _exists_for(name, "Batch Course", in_batch),
+		"has_batch_assessment": _exists_for(name, "LMS Assessment", in_batch),
+		"has_live_class": _exists_for(name, "LMS Live Class", {"batch_name": name}),
+		"has_published_batch": bool(batch and cint(batch.published)),
+		"has_batch_zoom": bool(batch and batch.conferencing_provider == "Zoom" and batch.zoom_account),
+		"has_batch_meet": bool(
+			batch and batch.conferencing_provider == "Google Meet" and batch.google_meet_account
+		),
+	}
+
+
+def _target_batch(name: str | None, fields: list[str]) -> frappe._dict | None:
+	"""The flow's recorded batch, unless it is gone."""
+	if not name:
+		return None
+	return _first_row("LMS Batch", {"name": name}, fields)
+
+
+def _meeting_facts() -> dict[str, bool]:
+	return {
+		"has_zoom_account": bool(_first("LMS Zoom Settings", {})),
+		"has_google_api": _has_google_api(),
+		"has_google_calendar": bool(
+			frappe.db.exists("Google Calendar", {"user": frappe.session.user, "refresh_token": ["is", "set"]})
+		),
+		"has_meet_account": bool(_first("LMS Google Meet Settings", {})),
+	}
+
+
+def _first_row(
+	doctype: str, filters: dict, fields: list[str], order_by: str = "creation asc"
+) -> frappe._dict | None:
+	rows = frappe.get_all(doctype, filters=filters, fields=fields, order_by=order_by, limit=1)
+	return rows[0] if rows else None
+
+
+def _first(doctype: str, filters: dict) -> str | None:
+	row = _first_row(doctype, filters, ["name"])
+	return row.name if row else None
+
+
+def _exists_for(target: str | None, doctype: str, filters: dict) -> bool:
+	return bool(target and frappe.db.exists(doctype, filters))
+
+
+def _has_google_api() -> bool:
+	"""Enabled, with a Client ID and a stored Client Secret (the column holds a mask once set)."""
+	settings = frappe.db.get_singles_dict("Google Settings", cast=True)
+	return bool(settings.get("enable") and settings.get("client_id") and settings.get("client_secret"))
+
+
+def _has_branding() -> bool:
+	"""A logo, brand logo or favicon in Website Settings, or a brand name other than a default."""
+	brand = frappe.db.get_singles_dict("Website Settings")
+	if any(brand.get(field) for field in BRAND_IMAGES):
+		return True
+	app_name = brand.get("app_name")
+	return bool(app_name and app_name not in DEFAULT_BRAND_NAMES)
+
+
+def _has_contact_email() -> bool:
+	"""An address in LMS Settings for the Contact Us form to deliver to."""
+	return bool((frappe.db.get_single_value("LMS Settings", "contact_us_email") or "").strip())
+
+
+def _has_email_account() -> bool:
+	"""An Email Account that sends. frappe falls back to notifications@example.com
+	when none is set up, so a row carrying a placeholder address does not count."""
+	return bool(
+		_first(
+			"Email Account",
+			{"enable_outgoing": 1, "email_id": ["not like", f"%@{PLACEHOLDER_EMAIL_DOMAIN}"]},
+		)
+	)
