@@ -483,7 +483,9 @@ class TestBatchAuthoringScope(BaseTestUtils):
 		details = get_batch_details(self.evaluator_only_batch)
 		frappe.set_user("Administrator")
 		self.assertTrue(details.get("can_manage"))
-		self.assertIn("students", details)
+		# The roster's names are login emails, so no caller gets it; a manager gets the count.
+		self.assertNotIn("students", details)
+		self.assertIn("student_count", details)
 
 	def test_an_outsider_gets_no_details_for_an_unpublished_batch(self):
 		# A plain student: unlike self.outsider, holds no Batch Evaluator role.

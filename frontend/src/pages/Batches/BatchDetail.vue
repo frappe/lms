@@ -39,7 +39,7 @@
 			/>
 			<template v-if="tab?.key === 'announcements' && isAdmin && !readOnlyMode">
 				<Tooltip
-					v-if="!batch.data?.students?.length"
+					v-if="!batch.data?.student_count"
 					:text="__('Add students to the batch to make an announcement')"
 				>
 					<HeaderButton
@@ -172,7 +172,7 @@ const isAdmin = computed(() => {
 })
 
 const isStudent = computed(() => {
-	return Boolean(batch.data?.students?.includes(user.data?.name))
+	return Boolean(batch.data?.is_student)
 })
 
 const tabs = computed(() => {

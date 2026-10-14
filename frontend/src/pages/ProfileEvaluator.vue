@@ -372,7 +372,7 @@ const props = defineProps({
 })
 
 onMounted(() => {
-	if (user.data?.name !== props.profile.data?.name && !hasHigherAccess()) {
+	if (!isSessionUser() && !hasHigherAccess()) {
 		window.location.href = `/user/${props.profile.data?.username}`
 	}
 	// Google sends the evaluator back here; a failed sign-in says so in the URL.
@@ -391,7 +391,10 @@ const hasHigherAccess = () => {
 }
 
 const isSessionUser = () => {
-	return user.data?.email === props.profile.data?.name
+	return (
+		Boolean(props.profile.data?.username) &&
+		user.data?.username === props.profile.data?.username
+	)
 }
 
 const canEdit = computed(() => isSessionUser() && !readOnlyMode)
