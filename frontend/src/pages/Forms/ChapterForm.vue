@@ -100,11 +100,7 @@ import { computed, inject, onMounted, reactive, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { getFileSize } from '@/utils/'
 import { resourceErrorMessage, submitResource } from '@/utils/resource'
-<<<<<<< HEAD
-import { useOnboarding, useTelemetry } from 'frappe-ui/frappe'
-=======
-import { useOnboarding } from '@framework/ui/components/Onboarding/index'
->>>>>>> fb6838b (feat(telemetry): send each step a site takes to Pulse)
+import { useOnboarding } from 'frappe-ui/frappe'
 import FormShell from '@/components/FormShell.vue'
 import HeaderButton from '@/components/HeaderButton.vue'
 import { useFormRoute } from '@/composables/useFormRoute'

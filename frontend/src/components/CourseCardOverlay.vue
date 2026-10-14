@@ -152,10 +152,6 @@ import { Badge, Button, call, createResource, toast } from 'frappe-ui'
 import { useRouter } from 'vue-router'
 import CertificationLinks from '@/components/CertificationLinks.vue'
 import VideoPreview from '@/components/VideoPreview.vue'
-<<<<<<< HEAD
-import { useTelemetry } from 'frappe-ui/frappe'
-=======
->>>>>>> fb6838b (feat(telemetry): send each step a site takes to Pulse)
 import { openExternal } from '@/utils/openExternal'
 import type {
 	CourseDetails,

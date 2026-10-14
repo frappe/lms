@@ -427,11 +427,6 @@ import { useDebounceFn } from '@vueuse/core'
 
 import { onBeforeRouteLeave, useRouter } from 'vue-router'
 import { sanitizeOnWrite } from '@/utils/sanitizeOnWrite'
-<<<<<<< HEAD
-import { useTelemetry } from 'frappe-ui/frappe'
-=======
-import { getLmsRoute } from '@/utils/basePath'
->>>>>>> fb6838b (feat(telemetry): send each step a site takes to Pulse)
 import { resourceErrorMessage, submitResource } from '@/utils/resource'
 import { useCanWrite } from '@/composables/useCanWrite'
 
