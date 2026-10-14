@@ -18,8 +18,9 @@ class TestCertificateMemberAccess(BaseTestUtils):
 		super().setUpClass()
 		hash = frappe.generate_hash(length=6)
 		cls.learner = cls._create_user(f"cmlrn-{hash}@example.com", "Lee", "Learner", ["LMS Student"])
-		cls.course = cls._create_course(title=f"Cert Course {hash}")
-		cls.other_course = cls._create_course(title=f"Other Cert Course {hash}")
+		instructor = cls._create_user(f"cminst-{hash}@example.com", "Ian", "Instructor", ["Course Creator"])
+		cls.course = cls._create_course(title=f"Cert Course {hash}", instructor=instructor.name)
+		cls.other_course = cls._create_course(title=f"Other Cert Course {hash}", instructor=instructor.name)
 		cls._create_enrollment(cls.learner.name, cls.course.name)
 
 	def setUp(self):
