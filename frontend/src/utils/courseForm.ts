@@ -53,3 +53,16 @@ export function validateCourse(input: CourseValidationInput): string | null {
 	}
 	return null
 }
+
+/** A paid course with a price above zero: what the "Set pricing" step needs. */
+export function isPricedCourse(
+	doc:
+		| {
+				paid_course?: boolean | number | null
+				course_price?: number | null
+		  }
+		| null
+		| undefined
+): boolean {
+	return Boolean(doc?.paid_course && (doc.course_price ?? 0) > 0)
+}

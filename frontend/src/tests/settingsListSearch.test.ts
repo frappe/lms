@@ -56,8 +56,9 @@ vi.mock('frappe-ui', () => ({
 // Mocks the specific `@framework/ui` submodules this file imports from — the
 // bare package root's barrel also `export *`s components (GeolocationField
 // among them) that import `leaflet`/`leaflet-draw` assets not installed here.
-vi.mock('@framework/ui/components/Onboarding/index', () => ({
-	useOnboarding: () => ({ updateOnboardingStep: vi.fn() }),
+const { completeStepMock } = vi.hoisted(() => ({ completeStepMock: vi.fn() }))
+vi.mock('@/onboarding/useLearningOnboarding', () => ({
+	useLearningOnboarding: () => ({ completeStep: completeStepMock }),
 }))
 vi.mock('@framework/ui/telemetry/index', () => ({
 	useTelemetry: () => ({ capture: vi.fn() }),

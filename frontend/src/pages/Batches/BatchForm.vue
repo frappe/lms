@@ -213,7 +213,10 @@
 					<h2 class="text-base-semibold text-ink-gray-9">
 						{{ __('Conferencing') }}
 					</h2>
-					<div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+					<div
+						ref="conferencingFields"
+						class="grid grid-cols-1 md:grid-cols-2 gap-5"
+					>
 						<Select
 							v-model="batchDetail.doc.conferencing_provider"
 							:options="conferencingOptions"
@@ -325,7 +328,7 @@ import {
 	openSettings,
 	updateMetaInfo,
 } from '@/utils'
-import { validateBatch } from '@/utils/batchForm'
+import { batchFormPayload, validateBatch } from '@/utils/batchForm'
 import { getDateFormat } from '@/utils/format'
 import {
 	useKeyboardShortcuts,
@@ -341,6 +344,8 @@ import BatchCourses from '@/pages/Batches/components/BatchCourses.vue'
 import Assessments from '@/pages/Batches/components/Assessments.vue'
 import NewMemberModal from '@/components/Modals/NewMemberModal.vue'
 import { openBatchForm } from '@/composables/useBatchForms'
+import { useLearningOnboarding } from '@/onboarding/useLearningOnboarding'
+import { useRouteIntent } from '@/composables/useRouteIntent'
 import type { LMSBatch } from '@/types/lms/LMSBatch'
 import type { CourseInstructor } from '@/types/lms/CourseInstructor'
 import type { Resource, BatchDetails, SessionUser } from '@/types'
@@ -365,6 +370,7 @@ const props = defineProps<{
 const router = useRouter()
 const route = useRoute()
 const user = inject<SessionUser>('$user')!
+const { completeStep } = useLearningOnboarding()
 const instructors = ref<string[]>([])
 const dateFormat = getDateFormat()
 const app = getCurrentInstance()!
@@ -530,16 +536,19 @@ const submitBatch = (): void => {
 const updateBatch = (opts: { silent?: boolean } = {}): void => {
 	if (!batchDetail.doc) return
 	batchDetail.setValue.submit(
-		{
-			...batchDetail.doc,
-			instructors: instructors.value.map((instructor) => ({
-				instructor: instructor,
-			})),
-		},
+		batchFormPayload(batchDetail.doc, instructors.value),
 		{
 			onSuccess(data: LMSBatch) {
 				updateMetaInfo('batches', data.name, meta)
 				if (!opts.silent) toast.success(__('Batch updated successfully'))
+				if (data.published) completeStep('publish_batch')
+				if (data.conferencing_provider === 'Zoom' && data.zoom_account)
+					completeStep('set_batch_zoom')
+				if (
+					data.conferencing_provider === 'Google Meet' &&
+					data.google_meet_account
+				)
+					completeStep('set_batch_meet')
 				nextTick(() => {
 					originalDoc.value = structuredClone(data)
 					isDirty.value = false
@@ -587,6 +596,28 @@ const trashBatch = (close: () => void): void => {
 		})
 	})
 }
+
+const conferencingFields = ref<HTMLElement | null>(null)
+
+// Onboarding's "Add the account to the batch" lands here with
+// ?conferencing=1. The doc is left alone: a tool saved without its
+// account fails validation. The caret goes to the tool picker, or to the
+// account field once a tool is chosen.
+function focusConferencing() {
+	const fields = conferencingFields.value
+	if (!fields) return
+	fields.scrollIntoView({ block: 'center' })
+	const target = batchDetail.doc?.conferencing_provider ? 'input' : 'button'
+	fields.querySelector<HTMLElement>(target)?.focus()
+}
+
+useRouteIntent({
+	param: 'conferencing',
+	value: '1',
+	ready: () => Boolean(batchDetail.doc && originalDoc.value),
+	run: focusConferencing,
+	flush: 'post',
+})
 
 const conferencingOptions = computed(() => {
 	return [

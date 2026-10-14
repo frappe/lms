@@ -72,15 +72,10 @@ vi.mock('@framework/ui/telemetry/index', async (importOriginal) => ({
 	...(await importOriginal<typeof import('@framework/ui/telemetry/index')>()),
 	useTelemetry: () => ({ capture: vi.fn() }),
 }))
-vi.mock(
-	'@framework/ui/components/Onboarding/index',
-	async (importOriginal) => ({
-		...(await importOriginal<
-			typeof import('@framework/ui/components/Onboarding/index')
-		>()),
-		useOnboarding: () => ({ updateOnboardingStep: vi.fn() }),
-	})
-)
+const { completeStepMock } = vi.hoisted(() => ({ completeStepMock: vi.fn() }))
+vi.mock('@/onboarding/useLearningOnboarding', () => ({
+	useLearningOnboarding: () => ({ completeStep: completeStepMock }),
+}))
 
 vi.mock('@/components/Controls/BooleanSwitch.vue', () => ({
 	default: {
@@ -395,6 +390,31 @@ describe('ChapterForm as a route', () => {
 		])
 		expect(sharedOutline.reload).toHaveBeenCalledTimes(1)
 		expect(outlineResource.reload).not.toHaveBeenCalled()
+	})
+
+	// Guards: Add a chapter not ticking, or later steps aiming at another
+	// course. Introduced in this branch (feat/onboarding-flows, PR pending);
+	// test added there to pin the chapter and its own course.
+	it('completes the first-chapter onboarding step on a create, with its chapter', async () => {
+		completeStepMock.mockReset()
+		const router = makeRouter()
+		await openForm(router, 'new')
+		const wrapper = await mountForm(router)
+
+		upsertResource.submit.mockImplementation(
+			(_params: unknown, options: { onSuccess: (d: unknown) => void }) => {
+				options.onSuccess({ name: 'CH-0001' })
+			}
+		)
+		await wrapper
+			.find('[data-testid="chapter-fields"] input')
+			.setValue('Chapter One')
+		await wrapper.find('[data-testid="chapter-save"]').trigger('click')
+		await flushPromises()
+		expect(completeStepMock).toHaveBeenCalledWith('create_first_chapter', {
+			first_course: 'COURSE-1',
+			first_chapter: 'CH-0001',
+		})
 	})
 
 	it('replaces rather than pushes on save, so Back leaves the form behind', async () => {

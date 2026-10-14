@@ -26,6 +26,11 @@ const { batchResource, createResourceMock } = vi.hoisted(() => ({
 	createResourceMock: vi.fn(),
 }))
 
+const { completeStepMock } = vi.hoisted(() => ({ completeStepMock: vi.fn() }))
+vi.mock('@/onboarding/useLearningOnboarding', () => ({
+	useLearningOnboarding: () => ({ completeStep: completeStepMock }),
+}))
+
 vi.mock('frappe-ui', () => ({
 	createResource: createResourceMock,
 	usePageMeta: () => {},
@@ -76,10 +81,14 @@ vi.mock('@/components/HeaderButton.vue', () => ({
 
 // Drives the #actions slot with a chosen tab, which is the only way to reach
 // the header openers without standing up the whole tab shell.
+const { activeTab } = vi.hoisted(() => ({
+	activeTab: { key: 'announcements' },
+}))
 vi.mock('@/components/Layouts/pages/TabbedDetailPage.vue', () => ({
 	default: {
 		props: ['tabs', 'breadcrumbs', 'published', 'loading', 'doc', 'docProp'],
-		template: `<div><slot name="actions" :tab="{ key: 'announcements' }" :instance="null" /></div>`,
+		setup: () => ({ activeTab }),
+		template: `<div><slot name="actions" :tab="{ key: activeTab.key }" :instance="null" /></div>`,
 	},
 }))
 
@@ -182,5 +191,81 @@ describe("BatchDetail's form openers", () => {
 		await router.push('/batches/B1/announcement/new#announcements')
 		const wrapper = await mountPage(router)
 		expect(wrapper.text()).toContain('FORM')
+	})
+})
+
+describe("BatchDetail's publish toggle", () => {
+	beforeEach(() => {
+		completeStepMock.mockReset()
+		createResourceMock.mockReset()
+		createResourceMock.mockReturnValue(batchResource)
+	})
+
+	function publishOptions() {
+		const call = createResourceMock.mock.calls.find(
+			([options]) => options?.url === 'frappe.client.set_value'
+		)
+		return call![0] as { onSuccess: () => void }
+	}
+
+	// Guards: publishing a batch not ticking Publish the batch. Introduced in
+	// this branch (feat/onboarding-flows, PR pending); test added there to
+	// cover the tick.
+	it('completes the publish step when it publishes the batch', async () => {
+		batchResource.data.published = 0
+		const router = makeRouter()
+		await router.push('/batches/B1')
+		await mountPage(router)
+		publishOptions().onSuccess()
+		expect(completeStepMock).toHaveBeenCalledWith('publish_batch')
+	})
+
+	// Guards: unpublishing a batch ticking Publish the batch. Introduced in
+	// this branch (feat/onboarding-flows, PR pending); test added there to
+	// cover the no-tick.
+	it('leaves the step alone when it unpublishes', async () => {
+		batchResource.data.published = 1
+		const router = makeRouter()
+		await router.push('/batches/B1')
+		await mountPage(router)
+		publishOptions().onSuccess()
+		expect(completeStepMock).not.toHaveBeenCalled()
+		delete batchResource.data.published
+	})
+})
+
+describe('the Publish the batch intent', () => {
+	beforeEach(() => {
+		createResourceMock.mockReset()
+		createResourceMock.mockReturnValue(batchResource)
+		activeTab.key = 'settings'
+		batchResource.data.published = 0
+	})
+
+	// Guards: Publish the batch landing on a tab with no Publish button, or
+	// leaving focus in the onboarding panel. Introduced in this branch
+	// (feat/onboarding-flows, PR pending); test added there to focus the
+	// settings header's Publish once and drop the param.
+	it('focuses Publish without pressing it, then drops ?publish', async () => {
+		const router = makeRouter()
+		await router.push('/batches/B1?publish=1#settings')
+		const wrapper = mount(defineComponent({ render: () => h(RouterView) }), {
+			attachTo: document.body,
+			global: {
+				plugins: [router],
+				provide: {
+					$user: { data: { name: 'mod@example.com', is_moderator: true } },
+				},
+				mocks: { __: (text: string) => text },
+			},
+		})
+		await flushPromises()
+		expect(document.activeElement?.textContent?.trim()).toBe('Publish')
+		expect(router.currentRoute.value.query.publish).toBeUndefined()
+		expect(router.currentRoute.value.hash).toBe('#settings')
+		expect(completeStepMock).not.toHaveBeenCalled()
+		wrapper.unmount()
+		activeTab.key = 'announcements'
+		delete batchResource.data.published
 	})
 })

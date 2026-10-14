@@ -15,6 +15,7 @@
 							v-model="liveClass.title"
 							:label="__('Title')"
 							:required="true"
+							variant="outline"
 						/>
 						<FormControl
 							v-model="liveClass.date"
@@ -22,12 +23,14 @@
 							:format="dateFormat"
 							:label="__('Date')"
 							:required="true"
+							variant="outline"
 						/>
 						<FormControl
 							type="number"
 							v-model="liveClass.duration"
 							:label="__('Duration (in minutes)')"
 							:required="true"
+							variant="outline"
 						/>
 					</div>
 					<div class="space-y-4">
@@ -43,6 +46,7 @@
 								type="time"
 								:label="__('Time')"
 								:required="true"
+								variant="outline"
 							/>
 						</Tooltip>
 
@@ -52,6 +56,7 @@
 							:label="__('Timezone')"
 							:required="true"
 							@update:modelValue="(value) => (liveClass.timezone = value)"
+							variant="outline"
 						/>
 						<FormControl
 							v-if="conferencingProvider === 'Zoom'"
@@ -59,6 +64,7 @@
 							type="select"
 							:options="getRecordingOptions()"
 							:label="__('Auto Recording')"
+							variant="outline"
 						/>
 					</div>
 				</div>
@@ -66,6 +72,7 @@
 					v-model="liveClass.description"
 					type="textarea"
 					:label="__('Description')"
+					variant="outline"
 				/>
 			</div>
 		</template>
@@ -108,6 +115,7 @@ import {
 import { useFormRoute } from '@/composables/useFormRoute'
 import { submitResource } from '@/utils/resource'
 import { getDateFormat } from '@/utils/format'
+import { useLearningOnboarding } from '@/onboarding/useLearningOnboarding'
 
 const props = defineProps({
 	batchName: {
@@ -117,6 +125,7 @@ const props = defineProps({
 })
 
 const user = inject('$user')
+const { completeStep } = useLearningOnboarding()
 const dayjs = inject('$dayjs')
 const route = useRoute()
 const readOnlyMode = window.read_only_mode
@@ -262,6 +271,7 @@ const submitLiveClass = () => {
 			validateFormFields()
 		},
 		onSuccess() {
+			completeStep('schedule_live_class')
 			reloadLiveClassList()
 			close()
 		},
