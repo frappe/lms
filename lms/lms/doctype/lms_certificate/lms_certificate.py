@@ -141,22 +141,21 @@ class LMSCertificate(Document):
 				)
 
 	def on_update(self):
+		# The learner sees and prints their certificate; what it says is set by
+		# whoever issued it.
 		frappe.share.add_docshare(
 			self.doctype,
 			self.name,
 			self.member,
-			write=1,
-			share=1,
+			read=1,
+			write=0,
+			share=0,
 			flags={"ignore_share_permission": True},
 		)
 
 
 def has_website_permission(doc, ptype, user, verbose=False):
-	if ptype in ["read", "print"] and doc.published:
-		return True
-	if doc.member == user and ptype == "create":
-		return True
-	return False
+	return ptype in ["read", "print"] and bool(doc.published)
 
 
 def get_latest_certificate(member, course):
@@ -250,11 +249,10 @@ def has_permission(doc, ptype="read", user=None):
 		return True
 	if "Batch Evaluator" in roles:
 		return ptype in ("read", "select", "print") or is_assigned_evaluator(doc, ptype, user)
-	if doc.owner == user:
-		return True
 	if ptype not in ("read", "select", "print"):
 		return False
-	return doc.published
+	# A learner reads their own certificate before it is published, whoever issued it.
+	return doc.member == user or bool(doc.published)
 
 
 def is_assigned_evaluator(doc, ptype, user):
