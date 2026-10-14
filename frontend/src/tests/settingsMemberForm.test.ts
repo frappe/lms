@@ -158,6 +158,26 @@ describe('Settings member form', () => {
 		expect(w.emitted('back')).toHaveLength(1)
 	})
 
+	it('unlocks the email again once the form moves to another record', async () => {
+		record.doc = reactive({ email: 'ada@example.com', first_name: 'Ada' })
+		callMock
+			.mockResolvedValueOnce({ name: 'ada@example.com' }) // add_member
+			.mockRejectedValueOnce(new Error('role refused')) // save_role
+		const w = mountForm('new')
+		await w.get('[data-testid="role-student"]').trigger('click')
+		await w.get('[data-testid="save"]').trigger('click')
+		await flushPromises()
+		expect(
+			w.get('[data-testid="field-Email"]').attributes('disabled')
+		).toBeDefined()
+
+		await w.setProps({ name: 'bob@example.com' })
+		await w.setProps({ name: 'new' })
+		expect(
+			w.get('[data-testid="field-Email"]').attributes('disabled')
+		).toBeUndefined()
+	})
+
 	it('saves an edited member through update_member and reloads it', async () => {
 		record.doc = reactive({
 			name: 'ada@example.com',

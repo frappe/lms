@@ -98,7 +98,7 @@
 
 <script setup lang="ts">
 import { FormControl, LoadingIndicator, call, createResource } from 'frappe-ui'
-import { computed, inject, reactive, ref } from 'vue'
+import { computed, inject, reactive, ref, watch } from 'vue'
 import { useOnboarding } from '@framework/ui/components/Onboarding/index'
 import { useTelemetry } from '@framework/ui/telemetry/index'
 import RoleSwitches from '@/components/Controls/RoleSwitches.vue'
@@ -248,6 +248,9 @@ const settleSaved = async (doc: SettingsListRow, creating: boolean) => {
 // member instead of adding it again, which the server refuses as a duplicate.
 // The email field locks then, so the form cannot show another address.
 const addedName = ref<string | null>(null)
+// The form stays mounted when the panel moves to another record, and the
+// member added belongs only to the draft it was added from.
+watch(record, () => (addedName.value = null))
 
 const save = () => {
 	if (refusal.value || !isDirty.value) return
