@@ -1,7 +1,7 @@
 import hashlib
 import json
 import re
-from datetime import datetime
+from datetime import date, datetime
 from urllib.parse import quote
 from zoneinfo import ZoneInfo
 
@@ -17,6 +17,7 @@ from frappe.rate_limiter import rate_limit
 from frappe.utils import (
 	add_months,
 	cint,
+	escape_html,
 	flt,
 	fmt_money,
 	format_datetime,
@@ -1187,6 +1188,67 @@ def restrict_to_published(filters: dict, self_scoped: bool) -> None:
 	filters["published"] = 1
 
 
+# The fields each course and batch list filters on, plus the pseudo-filters the
+# update_*_filters helpers turn into real ones. Anything else, a dotted key
+# into a linked record included, is refused.
+COURSE_LIST_FILTERS = frozenset(
+	{
+		"title",
+		"category",
+		"certification",
+		"enrolled",
+		"created",
+		"live",
+		"published",
+		"published_on",
+		"upcoming",
+	}
+)
+BATCH_LIST_FILTERS = frozenset(
+	{"title", "category", "certification", "enrolled", "start_date", "end_date", "published"}
+)
+BATCH_LIST_ORDERS = frozenset({"start_date", "start_date asc", "start_date desc"})
+LIST_FILTER_OPERATORS = frozenset({"=", "!=", "<", "<=", ">", ">=", "like", "not like", "is"})
+LIST_FILTER_SET_OPERATORS = frozenset({"in", "not in"})
+
+
+def check_list_filters(filters: dict | None, allowed: frozenset) -> dict:
+	"""Filters for a list open to guests, limited to the fields that list offers."""
+	filters = filters or {}
+	if not isinstance(filters, dict):
+		frappe.throw(_("Filters must be given as field and value pairs."))
+	for field, value in filters.items():
+		if field not in allowed:
+			frappe.throw(
+				_("{0} is not a filter this list accepts.").format(frappe.bold(escape_html(str(field))))
+			)
+		check_filter_value(field, value)
+	return filters
+
+
+def check_filter_value(field: str, value) -> None:
+	"""A plain value, or an [operator, value] pair with a known operator; `in` and
+	`not in` also take a list of plain values."""
+	if is_plain_filter_value(value):
+		return
+	if isinstance(value, list | tuple) and len(value) == 2 and isinstance(value[0], str):
+		operator, operand = value[0].lower(), value[1]
+		if operator in LIST_FILTER_SET_OPERATORS and isinstance(operand, list | tuple):
+			if all(is_plain_filter_value(v) for v in operand):
+				return
+		elif operator in LIST_FILTER_OPERATORS | LIST_FILTER_SET_OPERATORS and is_plain_filter_value(operand):
+			return
+	frappe.throw(
+		_("The filter on {0} is not in a form this list accepts.").format(
+			frappe.bold(escape_html(str(field)))
+		)
+	)
+
+
+def is_plain_filter_value(value) -> bool:
+	return value is None or isinstance(value, str | int | float | bool | date)
+
+
 DEFAULT_PAGE_LENGTH = 24
 MAX_PAGE_LENGTH = 120
 
@@ -1211,8 +1273,7 @@ def get_courses(filters: dict = None, start: int = 0, limit_page_length: int | s
 	if not guest_access_allowed():
 		return []
 
-	if not filters:
-		filters = {}
+	filters = check_list_filters(filters, COURSE_LIST_FILTERS)
 
 	self_scoped = is_self_scoped(filters)
 	filters, or_filters, show_featured = update_course_filters(filters)
@@ -1265,8 +1326,7 @@ def get_course_count(filters: dict = None) -> int:
 	if not guest_access_allowed():
 		return 0
 
-	if not filters:
-		filters = {}
+	filters = check_list_filters(filters, COURSE_LIST_FILTERS)
 
 	self_scoped = is_self_scoped(filters)
 	filters, or_filters, show_featured = update_course_filters(filters)
@@ -3275,14 +3335,17 @@ def validate_program_enrollment(program: str):
 def get_batches(
 	filters: dict = None,
 	start: int = 0,
-	order_by: str = "start_date",
+	order_by: str | None = "start_date",
 	limit_page_length: int | str = None,
 ):
 	if not guest_access_allowed():
 		return []
 
-	if not filters:
-		filters = {}
+	filters = check_list_filters(filters, BATCH_LIST_FILTERS)
+	# Batches sort by start date only; anything else falls back to the default.
+	order_by = " ".join(order_by.lower().split()) if isinstance(order_by, str) else ""
+	if order_by not in BATCH_LIST_ORDERS:
+		order_by = "start_date"
 
 	self_scoped = is_self_scoped(filters)
 	update_batch_filters(filters)
@@ -3344,8 +3407,7 @@ def get_batch_count(filters: dict = None) -> int:
 	if not guest_access_allowed():
 		return 0
 
-	if not filters:
-		filters = {}
+	filters = check_list_filters(filters, BATCH_LIST_FILTERS)
 
 	self_scoped = is_self_scoped(filters)
 	update_batch_filters(filters)
