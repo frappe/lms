@@ -3,14 +3,9 @@
 
 import html
 import json
-<<<<<<< HEAD
-from datetime import datetime
-=======
 import re
-from contextlib import contextmanager
-from datetime import date, datetime, timedelta
+from datetime import datetime
 from pathlib import Path
->>>>>>> b0c42ae (fix(lesson): clean all lesson content on save, and keep it out of print)
 from unittest.mock import patch
 
 import frappe
