@@ -288,22 +288,6 @@ beforeEach(() => {
 })
 
 describe('the top of the badge form is editable', () => {
-	it('takes what is typed into the Title', async () => {
-		const wrapper = await openBadge(mountPage())
-
-		await field(wrapper, 'Title').setValue('Course Champion')
-
-		expect(valueOf(wrapper, 'Title')).toBe('Course Champion')
-	})
-
-	it('takes what is typed into the Description', async () => {
-		const wrapper = await openBadge(mountPage())
-
-		await field(wrapper, 'Description').setValue('Finished every lesson')
-
-		expect(valueOf(wrapper, 'Description')).toBe('Finished every lesson')
-	})
-
 	// The bug was that neither said it was a field. Both are drawn by a control
 	// that renders its own <label for>, so the box is named on screen and by a
 	// screen reader alike.

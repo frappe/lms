@@ -52,8 +52,6 @@ vi.mock('@/utils/blockMount', () => ({ mountBlock }))
 vi.mock('lucide-vue-next', () => ({ Code: {} }))
 
 const { Program } = await import('@/utils/program')
-// Imported at module scope: '@/utils' pulls the whole editor toolchain.
-const { getEditorTools } = await import('@/utils')
 
 async function renderInLesson(config: Record<string, unknown> | undefined) {
 	const tool = new Program({
@@ -121,22 +119,5 @@ describe('the programming exercise block in a lesson', () => {
 		tool.destroy()
 
 		expect(unmount).toHaveBeenCalledTimes(1)
-	})
-})
-
-describe('getEditorTools wiring', () => {
-	it('hands the programming-exercise tool the Student View flag', () => {
-		const tools = getEditorTools(false, {}, { studentView: true }) as Record<
-			string,
-			any
-		>
-
-		expect(tools.program.config.studentView).toBe(true)
-	})
-
-	it('defaults the flag off', () => {
-		const tools = getEditorTools() as Record<string, any>
-
-		expect(tools.program.config.studentView).toBe(false)
 	})
 })

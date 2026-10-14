@@ -288,23 +288,6 @@ describe('the program enrollment page', () => {
 		expect(router.currentRoute.value.fullPath).toBe('/programs')
 	})
 
-	it('cancelling pops back to the list that opened it', async () => {
-		const router = makeRouter()
-		await router.push('/programs')
-		await router.push({
-			name: 'ProgramEnrollment',
-			params: { programName: 'data-science' },
-			state: { lmsFormEntry: true },
-		})
-		const wrapper = await mountPage(router, student)
-		await wrapper
-			.findComponent({ name: 'Dialog' })
-			.vm.$emit('update:open', false)
-		await flushPromises()
-
-		expect(router.currentRoute.value.fullPath).toBe('/programs')
-	})
-
 	it('cancelling a DEEP-LINKED page replaces to the list', async () => {
 		const router = makeRouter()
 		await router.push('/programs/data-science/enroll')

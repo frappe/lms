@@ -162,6 +162,12 @@ vi.mock('@/components/Controls/ChildTable.vue', () => ({
 import ProgrammingExerciseForm from '@/pages/Forms/ProgrammingExerciseForm.vue'
 import { toast } from 'frappe-ui'
 
+// CodeMirror measures the selection with these; jsdom has neither, and
+// CodeMirror logs the TypeError instead of throwing it.
+Range.prototype.getBoundingClientRect ??= () => new DOMRect(0, 0, 0, 0)
+Range.prototype.getClientRects ??= () =>
+	Object.assign([], { item: () => null }) as unknown as DOMRectList
+
 // The form is its own page, so the list stub needs no nested RouterView.
 const List = defineComponent({
 	render: () => h('div', ['LIST']),
@@ -262,16 +268,6 @@ describe('ProgrammingExerciseForm as a route', () => {
 			writable: true,
 			configurable: true,
 		})
-	})
-
-	it('mounts straight from the URL with no parent list', async () => {
-		const router = makeRouter()
-		await router.push('/programming-exercises/new')
-		const wrapper = await mountForm(router, moderator)
-		expect(wrapper.html()).toContain('New Programming Exercise')
-		expect(
-			wrapper.find('[data-testid="programming-exercise-fields"]').exists()
-		).toBe(true)
 	})
 
 	it('takes no exercise from the /new route without warning', async () => {

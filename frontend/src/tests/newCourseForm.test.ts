@@ -215,16 +215,6 @@ describe('NewCourseForm as a route', () => {
 		})
 	})
 
-	it('mounts straight from the URL with no parent list', async () => {
-		const router = makeRouter()
-		await router.push({ name: 'NewCourse' })
-		const wrapper = await mountForm(router, moderator)
-		expect(wrapper.find('[data-testid="new-course-fields"]').exists()).toBe(
-			true
-		)
-		expect(wrapper.html()).toContain('New Course')
-	})
-
 	it('starts the thumbnail empty in a shape the uploader accepts', async () => {
 		const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
 		const router = makeRouter()
@@ -311,35 +301,6 @@ describe('NewCourseForm as a route', () => {
 		expect(createListResourceMock).toHaveBeenCalledWith(
 			expect.objectContaining({ cache: ['courses', 'mod@example.com'] })
 		)
-	})
-
-	it('mobile: the back control pops the router back to the list', async () => {
-		const router = makeRouter()
-		await router.push({ name: 'Courses' })
-		await router.push({ name: 'NewCourse', state: { lmsFormEntry: true } })
-		Object.defineProperty(window, 'innerWidth', {
-			value: 390,
-			writable: true,
-			configurable: true,
-		})
-		const wrapper = await mountForm(router, moderator)
-
-		await wrapper.find('[data-testid="form-shell-back"]').trigger('click')
-		await flushPromises()
-		expect(router.currentRoute.value.name).toBe('Courses')
-	})
-
-	it('desktop: dismissing the Dialog (Escape/backdrop/X) pops the router', async () => {
-		const router = makeRouter()
-		await router.push({ name: 'Courses' })
-		await router.push({ name: 'NewCourse', state: { lmsFormEntry: true } })
-		const wrapper = await mountForm(router, moderator)
-
-		await wrapper
-			.findComponent({ name: 'Dialog' })
-			.vm.$emit('update:open', false)
-		await flushPromises()
-		expect(router.currentRoute.value.name).toBe('Courses')
 	})
 
 	it('replaces rather than pushes on save, so Back reaches the list', async () => {

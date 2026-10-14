@@ -1,3 +1,4 @@
+// @vitest-environment node
 // Guards template tags that were never imported, which Vue renders as nothing.
 // Broke in #1593 (a `<Code>` tag with no editor under it on the submission).
 // Added on feat/assessment-visual-redesign when nine such components were fixed.

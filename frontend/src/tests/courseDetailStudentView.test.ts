@@ -25,9 +25,10 @@ vi.mock('@/stores/session', () => ({ sessionStore: () => ({ brand: {} }) }))
 // render. Doing the same here is what makes an unresolvable route throw.
 vi.mock('frappe-ui', async () => {
 	const { RouterLink } = await import('vue-router')
-	const { defineComponent, h } = await import('vue')
+	const { defineComponent, h, reactive } = await import('vue')
 	return {
-		createResource: () => ({ data: null, loading: false, reload: vi.fn() }),
+		createResource: () =>
+			reactive({ data: null, loading: false, reload: vi.fn() }),
 		usePageMeta: vi.fn(),
 		toast: { success: vi.fn(), error: vi.fn() },
 		Badge: passthrough,
@@ -56,6 +57,7 @@ const { stub } = vi.hoisted(() => ({
 }))
 vi.mock('@/components/Layouts/pages/TabbedDetailPage.vue', () => ({
 	default: {
+		inheritAttrs: false,
 		setup(_: unknown, { slots }: { slots: Record<string, Function> }) {
 			return () => [
 				slots.actions?.({ tab: { key: 'editor' } }),
@@ -95,6 +97,7 @@ const mountWith = async (selected: Record<string, unknown>) => {
 				path: '/courses/:courseName',
 				name: 'CourseDetail',
 				component: CourseDetail,
+				props: true,
 			},
 			{
 				path: '/courses/:courseName/learn/:chapterNumber-:lessonNumber',

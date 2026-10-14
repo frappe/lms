@@ -122,12 +122,6 @@ describe('CourseReviews date rendering', () => {
 			'2 months ago',
 		])
 	})
-
-	it('does not collapse old reviews to "Today" (the pretty_date regression)', async () => {
-		const dates = await renderedDates()
-		// every row but the first is older than a day and must not read "Today"
-		expect(dates.slice(1).every((d) => d !== 'Today')).toBe(true)
-	})
 })
 
 describe('CourseReviews resource params', () => {

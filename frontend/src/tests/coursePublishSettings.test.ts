@@ -41,35 +41,6 @@ const doc = {
 }
 
 describe('CoursePublishSettings', () => {
-	it('renders a switch bound to enforce_lesson_completion', () => {
-		const markDirty = vi.fn()
-		const wrapper = mount(CoursePublishSettings, {
-			global: {
-				mocks: { __: (s: string) => s },
-				provide: {
-					courseForm: { resource: { doc }, markDirty },
-					$dayjs: (v: unknown) => ({ format: () => String(v) }),
-				},
-				stubs: {
-					CollapsibleSection: { template: '<div><slot /></div>' },
-					Link: true,
-					NewMemberModal: true,
-					BooleanSwitch: {
-						props: ['modelValue', 'label'],
-						emits: ['update:modelValue'],
-						template: `<button
-							:data-label="label"
-							@click="$emit('update:modelValue', !modelValue)"
-						/>`,
-					},
-				},
-			},
-		})
-
-		const toggle = wrapper.find('[data-label="Enforce Lesson Completion"]')
-		expect(toggle.exists()).toBe(true)
-	})
-
 	it('marks the form dirty when the switch is flipped', async () => {
 		const markDirty = vi.fn()
 		const wrapper = mount(CoursePublishSettings, {

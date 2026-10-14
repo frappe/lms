@@ -23,15 +23,20 @@ vi.mock('@/stores/settings', () => ({ useSettings: () => ({}) }))
 vi.mock('@/stores/user', () => ({ usersStore: () => ({ userResource: {} }) }))
 vi.mock('@/stores/session', () => ({ sessionStore: () => ({ brand: {} }) }))
 
-vi.mock('frappe-ui', () => ({
-	createResource: () => ({ data: null, loading: false, reload: vi.fn() }),
-	usePageMeta: vi.fn(),
-	toast: { success: vi.fn(), error: vi.fn() },
-	Badge: passthrough,
-	Button: passthrough,
-	Dropdown: passthrough,
-	Tooltip: passthrough,
-}))
+vi.mock('frappe-ui', async () => {
+	// Reactive like the real resource, which CourseDetail watches.
+	const { reactive } = await import('vue')
+	return {
+		createResource: () =>
+			reactive({ data: null, loading: false, reload: vi.fn() }),
+		usePageMeta: vi.fn(),
+		toast: { success: vi.fn(), error: vi.fn() },
+		Badge: passthrough,
+		Button: passthrough,
+		Dropdown: passthrough,
+		Tooltip: passthrough,
+	}
+})
 
 // Mocks the specific `@framework/ui` submodules this file imports from — the
 // bare package root's barrel also `export *`s components (GeolocationField

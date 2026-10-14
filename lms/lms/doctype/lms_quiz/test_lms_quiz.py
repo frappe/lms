@@ -14,6 +14,7 @@ from unittest.mock import patch
 
 import frappe
 from frappe.exceptions import ValidationError
+from frappe.tests import IntegrationTestCase
 
 from lms.lms.doctype.lms_quiz.lms_quiz import _save_file
 
@@ -25,7 +26,7 @@ ONE_PIXEL_PNG = base64.b64decode(
 IMAGE_DATA_URI_PATTERN = r'<img[^>]*src\s*=\s*["\'](?=data:)(.*?)["\']'
 
 
-class TestLMSQuiz(unittest.TestCase):
+class TestLMSQuiz(IntegrationTestCase):
 	def test_with_multiple_options(self):
 		question = frappe.new_doc("LMS Question")
 		question.question = "Question Multiple"
@@ -108,7 +109,7 @@ class TestLMSQuiz(unittest.TestCase):
 		self.assertFalse(bool(check_input_answers(q.name, "totally different")))
 
 
-class TestQuizAnswerImageUpload(unittest.TestCase):
+class TestQuizAnswerImageUpload(IntegrationTestCase):
 	"""Open-ended quiz answers may embed inline images as data: URIs that get
 	written to the private files directory. Only image types are allowed: an
 	active-document extension (.xhtml, .js, ...) would be served inline and

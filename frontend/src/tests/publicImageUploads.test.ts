@@ -77,8 +77,13 @@ describe('the shared image controls forward the privacy they are given', () => {
 	// Neither control defaults it. A call site that forgets leaves the prop
 	// undefined, and FileUploader reads that as private, the safe end.
 	it('never invents public for a caller that said nothing', async () => {
+		// The prop is required, so the omission this guards also warns.
+		const warned = vi.spyOn(console, 'warn').mockImplementation(() => {})
 		expect(privateOf(await mountUploader({}))).not.toBe(false)
 		expect(privateOf(await mountField({}))).not.toBe(false)
+		expect(warned.mock.calls.map((call) => call[0])).toContainEqual(
+			expect.stringContaining('Missing required prop: "is_private"')
+		)
 	})
 })
 

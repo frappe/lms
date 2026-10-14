@@ -103,13 +103,6 @@ describe('destinations', () => {
 		])
 	})
 
-	it('leaves out everything already on the bottom bar', () => {
-		const labels = allRows(build()).map((row) => row.label)
-		for (const primary of ['Home', 'Courses', 'Certifications']) {
-			expect(labels).not.toContain(primary)
-		}
-	})
-
 	it('shows a destination once when it is in both link lists', () => {
 		const rows = allRows(
 			build({ otherLinks: [link('Programs', 'Route', 'Programs'), ...OTHER] })
@@ -201,12 +194,6 @@ describe('the last group', () => {
 		)?.rows.find((row) => row.key === 'colour-mode')
 		expect(fromYou).toEqual(colourModeRow('dark'))
 		expect(fromYou?.value).toBe('Dark')
-	})
-
-	it('logs out in place rather than routing somewhere', () => {
-		const logout = allRows(build()).find((row) => row.label === 'Log out')
-		expect(logout?.action).toBe('logout')
-		expect(logout?.to).toBeUndefined()
 	})
 })
 

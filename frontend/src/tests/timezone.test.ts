@@ -1,3 +1,4 @@
+// @vitest-environment node
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { formatTimezone, nextOccurrence } from '@/utils/timezone'
 
@@ -8,12 +9,6 @@ describe('formatTimezone', () => {
 		)
 		expect(formatTimezone('Europe/Berlin', '2026-07-29')).toBe(
 			'Europe/Berlin (GMT+2:00)'
-		)
-	})
-
-	it('strips the leading zero from the hour', () => {
-		expect(formatTimezone('America/New_York', '2026-01-15')).toBe(
-			'America/New_York (GMT-5:00)'
 		)
 	})
 

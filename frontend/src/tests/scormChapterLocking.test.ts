@@ -390,6 +390,8 @@ describe('SCORMChapter.vue plays what the server says it may play', () => {
 		call.mockClear()
 		wrapper = await mountChapter()
 		await answerPlayback(playbackAnswer())
+		// SCORMChapter's SCORM API console.logs every GET and SET it serves.
+		vi.spyOn(console, 'log').mockImplementation(() => {})
 		;(window as any).API.LMSSetValue('cmi.core.lesson_status', 'passed')
 		await flushPromises()
 

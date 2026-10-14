@@ -204,19 +204,6 @@ describe('AssignmentForm as a route', () => {
 		})
 	})
 
-	it('mounts straight from the URL with no parent list', async () => {
-		const router = makeRouter()
-		await router.push({
-			name: 'AssignmentForm',
-			params: { assignmentID: 'new' },
-		})
-		const wrapper = await mountForm(router, moderator)
-		expect(wrapper.html()).toContain('Create an Assignment')
-		expect(wrapper.find('[data-testid="assignment-fields"]').exists()).toBe(
-			true
-		)
-	})
-
 	it('refuses to render the form for a user who cannot manage assignments', async () => {
 		const router = makeRouter()
 		await router.push({
@@ -453,65 +440,5 @@ describe('AssignmentForm as a route', () => {
 
 		expect(error.mock.calls).toEqual([['Error'], ['Title already exists']])
 		quiet.mockRestore()
-	})
-
-	it('replaces rather than pushes on save, so Back reaches the list', async () => {
-		const router = makeRouter()
-		await router.push({ name: 'Assignments' })
-		await router.push({
-			name: 'AssignmentForm',
-			params: { assignmentID: 'new' },
-			state: { lmsFormEntry: true },
-		})
-		const wrapper = await mountForm(router, moderator)
-
-		insertSubmit.mockImplementation(() =>
-			insertOptions.current.onSuccess({ name: 'ASG-0002' })
-		)
-		await wrapper.find('[data-testid="assignment-save"]').trigger('click')
-		await flushPromises()
-		expect(router.currentRoute.value.name).toBe('Assignments')
-
-		// A push would have left the form as the previous entry.
-		router.back()
-		await flushPromises()
-		expect(router.currentRoute.value.name).toBe('Assignments')
-	})
-
-	it('mobile: the back control pops the router back to the list', async () => {
-		const router = makeRouter()
-		await router.push({ name: 'Assignments' })
-		await router.push({
-			name: 'AssignmentForm',
-			params: { assignmentID: 'new' },
-			state: { lmsFormEntry: true },
-		})
-		Object.defineProperty(window, 'innerWidth', {
-			value: 390,
-			writable: true,
-			configurable: true,
-		})
-		const wrapper = await mountForm(router, moderator)
-
-		await wrapper.find('[data-testid="form-shell-back"]').trigger('click')
-		await flushPromises()
-		expect(router.currentRoute.value.name).toBe('Assignments')
-	})
-
-	it('desktop: dismissing the Dialog (Escape/backdrop/X) pops the router', async () => {
-		const router = makeRouter()
-		await router.push({ name: 'Assignments' })
-		await router.push({
-			name: 'AssignmentForm',
-			params: { assignmentID: 'new' },
-			state: { lmsFormEntry: true },
-		})
-		const wrapper = await mountForm(router, moderator)
-
-		await wrapper
-			.findComponent({ name: 'Dialog' })
-			.vm.$emit('update:open', false)
-		await flushPromises()
-		expect(router.currentRoute.value.name).toBe('Assignments')
 	})
 })

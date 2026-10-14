@@ -1,5 +1,5 @@
 import { mount } from '@vue/test-utils'
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 // Plyr's YouTube provider REPLACES the element it is given —
 // `player.media = replaceElement(container, player.media)` (plyr.mjs:5901), i.e.
@@ -51,17 +51,34 @@ describe('LessonContent renders tracked Plyr markup for YouTube', () => {
 		document.body.innerHTML = ''
 	})
 
-	it('renders the youtube field as a .video-player, not a bare iframe', () => {
-		const wrapper = mountContent({
-			content: 'Some intro text',
-			youtube: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
-		})
+	it.each([
+		{
+			source: 'the youtube field',
+			props: {
+				content: 'Some intro text',
+				youtube: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
+			},
+			id: 'dQw4w9WgXcQ',
+		},
+		{
+			source: 'a {{ YouTubeVideo }} block',
+			props: {
+				content:
+					'{{ YouTubeVideo("https://www.youtube.com/watch?v=vid12345") }}',
+			},
+			id: 'vid12345',
+		},
+	])(
+		'renders $source as a .video-player, not a bare iframe',
+		({ props, id }) => {
+			const wrapper = mountContent(props)
 
-		const player = wrapper.get('.video-player')
-		expect(player.attributes('data-plyr-provider')).toBe('youtube')
-		expect(player.attributes('data-plyr-embed-id')).toBe('dQw4w9WgXcQ')
-		expect(wrapper.find('iframe.youtube-video').exists()).toBe(false)
-	})
+			const player = wrapper.get('.video-player')
+			expect(player.attributes('data-plyr-provider')).toBe('youtube')
+			expect(player.attributes('data-plyr-embed-id')).toBe(id)
+			expect(wrapper.find('iframe.youtube-video').exists()).toBe(false)
+		}
+	)
 
 	it.each([
 		['https://www.youtube.com/watch?v=abc123XYZ_-', 'abc123XYZ_-'],
@@ -74,17 +91,6 @@ describe('LessonContent renders tracked Plyr markup for YouTube', () => {
 		expect(wrapper.get('.video-player').attributes('data-plyr-embed-id')).toBe(
 			expected
 		)
-	})
-
-	it('renders a {{ YouTubeVideo }} block as the same tracked markup', () => {
-		const wrapper = mountContent({
-			content: '{{ YouTubeVideo("https://www.youtube.com/watch?v=vid12345") }}',
-		})
-
-		const player = wrapper.get('.video-player')
-		expect(player.attributes('data-plyr-provider')).toBe('youtube')
-		expect(player.attributes('data-plyr-embed-id')).toBe('vid12345')
-		expect(wrapper.find('iframe.youtube-video').exists()).toBe(false)
 	})
 
 	it('accepts a bare video id in the macro argument', () => {
@@ -111,35 +117,40 @@ describe('enforce_video_completion gates youtube-field lessons', () => {
 	beforeEach(() => {
 		plyrCtor.mockClear()
 		document.body.innerHTML = ''
+		vi.useFakeTimers()
 	})
+	afterEach(() => vi.useRealTimers())
+
+	// enablePlyr waits 500ms for the content to settle before it scans.
+	const runPlyr = async () => {
+		const players = enablePlyr()
+		await vi.advanceTimersByTimeAsync(500)
+		return players
+	}
 
 	// Mirrors Lesson.vue: hasVideoListener = plyr instances || a <video> element.
 	const hasVideoListener = (plyrSources: unknown[]) =>
 		plyrSources.length > 0 || !!document.querySelector('video')
 
-	it('suppresses the dwell timer for a youtube-field lesson', async () => {
-		mountContent({
-			content: 'Watch this.',
-			youtube: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
-		})
+	it.each([
+		{
+			source: 'youtube-field',
+			props: {
+				content: 'Watch this.',
+				youtube: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
+			},
+		},
+		{
+			source: '{{ YouTubeVideo }}',
+			props: {
+				content:
+					'{{ YouTubeVideo("https://www.youtube.com/watch?v=vid12345") }}',
+			},
+		},
+	])('suppresses the dwell timer for a $source lesson', async ({ props }) => {
+		mountContent(props)
 
-		const plyrSources = await enablePlyr()
-
-		expect(plyrSources).toHaveLength(1)
-		expect(
-			shouldStartDwellTimer({
-				hasVideo: hasVideoListener(plyrSources),
-				enforceVideo: 1,
-			})
-		).toBe(false)
-	})
-
-	it('suppresses the dwell timer for a {{ YouTubeVideo }} lesson', async () => {
-		mountContent({
-			content: '{{ YouTubeVideo("https://www.youtube.com/watch?v=vid12345") }}',
-		})
-
-		const plyrSources = await enablePlyr()
+		const plyrSources = await runPlyr()
 
 		expect(plyrSources).toHaveLength(1)
 		expect(
@@ -153,7 +164,7 @@ describe('enforce_video_completion gates youtube-field lessons', () => {
 	it('still runs the dwell timer for a lesson with no video at all', async () => {
 		mountContent({ content: 'Just some prose.' })
 
-		const plyrSources = await enablePlyr()
+		const plyrSources = await runPlyr()
 
 		expect(plyrSources).toHaveLength(0)
 		expect(
@@ -177,14 +188,14 @@ describe('enforce_video_completion gates youtube-field lessons', () => {
 			youtube: 'https://www.youtube.com/watch?v=AAAAAAAAAAA',
 		})
 
-		expect(await enablePlyr()).toHaveLength(1)
+		expect(await runPlyr()).toHaveLength(1)
 
 		await wrapper.setProps({
 			content: 'Lesson B',
 			youtube: 'https://www.youtube.com/watch?v=BBBBBBBBBBB',
 		})
 
-		const plyrSources = await enablePlyr()
+		const plyrSources = await runPlyr()
 
 		expect(document.body.innerHTML).not.toContain('AAAAAAAAAAA')
 		expect(plyrSources).toHaveLength(1)

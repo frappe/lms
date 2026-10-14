@@ -273,7 +273,10 @@ describe('ChapterRow keyboard access', () => {
 	it('renders an inline-select lesson as a button', async () => {
 		const wrapper = mount(ChapterRow, {
 			props: { chapter: done, courseName: 'course-1', inlineSelect: true },
-			global: { mocks: { __: (s: string) => s } },
+			global: {
+				mocks: { __: (s: string) => s },
+				provide: { $user: { data: { name: 'admin@example.com' } } },
+			},
 		})
 
 		await wrapper.get('[data-testid="outline-lesson"] button').trigger('click')

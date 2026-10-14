@@ -1,3 +1,4 @@
+// @vitest-environment node
 /**
  * Only `surface-*`, `ink-*` and `outline-*` flip under `[data-theme='dark']`;
  * a primitive, `var(--gray-N)`, `theme('colors.*')` or a hex paints the light

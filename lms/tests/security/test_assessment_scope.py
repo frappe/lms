@@ -33,46 +33,41 @@ class TestAssessmentPlacementAccess(BaseTestUtils):
 	"""Who reaches an assessment through the lesson that places it. Replaces a
 	single-Link stamp that held one course and leaked instructor-only quizzes."""
 
-	def setUp(self):
-		super().setUp()
+	@classmethod
+	def setUpClass(cls):
+		super().setUpClass()
 		frappe.set_user("Administrator")
 		suffix = frappe.generate_hash(length=6)
-		self.instructor = self._create_user(
+		cls.instructor = cls._create_user(
 			f"aps-instr-{suffix}@example.com", "Ivy", "Instructor", ["Course Creator"]
 		)
-		self.author = self._create_user(
-			f"aps-author-{suffix}@example.com", "Amy", "Author", ["Course Creator"]
-		)
-		self.member = self._create_user(f"aps-member-{suffix}@example.com", "Mel", "Member", ["LMS Student"])
-		self.outsider = self._create_user(
+		cls.author = cls._create_user(f"aps-author-{suffix}@example.com", "Amy", "Author", ["Course Creator"])
+		cls.member = cls._create_user(f"aps-member-{suffix}@example.com", "Mel", "Member", ["LMS Student"])
+		cls.outsider = cls._create_user(
 			f"aps-outsider-{suffix}@example.com", "Ove", "Outsider", ["LMS Student"]
 		)
-		self.site_admin = self._create_user(
+		cls.site_admin = cls._create_user(
 			f"aps-sysman-{suffix}@example.com", "Sam", "SysManager", ["System Manager"]
 		)
 
-		self.course = self._create_course(title=f"Placement Course {suffix}", instructor=self.instructor.name)
-		self.questions = self._create_quiz_questions()
-		self.quiz = self._create_quiz(self.questions, title=f"Placement Quiz {suffix}")
-		self.assignment = self._create_assignment(title=f"Placement Assignment {suffix}")
-		self.exercise = self._create_programming_exercise(title=f"Placement Exercise {suffix}")
-		frappe.db.set_value("LMS Quiz", self.quiz.name, "owner", self.author.name)
-		self._set_authors("LMS Quiz", self.quiz.name, [self.author.name])
-		self._create_enrollment(self.member.name, self.course.name)
+		cls.course = cls._create_course(title=f"Placement Course {suffix}", instructor=cls.instructor.name)
+		cls.questions = cls._create_quiz_questions()
+		cls.quiz = cls._create_quiz(cls.questions, title=f"Placement Quiz {suffix}")
+		cls.assignment = cls._create_assignment(title=f"Placement Assignment {suffix}")
+		cls.exercise = cls._create_programming_exercise(title=f"Placement Exercise {suffix}")
+		frappe.db.set_value("LMS Quiz", cls.quiz.name, "owner", cls.author.name)
+		cls._set_authors("LMS Quiz", cls.quiz.name, [cls.author.name])
+		cls._create_enrollment(cls.member.name, cls.course.name)
+
+		cls._require_no_moderators(cls.member.name, cls.outsider.name, cls.instructor.name)
+		cls._require(
+			frappe.db.get_value("LMS Quiz", cls.quiz.name, "owner") == cls.author.name,
+			"the quiz owner is not the author, so the owner fallback is not measured",
+		)
 
 	def tearDown(self):
 		frappe.set_user("Administrator")
 		super().tearDown()
-
-	# --- the controls, read before any count ---
-
-	def test_the_actors_hold_the_roles_the_refusals_rest_on(self):
-		"""A fixed-key fixture returns the existing row untouched, so its declared roles
-		are decoration. A refusal by a Moderator would prove nothing about placement."""
-		self.assertNotIn("Moderator", frappe.get_roles(self.member.name))
-		self.assertNotIn("Moderator", frappe.get_roles(self.outsider.name))
-		self.assertNotIn("Moderator", frappe.get_roles(self.instructor.name))
-		self.assertEqual(frappe.db.get_value("LMS Quiz", self.quiz.name, "owner"), self.author.name)
 
 	def test_an_unplaced_assessment_reaches_only_its_author(self):
 		"""The floor every other case is measured against: with no placement anywhere,
@@ -300,38 +295,40 @@ class TestAssessmentBatchAccess(BaseTestUtils):
 	assessments that batch runs. Pinned here because the branch used to hard-code
 	assessment_type="LMS Quiz", so carrying the doctype under test matters."""
 
-	def setUp(self):
-		super().setUp()
+	@classmethod
+	def setUpClass(cls):
+		super().setUpClass()
 		frappe.set_user("Administrator")
 		suffix = frappe.generate_hash(length=6)
 		# validate_instructor_roles requires the Batch Evaluator role of a batch
 		# instructor. The tag, not the role, is what can_modify_batch reads.
-		self.instructor = self._create_user(
+		cls.instructor = cls._create_user(
 			f"abs-instr-{suffix}@example.com", "Ivo", "Instructor", ["Course Creator", "Batch Evaluator"]
 		)
-		self.evaluator = self._create_user(
+		cls.evaluator = cls._create_user(
 			f"abs-eval-{suffix}@example.com", "Eve", "Evaluator", ["Batch Evaluator"]
 		)
-		self.other_evaluator = self._create_user(
+		cls.other_evaluator = cls._create_user(
 			f"abs-other-{suffix}@example.com", "Oli", "Other", ["Batch Evaluator"]
 		)
-		self.questions = self._create_quiz_questions()
-		self.quiz = self._create_quiz(self.questions, title=f"Batch Quiz {suffix}")
-		self.exercise = self._create_programming_exercise(title=f"Batch Exercise {suffix}")
-		self.course = self._create_course(title=f"Batch Course {suffix}", instructor=self.instructor.name)
-		self._create_evaluator(self.evaluator.name)
-		self._create_evaluator(self.other_evaluator.name)
-		self.batch = self._create_batch(f"Assessed {suffix}", self.evaluator.name, assessed=True)
-		self.other_batch = self._create_batch(f"Bare {suffix}", self.other_evaluator.name, assessed=False)
+		cls.questions = cls._create_quiz_questions()
+		cls.quiz = cls._create_quiz(cls.questions, title=f"Batch Quiz {suffix}")
+		cls.exercise = cls._create_programming_exercise(title=f"Batch Exercise {suffix}")
+		cls.course = cls._create_course(title=f"Batch Course {suffix}", instructor=cls.instructor.name)
+		cls._create_evaluator(cls.evaluator.name)
+		cls._create_evaluator(cls.other_evaluator.name)
+		cls.batch = cls._create_batch(f"Assessed {suffix}", cls.evaluator.name, assessed=True)
+		cls.other_batch = cls._create_batch(f"Bare {suffix}", cls.other_evaluator.name, assessed=False)
 
 	def tearDown(self):
 		frappe.set_user("Administrator")
 		super().tearDown()
 
-	def _create_batch(self, title, evaluator, assessed):
+	@classmethod
+	def _create_batch(cls, title, evaluator, assessed):
 		assessments = [
-			{"assessment_type": "LMS Quiz", "assessment_name": self.quiz.name},
-			{"assessment_type": "LMS Programming Exercise", "assessment_name": self.exercise.name},
+			{"assessment_type": "LMS Quiz", "assessment_name": cls.quiz.name},
+			{"assessment_type": "LMS Programming Exercise", "assessment_name": cls.exercise.name},
 		]
 		batch = frappe.get_doc(
 			{
@@ -344,8 +341,8 @@ class TestAssessmentBatchAccess(BaseTestUtils):
 				"timezone": "Asia/Kolkata",
 				"description": f"A batch for {title}",
 				"batch_details": f"Details of {title}",
-				"instructors": [{"instructor": self.instructor.name}],
-				"courses": [{"course": self.course.name, "evaluator": evaluator}],
+				"instructors": [{"instructor": cls.instructor.name}],
+				"courses": [{"course": cls.course.name, "evaluator": evaluator}],
 				"assessment": assessments if assessed else [],
 			}
 		)
@@ -435,41 +432,41 @@ class TestAssessmentListScope(BaseTestUtils):
 	list query, so a doctype registered for one and not the other still enumerates
 	every row through /api/resource, reports, exports and Data Import."""
 
-	def setUp(self):
-		super().setUp()
+	@classmethod
+	def setUpClass(cls):
+		super().setUpClass()
 		frappe.set_user("Administrator")
-		self.suffix = frappe.generate_hash(length=6)
-		self.instructor = self._create_user(
-			f"als-instr-{self.suffix}@example.com", "Ivy", "Instructor", ["Course Creator"]
+		cls.suffix = frappe.generate_hash(length=6)
+		cls.instructor = cls._create_user(
+			f"als-instr-{cls.suffix}@example.com", "Ivy", "Instructor", ["Course Creator"]
 		)
-		self.author = self._create_user(
-			f"als-author-{self.suffix}@example.com", "Amy", "Author", ["Course Creator"]
+		cls.author = cls._create_user(
+			f"als-author-{cls.suffix}@example.com", "Amy", "Author", ["Course Creator"]
 		)
-		self.member = self._create_user(
-			f"als-member-{self.suffix}@example.com", "Mel", "Member", ["LMS Student"]
+		cls.member = cls._create_user(
+			f"als-member-{cls.suffix}@example.com", "Mel", "Member", ["LMS Student"]
 		)
-		self.outsider = self._create_user(
-			f"als-outsider-{self.suffix}@example.com", "Ove", "Outsider", ["LMS Student"]
+		cls.outsider = cls._create_user(
+			f"als-outsider-{cls.suffix}@example.com", "Ove", "Outsider", ["LMS Student"]
 		)
-		self.course = self._create_course(title=f"List Course {self.suffix}", instructor=self.instructor.name)
-		self.questions = self._create_quiz_questions()
-		self.quiz = self._create_quiz(self.questions, title=f"List Quiz {self.suffix}")
-		self.assignment = self._create_assignment(title=f"List Assignment {self.suffix}")
-		self.exercise = self._create_programming_exercise(title=f"List Exercise {self.suffix}")
-		frappe.db.set_value("LMS Quiz", self.quiz.name, "owner", self.author.name)
-		self._set_authors("LMS Quiz", self.quiz.name, [self.author.name])
-		self._create_enrollment(self.member.name, self.course.name)
+		cls.course = cls._create_course(title=f"List Course {cls.suffix}", instructor=cls.instructor.name)
+		cls.questions = cls._create_quiz_questions()
+		cls.quiz = cls._create_quiz(cls.questions, title=f"List Quiz {cls.suffix}")
+		cls.assignment = cls._create_assignment(title=f"List Assignment {cls.suffix}")
+		cls.exercise = cls._create_programming_exercise(title=f"List Exercise {cls.suffix}")
+		frappe.db.set_value("LMS Quiz", cls.quiz.name, "owner", cls.author.name)
+		cls._set_authors("LMS Quiz", cls.quiz.name, [cls.author.name])
+		cls._create_enrollment(cls.member.name, cls.course.name)
+
+		cls._require_no_moderators(cls.member.name, cls.outsider.name, cls.instructor.name, cls.author.name)
+		cls._require(
+			frappe.db.get_value("LMS Quiz", cls.quiz.name, "owner") == cls.author.name,
+			"the quiz owner is not the author, so the owner fallback is not measured",
+		)
 
 	def tearDown(self):
 		frappe.set_user("Administrator")
 		super().tearDown()
-
-	# --- the controls, read before any count ---
-
-	def test_the_actors_hold_the_roles_the_refusals_rest_on(self):
-		for user in (self.member, self.outsider, self.instructor, self.author):
-			self.assertNotIn("Moderator", frappe.get_roles(user.name), user.name)
-		self.assertEqual(frappe.db.get_value("LMS Quiz", self.quiz.name, "owner"), self.author.name)
 
 	def test_get_all_bypasses_the_condition_that_get_list_enforces(self):
 		"""The outsider holds LMS Student, which grants read site-wide; only the
@@ -733,52 +730,53 @@ class TestAssessmentAdministerScope(BaseTestUtils):
 	by course authors, batch instructors and tagged evaluators, and by no enrolled
 	member, since every learner is an enrolled member of their own course."""
 
-	def setUp(self):
-		super().setUp()
+	@classmethod
+	def setUpClass(cls):
+		super().setUpClass()
 		frappe.set_user("Administrator")
-		self.suffix = frappe.generate_hash(length=6)
-		self.instructor = self._create_user(
-			f"aad-instr-{self.suffix}@example.com", "Ivy", "Instructor", ["Course Creator"]
+		cls.suffix = frappe.generate_hash(length=6)
+		cls.instructor = cls._create_user(
+			f"aad-instr-{cls.suffix}@example.com", "Ivy", "Instructor", ["Course Creator"]
 		)
-		self.author = self._create_user(
-			f"aad-author-{self.suffix}@example.com", "Amy", "Author", ["Course Creator"]
+		cls.author = cls._create_user(
+			f"aad-author-{cls.suffix}@example.com", "Amy", "Author", ["Course Creator"]
 		)
-		self.member = self._create_user(
-			f"aad-member-{self.suffix}@example.com", "Mel", "Member", ["LMS Student"]
+		cls.member = cls._create_user(
+			f"aad-member-{cls.suffix}@example.com", "Mel", "Member", ["LMS Student"]
 		)
-		self.outsider = self._create_user(
-			f"aad-outsider-{self.suffix}@example.com", "Ove", "Outsider", ["LMS Student"]
+		cls.outsider = cls._create_user(
+			f"aad-outsider-{cls.suffix}@example.com", "Ove", "Outsider", ["LMS Student"]
 		)
-		self.moderator = self._create_user(
-			f"aad-mod-{self.suffix}@example.com", "Moe", "Moderator", ["Moderator"]
+		cls.moderator = cls._create_user(
+			f"aad-mod-{cls.suffix}@example.com", "Moe", "Moderator", ["Moderator"]
 		)
-		self.course = self._create_course(
-			title=f"Administer Course {self.suffix}", instructor=self.instructor.name
+		cls.course = cls._create_course(
+			title=f"Administer Course {cls.suffix}", instructor=cls.instructor.name
 		)
-		self.questions = self._create_quiz_questions()
-		self.quiz = self._create_quiz(self.questions, title=f"Administer Quiz {self.suffix}")
-		self.assignment = self._create_assignment(title=f"Administer Assignment {self.suffix}")
-		frappe.db.set_value("LMS Quiz", self.quiz.name, "owner", self.author.name)
-		self._set_authors("LMS Quiz", self.quiz.name, [self.author.name])
-		self._create_enrollment(self.member.name, self.course.name)
-		self._place_in_lesson(self.course.name, "LMS Quiz", self.quiz.name)
-		self._place_in_lesson(self.course.name, "LMS Assignment", self.assignment.name)
+		cls.questions = cls._create_quiz_questions()
+		cls.quiz = cls._create_quiz(cls.questions, title=f"Administer Quiz {cls.suffix}")
+		cls.assignment = cls._create_assignment(title=f"Administer Assignment {cls.suffix}")
+		frappe.db.set_value("LMS Quiz", cls.quiz.name, "owner", cls.author.name)
+		cls._set_authors("LMS Quiz", cls.quiz.name, [cls.author.name])
+		cls._create_enrollment(cls.member.name, cls.course.name)
+		cls._place_in_lesson(cls.course.name, "LMS Quiz", cls.quiz.name)
+		cls._place_in_lesson(cls.course.name, "LMS Assignment", cls.assignment.name)
+
+		# A Moderator is granted by a branch this suite is not about, and the member
+		# must really be enrolled or its refusal would prove nothing.
+		cls._require_no_moderators(cls.member.name, cls.outsider.name, cls.instructor.name, cls.author.name)
+		cls._require(
+			"Moderator" in frappe.get_roles(cls.moderator.name),
+			"the moderator fixture lacks Moderator, so its grants prove nothing",
+		)
+		cls._require(
+			bool(frappe.db.exists("LMS Enrollment", {"course": cls.course.name, "member": cls.member.name})),
+			"the member is not enrolled, so its refusals prove nothing",
+		)
 
 	def tearDown(self):
 		frappe.set_user("Administrator")
 		super().tearDown()
-
-	# --- the controls, read before any count ---
-
-	def test_the_actors_hold_the_roles_the_refusals_rest_on(self):
-		"""A Moderator is granted by a branch this suite is not about, and the member
-		must really be enrolled or its refusal would prove nothing."""
-		for user in (self.member, self.outsider, self.instructor, self.author):
-			self.assertNotIn("Moderator", frappe.get_roles(user.name), user.name)
-		self.assertIn("Moderator", frappe.get_roles(self.moderator.name))
-		self.assertTrue(
-			frappe.db.exists("LMS Enrollment", {"course": self.course.name, "member": self.member.name})
-		)
 
 	def test_the_access_predicate_grants_the_member_this_suite_refuses(self):
 		"""The control the split is measured against. Without this the refusals below
