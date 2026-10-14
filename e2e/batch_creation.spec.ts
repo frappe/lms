@@ -1,9 +1,12 @@
 import { test, expect } from "./fixtures";
 import type { Page } from "@playwright/test";
-import { button, waitForApiCall } from "./helpers";
+import { button, deleteLeftovers, waitForApiCall } from "./helpers";
 
 const dateNow = Date.now();
 const randomEvaluator = `evaluator${dateNow}@example.com`;
+// Set by the batch test, for afterAll to clean up.
+let randomStudent: string | undefined;
+let batchName: string | undefined;
 
 // Settings > Users renders its own member form, whose placeholders are not
 // the standalone /lms member form's. The label is the stable handle:
@@ -32,6 +35,24 @@ const openUsersSettings = async (page: Page) => {
 };
 
 test.describe("Batch Creation", () => {
+	// The batch test assigns the evaluator the first test creates, and
+	// randomEvaluator is regenerated in every new worker. Serial retries both
+	// together.
+	test.describe.configure({ mode: "serial" });
+
+	// No UI flow here deletes a batch or a user, so the API does it, links
+	// first: the enrolment holds the batch, and the batch and the evaluator
+	// record hold the users.
+	test.afterAll(async () => {
+		await deleteLeftovers([
+			{ doctype: "LMS Batch Enrollment", filters: { batch: batchName } },
+			{ doctype: "LMS Batch", name: batchName },
+			{ doctype: "Course Evaluator", name: randomEvaluator },
+			{ doctype: "User", name: randomEvaluator },
+			{ doctype: "User", name: randomStudent },
+		]);
+	});
+
 	test("creates an evaluator via Users settings", async ({ page }) => {
 		await page.goto("/lms/batches");
 
@@ -86,7 +107,7 @@ test.describe("Batch Creation", () => {
 	test("creates and verifies a new batch", async ({ page }) => {
 		// Unique per attempt: on a retry the previous attempt's user already
 		// exists, and re-adding it leaves the member modal open (insert errors).
-		const randomStudent = `testuser_${Date.now()}@example.com`;
+		randomStudent = `testuser_${Date.now()}@example.com`;
 
 		await page.goto("/lms/batches");
 
@@ -177,7 +198,7 @@ test.describe("Batch Creation", () => {
 		await expect(button(page, "Unpublish")).toBeVisible();
 
 		// Capture batch slug
-		const batchName = page.url().split("/").pop()!.split("#")[0];
+		batchName = page.url().split("/").pop()!.split("#")[0];
 
 		// View batch card in list
 		await page.goto("/lms/batches");
@@ -185,9 +206,10 @@ test.describe("Batch Creation", () => {
 		await page.getByRole("radio", { name: "Upcoming" }).click();
 
 		// The card's title is its link, stretched over the card; the rest of the
-		// card's text sits beside the link, not inside it.
+		// card's text sits beside the link, not inside it. The grid around the
+		// cards is an isolate too, so take the innermost match: the card.
 		const batchLink = page.locator(`a[href='/lms/batches/${batchName}']`);
-		const batchCard = page.locator("div.isolate", { has: batchLink });
+		const batchCard = page.locator("div.isolate", { has: batchLink }).last();
 		await expect(batchLink).toBeVisible({ timeout: 10000 });
 		await expect(batchLink).toHaveText("Test Batch");
 		await expect(
