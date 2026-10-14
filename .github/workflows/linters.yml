@@ -55,6 +55,9 @@ jobs:
       - name: Install and Run Pre-commit
         uses: pre-commit/action@v3.0.1
 
+      - name: Test the changed-test classifier
+        run: .github/helper/test-changed-tests.sh
+
       - name: Download Semgrep rules
         run: git clone --depth 1 https://github.com/frappe/semgrep-rules.git frappe-semgrep-rules
 

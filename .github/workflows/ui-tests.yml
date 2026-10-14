@@ -43,8 +43,21 @@ jobs:
         options: --health-cmd="mysqladmin ping" --health-interval=5s --health-timeout=2s --health-retries=3
 
     steps:
+      # Depth 2 keeps the PR base, the merge commit's first parent.
       - name: Clone
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      - name: Select tests
+        id: select
+        if: >-
+          github.event_name == 'pull_request' &&
+          !contains(github.event.pull_request.labels.*.name, 'all-tests')
+        run: |
+          set -euo pipefail
+          git diff --name-status --no-renames HEAD^1 HEAD \
+            | .github/helper/changed-tests.sh e2e >> "$GITHUB_OUTPUT"
 
       - name: Add to Hosts
         run: echo "127.0.0.1 lms.test" | sudo tee -a /etc/hosts
@@ -96,10 +109,14 @@ jobs:
 
       - name: UI Tests
         working-directory: /home/runner/frappe-bench/apps/lms
-        run: npx playwright test --project=setup --project=e2e
+        # SPECS is empty on a full run.
+        run: |
+          read -ra specs <<< "$SPECS"
+          npx playwright test --project=setup --project=e2e "${specs[@]}"
         env:
           PLAYWRIGHT_BASE_URL: http://lms.test:8000
           CI: "true"
+          SPECS: ${{ steps.select.outputs.tests }}
 
       - name: Upload Playwright results if tests fail
         if: ${{ failure() }}
