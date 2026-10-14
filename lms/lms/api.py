@@ -2716,6 +2716,13 @@ def calculate_current_streak(all_dates: list, streak: int):
 	return 0
 
 
+def can_start_live_class(batch: str) -> bool:
+	"""Who sees a class's start link: the staff the Start button is shown to."""
+	from lms.lms.permissions import can_author_batch
+
+	return "Batch Evaluator" in frappe.get_roles() or can_author_batch(batch)
+
+
 @frappe.whitelist()
 def get_my_live_classes():
 	my_live_classes = []
@@ -2746,6 +2753,7 @@ def get_my_live_classes():
 			"start_url",
 			"join_url",
 			"owner",
+			"batch_name",
 		],
 		limit=2,
 		order_by="date",
@@ -2754,6 +2762,9 @@ def get_my_live_classes():
 	if len(live_class_details):
 		for live_class in live_class_details:
 			live_class.course_title = frappe.db.get_value("LMS Course", live_class.course, "title")
+			# The start link opens the class as its host; learners join with join_url.
+			if not can_start_live_class(live_class.batch_name):
+				live_class.start_url = None
 
 			my_live_classes.append(live_class)
 
