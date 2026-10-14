@@ -50,6 +50,7 @@ from lms.lms.utils import (
 	attach_file_to_doc,
 	can_modify_batch,
 	can_modify_course,
+	check_filter_value,
 	format_timezone,
 	get_batch_details,
 	get_course_details,
@@ -419,6 +420,8 @@ def sanitize_job_filters(filters, or_filters):
 
 	filters = {f: v for f, v in (filters or {}).items() if f in ALLOWED_FILTERS}
 	or_filters = {f: v for f, v in (or_filters or {}).items() if f in ALLOWED_OR_FILTERS}
+	for field, value in (filters | or_filters).items():
+		check_filter_value(field, value)
 
 	if not sees_every_job():
 		if "status" not in filters:
