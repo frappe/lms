@@ -249,6 +249,15 @@ describe('ProgrammingExerciseForm as a route', () => {
 		).toBe(true)
 	})
 
+	it('takes no exercise from the /new route without warning', async () => {
+		const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
+		const router = makeRouter()
+		await router.push('/programming-exercises/new')
+		await mountForm(router, moderator)
+		const warnings = warn.mock.calls.map((args) => String(args[0]))
+		expect(warnings.filter((w) => w.includes('exerciseID'))).toEqual([])
+	})
+
 	it('refuses to render the form for a user who cannot manage exercises', async () => {
 		const router = makeRouter()
 		await router.push('/programming-exercises/edit/new')
