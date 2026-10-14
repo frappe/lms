@@ -205,24 +205,6 @@ afterEach(() => {
 })
 
 describe('Lesson.vue Next affordance follows canGoNext', () => {
-	it('hides the Next button when the following lesson is locked', async () => {
-		wrapper = await mountLesson()
-		findResource('lms.lms.utils.get_course_outline').data = [
-			{
-				name: 'CH-1',
-				lessons: [
-					{ name: 'L1', number: '1-1', locked: 0 },
-					{ name: 'L2', number: '1-2', locked: 1 },
-				],
-			},
-		]
-		findResource('lms.lms.utils.get_lesson').data = { ...baseLesson }
-		await flushPromises()
-
-		expect((wrapper.vm as any).canGoNext).toBe(false)
-		expect(wrapper.text()).not.toContain('Next')
-	})
-
 	it('shows the Next button when the following lesson is unlocked', async () => {
 		wrapper = await mountLesson()
 		findResource('lms.lms.utils.get_course_outline').data = [

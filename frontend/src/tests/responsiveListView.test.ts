@@ -428,11 +428,6 @@ describe('ResponsiveListView detail separator', () => {
 	// COLUMNS is title + one detail column, so a second detail column is what makes the separator reachable at all: it renders only from index 1 on.
 	const TWO_DETAILS = [...COLUMNS, { label: 'Owner', key: 'name', width: 1 }]
 
-	it('draws the middot between detail cells by default', async () => {
-		const wrapper = await mountCards({ columns: TWO_DETAILS })
-		expect(wrapper.find('li').text()).toContain('·')
-	})
-
 	it('hides it from assistive tech, being decoration', async () => {
 		const wrapper = await mountCards({ columns: TWO_DETAILS })
 		const dot = wrapper

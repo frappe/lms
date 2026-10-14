@@ -281,6 +281,7 @@ export const routes = [
 		path: '/quiz-submissions/:quizID',
 		redirect: (to) => ({
 			name: 'QuizSubmissions',
+			params: {},
 			query: { quiz: String(to.params.quizID) },
 		}),
 	},

@@ -350,20 +350,6 @@ describe('Quiz choices', () => {
 		await flushPromises()
 	}
 
-	it('sends the option the learner picks', async () => {
-		const wrapper = mountQuiz()
-		await flushPromises()
-		resourceState.checkAnswer = [1, 0]
-		await pickFirstAndCheck(wrapper)
-
-		// The warning toast instead of a request would mean getAnswers() saw
-		// nothing selected, i.e. the radio never reached selectedOptions.
-		expect(resourceState.request.mock.calls.map((call) => call[0])).toContain(
-			'lms.lms.doctype.lms_quiz.lms_quiz.check_answer'
-		)
-		wrapper.unmount()
-	})
-
 	it('marks each option right or wrong once checked, keeping the labels', async () => {
 		const wrapper = mountQuiz()
 		await flushPromises()

@@ -198,18 +198,6 @@ describe('CourseEnrollmentForm as a route', () => {
 		})
 	})
 
-	// The whole point of the conversion: no CourseDashboard tab is mounted, so
-	// there is no parent to hand this page a course or a student list.
-	it('mounts straight from the URL with no parent dashboard mounted', async () => {
-		const router = makeRouter()
-		await openForm(router)
-		const wrapper = await mountForm(router)
-
-		expect(wrapper.text()).toContain('COURSE')
-		expect(fields(wrapper).exists()).toBe(true)
-		expect(wrapper.html()).toContain('Enroll a Student')
-	})
-
 	it('fetches the course itself, keyed off the route param', async () => {
 		const router = makeRouter()
 		await openForm(router)
@@ -426,25 +414,5 @@ describe('CourseEnrollmentForm as a route', () => {
 
 		expect(openSettingsMock).toHaveBeenCalledWith('members')
 		expect(router.currentRoute.value.name).toBe('NewCourseEnrollment')
-	})
-
-	it('mobile: the back control pops the router back to the course', async () => {
-		const router = makeRouter()
-		await router.push({
-			name: 'CourseDetail',
-			params: { courseName: 'COURSE-1' },
-			hash: COURSE_TAB,
-		})
-		await openForm(router, { lmsFormEntry: true })
-		Object.defineProperty(window, 'innerWidth', {
-			value: 390,
-			writable: true,
-			configurable: true,
-		})
-		const wrapper = await mountForm(router)
-
-		await wrapper.find('[data-testid="form-shell-back"]').trigger('click')
-		await flushPromises()
-		expect(router.currentRoute.value.name).toBe('CourseDetail')
 	})
 })

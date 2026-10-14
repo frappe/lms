@@ -132,6 +132,9 @@ class TestLMSAPI(BaseTestUtils):
 		site_path = frappe.get_site_path("private", "files")
 		zip_files = glob.glob(os.path.join(site_path, f"{self.course.name}_*.zip"))
 		latest_file = max(zip_files, key=os.path.getctime) if zip_files else None
+		if latest_file:
+			# The app deletes it from a job enqueued after commit, which a test never reaches.
+			self.addCleanup(os.remove, latest_file)
 		return latest_file
 
 	def test_import_course_from_zip(self):

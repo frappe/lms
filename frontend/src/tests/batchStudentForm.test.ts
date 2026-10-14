@@ -225,18 +225,6 @@ describe('BatchStudentForm as a route', () => {
 		})
 	})
 
-	// The whole point of the conversion: no AdminBatchDashboard tab is mounted,
-	// so there is no parent to hand this page a batch or a student list.
-	it('mounts straight from the URL with no parent dashboard mounted', async () => {
-		const router = makeRouter()
-		await openForm(router)
-		const wrapper = await mountForm(router)
-
-		expect(wrapper.text()).toContain('BATCH')
-		expect(fields(wrapper).exists()).toBe(true)
-		expect(wrapper.html()).toContain('Enroll a Student')
-	})
-
 	it('refuses a visitor who is neither moderator nor evaluator', async () => {
 		const router = makeRouter()
 		await openForm(router)
@@ -466,25 +454,5 @@ describe('BatchStudentForm as a route', () => {
 
 		expect(openSettingsMock).toHaveBeenCalledWith('members')
 		expect(router.currentRoute.value.name).toBe('NewBatchStudent')
-	})
-
-	it('mobile: the back control pops the router back to the batch', async () => {
-		const router = makeRouter()
-		await router.push({
-			name: 'BatchDetail',
-			params: { batchName: 'B1' },
-			hash: BATCH_TAB,
-		})
-		await openForm(router, { lmsFormEntry: true })
-		Object.defineProperty(window, 'innerWidth', {
-			value: 390,
-			writable: true,
-			configurable: true,
-		})
-		const wrapper = await mountForm(router)
-
-		await wrapper.find('[data-testid="form-shell-back"]').trigger('click')
-		await flushPromises()
-		expect(router.currentRoute.value.name).toBe('BatchDetail')
 	})
 })

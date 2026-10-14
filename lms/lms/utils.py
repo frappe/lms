@@ -172,12 +172,8 @@ def create_user(
 	ignore_permissions=False,
 ):
 	validate_email_address(email, True)
-	print(email)
-	print(frappe.db.exists("User", email))
 	existing_user = frappe.db.exists("User", email)
-	print("existing_user", existing_user)
 	if existing_user:
-		print("User already exists")
 		return frappe.get_doc("User", email)
 
 	first_name, last_name, full_name = process_user_names(first_name, last_name, full_name)
@@ -2140,12 +2136,14 @@ def get_batch_details(batch: str):
 	if not guest_access_allowed():
 		return {}
 
-	from lms.lms.permissions import can_author_batch
+	from lms.lms.permissions import can_instruct_batch, evaluates_batch
 
 	batch_students = frappe.get_all("LMS Batch Enrollment", {"batch": batch}, pluck="member")
-	# can_modify_batch only recognises the Course Instructor tag; can_author_batch also
-	# recognises a Batch Course evaluator tag, which a Course Creator may hold instead.
-	can_manage = can_author_batch(batch)
+	# can_modify_batch only recognises the Course Instructor tag; can_manage, like
+	# can_author_batch, also recognises a Batch Course evaluator tag, which a Course
+	# Creator may hold instead. Only instructors schedule live classes.
+	instructs = can_instruct_batch(batch)
+	can_manage = instructs or evaluates_batch(batch)
 	is_batch_published = frappe.db.get_value("LMS Batch", batch, "published")
 	is_student_enrolled = frappe.session.user in batch_students
 
@@ -2187,6 +2185,11 @@ def get_batch_details(batch: str):
 
 	batch_details.instructors = get_public_instructors("LMS Batch", batch)
 	batch_details.can_manage = can_manage
+	# The rule LMSBatch.validate_instructor_changes applies.
+	batch_details.can_change_instructors = instructs
+	# The rule check_can_schedule_live_class applies.
+	can_create_classes = frappe.has_permission("LMS Live Class", "create")
+	batch_details.can_schedule_classes = instructs and can_create_classes
 	batch_details.accept_enrollments = batch_details.start_date > getdate()
 
 	if (
@@ -3811,15 +3814,16 @@ def sanitize_editorjs(raw):
 	`content` carries `ignore_xss_filter`, so frappe's field-level `sanitize_html`
 	no longer runs over it: it read the whole JSON document as markup and left the
 	field unparseable. `sanitize_json` is the gate instead, string by string.
+
+	Text that is not EditorJS JSON, even after `load_editorjs` repairs it, is
+	HTML-escaped rather than cleaned: escaping is reversible, so the author can
+	still recover it by hand. Content that nests too deeply is treated the same.
 	"""
 	try:
-		data = json.loads(raw)
-	except (TypeError, ValueError):
-		# Returned byte-for-byte. Nothing renders content that will not parse, and
-		# rewriting it defeats the repair on read: one title-only save was enough
-		# to turn a recoverable lesson into an unrecoverable one.
-		return raw
-	return json.dumps(sanitize_json(data), separators=(",", ":"))
+		data, _repaired = load_editorjs(raw)
+		return dump_editorjs(sanitize_json(data))
+	except (TypeError, ValueError, RecursionError):
+		return escape_markup(raw)
 
 
 def get_editorjs_blocks(content):
@@ -3855,11 +3859,61 @@ def get_editorjs_blocks(content):
 	return valid_blocks
 
 
-def sanitize_json(node):
+# EditorJS nests a handful of levels, and a nested list adds two per level.
+# Anything deeper is not lesson content, and walking it could exhaust the stack.
+MAX_EDITORJS_DEPTH = 32
+
+
+def sanitize_json(node, depth=0):
+	if depth > MAX_EDITORJS_DEPTH:
+		raise ValueError("Lesson content nests too deeply")
 	if isinstance(node, dict):
-		return {k: sanitize_json(v) for k, v in node.items()}
+		# A key with markup is never an EditorJS key. It is dropped, not cleaned, since
+		# a cleaned key could equal a real one and overwrite its value.
+		return {k: sanitize_json(v, depth + 1) for k, v in node.items() if sanitize_json(k) == k}
 	if isinstance(node, list):
-		return [sanitize_json(v) for v in node]
+		return [sanitize_json(v, depth + 1) for v in node]
 	if isinstance(node, str) and ("<" in node or ">" in node):
 		return sanitize_html(node, always_sanitize=True)
 	return node
+
+
+# Rows written before `content` carried `ignore_xss_filter` were mangled by nh3
+# reading the JSON as markup. Same list as SANITISER_ARTEFACTS in
+# frontend/src/utils/lessonForm.ts, which undoes them on read.
+SANITISER_ARTEFACTS = (
+	(re.compile(r'="\\&quot;(.*?)\\&quot;"'), r'=\\"\1\\"'),
+	(re.compile(r' rel="noopener noreferrer"'), r' rel=\\"noopener noreferrer\\"'),
+)
+
+
+def load_editorjs(raw):
+	"""Parse lesson content as `(data, repaired)`, undoing the old sanitiser's
+	artefacts if they stop it parsing. Escaping the mangled text instead would
+	leave the lesson unreadable, so a title-only save repairs it here."""
+	try:
+		return json.loads(raw), False
+	except (TypeError, ValueError):
+		repaired = undo_sanitiser_artefacts(raw)
+		if repaired == raw:
+			raise
+		return json.loads(repaired), True
+
+
+def dump_editorjs(data):
+	return json.dumps(data, separators=(",", ":"))
+
+
+def escape_markup(raw):
+	"""Text without `<` or `>` is kept, so text escaped once is not escaped again."""
+	if isinstance(raw, str) and ("<" in raw or ">" in raw):
+		return escape_html(raw)
+	return raw
+
+
+def undo_sanitiser_artefacts(raw):
+	if not isinstance(raw, str):
+		return raw
+	for pattern, replacement in SANITISER_ARTEFACTS:
+		raw = pattern.sub(replacement, raw)
+	return raw

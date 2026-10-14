@@ -41,9 +41,7 @@ class TestEvaluatorAvailability(BaseTestUtils):
 	@classmethod
 	def setUpClass(cls):
 		super().setUpClass()
-		# `throttle_user_creation` refuses more than 60 Users an hour. These
-		# fixtures have stable names and are reused across runs, so the flag only
-		# matters the first time a site sees them.
+		# `throttle_user_creation` refuses more than 60 Users an hour.
 		original_in_import = frappe.flags.in_import
 		frappe.flags.in_import = True
 		try:
@@ -62,7 +60,7 @@ class TestEvaluatorAvailability(BaseTestUtils):
 						user.append("roles", {"role": role})
 					user.insert(ignore_permissions=True)
 				else:
-					# Reused across runs, and a test may have stripped a role to
+					# Already on the site, and a test may have stripped a role to
 					# set up its own state. Put the fixture's roles back.
 					user = frappe.get_doc("User", email)
 					missing = [r for r in roles if r not in {d.role for d in user.roles}]
@@ -71,17 +69,6 @@ class TestEvaluatorAvailability(BaseTestUtils):
 				setattr(cls, attr, frappe._dict(email=email))
 		finally:
 			frappe.flags.in_import = original_in_import
-		frappe.db.commit()
-
-	@classmethod
-	def tearDownClass(cls):
-		# Only the availability rows are test state; the users stay put so reruns
-		# don't churn through the creation quota.
-		for email, _roles in cls.USERS.values():
-			if frappe.db.exists("Course Evaluator", email):
-				frappe.delete_doc("Course Evaluator", email, force=True, ignore_permissions=True)
-		frappe.db.commit()
-		super().tearDownClass()
 
 	def setUp(self):
 		super().setUp()
@@ -505,27 +492,11 @@ class TestEvaluatorCalendarSettings(BaseTestUtils):
 			frappe.flags.in_import = original_in_import
 
 		settings = frappe.get_doc("Google Settings")
-		cls.original_google_settings = (
-			settings.enable,
-			settings.client_id,
-			settings.get_password("client_secret", raise_exception=False),
-		)
 		settings.enable = 1
 		settings.client_id = "test-client-id"
 		settings.client_secret = "test-client-secret"
 		# nosemgrep: lms-unjustified-ignore-permissions - test fixture setup
 		settings.save(ignore_permissions=True)
-		frappe.db.commit()
-
-	@classmethod
-	def tearDownClass(cls):
-		frappe.db.delete("Google Calendar", {"user": ("in", [cls.EVALUATOR, cls.OTHER])})
-		settings = frappe.get_doc("Google Settings")
-		settings.enable, settings.client_id, settings.client_secret = cls.original_google_settings
-		# nosemgrep: lms-unjustified-ignore-permissions - test fixture setup
-		settings.save(ignore_permissions=True)
-		frappe.db.commit()
-		super().tearDownClass()
 
 	def setUp(self):
 		super().setUp()

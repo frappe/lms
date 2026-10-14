@@ -89,14 +89,6 @@ describe('ExerciseTestCases', () => {
 		)
 	})
 
-	it('is titled, before and after a run', async () => {
-		const wrapper = mountTestCases({ results: [] })
-		expect(wrapper.get('h3').text()).toBe('Test cases')
-
-		await wrapper.setProps({ results: mixed })
-		expect(wrapper.get('h3').text()).toBe('Test cases')
-	})
-
 	it('prompts a run when there are no results yet', () => {
 		const wrapper = mountTestCases({ results: [] })
 

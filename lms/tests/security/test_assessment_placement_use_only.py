@@ -30,80 +30,81 @@ class TestAssessmentPlacementGrantsUseOnly(BaseTestUtils):
 	embeds them in B's own lesson. B may use them; A stays their only author, and B
 	reaches only B's students' work."""
 
-	def setUp(self):
-		super().setUp()
+	@classmethod
+	def setUpClass(cls):
+		super().setUpClass()
 		frappe.set_user("Administrator")
 		suffix = frappe.generate_hash(length=6)
-		self.author = self._create_user(f"apu-a-{suffix}@example.com", "Ann", "Author", ["Course Creator"])
-		self.placer = self._create_user(f"apu-b-{suffix}@example.com", "Ben", "Placer", ["Course Creator"])
-		self.moderator = self._create_user(f"apu-mod-{suffix}@example.com", "Mo", "Derator", ["Moderator"])
-		self.student_a = self._create_user(f"apu-sa-{suffix}@example.com", "Sal", "A", ["LMS Student"])
-		self.student_b = self._create_user(f"apu-sb-{suffix}@example.com", "Sid", "B", ["LMS Student"])
+		cls.author = cls._create_user(f"apu-a-{suffix}@example.com", "Ann", "Author", ["Course Creator"])
+		cls.placer = cls._create_user(f"apu-b-{suffix}@example.com", "Ben", "Placer", ["Course Creator"])
+		cls.moderator = cls._create_user(f"apu-mod-{suffix}@example.com", "Mo", "Derator", ["Moderator"])
+		cls.student_a = cls._create_user(f"apu-sa-{suffix}@example.com", "Sal", "A", ["LMS Student"])
+		cls.student_b = cls._create_user(f"apu-sb-{suffix}@example.com", "Sid", "B", ["LMS Student"])
 
-		self.course_a = self._create_course(f"Author Course {suffix}", instructor=self.author.name)
-		self.course_b = self._create_course(f"Placer Course {suffix}", instructor=self.placer.name)
-		self._create_enrollment(self.student_a.name, self.course_a.name)
-		self._create_enrollment(self.student_b.name, self.course_b.name)
+		cls.course_a = cls._create_course(f"Author Course {suffix}", instructor=cls.author.name)
+		cls.course_b = cls._create_course(f"Placer Course {suffix}", instructor=cls.placer.name)
+		cls._create_enrollment(cls.student_a.name, cls.course_a.name)
+		cls._create_enrollment(cls.student_b.name, cls.course_b.name)
 
-		self.assessments = {
-			"LMS Quiz": self._create_quiz(self._create_quiz_questions(), title=f"APU Quiz {suffix}").name,
-			"LMS Assignment": self._create_assignment(title=f"APU Assignment {suffix}").name,
-			"LMS Programming Exercise": self._create_programming_exercise(
-				title=f"APU Exercise {suffix}"
-			).name,
+		cls.assessments = {
+			"LMS Quiz": cls._create_quiz(cls._create_quiz_questions(), title=f"APU Quiz {suffix}").name,
+			"LMS Assignment": cls._create_assignment(title=f"APU Assignment {suffix}").name,
+			"LMS Programming Exercise": cls._create_programming_exercise(title=f"APU Exercise {suffix}").name,
 		}
-		for doctype, name in self.assessments.items():
-			self._set_authors(doctype, name, [self.author.name])
-			self._place_in_lesson(self.course_a.name, doctype, name)
-		self.stamp_before = frappe.db.get_value(
-			"LMS Quiz", self.assessments["LMS Quiz"], ["course", "lesson"], as_dict=True
+		for doctype, name in cls.assessments.items():
+			cls._set_authors(doctype, name, [cls.author.name])
+			cls._place_in_lesson(cls.course_a.name, doctype, name)
+		cls.stamp_before = frappe.db.get_value(
+			"LMS Quiz", cls.assessments["LMS Quiz"], ["course", "lesson"], as_dict=True
 		)
-		self._place_as_placer()
+		cls._place_as_placer()
 
-		self.submissions = {
+		cls.submissions = {
 			doctype: {
-				student.name: self._submit(doctype, name, student.name)
-				for student in (self.student_a, self.student_b)
+				student.name: cls._submit(doctype, name, student.name)
+				for student in (cls.student_a, cls.student_b)
 			}
-			for doctype, name in self.assessments.items()
+			for doctype, name in cls.assessments.items()
 		}
 
 	def tearDown(self):
 		frappe.set_user("Administrator")
 		super().tearDown()
 
-	def _place_as_placer(self):
-		self._create_evaluator(self.moderator.name)
-		batch = self._create_batch(
-			self.course_b.name,
-			instructor=self.placer.name,
-			title=f"Placer Batch {self.course_b.name}",
-			evaluator=self.moderator.name,
+	@classmethod
+	def _place_as_placer(cls):
+		cls._create_evaluator(cls.moderator.name)
+		batch = cls._create_batch(
+			cls.course_b.name,
+			instructor=cls.placer.name,
+			title=f"Placer Batch {cls.course_b.name}",
+			evaluator=cls.moderator.name,
 		)
-		for doctype, name in self.assessments.items():
+		for doctype, name in cls.assessments.items():
 			batch.append("assessment", {"assessment_type": doctype, "assessment_name": name})
 		batch.save()
-		chapter = self._create_chapter(f"Placer Chapter {self.course_b.name}", self.course_b.name)
+		chapter = cls._create_chapter(f"Placer Chapter {cls.course_b.name}", cls.course_b.name)
 		blocks = [
-			{"type": "quiz", "data": {"quiz": self.assessments["LMS Quiz"]}},
-			{"type": "assignment", "data": {"assignment": self.assessments["LMS Assignment"]}},
-			{"type": "program", "data": {"exercise": self.assessments["LMS Programming Exercise"]}},
+			{"type": "quiz", "data": {"quiz": cls.assessments["LMS Quiz"]}},
+			{"type": "assignment", "data": {"assignment": cls.assessments["LMS Assignment"]}},
+			{"type": "program", "data": {"exercise": cls.assessments["LMS Programming Exercise"]}},
 		]
-		frappe.set_user(self.placer.name)
+		frappe.set_user(cls.placer.name)
 		try:
-			self.placer_lesson = frappe.client.insert(
+			cls.placer_lesson = frappe.client.insert(
 				{
 					"doctype": "Course Lesson",
-					"course": self.course_b.name,
+					"course": cls.course_b.name,
 					"chapter": chapter.name,
-					"title": f"Placer Lesson {self.course_b.name}",
+					"title": f"Placer Lesson {cls.course_b.name}",
 					"content": frappe.as_json({"blocks": blocks}),
 				}
 			)["name"]
 		finally:
 			frappe.set_user("Administrator")
 
-	def _submit(self, doctype: str, name: str, member: str) -> str:
+	@classmethod
+	def _submit(cls, doctype: str, name: str, member: str) -> str:
 		submission_doctype, field = SUBMISSION_FIELDS[doctype]
 		values = {"doctype": submission_doctype, field: name, "member": member}
 		if doctype == "LMS Quiz":
@@ -233,31 +234,32 @@ class TestAssessmentPlacementGrantsUseOnly(BaseTestUtils):
 class TestPlacingNeedsExistingUse(BaseTestUtils):
 	"""A lesson save may newly place only assessments its editor can already administer."""
 
-	def setUp(self):
-		super().setUp()
+	@classmethod
+	def setUpClass(cls):
+		super().setUpClass()
 		frappe.set_user("Administrator")
 		suffix = frappe.generate_hash(length=6)
-		self.author = self._create_user(f"apn-a-{suffix}@example.com", "Ann", "Author", ["Course Creator"])
-		self.placer = self._create_user(f"apn-b-{suffix}@example.com", "Ben", "Placer", ["Course Creator"])
-		course_a = self._create_course(f"APN Author Course {suffix}", instructor=self.author.name)
-		course_b = self._create_course(f"APN Placer Course {suffix}", instructor=self.placer.name)
-		self.chapter_b = self._create_chapter(f"APN Placer Chapter {suffix}", course_b.name)
-		self.course_b = course_b.name
-		self.titles = {
+		cls.author = cls._create_user(f"apn-a-{suffix}@example.com", "Ann", "Author", ["Course Creator"])
+		cls.placer = cls._create_user(f"apn-b-{suffix}@example.com", "Ben", "Placer", ["Course Creator"])
+		course_a = cls._create_course(f"APN Author Course {suffix}", instructor=cls.author.name)
+		course_b = cls._create_course(f"APN Placer Course {suffix}", instructor=cls.placer.name)
+		cls.chapter_b = cls._create_chapter(f"APN Placer Chapter {suffix}", course_b.name)
+		cls.course_b = course_b.name
+		cls.titles = {
 			"LMS Quiz": f"APN Quiz {suffix}",
 			"LMS Assignment": f"APN Assignment {suffix}",
 			"LMS Programming Exercise": f"APN Exercise {suffix}",
 		}
-		self.assessments = {
-			"LMS Quiz": self._create_quiz(self._create_quiz_questions(), title=self.titles["LMS Quiz"]).name,
-			"LMS Assignment": self._create_assignment(title=self.titles["LMS Assignment"]).name,
-			"LMS Programming Exercise": self._create_programming_exercise(
-				title=self.titles["LMS Programming Exercise"]
+		cls.assessments = {
+			"LMS Quiz": cls._create_quiz(cls._create_quiz_questions(), title=cls.titles["LMS Quiz"]).name,
+			"LMS Assignment": cls._create_assignment(title=cls.titles["LMS Assignment"]).name,
+			"LMS Programming Exercise": cls._create_programming_exercise(
+				title=cls.titles["LMS Programming Exercise"]
 			).name,
 		}
-		for doctype, name in self.assessments.items():
-			self._set_authors(doctype, name, [self.author.name])
-			self._place_in_lesson(course_a.name, doctype, name)
+		for doctype, name in cls.assessments.items():
+			cls._set_authors(doctype, name, [cls.author.name])
+			cls._place_in_lesson(course_a.name, doctype, name)
 
 	def tearDown(self):
 		frappe.set_user("Administrator")
@@ -328,50 +330,49 @@ class TestBatchPlacementGrantsUseOnly(BaseTestUtils):
 	"""The batch path: a batch running A's assignment hands its staff that batch's
 	students' work only."""
 
-	def setUp(self):
-		super().setUp()
+	@classmethod
+	def setUpClass(cls):
+		super().setUpClass()
 		frappe.set_user("Administrator")
 		suffix = frappe.generate_hash(length=6)
-		self.author = self._create_user(f"apb-a-{suffix}@example.com", "Ann", "Author", ["Course Creator"])
-		self.evaluator = self._create_user(
+		cls.author = cls._create_user(f"apb-a-{suffix}@example.com", "Ann", "Author", ["Course Creator"])
+		cls.evaluator = cls._create_user(
 			f"apb-e-{suffix}@example.com", "Eve", "Evaluator", ["Batch Evaluator"]
 		)
-		self.batch_student = self._create_user(f"apb-sb-{suffix}@example.com", "Bo", "Batch", ["LMS Student"])
-		self.course_student = self._create_user(
-			f"apb-sc-{suffix}@example.com", "Cy", "Course", ["LMS Student"]
-		)
+		cls.batch_student = cls._create_user(f"apb-sb-{suffix}@example.com", "Bo", "Batch", ["LMS Student"])
+		cls.course_student = cls._create_user(f"apb-sc-{suffix}@example.com", "Cy", "Course", ["LMS Student"])
 
-		course_a = self._create_course(f"APB Author Course {suffix}", instructor=self.author.name)
-		self._create_enrollment(self.course_student.name, course_a.name)
-		self.assignment = self._create_assignment(title=f"APB Assignment {suffix}").name
-		self._set_authors("LMS Assignment", self.assignment, [self.author.name])
-		self._place_in_lesson(course_a.name, "LMS Assignment", self.assignment)
+		course_a = cls._create_course(f"APB Author Course {suffix}", instructor=cls.author.name)
+		cls._create_enrollment(cls.course_student.name, course_a.name)
+		cls.assignment = cls._create_assignment(title=f"APB Assignment {suffix}").name
+		cls._set_authors("LMS Assignment", cls.assignment, [cls.author.name])
+		cls._place_in_lesson(course_a.name, "LMS Assignment", cls.assignment)
 
-		batch_course = self._create_course(f"APB Batch Course {suffix}", instructor=self.author.name)
-		self._create_evaluator(self.evaluator.name)
-		batch = self._create_batch(
+		batch_course = cls._create_course(f"APB Batch Course {suffix}", instructor=cls.author.name)
+		cls._create_evaluator(cls.evaluator.name)
+		batch = cls._create_batch(
 			batch_course.name,
-			instructor=self.evaluator.name,
+			instructor=cls.evaluator.name,
 			title=f"APB Batch {suffix}",
-			evaluator=self.evaluator.name,
+			evaluator=cls.evaluator.name,
 		)
-		batch.append("assessment", {"assessment_type": "LMS Assignment", "assessment_name": self.assignment})
+		batch.append("assessment", {"assessment_type": "LMS Assignment", "assessment_name": cls.assignment})
 		batch.save()
-		self.batch = batch.name
-		self._create_batch_enrollment(self.batch_student.name, self.batch)
+		cls.batch = batch.name
+		cls._create_batch_enrollment(cls.batch_student.name, cls.batch)
 
-		self.submissions = {}
-		for student in (self.batch_student, self.course_student):
+		cls.submissions = {}
+		for student in (cls.batch_student, cls.course_student):
 			submission = frappe.get_doc(
 				{
 					"doctype": "LMS Assignment Submission",
-					"assignment": self.assignment,
+					"assignment": cls.assignment,
 					"member": student.name,
 					"answer": "An answer.",
 				}
 			)
 			# nosemgrep: lms-unjustified-ignore-permissions - fixture seeding, not the permission under test
-			self.submissions[student.name] = submission.insert(ignore_permissions=True).name
+			cls.submissions[student.name] = submission.insert(ignore_permissions=True).name
 
 	def tearDown(self):
 		frappe.set_user("Administrator")

@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { afterEach, describe, it, expect, vi, beforeEach } from 'vitest'
 
 // Mock the heavy Plyr dependency: the guard only cares that the constructor
 // runs once per element, not what the player does. The settings store is mocked
@@ -25,6 +25,16 @@ vi.mock('@/stores/settings', () => ({
 
 import { enablePlyr } from '@/utils/plyr'
 
+// enablePlyr waits 500ms for the content to settle before it scans.
+const runPlyr = async () => {
+	const players = enablePlyr()
+	await vi.advanceTimersByTimeAsync(500)
+	return players
+}
+
+beforeEach(() => vi.useFakeTimers())
+afterEach(() => vi.useRealTimers())
+
 describe('enablePlyr double-init guard', () => {
 	beforeEach(() => {
 		plyrCtor.mockClear()
@@ -37,8 +47,8 @@ describe('enablePlyr double-init guard', () => {
 		el.setAttribute('src', 'dQw4w9WgXcQ')
 		document.body.appendChild(el)
 
-		const first = await enablePlyr()
-		const second = await enablePlyr()
+		const first = await runPlyr()
+		const second = await runPlyr()
 
 		// The second pass must reuse the instance, not stack a second player
 		// (which is what produced the duplicate controls).
@@ -56,8 +66,8 @@ describe('enablePlyr double-init guard', () => {
 			document.body.appendChild(el)
 		}
 
-		await enablePlyr()
-		await enablePlyr()
+		await runPlyr()
+		await runPlyr()
 
 		expect(plyrCtor).toHaveBeenCalledTimes(2)
 	})
@@ -77,7 +87,7 @@ describe('enablePlyr keyboard and captions', () => {
 		el.className = 'video-player'
 		el.setAttribute('src', 'dQw4w9WgXcQ')
 		document.body.appendChild(el)
-		const [player] = await enablePlyr()
+		const [player] = await runPlyr()
 		return player.elements.container as HTMLElement
 	}
 

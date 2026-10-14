@@ -75,7 +75,7 @@
 						</template>
 					</Button>
 				</Tooltip>
-				<Tooltip v-if="isMobile" :text="__('Student View')">
+				<Tooltip v-if="studentViewRoute && isMobile" :text="__('Student View')">
 					<Button
 						variant="outline"
 						class="!size-9"
@@ -87,7 +87,11 @@
 						</template>
 					</Button>
 				</Tooltip>
-				<Button v-else variant="outline" :route="studentViewRoute">
+				<Button
+					v-else-if="studentViewRoute"
+					variant="outline"
+					:route="studentViewRoute"
+				>
 					<template #prefix>
 						<span class="lucide-eye size-4" />
 					</template>
@@ -256,15 +260,20 @@ interface EditorSelection {
 const editorSelected = ref<EditorSelection | null>(null)
 const showLessonHelp = ref(false)
 
-const studentViewRoute = computed(() => ({
-	name: 'Lesson',
-	params: {
-		courseName: props.courseName,
-		chapterNumber: editorSelected.value?.chapterNumber,
-		lessonNumber: editorSelected.value?.lessonNumber,
-	},
-	query: { studentView: 1 },
-}))
+// A lesson just created has no position until the outline reload places it.
+const studentViewRoute = computed(() =>
+	editorSelected.value?.number
+		? {
+				name: 'Lesson',
+				params: {
+					courseName: props.courseName,
+					chapterNumber: editorSelected.value.chapterNumber,
+					lessonNumber: editorSelected.value.lessonNumber,
+				},
+				query: { studentView: 1 },
+		  }
+		: null
+)
 
 type CourseMenuItem = {
 	label: string
@@ -415,7 +424,12 @@ watch(
 )
 
 watch(course, () => {
-	if (!isAdmin.value && !course.data?.published && !course.data?.upcoming) {
+	if (
+		!isAdmin.value &&
+		!course.data?.membership &&
+		!course.data?.published &&
+		!course.data?.upcoming
+	) {
 		router.push({
 			name: 'Courses',
 		})
