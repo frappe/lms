@@ -7,6 +7,9 @@ from lms.lms.utils import dump_editorjs, escape_markup, load_editorjs, sanitize_
 # are cleaned here. Lesson content is unbounded, so it is read a page at a time.
 BATCH_SIZE = 500
 FIELDS = ("content", "instructor_content")
+# JSON can spell `<` as a `\u003c` escape. Matching the bare `u003c` may also catch
+# rows without markup, which `clean_field` then leaves unchanged.
+MARKUP_PATTERNS = ("%<%", "%u003c%", "%u003C%")
 
 
 def execute():
@@ -21,11 +24,11 @@ def execute():
 
 
 def get_lessons_with_markup(after: str):
-	"""Every tag needs a `<`, so a lesson without one has nothing to clean."""
+	"""Every tag needs a `<`, plain or JSON-escaped, so a lesson without one has nothing to clean."""
 	return frappe.get_all(
 		"Course Lesson",
 		filters={"name": [">", after]},
-		or_filters=[[fieldname, "like", "%<%"] for fieldname in FIELDS],
+		or_filters=[[fieldname, "like", pattern] for fieldname in FIELDS for pattern in MARKUP_PATTERNS],
 		fields=["name", *FIELDS],
 		order_by="name asc",
 		limit=BATCH_SIZE,
@@ -51,13 +54,19 @@ def clean_field(raw) -> tuple[str | None, bool]:
 
 	Mirrors `sanitize_editorjs`, but parses once and compares the parsed content,
 	so a clean row that is only serialised differently is not rewritten."""
-	if not raw or "<" not in raw:
+	if not has_markup(raw):
 		return None, False
 	try:
 		data, repaired = load_editorjs(raw)
 		cleaned = sanitize_json(data)
 	except (TypeError, ValueError, RecursionError):
-		return escape_markup(raw), True
+		escaped = escape_markup(raw)
+		# Unparseable text with only `\u003c` escapes renders no markup, so it is kept.
+		return (escaped, True) if escaped != raw else (None, False)
 	if cleaned == data and not repaired:
 		return None, False
 	return dump_editorjs(cleaned), False
+
+
+def has_markup(raw) -> bool:
+	return bool(raw) and ("<" in raw or "\\u003c" in raw.lower())
