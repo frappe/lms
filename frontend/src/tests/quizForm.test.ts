@@ -862,6 +862,14 @@ describe('legacy quiz URLs', () => {
 		expect(router.currentRoute.value.fullPath).toBe(to)
 	})
 
+	it('carries the quiz into the filter, not into a param the list lacks', async () => {
+		const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
+		const router = await realRouter()
+		await router.push('/quiz-submissions/some-quiz')
+		const warnings = warn.mock.calls.map((args) => String(args[0]))
+		expect(warnings.filter((w) => w.includes('quizID'))).toEqual([])
+	})
+
 	// The redirect is a bare `:quizID`, so it sits alongside the static siblings it
 	// must never swallow. A quiz whose docname is `new` stays unreachable, which is
 	// the trade routes.js already documents.
