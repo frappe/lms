@@ -41,7 +41,7 @@
 					:label="__('Email')"
 					type="email"
 					placeholder="ada@example.com"
-					:disabled="isEdit"
+					:disabled="isEdit || Boolean(addedName)"
 					:required="!isEdit"
 					autocomplete="off"
 				/>
@@ -98,7 +98,7 @@
 
 <script setup lang="ts">
 import { FormControl, LoadingIndicator, call, createResource } from 'frappe-ui'
-import { computed, inject, reactive, ref } from 'vue'
+import { computed, inject, reactive, ref, watch } from 'vue'
 import { useOnboarding } from '@framework/ui/components/Onboarding/index'
 import { useTelemetry } from '@framework/ui/telemetry/index'
 import RoleSwitches from '@/components/Controls/RoleSwitches.vue'
@@ -223,6 +223,35 @@ const saveRoles = async (name: string) => {
 	}
 }
 
+const PROFILE_FIELDS = [
+	'first_name',
+	'last_name',
+	'username',
+	'phone',
+	'mobile_no',
+	'location',
+	'bio',
+] as const
+
+const profileOf = (doc: SettingsListRow) =>
+	Object.fromEntries(PROFILE_FIELDS.map((field) => [field, doc[field] ?? null]))
+
+// What source.save() would have done: a written draft is emptied so it no longer
+// reads unsaved, and an edited record is reloaded so it matches the server.
+// Awaited, so the form is clean before it closes and asks nothing.
+const settleSaved = async (doc: SettingsListRow, creating: boolean) => {
+	if (!creating) return source.reload()
+	for (const key of Object.keys(doc)) delete doc[key]
+}
+
+// Set once add_member succeeds. If a later step fails, a retry finishes this
+// member instead of adding it again, which the server refuses as a duplicate.
+// The email field locks then, so the form cannot show another address.
+const addedName = ref<string | null>(null)
+// The form stays mounted when the panel moves to another record, and the
+// member added belongs only to the draft it was added from.
+watch(record, () => (addedName.value = null))
+
 const save = () => {
 	if (refusal.value || !isDirty.value) return
 
@@ -231,17 +260,32 @@ const save = () => {
 		validate,
 		toastInvalid: true,
 		run: async () => {
-			let name = record.value
-			if (source.isDirty) {
-				const doc = member.value
+			const doc = member.value
+			if (source.isDirty && doc) {
 				// The same treatment the user's own profile form gives it: a bio is
 				// drawn as HTML on the profile page.
-				if (doc?.bio) doc.bio = sanitizeHTML(doc.bio)
-				const saved = (await source.save()) as { name?: string } | undefined
-				if (creating) name = saved?.name ?? null
+				if (doc.bio) doc.bio = sanitizeHTML(doc.bio)
+				// Moderators have no write on User, so both go through the members API.
+				if (creating && !addedName.value) {
+					const added = await call('lms.lms.api.add_member', {
+						email: String(doc.email ?? '').trim(),
+						first_name: doc.first_name,
+						last_name: doc.last_name,
+						profile: profileOf(doc),
+					})
+					addedName.value = added.name
+				} else {
+					await call('lms.lms.api.update_member', {
+						member: creating ? addedName.value : record.value,
+						profile: profileOf(doc),
+					})
+				}
 			}
 
+			const name = creating ? addedName.value : record.value
 			if (name && name !== NEW_RECORD) await saveRoles(name)
+			// Last, so a failed step leaves the draft in place for the retry.
+			if (doc) await settleSaved(doc, creating)
 
 			if (creating) {
 				if (user.data?.is_system_manager)
