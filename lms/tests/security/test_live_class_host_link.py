@@ -5,7 +5,7 @@ import frappe
 import frappe.client
 from frappe.utils import add_days, nowdate
 
-from lms.lms.api import get_my_live_classes
+from lms.lms.api import get_my_live_classes, start_live_class
 from lms.lms.test_helpers import BaseTestUtils
 
 START_URL = "https://zoom.us/s/123?zak=host-only"
@@ -25,6 +25,10 @@ class TestLiveClassHostLink(BaseTestUtils):
 		)
 		cls.moderator = cls._create_user(f"lhmod-{hash}@example.com", "Mo", "Derator", ["Moderator"])
 		cls.student = cls._create_user(f"lhlrn-{hash}@example.com", "Lee", "Learner", ["LMS Student"])
+		# Creates courses of their own, and learns in a batch someone else teaches.
+		cls.creator = cls._create_user(
+			f"lhcre-{hash}@example.com", "Cora", "Creator", ["LMS Student", "Course Creator"]
+		)
 
 		cls.batch = frappe.get_doc(
 			{
@@ -42,6 +46,7 @@ class TestLiveClassHostLink(BaseTestUtils):
 			}
 		).insert(ignore_permissions=True)
 		cls._create_batch_enrollment(cls.student.name, cls.batch.name)
+		cls._create_batch_enrollment(cls.creator.name, cls.batch.name)
 
 		# Stored as Zoom returns it; the calendar and Zoom calls are beside the point.
 		live_class = frappe.get_doc(
@@ -88,7 +93,24 @@ class TestLiveClassHostLink(BaseTestUtils):
 		self.assertEqual([row.name for row in rows], [self.live_class])
 		self.assertNotIn(START_URL, str(rows))
 
-	def test_the_batch_instructor_and_a_moderator_read_the_start_link(self):
-		for user in (self.instructor, self.moderator):
+	def test_a_learner_who_creates_courses_gets_only_the_join_link(self):
+		self.assertNotIn(START_URL, str(self._document_as(self.creator)))
+
+		classes = [c for c in get_my_live_classes() if c.name == self.live_class]
+		self.assertIsNone(classes[0].start_url)
+
+	def test_only_the_batch_staff_start_the_class(self):
+		for user in (self.student, self.creator):
 			with self.subTest(user=user.name):
-				self.assertEqual(self._document_as(user).get("start_url"), START_URL)
+				frappe.set_user(user.name)
+				self.assertRaises(frappe.PermissionError, start_live_class, self.live_class)
+
+	def test_the_batch_instructor_starts_the_class_as_its_host(self):
+		frappe.set_user(self.instructor.name)
+		start_live_class(self.live_class)
+
+		self.assertEqual(frappe.local.response["type"], "redirect")
+		self.assertEqual(frappe.local.response["location"], START_URL)
+
+	def test_a_moderator_reads_the_start_link(self):
+		self.assertEqual(self._document_as(self.moderator).get("start_url"), START_URL)
