@@ -223,6 +223,27 @@ const saveRoles = async (name: string) => {
 	}
 }
 
+const PROFILE_FIELDS = [
+	'first_name',
+	'last_name',
+	'username',
+	'phone',
+	'mobile_no',
+	'location',
+	'bio',
+] as const
+
+const profileOf = (doc: SettingsListRow) =>
+	Object.fromEntries(PROFILE_FIELDS.map((field) => [field, doc[field] ?? null]))
+
+// What source.save() would have done: a written draft is emptied so it no longer
+// reads unsaved, and an edited record is reloaded so it matches the server.
+// Awaited, so the form is clean before it closes and asks nothing.
+const settleSaved = async (doc: SettingsListRow, creating: boolean) => {
+	if (!creating) return source.reload()
+	for (const key of Object.keys(doc)) delete doc[key]
+}
+
 const save = () => {
 	if (refusal.value || !isDirty.value) return
 
@@ -232,13 +253,25 @@ const save = () => {
 		toastInvalid: true,
 		run: async () => {
 			let name = record.value
-			if (source.isDirty) {
+			if (source.isDirty && member.value) {
 				const doc = member.value
 				// The same treatment the user's own profile form gives it: a bio is
 				// drawn as HTML on the profile page.
-				if (doc?.bio) doc.bio = sanitizeHTML(doc.bio)
-				const saved = (await source.save()) as { name?: string } | undefined
-				if (creating) name = saved?.name ?? null
+				if (doc.bio) doc.bio = sanitizeHTML(doc.bio)
+				// Moderators have no write on User, so both go through the members API.
+				if (creating) {
+					const added = await call('lms.lms.api.add_member', {
+						email: String(doc.email ?? '').trim(),
+						first_name: doc.first_name,
+						last_name: doc.last_name,
+					})
+					name = added.name
+				}
+				await call('lms.lms.api.update_member', {
+					member: name,
+					profile: profileOf(doc),
+				})
+				await settleSaved(doc, creating)
 			}
 
 			if (name && name !== NEW_RECORD) await saveRoles(name)
