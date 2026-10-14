@@ -28,12 +28,33 @@
 						v-model="profile.first_name"
 						:label="__('First Name')"
 						:required="true"
+						variant="outline"
 					/>
-					<FormControl v-model="profile.last_name" :label="__('Last Name')" />
-					<FormControl v-model="profile.headline" :label="__('Headline')" />
-					<FormControl v-model="profile.linkedin" :label="__('LinkedIn ID')" />
-					<FormControl v-model="profile.github" :label="__('GitHub ID')" />
-					<FormControl v-model="profile.twitter" :label="__('Twitter ID')" />
+					<FormControl
+						v-model="profile.last_name"
+						:label="__('Last Name')"
+						variant="outline"
+					/>
+					<FormControl
+						v-model="profile.headline"
+						:label="__('Headline')"
+						variant="outline"
+					/>
+					<FormControl
+						v-model="profile.linkedin"
+						:label="__('LinkedIn ID')"
+						variant="outline"
+					/>
+					<FormControl
+						v-model="profile.github"
+						:label="__('GitHub ID')"
+						variant="outline"
+					/>
+					<FormControl
+						v-model="profile.twitter"
+						:label="__('Twitter ID')"
+						variant="outline"
+					/>
 				</div>
 				<div class="space-y-4">
 					<FormControl
@@ -42,11 +63,13 @@
 						:options="[{ label: '', value: '' }, 'Work', 'Hiring']"
 						:label="__('Open to')"
 						:placeholder="__('Looking for new work or hiring talent?')"
+						variant="outline"
 					/>
 					<Link
 						:label="__('Language')"
 						v-model="profile.language"
 						doctype="Language"
+						variant="outline"
 					/>
 					<div>
 						<InputLabel :id="bioLabelId" :label="__('Bio')" class="mb-1.5" />

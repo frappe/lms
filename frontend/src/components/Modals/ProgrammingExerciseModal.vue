@@ -19,6 +19,7 @@
 					v-model="exercise"
 					doctype="LMS Programming Exercise"
 					:label="__('Select a Programming Exercise')"
+					variant="outline"
 				/>
 			</div>
 		</template>
