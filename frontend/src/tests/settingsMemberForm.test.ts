@@ -26,9 +26,9 @@ vi.mock('frappe-ui', () => ({
 	createResource: () => ({ fetch: vi.fn() }),
 	LoadingIndicator: { template: '<span />' },
 	FormControl: {
-		props: ['modelValue', 'label'],
+		props: ['modelValue', 'label', 'disabled'],
 		emits: ['update:modelValue'],
-		template: `<input :data-testid="'field-' + label" :value="modelValue" @input="$emit('update:modelValue', $event.target.value)" />`,
+		template: `<input :data-testid="'field-' + label" :value="modelValue" :disabled="disabled" @input="$emit('update:modelValue', $event.target.value)" />`,
 	},
 }))
 
@@ -135,6 +135,10 @@ describe('Settings member form', () => {
 		await w.get('[data-testid="save"]').trigger('click')
 		await flushPromises()
 		expect(record.doc.email).toBe('ada@example.com')
+		// The account exists now, so its address can no longer change.
+		expect(
+			w.get('[data-testid="field-Email"]').attributes('disabled')
+		).toBeDefined()
 
 		await w.get('[data-testid="save"]').trigger('click')
 		await flushPromises()
