@@ -50,6 +50,15 @@ class TestCleanLessonContentPatch(BaseTestUtils):
 		self.assertNotIn("onload", instructor_content)
 		self.assertEqual(after, modified)
 
+	def test_cleans_markup_spelled_as_json_escapes(self):
+		content = '{"\\u003csvg onload=alert(1)\\u003e":"x","blocks":[{"type":"paragraph","data":{"text":"\\u003cimg src=x onerror=alert(1)\\u003e"}}]}'
+		self.assertNotIn("<", content)
+		name = self._seed("Lesson with escaped markup", content)
+		execute()
+		stored = self._stored(name)[0]
+		self.assertNotIn("onerror", stored)
+		self.assertNotIn("onload", stored)
+
 	def test_repairs_and_cleans_a_row_the_old_sanitiser_mangled(self):
 		name = self._seed("Mangled lesson", MANGLED)
 		execute()
