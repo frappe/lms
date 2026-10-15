@@ -61,7 +61,7 @@
 			<HeaderButton
 				v-if="!refusal"
 				data-testid="email-template-save"
-				:label="__('Save')"
+				:label="__('Create')"
 				variant="solid"
 				:loading="createTemplate.loading"
 				@click="submit"

@@ -3,7 +3,7 @@
 		:title="formTitle"
 		show-back
 		:unsaved="isDirty"
-		:save-label="refusal ? undefined : __('Save')"
+		:save-label="refusal ? undefined : isEdit ? __('Save') : __('Create')"
 		:saving="saving"
 		:can-save="isDirty"
 		save-testid="member-save"
@@ -144,7 +144,7 @@ const isEdit = computed(
 )
 
 const formTitle = computed(() => {
-	if (!isEdit.value) return __('Add New Member')
+	if (!isEdit.value) return __('New Member')
 	return props.row?.full_name || __('Edit Member')
 })
 

@@ -62,10 +62,13 @@ describe('RichTextEditor class map', () => {
 		}
 	})
 
-	it('gives ghost no chrome at all', () => {
+	it('gives ghost no chrome, only a focus ring on its content', () => {
 		expect(tokens(boxClass('ghost', false, false))).toEqual([])
 		expect(tokens(boxClass('ghost', true, false))).toEqual([])
-		expect(tokens(contentClass('ghost', null, null, false))).toEqual([])
+		expect(tokens(contentClass('ghost', null, null, false))).toEqual([
+			'focus-visible:ring-2',
+			'focus-visible:ring-outline-gray-5',
+		])
 		expect(toolbarClass('ghost')).not.toMatch(/\bborder/)
 	})
 

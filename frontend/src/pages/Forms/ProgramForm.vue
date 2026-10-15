@@ -1,6 +1,6 @@
 <template>
 	<FormShell
-		:title="isNew ? __('Create Program') : __('Edit Program')"
+		:title="isNew ? __('New Program') : __('Edit Program')"
 		size="2xl"
 		@close="close"
 	>
@@ -219,7 +219,7 @@
 				/>
 				<HeaderButton
 					data-testid="program-save"
-					:label="__('Save')"
+					:label="isNew ? __('Create') : __('Save')"
 					variant="solid"
 					@click="saveProgram()"
 				/>
