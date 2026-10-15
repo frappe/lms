@@ -147,7 +147,7 @@ const originalTestCaseCount = ref(0)
 
 const props = withDefaults(
 	defineProps<{
-		exerciseID?: string
+		exerciseID: string
 	}>(),
 	{
 		exerciseID: 'new',

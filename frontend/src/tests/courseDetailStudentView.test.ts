@@ -44,17 +44,15 @@ vi.mock('frappe-ui', async () => {
 		Tooltip: passthrough,
 	}
 })
-vi.mock('@framework/ui/telemetry/index', () => ({
+vi.mock('frappe-ui/frappe', () => ({
 	useTelemetry: () => ({ capture: vi.fn() }),
-}))
-vi.mock('@framework/ui/components/Onboarding/index', () => ({
 	useOnboarding: () => ({ updateOnboardingStep: vi.fn() }),
 }))
 
 const { stub } = vi.hoisted(() => ({
 	stub: () => ({ default: { render: () => null } }),
 }))
-vi.mock('@/components/Layouts/pages/TabbedDetailPage.vue', () => ({
+vi.mock('@/components/Layouts/TabbedDetailPage.vue', () => ({
 	default: {
 		setup(_: unknown, { slots }: { slots: Record<string, Function> }) {
 			return () => [

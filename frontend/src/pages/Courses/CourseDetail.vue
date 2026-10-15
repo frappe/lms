@@ -66,18 +66,7 @@
 						</template>
 					</Button>
 				</Tooltip>
-<<<<<<< HEAD
-				<router-link
-					:to="{
-						name: 'Lesson',
-						params: {
-							courseName: props.courseName,
-							chapterNumber: editorSelected.chapterNumber,
-							lessonNumber: editorSelected.lessonNumber,
-						},
-						query: { studentView: 1 },
-					}"
-				>
+				<router-link v-if="studentViewRoute" :to="studentViewRoute">
 					<Tooltip v-if="isMobile" :text="__('Student View')">
 						<Button variant="outline" class="!size-9">
 							<template #icon>
@@ -87,35 +76,11 @@
 					</Tooltip>
 					<Button v-else variant="outline">
 						<template #prefix>
-=======
-				<Tooltip v-if="studentViewRoute && isMobile" :text="__('Student View')">
-					<Button
-						variant="outline"
-						class="!size-9"
-						:label="__('Student View')"
-						:route="studentViewRoute"
-					>
-						<template #icon>
->>>>>>> 8e5fdde (fix: hide Student View until a new lesson has a position)
 							<span class="lucide-eye size-4" />
 						</template>
 						{{ __('Student View') }}
 					</Button>
-<<<<<<< HEAD
 				</router-link>
-=======
-				</Tooltip>
-				<Button
-					v-else-if="studentViewRoute"
-					variant="outline"
-					:route="studentViewRoute"
-				>
-					<template #prefix>
-						<span class="lucide-eye size-4" />
-					</template>
-					{{ __('Student View') }}
-				</Button>
->>>>>>> 8e5fdde (fix: hide Student View until a new lesson has a position)
 			</template>
 			<Button
 				v-if="tab?.key === 'dashboard' && course.data && isMobile"
@@ -288,8 +253,6 @@ interface EditorSelection {
 const editorSelected = ref<EditorSelection | null>(null)
 const showLessonHelp = ref(false)
 
-<<<<<<< HEAD
-=======
 // A lesson just created has no position until the outline reload places it.
 const studentViewRoute = computed(() =>
 	editorSelected.value?.number
@@ -305,7 +268,6 @@ const studentViewRoute = computed(() =>
 		: null
 )
 
->>>>>>> 8e5fdde (fix: hide Student View until a new lesson has a position)
 type CourseMenuItem = {
 	label: string
 	icon: string
