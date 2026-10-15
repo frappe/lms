@@ -1,5 +1,10 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { enableAutoUnmount, flushPromises, mount } from '@vue/test-utils'
+import {
+	enableAutoUnmount,
+	flushPromises,
+	mount,
+	type VueWrapper,
+} from '@vue/test-utils'
 import {
 	createMemoryHistory,
 	createRouter,
@@ -7,6 +12,7 @@ import {
 	type Router,
 } from 'vue-router'
 import { defineComponent, h } from 'vue'
+import dayjs from '@/utils/dayjs'
 
 vi.stubGlobal('__', (text: string) => text)
 enableAutoUnmount(afterEach)
@@ -19,6 +25,7 @@ const {
 	getCachedListResourceMock,
 	zoomSubmit,
 	meetSubmit,
+	openSettingsMock,
 } = vi.hoisted(() => {
 	// @/utils reaches plyr, which touches matchMedia at import time.
 	window.matchMedia ??= (() => ({
@@ -39,8 +46,14 @@ const {
 		getCachedListResourceMock: vi.fn(),
 		zoomSubmit: vi.fn(),
 		meetSubmit: vi.fn(),
+		openSettingsMock: vi.fn(),
 	}
 })
+
+vi.mock('@/utils/', async (importOriginal) => ({
+	...(await importOriginal<object>()),
+	openSettings: openSettingsMock,
+}))
 
 // HeaderButton wraps frappe-ui's Button in a Tooltip below the mobile
 // breakpoint, and the hand-written frappe-ui mock here has no Tooltip. Stub it
@@ -120,14 +133,17 @@ const makeRouter = (): Router =>
 					},
 				],
 			},
+			{
+				path: '/user/:username/slots',
+				name: 'ProfileEvaluator',
+				component: Parent,
+			},
 		],
 	})
 
 const provide = (user: Record<string, unknown>) => ({
 	$user: { data: user },
-	$dayjs: Object.assign(() => ({ format: () => '2026-07-31' }), {
-		tz: () => ({}),
-	}),
+	$dayjs: dayjs,
 })
 
 const mountForm = async (router: Router, user: Record<string, unknown>) => {
@@ -143,9 +159,27 @@ const mountForm = async (router: Router, user: Record<string, unknown>) => {
 	return wrapper
 }
 
+// A valid class, so the form's own checks let the submit through.
+const fillForm = async (wrapper: VueWrapper) => {
+	const values: Record<string, string> = {
+		Title: 'Intro',
+		Date: '2099-01-01',
+		Time: '10:30',
+		'Duration (in minutes)': '60',
+	}
+	for (const label of wrapper.findAll('label')) {
+		const value = values[norm(label.text())]
+		if (value) await label.find('input').setValue(value)
+	}
+}
+
 const moderator = { name: 'mod@example.com', is_moderator: true }
 const student = { name: 'student@example.com' }
-const evaluator = { name: 'eval@example.com', is_evaluator: true }
+const evaluator = {
+	name: 'ash@example.com',
+	username: 'ashley',
+	is_evaluator: true,
+}
 
 const norm = (text: string) =>
 	text
@@ -289,10 +323,25 @@ describe('LiveClassForm as a route', () => {
 		expect(labels).toHaveLength(FIELD_LABELS.length)
 	})
 
+	// Empty fields used to reach the server, and an empty duration came back as
+	// an Internal Server Error.
+	it('stops an incomplete form before it reaches the server', async () => {
+		const router = makeRouter()
+		await router.push('/batches/B1/live-class/new')
+		const wrapper = await mountForm(router, moderator)
+		await wrapper.find('[data-testid="live-class-save"]').trigger('click')
+		await flushPromises()
+
+		expect(zoomSubmit).not.toHaveBeenCalled()
+		const { toast } = await import('frappe-ui')
+		expect(toast.error).toHaveBeenLastCalledWith('Please enter a title.')
+	})
+
 	it('submits through the endpoint the batch provider selects', async () => {
 		const router = makeRouter()
 		await router.push('/batches/B1/live-class/new')
 		const wrapper = await mountForm(router, moderator)
+		await fillForm(wrapper)
 		await wrapper.find('[data-testid="live-class-save"]').trigger('click')
 		expect(zoomSubmit).toHaveBeenCalledTimes(1)
 		expect(meetSubmit).not.toHaveBeenCalled()
@@ -305,12 +354,11 @@ describe('LiveClassForm as a route', () => {
 		const meetRouter = makeRouter()
 		await meetRouter.push('/batches/B1/live-class/new')
 		const meetWrapper = await mountForm(meetRouter, moderator)
+		await fillForm(meetWrapper)
 		await meetWrapper.find('[data-testid="live-class-save"]').trigger('click')
 		expect(meetSubmit).toHaveBeenCalledTimes(1)
 	})
 
-<<<<<<< HEAD
-=======
 	// Guards a missing Google Calendar flashing past as a toast, whose action sat
 	// outside the Dialog: the first click on it closed the form instead.
 	describe('when the Google Calendar is missing', () => {
@@ -332,14 +380,12 @@ describe('LiveClassForm as a route', () => {
 		}
 
 		beforeEach(async () => {
-			access.calendar = true
-			access.meet = true
 			openSettingsMock.mockReset()
 			const { toast } = await import('frappe-ui')
 			vi.mocked(toast.error).mockClear()
 		})
 
-		it('shows in the form and opens the Google Calendar settings', async () => {
+		it('shows in the form, with no settings link for a Zoom class', async () => {
 			calendarMissing(zoomSubmit)
 			const router = makeRouter()
 			await router.push('/batches/B1/live-class/new')
@@ -350,12 +396,11 @@ describe('LiveClassForm as a route', () => {
 
 			const line = shownLine(wrapper)
 			expect(line.text).toBe(
-				'A Google Calendar connection is needed to send invites for live classes. Set up'
+				'Ask your site administrator to set up your Google Calendar to schedule Zoom classes.'
 			)
+			expect(line.setUp.exists()).toBe(false)
 			const { toast } = await import('frappe-ui')
 			expect(toast.error).not.toHaveBeenCalled()
-			await line.setUp.trigger('click')
-			expect(openSettingsMock).toHaveBeenCalledWith('google-calendar')
 			expect(wrapper.find('[role="dialog"]').exists()).toBe(true)
 		})
 
@@ -374,11 +419,10 @@ describe('LiveClassForm as a route', () => {
 			await flushPromises()
 
 			await shownLine(wrapper).setUp.trigger('click')
-			expect(openSettingsMock).toHaveBeenCalledWith('google-meet')
+			expect(openSettingsMock).toHaveBeenCalledWith('Google Meet Accounts')
 		})
 
 		it('points anyone who cannot open the settings to their administrator', async () => {
-			access.calendar = false
 			calendarMissing(zoomSubmit)
 			const router = makeRouter()
 			await router.push('/batches/B1/live-class/new')
@@ -438,7 +482,6 @@ describe('LiveClassForm as a route', () => {
 		})
 	})
 
->>>>>>> fb1cfe6 (fix(live-class): use only the batch's or your own conferencing account, and let only instructors schedule)
 	it('refreshes the Classes tab list after a create, by cache key', async () => {
 		// The `reloadLiveClasses` defineModel is gone with the modal; the tab's
 		// list resource is found by the key LiveClass.vue registers it under.
@@ -448,6 +491,7 @@ describe('LiveClassForm as a route', () => {
 		zoomSubmit.mockImplementation(
 			(_doc: unknown, options: { onSuccess: () => void }) => options.onSuccess()
 		)
+		await fillForm(wrapper)
 		await wrapper.find('[data-testid="live-class-save"]').trigger('click')
 		await flushPromises()
 		expect(getCachedListResourceMock).toHaveBeenCalledWith([
@@ -540,8 +584,6 @@ describe('the Classes tab opener', () => {
 			},
 		})
 
-<<<<<<< HEAD
-=======
 	// Retry is refused by the server for anyone who cannot edit the class, so an
 	// evaluator who is not on the batch must not be offered it.
 	describe('a class whose invites failed', () => {
@@ -597,7 +639,6 @@ describe('the Classes tab opener', () => {
 		})
 	})
 
->>>>>>> fb1cfe6 (fix(live-class): use only the batch's or your own conferencing account, and let only instructors schedule)
 	it('registers its list under the key the form refreshes', async () => {
 		const router = makeRouter()
 		await router.push('/batches/B1#classes')

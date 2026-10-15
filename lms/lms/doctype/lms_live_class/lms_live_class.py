@@ -22,6 +22,11 @@ from lms.lms.permissions import (
 )
 
 
+class GoogleCalendarMissingError(frappe.ValidationError):
+	"""No usable Google Calendar for a live class. Its own type, so the live class
+	form can offer to open the calendar settings instead of only showing text."""
+
+
 class LMSLiveClass(Document):
 	def validate(self):
 		self.validate_conferencing_accounts()
@@ -54,17 +59,19 @@ class LMSLiveClass(Document):
 		self._update_linked_event()
 
 	def after_delete(self):
+		# The event is private, so only its creator may delete it directly. Whoever may
+		# delete the live class may remove its event with it, as _update_linked_event
+		# already saves it on their behalf.
 		if self.event:
-			frappe.delete_doc("Event", self.event, force=True)
+			# nosemgrep: lms-unjustified-ignore-permissions - the private event's owner alone may delete it; deleting the class was already authorised
+			frappe.delete_doc("Event", self.event, force=True, ignore_permissions=True)
 
-	def get_participants(self):
-		participants = frappe.get_all("LMS Batch Enrollment", {"batch": self.batch_name}, pluck="member")
-		instructors = frappe.get_all(
-			"Course Instructor", {"parenttype": "LMS Batch", "parent": self.batch_name}, pluck="instructor"
-		)
-		participants.append(frappe.session.user)
-		participants.extend(instructors)
-		return list(set(participants))
+	def get_hosts(self):
+		"""Whoever scheduled the class, its host, and the batch's instructors."""
+		hosts = {frappe.session.user, *get_batch_instructors(self.batch_name)}
+		if self.host:
+			hosts.add(self.host)
+		return list(hosts)
 
 	def build_event_description(self):
 		description = f"A Live Class has been scheduled on {format_date(self.date, 'medium')} at {format_time(self.time, 'hh:mm a')}."
@@ -86,30 +93,19 @@ class LMSLiveClass(Document):
 		event.save(ignore_permissions=True)
 
 	def create_calendar_event(self):
+		calendar = get_live_class_calendar(self.conferencing_provider, self.google_meet_account)
+
+		# Learners are invited so the class reaches their calendar, but one shared
+		# invite shows every guest to every other guest. So the event goes to Google
+		# with the hosts alone, the guest list is hidden there, and only then are the
+		# learners added: their invites go out with no one else's address on them.
+		event = self.create_event()
+		frappe.db.set_value(self.doctype, self.name, "event", event.name)
+		add_event_participants(event, self.get_hosts())
+		self.sync_with_google_calendar(event, calendar)
 		if self.conferencing_provider == "Google Meet":
-			calendar = frappe.db.get_value(
-				"LMS Google Meet Settings", self.google_meet_account, "google_calendar"
-			)
-		else:
-			calendar = frappe.db.get_value(
-				"Google Calendar", {"user": frappe.session.user, "enable": 1}, "name"
-			)
-
-		if not calendar:
-			frappe.throw(
-				_(
-					"No calendar is configured for the conferencing provider. Please set up a calendar to create events."
-				)
-			)
-
-		if calendar:
-			event = self.create_event()
-			frappe.db.set_value(self.doctype, self.name, "event", event.name)
-			self.add_event_participants(event, calendar)
-			self.sync_with_google_calendar(event, calendar)
-
-			if self.conferencing_provider == "Google Meet":
-				self.add_video_conferencing_to_event(event)
+			self.add_video_conferencing_to_event(event)
+		send_learner_invites(self.name)
 
 	def create_event(self):
 		start = f"{self.date} {self.time}"
@@ -119,7 +115,10 @@ class LMSLiveClass(Document):
 			{
 				"doctype": "Event",
 				"subject": f"Live Class on {self.title}",
-				"event_type": "Public",
+				# Private, with no Frappe reminder: a public event lands in every staff
+				# member's daily event digest, and LMS sends its own class reminders.
+				"event_type": "Private",
+				"send_reminder": 0,
 				"starts_on": start,
 				"ends_on": get_datetime(start) + timedelta(minutes=cint(self.duration)),
 			}
@@ -127,20 +126,6 @@ class LMSLiveClass(Document):
 
 		event.save()
 		return event
-
-	def add_event_participants(self, event, calendar, add_video_conferencing=False):
-		for participant in self.get_participants():
-			frappe.get_doc(
-				{
-					"doctype": "Event Participants",
-					"reference_doctype": "User",
-					"reference_docname": participant,
-					"email": participant,
-					"parent": event.name,
-					"parenttype": "Event",
-					"parentfield": "event_participants",
-				}
-			).save()
 
 	def sync_with_google_calendar(self, event, calendar):
 		event.reload()
@@ -173,8 +158,6 @@ class LMSLiveClass(Document):
 			)
 
 
-<<<<<<< HEAD
-=======
 def check_class_can_use_account(doctype, account, batch):
 	"""A live class may use the batch's own account or one the user may use anyway. A
 	missing account gets the same message, so it does not reveal which accounts exist."""
@@ -374,11 +357,6 @@ def invite_missing_learners(live_class: str) -> bool:
 	if not missing:
 		return True
 
-	# With push off, Frappe saves the guest rows but never sends them to Google, so
-	# the learners would look invited and never be retried.
-	if not frappe.db.get_value("Google Calendar", event.google_calendar, "push_to_google_calendar"):
-		return False
-
 	# Hidden again before every invite: the guest list shows every learner to every
 	# other one until it is.
 	if not hide_guest_list(event, event.google_calendar):
@@ -468,7 +446,6 @@ def get_batch_instructors(batch: str) -> list[str]:
 	)
 
 
->>>>>>> fb1cfe6 (fix(live-class): use only the batch's or your own conferencing account, and let only instructors schedule)
 def send_live_class_reminder():
 	classes = frappe.get_all(
 		"LMS Live Class",

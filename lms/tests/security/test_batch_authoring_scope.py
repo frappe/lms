@@ -404,37 +404,7 @@ class TestBatchAuthoringScope(BaseTestUtils):
 		self.assertTrue(can_instruct_batch(self.course_creator_batch))
 		self.assertTrue(frappe.has_permission("LMS Live Class", "create"))
 
-<<<<<<< HEAD
-		# Zoom auth and the calendar side effect of saving a live class are not
-		# what this test is about; both are stubbed out.
-		with (
-			patch.object(lms_batch, "authenticate", return_value="fake-token"),
-			patch.object(lms_batch, "requests") as mocked_requests,
-			patch.object(LMSLiveClass, "create_calendar_event"),
-		):
-			mocked_requests.post.return_value.status_code = 201
-			mocked_requests.post.return_value.text = json.dumps(
-				{
-					"start_url": "https://zoom.us/s/1",
-					"join_url": "https://zoom.us/j/1",
-					"id": "1",
-					"uuid": "u",
-				}
-			)
-			class_details = lms_batch.create_live_class(
-				batch_name=self.course_creator_batch,
-				zoom_account=self.zoom_account,
-				title="Course Creator Class",
-				duration=30,
-				date=nowdate(),
-				time="10:00:00",
-				timezone="Asia/Kolkata",
-				auto_recording="No Recording",
-			)
-			mocked_requests.post.assert_called_once()
-=======
 		class_details = self._book_zoom_class(self.course_creator_batch)
->>>>>>> fb1cfe6 (fix(live-class): use only the batch's or your own conferencing account, and let only instructors schedule)
 
 		self.zoom_requests.request.assert_called_once()
 		self.zoom_requests.post.assert_called_once()

@@ -233,7 +233,7 @@ class LMSBatch(Document):
 
 			if not google_meet_settings.google_calendar:
 				frappe.throw(
-					_("The selected Google Meet account does not have a Google Calendar configured.")
+					_("Add a Google Calendar to the selected Google Meet account to use it for live classes.")
 				)
 
 		elif self.conferencing_provider == "Zoom":
@@ -364,8 +364,6 @@ def create_live_class(
 	if not zoom_account:
 		frappe.throw(_("Please select a Zoom account for this batch."))
 
-<<<<<<< HEAD
-=======
 	from lms.lms.doctype.lms_live_class.lms_live_class import (
 		check_class_can_use_account,
 		get_live_class_calendar,
@@ -376,7 +374,6 @@ def create_live_class(
 	# a meeting made first would be left on the Zoom account with no class for it.
 	get_live_class_calendar("Zoom")
 
->>>>>>> fb1cfe6 (fix(live-class): use only the batch's or your own conferencing account, and let only instructors schedule)
 	payload = {
 		"topic": title,
 		"start_time": format_datetime(f"{date} {time}", "yyyy-MM-ddTHH:mm:ssZ"),
@@ -417,9 +414,6 @@ def create_live_class(
 			}
 		)
 		class_details = frappe.get_doc(payload)
-<<<<<<< HEAD
-		class_details.save()
-=======
 		class_details.flags.conferencing_account_checked = True
 		try:
 			class_details.save()
@@ -427,10 +421,27 @@ def create_live_class(
 			# The meeting already exists on Zoom; without its class nothing points at it.
 			delete_zoom_meeting(data.get("id"), headers)
 			raise
->>>>>>> fb1cfe6 (fix(live-class): use only the batch's or your own conferencing account, and let only instructors schedule)
 		return class_details
 	else:
 		frappe.throw(_("Error creating live class. Please try again. {0}").format(response.text))
+
+
+def delete_zoom_meeting(meeting_id, headers):
+	"""Best effort: the save's own error is the one to report, not this one. Logged
+	deferred, because that error rolls back the request and an Error Log written in
+	it would go with it."""
+	try:
+		response = requests.delete(
+			f"https://api.zoom.us/v2/meetings/{meeting_id}", headers=headers, timeout=10
+		)
+		if response.ok:
+			return
+		detail = f"Zoom answered {response.status_code}: {response.text}"
+	except Exception:
+		detail = frappe.get_traceback()
+	frappe.log_error(
+		title=f"Could not delete orphaned Zoom meeting {meeting_id}", message=detail, defer_insert=True
+	)
 
 
 @frappe.whitelist()
@@ -458,18 +469,9 @@ def create_google_meet_live_class(
 	if not google_meet_settings.enabled:
 		frappe.throw(_("Please enable the Google Meet account to use this feature."))
 
-<<<<<<< HEAD
-	if not google_meet_settings.google_calendar:
-		frappe.throw(
-			_(
-				"The Google Meet account does not have a Google Calendar configured. Please set up a Google Calendar first."
-			)
-		)
-=======
 	# The same check as the Zoom path: a calendar that is set, authorised, and
 	# pushes to Google, before anything is made.
 	get_live_class_calendar("Google Meet", google_meet_account)
->>>>>>> fb1cfe6 (fix(live-class): use only the batch's or your own conferencing account, and let only instructors schedule)
 
 	class_details = frappe.get_doc(
 		{

@@ -21,6 +21,7 @@ from frappe.translate import get_all_translations
 from frappe.utils import (
 	add_days,
 	cint,
+	cstr,
 	date_diff,
 	flt,
 	format_date,
@@ -41,6 +42,8 @@ from lms.lms.doctype.course_lesson.course_lesson import (
 	save_progress,
 )
 from lms.lms.doctype.lms_certificate.lms_certificate import evaluates_certificate, get_latest_certificate
+from lms.lms.html_sanitizer import sanitize_rich_text
+from lms.lms.permissions import is_site_administrator
 from lms.lms.utils import (
 	LMS_ROLES,
 	attach_file_to_doc,
@@ -522,12 +525,10 @@ def get_evaluator_details(evaluator: str):
 		doc = frappe.new_doc("Course Evaluator")
 		doc.evaluator = evaluator
 
-	calendar = get_evaluator_calendar(evaluator)
-
 	return {
 		"slots": doc.as_dict(),
-		"calendar": calendar.name if calendar else None,
-		"is_authorized": calendar.authorization_code if calendar else None,
+		"calendar": get_evaluator_calendar(evaluator),
+		"google_enabled": is_google_calendar_enabled(),
 		# Evaluator Schedule holds bare wall-clock times and the whole booking
 		# pipeline reads them as system time, so the editor has to say so.
 		"timezone": format_timezone(get_system_timezone()),
@@ -538,9 +539,234 @@ def get_evaluator_calendar(evaluator: str):
 	"""Read-only. Provisioning moved to ensure_evaluator_calendar: creating a
 	Google Calendar document is a write, and this runs on a plain GET of the
 	profile page."""
-	return frappe.db.get_value(
-		"Google Calendar", {"user": evaluator}, ["name", "authorization_code"], as_dict=1
+	calendar = frappe.db.get_value(
+		"Google Calendar",
+		{"user": evaluator},
+		["name", "enable", "calendar_name", "push_to_google_calendar", "refresh_token"],
+		as_dict=1,
 	)
+	if not calendar:
+		return None
+
+	# Authorised means Google gave a refresh token. An authorization code alone
+	# is left behind when the token exchange fails, and sends nothing.
+	calendar.is_authorized = bool(calendar.pop("refresh_token"))
+	return calendar
+
+
+def is_google_calendar_enabled() -> bool:
+	settings = frappe.get_cached_doc("Google Settings")
+	return bool(settings.enable and settings.client_id)
+
+
+def get_own_calendar_doc():
+	"""The caller's Google Calendar, created on first use. Evaluators manage
+	only their own; anyone else's goes through Settings."""
+	if not is_google_calendar_enabled():
+		frappe.throw(
+			_("Google Calendar is not set up on this site yet. Ask your site administrator to turn it on.")
+		)
+	return frappe.get_doc("Google Calendar", ensure_evaluator_calendar())
+
+
+EVALUATOR_CALENDAR_FIELDS = {"enable", "calendar_name", "push_to_google_calendar"}
+
+
+@frappe.whitelist(methods=["POST"])
+def update_evaluator_calendar(fieldname: str, value: str | int | None = None):
+	"""Save one setting of the caller's own Google Calendar. Evaluators are
+	portal users with no write permission on Google Calendar, so this is their
+	only way to change it, and it never reaches anyone else's."""
+	if fieldname not in EVALUATOR_CALENDAR_FIELDS:
+		frappe.throw(_("{0} cannot be changed.").format(fieldname))
+
+	calendar = get_own_calendar_doc()
+	if fieldname == "calendar_name":
+		rename_own_calendar(calendar.name, value)
+	else:
+		calendar.set(fieldname, 1 if cint(value) else 0)
+		# nosemgrep: lms-unjustified-ignore-permissions - own calendar only (get_own_calendar_doc); portal evaluators have no Google Calendar write permission
+		calendar.save(ignore_permissions=True)
+	return get_evaluator_calendar(frappe.session.user)
+
+
+def rename_own_calendar(current: str, value) -> None:
+	"""The calendar's name is its record name (autoname field:calendar_name),
+	so changing it is a rename, as in Settings."""
+	value = cstr(value).strip()
+	if not value:
+		frappe.throw(_("Give your calendar a name."))
+	if len(value) > 140:
+		frappe.throw(_("Keep the calendar name under 140 characters."))
+	if value == current:
+		return
+	if frappe.db.exists("Google Calendar", value):
+		frappe.throw(_("Another calendar already has this name. Pick a different one."))
+
+	rename_on_google(current, value)
+
+	# A sign-in started before the rename finishes against the calendar by name.
+	# Read first: renaming clears the cache.
+	pending = get_pending_sign_in(frappe.session.user)
+	signing_in = bool(pending) and pending["calendar"] == current
+
+	from frappe.model.rename_doc import rename_doc
+
+	# nosemgrep: lms-unjustified-ignore-permissions - own calendar only (get_own_calendar_doc); portal evaluators have no Google Calendar write permission
+	rename_doc("Google Calendar", current, value, ignore_permissions=True, show_alert=False)
+
+	if signing_in:
+		set_pending_sign_in(frappe.session.user, value, pending["state"])
+
+
+def rename_on_google(current: str, value: str) -> None:
+	"""Frappe names the Google calendar only when it first creates it, so a later
+	rename has to reach Google too. Done first: if Google refuses, nothing changes."""
+	calendar = frappe.db.get_value(
+		"Google Calendar", current, ["google_calendar_id", "refresh_token"], as_dict=True
+	)
+	if not (calendar.google_calendar_id and calendar.refresh_token):
+		# Not on Google yet; it is created there under the new name.
+		return
+
+	from frappe.integrations.doctype.google_calendar.google_calendar import get_google_calendar_object
+
+	try:
+		google_calendar, _account = get_google_calendar_object(current)
+		google_calendar.calendars().patch(
+			calendarId=calendar.google_calendar_id, body={"summary": value}
+		).execute()
+	except Exception:
+		frappe.log_error(title=f"Could not rename Google Calendar {current}")
+		frappe.throw(_("Google Calendar didn't take the new name. Try again in a few minutes."))
+
+
+EVALUATOR_CALENDAR_CACHE = "lms_evaluator_calendar_authorization"
+
+
+def get_pending_sign_in(user: str) -> dict | None:
+	pending = frappe.cache.get_value(f"{EVALUATOR_CALENDAR_CACHE}:{user}")
+	# A sign-in started before `state` existed was stored as the calendar name
+	# alone; it can't be checked, so it is treated as none.
+	return pending if isinstance(pending, dict) else None
+
+
+def set_pending_sign_in(user: str, calendar: str, state: str):
+	frappe.cache.set_value(
+		f"{EVALUATOR_CALENDAR_CACHE}:{user}", {"calendar": calendar, "state": state}, expires_in_sec=900
+	)
+
+
+@frappe.whitelist(methods=["POST"])
+def authorize_evaluator_calendar():
+	"""Start Google sign-in for the caller's own calendar.
+
+	Frappe's authorize_access checks desk write permission, which portal
+	evaluators don't have. The redirect URI must stay Frappe's callback, since
+	that is the one registered with Google; lms overrides the callback (see
+	google_calendar_callback) to finish the flow for these users.
+	"""
+	from frappe.integrations.doctype.google_calendar.google_calendar import get_authentication_url
+
+	calendar = get_own_calendar_doc()
+	# Keyed by user, unlike Frappe's single shared slot, so two people signing
+	# in at once can't swap calendars. It expires so an abandoned sign-in can't
+	# capture a later one started from the desk. Google hands `state` back, so the
+	# callback knows the code came from this sign-in and not from a link someone
+	# sent with a code for their own Google account.
+	state = frappe.generate_hash(length=32)
+	set_pending_sign_in(frappe.session.user, calendar.name, state)
+
+	client_id = frappe.get_cached_doc("Google Settings").client_id
+	auth = get_authentication_url(client_id=client_id, redirect_uri=google_callback_uri())
+	auth["url"] += f"&state={state}"
+	return auth
+
+
+def google_callback_uri() -> str:
+	from frappe.integrations.doctype.google_calendar.google_calendar import google_callback
+	from frappe.utils import get_request_site_address
+
+	return (
+		f"{get_request_site_address(full_address=True)}"
+		f"?cmd={google_callback.__module__}.{google_callback.__qualname__}"
+	)
+
+
+@frappe.whitelist()
+def google_calendar_callback(code: str | None = None, state: str | None = None):
+	"""Overrides Frappe's google_callback. A sign-in started from the Slots tab
+	is finished here and lands back on it; every other sign-in goes to Frappe's
+	own callback unchanged."""
+	import secrets
+
+	from frappe.integrations.doctype.google_calendar import google_calendar as frappe_google_calendar
+
+	user = frappe.session.user
+	pending = get_pending_sign_in(user) if user != "Guest" else None
+	# A wrong or missing state is not this sign-in: the pending one is kept, so a
+	# forged link neither connects someone else's Google account nor cancels it.
+	if not (pending and state and secrets.compare_digest(state, pending["state"])):
+		# Portal users reach this path only for the Slots tab sign-in (auth.py lets
+		# them through for it). Frappe's own callback saves the code onto whichever
+		# calendar a desk user last started authorising, and only then checks
+		# permission, so it must never run for them.
+		if frappe.get_cached_value("User", user, "user_type") != "System User":
+			frappe.throw(_("Start the sign-in again from your Slots tab."), frappe.PermissionError)
+		return frappe_google_calendar.google_callback(code)
+
+	frappe.cache.delete_value(f"{EVALUATOR_CALENDAR_CACHE}:{user}")
+	calendar = frappe.get_doc("Google Calendar", pending["calendar"])
+	if calendar.user != user:
+		frappe.throw(_("This calendar is not yours."), frappe.PermissionError)
+
+	authorized = bool(code) and save_calendar_tokens(calendar, code)
+	if authorized:
+		# Google comes back with a GET, whose writes Frappe rolls back unless told
+		# to commit. Lost, the calendar would stay disconnected, and Google's code
+		# is single use.
+		frappe.local.flags.commit = True
+
+	username = frappe.db.get_value("User", user, "username")
+	location = get_lms_route(f"user/{username}/slots")
+	if not authorized:
+		location += "?calendar=failed"
+	frappe.local.response["type"] = "redirect"
+	frappe.local.response["location"] = location
+
+
+def save_calendar_tokens(calendar, code: str) -> bool:
+	"""Swap Google's one-time code for a refresh token, as Frappe's
+	authorize_access does, without its desk permission check."""
+	import requests
+	from frappe.integrations.google_oauth import GoogleOAuth
+
+	settings = frappe.get_cached_doc("Google Settings")
+	try:
+		response = requests.post(
+			GoogleOAuth.OAUTH_URL,
+			data={
+				"code": code,
+				"client_id": settings.client_id,
+				"client_secret": settings.get_password(fieldname="client_secret", raise_exception=False),
+				"redirect_uri": google_callback_uri(),
+				"grant_type": "authorization_code",
+			},
+			timeout=30,
+		).json()
+	except Exception:
+		frappe.log_error(title="Google Calendar authorization failed")
+		return False
+
+	if not response.get("refresh_token"):
+		frappe.log_error(title="Google Calendar authorization failed", message=frappe.as_json(response))
+		return False
+
+	calendar.authorization_code = code
+	calendar.refresh_token = response["refresh_token"]
+	# nosemgrep: lms-unjustified-ignore-permissions - the caller's own calendar, checked in google_calendar_callback
+	calendar.save(ignore_permissions=True)
+	return True
 
 
 @frappe.whitelist()
@@ -2199,6 +2425,77 @@ def get_certification_details(course: str) -> dict:
 	}
 
 
+MEMBER_PROFILE_FIELDS = ("first_name", "last_name", "username", "phone", "mobile_no", "location", "bio")
+
+
+@frappe.whitelist(methods=["POST"])
+def add_member(
+	email: str,
+	first_name: str | None = None,
+	last_name: str | None = None,
+	profile: dict | str | None = None,
+) -> dict:
+	"""Add a website user from the members screens. Moderators have no create on
+	User, so this is the one way in, and it only ever makes a website user. The
+	profile is saved in the same request, so a failed save adds nobody."""
+	frappe.only_for("Moderator")
+	# Lowercased as User names are, so the duplicate check below matches them.
+	email = (email or "").strip().lower()
+	# validate_email_address returns every valid address it finds, joined by
+	# commas, so a list of addresses would pass a plain truth check.
+	if "," in email or frappe.utils.validate_email_address(email) != email:
+		frappe.throw(_("Enter a valid email address."))
+	if frappe.db.exists("User", email):
+		frappe.throw(_("{0} is already a member.").format(frappe.bold(email)), frappe.DuplicateEntryError)
+
+	user = frappe.get_doc(
+		{
+			"doctype": "User",
+			"email": email,
+			"first_name": (first_name or "").strip() or None,
+			"last_name": (last_name or "").strip() or None,
+			"user_type": "Website User",
+		}
+	)
+	set_member_profile(user, profile)
+	# nosemgrep: lms-unjustified-ignore-permissions - Moderators add members here only; the user is always a website user
+	user.insert(ignore_permissions=True)
+	return {"name": user.name, "email": user.email, "full_name": user.full_name}
+
+
+@frappe.whitelist(methods=["POST"])
+def update_member(member: str, profile: dict | str) -> dict:
+	"""Save the profile fields the members screen edits. Email, password and the
+	rest of the account stay out of reach; roles go through save_role."""
+	frappe.only_for("Moderator")
+	if (
+		not isinstance(member, str)
+		or member in ("Administrator", "Guest")
+		or not frappe.db.exists("User", member)
+	):
+		frappe.throw(_("Member {0} does not exist.").format(member), frappe.DoesNotExistError)
+	check_can_manage_member(member)
+
+	user = frappe.get_doc("User", member)
+	set_member_profile(user, profile)
+	# nosemgrep: lms-unjustified-ignore-permissions - Moderators edit only the profile fields above, never a System Manager's
+	user.save(ignore_permissions=True)
+	return {"name": user.name, "full_name": user.full_name}
+
+
+def set_member_profile(user, profile: dict | str | None):
+	"""Copy only the profile fields onto the user; the rest of the account stays as it is."""
+	profile = frappe.parse_json(profile) or {}
+	user.update({field: profile[field] for field in MEMBER_PROFILE_FIELDS if field in profile})
+	user.bio = sanitize_rich_text(user.bio)
+
+
+def check_can_manage_member(member: str):
+	"""Only a System Manager changes or deletes a System Manager's account."""
+	if is_site_administrator(member) and not is_site_administrator():
+		frappe.throw(_("Only a System Manager can change this account."), frappe.PermissionError)
+
+
 @frappe.whitelist()
 def save_role(user: str, role: str, value: int):
 	frappe.only_for("Moderator")
@@ -2249,7 +2546,7 @@ def save_evaluator_role(user: str, value: int):
 	return True
 
 
-@frappe.whitelist()
+@frappe.whitelist(methods=["POST"])
 def delete_member(user: str):
 	frappe.only_for("Moderator")
 	if not isinstance(user, str):
@@ -2258,6 +2555,7 @@ def delete_member(user: str):
 		frappe.throw(_("This user cannot be deleted."), frappe.PermissionError)
 	if not frappe.db.exists("User", user):
 		frappe.throw(_("User {0} does not exist.").format(user))
+	check_can_manage_member(user)
 	frappe.delete_doc("User", user, ignore_permissions=True)
 	frappe.clear_cache(user=user)
 	return True
@@ -2716,6 +3014,27 @@ def calculate_current_streak(all_dates: list, streak: int):
 	return 0
 
 
+def can_start_live_class(batch: str) -> bool:
+	"""Who sees a class's start link: the staff the Start button is shown to."""
+	from lms.lms.permissions import can_author_batch
+
+	return "Batch Evaluator" in frappe.get_roles() or can_author_batch(batch)
+
+
+@frappe.whitelist()
+def start_live_class(live_class: str):
+	"""The batch page's Start button. A batch's instructors open their class here, as
+	the start link is readable by role only, and a role spans every batch."""
+	details = frappe.db.get_value(
+		"LMS Live Class", live_class, ["batch_name", "start_url", "join_url"], as_dict=True
+	)
+	if not details or not can_start_live_class(details.batch_name):
+		frappe.throw(_("You cannot start this live class."), frappe.PermissionError)
+
+	frappe.local.response["type"] = "redirect"
+	frappe.local.response["location"] = details.start_url or details.join_url
+
+
 @frappe.whitelist()
 def get_my_live_classes():
 	my_live_classes = []
@@ -2746,6 +3065,7 @@ def get_my_live_classes():
 			"start_url",
 			"join_url",
 			"owner",
+			"batch_name",
 		],
 		limit=2,
 		order_by="date",
@@ -2754,6 +3074,9 @@ def get_my_live_classes():
 	if len(live_class_details):
 		for live_class in live_class_details:
 			live_class.course_title = frappe.db.get_value("LMS Course", live_class.course, "title")
+			# The start link opens the class as its host; learners join with join_url.
+			if not can_start_live_class(live_class.batch_name):
+				live_class.start_url = None
 
 			my_live_classes.append(live_class)
 

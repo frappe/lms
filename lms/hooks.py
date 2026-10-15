@@ -215,6 +215,7 @@ doc_events = {
 scheduler_events = {
 	"all": [
 		"lms.sqlite.build_index_in_background",
+		"lms.lms.doctype.lms_live_class.lms_live_class.retry_pending_invites",
 	],
 	"hourly": [
 		"lms.lms.doctype.lms_certificate_request.lms_certificate_request.schedule_evals",
@@ -243,7 +244,8 @@ fixtures = ["Custom Field", "Function", "Industry", "LMS Category"]
 # ------------------------------
 #
 override_whitelisted_methods = {
-	# "frappe.desk.search.get_names_for_mentions": "lms.lms.utils.get_names_for_mentions",
+	# Finishes Google Calendar sign-in started from an evaluator's Slots tab.
+	"frappe.integrations.doctype.google_calendar.google_calendar.google_callback": "lms.lms.api.google_calendar_callback",
 }
 #
 # each overriding function accepts a `data` argument;
