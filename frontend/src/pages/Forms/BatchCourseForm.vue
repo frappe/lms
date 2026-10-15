@@ -1,5 +1,5 @@
 <template>
-	<FormShell :title="__('Add a course to the batch')" size="lg" @close="close">
+	<FormShell :title="__('Add Course')" size="lg" @close="close">
 		<template #default>
 			<div v-if="refusal" class="p-4 text-base text-ink-gray-6">
 				{{ refusal }}
@@ -24,7 +24,7 @@
 		<template #actions>
 			<HeaderButton
 				v-if="!refusal"
-				:label="__('Save')"
+				:label="__('Add')"
 				variant="solid"
 				:loading="batchCourses.insert.loading"
 				@click="submit"

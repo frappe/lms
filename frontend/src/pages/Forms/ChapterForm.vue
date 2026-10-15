@@ -77,7 +77,7 @@
 			<div v-if="canManageChapters" class="flex items-center justify-end">
 				<HeaderButton
 					data-testid="chapter-save"
-					:label="__('Save')"
+					:label="isEdit ? __('Save') : __('Add')"
 					variant="solid"
 					:loading="chapterResource.loading"
 					:disabled="isEdit && !chapterDetail"

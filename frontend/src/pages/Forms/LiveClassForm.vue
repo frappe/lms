@@ -1,6 +1,6 @@
 <template>
 	<FormShell
-		:title="__('Create a Live Class')"
+		:title="__('New Live Class')"
 		size="xl"
 		position="top"
 		@close="close"
@@ -98,7 +98,7 @@
 			>
 				<HeaderButton
 					data-testid="live-class-save"
-					:label="__('Save')"
+					:label="__('Create')"
 					variant="solid"
 					:loading="
 						createLiveClass.loading || createGoogleMeetLiveClass.loading
