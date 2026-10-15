@@ -25,7 +25,6 @@ const {
 	getCachedListResourceMock,
 	zoomSubmit,
 	meetSubmit,
-	access,
 	openSettingsMock,
 } = vi.hoisted(() => {
 	// @/utils reaches plyr, which touches matchMedia at import time.
@@ -47,17 +46,10 @@ const {
 		getCachedListResourceMock: vi.fn(),
 		zoomSubmit: vi.fn(),
 		meetSubmit: vi.fn(),
-		access: { calendar: true, meet: true },
 		openSettingsMock: vi.fn(),
 	}
 })
 
-vi.mock('@/components/Settings/GoogleApi/googleApi', () => ({
-	canManageGoogleIntegrations: () => access.calendar,
-}))
-vi.mock('@/components/Settings/GoogleMeet/googleMeet', () => ({
-	canManageGoogleMeet: () => access.meet,
-}))
 vi.mock('@/utils/', async (importOriginal) => ({
 	...(await importOriginal<object>()),
 	openSettings: openSettingsMock,
@@ -373,14 +365,12 @@ describe('LiveClassForm as a route', () => {
 		}
 
 		beforeEach(async () => {
-			access.calendar = true
-			access.meet = true
 			openSettingsMock.mockReset()
 			const { toast } = await import('frappe-ui')
 			vi.mocked(toast.error).mockClear()
 		})
 
-		it('shows in the form and opens the Google Calendar settings', async () => {
+		it('shows in the form, with no settings link for a Zoom class', async () => {
 			calendarMissing(zoomSubmit)
 			const router = makeRouter()
 			await router.push('/batches/B1/live-class/new')
@@ -391,12 +381,11 @@ describe('LiveClassForm as a route', () => {
 
 			const line = shownLine(wrapper)
 			expect(line.text).toBe(
-				'A Google Calendar connection is needed to send invites for live classes. Set up'
+				'Ask your site administrator to set up your Google Calendar to schedule Zoom classes.'
 			)
+			expect(line.setUp.exists()).toBe(false)
 			const { toast } = await import('frappe-ui')
 			expect(toast.error).not.toHaveBeenCalled()
-			await line.setUp.trigger('click')
-			expect(openSettingsMock).toHaveBeenCalledWith('google-calendar')
 			expect(wrapper.find('[role="dialog"]').exists()).toBe(true)
 		})
 
@@ -415,11 +404,10 @@ describe('LiveClassForm as a route', () => {
 			await flushPromises()
 
 			await shownLine(wrapper).setUp.trigger('click')
-			expect(openSettingsMock).toHaveBeenCalledWith('google-meet')
+			expect(openSettingsMock).toHaveBeenCalledWith('Google Meet Accounts')
 		})
 
 		it('points anyone who cannot open the settings to their administrator', async () => {
-			access.calendar = false
 			calendarMissing(zoomSubmit)
 			const router = makeRouter()
 			await router.push('/batches/B1/live-class/new')
@@ -435,6 +423,8 @@ describe('LiveClassForm as a route', () => {
 		// Evaluators have no Settings modal; their own calendar lives on their
 		// profile's Slots tab, which is where a Zoom class's invites come from.
 		it('sends an evaluator to their own Slots tab for a Zoom class', async () => {
+			// Tagged on the batch: only then may an evaluator schedule its classes.
+			batchResource.data = { ...batchResource.data, can_manage: true }
 			calendarMissing(zoomSubmit)
 			const router = makeRouter()
 			await router.push('/batches/B1/live-class/new')
@@ -456,6 +446,7 @@ describe('LiveClassForm as a route', () => {
 				name: 'B1',
 				conferencing_provider: 'Google Meet',
 				google_meet_account: 'meet-1',
+				can_manage: true,
 			}
 			calendarMissing(meetSubmit)
 			const router = makeRouter()

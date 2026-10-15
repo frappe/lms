@@ -121,8 +121,6 @@ import {
 import { computed, reactive, inject, onMounted, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { getTimezones, getUserTimezone, openSettings } from '@/utils/'
-import { canManageGoogleIntegrations } from '@/components/Settings/GoogleApi/googleApi'
-import { canManageGoogleMeet } from '@/components/Settings/GoogleMeet/googleMeet'
 import FormShell from '@/components/FormShell.vue'
 import HeaderButton from '@/components/HeaderButton.vue'
 import {
@@ -328,12 +326,12 @@ const showCalendarMissing = (message) => {
 // Where "Set up" goes. Moderators with access get the Settings page. Evaluators
 // have no Settings, but a Zoom class uses their own calendar, which they manage
 // on their profile's Slots tab. A Meet account's calendar is the admin's.
+// Settings has a Google Meet accounts panel but no Google Calendar one, so a
+// Zoom class's calendar is set up by the site administrator, or by an
+// evaluator from their own Slots tab.
 const calendarSetUpAction = (meet) => {
-	if (
-		user.data?.is_moderator &&
-		(meet ? canManageGoogleMeet() : canManageGoogleIntegrations())
-	) {
-		return () => openSettings(meet ? 'google-meet' : 'google-calendar')
+	if (meet && user.data?.is_moderator) {
+		return () => openSettings('Google Meet Accounts')
 	}
 	if (!meet && user.data?.is_evaluator && user.data?.username) {
 		return () =>
