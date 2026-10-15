@@ -219,6 +219,15 @@ describe('NewCourseForm as a route', () => {
 		expect(wrapper.html()).toContain('New Course')
 	})
 
+	it('starts the thumbnail empty in a shape the uploader accepts', async () => {
+		const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
+		const router = makeRouter()
+		await router.push({ name: 'NewCourse' })
+		await mountForm(router, moderator)
+		const warnings = warn.mock.calls.map((args) => String(args[0]))
+		expect(warnings.filter((w) => w.includes('modelValue'))).toEqual([])
+	})
+
 	it('refuses to render the form for a user who cannot create courses', async () => {
 		userResource.data = { ...student }
 		const router = makeRouter()

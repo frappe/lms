@@ -4,7 +4,10 @@
 # import json
 
 import base64
+import os
 import re
+import subprocess
+import sys
 import unittest
 from functools import partial
 from unittest.mock import patch
@@ -534,3 +537,38 @@ class TestQuestionMarksBackfill(FrappeTestCase):
 				backfill_question_marks()
 
 				self.assertEqual(frappe.db.get_value("LMS Question", question.name, "marks"), expected_marks)
+
+
+class TestInputAnswerScorer(unittest.TestCase):
+	def test_scores_match_the_pure_python_sequence_matcher(self):
+		from lms.lms.doctype.lms_quiz import lms_quiz
+
+		# difflib scores. python-Levenshtein or rapidfuzz give 87 and 88 for the
+		# last two and flip the verdict at the 85 cut-off, so neither is a drop-in.
+		cases = [
+			("photosynthesis", "photosynthsis", 96),
+			("George Washington", "Washington George", 100),
+			("H2O", "H20", 67),
+			("Mitochondria", "mitocondria", 96),
+			("delta beta kappa", "delta beta kxpca", 81),
+		]
+		for possibility, answer, score in cases:
+			with self.subTest(answer=answer):
+				self.assertEqual(lms_quiz.fuzz.token_sort_ratio(possibility, answer), score)
+
+	def test_importing_the_quiz_module_does_not_warn(self):
+		import lms
+
+		script = (
+			"import warnings\n"
+			"with warnings.catch_warnings(record=True) as caught:\n"
+			"	warnings.simplefilter('always')\n"
+			"	import lms.lms.doctype.lms_quiz.lms_quiz\n"
+			"print('\\n'.join(str(w.message) for w in caught))\n"
+		)
+		app_root = os.path.dirname(os.path.dirname(lms.__file__))
+		env = {**os.environ, "PYTHONPATH": os.pathsep.join([app_root, os.environ.get("PYTHONPATH", "")])}
+		result = subprocess.run(
+			[sys.executable, "-c", script], capture_output=True, text=True, env=env, check=True
+		)
+		self.assertNotIn("python-Levenshtein", result.stdout)

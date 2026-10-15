@@ -77,12 +77,6 @@ export class Markdown {
 		return { title: '', icon: div.innerHTML }
 	}
 
-	static get pasteConfig() {
-		return {
-			tags: ['P'],
-		}
-	}
-
 	render() {
 		this.wrapper = document.createElement('div')
 		this.wrapper.classList.add('cdx-block', 'ce-paragraph')
