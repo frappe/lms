@@ -235,7 +235,7 @@ test.describe("Course Creation", () => {
 		await titleField.blur();
 		await throwawayResponse;
 		await expect(
-			page.getByTestId("outline-lesson").filter({ hasText: "Throwaway lesson" })
+			page.locator(".outline-lesson").filter({ hasText: "Throwaway lesson" })
 		).toBeVisible({ timeout: 15000 });
 		await page
 			.locator(".outline-lesson")
