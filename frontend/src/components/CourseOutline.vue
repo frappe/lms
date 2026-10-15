@@ -268,65 +268,6 @@ function renameChapter(payload: { chapter: OutlineChapter; title: string }) {
 	renameChapterResource.submit(payload)
 }
 
-<<<<<<< HEAD
-const errorMessage = (err: { messages?: string[] } | string): string =>
-	typeof err === 'string' ? err : err.messages?.[0] ?? 'Error'
-
-// Inserts the Course Lesson and its chapter reference in one request, so a
-// failure on either rolls back atomically: no orphaned lesson. Returns the
-// new lesson's docname.
-const addLesson = createResource({
-	url: 'lms.lms.api.create_lesson',
-	makeParams(values: { chapter: string }) {
-		return { chapter: values.chapter }
-	},
-})
-
-// Create the lesson immediately as "Untitled lesson", then open it in the
-// editor so the title is edited inline on the lesson itself.
-function createLessonInline(payload: {
-	chapter: OutlineChapter
-	lessonIdx: number
-}) {
-	creatingLessonChapter.value = payload.chapter.name
-	addLesson.submit(
-		{ chapter: payload.chapter.name },
-		{
-			onSuccess(lessonName: string) {
-				creatingLessonChapter.value = ''
-				outline.reload().then(() => {
-					const created = (outline.data ?? [])
-						.flatMap((c) => c.lessons ?? [])
-						.find((l) => l.name === lessonName)
-					if (created) navigateToLesson(created)
-				})
-			},
-			onError(err: { messages?: string[] } | string) {
-				creatingLessonChapter.value = ''
-				toast.error(errorMessage(err))
-			},
-		}
-	)
-}
-
-function navigateToLesson(lesson: OutlineLesson) {
-	const [chapterNumber, lessonNumber] = lesson.number.split('-')
-	if (props.inlineSelect) {
-		emit('select-lesson', { chapterNumber, lessonNumber })
-		return
-	}
-	if (props.editorLinks) {
-		router.push({
-			name: 'CourseDetail',
-			params: { courseName: props.courseName },
-			hash: '#editor',
-			query: { editLesson: lesson.number },
-		})
-	}
-}
-
-=======
->>>>>>> e54fcd0 (feat(course-editor): create a new lesson only once its title is typed)
 function trashLesson(lessonName: string, chapterName: string) {
 	$dialog({
 		title: __('Delete this lesson?'),

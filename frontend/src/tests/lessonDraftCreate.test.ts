@@ -82,17 +82,8 @@ vi.mock('lucide-vue-next', () => ({
 	ChevronRight: { render: () => null },
 	NotebookPen: { render: () => null },
 }))
-vi.mock(
-	'@framework/ui/components/Onboarding/index',
-	async (importOriginal) => ({
-		...(await importOriginal<
-			typeof import('@framework/ui/components/Onboarding/index')
-		>()),
-		useOnboarding: () => ({ updateOnboardingStep: vi.fn() }),
-	})
-)
-vi.mock('@framework/ui/telemetry/index', async (importOriginal) => ({
-	...(await importOriginal<typeof import('@framework/ui/telemetry/index')>()),
+vi.mock('frappe-ui/frappe', () => ({
+	useOnboarding: () => ({ updateOnboardingStep: vi.fn() }),
 	useTelemetry: () => ({ capture: vi.fn() }),
 }))
 vi.mock('@/composables/useKeyboardShortcuts', () => ({

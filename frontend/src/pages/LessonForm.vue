@@ -72,11 +72,7 @@
 				@input="onTitleInput"
 				@focus="titleKeyboardFocus = lastInputWasKeyboard"
 				@keydown.enter="onTitleEnter"
-<<<<<<< HEAD
-				@blur="titleKeyboardFocus = false"
-=======
 				@blur="onTitleBlur"
->>>>>>> e54fcd0 (feat(course-editor): create a new lesson only once its title is typed)
 			/>
 
 			<details
@@ -166,7 +162,7 @@ const editor = ref(null)
 const instructorEditor = ref(null)
 const user = inject('$user')
 const titleRef = ref(null)
-<<<<<<< HEAD
+const formRef = ref(null)
 // Text fields always match :focus-visible, even on click, so the ring follows
 // the input that led to the focus: a key (Tab, or Enter on "Add Lesson") shows it.
 const titleKeyboardFocus = ref(false)
@@ -185,9 +181,6 @@ useEventListener(
 	() => (lastInputWasKeyboard = false),
 	true
 )
-=======
-const formRef = ref(null)
->>>>>>> e54fcd0 (feat(course-editor): create a new lesson only once its title is typed)
 
 // A lesson title is one line. The field stays a textarea so a long title wraps
 // and grows; only the explicit break is refused.
@@ -205,6 +198,7 @@ function onTitleInput() {
 }
 
 function onTitleBlur() {
+	titleKeyboardFocus.value = false
 	if (isDraft.value) createDraftLesson()
 }
 
