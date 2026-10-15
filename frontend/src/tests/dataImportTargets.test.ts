@@ -30,6 +30,9 @@ describe('data import targets', () => {
 		importTarget('LMS Category')!.openList(router)
 		expect(pushSettingsHash).toHaveBeenCalledWith(router, 'categories')
 		expect(importTarget('LMS Category')!.openRecord).toBeUndefined()
+		// Phones have no Settings, so the wizard hides this link there.
+		expect(importTarget('LMS Category')!.listInSettings).toBe(true)
+		expect(importTarget('LMS Course')!.listInSettings).toBeFalsy()
 		expect(importTarget('ToDo')).toBeUndefined()
 	})
 })

@@ -9,6 +9,8 @@ import { pushSettingsHash } from '@/composables/useSettingsHash'
 type ImportTarget = {
 	title: string
 	openList: (router: Router) => void
+	/** The list is in Settings, which phones do not have. */
+	listInSettings?: boolean
 	openRecord?: (router: Router, name: string) => void
 }
 
@@ -29,6 +31,7 @@ const TARGETS: Record<string, ImportTarget> = {
 	'LMS Category': {
 		title: 'Categories',
 		openList: (router) => pushSettingsHash(router, 'categories'),
+		listInSettings: true,
 	},
 }
 

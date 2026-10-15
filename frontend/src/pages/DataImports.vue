@@ -125,6 +125,15 @@ const imports = createListResource({
 		})),
 })
 
+// Follows the URL too, so opening Import from the menu clears the filters.
+watch(
+	() => route.query,
+	() => {
+		doctype.value = fromQuery('doctype')
+		status.value = fromQuery('status')
+	}
+)
+
 watch(filters, (next) => {
 	router.replace({
 		query: {

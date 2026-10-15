@@ -3,7 +3,7 @@
 	<div class="mx-auto flex min-h-0 w-full max-w-5xl flex-1 flex-col p-5">
 		<DataImportWizard
 			:dataImport="dataImport"
-			@open-list="openList"
+			:onOpenList="canOpenList ? openList : undefined"
 			@open-record="openRecord"
 			@open-imports="openImports"
 			@new-import="newImport"
@@ -20,6 +20,7 @@ import PageHeader from '@/components/Layouts/pages/PageHeader.vue'
 import type { Breadcrumb } from '@/types'
 import { sessionStore } from '../stores/session'
 import { importTarget, importTitle } from '@/utils/dataImport'
+import { useScreenSize } from '@/utils/composables'
 import { useRoute, useRouter } from 'vue-router'
 import { computed, inject, onMounted, ref, watch } from 'vue'
 
@@ -27,6 +28,7 @@ const { brand } = sessionStore()
 const route = useRoute()
 const router = useRouter()
 const user = inject<any>('$user')
+const { isMobile } = useScreenSize()
 
 // Both route segments are single dynamic params (routes.js), never repeated —
 // narrowed here because vue-router types every param as `string | string[]`.
@@ -59,6 +61,12 @@ watch(
 )
 
 const openList = (doctype: string) => importTarget(doctype)?.openList(router)
+
+// The wizard shows "Go to list" only when it is given somewhere to go.
+const canOpenList = computed(() => {
+	const target = importTarget(dataImport.doc.value.reference_doctype)
+	return Boolean(target && !(target.listInSettings && isMobile.value))
+})
 
 const openRecord = (doctype: string, docname: string) =>
 	importTarget(doctype)?.openRecord?.(router, docname)
