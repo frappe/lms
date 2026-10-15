@@ -41,6 +41,8 @@ from lms.lms.doctype.course_lesson.course_lesson import (
 	save_progress,
 )
 from lms.lms.doctype.lms_certificate.lms_certificate import evaluates_certificate, get_latest_certificate
+from lms.lms.html_sanitizer import sanitize_rich_text
+from lms.lms.permissions import is_site_administrator
 from lms.lms.utils import (
 	LMS_ROLES,
 	attach_file_to_doc,
@@ -2199,6 +2201,77 @@ def get_certification_details(course: str) -> dict:
 	}
 
 
+MEMBER_PROFILE_FIELDS = ("first_name", "last_name", "username", "phone", "mobile_no", "location", "bio")
+
+
+@frappe.whitelist(methods=["POST"])
+def add_member(
+	email: str,
+	first_name: str | None = None,
+	last_name: str | None = None,
+	profile: dict | str | None = None,
+) -> dict:
+	"""Add a website user from the members screens. Moderators have no create on
+	User, so this is the one way in, and it only ever makes a website user. The
+	profile is saved in the same request, so a failed save adds nobody."""
+	frappe.only_for("Moderator")
+	# Lowercased as User names are, so the duplicate check below matches them.
+	email = (email or "").strip().lower()
+	# validate_email_address returns every valid address it finds, joined by
+	# commas, so a list of addresses would pass a plain truth check.
+	if "," in email or frappe.utils.validate_email_address(email) != email:
+		frappe.throw(_("Enter a valid email address."))
+	if frappe.db.exists("User", email):
+		frappe.throw(_("{0} is already a member.").format(frappe.bold(email)), frappe.DuplicateEntryError)
+
+	user = frappe.get_doc(
+		{
+			"doctype": "User",
+			"email": email,
+			"first_name": (first_name or "").strip() or None,
+			"last_name": (last_name or "").strip() or None,
+			"user_type": "Website User",
+		}
+	)
+	set_member_profile(user, profile)
+	# nosemgrep: lms-unjustified-ignore-permissions - Moderators add members here only; the user is always a website user
+	user.insert(ignore_permissions=True)
+	return {"name": user.name, "email": user.email, "full_name": user.full_name}
+
+
+@frappe.whitelist(methods=["POST"])
+def update_member(member: str, profile: dict | str) -> dict:
+	"""Save the profile fields the members screen edits. Email, password and the
+	rest of the account stay out of reach; roles go through save_role."""
+	frappe.only_for("Moderator")
+	if (
+		not isinstance(member, str)
+		or member in ("Administrator", "Guest")
+		or not frappe.db.exists("User", member)
+	):
+		frappe.throw(_("Member {0} does not exist.").format(member), frappe.DoesNotExistError)
+	check_can_manage_member(member)
+
+	user = frappe.get_doc("User", member)
+	set_member_profile(user, profile)
+	# nosemgrep: lms-unjustified-ignore-permissions - Moderators edit only the profile fields above, never a System Manager's
+	user.save(ignore_permissions=True)
+	return {"name": user.name, "full_name": user.full_name}
+
+
+def set_member_profile(user, profile: dict | str | None):
+	"""Copy only the profile fields onto the user; the rest of the account stays as it is."""
+	profile = frappe.parse_json(profile) or {}
+	user.update({field: profile[field] for field in MEMBER_PROFILE_FIELDS if field in profile})
+	user.bio = sanitize_rich_text(user.bio)
+
+
+def check_can_manage_member(member: str):
+	"""Only a System Manager changes or deletes a System Manager's account."""
+	if is_site_administrator(member) and not is_site_administrator():
+		frappe.throw(_("Only a System Manager can change this account."), frappe.PermissionError)
+
+
 @frappe.whitelist()
 def save_role(user: str, role: str, value: int):
 	frappe.only_for("Moderator")
@@ -2249,7 +2322,7 @@ def save_evaluator_role(user: str, value: int):
 	return True
 
 
-@frappe.whitelist()
+@frappe.whitelist(methods=["POST"])
 def delete_member(user: str):
 	frappe.only_for("Moderator")
 	if not isinstance(user, str):
@@ -2258,6 +2331,7 @@ def delete_member(user: str):
 		frappe.throw(_("This user cannot be deleted."), frappe.PermissionError)
 	if not frappe.db.exists("User", user):
 		frappe.throw(_("User {0} does not exist.").format(user))
+	check_can_manage_member(user)
 	frappe.delete_doc("User", user, ignore_permissions=True)
 	frappe.clear_cache(user=user)
 	return True
