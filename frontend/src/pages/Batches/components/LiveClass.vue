@@ -1,7 +1,7 @@
 <template>
 	<div class="p-5">
 		<div
-			v-if="isAdmin() && !hasProviderAccount()"
+			v-if="canManageClasses() && !hasProviderAccount()"
 			class="flex lg:items-center gap-x-2 mb-5 bg-surface-amber-1 px-3 py-2 rounded-lg text-ink-amber-6"
 		>
 			<span class="lucide-alert-circle size-7 md:size-4" />
@@ -248,11 +248,11 @@ const hasProviderAccount = () => {
 	return false
 }
 
-// Moderators and the batch's own authors: the only users the server lets
+// Moderators and the batch's instructors: the only users the server lets
 // create a class or retry its invites. isAdmin also takes in every evaluator,
 // who would only get a permission error.
 const canManageClasses = () =>
-	Boolean(user.data?.is_moderator || props.batch.data?.can_manage)
+	Boolean(user.data?.is_moderator || props.batch.data?.can_schedule_classes)
 
 const canCreateClass = () => {
 	if (readOnlyMode) return false

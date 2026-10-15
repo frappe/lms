@@ -163,10 +163,10 @@ const conferencingProvider = computed(
 	() => batch.data?.conferencing_provider || null
 )
 
-// can_manage, not the Batch Evaluator role: create_live_class accepts only an
-// evaluator the batch tags.
+// can_schedule_classes, not the Batch Evaluator role or can_manage:
+// create_live_class accepts only the batch's instructors.
 const isAdmin = computed(() =>
-	Boolean(user.data?.is_moderator || batch.data?.can_manage)
+	Boolean(user.data?.is_moderator || batch.data?.can_schedule_classes)
 )
 
 // Copied from LiveClass.vue's canCreateClass()/hasProviderAccount(), which gate
@@ -188,7 +188,9 @@ const hasProviderAccount = computed(() => {
 const refusal = computed(() => {
 	if (readOnlyMode) return __('This site is in read-only mode.')
 	if (!isAdmin.value)
-		return __('You are not permitted to create a live class for this batch.')
+		return __(
+			"You can't schedule live classes for this batch. Ask one of its instructors or a Moderator."
+		)
 	if (!hasProviderAccount.value)
 		return __(
 			'Please select a conferencing provider and add an account to the batch to create live classes.'
