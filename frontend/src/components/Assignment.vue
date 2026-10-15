@@ -84,13 +84,16 @@
 					{{ __('Feel free to make edits to your submission if needed.') }}
 				</div>
 				<div
-					v-if="showUploader() && canModifyAssignment && !scheduleBlocked"
+					v-if="showUploader() && (attachment || canModifyAssignment)"
 					class="border rounded-lg p-3"
 				>
-					<div class="font-semibold mb-2">
+					<div v-if="canModifyAssignment" class="font-semibold mb-2">
 						{{ __('Upload Assignment') }}
 					</div>
-					<div class="text-ink-gray-5 text-sm mt-1 mb-4">
+					<div
+						v-if="canModifyAssignment"
+						class="text-ink-gray-5 text-sm mt-1 mb-4"
+					>
 						{{
 							__('You can only upload {0} files').format(assignment.data.type)
 						}}
@@ -143,7 +146,11 @@
 						</div>
 					</div>
 				</div>
-				<div v-else-if="assignment.data.type == 'URL' && !scheduleBlocked">
+				<div
+					v-else-if="
+						assignment.data.type == 'URL' && (!scheduleBlocked || answer)
+					"
+				>
 					<div class="text-p-sm-medium text-ink-gray-7 mb-1.5">
 						{{ __('Enter a URL') }}
 					</div>
@@ -154,7 +161,7 @@
 						:disabled="!canModifyAssignment"
 					/>
 				</div>
-				<div v-else-if="!showUploader() && !scheduleBlocked">
+				<div v-else-if="!showUploader() && (!scheduleBlocked || answer)">
 					<div class="text-sm mb-2 text-ink-gray-7">
 						{{ __('Write your answer here') }}
 					</div>
