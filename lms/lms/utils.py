@@ -1,7 +1,6 @@
 import hashlib
 import json
 import re
-from collections import Counter
 from datetime import date, datetime
 from urllib.parse import quote
 from zoneinfo import ZoneInfo
@@ -2750,17 +2749,20 @@ def get_discussion_topics(doctype: str, docname: str, single_thread: bool = Fals
 		order_by="creation desc",
 	)
 
-	# Counted here rather than with a SQL count in `fields`: newer frappe versions
-	# refuse functions written as strings there, and the dict form is not in v15.
-	reply_counts = Counter()
+	# Counted with the query builder rather than a SQL count in `fields`: newer
+	# frappe versions refuse functions written as strings there, and the dict
+	# form is not in v15.
+	reply_counts = {}
 	if topics:
-		reply_counts.update(
-			frappe.get_all(
-				"Discussion Reply",
-				filters={"topic": ["in", [topic.name for topic in topics]]},
-				pluck="topic",
-			)
+		Reply = frappe.qb.DocType("Discussion Reply")
+		rows = (
+			frappe.qb.from_(Reply)
+			.select(Reply.topic, fn.Count(Reply.name).as_("count"))
+			.where(Reply.topic.isin([topic.name for topic in topics]))
+			.groupby(Reply.topic)
+			.run(as_dict=True)
 		)
+		reply_counts = {row.topic: row.count for row in rows}
 
 	for topic in topics:
 		topic.user = frappe.db.get_value("User", topic.owner, ["full_name", "user_image"], as_dict=True)
