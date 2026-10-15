@@ -25,11 +25,22 @@ export const useSettings = defineStore('settings', () => {
 		auto: false,
 	})
 
+	// The cached copy is shown at once, but fetched again once per page load:
+	// otherwise a browser that cached it keeps showing links an admin has since
+	// hidden, for good, since nothing else ever reloads it.
+	let revalidated = false
+
 	function loadSidebarSettings(force = false) {
-		if (force) return sidebarSettings.reload()
-		if (sidebarSettings.data) return Promise.resolve(sidebarSettings.data)
 		if (sidebarSettings.loading) return sidebarSettings.promise
-		return sidebarSettings.reload()
+		if (force || !sidebarSettings.data) {
+			revalidated = true
+			return sidebarSettings.reload()
+		}
+		if (!revalidated) {
+			revalidated = true
+			sidebarSettings.reload()
+		}
+		return Promise.resolve(sidebarSettings.data)
 	}
 
 	const programs = createResource({

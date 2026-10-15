@@ -7,6 +7,7 @@
 		:total-count="courseCount"
 		:has-next-page="courses.hasNextPage"
 		v-model:page-length="pageLength"
+		:page-length-options="isStaff ? undefined : []"
 		empty-name="Courses"
 		empty-icon="lucide-book-open"
 		@load-more="courses.next()"
@@ -37,7 +38,9 @@
 			</Dropdown>
 		</template>
 
-		<template #filters>
+		<!-- Learners get the published courses as they are; filtering and
+		     page sizes are tools for the staff who manage the catalogue. -->
+		<template v-if="isStaff" #filters>
 			<TabButtons
 				:options="courseTabs"
 				v-model="currentTab"
@@ -319,6 +322,14 @@ const setQueryParams = () => {
 watch(currentTab, () => {
 	updateCourses()
 })
+
+const isStaff = computed(() =>
+	Boolean(
+		user.data?.is_moderator ||
+			user.data?.is_instructor ||
+			user.data?.is_evaluator
+	)
+)
 
 const courseTabs = computed(() => {
 	let tabs = [

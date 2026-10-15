@@ -106,7 +106,9 @@ export async function loadMobileNavLinks(
 		(group) => group.items ?? []
 	)
 
-	await loadSidebarSettings()
+	// Forced: the bar is built once per viewer and never rebuilt, so building it
+	// from a cached copy would keep any link an admin has since hidden.
+	await loadSidebarSettings(true)
 	if (!isCurrent()) return false
 	const visibility = sidebarSettings.data
 	if (!visibility) return false
