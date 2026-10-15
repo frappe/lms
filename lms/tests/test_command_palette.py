@@ -10,6 +10,7 @@ from lms.command_palette import (
 	DOCTYPE_GROUPS,
 	PERMISSION_CHECKED_DOCTYPES,
 	RESULT_FIELDS,
+	get_authored_drafts,
 	get_grouped_results,
 	get_permitted_names,
 	is_visible,
@@ -75,8 +76,13 @@ class TestResultVisibility(FrappeTestCase):
 		self.assertTrue(is_visible(course, "LMS Course", ["LMS Student"], {}))
 
 	def test_an_unpublished_course_is_hidden_from_a_student(self):
+		# Authorship is read from the session, and Administrator authors every course.
 		course = row("LMS Course", "draft-course", published=0)
-		self.assertFalse(is_visible(course, "LMS Course", ["LMS Student"], {}))
+		frappe.set_user("Guest")
+		try:
+			self.assertFalse(is_visible(course, "LMS Course", ["LMS Student"], {}))
+		finally:
+			frappe.set_user("Administrator")
 
 	def test_a_closed_job_is_hidden_from_a_student(self):
 		job = row("Job Opportunity", "JOB-0001", status="Closed")
@@ -278,3 +284,90 @@ class TestAuthoredScope(BaseTestUtils):
 	def test_another_author_is_not_given_it(self):
 		frappe.db.set_value("LMS Quiz", self.quiz.name, "owner", self.author.name)
 		self.assertEqual(self.permitted_for(self.evaluator.name), set())
+
+
+class TestDraftScope(BaseTestUtils):
+	"""An unpublished course or batch is authoring-only. Holding Course Creator or
+	Batch Evaluator lets a user author their own, not read everyone else's drafts."""
+
+	@classmethod
+	def setUpClass(cls):
+		super().setUpClass()
+		hash = frappe.generate_hash(length=6)
+		cls.author = cls._create_user(f"pal-author-{hash}@example.com", "Pal", "Author", ["Course Creator"])
+		cls.other_author = cls._create_user(
+			f"pal-other-{hash}@example.com", "Pal", "Other", ["Course Creator", "Batch Evaluator"]
+		)
+		cls.moderator = cls._create_user(f"pal-mod-{hash}@example.com", "Pal", "Mod", ["Moderator"])
+		cls.student = cls._create_user(f"pal-stud-{hash}@example.com", "Pal", "Stud", ["LMS Student"])
+		cls.evaluator = cls._create_user(f"pal-eval-{hash}@example.com", "Pal", "Eval", ["Batch Evaluator"])
+		cls._create_evaluator(cls.evaluator.name)
+
+		cls.draft = cls._create_course(f"Palette Draft {hash}", instructor=cls.author.name)
+		frappe.db.set_value("LMS Course", cls.draft.name, "published", 0)
+		cls.draft_batch = frappe.new_doc("LMS Batch")
+		cls.draft_batch.update(
+			{
+				"title": f"Palette Draft Batch {hash}",
+				"published": 0,
+				"start_date": "2099-01-01",
+				"end_date": "2099-12-31",
+				"start_time": "10:00:00",
+				"end_time": "11:00:00",
+				"timezone": "Asia/Kolkata",
+				"description": "description",
+				"batch_details": "details",
+				"instructors": [{"instructor": cls.author.name}],
+				"courses": [{"course": cls.draft.name, "evaluator": cls.evaluator.name}],
+			}
+		)
+		cls.draft_batch.save()
+
+	def visible_as(self, user, doctype, name, **extra):
+		frappe.set_user(user)
+		try:
+			rows = [row(doctype, name, **extra)]
+			return is_visible(rows[0], doctype, frappe.get_roles(), {}, get_authored_drafts(rows))
+		finally:
+			frappe.set_user("Administrator")
+
+	def test_a_draft_is_hidden_from_other_authors_students_and_guest(self):
+		"""Any Course Creator or Batch Evaluator found every draft since #1895.
+		Added for audit finding #91 on branch fix/draft-and-guest-disclosure."""
+		for user in ("Guest", self.student.name, self.other_author.name):
+			with self.subTest(user=user):
+				self.assertFalse(self.visible_as(user, "LMS Course", self.draft.name, published=0))
+				self.assertFalse(
+					self.visible_as(
+						user, "LMS Batch", self.draft_batch.name, published=0, start_date="2099-01-01"
+					)
+				)
+
+	def test_a_draft_is_shown_to_its_author_and_a_moderator(self):
+		for user in (self.author.name, self.moderator.name):
+			with self.subTest(user=user):
+				self.assertTrue(self.visible_as(user, "LMS Course", self.draft.name, published=0))
+				self.assertTrue(
+					self.visible_as(
+						user, "LMS Batch", self.draft_batch.name, published=0, start_date="2099-01-01"
+					)
+				)
+
+	def test_a_draft_batch_is_shown_to_its_tagged_evaluator(self):
+		self.assertTrue(
+			self.visible_as(
+				self.evaluator.name, "LMS Batch", self.draft_batch.name, published=0, start_date="2099-01-01"
+			)
+		)
+
+	def test_published_rows_keep_their_existing_rules(self):
+		self.assertTrue(self.visible_as(self.other_author.name, "LMS Course", "any-course", published=1))
+		# A Batch Evaluator still finds published batches that have already started.
+		self.assertTrue(
+			self.visible_as(
+				self.other_author.name, "LMS Batch", "any-batch", published=1, start_date="2000-01-01"
+			)
+		)
+		self.assertFalse(
+			self.visible_as(self.student.name, "LMS Batch", "any-batch", published=1, start_date="2000-01-01")
+		)
