@@ -4,7 +4,7 @@
 		:breadcrumbs="breadcrumbs"
 	/>
 	<div
-		v-if="falconError"
+		v-if="falconError && !isSQL"
 		class="flex items-center justify-between p-3 text-sm bg-surface-amber-1 text-ink-amber-2"
 	>
 		<span>
@@ -26,6 +26,7 @@
 				:title="exercise?.title ?? ''"
 				:language="exercise?.language ?? ''"
 				:problemStatement="exercise?.problem_statement ?? ''"
+				:tabular="isSQL"
 				:results="results"
 				:consoleLines="consoleLines"
 				:duration="duration"
@@ -36,6 +37,14 @@
 				@run="submitCode"
 				@reset="resetCode"
 			>
+				<template v-if="isSQL" #problem-extra>
+					<SQLTablesPreview
+						:tables="sqlTables"
+						:loading="sqlTablesLoading"
+						:error="sqlTablesError"
+						:setup="exercise?.sql_setup ?? ''"
+					/>
+				</template>
 				<template #editor>
 					<ExerciseCodeEditor
 						:modelValue="code"
@@ -63,6 +72,8 @@ import { useDebounceFn } from '@vueuse/core'
 import PageHeader from '@/components/Layouts/pages/PageHeader.vue'
 import ExerciseCodeEditor from '@/components/ProgrammingExercises/ExerciseCodeEditor.vue'
 import ExerciseWorkspace from '@/components/ProgrammingExercises/ExerciseWorkspace.vue'
+import SQLTablesPreview from '@/components/ProgrammingExercises/SQLTablesPreview.vue'
+import type { SQLTable } from '@/components/ProgrammingExercises/SQLTablesPreview.vue'
 import ExerciseWorkspaceSkeleton from '@/components/ProgrammingExercises/ExerciseWorkspaceSkeleton.vue'
 import type { TestCaseResult } from '@/components/ProgrammingExercises/ExerciseTestCases.vue'
 import type { ConsoleLine } from '@/components/ProgrammingExercises/ExerciseConsole.vue'
@@ -94,6 +105,7 @@ import {
 } from '@/pages/ProgrammingExercises/exerciseRunFlow'
 import type {
 	ExerciseTestCase,
+	RunTestCase,
 	StoredTestCase,
 } from '@/pages/ProgrammingExercises/exerciseRunFlow'
 import type { ExerciseLanguage } from '@/types'
@@ -106,6 +118,7 @@ type Exercise = {
 	language: string
 	problem_statement: string
 	starter_code: string | null
+	sql_setup?: string | null
 	test_cases: ExerciseTestCase[]
 }
 
@@ -228,6 +241,7 @@ const loadExercise = async () => {
 		// late reply for the one the learner has left must not land.
 		if (requested !== props.exerciseID) return
 		exercise.value = data
+		loadSQLTables()
 		applySourceCode()
 		restoreResults()
 	} catch (failure: unknown) {
@@ -298,9 +312,38 @@ const startingCode = computed<string>(
 	() => exercise.value?.starter_code || boilerplate.value
 )
 
-const editorLanguage = computed<ExerciseLanguage>(() =>
-	exercise.value?.language === 'JavaScript' ? 'JavaScript' : 'Python'
-)
+const isSQL = computed<boolean>(() => exercise.value?.language === 'SQL')
+
+const editorLanguage = computed<ExerciseLanguage>(() => {
+	const language = exercise.value?.language
+	return language === 'JavaScript' || language === 'SQL' ? language : 'Python'
+})
+
+// A SQL exercise shows the tables it runs against, with their rows, under the
+// statement: learners new to SQL read a table far more easily than the CREATE
+// and INSERT statements that build it.
+const sqlTables = ref<SQLTable[]>([])
+const sqlTablesLoading = ref(false)
+const sqlTablesError = ref('')
+
+const loadSQLTables = async () => {
+	const requested = props.exerciseID
+	sqlTables.value = []
+	sqlTablesError.value = ''
+	if (!isSQL.value) return
+	sqlTablesLoading.value = true
+	try {
+		const tables = await call<SQLTable[]>('lms.lms.api.get_sql_tables', {
+			exercise: requested,
+		})
+		if (requested === props.exerciseID) sqlTables.value = tables
+	} catch (failure: unknown) {
+		if (requested === props.exerciseID)
+			sqlTablesError.value = messageOf(failure)
+	} finally {
+		if (requested === props.exerciseID) sqlTablesLoading.value = false
+	}
+}
 
 const runCommand = computed<string>(
 	() =>
@@ -442,7 +485,9 @@ const loadFalcon = async (): Promise<void> => {
 }
 
 const canRun = computed<boolean>(
-	() => falconReady.value && !falconError.value && ownsSubmission.value
+	() =>
+		(isSQL.value || (falconReady.value && !falconError.value)) &&
+		ownsSubmission.value
 )
 
 const submitCode = async () => {
@@ -592,14 +637,28 @@ const createSubmission = async () => {
 		})
 }
 
-const execute = (stdin = ''): Promise<string> =>
-	runLiveCode({
-		baseUrl: falconURL.value,
-		runtime: exercise.value?.language.toLowerCase() || 'python',
-		code: code.value,
-		stdin,
-		onStderr: (text) => consoleLines.value.push({ text, stream: 'stderr' }),
-	})
+// SQL runs on the server's sandbox database, against the case it names by idx,
+// so a learner never sends SQL that runs with more than their own rights.
+const executeSQL = async (testCase: RunTestCase): Promise<string> => {
+	const result = await call<{ stdout: string; stderr: string }>(
+		'lms.lms.api.run_sql_test_case',
+		{ exercise: props.exerciseID, code: code.value, idx: testCase.idx }
+	)
+	if (result.stderr)
+		consoleLines.value.push({ text: result.stderr, stream: 'stderr' })
+	return result.stderr ? '' : result.stdout.trim()
+}
+
+const execute = (stdin = '', testCase?: RunTestCase): Promise<string> =>
+	isSQL.value && testCase
+		? executeSQL(testCase)
+		: runLiveCode({
+				baseUrl: falconURL.value,
+				runtime: exercise.value?.language.toLowerCase() || 'python',
+				code: code.value,
+				stdin,
+				onStderr: (text) => consoleLines.value.push({ text, stream: 'stderr' }),
+			})
 
 const breadcrumbs = computed(() => {
 	return [

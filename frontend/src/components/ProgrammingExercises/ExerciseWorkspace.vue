@@ -64,6 +64,7 @@
 						v-safe-html:rich="problemStatement"
 						class="ProseMirror prose prose-sm max-w-none !whitespace-normal prose-pre:bg-surface-gray-3 prose-pre:text-ink-gray-9"
 					></div>
+					<slot name="problem-extra" />
 				</div>
 			</div>
 
@@ -88,11 +89,13 @@
 					:lines="consoleLines"
 					:duration="duration"
 					:running="running"
+					:tabular="tabular"
 				/>
 				<ExerciseTestCases
 					data-testid="tests-pane"
 					class="max-h-80 shrink-0 overflow-y-auto border-t border-outline-gray-1"
 					:results="results"
+					:tabular="tabular"
 				/>
 			</div>
 		</div>
@@ -125,8 +128,10 @@ withDefaults(
 		// Boxed where it sits among other content, as in a lesson. On a page of
 		// its own it fills the page instead: a box there only adds a frame.
 		framed?: boolean
+		// SQL: outputs render as result tables.
+		tabular?: boolean
 	}>(),
-	{ submissionStatus: undefined, framed: true }
+	{ submissionStatus: undefined, framed: true, tabular: false }
 )
 
 const emit = defineEmits<{

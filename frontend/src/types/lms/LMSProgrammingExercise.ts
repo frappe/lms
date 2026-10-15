@@ -16,7 +16,11 @@ export interface LMSProgrammingExercise {
 	/**	Problem Statement : Text Editor	*/
 	problem_statement: string
 	/**	Language : Select	*/
-	language: 'Python' | 'JavaScript' | 'Rust' | 'Go'
+	language: 'Python' | 'JavaScript' | 'Rust' | 'Go' | 'SQL'
+	/**	Row Order Matters : Check	*/
+	sql_ordered?: 0 | 1
+	/**	Database Setup : Code - SQL	*/
+	sql_setup?: string
 	/**	Test Cases : Table - LMS Test Case	*/
 	test_cases?: LMSTestCase[]
 }

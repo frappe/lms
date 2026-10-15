@@ -108,6 +108,62 @@
 						"
 					/>
 				</div>
+				<template v-if="isSQL">
+					<div class="flex flex-col gap-1.5">
+						<InputLabel :label="__('Database Setup')" :required="true" />
+						<div
+							class="overflow-hidden rounded-5 border border-outline-gray-2"
+							data-testid="programming-exercise-sql-setup"
+						>
+							<ExerciseCodeEditor
+								v-model="exercise.sql_setup"
+								language="SQL"
+								:label="__('Database Setup')"
+								:readonly="!canEdit"
+								contentClass="min-h-[16rem]"
+							/>
+						</div>
+						<InputDescription
+							:description="
+								__(
+									'CREATE TABLE and INSERT statements run on a fresh database before every test case. Learners can read them. A test case’s input is extra SQL run after them.'
+								)
+							"
+						/>
+					</div>
+					<div class="flex flex-col gap-1.5">
+						<InputLabel :label="__('Reference Solution')" />
+						<div
+							class="overflow-hidden rounded-5 border border-outline-gray-2"
+							data-testid="programming-exercise-sql-solution"
+						>
+							<ExerciseCodeEditor
+								v-model="referenceSolution"
+								language="SQL"
+								:label="__('Reference Solution')"
+								:readonly="!canEdit"
+								contentClass="min-h-[8rem]"
+							/>
+						</div>
+						<div class="flex items-center gap-3">
+							<Button
+								data-testid="programming-exercise-fill-expected"
+								:loading="fillingExpected"
+								:disabled="!canEdit || !referenceSolution.trim()"
+								@click="fillExpectedOutputs()"
+							>
+								{{ __('Fill expected outputs') }}
+							</Button>
+							<InputDescription
+								:description="
+									__(
+										'Runs this query against every test case and writes its result as the expected output. It is not saved.'
+									)
+								"
+							/>
+						</div>
+					</div>
+				</template>
 				<div data-testid="programming-exercise-test-cases">
 					<ChildTable
 						v-model="testCaseRows"
@@ -138,6 +194,13 @@
 				:options="languageOptions"
 				:required="true"
 			/>
+			<FormControl
+				v-if="isSQL"
+				v-model="exercise.sql_ordered"
+				data-testid="programming-exercise-sql-ordered"
+				type="checkbox"
+				:label="__('Row order matters')"
+			/>
 		</div>
 	</fieldset>
 </template>
@@ -148,6 +211,8 @@ import { InputDescription, InputLabel } from 'frappe-ui/experimental'
 import { sanitizeOnWrite } from '@/utils/sanitizeOnWrite'
 import {
 	Badge,
+	Button,
+	call,
 	createDocumentResource,
 	createListResource,
 	createResource,
@@ -234,8 +299,8 @@ const canManageExercise = computed(() => {
 		return false
 	return Boolean(
 		user.data?.is_moderator ||
-			user.data?.is_instructor ||
-			user.data?.is_evaluator
+		user.data?.is_instructor ||
+		user.data?.is_evaluator
 	)
 })
 
@@ -244,9 +309,11 @@ const canManageExercise = computed(() => {
 // `owner`/`creation`/`modified` along would write meta fields back every save.
 type ExerciseForm = {
 	title: string
-	language: 'Python' | 'JavaScript'
+	language: 'Python' | 'JavaScript' | 'SQL'
 	problem_statement: string
 	starter_code: string
+	sql_setup: string
+	sql_ordered: boolean
 }
 
 const emptyExercise = (): ExerciseForm => ({
@@ -254,6 +321,8 @@ const emptyExercise = (): ExerciseForm => ({
 	language: 'Python',
 	problem_statement: '',
 	starter_code: '',
+	sql_setup: '',
+	sql_ordered: false,
 })
 
 const exercise = ref<ExerciseForm>(emptyExercise())
@@ -264,7 +333,12 @@ const testCaseRows = ref<
 const languageOptions = [
 	{ label: 'Python', value: 'Python' },
 	{ label: 'JavaScript', value: 'JavaScript' },
+	{ label: 'SQL', value: 'SQL' },
 ]
+
+const isSQL = computed(() => exercise.value.language === 'SQL')
+const referenceSolution = ref('')
+const fillingExpected = ref(false)
 
 const testCaseColumns = computed(() => ['Input', 'Expected Output', 'Hidden'])
 
@@ -278,6 +352,8 @@ const formPayload = () => ({
 	language: exercise.value.language,
 	problem_statement: exercise.value.problem_statement,
 	starter_code: exercise.value.starter_code,
+	sql_setup: exercise.value.sql_setup,
+	sql_ordered: exercise.value.sql_ordered ? 1 : 0,
 	test_cases: completeRows().map((row, index) => ({
 		input: row.input,
 		expected_output: row.expected_output,
@@ -336,6 +412,8 @@ watch(
 			language: doc.language,
 			problem_statement: doc.problem_statement,
 			starter_code: doc.starter_code ?? '',
+			sql_setup: doc.sql_setup ?? '',
+			sql_ordered: Boolean(doc.sql_ordered),
 		}
 		testCaseRows.value = (doc.test_cases || []).map((row: TestCase) => ({
 			input: row.input,
@@ -394,6 +472,7 @@ const readyToCreate = (): boolean =>
 	Boolean(committedTitle.value) &&
 	exercise.value.title === committedTitle.value &&
 	hasContent(exercise.value.problem_statement) &&
+	(!isSQL.value || Boolean(exercise.value.sql_setup.trim())) &&
 	completeRows().length > 0
 
 const onTitleBlur = () => {
@@ -428,6 +507,46 @@ const createIfReady = () => {
 	})
 }
 
+// Runs the reference solution on the SQL sandbox for each case and stores its
+// result, so authors never type a result table by hand.
+const fillExpectedOutputs = async () => {
+	if (fillingExpected.value) return
+	if (!exercise.value.sql_setup.trim()) {
+		toast.warning(__('Add the database setup first.'))
+		return
+	}
+	if (!testCaseRows.value.length)
+		testCaseRows.value.push({ input: '', expected_output: '', hidden: false })
+	fillingExpected.value = true
+	try {
+		for (const [index, row] of testCaseRows.value.entries()) {
+			const result = await call<{ stdout: string; stderr: string }>(
+				'lms.lms.api.preview_sql',
+				{
+					setup: exercise.value.sql_setup,
+					input: row.input,
+					code: referenceSolution.value,
+					ordered: exercise.value.sql_ordered ? 1 : 0,
+				}
+			)
+			if (result.stderr) {
+				toast.error(
+					__('Test case {0}: {1}').format(String(index + 1), result.stderr)
+				)
+				return
+			}
+			row.expected_output = result.stdout
+		}
+		// A new exercise is created on blur; filling the last required field counts.
+		createIfReady()
+		toast.success(__('Expected outputs filled in.'))
+	} catch (failure: unknown) {
+		toast.error(resourceErrorMessage(failure, __('Error')))
+	} finally {
+		fillingExpected.value = false
+	}
+}
+
 const breadcrumbs = computed(() => [
 	{
 		label: __('Programming Exercises'),
@@ -440,7 +559,7 @@ const breadcrumbs = computed(() => [
 			: {
 					name: 'ProgrammingExerciseForm',
 					params: { exerciseID: props.exerciseID },
-			  },
+				},
 	},
 ])
 

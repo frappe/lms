@@ -1,6 +1,7 @@
 import { describe, expect, it, vi } from 'vitest'
 import { useDebounceFn } from '@vueuse/core'
 import {
+	boilerplateFor,
 	collectOutputs,
 	draftWriter,
 	orderCasesForRun,
@@ -20,6 +21,15 @@ describe('runner command', () => {
 
 	it('runs JavaScript with node', () => {
 		expect(runnerCommand('JavaScript')).toBe('node')
+	})
+
+	it('runs SQL on mariadb', () => {
+		expect(runnerCommand('SQL')).toBe('mariadb')
+		expect(sourceFilename('SQL')).toBe('solution.sql')
+	})
+
+	it('starts SQL from a comment, not a stdin reader', () => {
+		expect(boilerplateFor('SQL')).toBe('-- Write your query below\n')
 	})
 
 	it('falls back to the lowercased language', () => {
@@ -103,6 +113,21 @@ describe('collecting a run', () => {
 			'ran second input',
 			'ran third input',
 		])
+	})
+
+	it('hands each case to execute, so SQL can run it by idx', async () => {
+		const seen: number[] = []
+		await collectOutputs({
+			cases,
+			command: 'mariadb solution.sql',
+			execute: async (_input, testCase) => {
+				seen.push(testCase.idx)
+				return 'ok'
+			},
+			onLine: () => {},
+		})
+
+		expect(seen).toEqual([1, 2, 3])
 	})
 
 	it('times every case it ran', async () => {

@@ -17,7 +17,12 @@ class LMSProgrammingExercise(AuthoredDocument, Document):
 
 	def validate(self):
 		self.validate_test_cases()
+		self.validate_sql_setup()
 
 	def validate_test_cases(self):
 		if not self.test_cases:
 			frappe.throw(_("At least one test case is required for the programming exercise."))
+
+	def validate_sql_setup(self):
+		if self.language == "SQL" and not (self.sql_setup or "").strip():
+			frappe.throw(_("Database Setup is required for a SQL exercise."), frappe.MandatoryError)

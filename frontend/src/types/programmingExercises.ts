@@ -1,4 +1,4 @@
-export type ExerciseLanguage = 'Python' | 'JavaScript'
+export type ExerciseLanguage = 'Python' | 'JavaScript' | 'SQL'
 
 export interface ProgrammingExercise {
 	name: string
@@ -7,6 +7,8 @@ export interface ProgrammingExercise {
 	test_cases_count: number
 	problem_statement: string
 	starter_code?: string
+	sql_setup?: string
+	sql_ordered?: 0 | 1
 	test_cases: [TestCase]
 }
 

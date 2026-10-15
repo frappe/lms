@@ -55,7 +55,47 @@
 				</div>
 				<!-- A hidden case shows its verdict only. Even the learner's own output
 				     stays out: for a program that echoes, it would print the input. -->
-				<dl v-if="!result.hidden" class="ms-6 grid grid-cols-3 gap-x-4">
+				<!-- A SQL result is a table: expected and actual side by side, with
+				     the case's extra data (if any) above them. -->
+				<dl v-if="!result.hidden && tabular" class="ms-6 space-y-2">
+					<div v-if="result.input?.trim()" class="min-w-0 space-y-0.5">
+						<dt class="text-sm text-ink-gray-6">{{ __('Extra data') }}</dt>
+						<dd
+							class="whitespace-pre-wrap break-words font-mono text-sm text-ink-gray-8"
+						>
+							{{ result.input }}
+						</dd>
+					</div>
+					<div class="grid grid-cols-1 gap-3 lg:grid-cols-2">
+						<div class="min-w-0 space-y-1">
+							<dt class="text-sm text-ink-gray-6">{{ __('Expected') }}</dt>
+							<dd>
+								<ResultTable
+									v-if="result.expected_output"
+									:text="result.expected_output"
+								/>
+							</dd>
+						</div>
+						<div class="min-w-0 space-y-1">
+							<dt class="text-sm text-ink-gray-6">{{ __('Your output') }}</dt>
+							<dd>
+								<ResultTable
+									v-if="result.output"
+									:text="result.output"
+									:cellClass="
+										result.status === 'Passed'
+											? 'text-ink-gray-8'
+											: 'text-ink-red-5'
+									"
+								/>
+								<span v-else class="text-sm italic text-ink-gray-6">
+									{{ __('No output — see the error in Console') }}
+								</span>
+							</dd>
+						</div>
+					</div>
+				</dl>
+				<dl v-else-if="!result.hidden" class="ms-6 grid grid-cols-3 gap-x-4">
 					<div class="min-w-0 space-y-0.5">
 						<dt class="text-sm text-ink-gray-6">{{ __('Input') }}</dt>
 						<dd
@@ -109,10 +149,16 @@ export type TestCaseResult = {
 <script setup lang="ts">
 import { computed } from 'vue'
 import { Badge } from 'frappe-ui'
+import ResultTable from '@/components/ProgrammingExercises/ResultTable.vue'
 
-const props = defineProps<{
-	results: TestCaseResult[]
-}>()
+const props = withDefaults(
+	defineProps<{
+		results: TestCaseResult[]
+		// Outputs are SQL result tables rather than plain text.
+		tabular?: boolean
+	}>(),
+	{ tabular: false }
+)
 
 const passed = computed(
 	() => props.results.filter((r) => r.status === 'Passed').length

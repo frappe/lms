@@ -10,9 +10,11 @@
   "authors",
   "column_break_jlzi",
   "language",
+  "sql_ordered",
   "section_break_tjwv",
   "problem_statement",
   "starter_code",
+  "sql_setup",
   "section_break_ftkh",
   "test_cases"
  ],
@@ -42,7 +44,7 @@
    "fieldname": "language",
    "fieldtype": "Select",
    "label": "Language",
-   "options": "Python\nJavaScript\nRust\nGo",
+   "options": "Python\nJavaScript\nRust\nGo\nSQL",
    "reqd": 1
   },
   {
@@ -68,6 +70,23 @@
    "fieldtype": "Table MultiSelect",
    "label": "Authors",
    "options": "LMS Content Author"
+  },
+  {
+   "default": "0",
+   "depends_on": "eval:doc.language=='SQL'",
+   "description": "Compare rows in order. Leave unchecked to accept any row order.",
+   "fieldname": "sql_ordered",
+   "fieldtype": "Check",
+   "label": "Row Order Matters"
+  },
+  {
+   "depends_on": "eval:doc.language=='SQL'",
+   "description": "CREATE TABLE and INSERT statements run before each test case. Learners can read it.",
+   "fieldname": "sql_setup",
+   "fieldtype": "Code",
+   "label": "Database Setup",
+   "mandatory_depends_on": "eval:doc.language=='SQL'",
+   "options": "SQL"
   }
  ],
  "grid_page_length": 50,
@@ -78,7 +97,7 @@
    "link_fieldname": "exercise"
   }
  ],
- "modified": "2026-09-08 02:30:00.000000",
+ "modified": "2026-10-14 12:00:00.000000",
  "modified_by": "sayali@frappe.io",
  "module": "LMS",
  "name": "LMS Programming Exercise",

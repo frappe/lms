@@ -5,6 +5,9 @@ import type { ConsoleLine } from '@/components/ProgrammingExercises/ExerciseCons
 const BOILERPLATE: Record<string, string> = {
 	python: `with open("stdin", "r") as f:\n    data = f.read()\n\ninputs = data.split() if len(data) else []\n\n# inputs is a list of strings\n# write your code below\n\n`,
 	javascript: `const fs = require('fs');\n\nlet input = fs.readFileSync('/app/stdin', 'utf8').trim();\nconst inputs = input.split("\\n");\n// inputs is an array of strings\n// write your code below\n`,
+	// Only a comment, so the server stores it with the query rather than
+	// stripping it: a run of the untouched editor would otherwise store no code.
+	sql: `-- Write your query below\n`,
 }
 
 // The stdin-reading preamble a learner's code starts from.
@@ -15,11 +18,13 @@ export function boilerplateFor(language: string | undefined): string {
 const RUNNERS: Record<string, string> = {
 	python: 'python',
 	javascript: 'node',
+	sql: 'mariadb',
 }
 
 const EXTENSIONS: Record<string, string> = {
 	python: 'py',
 	javascript: 'js',
+	sql: 'sql',
 }
 
 // The console prints the command the learner would have typed, and nothing
@@ -55,7 +60,7 @@ export type RunTestCase = { idx: number; input: string }
 export type CollectOptions = {
 	cases: readonly RunTestCase[]
 	command: string
-	execute: (input: string) => Promise<string>
+	execute: (input: string, testCase: RunTestCase) => Promise<string>
 	onLine: (line: ConsoleLine) => void
 	now?: () => number
 }
@@ -85,7 +90,7 @@ export async function collectOutputs(
 		const startedAt = now()
 		let produced: string
 		try {
-			produced = await execute(testCase.input)
+			produced = await execute(testCase.input, testCase)
 		} catch (failure: unknown) {
 			onLine({ text: messageOf(failure), stream: 'stderr' })
 			return null

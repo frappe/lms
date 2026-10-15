@@ -36,6 +36,7 @@ const props = withDefaults(
 const LANGUAGE_KEYS: Record<ExerciseLanguage, LanguageKey> = {
 	Python: 'python',
 	JavaScript: 'javascript',
+	SQL: 'sql',
 }
 
 const kit = CodeKit.configure({ lineNumbers: {}, autocompletion: false })

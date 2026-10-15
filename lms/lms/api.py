@@ -17,6 +17,7 @@ from frappe.integrations.frappe_providers.frappecloud_billing import (
 	current_site_info,
 	is_fc_site,
 )
+from frappe.rate_limiter import rate_limit
 from frappe.translate import get_all_translations
 from frappe.utils import (
 	add_days,
@@ -36,6 +37,7 @@ from frappe.utils import (
 from frappe.utils.response import Response
 from pypika import functions as fn
 
+from lms.lms import sql_runner
 from lms.lms.code_runner import code_to_store, run_test_cases
 from lms.lms.course_import_export import export_course_zip, import_course_zip, validate_archive
 from lms.lms.doctype.course_lesson.course_lesson import (
@@ -2823,6 +2825,8 @@ def _exercise_for_viewer(doc, author: bool) -> dict:
 		"language": doc.language,
 		"problem_statement": doc.problem_statement,
 		"starter_code": doc.starter_code,
+		"sql_setup": doc.sql_setup,
+		"sql_ordered": doc.sql_ordered,
 		"test_cases": [
 			{
 				"idx": case.idx,
@@ -2873,6 +2877,54 @@ def _score_test_case(case, produced, author: bool) -> dict:
 
 
 @frappe.whitelist()
+@rate_limit(limit=120, seconds=60)
+def run_sql_test_case(exercise: str, code: str, idx: int) -> dict:
+	"""Run a learner's SQL against one test case of a SQL exercise. The case is
+	looked up by idx, so a learner can only run their own code, never setup SQL."""
+	doc = frappe.get_doc("LMS Programming Exercise", exercise)
+	doc.check_permission("read")
+	if doc.language != "SQL":
+		frappe.throw(_("This exercise is not a SQL exercise."))
+
+	case = next((row for row in doc.test_cases if row.idx == cint(idx)), None)
+	if not case:
+		frappe.throw(_("Test case {0} does not exist.").format(idx))
+
+	stdout, stderr = sql_runner.run_sql_or_throw(doc.sql_setup, case.input, code, doc.sql_ordered)
+	return {"stdout": stdout, "stderr": stderr}
+
+
+@frappe.whitelist()
+def get_sql_tables(exercise: str) -> list[dict]:
+	"""The tables a SQL exercise's setup creates, with their rows, so learners see
+	the data as tables rather than as the statements that build it. Only the setup
+	runs: a hidden case's extra rows stay hidden."""
+	doc = frappe.get_doc("LMS Programming Exercise", exercise)
+	doc.check_permission("read")
+	if doc.language != "SQL":
+		frappe.throw(_("This exercise is not a SQL exercise."))
+
+	# Keyed on modified, so an edited setup is never served from a stale entry.
+	key = f"lms:sql_tables:{doc.name}:{doc.modified}"
+	tables = frappe.cache.get_value(key)
+	if tables is None:
+		try:
+			tables = sql_runner.describe_tables(doc.sql_setup)
+		except sql_runner.SandboxUnavailable:
+			frappe.throw(_("The SQL sandbox could not be reached. Please try again."))
+		frappe.cache.set_value(key, tables, expires_in_sec=24 * 60 * 60)
+	return tables
+
+
+@frappe.whitelist()
+def preview_sql(setup: str, code: str, input: str | None = None, ordered: int = 0) -> dict:
+	"""Run a reference solution while authoring an exercise, to fill in expected outputs."""
+	frappe.only_for(["System Manager", "Moderator", "Course Creator", "Batch Evaluator"])
+	stdout, stderr = sql_runner.run_sql_or_throw(setup, input, code, cint(ordered))
+	return {"stdout": stdout, "stderr": stderr}
+
+
+@frappe.whitelist()
 def create_programming_exercise_submission(exercise: str, submission: str, code: str):
 	frappe.only_for(["Moderator", "Course Creator", "Batch Evaluator", "LMS Student"])
 	if submission == "new":
@@ -2890,7 +2942,10 @@ def run_submitted_code(exercise: str, code: str) -> tuple[list[dict], str]:
 	doc = frappe.get_doc("LMS Programming Exercise", exercise)
 	doc.check_permission("read")
 
-	outputs = run_test_cases(doc.language, code, doc.test_cases)
+	if doc.language == "SQL":
+		outputs = sql_runner.run_test_cases(doc, code)
+	else:
+		outputs = run_test_cases(doc.language, code, doc.test_cases)
 	scored = _score_outputs(doc, outputs)
 	rows = [
 		{
@@ -2951,10 +3006,14 @@ def get_exercise_status(test_cases: list):
 
 def update_test_cases(test_cases: list, submission: str):
 	frappe.db.delete("LMS Test Case Submission", {"parent": submission})
-	for row in test_cases:
+	# idx is set by hand: rows inserted on their own get 0, and the page matches
+	# a stored row to its exercise case by idx, so a hidden case's row could be
+	# shown as a visible one, with its input and expected output.
+	for idx, row in enumerate(test_cases, start=1):
 		test_case = frappe.new_doc("LMS Test Case Submission")
 		test_case.update(
 			{
+				"idx": idx,
 				"parent": submission,
 				"parenttype": "LMS Programming Exercise Submission",
 				"parentfield": "test_cases",

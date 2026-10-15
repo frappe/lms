@@ -2,7 +2,9 @@
 	<div
 		ref="root"
 		class="flex flex-col border-t border-outline-gray-1"
-		:class="open ? 'max-h-48 shrink-0' : 'shrink-0'"
+		:class="
+			open ? (tabular ? 'max-h-72 shrink-0' : 'max-h-48 shrink-0') : 'shrink-0'
+		"
 	>
 		<button
 			type="button"
@@ -42,15 +44,22 @@
 				v-else-if="lines.length"
 				class="px-3 pb-4 font-mono text-sm leading-relaxed"
 			>
-				<div
-					v-for="(line, index) in lines"
-					:key="index"
-					data-testid="console-line"
-					class="whitespace-pre-wrap break-words"
-					:class="lineClass(line)"
-				>
-					{{ line.text }}
-				</div>
+				<template v-for="(line, index) in lines" :key="index">
+					<ResultTable
+						v-if="tabular && line.stream === 'stdout' && line.text"
+						data-testid="console-line"
+						class="my-1.5"
+						:text="line.text"
+					/>
+					<div
+						v-else
+						data-testid="console-line"
+						class="whitespace-pre-wrap break-words"
+						:class="lineClass(line)"
+					>
+						{{ line.text }}
+					</div>
+				</template>
 			</div>
 
 			<div v-else class="flex items-center gap-x-2 px-3 pb-4">
@@ -74,6 +83,7 @@ export type ConsoleLine = {
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
 import { KeyboardShortcut, Spinner } from 'frappe-ui'
+import ResultTable from '@/components/ProgrammingExercises/ResultTable.vue'
 import {
 	sameBlock,
 	useKeyboardShortcuts,
@@ -84,8 +94,10 @@ const props = withDefaults(
 		lines: ConsoleLine[]
 		duration: number | null
 		running?: boolean
+		// Output lines are SQL result tables rather than plain text.
+		tabular?: boolean
 	}>(),
-	{ running: false }
+	{ running: false, tabular: false }
 )
 
 // Collapsed by default: the test cases below carry each run's outcome. An error
