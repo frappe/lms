@@ -48,115 +48,7 @@
 						>
 							{{ submissionResource.doc?.status }}
 						</Badge>
-<<<<<<< HEAD
 						<ShortcutTooltip
-=======
-					</div>
-
-					<div class="space-y-3 p-3.5">
-						<Alert
-							v-if="scheduleBlocked"
-							theme="amber"
-							:title="scheduleMessage"
-						/>
-						<template v-if="showUploader()">
-							<div
-								v-if="attachment"
-								data-testid="assignment-attachment"
-								class="flex h-9 items-center gap-x-2 rounded-4 border border-outline-gray-2 px-2.5"
-							>
-								<span
-									class="lucide-file-text size-4 shrink-0 text-ink-gray-6"
-								/>
-								<a
-									:href="safeUrl(attachment)"
-									v-external
-									class="min-w-0 flex-1 truncate text-base text-ink-gray-8 !no-underline"
-								>
-									{{ attachment.split('/').pop() }}
-								</a>
-								<Button
-									v-if="canModifyAssignment"
-									variant="ghost"
-									size="sm"
-									:aria-label="__('Remove submission')"
-									@click="removeSubmission()"
-								>
-									<template #icon>
-										<span class="lucide-x size-4" />
-									</template>
-								</Button>
-							</div>
-							<AssignmentUploadPrompt
-								v-else-if="canModifyAssignment"
-								:type="assignment.data.type"
-							>
-								<FileUploader
-									:fileTypes="getType()"
-									:private="true"
-									:validateFile="
-										(file) =>
-											validateFile(
-												file,
-												true,
-												(assignment.data?.type ?? '').toLowerCase()
-											)
-									"
-									@success="(file) => saveSubmission(file)"
-								>
-									<template
-										#default="{ uploading, progress, openFileSelector }"
-									>
-										<Button
-											variant="outline"
-											size="sm"
-											:loading="uploading"
-											@click="openFileSelector"
-										>
-											{{
-												uploading
-													? __('Uploading {0}%').format(progress)
-													: __('Upload File')
-											}}
-										</Button>
-									</template>
-								</FileUploader>
-							</AssignmentUploadPrompt>
-						</template>
-						<div
-							v-else-if="
-								assignment.data.type == 'URL' && (!scheduleBlocked || answer)
-							"
-						>
-							<FormControl
-								v-model="answer"
-								type="text"
-								placeholder="https://"
-								:label="__('Enter a URL')"
-								:disabled="!canModifyAssignment"
-							/>
-						</div>
-						<div v-else-if="!scheduleBlocked || answer">
-							<InputLabel
-								:id="answerLabelId"
-								:label="__('Write your answer here')"
-								class="mb-1.5"
-							/>
-							<RichTextEditor
-								:ariaLabelledby="answerLabelId"
-								:content="answer"
-								@change="(val) => (answer = val)"
-								:editable="canModifyAssignment"
-								:fixedMenu="true"
-								:uploadArgs="{
-									private: true,
-								}"
-								minHeight="7rem"
-							/>
-						</div>
-
-						<div
->>>>>>> 47ddc5b (fix: show saved assignment work to graders and after schedule end)
 							v-if="
 								(canModifyAssignment || canGradeSubmission) &&
 								(!scheduleBlocked || canGradeSubmission)
@@ -192,13 +84,16 @@
 					{{ __('Feel free to make edits to your submission if needed.') }}
 				</div>
 				<div
-					v-if="showUploader() && canModifyAssignment && !scheduleBlocked"
+					v-if="showUploader() && (attachment || canModifyAssignment)"
 					class="border rounded-lg p-3"
 				>
-					<div class="font-semibold mb-2">
+					<div v-if="canModifyAssignment" class="font-semibold mb-2">
 						{{ __('Upload Assignment') }}
 					</div>
-					<div class="text-ink-gray-5 text-sm mt-1 mb-4">
+					<div
+						v-if="canModifyAssignment"
+						class="text-ink-gray-5 text-sm mt-1 mb-4"
+					>
 						{{
 							__('You can only upload {0} files').format(assignment.data.type)
 						}}
@@ -251,7 +146,11 @@
 						</div>
 					</div>
 				</div>
-				<div v-else-if="assignment.data.type == 'URL' && !scheduleBlocked">
+				<div
+					v-else-if="
+						assignment.data.type == 'URL' && (!scheduleBlocked || answer)
+					"
+				>
 					<div class="text-p-sm-medium text-ink-gray-7 mb-1.5">
 						{{ __('Enter a URL') }}
 					</div>
@@ -262,7 +161,7 @@
 						:disabled="!canModifyAssignment"
 					/>
 				</div>
-				<div v-else-if="!showUploader() && !scheduleBlocked">
+				<div v-else-if="!showUploader() && (!scheduleBlocked || answer)">
 					<div class="text-sm mb-2 text-ink-gray-7">
 						{{ __('Write your answer here') }}
 					</div>

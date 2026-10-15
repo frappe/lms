@@ -1,30 +1,21 @@
-// Guards the assignment card: skeleton, brief, and the per-type answer input.
-// Came with this branch's assignment block restyle as an assessment card.
-// Added on feat/assessment-visual-redesign to pin the card's states.
 import { flushPromises, mount } from '@vue/test-utils'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { defineComponent, h, reactive } from 'vue'
 
 const state = vi.hoisted(() => ({
 	assignment: null as Record<string, unknown> | null,
-	loading: false,
 	submission: null as { doc: Record<string, unknown> | null } | null,
 }))
 
 vi.mock('frappe-ui', () => {
 	const passthrough = (tag: string) =>
 		defineComponent({
-			inheritAttrs: true,
 			setup:
 				(_p, { slots }) =>
 				() =>
 					h(tag, slots.default?.()),
 		})
 	return {
-		Alert: defineComponent({
-			props: ['title'],
-			setup: (props) => () => h('div', props.title),
-		}),
 		Badge: passthrough('span'),
 		Button: defineComponent({
 			setup:
@@ -38,6 +29,7 @@ vi.mock('frappe-ui', () => {
 				() =>
 					h(
 						'div',
+						{ 'data-testid': 'file-uploader' },
 						slots.default?.({
 							uploading: false,
 							progress: 0,
@@ -46,24 +38,20 @@ vi.mock('frappe-ui', () => {
 					),
 		}),
 		FormControl: defineComponent({
-			props: ['placeholder', 'modelValue', 'disabled'],
+			props: ['modelValue', 'disabled'],
 			setup: (props) => () =>
 				h('input', {
 					'data-testid': 'url-input',
-					placeholder: props.placeholder,
 					value: props.modelValue,
 					disabled: props.disabled,
 				}),
 		}),
-		Skeleton: defineComponent({ render: () => h('div') }),
 		Tooltip: passthrough('div'),
-		KeyboardShortcut: passthrough('span'),
 		call: vi.fn(),
 		toast: { error: vi.fn(), success: vi.fn() },
 		createResource: () =>
 			reactive({
 				data: state.assignment,
-				loading: state.loading,
 				reload: vi.fn(),
 			}),
 		createDocumentResource: () => {
@@ -78,11 +66,11 @@ vi.mock('frappe-ui', () => {
 	}
 })
 
-vi.mock('@/router', () => ({
-	default: {
+vi.mock('vue-router', () => ({
+	useRouter: () => ({
 		push: vi.fn(),
 		currentRoute: { value: { name: 'Lesson', query: {} } },
-	},
+	}),
 }))
 vi.mock('@/components/RichTextEditor.vue', () => ({
 	default: defineComponent({
@@ -144,71 +132,10 @@ const learnerSubmission = (fields: Record<string, unknown>) => ({
 
 beforeEach(() => {
 	state.assignment = null
-	state.loading = false
 	state.submission = null
 })
 
 describe('the assignment card', () => {
-	it('shows a skeleton card while the assignment loads', async () => {
-		state.loading = true
-		const wrapper = await mountAssignment()
-
-		expect(wrapper.find('[data-testid="assignment-skeleton"]').exists()).toBe(
-			true
-		)
-		expect(wrapper.text()).toContain('Assignment')
-	})
-
-	it('renders the brief and a drop zone for a file assignment', async () => {
-		state.assignment = {
-			title: 'Temperature Converter',
-			type: 'PDF',
-			question: '<p>Convert Celsius.</p>',
-		}
-		const wrapper = await mountAssignment()
-
-		expect(wrapper.find('[data-testid="assignment-skeleton"]').exists()).toBe(
-			false
-		)
-		expect(wrapper.text()).toContain('Temperature Converter')
-		expect(wrapper.text()).toContain('Brief')
-		expect(wrapper.text()).toContain('Convert Celsius.')
-		expect(wrapper.find('[data-testid="assignment-dropzone"]').exists()).toBe(
-			true
-		)
-		expect(wrapper.find('[data-testid="url-input"]').exists()).toBe(false)
-		const labels = wrapper.findAll('button').map((b) => b.text())
-		expect(labels).toContain('Submit')
-		expect(labels).not.toContain('Save')
-	})
-
-	it('draws the drop zone with the artboard 10px corners', async () => {
-		state.assignment = {
-			title: 'Temperature Converter',
-			type: 'PDF',
-			question: '<p>Convert Celsius.</p>',
-		}
-		const wrapper = await mountAssignment()
-
-		const zone = wrapper.get('[data-testid="assignment-dropzone"]')
-		expect(zone.classes()).toContain('rounded-5')
-		expect(zone.classes()).toContain('border-outline-gray-2')
-	})
-
-	it('renders only the URL input for a URL assignment', async () => {
-		state.assignment = {
-			title: 'Portfolio',
-			type: 'URL',
-			question: '<p>Link your repo.</p>',
-		}
-		const wrapper = await mountAssignment()
-
-		expect(wrapper.find('[data-testid="url-input"]').exists()).toBe(true)
-		expect(wrapper.find('[data-testid="assignment-dropzone"]').exists()).toBe(
-			false
-		)
-	})
-
 	it("shows an evaluator the learner's attachment, without upload or remove", async () => {
 		state.assignment = { title: 'Report', type: 'PDF', question: '<p>Q</p>' }
 		const wrapper = await mountAssignment(
@@ -216,24 +143,22 @@ describe('the assignment card', () => {
 			learnerSubmission({ assignment_attachment: '/private/files/report.pdf' })
 		)
 
-		const file = wrapper.get('[data-testid="assignment-attachment"]')
+		const file = wrapper.get('a[href="/private/files/report.pdf"]')
 		expect(file.text()).toContain('report.pdf')
-		expect(file.find('button').exists()).toBe(false)
-		expect(wrapper.find('[data-testid="assignment-dropzone"]').exists()).toBe(
+		expect(wrapper.find('[aria-label="Remove submission"]').exists()).toBe(
 			false
 		)
+		expect(wrapper.find('[data-testid="file-uploader"]').exists()).toBe(false)
+		expect(wrapper.text()).not.toContain('Upload Assignment')
 	})
 
-	it('shows an evaluator no empty drop zone when nothing was attached', async () => {
+	it('shows an evaluator no empty upload box when nothing was attached', async () => {
 		state.assignment = { title: 'Report', type: 'PDF', question: '<p>Q</p>' }
 		const wrapper = await mountAssignment(evaluator, learnerSubmission({}))
 
-		expect(wrapper.find('[data-testid="assignment-attachment"]').exists()).toBe(
-			false
-		)
-		expect(wrapper.find('[data-testid="assignment-dropzone"]').exists()).toBe(
-			false
-		)
+		expect(wrapper.find('a[href]').exists()).toBe(false)
+		expect(wrapper.find('[data-testid="file-uploader"]').exists()).toBe(false)
+		expect(wrapper.text()).not.toContain('Upload Assignment')
 	})
 
 	it('still shows the URL answer read-only after the schedule ended', async () => {
