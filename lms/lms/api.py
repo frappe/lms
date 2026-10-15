@@ -21,6 +21,7 @@ from frappe.translate import get_all_translations
 from frappe.utils import (
 	add_days,
 	cint,
+	cstr,
 	date_diff,
 	flt,
 	format_date,
