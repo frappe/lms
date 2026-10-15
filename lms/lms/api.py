@@ -42,13 +42,8 @@ from lms.lms.doctype.course_lesson.course_lesson import (
 	save_progress,
 )
 from lms.lms.doctype.lms_certificate.lms_certificate import evaluates_certificate, get_latest_certificate
-<<<<<<< HEAD
 from lms.lms.html_sanitizer import sanitize_rich_text
 from lms.lms.permissions import is_site_administrator
-=======
-from lms.lms.permissions import is_site_administrator
-from lms.lms.sidebar import LEGACY_VISIBILITY_FIELDS, ROW_FIELDS, get_sidebar_rows
->>>>>>> 3fb4b93 (fix: show closed job posts only to their poster and staff)
 from lms.lms.utils import (
 	LMS_ROLES,
 	attach_file_to_doc,
