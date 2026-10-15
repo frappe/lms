@@ -12703,3 +12703,6 @@ msgstr "So sánh đúng thứ tự các dòng. Bỏ chọn để chấp nhận m
 
 msgid "CREATE TABLE and INSERT statements run before each test case. Learners can read it."
 msgstr "Các câu lệnh CREATE TABLE và INSERT chạy trước mỗi ca kiểm thử. Học viên xem được phần này."
+
+msgid "Install {0}"
+msgstr "Cài đặt {0}"

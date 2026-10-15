@@ -108,19 +108,6 @@
 						/>
 					</button>
 				</Tooltip>
-				<Tooltip :text="__('Powered by Frappe Learning')">
-					<a
-						href="https://frappe.io/learning"
-						v-external
-						class="flex"
-						:aria-label="__('Powered by Frappe Learning')"
-					>
-						<span
-							class="lucide-zap size-4 text-ink-gray-7 cursor-pointer"
-							aria-hidden="true"
-						/>
-					</a>
-				</Tooltip>
 			</div>
 			<SidebarCollapseToggle
 				class="mt-1"
