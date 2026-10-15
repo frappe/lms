@@ -1369,7 +1369,7 @@ msgstr "Sở thích nghề nghiệp Chi tiết"
 
 #: frontend/src/components/ProgrammingExercises/ExerciseTestCases.vue:40
 msgid "Case {0}"
-msgstr "Case {0}"
+msgstr "Ca {0}"
 
 #. Option for the 'Attire Preference' (Select) field in DocType 'User'
 #: lms/fixtures/custom_field.json
@@ -3867,7 +3867,7 @@ msgstr "Mở rộng"
 
 #: frontend/src/components/ProgrammingExercises/ExerciseTestCases.vue:68
 msgid "Expected"
-msgstr "Dự kiến"
+msgstr "Kết quả mong đợi"
 
 #. Label of the expected_output (Small Text) field in DocType 'LMS Test Case'
 #. Label of the expected_output (Small Text) field in DocType 'LMS Test Case
@@ -7893,7 +7893,7 @@ msgstr "Thông tin riêng gồm điểm số và tùy chọn môi trường làm
 #: frontend/src/components/Assessment/AssessmentBlockPreview.vue:126
 #: frontend/src/components/ProgrammingExercises/ExerciseWorkspace.vue:57
 msgid "Problem"
-msgstr "Vấn đề"
+msgstr "Đề bài"
 
 #. Label of the problem_statement (Text Editor) field in DocType 'LMS
 #. Programming Exercise'
@@ -12602,4 +12602,104 @@ msgstr "{} đã đạt"
 msgid "{} Published"
 msgstr "{} đã xuất bản"
 
+msgid "Add the database setup first."
+msgstr "Hãy nhập phần tạo cơ sở dữ liệu trước."
 
+msgid "Database"
+msgstr "Cơ sở dữ liệu"
+
+msgid "Database Setup"
+msgstr "Tạo cơ sở dữ liệu"
+
+msgid "Database Setup is required for a SQL exercise."
+msgstr "Bài tập SQL bắt buộc phải có phần tạo cơ sở dữ liệu."
+
+msgid "Exercise setup failed: {0}"
+msgstr "Lỗi khi tạo dữ liệu của bài tập: {0}"
+
+msgid "Expected outputs filled in."
+msgstr "Đã điền kết quả mong đợi."
+
+msgid "Extra data"
+msgstr "Dữ liệu thêm"
+
+msgid "Fill expected outputs"
+msgstr "Điền kết quả mong đợi"
+
+msgid "Loading tables…"
+msgstr "Đang tải các bảng…"
+
+msgid "No output — see the error in Console"
+msgstr "Không có kết quả — xem lỗi ở Bảng điều khiển phía trên"
+
+msgid "No rows"
+msgstr "Không có dòng nào"
+
+msgid "Reference Solution"
+msgstr "Lời giải mẫu"
+
+msgid "Row order matters"
+msgstr "Chấm cả thứ tự các dòng"
+
+msgid "Row Order Matters"
+msgstr "Chấm cả thứ tự các dòng"
+
+msgid "Show the SQL that creates these tables"
+msgstr "Xem câu lệnh SQL tạo các bảng này"
+
+msgid "Showing {0} of {1} rows"
+msgstr "Hiển thị {0} trên {1} dòng"
+
+msgid "Test case {0} does not exist."
+msgstr "Ca kiểm thử {0} không tồn tại."
+
+msgid "Test case {0}: {1}"
+msgstr "Ca kiểm thử {0}: {1}"
+
+msgid "The SQL sandbox could not be reached, so nothing was run. Please try again."
+msgstr "Không kết nối được máy chấm SQL nên chưa chạy được. Vui lòng thử lại."
+
+msgid "The SQL sandbox could not be reached. Please try again."
+msgstr "Không kết nối được máy chấm SQL. Vui lòng thử lại."
+
+msgid "The SQL sandbox is not configured on this site."
+msgstr "Máy chấm SQL chưa được cấu hình trên hệ thống."
+
+msgid "The tables are already created for you. Write only the query that answers the question."
+msgstr "Các bảng đã được tạo sẵn. Em chỉ cần viết câu truy vấn trả lời yêu cầu của đề bài."
+
+msgid "This exercise is not a SQL exercise."
+msgstr "Đây không phải bài tập SQL."
+
+msgid "Write a query to run."
+msgstr "Hãy viết câu truy vấn rồi chạy."
+
+msgid "You can only read and change the tables of this exercise."
+msgstr "Em chỉ được đọc và sửa các bảng của bài tập này."
+
+msgid "Your SQL ran but returned no result. End it with a SELECT."
+msgstr "Câu lệnh đã chạy nhưng không trả về kết quả. Hãy kết thúc bằng một câu SELECT."
+
+msgid "Your query returned more than {0} rows."
+msgstr "Câu truy vấn trả về nhiều hơn {0} dòng."
+
+msgid "Your query took too long and was stopped."
+msgstr "Câu truy vấn chạy quá lâu nên đã bị dừng."
+
+msgid "Your query's result is too large."
+msgstr "Kết quả câu truy vấn quá lớn."
+
+msgid "{0} rows"
+msgstr "{0} dòng"
+
+msgid "CREATE TABLE and INSERT statements run on a fresh database before every test case. Learners can read them. A test case’s input is extra SQL run after them."
+msgstr "Các câu lệnh CREATE TABLE và INSERT được chạy trên một cơ sở dữ liệu mới trước mỗi ca kiểm thử. Học viên xem được phần này. Input của mỗi ca kiểm thử là SQL bổ sung, chạy sau phần này."
+
+msgid "Runs this query against every test case and writes its result as the expected output. It is not saved."
+msgstr "Chạy câu truy vấn này với từng ca kiểm thử và ghi kết quả làm kết quả mong đợi. Lời giải mẫu không được lưu lại."
+
+msgid "Compare rows in order. Leave unchecked to accept any row order."
+msgstr "So sánh đúng thứ tự các dòng. Bỏ chọn để chấp nhận mọi thứ tự."
+
+msgid "CREATE TABLE and INSERT statements run before each test case. Learners can read it."
+msgstr "Các câu lệnh CREATE TABLE và INSERT chạy trước mỗi ca kiểm thử. Học viên xem được phần này."
