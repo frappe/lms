@@ -134,21 +134,18 @@ describe('NewMemberModal: add mode', () => {
 		expect(closeMock).not.toHaveBeenCalled()
 	})
 
-	it('inserts the user then assigns only the selected roles, emits created, closes', async () => {
+	it('adds the member then assigns only the selected roles, emits created, closes', async () => {
 		const w = mountModal()
 		await open(w)
-		callMock.mockResolvedValueOnce({ name: 'jane@doe.com' }) // insert
+		callMock.mockResolvedValueOnce({ name: 'jane@doe.com' }) // add_member
 		await w.get('[data-testid="field-Email"]').setValue('jane@doe.com')
 		await w.get('[data-testid="role-Moderator"]').trigger('click')
 		await clickAction(w, 'Add')
 
-		expect(callMock).toHaveBeenCalledWith('frappe.client.insert', {
-			doc: {
-				doctype: 'User',
-				email: 'jane@doe.com',
-				first_name: undefined,
-				last_name: undefined,
-			},
+		expect(callMock).toHaveBeenCalledWith('lms.lms.api.add_member', {
+			email: 'jane@doe.com',
+			first_name: undefined,
+			last_name: undefined,
 		})
 		const roleCalls = saveRoleCalls()
 		expect(roleCalls).toHaveLength(1)
@@ -186,7 +183,7 @@ describe('NewMemberModal: add mode', () => {
 		).toBe('false')
 	})
 
-	it('toasts on insert failure without closing', async () => {
+	it('toasts when adding fails, without closing', async () => {
 		const w = mountModal()
 		await open(w)
 		callMock.mockRejectedValueOnce({ messages: ['boom'] })
