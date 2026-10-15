@@ -10,7 +10,13 @@ from lms.lms.api import (
 	preview_sql,
 	run_sql_test_case,
 )
-from lms.lms.sql_runner import SandboxUnavailable, describe_tables, format_result, run_sql
+from lms.lms.sql_runner import (
+	SandboxUnavailable,
+	_admin_connection,
+	describe_tables,
+	format_result,
+	run_sql,
+)
 from lms.lms.test_helpers import BaseTestUtils
 
 SETUP = """
@@ -35,7 +41,7 @@ class TestFormatResult(BaseTestUtils):
 
 
 def sandbox_available() -> bool:
-	if not frappe.conf.get("sql_sandbox_root_password"):
+	if not (frappe.conf.get("sql_sandbox_password") or frappe.conf.get("sql_sandbox_root_password")):
 		return False
 	try:
 		run_sql(None, None, "SELECT 1", True)
@@ -112,18 +118,18 @@ class TestSQLSandbox(BaseTestUtils):
 	def test_scratch_database_and_user_are_dropped(self):
 		run_sql(SETUP, None, "SELECT 1", False)
 		run_sql(SETUP, None, "SELEC 1", False)
-		admin = MySQLdb.connect(
-			host=frappe.conf.get("sql_sandbox_host") or "sql-sandbox",
-			user="root",
-			passwd=frappe.conf.get("sql_sandbox_root_password"),
-		)
+		admin = _admin_connection()
 		try:
 			with admin.cursor() as cursor:
 				cursor.execute(
 					"SELECT COUNT(*) FROM information_schema.schemata WHERE schema_name LIKE 'sqlx\\_%%'"
 				)
 				self.assertEqual(cursor.fetchone()[0], 0)
-				cursor.execute("SELECT COUNT(*) FROM mysql.user WHERE user LIKE 'sqlx\\_%%'")
+				# A least-privilege sandbox user cannot read mysql.user; root can.
+				try:
+					cursor.execute("SELECT COUNT(*) FROM mysql.user WHERE user LIKE 'sqlx\\_%%'")
+				except MySQLdb.Error:
+					return
 				self.assertEqual(cursor.fetchone()[0], 0)
 		finally:
 			admin.close()

@@ -7,7 +7,10 @@ user, then the learner's code; the last result set is the output. The database
 and user are dropped afterwards, whatever happened.
 
 The sandbox is configured in site_config.json:
-	sql_sandbox_host, sql_sandbox_port, sql_sandbox_root_password"""
+	sql_sandbox_host, sql_sandbox_port, sql_sandbox_user, sql_sandbox_password
+The user needs CREATE USER, PROCESS and CONNECTION ADMIN, plus all privileges
+WITH GRANT OPTION on databases named sqlx_*; it defaults to root, whose password may also
+be given as sql_sandbox_root_password."""
 
 import secrets
 from contextlib import contextmanager
@@ -112,12 +115,13 @@ def _scratch():
 
 
 def _sandbox_settings() -> dict:
-	password = frappe.conf.get("sql_sandbox_root_password")
+	password = frappe.conf.get("sql_sandbox_password") or frappe.conf.get("sql_sandbox_root_password")
 	if not password:
 		frappe.throw(_("The SQL sandbox is not configured on this site."))
 	return {
 		"host": frappe.conf.get("sql_sandbox_host") or "sql-sandbox",
 		"port": int(frappe.conf.get("sql_sandbox_port") or 3306),
+		"user": frappe.conf.get("sql_sandbox_user") or "root",
 		"password": password,
 	}
 
@@ -142,7 +146,8 @@ def _connect(user: str, password: str, db: str | None = None):
 
 def _admin_connection():
 	try:
-		return _connect("root", _sandbox_settings()["password"])
+		settings = _sandbox_settings()
+		return _connect(settings["user"], settings["password"])
 	except MySQLdb.Error as e:
 		raise SandboxUnavailable from e
 
