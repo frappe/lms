@@ -629,6 +629,10 @@
 			"report",
 			"export"
 		],
+		"Batch Evaluator#1": [
+			"read",
+			"write"
+		],
 		"Course Creator#0": [
 			"read",
 			"write",
@@ -652,6 +656,10 @@
 			"share",
 			"report",
 			"export"
+		],
+		"Moderator#1": [
+			"read",
+			"write"
 		]
 	},
 	"LMS Live Class Participant": {

@@ -140,3 +140,4 @@ lms.patches.v2_0.backfill_lesson_assessment_placements #22-09-2026
 lms.patches.v2_0.make_certificate_shares_read_only
 lms.patches.v2_0.clean_lesson_content
 lms.patches.v2_0.limit_moderator_user_access
+execute:from lms.patches.v2_0.reconcile_custom_docperm_permlevels import reconcile; reconcile(["LMS Live Class"])
