@@ -164,7 +164,7 @@ const updateProfile = createResource({
 
 const validateMandatoryFields = () => {
 	const missingFields = []
-	if (!profile.first_name) missingFields.push(__('First Name'))
+	if (!profile.first_name.trim()) missingFields.push(__('First Name'))
 	if (missingFields.length) {
 		toast.error(
 			__('Please fill the mandatory fields: {0}').format(
