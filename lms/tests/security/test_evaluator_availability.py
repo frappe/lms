@@ -505,7 +505,11 @@ class TestEvaluatorCalendarSettings(BaseTestUtils):
 			frappe.flags.in_import = original_in_import
 
 		settings = frappe.get_doc("Google Settings")
-		cls.original_google_settings = (settings.enable, settings.client_id)
+		cls.original_google_settings = (
+			settings.enable,
+			settings.client_id,
+			settings.get_password("client_secret", raise_exception=False),
+		)
 		settings.enable = 1
 		settings.client_id = "test-client-id"
 		settings.client_secret = "test-client-secret"
@@ -517,7 +521,7 @@ class TestEvaluatorCalendarSettings(BaseTestUtils):
 	def tearDownClass(cls):
 		frappe.db.delete("Google Calendar", {"user": ("in", [cls.EVALUATOR, cls.OTHER])})
 		settings = frappe.get_doc("Google Settings")
-		settings.enable, settings.client_id = cls.original_google_settings
+		settings.enable, settings.client_id, settings.client_secret = cls.original_google_settings
 		# nosemgrep: lms-unjustified-ignore-permissions - test fixture setup
 		settings.save(ignore_permissions=True)
 		frappe.db.commit()
