@@ -1,5 +1,5 @@
 <template>
-	<FormShell :title="__('Make an Announcement')" size="xl" @close="close">
+	<FormShell :title="__('New Announcement')" size="xl" @close="close">
 		<template #default>
 			<div v-if="loadingBatch" class="p-4 text-base text-ink-gray-6">
 				{{ __('Loading...') }}
@@ -45,7 +45,7 @@
 			>
 				<HeaderButton
 					data-testid="announcement-save"
-					:label="__('Save')"
+					:label="__('Send')"
 					variant="solid"
 					:loading="announcementResource.loading"
 					@click="makeAnnouncement()"

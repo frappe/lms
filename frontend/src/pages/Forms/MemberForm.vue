@@ -1,6 +1,6 @@
 <template>
 	<FormShell
-		:title="isEdit ? __('Edit Member') : __('Add New Member')"
+		:title="isEdit ? __('Edit Member') : __('New Member')"
 		size="lg"
 		@close="close"
 	>
@@ -67,7 +67,7 @@
 			<div v-if="!refusal" class="flex items-center justify-end">
 				<HeaderButton
 					data-testid="member-save"
-					:label="__('Save')"
+					:label="isEdit ? __('Save') : __('Create')"
 					variant="solid"
 					:loading="submitting"
 					:disabled="isEdit && !memberRow"

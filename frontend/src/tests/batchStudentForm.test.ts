@@ -232,7 +232,7 @@ describe('BatchStudentForm as a route', () => {
 
 		expect(wrapper.text()).toContain('BATCH')
 		expect(fields(wrapper).exists()).toBe(true)
-		expect(wrapper.html()).toContain('Enroll a Student')
+		expect(wrapper.html()).toContain('Enroll Student')
 	})
 
 	it('refuses a visitor who is neither moderator nor evaluator', async () => {

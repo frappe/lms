@@ -27,8 +27,9 @@ const listResource = {
 // resource). vi.hoisted because vi.mock's factory is hoisted above ALL
 // top-level code, so a bare `vi.fn()` referenced inside it would throw
 // "Cannot access before initialization".
-const { createListResourceMock } = vi.hoisted(() => ({
+const { createListResourceMock, captureMock } = vi.hoisted(() => ({
 	createListResourceMock: vi.fn(),
+	captureMock: vi.fn(),
 }))
 createListResourceMock.mockReturnValue(listResource)
 
@@ -77,7 +78,13 @@ vi.mock('@/stores/user', () => ({ usersStore: () => ({ userResource }) }))
 
 vi.mock('frappe-ui', () => ({
 	createListResource: createListResourceMock,
-	createResource: () => ({ data: [], reload: vi.fn(), loading: false }),
+	createResource: () => ({
+		data: [],
+		reload: vi.fn(),
+		update: vi.fn(),
+		fetch: vi.fn(),
+		loading: false,
+	}),
 	call: vi.fn(),
 	toast: { success: vi.fn(), error: vi.fn() },
 	Dialog: {
@@ -111,7 +118,7 @@ vi.mock('frappe-ui', () => ({
 }))
 
 vi.mock('frappe-ui/frappe', () => ({
-	useTelemetry: () => ({ capture: vi.fn() }),
+	useTelemetry: () => ({ capture: captureMock }),
 	useOnboarding: () => ({ updateOnboardingStep: vi.fn() }),
 }))
 
@@ -201,6 +208,7 @@ describe('NewCourseForm as a route', () => {
 	beforeEach(() => {
 		insertSubmit.mockReset()
 		createListResourceMock.mockClear()
+		captureMock.mockReset()
 		userResource.data = { ...moderator }
 		Object.defineProperty(window, 'innerWidth', {
 			value: 1024,
@@ -226,6 +234,27 @@ describe('NewCourseForm as a route', () => {
 		await mountForm(router, moderator)
 		const warnings = warn.mock.calls.map((args) => String(args[0]))
 		expect(warnings.filter((w) => w.includes('modelValue'))).toEqual([])
+	})
+
+	it('reports where it was opened from, and what was filled when left', async () => {
+		const { setFormSource } = await import('@/composables/formTracking')
+		setFormSource('onboarding')
+		const router = makeRouter()
+		await router.push({ name: 'NewCourse' })
+		const wrapper = await mountForm(router, moderator)
+
+		expect(captureMock).toHaveBeenCalledWith('course_form_opened', {
+			source: 'onboarding',
+		})
+
+		await wrapper.get('input').setValue('My course')
+		wrapper.unmount()
+
+		const closed = captureMock.mock.calls.find(
+			([event]) => event === 'course_form_closed'
+		)
+		// The opener is prefilled as instructor; empty fields are left out.
+		expect(closed?.[1].filled_fields).toEqual(['title', 'instructors'])
 	})
 
 	it('refuses to render the form for a user who cannot create courses', async () => {

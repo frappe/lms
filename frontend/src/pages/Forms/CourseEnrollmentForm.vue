@@ -1,5 +1,5 @@
 <template>
-	<FormShell :title="__('Enroll a Student')" size="xl" @close="close">
+	<FormShell :title="__('Enroll Student')" size="xl" @close="close">
 		<template #default>
 			<div v-if="loadingCourse" class="p-4 text-base text-ink-gray-6">
 				{{ __('Loading...') }}
@@ -38,7 +38,7 @@
 			>
 				<HeaderButton
 					data-testid="course-enrollment-save"
-					:label="__('Save')"
+					:label="__('Enroll')"
 					variant="solid"
 					:loading="enrollment.loading"
 					@click="enrollStudent()"

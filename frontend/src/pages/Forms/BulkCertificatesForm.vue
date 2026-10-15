@@ -58,7 +58,7 @@
 			>
 				<HeaderButton
 					data-testid="bulk-certificates-save"
-					:label="__('Save')"
+					:label="__('Generate')"
 					variant="solid"
 					:loading="generating"
 					@click="generateCertificates()"

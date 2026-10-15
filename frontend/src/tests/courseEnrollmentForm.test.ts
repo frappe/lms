@@ -204,7 +204,7 @@ describe('CourseEnrollmentForm as a route', () => {
 
 		expect(wrapper.text()).toContain('COURSE')
 		expect(fields(wrapper).exists()).toBe(true)
-		expect(wrapper.html()).toContain('Enroll a Student')
+		expect(wrapper.html()).toContain('Enroll Student')
 	})
 
 	it('fetches the course itself, keyed off the route param', async () => {

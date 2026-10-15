@@ -13,7 +13,12 @@
 		<template #default>
 			<div class="flex flex-col gap-4">
 				<div>
-					<FormControl v-model="topic.title" :label="__('Title')" type="text" />
+					<FormControl
+						v-model="topic.title"
+						:label="__('Title')"
+						type="text"
+						variant="outline"
+					/>
 				</div>
 				<div>
 					<div class="mb-1.5 text-p-sm-medium text-ink-gray-7">

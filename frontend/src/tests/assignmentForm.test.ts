@@ -232,7 +232,7 @@ describe('AssignmentForm as a route', () => {
 			params: { assignmentID: 'new' },
 		})
 		const wrapper = await mountForm(router, moderator)
-		expect(wrapper.html()).toContain('Create an Assignment')
+		expect(wrapper.html()).toContain('New Assignment')
 		expect(wrapper.find('[data-testid="assignment-fields"]').exists()).toBe(
 			true
 		)

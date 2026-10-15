@@ -18,7 +18,7 @@
 				class="h-1 w-full rounded-full bg-surface-gray-2 overflow-hidden mt-2"
 			>
 				<div
-					class="h-full bg-surface-green-3 transition-all"
+					class="h-full bg-surface-gray-10 transition-all"
 					:style="{ width: `${displayedProgress}%` }"
 				/>
 			</div>
