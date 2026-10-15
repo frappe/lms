@@ -1,5 +1,5 @@
 import { createApp, h, ref } from 'vue'
-import { Select } from 'frappe-ui'
+import Select from 'frappe-ui-select'
 import './signup-select.css'
 
 const nativeSelect = document.querySelector('#user_category')
