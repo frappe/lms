@@ -57,6 +57,11 @@ class TestJobVisibility(BaseTestUtils):
 		finally:
 			frappe.set_user("Administrator")
 
+	def _set_guest_access(self, value):
+		"""`guest_access_allowed` reads through `frappe.get_cached_value`, so clear the cache after the write."""
+		frappe.db.set_single_value("LMS Settings", "allow_guest_access", value)
+		frappe.clear_document_cache("LMS Settings", "LMS Settings")
+
 	def as_user(self, user, fn, *args, **kwargs):
 		frappe.set_user(user)
 		try:
@@ -142,8 +147,8 @@ class TestJobVisibility(BaseTestUtils):
 
 	def test_guests_see_no_jobs_when_guest_access_is_off(self):
 		previous = frappe.db.get_single_value("LMS Settings", "allow_guest_access")
-		frappe.db.set_single_value("LMS Settings", "allow_guest_access", 0)
-		self.addCleanup(frappe.db.set_single_value, "LMS Settings", "allow_guest_access", previous)
+		self._set_guest_access(0)
+		self.addCleanup(self._set_guest_access, previous)
 
 		self.assertEqual(self.listed("Guest", "Open"), set())
 		count = self.as_user("Guest", get_job_opportunities_count, filters=frappe._dict(status="Open"))

@@ -35,6 +35,7 @@ from frappe.utils import (
 	to_timedelta,
 	validate_email_address,
 )
+from frappe.utils.dateutils import get_period_ending
 from frappe.utils.html_utils import sanitize_html
 from pypika import Case
 from pypika import functions as fn
@@ -814,8 +815,7 @@ def get_lesson_count(course: str) -> int:
 
 
 STATISTICS_CHARTS = ("New Signups", "Course Enrollments", "Certification")
-# Days in one period of each timegrain, rounded up, so a range stays within MAX_CHART_PERIODS rows.
-CHART_TIMEGRAIN_DAYS = {"Daily": 1, "Weekly": 7, "Monthly": 31, "Quarterly": 92, "Yearly": 366}
+CHART_TIMEGRAINS = ("Daily", "Weekly", "Monthly", "Quarterly", "Yearly")
 MAX_CHART_PERIODS = 366
 
 
@@ -832,7 +832,7 @@ def get_chart_data(
 	if not isinstance(chart_name, str) or chart_name not in STATISTICS_CHARTS:
 		frappe.throw(_("This chart is not available."), frappe.PermissionError)
 
-	if timegrain not in CHART_TIMEGRAIN_DAYS:
+	if timegrain not in CHART_TIMEGRAINS:
 		frappe.throw(_("Show the chart by day, week, month, quarter or year."))
 
 	try:
@@ -875,10 +875,21 @@ def get_chart_date_range(from_date: str, to_date: str, timegrain: str = "Daily")
 	if days < 0:
 		frappe.throw(_("Choose an end date on or after the start date."))
 	# Each period in the range becomes a row, so a wide range means a slow, large response.
-	if days > MAX_CHART_PERIODS * CHART_TIMEGRAIN_DAYS[timegrain]:
+	if count_chart_periods(from_date, to_date, timegrain) > MAX_CHART_PERIODS:
 		frappe.throw(_("Choose a shorter date range, or show the chart by a longer period."))
 
 	return from_date, to_date
+
+
+def count_chart_periods(from_date, to_date, timegrain: str) -> int:
+	"""The rows frappe's get_result makes for this range: one per period end, from the period
+	holding from_date to the one holding to_date."""
+	start = get_period_ending(from_date, timegrain)
+	end = get_period_ending(to_date, timegrain)
+	if timegrain in ("Daily", "Weekly"):
+		return (end - start).days // (1 if timegrain == "Daily" else 7) + 1
+	months = (end.year - start.year) * 12 + end.month - start.month
+	return months // {"Monthly": 1, "Quarterly": 3, "Yearly": 12}[timegrain] + 1
 
 
 def get_chart_filters(doctype: str, chart: object, datefield: str, from_date: str, to_date: str):

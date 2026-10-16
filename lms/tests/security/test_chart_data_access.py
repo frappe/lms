@@ -49,6 +49,11 @@ class TestChartDataAccess(BaseTestUtils):
 		chart.insert()
 		return chart.name
 
+	def _set_guest_access(self, value):
+		"""`guest_access_allowed` reads through `frappe.get_cached_value`, so clear the cache after the write."""
+		frappe.db.set_single_value("LMS Settings", "allow_guest_access", value)
+		frappe.clear_document_cache("LMS Settings", "LMS Settings")
+
 	def _as(self, user):
 		frappe.set_user(user)
 		self.addCleanup(frappe.set_user, "Administrator")
@@ -118,6 +123,15 @@ class TestChartDataAccess(BaseTestUtils):
 		with self.assertRaises(frappe.ValidationError):
 			get_chart_data(chart_name="New Signups", from_date=nowdate(), to_date=add_days(nowdate(), -1))
 
+	def test_daily_points_stop_at_the_limit(self):
+		self._as("Guest")
+		rows = get_chart_data(
+			chart_name="New Signups", from_date=add_days(nowdate(), -365), to_date=nowdate()
+		)
+		self.assertEqual(len(rows), 366)
+		with self.assertRaises(frappe.ValidationError):
+			get_chart_data(chart_name="New Signups", from_date=add_days(nowdate(), -366), to_date=nowdate())
+
 	def test_a_year_of_daily_rows_is_served(self):
 		self._as("Guest")
 		rows = get_chart_data(
@@ -132,8 +146,8 @@ class TestChartDataAccess(BaseTestUtils):
 
 	def test_statistics_are_empty_for_guests_when_guest_access_is_off(self):
 		previous = frappe.db.get_single_value("LMS Settings", "allow_guest_access")
-		frappe.db.set_single_value("LMS Settings", "allow_guest_access", 0)
-		self.addCleanup(frappe.db.set_single_value, "LMS Settings", "allow_guest_access", previous)
+		self._set_guest_access(0)
+		self.addCleanup(self._set_guest_access, previous)
 
 		self._as("Guest")
 		self.assertEqual(get_chart_data(chart_name="New Signups"), [])
