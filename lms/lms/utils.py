@@ -3427,11 +3427,11 @@ def get_program_details(program_name: str) -> dict:
 	is_member = frappe.db.exists(
 		"LMS Program Member", {"parent": program_name, "member": frappe.session.user}
 	)
-	can_edit = frappe.db.exists("LMS Program", program_name) and frappe.has_permission(
-		"LMS Program", "write", program_name
-	)
-	if not is_published and not is_member and not can_edit:
-		frappe.throw(_("You are not authorized to view the details of this program."))
+	if not is_published and not is_member:
+		if not frappe.db.exists("LMS Program", program_name) or not frappe.has_permission(
+			"LMS Program", "write", program_name
+		):
+			frappe.throw(_("You are not authorized to view the details of this program."))
 
 	program = frappe.db.get_value(
 		"LMS Program",
