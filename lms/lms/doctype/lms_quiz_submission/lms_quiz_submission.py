@@ -79,9 +79,10 @@ class LMSQuizSubmission(Document):
 				)
 			else:
 				self.score += cint(row.marks)
+		self.score = max(0, self.score)
 
 	def set_percentage(self):
-		if self.score and self.score_out_of:
+		if self.score_out_of:
 			# Floored at zero, or negative marking throws the whole submission away.
 			self.percentage = max(0, (self.score / self.score_out_of) * 100)
 
