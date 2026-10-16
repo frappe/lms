@@ -98,11 +98,14 @@
 									/>
 									<span class="truncate flex-1">{{ lesson.title }}</span>
 									<template v-if="lesson.locked">
-										<LockKeyhole
-											class="size-4 stroke-1.5 shrink-0 text-ink-gray-4"
-											aria-hidden="true"
-										/>
+										<Tooltip :text="lockReason">
+											<LockKeyhole
+												class="size-4 stroke-1.5 shrink-0 text-ink-gray-4"
+												aria-hidden="true"
+											/>
+										</Tooltip>
 										<span class="sr-only">{{ __('Locked') }}</span>
+										<span class="sr-only">{{ lockReason }}</span>
 									</template>
 									<template v-else-if="withProgress && lesson.is_complete">
 										<CircleCheck
@@ -128,7 +131,7 @@
 <script setup>
 import { computed, watch, watchEffect } from 'vue'
 import { useRoute } from 'vue-router'
-import { createResource } from 'frappe-ui'
+import { createResource, Tooltip } from 'frappe-ui'
 import { Disclosure, DisclosureButton, DisclosurePanel } from '@headlessui/vue'
 import {
 	ChevronDown,
@@ -200,6 +203,10 @@ watchEffect(() => {
 		}
 	}
 })
+
+// Lessons unlock in course order: one stays locked while any earlier lesson is
+// incomplete (compute_locked_lessons).
+const lockReason = __('Complete the previous lessons to unlock this one')
 
 const displayedProgress = computed(() => Math.ceil(props.progress || 0))
 
