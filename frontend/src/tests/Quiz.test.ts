@@ -288,3 +288,20 @@ describe('Quiz in an author preview', () => {
 		}
 	})
 })
+
+describe('Quiz pass mark', () => {
+	const render = async (count: number) => {
+		resourceState.response = choicesQuizResponse(count)
+		const wrapper = mountQuiz()
+		await flushPromises()
+		return wrapper
+	}
+
+	it('hides the pass mark when the quiz has no questions', async () => {
+		expect((await render(0)).text()).not.toContain('Passing score')
+	})
+
+	it('shows the pass mark when the quiz has questions', async () => {
+		expect((await render(3)).text()).toContain('Passing score: 70%')
+	})
+})

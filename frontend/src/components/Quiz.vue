@@ -59,7 +59,7 @@
 							{{ questions.length == 1 ? __('question') : __('questions') }}
 						</span>
 						<span
-							v-if="quiz.data.passing_percentage"
+							v-if="questions.length && quiz.data.passing_percentage"
 							class="inline-flex items-center gap-1.5 bg-surface-gray-3 text-ink-gray-7 text-xs font-medium px-2.5 py-1 rounded-full"
 						>
 							<span class="lucide-target size-3.5" />
