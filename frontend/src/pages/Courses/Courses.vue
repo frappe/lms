@@ -9,7 +9,10 @@
 		v-model:page-length="pageLength"
 		empty-name="Courses"
 		empty-icon="lucide-book-open"
+		:search-query="title"
+		:filtered="Boolean(currentCategory || certification)"
 		@load-more="courses.next()"
+		@clear-filters="clearFilters"
 	>
 		<template #actions>
 			<div v-if="canCreateCourse()" class="flex items-center gap-2">
@@ -197,6 +200,14 @@ const categories = createListResource({
 	cache: ['course_categories'],
 	auto: true,
 })
+
+const clearFilters = () => {
+	currentCategory.value = null
+	certification.value = false
+	// The title watcher reloads on its own; reloading here as well fetches twice.
+	if (title.value) title.value = ''
+	else updateCourses()
+}
 
 const updateCourses = () => {
 	updateFilters()

@@ -15,7 +15,9 @@
 		v-model:page-length="pageLength"
 		empty-name="Programs"
 		empty-icon="lucide-graduation-cap"
+		:search-query="title"
 		@load-more="programs.next()"
+		@clear-filters="clearFilters"
 	>
 		<template #actions>
 			<Button
@@ -162,6 +164,11 @@ const pageLength = computed({
 const setFiltersFromQuery = () => {
 	let queries = new URLSearchParams(location.search)
 	title.value = queries.get('title') || ''
+}
+
+const clearFilters = () => {
+	title.value = ''
+	updatePrograms()
 }
 
 const updatePrograms = () => {

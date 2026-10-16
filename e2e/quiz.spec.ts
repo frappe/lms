@@ -235,8 +235,10 @@ test.describe("Quiz", () => {
 			await expect(
 				page.getByText("Question deleted successfully")
 			).toBeVisible();
+			// The search box still holds the question text, so the empty state
+			// names the search rather than claiming the bank is empty.
 			await expect(
-				page.getByText("There are no questions currently.")
+				page.getByText(`Nothing matches "${questionText}"`)
 			).toBeVisible();
 		});
 	});
