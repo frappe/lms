@@ -52,9 +52,9 @@ import { useRouter } from 'vue-router'
 import { sessionStore } from '../stores/session'
 import Link from '@/components/Controls/Link.vue'
 import ListPage from '@/components/Layouts/ListPage.vue'
+import { serverTime } from '@/utils/dayjs'
 
 const user = inject('$user')
-const dayjs = inject('$dayjs')
 const { brand } = sessionStore()
 const router = useRouter()
 const assignmentID = ref('')
@@ -103,7 +103,7 @@ const submissions = createListResource({
 		return data.map((row) => {
 			return {
 				...row,
-				creation: dayjs(row.creation).fromNow(),
+				creation: serverTime(row.creation).fromNow(),
 			}
 		})
 	},

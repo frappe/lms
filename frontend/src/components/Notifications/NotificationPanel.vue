@@ -64,13 +64,8 @@
 							</div>
 							<div>
 								<div v-safe-html:basic="decodeEntities(n.subject)" />
-<<<<<<< HEAD
 								<div class="text-p-sm text-ink-gray-5">
-									{{ dayjs(n.creation).fromNow() }}
-=======
-								<div class="text-p-sm text-ink-gray-6">
 									{{ serverTime(n.creation).fromNow() }}
->>>>>>> c0e8940 (fix: read relative times in the site timezone)
 								</div>
 							</div>
 						</div>
@@ -90,12 +85,8 @@
 </template>
 <script setup>
 import { Avatar, Button, TabButtons, Tooltip } from 'frappe-ui'
-<<<<<<< HEAD
-import { computed, inject, ref, watch } from 'vue'
-import { useRouter } from 'vue-router'
-=======
 import { computed, ref, watch } from 'vue'
->>>>>>> c0e8940 (fix: read relative times in the site timezone)
+import { useRouter } from 'vue-router'
 import { onClickOutside } from '@vueuse/core'
 import { decodeEntities } from '@/utils'
 import { useSidebar } from '@/stores/sidebar'
@@ -110,11 +101,7 @@ import {
 	markAllAsRead,
 } from '@/stores/notifications'
 
-<<<<<<< HEAD
-const dayjs = inject('$dayjs')
 const router = useRouter()
-=======
->>>>>>> c0e8940 (fix: read relative times in the site timezone)
 const sidebarStore = useSidebar()
 const { isMobile } = useScreenSize()
 

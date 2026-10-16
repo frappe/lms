@@ -71,19 +71,12 @@
 							:aria-label="job.data.company_name"
 							class="me-4"
 						>
-<<<<<<< HEAD
-							<img
-								:src="safeUrl(job.data.company_logo)"
-								class="size-10 rounded-lg object-contain cursor-pointer"
-								:alt="job.data.company_name"
-=======
 							<Avatar
 								:image="safeUrl(job.data.company_logo)"
 								:label="job.data.company_name"
 								size="2xl"
 								shape="square"
 								class="cursor-pointer"
->>>>>>> 31d2c93 (fix: fall back to the company initial when the logo fails)
 							/>
 						</a>
 						<div class="">

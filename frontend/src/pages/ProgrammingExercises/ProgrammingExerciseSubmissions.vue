@@ -72,7 +72,6 @@
 	</ListPage>
 </template>
 <script setup lang="ts">
-<<<<<<< HEAD
 import {
 	Avatar,
 	Badge,
@@ -92,10 +91,10 @@ import { computed, inject, onMounted, ref, watch } from 'vue'
 import { sessionStore } from '@/stores/session'
 import { useRouter } from 'vue-router'
 import Link from '@/components/Controls/Link.vue'
+import { serverTime } from '@/utils/dayjs'
 import ListPage from '@/components/Layouts/ListPage.vue'
 
 const { brand } = sessionStore()
-const dayjs = inject('$dayjs') as any
 const user = inject('$user') as any
 const filterFields = ['exercise', 'member', 'status']
 const filters = ref<Filters>({
@@ -105,15 +104,6 @@ const filters = ref<Filters>({
 })
 const router = useRouter()
 const pageLength = ref<number>(24)
-=======
-import { Avatar, Badge } from 'frappe-ui'
-import { computed, inject } from 'vue'
-import SubmissionsPage from '@/components/Submissions/SubmissionsPage.vue'
-import type { ListRow, SessionUser, SubmissionsConfig } from '@/types'
-import { serverTime } from '@/utils/dayjs'
-
-const user = inject<SessionUser>('$user')!
->>>>>>> c0e8940 (fix: read relative times in the site timezone)
 
 onMounted(() => {
 	setFiltersFromRoute()
@@ -155,7 +145,7 @@ const submissions = createListResource({
 		return data.map((submission: ProgrammingExerciseSubmission) => {
 			return {
 				...submission,
-				modified: dayjs(submission.modified).fromNow(),
+				modified: serverTime(submission.modified).fromNow(),
 			}
 		})
 	},
@@ -221,31 +211,6 @@ const listOptions: ListViewOptions = {
 			submissionID: String(row.name),
 		},
 	}),
-<<<<<<< HEAD
-=======
-	parentCrumb: {
-		label: __('Programming Exercises'),
-		route: { name: 'ProgrammingExercises' },
-	},
-	scopeCrumb: {
-		filterKey: 'exercise',
-		doctype: 'LMS Programming Exercise',
-		titleField: 'title',
-		route: (value: string) => ({
-			name: 'ProgrammingExerciseForm',
-			params: { exerciseID: value },
-		}),
-	},
-	title: 'Submissions',
-	pageTitle: 'Programming Exercise Submissions',
-	emptyName: 'Programming Exercise Submissions',
-	emptyIcon: 'lucide-file-code',
-	transform: (rows: ListRow[]) =>
-		rows.map((row) => ({
-			...row,
-			modified: serverTime(row.modified as string).fromNow(),
-		})),
->>>>>>> c0e8940 (fix: read relative times in the site timezone)
 }
 
 const submissionColumns = computed(() => {
