@@ -8,6 +8,7 @@ import frappe
 import frappe.client
 from frappe.utils import nowdate
 
+from lms.lms.api import save_evaluation_details
 from lms.lms.doctype.lms_certificate_evaluation.lms_certificate_evaluation import (
 	create_lms_certificate,
 )
@@ -185,6 +186,64 @@ class TestLMSCertificateEvaluation(BaseTestUtils):
 			frappe.db.get_value("LMS Certificate Evaluation", self.evaluation.name, "status"),
 			"Pass",
 		)
+
+	def _create_request(self, evaluator, member, status="Upcoming"):
+		request = frappe.get_doc(
+			{
+				"doctype": "LMS Certificate Request",
+				"course": self.course.name,
+				"member": member,
+				"evaluator": evaluator,
+				"date": nowdate(),
+				"start_time": "10:00:00",
+				"end_time": "11:00:00",
+				"status": status,
+			}
+		)
+		# Slot and schedule validation are not what these tests measure.
+		request.flags.ignore_validate = True
+		# nosemgrep: lms-unjustified-ignore-permissions - seeding the request the endpoint is measured against
+		return request.insert(ignore_permissions=True)
+
+	def _save_evaluation(self, member, status="Pass"):
+		return save_evaluation_details(
+			member=member,
+			course=self.course.name,
+			date_value=nowdate(),
+			start_time="10:00:00",
+			end_time="11:00:00",
+			status=status,
+			rating=4,
+			summary="graded",
+		)
+
+	def test_the_requests_evaluator_can_save_the_evaluation(self):
+		# Regression: the request's evaluator was refused when not the course evaluator
+		# (#3021, fixed in #3038).
+		self._create_request(self.evaluator_a, self.student)
+
+		frappe.set_user(self.evaluator_a)
+		name = self._save_evaluation(self.student, status="Pending")
+		self.assertEqual(self._save_evaluation(self.student), name)
+
+		stored = frappe.db.get_value(
+			"LMS Certificate Evaluation", name, ["evaluator", "status"], as_dict=True
+		)
+		self.assertEqual(stored, {"evaluator": self.evaluator_a, "status": "Pass"})
+
+	def test_a_cancelled_request_does_not_authorise_its_evaluator(self):
+		self._create_request(self.evaluator_a, self.student, status="Cancelled")
+
+		frappe.set_user(self.evaluator_a)
+		with self.assertRaises(frappe.PermissionError):
+			self._save_evaluation(self.student)
+
+	def test_a_request_for_another_member_does_not_authorise_its_evaluator(self):
+		self._create_request(self.evaluator_a, self.member)
+
+		frappe.set_user(self.evaluator_a)
+		with self.assertRaises(frappe.PermissionError):
+			self._save_evaluation(self.student)
 
 	def test_a_moderator_is_unrestricted(self):
 		moderator = self._create_user(
