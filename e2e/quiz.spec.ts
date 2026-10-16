@@ -220,5 +220,51 @@ test.describe("Quiz", () => {
 			});
 			await expect(page.getByText(/of \d+ marks/)).toBeVisible();
 		});
+<<<<<<< HEAD
+=======
+
+		// LMS Quiz refuses to delete while a submission links to it
+		// (LinkExistsError), so the one the test above made goes first.
+		test("deletes the submission", async ({ page }) => {
+			await page.goto(`/lms/quizzes/submissions?quiz=${quizName}`);
+			await selectOnlyRow(page);
+			await button(page, "Delete").click();
+			await expect(
+				page.getByText("Submissions deleted successfully")
+			).toBeVisible();
+			// The empty state's description: its title is echoed into a status
+			// region for screen readers, so matching that would find two.
+			await expect(
+				page.getByText("There are no quiz submissions currently.")
+			).toBeVisible();
+		});
+
+		test("deletes the quiz and its question", async ({ page }) => {
+			await page.goto(`/lms/quizzes/edit/${quizName}`);
+			await button(page, "Delete").click();
+			const dialog = page
+				.getByRole("dialog")
+				.filter({ hasText: "Delete this quiz?" });
+			await dialog.getByRole("button", { name: "Delete" }).click();
+			await expect(page.getByText("Quiz deleted successfully")).toBeVisible();
+			await page.waitForURL(/\/lms\/quizzes$/);
+
+			// The question bank record outlives the quiz (it's a shared, separately
+			// owned doctype), so delete it the way a moderator tidying the question
+			// bank would: search it out, select it, bulk-delete.
+			await page.goto("/lms/quizzes/questions");
+			await page.getByRole("textbox", { name: "Search" }).fill(questionText);
+			await selectOnlyRow(page);
+			await button(page, "Delete").click();
+			await expect(
+				page.getByText("Question deleted successfully")
+			).toBeVisible();
+			// The search box still holds the question text, so the empty state
+			// names the search rather than claiming the bank is empty.
+			await expect(
+				page.getByText(`Nothing matches "${questionText}"`)
+			).toBeVisible();
+		});
+>>>>>>> b5e8a3f (fix: say when a search or filter matched nothing)
 	});
 });
