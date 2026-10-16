@@ -105,6 +105,20 @@
 					</template>
 					{{ __('Enroll Now') }}
 				</Button>
+				<Badge
+					v-else-if="!batch.data.accept_enrollments"
+					theme="blue"
+					size="lg"
+					class="mt-4"
+					:label="__('Enrollment for this batch is closed')"
+				/>
+				<Badge
+					v-else-if="hasSeatsLeft"
+					theme="blue"
+					size="lg"
+					class="mt-4"
+					:label="__('Contact the Administrator to enroll for this batch')"
+				/>
 			</div>
 		</div>
 	</div>
