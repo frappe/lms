@@ -63,6 +63,7 @@ from lms.lms.utils import (
 	get_field_meta,
 	get_instructors,
 	get_lms_route,
+	guest_access_allowed,
 	has_course_instructor_role,
 	has_evaluator_role,
 	has_lms_role,
@@ -408,7 +409,10 @@ def sees_every_job() -> bool:
 
 
 def can_see_job(status: str, owner: str) -> bool:
-	"""A closed post is for its poster and staff; everyone else sees open posts."""
+	"""A closed post is for its poster and staff; everyone else sees open posts. Guests see none
+	when the site turns guest access off."""
+	if not guest_access_allowed():
+		return False
 	return status == "Open" or owner == frappe.session.user or sees_every_job()
 
 
@@ -425,6 +429,7 @@ def asks_only_open(status) -> bool:
 	return list(values) == ["Open"]
 
 
+# nosemgrep: security.guest-whitelisted-method - pre-existing grant, unchanged by this branch; guests are served only when guest access is on. Flagged only because the body changed.
 @frappe.whitelist(allow_guest=True)
 def get_job_opportunities(
 	filters: dict = None,
@@ -434,6 +439,9 @@ def get_job_opportunities(
 	limit_start: int = None,
 	limit_page_length: int = None,
 ):
+	if not guest_access_allowed():
+		return []
+
 	if limit_page_length is not None:
 		page_length = cint(limit_page_length)
 	if limit_start is not None:
@@ -467,15 +475,23 @@ def get_job_opportunities(
 	return jobs
 
 
+# nosemgrep: security.guest-whitelisted-method - pre-existing grant, unchanged by this branch; guests are served only when guest access is on. Flagged only because the body changed.
 @frappe.whitelist(allow_guest=True)
 def get_job_opportunities_count(filters: dict = None, or_filters: dict = None):
+	if not guest_access_allowed():
+		return 0
+
 	filters, or_filters = sanitize_job_filters(filters, or_filters)
 	return frappe.db.count("Job Opportunity", filters, or_filters)
 
 
+# nosemgrep: security.guest-whitelisted-method - pre-existing grant, unchanged by this branch; guests are served only when guest access is on. Flagged only because the body changed.
 @frappe.whitelist(allow_guest=True)
 def get_chart_details():
 	details = frappe._dict()
+	if not guest_access_allowed():
+		return details
+
 	details.enrollments = frappe.db.count("LMS Enrollment")
 	details.courses = frappe.db.count(
 		"LMS Course",
