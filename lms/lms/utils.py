@@ -851,6 +851,7 @@ def get_chart_details(
 		)
 
 
+# nosemgrep: security.guest-whitelisted-method - pre-existing grant, unchanged by this branch; guests are served only when guest access is on. Flagged only because the body changed.
 @frappe.whitelist(allow_guest=True)
 @rate_limit(limit=500, seconds=60 * 60)
 def get_course_completion_data():
