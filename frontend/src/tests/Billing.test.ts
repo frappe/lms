@@ -124,13 +124,15 @@ vi.mock('frappe-ui', () => ({
 			// observable here; the real control renders it as InputError.
 			'error',
 		],
-		// As in rc.1, attrs land on the input; input and change emit the value.
+		// As in rc.1, attrs land on the input; input and change emit the value,
+		// and a required control marks its input aria-required.
 		inheritAttrs: false,
 		emits: ['update:modelValue'],
 		template: `<span><input
 			v-bind="$attrs"
 			:data-testid="'fc-' + label"
 			:type="type || 'text'"
+			:aria-required="required || undefined"
 			:value="modelValue"
 			@input="$emit('update:modelValue', type === 'checkbox' ? $event.target.checked : $event.target.value)"
 			@change="$emit('update:modelValue', type === 'checkbox' ? $event.target.checked : $event.target.value)"
@@ -328,6 +330,15 @@ describe('Billing: checkout validation errors reach the user', () => {
 		expect(error?.text()).toBe(
 			'Please provide your consent to proceed with the payment'
 		)
+	})
+
+	it('marks the consent box required before any click', async () => {
+		const wrapper = await mountBilling()
+		const box = wrapper
+			.findAll('input[type="checkbox"]')
+			.find((i) => i.attributes('data-testid')?.includes('consent'))
+
+		expect(box?.attributes('aria-required')).toBe('true')
 	})
 
 	it('clears the consent error once the box is ticked', async () => {
