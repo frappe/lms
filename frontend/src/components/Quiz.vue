@@ -1032,12 +1032,23 @@ const serialiseViolationLog = (withFrames = true) =>
 
 const handlePageHide = () => {
 	if (props.preview) return
+<<<<<<< HEAD
 	if (activeQuestion.value > 0 && !quizSubmission.data) {
+=======
+	if (activeQuestion.value > 0 && !quizSubmission.data && quiz.data) {
+		const token = window.csrf_token
+		if (!token) return
+>>>>>>> f60fdb5 (fix(quiz): include CSRF token in unload submit beacon)
 		const params = new URLSearchParams({
 			quiz: quiz.data.name,
 			results: localStorage.getItem(quiz.data.title) || '[]',
 			violation_count: String(violationCount.value),
+<<<<<<< HEAD
 			submission_reason: 'browser_closed',
+=======
+			submission_reason: reason,
+			csrf_token: token
+>>>>>>> f60fdb5 (fix(quiz): include CSRF token in unload submit beacon)
 		})
 		// Beacons go out as a query string, so only spend the URL budget on the
 		// log when there is one.
