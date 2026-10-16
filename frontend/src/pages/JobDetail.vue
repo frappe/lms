@@ -62,12 +62,15 @@
 						<a
 							:href="safeUrl(job.data.company_website)"
 							v-external
+							:aria-label="job.data.company_name"
 							class="me-4"
 						>
-							<img
-								:src="safeUrl(job.data.company_logo)"
-								class="size-10 rounded-6 object-contain cursor-pointer"
-								:alt="job.data.company_name"
+							<Avatar
+								:image="safeUrl(job.data.company_logo)"
+								:label="job.data.company_name"
+								size="2xl"
+								shape="square"
+								class="cursor-pointer"
 							/>
 						</a>
 						<div class="">
@@ -134,7 +137,7 @@
 	</div>
 </template>
 <script setup>
-import { Badge, createResource, usePageMeta } from 'frappe-ui'
+import { Avatar, Badge, createResource, usePageMeta } from 'frappe-ui'
 import { inject, ref, computed, watch, nextTick } from 'vue'
 import { sessionStore } from '../stores/session'
 import PageHeader from '@/components/Layouts/pages/PageHeader.vue'
