@@ -189,6 +189,7 @@
 								"
 								type="checkbox"
 								class="leading-6"
+								:required="true"
 								v-model="billingDetails.member_consent"
 							/>
 							<div
