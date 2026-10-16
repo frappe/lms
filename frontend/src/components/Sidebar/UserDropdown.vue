@@ -184,10 +184,7 @@ const userDropdownOptions = computed(() => {
 							icon: 'lucide-arrow-down-to-line',
 							label: __('Import'),
 							onClick: () => {
-								router.push({
-									name: 'DataImportList',
-									query: { step: 'list' },
-								})
+								router.push({ name: 'DataImportList' })
 							},
 						},
 					],

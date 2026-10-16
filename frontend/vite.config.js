@@ -35,7 +35,7 @@ function assertFrameworkUiLinked(frontend) {
 }
 
 export default defineConfig(async ({ mode }) => {
-	assertFrameworkUiLinked(__dirname)
+	assertFrameworkUiLinked(import.meta.dirname)
 	const frappeui = await importFrappeUIPlugin()
 
 	const config = {
@@ -52,6 +52,7 @@ export default defineConfig(async ({ mode }) => {
 				},
 			}),
 			vue(),
+			dropFrappeUIEsbuildTwin(),
 			VitePWA({
 				registerType: 'autoUpdate',
 				devOptions: {
@@ -81,13 +82,17 @@ export default defineConfig(async ({ mode }) => {
 			// at `${BASE_URL}pdfjs/...`. Served in dev too (static-copy dev middleware).
 			viteStaticCopy({
 				targets: [
+					// stripBase: the plugin keeps the source path under dest
+					// otherwise (pdfjs/cmaps/node_modules/pdfjs-dist/cmaps/...).
 					{
 						src: 'node_modules/pdfjs-dist/cmaps/*',
 						dest: 'pdfjs/cmaps',
+						rename: { stripBase: true },
 					},
 					{
 						src: 'node_modules/pdfjs-dist/standard_fonts/*',
 						dest: 'pdfjs/standard_fonts',
+						rename: { stripBase: true },
 					},
 				],
 			}),
@@ -136,7 +141,7 @@ export default defineConfig(async ({ mode }) => {
 			// apps/frappe/ui that has no node_modules beside it.
 			preserveSymlinks: true,
 			alias: {
-				'@': path.resolve(__dirname, 'src'),
+				'@': path.resolve(import.meta.dirname, 'src'),
 			},
 			// Force one copy of prosemirror; duplicate copies break tiptap's
 			// instanceof checks and crash the list buttons.
@@ -164,7 +169,6 @@ export default defineConfig(async ({ mode }) => {
 				'tailwind.config.js',
 				'highlight.js',
 				'plyr',
-				'interactjs',
 				// frappe-ui is excluded below, so a subpath only it imports is served
 				// raw beside a pre-bundled sibling: a second `echarts/core` or
 				// `@codemirror/state`. Bundle each family in one run, as Insights does.
@@ -189,6 +193,26 @@ export default defineConfig(async ({ mode }) => {
 	}
 	return config
 })
+
+// frappe-ui's code-languages plugin hands Vite an esbuild plugin for dependency
+// pre-bundling. Vite 8 pre-bundles with Rolldown, whose esbuild shim does not
+// implement it, so the dev server exits with "Error during dependency
+// optimization ... Not implemented". It only stubs frappe-ui's own language
+// imports, and dev excludes frappe-ui from pre-bundling, so dropping it costs
+// nothing. Remove once frappe-ui supports Vite 8 (frappe/frappe-ui#1297).
+function dropFrappeUIEsbuildTwin() {
+	return {
+		name: 'lms-drop-frappe-ui-esbuild-twin',
+		enforce: 'post',
+		config(config) {
+			const plugins = config.optimizeDeps?.esbuildOptions?.plugins
+			if (!plugins) return
+			config.optimizeDeps.esbuildOptions.plugins = plugins.filter(
+				(plugin) => plugin.name !== 'frappeui-code-languages'
+			)
+		},
+	}
+}
 
 async function importFrappeUIPlugin() {
 	const module = await import('frappe-ui/vite')

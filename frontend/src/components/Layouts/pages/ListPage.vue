@@ -68,7 +68,11 @@
 			</template>
 		</ResponsiveListView>
 		<div v-else class="flex-1">
-			<EmptyStateLayout :name="emptyName" :icon="emptyIcon" />
+			<EmptyStateLayout
+				:name="emptyName"
+				:icon="emptyIcon"
+				:description="emptyDescription"
+			/>
 		</div>
 
 		<template #footer>
@@ -159,6 +163,8 @@ const props = withDefaults(
 		/** What the empty state calls these rows, e.g. "Courses". */
 		emptyName?: string
 		emptyIcon?: string
+		/** Replaces the default empty-state sentence, which suits learner pages. */
+		emptyDescription?: string
 	}>(),
 	{
 		title: '',
@@ -175,6 +181,7 @@ const props = withDefaults(
 		pageLengthOptions: () => [24, 60, 120],
 		emptyName: '',
 		emptyIcon: 'lucide-graduation-cap',
+		emptyDescription: '',
 	}
 )
 
