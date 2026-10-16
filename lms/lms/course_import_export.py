@@ -265,7 +265,12 @@ def create_course_zip(
 		)
 		final_path = move_zip_to_private(tmp_path, zip_filename)
 		if as_file:
-			return keep_export_as_file(zip_filename)
+			try:
+				return keep_export_as_file(zip_filename)
+			except Exception:
+				# No File row points at the ZIP, so nothing would ever delete it.
+				delete_file(final_path)
+				raise
 		schedule_file_deletion(final_path, delay_seconds=600)  # 10 minutes
 		serve_zip(final_path, zip_filename)
 	except Exception:
