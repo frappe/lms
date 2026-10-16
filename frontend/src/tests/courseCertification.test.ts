@@ -21,7 +21,10 @@ const { createResourceMock, pushMock, callMock, toastMock } = vi.hoisted(() => {
 	}
 })
 
+const { openExternalMock } = vi.hoisted(() => ({ openExternalMock: vi.fn() }))
+
 vi.mock('@/stores/session', () => ({ sessionStore: () => ({ brand: {} }) }))
+vi.mock('@/utils/openExternal', () => ({ openExternal: openExternalMock }))
 vi.mock('vue-router', () => ({ useRouter: () => ({ push: pushMock }) }))
 vi.mock('frappe-ui', () => ({
 	createResource: createResourceMock,
@@ -194,6 +197,18 @@ describe('CourseCertification', () => {
 		expect(wrapper.text()).toContain('Python Basics')
 		expect(wrapper.text()).toContain('01 Jan 2026')
 		expect(evaluations(wrapper).exists()).toBe(false)
+	})
+
+	// Regression: certificate PDF 500 under a frappe._dict() letter head (#3031, fixed in #3039).
+	it('opens the certificate PDF without the site letter head', async () => {
+		const { wrapper, resource } = mountPage()
+		resource.data = CERTIFIED
+		await flushPromises()
+
+		await wrapper.find('button').trigger('click')
+		const url = new URL(openExternalMock.mock.calls[0][0], 'http://lms.test')
+		expect(url.searchParams.get('name')).toBe('CERT-0001')
+		expect(url.searchParams.get('no_letterhead')).toBe('1')
 	})
 
 	it('sends a learner without a purchased certificate back to the course', () => {
