@@ -5,7 +5,7 @@
 		ref="page"
 		:tabs="tabs"
 		:breadcrumbs="breadcrumbs"
-		:published="Boolean(batch.data?.published)"
+		:published="isAdmin && Boolean(batch.data?.published)"
 		:loading="!batch.data"
 		:doc="batch"
 		doc-prop="batch"
