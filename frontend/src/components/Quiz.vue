@@ -995,7 +995,7 @@ const sendSubmitBeacon = (reason: SubmissionReason): void => {
 			results: localStorage.getItem(quiz.data.title) || '[]',
 			violation_count: String(violationCount.value),
 			submission_reason: reason,
-			csrf_token: token
+			csrf_token: token,
 		})
 		// Beacons go out as a query string, so only spend the URL budget on the
 		// log when there is one.
