@@ -1,14 +1,3 @@
-<<<<<<< HEAD
-# Copyright (c) 2024, Frappe and Contributors
-# See license.txt
-
-# import frappe
-from frappe.tests import UnitTestCase
-
-
-class TestLMSBadge(UnitTestCase):
-	pass
-=======
 import frappe
 
 from lms.lms.test_helpers import BaseTestUtils
@@ -56,4 +45,3 @@ class TestBadgeOnCourseSave(BaseTestUtils):
 		course = self._create_course(title="Manual Badge Course")
 		self.assertFalse(badge.rule_condition_satisfied(course))
 		self.assertEqual(self._assignments(badge), [])
->>>>>>> d2673eb (fix: award badges to owner and skip manual ones on save)
