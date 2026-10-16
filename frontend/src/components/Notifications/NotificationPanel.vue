@@ -82,7 +82,7 @@
 							<div>
 								<div v-safe-html:basic="decodeEntities(n.subject)" />
 								<div class="text-p-sm text-ink-gray-6">
-									{{ dayjs(n.creation).fromNow() }}
+									{{ serverTime(n.creation).fromNow() }}
 								</div>
 							</div>
 						</component>
@@ -102,13 +102,14 @@
 </template>
 <script setup>
 import { Avatar, Button, TabButtons, Tooltip } from 'frappe-ui'
-import { computed, inject, ref, watch } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { onClickOutside } from '@vueuse/core'
 import { decodeEntities } from '@/utils'
 import { assignmentSubmissionFromLink } from '@/utils/notificationLinks'
 import { useSidebar } from '@/stores/sidebar'
 import { useScreenSize } from '@/utils/composables'
 import EmptyStateLayout from '@/components/Layouts/EmptyStateLayout.vue'
+import { serverTime } from '@/utils/dayjs'
 import {
 	panelVisible,
 	closeNotifications,
@@ -117,7 +118,6 @@ import {
 	markAllAsRead,
 } from '@/stores/notifications'
 
-const dayjs = inject('$dayjs')
 const sidebarStore = useSidebar()
 const { isMobile } = useScreenSize()
 

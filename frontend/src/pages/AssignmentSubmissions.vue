@@ -15,15 +15,13 @@
 <script setup lang="ts">
 import { Badge } from 'frappe-ui'
 import type { BadgeProps } from 'frappe-ui'
-import type dayjsType from 'dayjs'
-import type {} from 'dayjs/plugin/relativeTime'
 import { computed, inject, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import SubmissionsPage from '@/components/Submissions/SubmissionsPage.vue'
 import type { ListRow, SessionUser, SubmissionsConfig } from '@/types'
+import { serverTime } from '@/utils/dayjs'
 
 const user = inject<SessionUser>('$user')!
-const dayjs = inject<typeof dayjsType>('$dayjs')!
 const router = useRouter()
 
 onMounted(() => {
@@ -119,7 +117,7 @@ const config: SubmissionsConfig = {
 	transform: (rows: ListRow[]) =>
 		rows.map((row) => ({
 			...row,
-			creation: dayjs(row.creation as string).fromNow(),
+			creation: serverTime(row.creation as string).fromNow(),
 		})),
 }
 </script>
