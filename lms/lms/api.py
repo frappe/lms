@@ -1199,7 +1199,7 @@ def delete_sidebar_item(webpage: str):
 	)
 
 
-@frappe.whitelist()
+@frappe.whitelist(methods=["POST"])
 def delete_lesson(lesson: str, chapter: str):
 	course = frappe.db.get_value("Course Chapter", chapter, "course")
 	if not can_modify_course(course):
