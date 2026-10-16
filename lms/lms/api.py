@@ -63,6 +63,7 @@ from lms.lms.utils import (
 	get_field_meta,
 	get_instructors,
 	get_lms_route,
+	guest_access_allowed,
 	has_course_instructor_role,
 	has_evaluator_role,
 	has_lms_role,
@@ -476,6 +477,9 @@ def get_job_opportunities_count(filters: dict = None, or_filters: dict = None):
 @frappe.whitelist(allow_guest=True)
 def get_chart_details():
 	details = frappe._dict()
+	if not guest_access_allowed():
+		return details
+
 	details.enrollments = frappe.db.count("LMS Enrollment")
 	details.courses = frappe.db.count(
 		"LMS Course",
