@@ -72,3 +72,36 @@ describe('CoursePublishSettings', () => {
 		expect(markDirty).toHaveBeenCalled()
 	})
 })
+
+// Regression: currency picker 403 for Moderator and Course Creator, LMS roles
+// cannot read Currency (#3023, fixed in #3038).
+describe('CoursePublishSettings currency picker', () => {
+	it.each([{ paid_course: 1 }, { paid_certificate: 1 }])(
+		'searches through the LMS query (%o)',
+		(pricing) => {
+			const wrapper = mount(CoursePublishSettings, {
+				global: {
+					mocks: { __: (s: string) => s },
+					provide: {
+						courseForm: {
+							resource: { doc: { ...doc, ...pricing } },
+							markDirty: vi.fn(),
+						},
+						$dayjs: (v: unknown) => ({ format: () => String(v) }),
+					},
+					stubs: {
+						CollapsibleSection: { template: '<div><slot /></div>' },
+						Link: true,
+						NewMemberModal: true,
+						BooleanSwitch: true,
+					},
+				},
+			})
+
+			const picker = wrapper
+				.findAllComponents({ name: 'Link' })
+				.find((link) => link.props('doctype') === 'Currency')
+			expect(picker?.props('query')).toBe('lms.lms.api.search_currencies')
+		}
+	)
+})

@@ -48,6 +48,7 @@ from lms.lms.doctype.course_lesson.course_lesson import (
 	save_progress,
 )
 from lms.lms.doctype.lms_certificate.lms_certificate import evaluates_certificate, get_latest_certificate
+from lms.lms.doctype.lms_certificate_evaluation.lms_certificate_evaluation import can_evaluate
 from lms.lms.html_sanitizer import sanitize_rich_text
 from lms.lms.permissions import is_site_administrator
 from lms.lms.sidebar import LEGACY_VISIBILITY_FIELDS, ROW_FIELDS, get_sidebar_rows
@@ -1163,6 +1164,31 @@ def get_all_users():
 	return {user.name: user for user in users}
 
 
+@frappe.whitelist()
+def search_currencies(
+	doctype: str,
+	txt: str,
+	searchfield: str | None = None,
+	start: int = 0,
+	page_len: int = 10,
+	filters: dict | str | None = None,
+):
+	"""search_link `query` for the pricing pickers: LMS roles cannot read Currency."""
+	frappe.only_for(["Moderator", "Course Creator", "Batch Evaluator", "System Manager"])
+	if not isinstance(txt, str):
+		frappe.throw(_("Search text must be text."))
+
+	return frappe.get_all(
+		"Currency",
+		filters={"enabled": 1, "name": ["like", f"%{txt}%"]},
+		fields=["name"],
+		order_by="name",
+		limit_start=cint(start),
+		limit_page_length=cint(page_len),
+		as_list=True,
+	)
+
+
 # nosemgrep: security.guest-whitelisted-method - pre-existing grant, unchanged by this branch; the endpoint gates itself (a guest on a site with allow_guest_access off gets a bare []). Flagged only because semgrep ci re-scans the whole function when its body changes.
 @frappe.whitelist(allow_guest=True)
 @guest_access_required(list)
@@ -1558,13 +1584,16 @@ def save_evaluation_details(
 	Save evaluation details for a member against a course.
 	"""
 	frappe.only_for(["Batch Evaluator", "Moderator"])
-	assigned_evaluator = get_evaluator(course, batch_name)
-	if not has_moderator_role() and frappe.session.user != assigned_evaluator:
+	user = frappe.session.user
+	if has_moderator_role():
+		evaluator = get_evaluator(course, batch_name) or user
+	elif can_evaluate(user, member, course, batch_name):
+		evaluator = user
+	else:
 		frappe.throw(
 			_("You are not the assigned evaluator for this course and batch."),
 			frappe.PermissionError,
 		)
-	evaluator = assigned_evaluator or frappe.session.user
 
 	# Serialise saves per member; the locking read below then sees rows another
 	# request committed after this one's snapshot.
