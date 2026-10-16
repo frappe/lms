@@ -2,6 +2,7 @@
 # For license information, please see license.txt
 
 import inspect
+import os
 from functools import cache
 from typing import NamedTuple
 from urllib.parse import unquote
@@ -431,7 +432,20 @@ def serve_resource(file_url: str):
 
 	# send_private_file expects a path relative to the site's private/ dir.
 	relative_path = file_url.split("/private", 1)[1] if "/private" in file_url else file_url
-	return _serve_private_file(relative_path, file_row.file_name)
+	return _serve_private_file(relative_path, _download_name(file_row.file_name, relative_path))
+
+
+def _download_name(file_name: str | None, relative_path: str) -> str:
+	"""The File's name when it ends in the stored file's own extension, else the stored name.
+
+	send_private_file takes the Content-Type from this name but decides inline or download
+	from the stored path. file_name is editable by the File's owner, so a name whose
+	extension differs from the stored file could serve its bytes as another type.
+	"""
+	stored_name = os.path.basename(relative_path)
+	if file_name and os.path.splitext(file_name)[1].lower() == os.path.splitext(stored_name)[1].lower():
+		return file_name
+	return stored_name
 
 
 @cache
