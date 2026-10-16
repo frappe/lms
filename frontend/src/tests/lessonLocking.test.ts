@@ -569,30 +569,6 @@ describe('Lesson.vue Next survives an outline that never resolves', () => {
 		expect(pushMock).not.toHaveBeenCalled()
 	})
 })
-<<<<<<< HEAD
-=======
-
-describe('Lesson.vue zen-mode progress chip', () => {
-	it('drops into flow on touch screens so it cannot cover the zen buttons', async () => {
-		wrapper = await mountLesson()
-		findResource('lms.lms.utils.get_lesson').data = {
-			...baseLesson,
-			membership: { progress: 42.3 },
-		}
-		;(wrapper.vm as any).zenModeEnabled = true
-		await flushPromises()
-
-		const chip = wrapper
-			.findAll('div')
-			.find((el) => el.text() === '43% completed')
-		expect(chip).toBeDefined()
-		const classes = chip!.classes()
-		expect(classes).toContain('absolute')
-		expect(classes).toContain('[@media(hover:none)]:block')
-		expect(classes).toContain('[@media(hover:none)]:static')
-		expect(classes).toContain('[@media(hover:none)]:mt-0')
-	})
-})
 
 describe('Lesson.vue sidebar progress', () => {
 	// Guards #3010: a guest cannot make progress, so the sidebar shows none.
@@ -611,4 +587,3 @@ describe('Lesson.vue sidebar progress', () => {
 		expect(await sidebarWithProgress({ name: 'a@example.com' })).toBe('true')
 	})
 })
->>>>>>> a65bb05 (fix: hide sidebar progress and skip exercise lookup for guests)

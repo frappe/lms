@@ -83,23 +83,7 @@ export class Program {
 	renderExercise(exercise: string) {
 		if (this.readOnly) {
 			const { userResource } = usersStore()
-<<<<<<< HEAD
-			call('frappe.client.get_value', {
-=======
-			if (!userResource.data) {
-				this.mountSubmission(exercise, 'new')
-				return
-			}
-			call<{ name?: string } | null>('frappe.client.get_value', {
->>>>>>> a65bb05 (fix: hide sidebar progress and skip exercise lookup for guests)
-				doctype: 'LMS Programming Exercise Submission',
-				filters: {
-					exercise: exercise,
-					member: userResource.data.name,
-				},
-				fieldname: ['name'],
-			}).then((data: { name: string }) => {
-				let submission = data.name || 'new'
+			const mountSubmission = (submission: string) => {
 				const studentView = this.studentView ? '&studentView=1' : ''
 				const submissionPath = getLmsRoute(
 					`programming-exercises/${exercise}/submission/${submission}?fromLesson=1${studentView}`
@@ -108,6 +92,20 @@ export class Program {
 					class: 'w-full h-[900px] border rounded-md',
 				})
 				this.wrapper.replaceChildren(...(frame ? [frame] : []))
+			}
+			if (!userResource.data) {
+				mountSubmission('new')
+				return
+			}
+			call('frappe.client.get_value', {
+				doctype: 'LMS Programming Exercise Submission',
+				filters: {
+					exercise: exercise,
+					member: userResource.data.name,
+				},
+				fieldname: ['name'],
+			}).then((data: { name: string }) => {
+				mountSubmission(data.name || 'new')
 			})
 			return
 		}

@@ -107,20 +107,10 @@
 										<span class="sr-only">{{ __('Locked') }}</span>
 										<span class="sr-only">{{ lockReason }}</span>
 									</template>
-<<<<<<< HEAD
 									<CircleCheck
-										v-else-if="lesson.is_complete"
+										v-else-if="withProgress && lesson.is_complete"
 										class="size-4 stroke-1.5 shrink-0 text-green-700 fill-none"
 									/>
-=======
-									<template v-else-if="withProgress && lesson.is_complete">
-										<CircleCheck
-											class="size-4 stroke-1.5 shrink-0 text-ink-green-8 fill-none"
-											aria-hidden="true"
-										/>
-										<span class="sr-only">{{ __('Completed') }}</span>
-									</template>
->>>>>>> a65bb05 (fix: hide sidebar progress and skip exercise lookup for guests)
 									<Circle
 										v-else-if="withProgress"
 										class="size-4 stroke-1.5 shrink-0 text-ink-gray-4"
