@@ -1,3 +1,4 @@
+import functools
 import hashlib
 import json
 import re
@@ -383,13 +384,34 @@ def get_average_rating(course: str):
 	return sum(ratings) / len(ratings)
 
 
+def guest_access_allowed():
+	allow_guest_access = frappe.get_cached_value("LMS Settings", None, "allow_guest_access")
+	if frappe.session.user == "Guest" and not allow_guest_access:
+		return False
+	return True
+
+
+def guest_access_required(empty):
+	"""Serve guests only when the site allows guest access; otherwise return `empty()`, such as
+	list or int, so the caller gets an empty result of the usual type."""
+
+	def decorator(fn):
+		@functools.wraps(fn)
+		def wrapper(*args, **kwargs):
+			if not guest_access_allowed():
+				return empty()
+			return fn(*args, **kwargs)
+
+		return wrapper
+
+	return decorator
+
+
 # nosemgrep: security.guest-whitelisted-method - pre-existing grant, unchanged by this branch; the endpoint gates itself (guests get [] unless guest access is on and the course is published). Flagged only because semgrep ci re-scans the whole function when its body changes.
 @frappe.whitelist(allow_guest=True)
 @rate_limit(limit=500, seconds=60 * 60)
+@guest_access_required(list)
 def get_reviews(course: str):
-	if not guest_access_allowed():
-		return []
-
 	is_course_published = frappe.db.get_value("LMS Course", course, "published")
 	if not is_course_published and not can_modify_course(course) and not get_membership(course):
 		return []
@@ -800,15 +822,13 @@ MAX_CHART_PERIODS = 366
 # nosemgrep: security.guest-whitelisted-method - pre-existing grant; this branch narrows it to the Statistics charts. Flagged only because the body changed.
 @frappe.whitelist(allow_guest=True)
 @rate_limit(limit=500, seconds=60 * 60)
+@guest_access_required(list)
 def get_chart_data(
 	chart_name: str,
 	timegrain: str = "Daily",
 	from_date: str = None,
 	to_date: str = None,
 ):
-	if not guest_access_allowed():
-		return []
-
 	if not isinstance(chart_name, str) or chart_name not in STATISTICS_CHARTS:
 		frappe.throw(_("This chart is not available."), frappe.PermissionError)
 
@@ -902,12 +922,11 @@ def get_chart_details(
 		)
 
 
+# nosemgrep: security.guest-whitelisted-method - pre-existing grant, unchanged by this branch; guests are served only when guest access is on. Flagged only because the body changed.
 @frappe.whitelist(allow_guest=True)
 @rate_limit(limit=500, seconds=60 * 60)
+@guest_access_required(list)
 def get_course_completion_data():
-	if not guest_access_allowed():
-		return []
-
 	all_membership = frappe.db.count("LMS Enrollment")
 	completed = frappe.db.count("LMS Enrollment", {"progress": ["like", "%100%"]})
 
@@ -1243,13 +1262,6 @@ def get_current_exchange_rate(source: str, target: str = "USD") -> float:
 	return details["rates"][target]
 
 
-def guest_access_allowed():
-	allow_guest_access = frappe.get_cached_value("LMS Settings", None, "allow_guest_access")
-	if frappe.session.user == "Guest" and not allow_guest_access:
-		return False
-	return True
-
-
 SELF_SCOPED_FILTERS = ("created", "enrolled")
 
 
@@ -1363,11 +1375,9 @@ def resolve_page_length(limit_page_length=None) -> int:
 
 @frappe.whitelist(allow_guest=True)  # nosemgrep: frappe-semgrep-rules.rules.security.guest-whitelisted-method
 @rate_limit(limit=500, seconds=60 * 60)
+@guest_access_required(list)
 def get_courses(filters: dict = None, start: int = 0, limit_page_length: int | str = None) -> list:
 	"""Returns the list of courses."""
-
-	if not guest_access_allowed():
-		return []
 
 	filters = check_list_filters(filters, COURSE_LIST_FILTERS)
 
@@ -1411,6 +1421,7 @@ def get_courses(filters: dict = None, start: int = 0, limit_page_length: int | s
 
 @frappe.whitelist(allow_guest=True)  # nosemgrep: frappe-semgrep-rules.rules.security.guest-whitelisted-method
 @rate_limit(limit=500, seconds=60 * 60)
+@guest_access_required(int)
 def get_course_count(filters: dict = None) -> int:
 	"""How many courses the same filters `get_courses` takes actually match.
 
@@ -1419,9 +1430,6 @@ def get_course_count(filters: dict = None) -> int:
 	title search is an or_filter. Both only exist once `update_course_filters`
 	has resolved them.
 	"""
-	if not guest_access_allowed():
-		return 0
-
 	filters = check_list_filters(filters, COURSE_LIST_FILTERS)
 
 	self_scoped = is_self_scoped(filters)
@@ -1461,13 +1469,12 @@ def as_filter_conditions(filters: dict) -> list:
 	return conditions
 
 
+# nosemgrep: security.guest-whitelisted-method - pre-existing grant, unchanged by this branch; guests are served only when guest access is on. Flagged only because the body changed.
 @frappe.whitelist(allow_guest=True)
 @rate_limit(limit=500, seconds=60 * 60)
+@guest_access_required(list)
 def get_course_categories() -> list:
 	"""Returns the full, unfiltered list of categories used by published courses."""
-
-	if not guest_access_allowed():
-		return []
 
 	# Distinct category strings are inherently bounded (one per category, not per
 	# course), so the full set is intended; limit_page_length=0 makes the
@@ -1618,10 +1625,8 @@ def get_course_fields():
 
 @frappe.whitelist(allow_guest=True)  # nosemgrep: frappe-semgrep-rules.rules.security.guest-whitelisted-method
 @rate_limit(limit=500, seconds=60 * 60)
+@guest_access_required(dict)
 def get_course_details(course: str):
-	if not guest_access_allowed():
-		return {}
-
 	is_course_published = frappe.db.get_value("LMS Course", course, "published")
 	membership = get_membership(course)
 	if not is_course_published and not can_modify_course(course) and not membership:
@@ -1701,14 +1706,12 @@ def get_categorized_courses(courses: list) -> dict:
 
 
 @frappe.whitelist(allow_guest=True)  # nosemgrep: frappe-semgrep-rules.rules.security.guest-whitelisted-method
+@guest_access_required(list)
 def get_course_outline(course: str, progress: bool = False) -> list:
 	"""Returns the course outline."""
 
 	if not isinstance(course, str):
 		frappe.throw(_("Course must be a string."))
-
-	if not guest_access_allowed():
-		return []
 
 	if not can_view_course(course):
 		return []
@@ -1977,10 +1980,8 @@ def _gate_redirect(course: str) -> dict:
 
 @frappe.whitelist(allow_guest=True)  # nosemgrep: frappe-semgrep-rules.rules.security.guest-whitelisted-method
 @rate_limit(limit=500, seconds=60 * 60)
+@guest_access_required(dict)
 def get_lesson(course: str, chapter: int, lesson: int) -> dict:
-	if not guest_access_allowed():
-		return {}
-
 	# Local import: permissions imports from utils at module load.
 	from lms.lms.permissions import can_access_course
 
@@ -2152,10 +2153,8 @@ def get_neighbour_lesson(course: str, chapter: int, lesson: int) -> dict:
 
 @frappe.whitelist(allow_guest=True)  # nosemgrep: frappe-semgrep-rules.rules.security.guest-whitelisted-method
 @rate_limit(limit=500, seconds=60 * 60)
+@guest_access_required(dict)
 def get_batch_details(batch: str):
-	if not guest_access_allowed():
-		return {}
-
 	from lms.lms.permissions import can_instruct_batch, evaluates_batch
 
 	batch_students = frappe.get_all("LMS Batch Enrollment", {"batch": batch}, pluck="member")
@@ -2409,12 +2408,11 @@ def get_assignment(name: str) -> dict:
 	return enrich_schedule_payload(doc.as_dict())
 
 
+# nosemgrep: security.guest-whitelisted-method - pre-existing grant, unchanged by this branch; guests are served only when guest access is on. Flagged only because the body changed.
 @frappe.whitelist(allow_guest=True)
 @rate_limit(limit=500, seconds=60 * 60)
+@guest_access_required(list)
 def get_batch_courses(batch: str) -> list:
-	if not guest_access_allowed():
-		return []
-
 	courses = []
 	course_list = frappe.get_all("Batch Course", {"parent": batch}, ["name", "course"])
 
@@ -3488,15 +3486,13 @@ def validate_program_enrollment(program: str):
 
 @frappe.whitelist(allow_guest=True)  # nosemgrep: frappe-semgrep-rules.rules.security.guest-whitelisted-method
 @rate_limit(limit=500, seconds=60 * 60)
+@guest_access_required(list)
 def get_batches(
 	filters: dict = None,
 	start: int = 0,
 	order_by: str | None = "start_date",
 	limit_page_length: int | str = None,
 ):
-	if not guest_access_allowed():
-		return []
-
 	filters = check_list_filters(filters, BATCH_LIST_FILTERS)
 	# Batches sort by start date only; anything else falls back to the default.
 	order_by = " ".join(order_by.lower().split()) if isinstance(order_by, str) else ""
@@ -3549,6 +3545,7 @@ def update_batch_filters(filters: dict) -> None:
 
 @frappe.whitelist(allow_guest=True)  # nosemgrep: frappe-semgrep-rules.rules.security.guest-whitelisted-method
 @rate_limit(limit=500, seconds=60 * 60)
+@guest_access_required(int)
 def get_batch_count(filters: dict = None) -> int:
 	"""How many batches the same filters `get_batches` takes actually match.
 
@@ -3560,9 +3557,6 @@ def get_batch_count(filters: dict = None) -> int:
 	pass over them: the endpoint is open to guests, so the work it does must not
 	grow with the number of batches on the site.
 	"""
-	if not guest_access_allowed():
-		return 0
-
 	filters = check_list_filters(filters, BATCH_LIST_FILTERS)
 
 	self_scoped = is_self_scoped(filters)
@@ -3691,12 +3685,11 @@ def get_palette(full_name: str) -> list:
 	return palette[idx % 8]
 
 
+# nosemgrep: security.guest-whitelisted-method - pre-existing grant, unchanged by this branch; guests are served only when guest access is on. Flagged only because the body changed.
 @frappe.whitelist(allow_guest=True)
 @rate_limit(limit=500, seconds=60 * 60)
+@guest_access_required(list)
 def get_related_courses(course: str) -> list:
-	if not guest_access_allowed():
-		return []
-
 	related_course_details = []
 	related_courses = frappe.get_all("Related Courses", {"parent": course}, order_by="idx", pluck="course")
 

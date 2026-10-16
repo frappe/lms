@@ -66,6 +66,7 @@ from lms.lms.utils import (
 	get_instructors,
 	get_lms_route,
 	guest_access_allowed,
+	guest_access_required,
 	has_course_instructor_role,
 	has_evaluator_role,
 	has_lms_role,
@@ -464,7 +465,9 @@ def asks_only_open(status) -> bool:
 	return list(values) == ["Open"]
 
 
+# nosemgrep: security.guest-whitelisted-method - pre-existing grant, unchanged by this branch; guests are served only when guest access is on. Flagged only because the body changed.
 @frappe.whitelist(allow_guest=True)
+@guest_access_required(list)
 def get_job_opportunities(
 	filters: dict = None,
 	or_filters: dict = None,
@@ -473,9 +476,6 @@ def get_job_opportunities(
 	limit_start: int = None,
 	limit_page_length: int = None,
 ):
-	if not guest_access_allowed():
-		return []
-
 	if limit_page_length is not None:
 		page_length = cint(limit_page_length)
 	if limit_start is not None:
@@ -509,21 +509,19 @@ def get_job_opportunities(
 	return jobs
 
 
+# nosemgrep: security.guest-whitelisted-method - pre-existing grant, unchanged by this branch; guests are served only when guest access is on. Flagged only because the body changed.
 @frappe.whitelist(allow_guest=True)
+@guest_access_required(int)
 def get_job_opportunities_count(filters: dict = None, or_filters: dict = None):
-	if not guest_access_allowed():
-		return 0
-
 	filters, or_filters = sanitize_job_filters(filters, or_filters)
 	return frappe.db.count("Job Opportunity", filters, or_filters)
 
 
+# nosemgrep: security.guest-whitelisted-method - pre-existing grant, unchanged by this branch; guests are served only when guest access is on. Flagged only because the body changed.
 @frappe.whitelist(allow_guest=True)
+@guest_access_required(frappe._dict)
 def get_chart_details():
 	details = frappe._dict()
-	if not guest_access_allowed():
-		return details
-
 	details.enrollments = frappe.db.count("LMS Enrollment")
 	details.courses = frappe.db.count(
 		"LMS Course",
@@ -1166,11 +1164,9 @@ def get_all_users():
 
 # nosemgrep: security.guest-whitelisted-method - pre-existing grant, unchanged by this branch; the endpoint gates itself (a guest on a site with allow_guest_access off gets a bare []). Flagged only because semgrep ci re-scans the whole function when its body changes.
 @frappe.whitelist(allow_guest=True)
+@guest_access_required(list)
 def get_sidebar_settings():
 	lms_settings = frappe.get_single("LMS Settings")
-	if frappe.session.user == "Guest" and not lms_settings.allow_guest_access:
-		return []
-
 	rows = get_sidebar_rows(lms_settings)
 	sidebar_items = frappe._dict()
 
