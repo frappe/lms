@@ -10,8 +10,20 @@
 			</div>
 			<div v-if="!readOnlyMode">
 				<div v-if="course.data?.membership" class="space-y-2 mb-8">
+<<<<<<< HEAD
 					<router-link
 						:to="{
+=======
+					<ProgressBar :progress="progress" :label="__('Course progress')" />
+					<div v-if="lessonCounts.total" class="text-p-sm text-ink-gray-7">
+						{{ lessonsCompletedLabel }}
+					</div>
+					<Button
+						variant="solid"
+						size="md"
+						class="w-full"
+						:route="{
+>>>>>>> 103b333 (fix: show learner progress in the course side card)
 							name: 'Lesson',
 							params: {
 								courseName: course.data?.name,
@@ -24,6 +36,7 @@
 							},
 						}"
 					>
+<<<<<<< HEAD
 						<Button variant="solid" size="md" class="w-full">
 							<template #prefix>
 								<span class="lucide-book-text size-4" />
@@ -33,6 +46,15 @@
 							</span>
 						</Button>
 					</router-link>
+=======
+						<template #prefix>
+							<span class="lucide-book-text size-4" />
+						</template>
+						<span>
+							{{ progress ? __('Continue Learning') : __('Start Learning') }}
+						</span>
+					</Button>
+>>>>>>> 103b333 (fix: show learner progress in the course side card)
 					<CertificationLinks :courseName="course.data.name" class="w-full" />
 				</div>
 				<router-link
@@ -147,10 +169,11 @@
 	</div>
 </template>
 <script setup lang="ts">
-import { computed, inject } from 'vue'
+import { computed, inject, watch } from 'vue'
 import { Badge, Button, call, createResource, toast } from 'frappe-ui'
 import { useRouter } from 'vue-router'
 import CertificationLinks from '@/components/CertificationLinks.vue'
+import ProgressBar from '@/components/ProgressBar.vue'
 import VideoPreview from '@/components/VideoPreview.vue'
 import { openExternal } from '@/utils/openExternal'
 import type {
@@ -239,6 +262,42 @@ const hasCourseStats = computed<boolean>(() =>
 			props.course.data?.lessons ||
 			(props.course.data?.quiz_count ?? 0) > 0 ||
 			props.course.data?.enable_certification
+	)
+)
+
+const progress = computed<number>(
+	() => props.course.data?.membership?.progress ?? 0
+)
+
+// The stored progress lags lesson edits, so count the outline's completed flags.
+const outline = createResource({
+	url: 'lms.lms.utils.get_course_outline',
+	cache: ['course_outline_student', props.course.data?.name, 'progress'],
+	makeParams() {
+		return { course: props.course.data?.name, progress: true }
+	},
+}) as Resource<{ lessons?: { is_complete?: boolean }[] }[] | null>
+
+watch(
+	() => props.course.data?.membership && props.course.data.name,
+	(name) => {
+		if (name) outline.reload()
+	},
+	{ immediate: true }
+)
+
+const lessonCounts = computed(() => {
+	const lessons = (outline.data || []).flatMap((c) => c.lessons || [])
+	return {
+		total: lessons.length,
+		completed: lessons.filter((l) => l.is_complete).length,
+	}
+})
+
+const lessonsCompletedLabel = computed<string>(() =>
+	__('{0} of {1} lessons completed').format(
+		lessonCounts.value.completed,
+		lessonCounts.value.total
 	)
 )
 
