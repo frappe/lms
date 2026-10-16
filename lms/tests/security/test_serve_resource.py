@@ -1,5 +1,6 @@
 import base64
 import json
+import os
 
 import frappe
 
@@ -133,6 +134,31 @@ class TestServeResourceUnderscoreFilename(BaseTestUtils):
 		self.assertTrue(_resolve_lesson_references(self.file_url))
 
 	# --- user-facing behaviour ----------------------------------------------------
+
+	def _served_name(self, user):
+		"""The download name serve_resource hands to send_private_file."""
+		served = {}
+		original = course_lesson._serve_private_file
+		course_lesson._serve_private_file = lambda relative_path, filename: served.update(name=filename)
+		frappe.set_user(user)
+		try:
+			serve_resource(self.file_url)
+		finally:
+			course_lesson._serve_private_file = original
+			frappe.set_user("Administrator")
+		return served["name"]
+
+	def test_a_renamed_file_is_served_as_its_stored_type(self):
+		# send_private_file takes the Content-Type from this name; the owner can rename the
+		# File to .html while the stored file stays a .pdf.
+		original_name = self.pdf.file_name
+		frappe.db.set_value("File", self.pdf.name, "file_name", "notes.html")
+		self.addCleanup(frappe.db.set_value, "File", self.pdf.name, "file_name", original_name)
+
+		self.assertEqual(self._served_name(self.student.email), os.path.basename(self.file_url))
+
+	def test_a_name_with_the_stored_extension_is_kept(self):
+		self.assertEqual(self._served_name(self.student.email), self.pdf.file_name)
 
 	def test_enrolled_student_served(self):
 		self.assertIsNotNone(self._serve_as(self.student.email))
