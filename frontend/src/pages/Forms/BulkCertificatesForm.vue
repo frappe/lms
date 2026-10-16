@@ -15,11 +15,13 @@
 				/>
 				<FormControl
 					type="date"
+					:format="dateFormat"
 					v-model="details.issue_date"
 					:label="__('Issue Date')"
 				/>
 				<FormControl
 					type="date"
+					:format="dateFormat"
 					v-model="details.expiry_date"
 					:label="__('Expiry Date')"
 				/>
@@ -56,7 +58,7 @@
 			>
 				<HeaderButton
 					data-testid="bulk-certificates-save"
-					:label="__('Save')"
+					:label="__('Generate')"
 					variant="solid"
 					:loading="generating"
 					@click="generateCertificates()"
@@ -79,6 +81,7 @@ import {
 } from '@/composables/useBatchForms'
 import { useFormRoute } from '@/composables/useFormRoute'
 import { resourceErrorMessage, submitResource } from '@/utils/resource'
+import { getDateFormat } from '@/utils/format'
 
 const props = defineProps({
 	batchName: {
@@ -91,6 +94,7 @@ const dayjs = inject('$dayjs')
 const user = inject('$user')
 const route = useRoute()
 const readOnlyMode = window.read_only_mode
+const dateFormat = getDateFormat()
 
 // C2: close()'s pop branch restores the hash by itself; its deep-link branch
 // replaces to this literal location, so the tab hash has to be carried here.
@@ -106,7 +110,9 @@ const batch = useBatchDetails(() => props.batchName)
 const loadingBatch = computed(() => !batch.data && batch.loading)
 
 const isAdmin = computed(() =>
-	Boolean(user.data?.is_moderator || user.data?.is_evaluator)
+	Boolean(
+		user.data?.is_moderator || user.data?.is_evaluator || batch.data?.can_manage
+	)
 )
 
 // Lifted off the opener in BatchDetail.vue — "Generate Certificates" only
@@ -121,7 +127,7 @@ const refusal = computed(() => {
 		return __('You are not permitted to generate certificates for this batch.')
 	if (!batch.data?.certification)
 		return __('Certificates are not enabled for this batch.')
-	if (!batch.data?.students?.length)
+	if (!batch.data?.student_count)
 		return __('This batch has no students to certify.')
 	return null
 })
@@ -135,19 +141,20 @@ const details = reactive({
 	course: null,
 })
 
-const createCertificate = createResource({
-	url: 'frappe.client.insert',
-	makeParams(values) {
+// The server certifies each student under the caller's own permissions, so this
+// form never holds their addresses. On any failure the form stays open, so the
+// toasts land where the user can act on them.
+const createCertificates = createResource({
+	url: 'lms.lms.api.generate_batch_certificates',
+	makeParams() {
 		return {
-			doc: {
-				doctype: 'LMS Certificate',
+			batch: props.batchName,
+			details: {
 				issue_date: details.issue_date,
 				expiry_date: details.expiry_date,
 				template: details.template,
 				published: details.published,
-				course: values.course,
-				batch_name: values.batch,
-				member: values.member,
+				course: details.course,
 				evaluator: details.evaluator,
 			},
 		}
@@ -156,48 +163,32 @@ const createCertificate = createResource({
 
 const generating = ref(false)
 
-// Design doc R4. The modal fired one insert per student without awaiting any
-// of them, then closed and claimed success immediately — so a server-side
-// failure arrived as a toast against a form that had already gone, and the
-// user was told every certificate was created when none might have been.
-// Routing made that worse, because closing now navigates.
-//
-// The requests still go out together (same load on the server as before); the
-// difference is that the outcome is waited for. On any failure the form stays
-// open, so the per-student error toasts land somewhere the user can act on.
 const generateCertificates = async () => {
 	if (refusal.value || generating.value) return
 	generating.value = true
-	let failed = 0
+	let errors = []
+	let failed = false
 	try {
-		// try/finally, not a bare await: frappe-ui's handleError RETHROWS after
-		// running onError (resources.js:183), so one rejected insert rejects the
-		// Promise.all and skips the reset below — leaving the Generate button
-		// spinning and disabled with no way back but a reload.
-		await Promise.all(
-			(batch.data?.students || []).map((student) =>
-				submitResource(
-					createCertificate,
-					{
-						course: details.course,
-						batch: props.batchName,
-						member: student,
-					},
-					{
-						onError(err) {
-							failed += 1
-							toast.error(
-								resourceErrorMessage(err, __('Unable to generate certificate'))
-							)
-						},
-					}
-				)
-			)
+		await submitResource(
+			createCertificates,
+			{},
+			{
+				onSuccess(result) {
+					errors = result?.errors || []
+				},
+				onError(err) {
+					failed = true
+					toast.error(
+						resourceErrorMessage(err, __('Unable to generate certificate'))
+					)
+				},
+			}
 		)
 	} finally {
 		generating.value = false
 	}
-	if (failed) return
+	errors.forEach((message) => toast.error(message))
+	if (failed || errors.length) return
 	toast.success(__('Certificates generated successfully'))
 	close()
 }

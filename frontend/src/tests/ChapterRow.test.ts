@@ -1,8 +1,11 @@
-import { mount } from '@vue/test-utils'
+import { mount, RouterLinkStub } from '@vue/test-utils'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { nextTick } from 'vue'
 import ChapterRow from '@/components/ChapterRow.vue'
+import type { OutlineChapter } from '@/types'
 
 const pushMock = vi.hoisted(() => vi.fn())
+const focusMock = vi.hoisted(() => vi.fn())
 
 vi.mock('vue-router', () => ({
 	useRoute: () => ({ params: {}, query: {} }),
@@ -16,6 +19,8 @@ vi.mock('frappe-ui', () => ({
 	TextInput: {
 		props: ['modelValue'],
 		emits: ['update:modelValue'],
+		expose: ['focus'],
+		methods: { focus: focusMock },
 		template: `
 			<div>
 				<input
@@ -26,7 +31,8 @@ vi.mock('frappe-ui', () => ({
 		`,
 	},
 	Tooltip: {
-		template: `<span><slot /></span>`,
+		props: ['text'],
+		template: `<span :data-tooltip="text"><slot /></span>`,
 	},
 	toast: {
 		success: vi.fn(),
@@ -48,7 +54,7 @@ vi.mock('vuedraggable', () => ({
 
 vi.stubGlobal('__', (s: string) => s)
 
-const chapter = {
+const chapter: OutlineChapter = {
 	name: 'CH-2',
 	title: 'Old Chapter',
 	idx: 2,
@@ -56,25 +62,38 @@ const chapter = {
 	lessons: [{ name: 'LESSON-1', title: 'Lesson 1', number: '2-1' }],
 }
 
-const mountRow = () =>
+const mountRow = (
+	chapterOverride: OutlineChapter = chapter,
+	allowEdit = true
+) =>
 	mount(ChapterRow, {
 		props: {
-			chapter,
-			index: 1,
+			chapter: chapterOverride,
 			courseName: 'course-1',
-			allowEdit: true,
+			allowEdit,
 		},
 		global: {
 			mocks: { __: (s: string) => s },
 			provide: { $user: { data: { name: 'admin@example.com' } } },
+			stubs: { RouterLink: RouterLinkStub },
 		},
 	})
 
 beforeEach(() => {
 	pushMock.mockReset()
+	focusMock.mockReset()
 })
 
 describe('ChapterRow inline rename', () => {
+	it('focuses the rename input through its exposed focus()', async () => {
+		const wrapper = mountRow()
+
+		await wrapper.get('[title="Old Chapter"]').trigger('dblclick')
+		await nextTick()
+
+		expect(focusMock).toHaveBeenCalledTimes(1)
+	})
+
 	it('commits on Enter without toggling the chapter disclosure', async () => {
 		const wrapper = mountRow()
 
@@ -89,5 +108,250 @@ describe('ChapterRow inline rename', () => {
 			{ chapter, title: 'Renamed Chapter' },
 		])
 		expect(wrapper.text()).not.toContain('Lesson 1')
+	})
+})
+
+describe('ChapterRow lesson count', () => {
+	const count = (allowEdit: boolean) =>
+		mountRow(chapter, allowEdit).get('span.text-ink-gray-6').classes()
+
+	it('gives way to the delete action on hover and on touch', () => {
+		expect(count(true)).toEqual(
+			expect.arrayContaining([
+				'group-hover:hidden',
+				'[@media(hover:none)]:hidden',
+			])
+		)
+	})
+
+	it('stays visible when the chapter is not editable', () => {
+		expect(count(false)).not.toContain('group-hover:hidden')
+		expect(count(false)).not.toContain('[@media(hover:none)]:hidden')
+	})
+})
+
+describe('ChapterRow locked lesson', () => {
+	it('renders a lock and no router-link for a locked lesson', () => {
+		const wrapper = mountRow({
+			...chapter,
+			idx: 1,
+			lessons: [
+				{ name: 'LESSON-1', title: 'Lesson 1', number: '2-1', locked: 1 },
+			],
+		})
+
+		expect(wrapper.find('.lucide-lock-keyhole').exists()).toBe(true)
+		expect(wrapper.find('a').exists()).toBe(false)
+	})
+
+	// The locked row is a plain <div> (implicit role="generic"), and ARIA
+	// prohibits naming a generic element, so `aria-label` on it is not
+	// guaranteed to reach a screen reader. The state travels as real text
+	// instead, which is exposed whatever the role, and the icon is hidden so
+	// it is not announced twice.
+	it('exposes the locked state as text, not as aria-label on a div', () => {
+		const wrapper = mountRow({
+			...chapter,
+			idx: 1,
+			lessons: [
+				{ name: 'LESSON-1', title: 'Lesson 1', number: '2-1', locked: 1 },
+			],
+		})
+
+		const row = wrapper.get('.cursor-not-allowed')
+		expect(row.attributes('aria-label')).toBeUndefined()
+		expect(row.attributes('aria-disabled')).toBeUndefined()
+		expect(row.get('.sr-only').text()).toBe('Locked')
+		expect(row.text()).toContain('Lesson 1')
+
+		const lock = wrapper.get('.lucide-lock-keyhole')
+		expect(lock.attributes('aria-hidden')).toBe('true')
+	})
+
+	it('still links an unlocked lesson', () => {
+		const wrapper = mountRow({
+			...chapter,
+			idx: 1,
+			lessons: [
+				{ name: 'LESSON-1', title: 'Lesson 1', number: '2-1', locked: 0 },
+			],
+		})
+
+		expect(wrapper.find('a').exists()).toBe(true)
+		expect(wrapper.find('.lucide-lock-keyhole').exists()).toBe(false)
+		expect(wrapper.text()).not.toContain('Locked')
+	})
+
+	// A SCORM chapter renders no DisclosurePanel, so it never reaches the per-lesson
+	// lock affordance above: it used to look identical to an open chapter, and the
+	// student learned it was locked only after SCORMChapter.vue bounced them back.
+	const scormChapter = (locked: 0 | 1): OutlineChapter => ({
+		...chapter,
+		idx: 1,
+		is_scorm_package: 1 as const,
+		lessons: [
+			{ name: 'LESSON-1', title: 'SCORM Lesson', number: '1-1', locked },
+		],
+	})
+
+	it('marks a locked SCORM chapter and refuses to open it', async () => {
+		const wrapper = mountRow(scormChapter(1))
+
+		const lock = wrapper.get('.lucide-lock-keyhole')
+		expect(lock.attributes('aria-hidden')).toBe('true')
+		expect(wrapper.get('.sr-only').text()).toBe('Locked')
+
+		await wrapper.get('[title="Old Chapter"]').trigger('click')
+		expect(pushMock).not.toHaveBeenCalled()
+	})
+
+	it('still opens an unlocked SCORM chapter', () => {
+		const wrapper = mountRow(scormChapter(0))
+
+		expect(wrapper.find('.lucide-lock-keyhole').exists()).toBe(false)
+		expect(wrapper.getComponent(RouterLinkStub).props('to')).toEqual({
+			name: 'SCORMChapter',
+			params: { courseName: 'course-1', chapterName: 'CH-2' },
+		})
+	})
+
+	it('does not emit select-lesson when a locked inline row is clicked', async () => {
+		const wrapper = mount(ChapterRow, {
+			props: {
+				chapter: {
+					...chapter,
+					idx: 1,
+					lessons: [
+						{
+							name: 'LESSON-1',
+							title: 'Lesson 1',
+							number: '2-1',
+							locked: 1,
+						},
+					],
+				},
+				courseName: 'course-1',
+				inlineSelect: true,
+			},
+			global: {
+				mocks: { __: (s: string) => s },
+				provide: { $user: { data: { name: 'admin@example.com' } } },
+			},
+		})
+
+		await wrapper.get('.cursor-not-allowed').trigger('click')
+
+		expect(wrapper.emitted('select-lesson')).toBeUndefined()
+	})
+})
+
+describe('ChapterRow keyboard access', () => {
+	// Guards: chapter and lesson actions were icon spans, nested in the header or
+	// lesson control, and completion was an icon alone. Introduced in #2424 and
+	// #2674; test added with the a11y audit remediation.
+	const done: OutlineChapter = {
+		...chapter,
+		idx: 1,
+		lessons: [
+			{ name: 'LESSON-1', title: 'Lesson 1', number: '2-1', is_complete: true },
+		],
+	}
+
+	it('makes delete a button outside the header and the lesson link', async () => {
+		const wrapper = mountRow(done)
+
+		for (const label of ['Delete Chapter', 'Delete Lesson']) {
+			const button = wrapper.get(`button[label="${label}"]`)
+			expect(button.element.parentElement!.closest('a, button')).toBeNull()
+		}
+		await wrapper.get('button[label="Delete Lesson"]').trigger('click')
+		expect(wrapper.emitted('delete-lesson')).toEqual([
+			[{ lesson: 'LESSON-1', chapter: 'CH-2' }],
+		])
+		expect(wrapper.get('a').get('.sr-only').text()).toBe('Completed')
+	})
+
+	it('renders an inline-select lesson as a button', async () => {
+		const wrapper = mount(ChapterRow, {
+			props: { chapter: done, courseName: 'course-1', inlineSelect: true },
+			global: {
+				mocks: { __: (s: string) => s },
+				provide: { $user: { data: { name: 'admin@example.com' } } },
+			},
+		})
+
+		await wrapper.get('[data-testid="outline-lesson"] button').trigger('click')
+		expect(wrapper.emitted('select-lesson')).toEqual([
+			[{ chapterNumber: '2', lessonNumber: '1' }],
+		])
+	})
+})
+
+describe('ChapterRow draft lesson', () => {
+	const mountInline = (selectedLessonNumber: string) =>
+		mount(ChapterRow, {
+			props: {
+				chapter,
+				courseName: 'course-1',
+				allowEdit: true,
+				inlineSelect: true,
+				selectedLessonNumber,
+			},
+			global: {
+				mocks: { __: (s: string) => s },
+				provide: { $user: { data: { name: 'admin@example.com' } } },
+			},
+		})
+
+	it('shows the open draft as the active row of its chapter', () => {
+		const row = mountInline('2-new').find(
+			'[data-testid="outline-draft-lesson"]'
+		)
+		expect(row.exists()).toBe(true)
+		expect(row.classes()).toContain('bg-surface-gray-3')
+	})
+
+	it('shows nothing for a draft in another chapter', () => {
+		const wrapper = mountInline('1-new')
+		expect(wrapper.find('[data-testid="outline-draft-lesson"]').exists()).toBe(
+			false
+		)
+	})
+})
+
+describe('ChapterRow lock reason', () => {
+	// Guards #3015: the lock gave no reason. Lessons unlock in course order, so a
+	// lesson stays locked while any earlier one is incomplete.
+	const reason = 'Complete the previous lessons to unlock this one'
+	const lockTooltip = (wrapper: ReturnType<typeof mountRow>) =>
+		wrapper
+			.findAll('[data-tooltip]')
+			.find((el) => el.find('.lucide-lock-keyhole').exists())
+
+	it('explains a locked lesson', () => {
+		const wrapper = mountRow({
+			...chapter,
+			idx: 1,
+			lessons: [
+				{ name: 'LESSON-1', title: 'Lesson 1', number: '2-1', locked: 1 },
+			],
+		})
+
+		expect(lockTooltip(wrapper)?.attributes('data-tooltip')).toBe(reason)
+		expect(wrapper.get('.cursor-not-allowed').text()).toContain(reason)
+	})
+
+	it('explains a locked SCORM chapter', () => {
+		const wrapper = mountRow({
+			...chapter,
+			idx: 1,
+			is_scorm_package: 1 as const,
+			lessons: [
+				{ name: 'LESSON-1', title: 'SCORM Lesson', number: '1-1', locked: 1 },
+			],
+		})
+
+		expect(lockTooltip(wrapper)?.attributes('data-tooltip')).toBe(reason)
+		expect(wrapper.text()).toContain(reason)
 	})
 })

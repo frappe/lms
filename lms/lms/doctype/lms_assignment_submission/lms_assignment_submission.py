@@ -7,16 +7,55 @@ from frappe.desk.doctype.notification_log.notification_log import make_notificat
 from frappe.model.document import Document
 from frappe.utils import validate_url
 
-from lms.lms.utils import PRIVILEGED_ROLES, get_lms_route
+from lms.lms.html_sanitizer import sanitize_rich_text
+from lms.lms.schedule_utils import assert_within_schedule
+from lms.lms.utils import PRIVILEGED_ROLES, get_attachable_files, get_lms_route, validate_attachable_file
 
 
 class LMSAssignmentSubmission(Document):
 	def validate(self):
 		self.enforce_member_ownership()
 		self.enforce_grading_permission()
+		self.sanitize_rich_text_fields()
+		self.validate_schedule_window()
 		self.validate_duplicates()
 		self.validate_url()
+		validate_attachable_file(self, "assignment_attachment")
 		self.validate_status()
+
+	def sanitize_rich_text_fields(self):
+		"""Drop form controls the framework's allowlist keeps: `comments` is mailed as
+		`email_content`, and both fields render outside the SPA where v-safe-html does not."""
+		for field in ("comments", "answer"):
+			self.set(field, sanitize_rich_text(self.get(field)))
+
+	def validate_schedule_window(self):
+		"""Students cannot create or edit submission content outside the window.
+
+		Privileged roles may still grade (and manage submissions) outside the
+		schedule.
+		"""
+		if PRIVILEGED_ROLES & set(frappe.get_roles()):
+			return
+
+		if not self.assignment:
+			return
+
+		schedule = frappe.db.get_value(
+			"LMS Assignment",
+			self.assignment,
+			["title", "enable_scheduling", "schedule_start", "schedule_end"],
+			as_dict=True,
+		)
+		if not schedule:
+			return
+
+		assert_within_schedule(
+			schedule.enable_scheduling,
+			schedule.schedule_start,
+			schedule.schedule_end,
+			label=schedule.title or _("This assignment"),
+		)
 
 	def enforce_grading_permission(self):
 		"""Only evaluators/instructors may set the grading fields.
@@ -82,20 +121,25 @@ class LMSAssignmentSubmission(Document):
 			self.attach_images_to_document(images)
 
 	def attach_images_to_document(self, images):
+		sources = []
 		for img in images:
 			src = img.get("src", "")
 			if src.startswith("/private/files/"):
-				file_name = frappe.db.get_value("File", {"file_url": src}, "name")
-				if file_name:
-					frappe.db.set_value(
-						"File",
-						file_name,
-						{
-							"attached_to_doctype": self.doctype,
-							"attached_to_name": self.name,
-							"attached_to_field": "answer",
-						},
-					)
+				sources.append(src)
+
+		files = get_attachable_files(sources, self, frappe.session.user)
+		for src in sources:
+			file = files.get(src)
+			if file:
+				frappe.db.set_value(
+					"File",
+					file.name,
+					{
+						"attached_to_doctype": self.doctype,
+						"attached_to_name": self.name,
+						"attached_to_field": "answer",
+					},
+				)
 
 	def trigger_update_notification(self):
 		notification = frappe._dict(

@@ -1,12 +1,42 @@
 import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
+import fs from 'node:fs'
 import path from 'path'
 import { VitePWA } from 'vite-plugin-pwa'
 import { viteStaticCopy } from 'vite-plugin-static-copy'
 
+// `@framework/ui` is imported by name and resolved through node_modules, so the
+// link there is load-bearing rather than a convenience. package.json declares it
+// as `link:../../frappe/ui`, which is correct from apps/lms/frontend and wrong
+// from a git worktree of this app: that resolves to
+// `apps/lms/.lms-worktrees/frappe/ui`, which nothing creates. An install there
+// leaves a link into empty space and the only symptom is "Failed to resolve
+// import @framework/ui/ConditionBuilder", naming neither the link nor the fix.
+//
+// Nothing here can repair it, since yarn owns that path, so this says so instead,
+// with the command. It asks only whether the link leads anywhere: realpathSync
+// throws on a dangling symlink, which is exactly the worktree case. A checkout
+// with no frappe app beside it has no link at all and reaches vite's own
+// "does the file exist?", which is the right error for a missing source.
+function assertFrameworkUiLinked(frontend) {
+	const link = path.join(frontend, 'node_modules', '@framework', 'ui')
+	try {
+		if (fs.statSync(fs.realpathSync(link)).isDirectory()) return
+	} catch {
+		// falls through to the throw below
+	}
+	if (!fs.existsSync(path.dirname(link))) return
+	throw new Error(
+		`@framework/ui at ${link} does not lead anywhere.\n` +
+			"package.json's `link:../../frappe/ui` only resolves from apps/lms/frontend.\n" +
+			'Repair it with:\n  ln -sfn <path to apps/frappe/ui> ' +
+			link
+	)
+}
+
 export default defineConfig(async ({ mode }) => {
-	const isDev = mode === 'development'
-	const frappeui = await importFrappeUIPlugin(isDev)
+	assertFrameworkUiLinked(import.meta.dirname)
+	const frappeui = await importFrappeUIPlugin()
 
 	const config = {
 		define: {
@@ -22,6 +52,7 @@ export default defineConfig(async ({ mode }) => {
 				},
 			}),
 			vue(),
+			dropFrappeUIEsbuildTwin(),
 			VitePWA({
 				registerType: 'autoUpdate',
 				devOptions: {
@@ -51,18 +82,32 @@ export default defineConfig(async ({ mode }) => {
 			// at `${BASE_URL}pdfjs/...`. Served in dev too (static-copy dev middleware).
 			viteStaticCopy({
 				targets: [
+					// stripBase: the plugin keeps the source path under dest
+					// otherwise (pdfjs/cmaps/node_modules/pdfjs-dist/cmaps/...).
 					{
 						src: 'node_modules/pdfjs-dist/cmaps/*',
 						dest: 'pdfjs/cmaps',
+						rename: { stripBase: true },
 					},
 					{
 						src: 'node_modules/pdfjs-dist/standard_fonts/*',
 						dest: 'pdfjs/standard_fonts',
+						rename: { stripBase: true },
 					},
 				],
 			}),
 		],
 		server: {
+			// The linked @framework/ui (apps/frappe/ui) is imported by name and
+			// resolved through its `exports`, so in dev vite serves it from source,
+			// outside this root, hence the allowance helpdesk makes for it too.
+			// Named by resolved path rather than by counting `..` levels: `../..`
+			// is apps/ only from apps/lms/frontend, and a worktree of this app sits
+			// two levels deeper, where it lands on .lms-worktrees/ and the framework
+			// files 403 with "not allowed to be served".
+			fs: {
+				allow: ['..', '../..', '../../..', '../../../..'],
+			},
 			host: '0.0.0.0', // Accept connections from any network interface
 			allowedHosts: true,
 			// SCORM packages are served by Frappe's SCORMRenderer at /scorm/... .
@@ -80,26 +125,68 @@ export default defineConfig(async ({ mode }) => {
 			},
 		},
 		resolve: {
+			// Resolve the linked `@framework/ui` through its symlink rather than its real
+			// path. It is `link:../../frappe/ui`, and its own source imports bare deps of
+			// its own: `vuedraggable` in ConditionGroup.vue, plus reka-ui, dompurify and
+			// frappe-ui. Resolution walks up from the *importer*, so following the link to
+			// `apps/frappe/ui/src/...` looks for them under `apps/frappe` — which on a bench
+			// has its own node_modules and in CI is a sparse checkout of `ui` alone. Keeping
+			// the symlinked path walks up through `apps/lms/frontend/node_modules` instead,
+			// where LMS already declares every one of them.
+			//
+			// So it fails only in CI, which is why it was invisible here: locally
+			// `apps/frappe/node_modules/vuedraggable` satisfies the lookup. Both the vitest
+			// run and the SPA build hit it, as "Failed to resolve import vuedraggable from
+			// ...ConditionGroup.vue". Reproduce it by pointing the link at a copy of
+			// apps/frappe/ui that has no node_modules beside it.
+			preserveSymlinks: true,
 			alias: {
-				'@': path.resolve(__dirname, 'src'),
+				'@': path.resolve(import.meta.dirname, 'src'),
 			},
 			// Force one copy of prosemirror; duplicate copies break tiptap's
 			// instanceof checks and crash the list buttons.
 			dedupe: [
+				// @framework/ui imports from vue and frappe-ui; a second copy of
+				// either would give its Combobox a different frappe-ui than ours.
 				'prosemirror-model',
 				'prosemirror-state',
 				'prosemirror-view',
 				'prosemirror-transform',
+				// A nested second copy of these makes the html language throw
+				// while parsing and leaves javascript with no syntax tree.
+				'@codemirror/language',
+				'@codemirror/state',
+				'@codemirror/view',
+				'@lezer/common',
+				'@lezer/lr',
+				'@lezer/highlight',
 				'vue',
 				'frappe-ui',
 			],
 		},
 		optimizeDeps: {
 			include: [
-				'feather-icons',
 				'tailwind.config.js',
 				'highlight.js',
 				'plyr',
+				// frappe-ui is excluded below, so a subpath only it imports is served
+				// raw beside a pre-bundled sibling: a second `echarts/core` or
+				// `@codemirror/state`. Bundle each family in one run, as Insights does.
+				'echarts/core',
+				'echarts/charts',
+				'echarts/components',
+				'echarts/renderers',
+				'echarts/features',
+				'@codemirror/state',
+				'@codemirror/view',
+				'@codemirror/language',
+				'@codemirror/commands',
+				'@codemirror/search',
+				'@codemirror/autocomplete',
+				'@codemirror/lang-html',
+				'@codemirror/lang-javascript',
+				'@lezer/common',
+				'@lezer/highlight',
 			],
 			exclude: mode === 'production' ? [] : ['frappe-ui'],
 		},
@@ -107,19 +194,27 @@ export default defineConfig(async ({ mode }) => {
 	return config
 })
 
-async function importFrappeUIPlugin(isDev) {
-	if (isDev) {
-		try {
-			const module = await import('../frappe-ui/vite')
-			return module.default
-		} catch (error) {
-			console.warn(
-				'Local frappe-ui not found, falling back to npm package:',
-				error.message
+// frappe-ui's code-languages plugin hands Vite an esbuild plugin for dependency
+// pre-bundling. Vite 8 pre-bundles with Rolldown, whose esbuild shim does not
+// implement it, so the dev server exits with "Error during dependency
+// optimization ... Not implemented". It only stubs frappe-ui's own language
+// imports, and dev excludes frappe-ui from pre-bundling, so dropping it costs
+// nothing. Remove once frappe-ui supports Vite 8 (frappe/frappe-ui#1297).
+function dropFrappeUIEsbuildTwin() {
+	return {
+		name: 'lms-drop-frappe-ui-esbuild-twin',
+		enforce: 'post',
+		config(config) {
+			const plugins = config.optimizeDeps?.esbuildOptions?.plugins
+			if (!plugins) return
+			config.optimizeDeps.esbuildOptions.plugins = plugins.filter(
+				(plugin) => plugin.name !== 'frappeui-code-languages'
 			)
-		}
+		},
 	}
-	// Fall back to npm package if local import fails
+}
+
+async function importFrappeUIPlugin() {
 	const module = await import('frappe-ui/vite')
 	return module.default
 }

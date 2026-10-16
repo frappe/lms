@@ -5,11 +5,17 @@
  "doctype": "DocType",
  "engine": "InnoDB",
  "field_order": [
+  "name1",
+  "item_type",
   "web_page",
+  "route",
+  "url",
   "title",
   "column_break_glmh",
   "icon",
-  "route"
+  "hidden",
+  "is_standard",
+  "open_in_new_window"
  ],
  "fields": [
   {
@@ -21,16 +27,16 @@
    "fieldtype": "Data",
    "in_list_view": 1,
    "label": "Icon",
-   "read_only": 1,
-   "reqd": 1
+   "mandatory_depends_on": "eval:doc.item_type && doc.item_type != 'Built-in'"
   },
   {
+   "depends_on": "eval:doc.item_type == 'Web Page'",
    "fieldname": "web_page",
    "fieldtype": "Link",
    "in_list_view": 1,
    "label": "Web Page",
-   "options": "Web Page",
-   "reqd": 1
+   "mandatory_depends_on": "eval:doc.item_type == 'Web Page'",
+   "options": "Web Page"
   },
   {
    "fetch_from": "web_page.route",
@@ -40,17 +46,62 @@
    "label": "Route"
   },
   {
+   "depends_on": "eval:['Route','External'].includes(doc.item_type)",
    "fetch_from": "web_page.title",
    "fieldname": "title",
    "fieldtype": "Data",
    "in_list_view": 1,
    "label": "Title"
+  },
+  {
+   "depends_on": "eval:doc.is_standard",
+   "fieldname": "name1",
+   "fieldtype": "Data",
+   "label": "Name",
+   "read_only": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "is_standard",
+   "fieldtype": "Check",
+   "label": "Is Standard",
+   "read_only": 1
+  },
+  {
+   "default": "Web Page",
+   "fieldname": "item_type",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Type",
+   "options": "Built-in\nWeb Page\nRoute\nExternal",
+   "read_only_depends_on": "eval:doc.is_standard"
+  },
+  {
+   "default": "0",
+   "fieldname": "hidden",
+   "fieldtype": "Check",
+   "in_list_view": 1,
+   "label": "Hidden"
+  },
+  {
+   "depends_on": "eval:doc.item_type == 'External'",
+   "fieldname": "url",
+   "fieldtype": "Data",
+   "label": "URL",
+   "mandatory_depends_on": "eval:doc.item_type == 'External'"
+  },
+  {
+   "default": "1",
+   "depends_on": "eval:doc.item_type == 'External'",
+   "fieldname": "open_in_new_window",
+   "fieldtype": "Check",
+   "label": "Open in new window"
   }
  ],
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2024-05-31 20:19:14.629097",
+ "modified": "2026-09-02 00:00:00.000000",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Sidebar Item",

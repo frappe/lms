@@ -40,7 +40,7 @@
 			v-else
 			class="grid grid-cols-1 lg:grid-cols-[3fr_2fr] gap-5 items-start"
 		>
-			<div class="border rounded-lg py-3 px-4 order-2 lg:order-1">
+			<div class="border rounded-6 py-3 px-4 order-2 lg:order-1">
 				<div class="flex items-center justify-between gap-x-2 mb-3">
 					<h2 class="text-lg-semibold text-ink-gray-9">
 						{{ __('Students') }}
@@ -112,35 +112,27 @@
 			</div>
 
 			<div class="order-1 lg:order-2 space-y-5">
-				<AxisChart
-					v-if="showProgressChart"
-					class="border rounded-lg p-3 min-h-[300px]"
-					:config="{
-						data: filteredChartData,
-						title: __('Batch Summary'),
-						subtitle: __('Progress of students in courses and assessments'),
-						xAxis: {
-							key: 'task',
-							title: 'Tasks',
-							type: 'category',
-						},
-						yAxis: {
+				<ChartCard v-if="showProgressChart" class="h-[300px]">
+					<BarChart
+						:data="filteredChartData"
+						x="task"
+						y="value"
+						:title="__('Batch Summary')"
+						:subtitle="__('Progress of students in courses and assessments')"
+						:x-axis="{ title: __('Tasks'), type: 'category' }"
+						:y-axis="{
 							title: __('Number of Students'),
-							echartOptions: {
-								minInterval: 1,
-							},
-						},
-						series: [
-							{
-								name: 'value',
-								type: 'bar',
-							},
-						],
-					}"
-				/>
+							echartOptions: { minInterval: 1 },
+						}"
+					/>
+				</ChartCard>
 
-				<div class="p-4 border rounded-lg">
-					<BatchFeedback v-if="batch.data" :batch="batch.data.name" />
+				<div class="p-4 border rounded-6">
+					<BatchFeedback
+						v-if="batch.data"
+						:batch="batch.data.name"
+						:can-manage="Boolean(batch.data?.can_manage)"
+					/>
 				</div>
 			</div>
 		</div>
@@ -154,13 +146,13 @@
 </template>
 <script setup lang="ts">
 import {
-	AxisChart,
 	createResource,
 	createListResource,
 	FormControl,
 	Avatar,
 	Button,
 } from 'frappe-ui'
+import { BarChart, ChartCard } from 'frappe-ui/charts'
 import { computed, inject, onMounted, ref, watch } from 'vue'
 import type dayjsType from 'dayjs'
 import { formatAmount } from '@/utils'
@@ -197,13 +189,13 @@ const certificationCount = createResource({
 	auto: true,
 })
 
-// The Enrolled card used to read batch.data.students.length, refreshed by the
+// The Enrolled card used to read the batch's student list, refreshed by the
 // enrollment modal calling batch.reload() on the resource it was handed. The
 // routed form has no such handle — get_batch_details deliberately carries no
 // cache key (useBatchForms.ts) — so the count comes from its own cached
 // resource, shaped like certificationCount above, which the form can reach by
-// key. The two numbers are identical: get_batch_details builds `students` from
-// exactly this get_all with no further filter.
+// key. The two numbers are identical: get_batch_details builds `student_count`
+// from exactly this get_all with no further filter.
 const studentCount = createResource({
 	url: 'frappe.client.get_count',
 	cache: ['batch_student_count', props.batch?.data?.name],
@@ -221,7 +213,6 @@ const students = createListResource({
 	},
 	fields: [
 		'name',
-		'member',
 		'member_name',
 		'member_username',
 		'member_image',
@@ -289,7 +280,8 @@ const studentListOptions: ListViewOptions = {
 	selectable: false,
 	showTooltip: false,
 	onRowClick: (row: ListRow) => {
-		currentStudent.value = row.member
+		// member_username is copied at enrollment and goes stale on a rename.
+		currentStudent.value = row.name
 		showProgressModal.value = true
 	},
 }

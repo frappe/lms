@@ -15,7 +15,9 @@
 		v-model:page-length="pageLength"
 		empty-name="Programs"
 		empty-icon="lucide-graduation-cap"
+		:search-query="title"
 		@load-more="programs.next()"
+		@clear-filters="clearFilters"
 	>
 		<template #actions>
 			<Button
@@ -26,7 +28,7 @@
 				<template #prefix>
 					<span class="lucide-plus size-4" />
 				</template>
-				{{ __('Create') }}
+				{{ __('New Program') }}
 			</Button>
 		</template>
 
@@ -53,7 +55,7 @@
 			<button
 				type="button"
 				@click="openForm(row.name)"
-				class="block w-full cursor-pointer space-y-2 rounded-md border p-3 text-start hover:border-outline-gray-3"
+				class="block w-full cursor-pointer space-y-2 rounded-5 border p-3 text-start hover:border-outline-gray-3"
 			>
 				<div class="text-lg-semibold text-ink-gray-9">
 					{{ row.name }}
@@ -95,8 +97,8 @@ import { useRouter } from 'vue-router'
 import { useDebounceFn } from '@vueuse/core'
 
 import { sessionStore } from '@/stores/session'
-import PageHeader from '@/components/Layouts/PageHeader.vue'
-import ListPage from '@/components/Layouts/ListPage.vue'
+import PageHeader from '@/components/Layouts/pages/PageHeader.vue'
+import ListPage from '@/components/Layouts/pages/ListPage.vue'
 import StudentPrograms from '@/pages/Programs/StudentPrograms.vue'
 import { openFormRoute } from '@/composables/useFormRoute'
 
@@ -162,6 +164,11 @@ const pageLength = computed({
 const setFiltersFromQuery = () => {
 	let queries = new URLSearchParams(location.search)
 	title.value = queries.get('title') || ''
+}
+
+const clearFilters = () => {
+	title.value = ''
+	updatePrograms()
 }
 
 const updatePrograms = () => {

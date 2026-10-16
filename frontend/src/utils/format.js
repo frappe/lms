@@ -1,7 +1,15 @@
 import { useTimeAgo } from '@vueuse/core'
+import { serverTime } from '@/utils/dayjs'
 
 export function timeAgo(date) {
-	return useTimeAgo(date).value
+	return useTimeAgo(serverTime(date).toDate()).value
+}
+
+// Map the site's System Settings date_format (boot data) to dayjs tokens.
+const DATE_TOKENS = { yyyy: 'YYYY', yy: 'YY', mmm: 'MMM', mm: 'MM', dd: 'DD' }
+export function getDateFormat() {
+	const fmt = window.date_format || 'dd-mm-yyyy'
+	return fmt.replace(/yyyy|yy|mmm|mm|dd/g, (t) => DATE_TOKENS[t])
 }
 
 export const formatSeconds = (time) => {

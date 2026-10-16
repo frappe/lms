@@ -23,6 +23,8 @@
   "description",
   "column_break_spvt",
   "event",
+  "invite_status",
+  "invite_attempts",
   "auto_recording",
   "section_break_fhet",
   "meeting_id",
@@ -96,7 +98,8 @@
    "fieldname": "start_url",
    "fieldtype": "Small Text",
    "label": "Start URL",
-   "read_only": 1
+   "read_only": 1,
+   "permlevel": 1
   },
   {
    "fieldname": "column_break_yokr",
@@ -188,6 +191,23 @@
   {
    "fieldname": "column_break_aony",
    "fieldtype": "Column Break"
+  },
+  {
+   "description": "Set when Google Calendar has not taken the learners' invites yet.",
+   "fieldname": "invite_status",
+   "fieldtype": "Select",
+   "label": "Invite Status",
+   "no_copy": 1,
+   "options": "\nRetrying\nFailed",
+   "read_only": 1
+  },
+  {
+   "fieldname": "invite_attempts",
+   "fieldtype": "Int",
+   "hidden": 1,
+   "label": "Invite Attempts",
+   "no_copy": 1,
+   "read_only": 1
   }
  ],
  "grid_page_length": 50,
@@ -199,7 +219,7 @@
    "link_fieldname": "live_class"
   }
  ],
- "modified": "2026-02-03 10:54:39.198916",
+ "modified": "2026-10-14 15:27:02.616374",
  "modified_by": "sayali@frappe.io",
  "module": "LMS",
  "name": "LMS Live Class",
@@ -250,6 +270,37 @@
    "report": 1,
    "role": "Batch Evaluator",
    "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "import": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Course Creator",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "permlevel": 1,
+   "read": 1,
+   "role": "System Manager",
+   "write": 1
+  },
+  {
+   "permlevel": 1,
+   "read": 1,
+   "role": "Moderator",
+   "write": 1
+  },
+  {
+   "permlevel": 1,
+   "read": 1,
+   "role": "Batch Evaluator",
    "write": 1
   }
  ],

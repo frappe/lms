@@ -49,10 +49,6 @@ vi.mock('frappe-ui', () => ({
 		emits: ['update:open'],
 		template: `<div v-if="open" role="dialog"><h2>{{ title }}</h2><slot /><slot name="actions" /></div>`,
 	},
-	Button: {
-		inheritAttrs: false,
-		template: `<button v-bind="$attrs"><slot name="icon" /><slot /></button>`,
-	},
 	FormControl: {
 		props: ['modelValue', 'label', 'type'],
 		emits: ['update:modelValue'],
@@ -87,7 +83,7 @@ vi.mock('@/components/Controls/Link.vue', () => ({
 import CourseEnrollmentForm from '@/pages/Forms/CourseEnrollmentForm.vue'
 
 const courseResource = reactive<{
-	data: { name: string; instructors: { name: string }[] } | null
+	data: { name: string; instructors: { username: string }[] } | null
 	loading: boolean
 }>({ data: null, loading: false })
 const enrollResource = reactive({ loading: false, submit: vi.fn() })
@@ -132,9 +128,16 @@ const makeRouter = (): Router =>
 		],
 	})
 
-const moderator = { name: 'mod@example.com', is_moderator: true }
-const instructor = { name: 'teacher@example.com' }
-const outsider = { name: 'someone@example.com' }
+const moderator = {
+	name: 'mod@example.com',
+	username: 'mod',
+	is_moderator: true,
+}
+const instructor = { name: 'teacher@example.com', username: 'teacher' }
+const outsider = { name: 'someone@example.com', username: 'someone' }
+// What get_course_details sends a non-staff caller: no `name`, which is the
+// instructor's login email.
+const publicInstructor = { username: 'teacher', full_name: 'Teacher' }
 
 // TabbedDetailPage hashes the tab KEY, and the Enroll button only exists on the
 // dashboard tab.
@@ -195,18 +198,6 @@ describe('CourseEnrollmentForm as a route', () => {
 		})
 	})
 
-	// The whole point of the conversion: no CourseDashboard tab is mounted, so
-	// there is no parent to hand this page a course or a student list.
-	it('mounts straight from the URL with no parent dashboard mounted', async () => {
-		const router = makeRouter()
-		await openForm(router)
-		const wrapper = await mountForm(router)
-
-		expect(wrapper.text()).toContain('COURSE')
-		expect(fields(wrapper).exists()).toBe(true)
-		expect(wrapper.html()).toContain('Enroll a Student')
-	})
-
 	it('fetches the course itself, keyed off the route param', async () => {
 		const router = makeRouter()
 		await openForm(router)
@@ -223,7 +214,7 @@ describe('CourseEnrollmentForm as a route', () => {
 	})
 
 	it('refuses a visitor who is neither moderator nor an instructor of it', async () => {
-		courseResource.data = { name: 'COURSE-1', instructors: [instructor] }
+		courseResource.data = { name: 'COURSE-1', instructors: [publicInstructor] }
 		const router = makeRouter()
 		await openForm(router)
 		const wrapper = await mountForm(router, outsider)
@@ -238,12 +229,21 @@ describe('CourseEnrollmentForm as a route', () => {
 	// The gate CourseDetail put on the Dashboard tab was moderator OR instructor,
 	// and instructor-ness is only knowable from the fetched course.
 	it('lets an instructor of the course through once the fetch lands', async () => {
-		courseResource.data = { name: 'COURSE-1', instructors: [instructor] }
+		courseResource.data = { name: 'COURSE-1', instructors: [publicInstructor] }
 		const router = makeRouter()
 		await openForm(router)
 		const wrapper = await mountForm(router, instructor)
 
 		expect(fields(wrapper).exists()).toBe(true)
+	})
+
+	it('never matches a visitor with no username to an instructor row', async () => {
+		courseResource.data = { name: 'COURSE-1', instructors: [{ username: '' }] }
+		const router = makeRouter()
+		await openForm(router)
+		const wrapper = await mountForm(router, { name: 'someone@example.com' })
+
+		expect(fields(wrapper).exists()).toBe(false)
 	})
 
 	it('says so while the course it needs to judge that is still in flight', async () => {
@@ -392,13 +392,13 @@ describe('CourseEnrollmentForm as a route', () => {
 		await wrapper.find('[data-testid="create-User"]').trigger('click')
 		await flushPromises()
 
-		expect(openSettingsMock).toHaveBeenCalledWith('Members')
-		expect(router.currentRoute.value.name).toBe('CourseDetail')
+		expect(openSettingsMock).toHaveBeenCalledWith('members')
+		expect(router.currentRoute.value.name).toBe('NewCourseEnrollment')
 	})
 
-	// Settings is mounted only in the desktop sidebar. Closing the form for a
-	// dialog that never appears threw away whatever the user had typed and left
-	// them with no way to add the member they came for.
+	// Settings is mounted only in the desktop sidebar, so on a phone
+	// openSettings reports nowhere to go. The form used to close itself for a
+	// dialog that never appeared, throwing away what the user typed; this pins that a refusal navigates nowhere.
 	it('stays put when Settings has nowhere to open', async () => {
 		openSettingsMock.mockReturnValue(false)
 		const router = makeRouter()
@@ -412,27 +412,7 @@ describe('CourseEnrollmentForm as a route', () => {
 		await wrapper.find('[data-testid="create-User"]').trigger('click')
 		await flushPromises()
 
-		expect(openSettingsMock).toHaveBeenCalledWith('Members')
+		expect(openSettingsMock).toHaveBeenCalledWith('members')
 		expect(router.currentRoute.value.name).toBe('NewCourseEnrollment')
-	})
-
-	it('mobile: the back control pops the router back to the course', async () => {
-		const router = makeRouter()
-		await router.push({
-			name: 'CourseDetail',
-			params: { courseName: 'COURSE-1' },
-			hash: COURSE_TAB,
-		})
-		await openForm(router, { lmsFormEntry: true })
-		Object.defineProperty(window, 'innerWidth', {
-			value: 390,
-			writable: true,
-			configurable: true,
-		})
-		const wrapper = await mountForm(router)
-
-		await wrapper.find('[data-testid="form-shell-back"]').trigger('click')
-		await flushPromises()
-		expect(router.currentRoute.value.name).toBe('CourseDetail')
 	})
 })

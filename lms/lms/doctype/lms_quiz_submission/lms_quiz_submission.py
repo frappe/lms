@@ -7,12 +7,25 @@ from frappe.desk.doctype.notification_log.notification_log import make_notificat
 from frappe.model.document import Document
 from frappe.utils import cint
 
+from lms.lms.html_sanitizer import sanitize_rich_text
+
 
 class LMSQuizSubmission(Document):
 	def validate(self):
 		self.validate_if_max_attempts_exceeded()
+		# Graded submissions must stay saveable after the quiz's questions change.
+		if self.is_new():
+			self.validate_result_questions()
+		self.sanitize_result_html()
 		self.validate_marks()
 		self.set_percentage()
+
+	def sanitize_result_html(self):
+		"""A child doctype fires no doc_events, so the parent cleans its rows. Both fields
+		render outside the SPA (reports, exports, the jinja portal)."""
+		for row in self.result:
+			row.answer = sanitize_rich_text(row.answer)
+			row.question = sanitize_rich_text(row.question)
 
 	def on_update(self):
 		self.notify_member()
@@ -33,6 +46,28 @@ class LMSQuizSubmission(Document):
 				MaximumAttemptsExceededError,
 			)
 
+	def validate_result_questions(self):
+		quiz_questions = set(
+			frappe.get_all(
+				"LMS Quiz Question",
+				filters={"parent": self.quiz, "parenttype": "LMS Quiz"},
+				pluck="question",
+			)
+		)
+		answered = set()
+		for row in self.result:
+			if row.question_name not in quiz_questions:
+				frappe.throw(_("Row {0}: this question is not part of the quiz.").format(row.idx))
+			if row.question_name in answered:
+				frappe.throw(
+					_("Row {0}: this question is already answered in this submission.").format(row.idx)
+				)
+			answered.add(row.question_name)
+
+		limit = cint(frappe.db.get_value("LMS Quiz", self.quiz, "limit_questions_to"))
+		if limit and len(self.result) > limit:
+			frappe.throw(_("This quiz takes answers to at most {0} questions.").format(limit))
+
 	def validate_marks(self):
 		self.score = 0
 		for row in self.result:
@@ -44,10 +79,12 @@ class LMSQuizSubmission(Document):
 				)
 			else:
 				self.score += cint(row.marks)
+		self.score = max(0, self.score)
 
 	def set_percentage(self):
-		if self.score and self.score_out_of:
-			self.percentage = (self.score / self.score_out_of) * 100
+		if self.score_out_of:
+			# Floored at zero, or negative marking throws the whole submission away.
+			self.percentage = max(0, (self.score / self.score_out_of) * 100)
 
 	def notify_member(self):
 		if self.score != 0 and self.has_value_changed("score"):

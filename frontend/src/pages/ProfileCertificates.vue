@@ -12,7 +12,7 @@
 				:key="certificate.name"
 				:href="certificateUrl(certificate)"
 				v-external
-				class="flex flex-col bg-surface-base border rounded-lg p-3 cursor-pointer hover:bg-surface-sidebar"
+				class="flex flex-col bg-surface-base border rounded-6 p-3 cursor-pointer hover:bg-surface-sidebar"
 			>
 				<div class="font-medium leading-5 mb-2 text-ink-gray-9">
 					{{ certificate.course_title || certificate.batch_title }}
@@ -23,13 +23,13 @@
 				</div>
 			</a>
 		</div>
-		<div v-else class="text-sm italic text-ink-gray-5">
+		<div v-else class="text-sm italic text-ink-gray-6">
 			{{ __('You have not received any certificates yet.') }}
 		</div>
 	</div>
 </template>
 <script setup>
-import { createListResource } from 'frappe-ui'
+import { createResource } from 'frappe-ui'
 import { inject, onMounted } from 'vue'
 
 const dayjs = inject('$dayjs')
@@ -41,22 +41,21 @@ const props = defineProps({
 })
 
 onMounted(() => {
-	if (props.profile.data?.name) {
+	if (props.profile.data?.username) {
 		certificates.reload()
 	}
 })
 
-const certificates = createListResource({
-	doctype: 'LMS Certificate',
-	filters: {
-		member: props.profile.data?.name,
+const certificates = createResource({
+	url: 'lms.lms.api.get_user_certificates',
+	params: {
+		username: props.profile.data?.username,
 	},
-	fields: ['name', 'course_title', 'batch_title', 'issue_date', 'template'],
-	cache: ['certificates', props.profile.data?.name],
+	cache: ['certificates', props.profile.data?.username],
 })
 
 const certificateUrl = (certificate) =>
 	`/api/method/frappe.utils.print_format.download_pdf?doctype=LMS+Certificate&name=${
 		certificate.name
-	}&format=${encodeURIComponent(certificate.template)}`
+	}&format=${encodeURIComponent(certificate.template)}&no_letterhead=1`
 </script>

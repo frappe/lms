@@ -2,45 +2,42 @@
 	<PageHeader v-if="!fromLesson" :breadcrumbs="breadcrumbs" />
 	<div class="overflow-hidden h-[calc(100vh-3.2rem)]">
 		<Assignment
+			:key="`${assignmentID}-${submissionName}`"
 			:assignmentID="assignmentID"
 			:submissionName="submissionName"
 			:showTitle="!fromLesson"
 		/>
 	</div>
 </template>
-<script setup>
+<script setup lang="ts">
 import { createResource, usePageMeta } from 'frappe-ui'
-import PageHeader from '@/components/Layouts/PageHeader.vue'
+import PageHeader from '@/components/Layouts/pages/PageHeader.vue'
 import { computed, inject, onMounted, ref } from 'vue'
 import { sessionStore } from '../stores/session'
 import Assignment from '@/components/Assignment.vue'
 import { provideStudentView } from '@/composables/useStudentView'
+import type { UserResource } from '@/composables/useStudentView'
 
-const user = inject('$user')
+const user = inject<UserResource>('$user')!
 const fromLesson = ref(false)
 const { brand } = sessionStore()
 
-// Rendered in an iframe from the lesson preview, so provide/inject can't reach
-// this app instance; Student View arrives as a query param instead. Without
-// this the Grading panel shows up inside the preview and a moderator who
-// submits the assignment there can grade themselves.
+// Old lesson-iframe links carry Student View in the URL. Honoured so a moderator
+// on such a link never sees the Grading panel for their own submission.
 const studentView = ref(
 	new URLSearchParams(window.location.search).get('studentView') === '1'
 )
 provideStudentView(user, () => studentView.value)
 
-const props = defineProps({
-	assignmentID: {
-		type: String,
-		required: true,
-	},
-	submissionName: {
-		type: String,
-		default: 'new',
-	},
-})
+const props = withDefaults(
+	defineProps<{
+		assignmentID: string
+		submissionName?: string
+	}>(),
+	{ submissionName: 'new' }
+)
 
-const title = createResource({
+const title = createResource<{ title: string }>({
 	url: 'frappe.client.get_value',
 	params: {
 		doctype: 'LMS Assignment',
@@ -62,14 +59,22 @@ onMounted(() => {
 	}
 })
 
+const assignmentTitle = computed<string>(
+	() => title.data?.title || __('Assignment')
+)
+
 const breadcrumbs = computed(() => {
-	let crumbs = [
+	const crumbs = [
 		{
-			label: __('Submissions'),
-			route: { name: 'AssignmentSubmissionList' },
+			label: __('Assignments'),
+			route: { name: 'Assignments' },
 		},
 		{
-			label: title.data?.title,
+			label: __('Submissions'),
+			route: { name: 'AssignmentSubmissions' },
+		},
+		{
+			label: assignmentTitle.value,
 			route: {
 				name: 'AssignmentSubmission',
 				params: {
@@ -83,7 +88,7 @@ const breadcrumbs = computed(() => {
 
 usePageMeta(() => {
 	return {
-		title: title.data?.title,
+		title: assignmentTitle.value,
 		icon: brand.favicon,
 	}
 })

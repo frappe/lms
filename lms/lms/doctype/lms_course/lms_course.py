@@ -7,7 +7,9 @@ import frappe
 from frappe import _
 from frappe.desk.doctype.notification_log.notification_log import make_notification_logs
 from frappe.model.document import Document
-from frappe.utils import cint, flt, today
+from frappe.utils import cint, comma_and, escape_html, flt, today
+
+from lms.lms.doctype.course_lesson.course_lesson import get_valid_question_count
 
 from ...utils import (
 	generate_slug,
@@ -16,6 +18,7 @@ from ...utils import (
 	get_lesson_count,
 	get_lms_route,
 	update_payment_record,
+	validate_attachable_file,
 	validate_image,
 )
 
@@ -23,12 +26,15 @@ from ...utils import (
 class LMSCourse(Document):
 	def validate(self):
 		self.validate_published()
+		self.warn_quizzes_without_questions()
 		self.validate_instructors()
+		self.validate_duplicate_instructors()
 		self.validate_video_link()
 		self.validate_status()
 		self.validate_payments_app()
 		self.validate_certification()
 		self.validate_amount_and_currency()
+		validate_attachable_file(self, "image")
 		self.image = validate_image(self.image)
 		self.validate_card_gradient()
 
@@ -38,17 +44,34 @@ class LMSCourse(Document):
 		if self.is_new() or self.has_value_changed("published") or not self.published_on:
 			self.published_on = today()
 
+	def warn_quizzes_without_questions(self):
+		"""Learners pass these quizzes by default, so tell the instructor on publish."""
+		if not self.published or not (self.is_new() or self.has_value_changed("published")):
+			return
+		quizzes = get_quizzes_without_questions(self.name)
+		if not quizzes:
+			return
+		self.set_onload("quizzes_without_questions", quizzes)
+		frappe.msgprint(
+			_("These quizzes have no questions, so learners skip them: {0}").format(
+				comma_and([escape_html(title) for title in quizzes])
+			),
+			title=_("Quizzes without questions"),
+			indicator="orange",
+		)
+
 	def validate_instructors(self):
 		if self.is_new() and not self.instructors:
-			frappe.get_doc(
-				{
-					"doctype": "Course Instructor",
-					"instructor": self.owner,
-					"parent": self.name,
-					"parentfield": "instructors",
-					"parenttype": "LMS Course",
-				}
-			).save(ignore_permissions=True)
+			self.append("instructors", {"instructor": self.owner})
+
+	def validate_duplicate_instructors(self):
+		instructors = [row.instructor for row in self.instructors]
+		duplicates = {instructor for instructor in instructors if instructors.count(instructor) > 1}
+		if len(duplicates):
+			full_name = frappe.db.get_value("User", next(iter(duplicates)), "full_name")
+			frappe.throw(
+				_("Instructor {0} has already been added to this course.").format(frappe.bold(full_name))
+			)
 
 	def validate_video_link(self):
 		# Store video_link exactly as entered: a YouTube/Vimeo link or an uploaded
@@ -145,6 +168,29 @@ class LMSCourse(Document):
 
 	def __repr__(self):
 		return f"<Course#{self.name}>"
+
+
+def get_quizzes_without_questions(course: str) -> list[str]:
+	"""Titles of quizzes placed in the course's lessons that have no valid question."""
+	placement = frappe.qb.DocType("LMS Lesson Assessment")
+	lesson = frappe.qb.DocType("Course Lesson")
+	quiz = frappe.qb.DocType("LMS Quiz")
+	placed = (
+		frappe.qb.from_(placement)
+		.join(lesson)
+		.on(lesson.name == placement.parent)
+		.join(quiz)
+		.on(quiz.name == placement.assessment_name)
+		.where(
+			(lesson.course == course)
+			& (placement.parenttype == "Course Lesson")
+			& (placement.assessment_type == "LMS Quiz")
+			& (placement.instructor_only == 0)
+		)
+		.select(quiz.name, quiz.title)
+		.distinct()
+	).run(as_dict=True)
+	return [row.title for row in placed if not get_valid_question_count(row.name)]
 
 
 def send_notification_for_published_courses():

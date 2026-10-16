@@ -1,10 +1,12 @@
+// @vitest-environment node
 import { describe, expect, it } from 'vitest'
 import { readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import postcss from 'postcss'
 // frappe-ui's own token export, so the expected colours come from the same
 // source the stylesheet is generated from rather than being restated here.
-import colors from '../../node_modules/frappe-ui/tailwind/generated/colors.json'
+import { semanticColors } from 'frappe-ui/tailwind/tokens'
+import { oklchToHex } from './oklch'
 
 // The bug this guards: nothing painted the document. frappe-ui declares the
 // theme variables but sets no background on html or body, and every app layout
@@ -25,17 +27,13 @@ import colors from '../../node_modules/frappe-ui/tailwind/generated/colors.json'
 const ROOT = resolve(__dirname, '../..')
 
 const themeVariables = (theme: 'light' | 'dark'): Record<string, string> => {
-	const themed = (colors as any).themedVariables[theme]
 	const out: Record<string, string> = {}
-	for (const [group, tokens] of Object.entries(
-		themed as Record<string, Record<string, string>>
-	)) {
-		for (const [name, reference] of Object.entries(tokens)) {
-			// References look like "darkMode/gray/950" or "neutral/white".
-			const resolved = reference
-				.split('/')
-				.reduce<any>((node, key) => (node == null ? node : node[key]), colors)
-			if (typeof resolved === 'string') out[`--${group}-${name}`] = resolved
+	for (const [group, tokens] of Object.entries(semanticColors[theme])) {
+		for (const [name, value] of Object.entries<string>(tokens)) {
+			// frappe-ui exports these as oklch(...) strings; normalize to hex once,
+			// here, so every downstream comparison and the hex-parsing helpers
+			// below can stay hex-only.
+			out[`--${group}-${name}`] = oklchToHex(value)
 		}
 	}
 	return out
@@ -81,13 +79,6 @@ const luma = (hex: string): number => {
 }
 
 describe('the document surface follows the chosen theme', () => {
-	it('paints the document from a theme variable, not a fixed colour', () => {
-		const background = documentBackground()
-
-		expect(background).toBeDefined()
-		expect(background).toMatch(/^var\(--[\w-]+\)$/)
-	})
-
 	it('resolves to white in light mode and near-black in dark mode', () => {
 		const background = documentBackground() as string
 

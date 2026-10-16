@@ -4,6 +4,7 @@
 		:open="true"
 		:title="title"
 		:size="size"
+		:position="position"
 		@update:open="onDialogToggle"
 	>
 		<template #title>
@@ -15,7 +16,21 @@
 			</div>
 		</template>
 		<template #default>
-			<slot />
+			<!-- The fields scroll inside the dialog so the title and the submit
+			     button stay in view on a short screen. 17rem is the dialog's own
+			     margins, header and footer. The side padding keeps focus rings
+			     from being clipped. -->
+			<div
+				data-testid="form-shell-dialog-body"
+				class="-mx-1 overflow-y-auto px-1"
+				:class="
+					position === 'top'
+						? 'max-h-[calc(80dvh-17rem)]'
+						: 'max-h-[calc(100dvh-17rem)]'
+				"
+			>
+				<slot />
+			</div>
 		</template>
 		<template #actions>
 			<slot name="actions" />
@@ -45,7 +60,7 @@
 						type="button"
 						data-testid="form-shell-back"
 						:aria-label="__('Back')"
-						class="-ms-3 shrink-0 rounded p-1.5 text-ink-gray-9 transition-colors hover:bg-surface-gray-2"
+						class="-ms-3 shrink-0 rounded-4 p-1.5 text-ink-gray-9 transition-colors hover:bg-surface-gray-2"
 						@click="emit('close')"
 					>
 						<span class="lucide-chevron-left size-4 block" />
@@ -81,7 +96,7 @@
 // applies square icon-button sizing when the slot's vnode type name starts with
 // `lucide-`, which a plain `<span class="lucide-save">` does not satisfy.
 import { Dialog } from 'frappe-ui'
-import type { DialogSize } from 'frappe-ui'
+import type { DialogPosition, DialogSize } from 'frappe-ui'
 import { nextTick, onBeforeUnmount, onMounted, ref, useId, watch } from 'vue'
 import { useEventListener, useMediaQuery } from '@vueuse/core'
 import { useScreenSize } from '@/utils/composables'
@@ -96,9 +111,19 @@ import { focusedElementOwnsLayer, trapTab } from '@/composables/useFocusTrap'
 // and browser-back would hard-cut regardless.
 const reduceMotion = useMediaQuery('(prefers-reduced-motion: reduce)')
 
-withDefaults(defineProps<{ title: string; size?: DialogSize }>(), {
-	size: '3xl',
-})
+// `position="top"` keeps a form whose height changes (a message appearing above
+// Save) from shifting the whole dialog, as a centred one does.
+withDefaults(
+	defineProps<{
+		title: string
+		size?: DialogSize
+		position?: DialogPosition
+	}>(),
+	{
+		size: '3xl',
+		position: 'center',
+	}
+)
 
 const emit = defineEmits<{ close: [] }>()
 const { isMobile } = useScreenSize()
@@ -156,18 +181,26 @@ useEventListener(document, 'keydown', (e: KeyboardEvent) => {
 let previouslyFocused: HTMLElement | null = null
 let tookFocus = false
 
+// Same opt-in as frappe-ui's Dialog (useAutofocusOnOpen), so one `autofocus`
+// on a field works in both branches. Forms without one keep the container.
+const seatFocus = (): void => {
+	const marked = pageRef.value?.querySelector<HTMLElement>('[autofocus]')
+	marked?.focus()
+	if (!marked || document.activeElement !== marked) pageRef.value?.focus()
+}
+
 onMounted(() => {
 	if (!isMobile.value) return
 	previouslyFocused = document.activeElement as HTMLElement | null
 	tookFocus = true
-	pageRef.value?.focus()
+	seatFocus()
 })
 
 // Re-seat focus across that branch swap; the desktop Dialog seats its own.
 watch(isMobile, async (mobile) => {
 	if (!tookFocus || !mobile) return
 	await nextTick()
-	pageRef.value?.focus()
+	seatFocus()
 })
 
 // The trigger usually survives — forms are child routes, so the list behind

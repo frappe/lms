@@ -2,33 +2,90 @@ name: Frontend Tests
 
 on:
   pull_request:
+    paths:
+      - "frontend/**"
+      - "package.json"
+      # Read from disk by frontend/src/tests/ravenRuleModel.test.ts.
+      - "lms/raven_provider.py"
+      # Read from disk by frontend/src/tests/a11y-forms.test.ts.
+      - "lms/www/new-sign-up.html"
+      - ".github/workflows/frontend-tests.yml"
   push:
     branches: [main, develop, main-hotfix]
+    paths:
+      - "frontend/**"
+      - "package.json"
+      # Read from disk by frontend/src/tests/ravenRuleModel.test.ts.
+      - "lms/raven_provider.py"
+      # Read from disk by frontend/src/tests/a11y-forms.test.ts.
+      - "lms/www/new-sign-up.html"
+      - ".github/workflows/frontend-tests.yml"
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
   vitest:
     name: Vitest
     runs-on: ubuntu-latest
     steps:
+      # The bench layout, because frontend/package.json declares
+      # `@framework/ui: link:../../frappe/ui` the way helpdesk and crm do. A
+      # checkout at the workspace root resolves that link outside the workspace,
+      # and vitest then fails with "Failed to resolve import
+      # @framework/ui/ConditionBuilder", naming neither the link nor the cause.
+      # Depth 2 keeps the PR base (the merge commit's first parent), which
+      # the test selection diffs against.
       - uses: actions/checkout@v4
+        with:
+          path: apps/lms
+          fetch-depth: 2
+
+      # Only the package the link points at. `develop`, because ConditionBuilder
+      # is on no version-16 branch or v16 tag. It is bundled into the SPA at
+      # build time, so this pins what LMS builds against, not what it runs on.
+      - uses: actions/checkout@v4
+        with:
+          repository: frappe/frappe
+          ref: develop
+          path: apps/frappe
+          sparse-checkout: ui
 
       - uses: actions/setup-node@v6
         with:
           node-version: 24
           check-latest: true
-
-      - name: Cache yarn
-        uses: actions/cache@v4
-        with:
-          path: ~/.cache/yarn
-          key: ${{ runner.os }}-yarn-${{ hashFiles('frontend/yarn.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-yarn-
+          cache: yarn
+          cache-dependency-path: apps/lms/frontend/yarn.lock
 
       - name: Install dependencies
-        working-directory: frontend
+        working-directory: apps/lms/frontend
         run: yarn install --frozen-lockfile
 
+      # A PR that changes only vitest files runs just those. Any other change,
+      # a setup file or helper included, runs the whole suite.
+      - name: Select tests
+        id: select
+        if: >-
+          github.event_name == 'pull_request' &&
+          !contains(github.event.pull_request.labels.*.name, 'all-tests')
+        working-directory: apps/lms
+        run: |
+          set -euo pipefail
+          git diff --name-status --no-renames HEAD^1 HEAD \
+            | .github/helper/changed-tests.sh vitest >> "$GITHUB_OUTPUT"
+
       - name: Run vitest
-        working-directory: frontend
+        if: steps.select.outputs.mode != 'subset'
+        working-directory: apps/lms/frontend
         run: yarn test --run
+
+      - name: Run changed tests
+        if: steps.select.outputs.mode == 'subset'
+        working-directory: apps/lms/frontend
+        env:
+          TESTS: ${{ steps.select.outputs.tests }}
+        run: |
+          read -ra files <<< "$TESTS"
+          yarn test --run "${files[@]}"

@@ -86,6 +86,16 @@
   {
    "hidden": 0,
    "is_query_report": 0,
+   "label": "Quiz Violation Log",
+   "link_count": 0,
+   "link_to": "LMS Quiz Violation Log",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
    "label": "Course Stats",
    "link_count": 2,
    "onboard": 0,
@@ -150,7 +160,7 @@
    "type": "Link"
   }
  ],
- "modified": "2026-02-23 12:27:25.010341",
+ "modified": "2026-07-31 00:00:00.000000",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "Learning",

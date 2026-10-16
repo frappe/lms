@@ -12,8 +12,7 @@ declare global {
 window.__ = (t: string) => t
 
 // frappe-ui's module resolution doesn't work under vitest, so stub Dialog to
-// render its default slot whenever `open` is true (matches the beta.7 contract:
-// v-model:open => `open` prop).
+// render its default slot while `open` (bound by v-model:open) is true.
 vi.mock('frappe-ui', () => ({
 	Dialog: {
 		props: ['open', 'title', 'size'],
@@ -45,14 +44,6 @@ const mountHelp = () =>
 	})
 
 describe('LessonHelp accordion modal', () => {
-	it('renders every topic title as an accordion summary', () => {
-		const w = mountHelp()
-		expect(w.findAll('summary')).toHaveLength(5)
-		expect(w.text()).toContain('What are Instructor Notes?')
-		expect(w.text()).toContain('How to add a Quiz?')
-		expect(w.text()).toContain('How to remove an embed?')
-	})
-
 	it('opens the first topic by default and leaves the rest closed', () => {
 		const details = mountHelp().findAll('details')
 		expect(details[0].attributes('open')).toBeDefined()

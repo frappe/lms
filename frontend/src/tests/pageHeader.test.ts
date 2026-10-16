@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { mount } from '@vue/test-utils'
 import { createMemoryHistory, createRouter } from 'vue-router'
-import PageHeader from '@/components/Layouts/PageHeader.vue'
+import PageHeader from '@/components/Layouts/pages/PageHeader.vue'
 import type { Breadcrumb } from '@/types'
 
 const { mobile } = vi.hoisted(() => ({ mobile: { value: true } }))
@@ -29,13 +29,14 @@ vi.mock('@/components/SkeletonLoader.vue', () => ({
 
 vi.stubGlobal('__', (text: string) => text)
 
-const router = createRouter({
-	history: createMemoryHistory(),
-	routes: [
-		{ path: '/courses', name: 'courses', component: { template: '<div />' } },
-		{ path: '/', name: 'home', component: { template: '<div />' } },
-	],
-})
+const makeRouter = () =>
+	createRouter({
+		history: createMemoryHistory(),
+		routes: [
+			{ path: '/courses', name: 'courses', component: { template: '<div />' } },
+			{ path: '/', name: 'home', component: { template: '<div />' } },
+		],
+	})
 
 const TRAIL: Breadcrumb[] = [
 	{ label: 'Courses', route: { name: 'courses' } },
@@ -46,7 +47,7 @@ const mountHeader = (breadcrumbs: Breadcrumb[] = TRAIL) =>
 	mount(PageHeader, {
 		props: { breadcrumbs },
 		global: {
-			plugins: [router],
+			plugins: [makeRouter()],
 			mocks: { __: (text: string) => text },
 		},
 	})

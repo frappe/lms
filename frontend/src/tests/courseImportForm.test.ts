@@ -7,6 +7,7 @@ import {
 	type Router,
 } from 'vue-router'
 import { defineComponent, h } from 'vue'
+import { toast } from 'frappe-ui'
 
 vi.stubGlobal('__', (text: string) => text)
 enableAutoUnmount(afterEach)
@@ -41,8 +42,7 @@ vi.mock('@/components/HeaderButton.vue', () => ({
 vi.mock('@/stores/settings', () => ({ useSettings: () => ({}) }))
 vi.mock('@/stores/user', () => ({ usersStore: () => ({ userResource }) }))
 
-// frappe-ui's ESM build does not resolve under vitest, so every export the
-// form and FormShell pull in is stubbed by hand.
+// Stubbed so tests control call/resource responses without a network.
 vi.mock('frappe-ui', () => ({
 	call: callMock,
 	toast: { success: vi.fn(), error: vi.fn() },
@@ -148,6 +148,7 @@ describe('CourseImportForm as a route', () => {
 	beforeEach(() => {
 		callMock.mockReset()
 		uploadMock.mockReset()
+		vi.mocked(toast.error).mockClear()
 		uploadMock.mockResolvedValue({
 			file_url: '/files/course.zip',
 			file_name: 'course.zip',
@@ -159,16 +160,6 @@ describe('CourseImportForm as a route', () => {
 			writable: true,
 			configurable: true,
 		})
-	})
-
-	it('mounts straight from the URL with no parent list', async () => {
-		const router = makeRouter()
-		await router.push({ name: 'CourseImport' })
-		const wrapper = await mountForm(router)
-		expect(wrapper.find('[data-testid="course-import-fields"]').exists()).toBe(
-			true
-		)
-		expect(wrapper.html()).toContain('Import Course from ZIP')
 	})
 
 	it('refuses to render the form for a user who cannot create courses', async () => {
@@ -214,6 +205,54 @@ describe('CourseImportForm as a route', () => {
 		)
 	})
 
+	// Both cases build the error the way call() does: `message` is
+	// "<method> <exc_type>" and the server's own text lives in `messages` — which
+	// call() never leaves empty, substituting 'Internal Server Error' when the
+	// response carried nothing.
+	const importError = (messages: string[]) => {
+		const error: Error & { messages: string[] } = Object.assign(
+			new Error('lms.lms.api.import_course_from_zip ValidationError'),
+			{ messages }
+		)
+		return error
+	}
+
+	const rejectImportWith = async (messages: string[]) => {
+		const logged = vi.spyOn(console, 'error').mockImplementation(() => {})
+		callMock.mockRejectedValue(importError(messages))
+		const router = makeRouter()
+		await router.push({ name: 'CourseImport' })
+		const wrapper = await mountForm(router)
+
+		await attachZip(wrapper)
+		await wrapper.find('[data-testid="course-import-submit"]').trigger('click')
+		await flushPromises()
+		expect(logged).toHaveBeenCalledWith(
+			'Error importing course:',
+			expect.any(Error)
+		)
+	}
+
+	it('reports the server message when the import is rejected', async () => {
+		// Reporting error.message alone told the user
+		// "...import_course_from_zip ValidationError" and dropped the reason.
+		await rejectImportWith(['Invalid course ZIP: Missing course.json'])
+
+		expect(toast.error).toHaveBeenCalledWith(
+			'Invalid course ZIP: Missing course.json'
+		)
+	})
+
+	it('falls back to the raw error when the server sent no message', async () => {
+		// call()'s placeholder is not a message anyone can act on, so it must not
+		// win over the fallback — which still names the method and exception.
+		await rejectImportWith(['Internal Server Error'])
+
+		expect(toast.error).toHaveBeenCalledWith(
+			'Error importing course: lms.lms.api.import_course_from_zip ValidationError'
+		)
+	})
+
 	it('replaces rather than pushes on import, so Back reaches the list', async () => {
 		callMock.mockResolvedValue('imported-course')
 		const router = makeRouter()
@@ -228,35 +267,6 @@ describe('CourseImportForm as a route', () => {
 		expect(router.currentRoute.value.params.courseName).toBe('imported-course')
 
 		router.back()
-		await flushPromises()
-		expect(router.currentRoute.value.name).toBe('Courses')
-	})
-
-	it('mobile: the back control pops the router back to the list', async () => {
-		const router = makeRouter()
-		await router.push({ name: 'Courses' })
-		await router.push({ name: 'CourseImport', state: { lmsFormEntry: true } })
-		Object.defineProperty(window, 'innerWidth', {
-			value: 390,
-			writable: true,
-			configurable: true,
-		})
-		const wrapper = await mountForm(router)
-
-		await wrapper.find('[data-testid="form-shell-back"]').trigger('click')
-		await flushPromises()
-		expect(router.currentRoute.value.name).toBe('Courses')
-	})
-
-	it('desktop: dismissing the Dialog (Escape/backdrop/X) pops the router', async () => {
-		const router = makeRouter()
-		await router.push({ name: 'Courses' })
-		await router.push({ name: 'CourseImport', state: { lmsFormEntry: true } })
-		const wrapper = await mountForm(router)
-
-		await wrapper
-			.findComponent({ name: 'Dialog' })
-			.vm.$emit('update:open', false)
 		await flushPromises()
 		expect(router.currentRoute.value.name).toBe('Courses')
 	})

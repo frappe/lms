@@ -2,8 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { enableAutoUnmount, flushPromises, mount } from '@vue/test-utils'
 import { createMemoryHistory, createRouter, type Router } from 'vue-router'
 import { reactive } from 'vue'
-
-vi.stubGlobal('__', (text: string) => text)
+import { toast } from 'frappe-ui'
 
 const { createResourceMock, passthrough } = vi.hoisted(() => {
 	// @/utils pulls in plyr, which touches matchMedia at import time.
@@ -27,8 +26,7 @@ vi.mock('@/stores/session', () => ({
 	sessionStore: () => ({ user: {}, brand: {} }),
 }))
 
-// frappe-ui's ESM build does not resolve under vitest, so every export the two
-// components under test reach for is stubbed by hand.
+// Stubbed so tests control createResource/call responses without a network.
 vi.mock('frappe-ui', () => ({
 	createResource: createResourceMock,
 	call: vi.fn(),
@@ -44,10 +42,13 @@ vi.mock('frappe-ui', () => ({
 		inheritAttrs: false,
 		template: `<button v-bind="$attrs"><slot name="icon" /><slot /></button>`,
 	},
+	// Emits for real: clearing a field is the only way to reach the form's
+	// empty-vs-null comparison. `data-label` lets a test address one field.
 	FormControl: {
-		props: ['modelValue', 'label', 'type', 'required'],
+		name: 'FormControl',
+		props: ['modelValue', 'label', 'type', 'required', 'options'],
 		emits: ['update:modelValue'],
-		template: `<label>{{ label }}<input :value="modelValue" /></label>`,
+		template: `<label>{{ label }}<input :data-label="label" :value="modelValue" @input="$emit('update:modelValue', $event.target.value)" /></label>`,
 	},
 	Badge: passthrough,
 	TabButtons: passthrough,
@@ -60,7 +61,7 @@ const { stub } = vi.hoisted(() => ({
 vi.mock('@/components/Controls/Link.vue', stub)
 vi.mock('@/components/Controls/Uploader.vue', stub)
 vi.mock('@/components/RichTextEditor.vue', stub)
-vi.mock('@/components/Layouts/PageHeader.vue', stub)
+vi.mock('@/components/Layouts/pages/PageHeader.vue', stub)
 // Rendered rather than nulled: the form's Save carries its data-testid on this
 // component, so a null stub takes the button out of the DOM entirely.
 vi.mock('@/components/HeaderButton.vue', () => ({
@@ -114,6 +115,13 @@ const mountForm = (router: Router, username: string) =>
 		},
 	})
 
+const saveResource = () => {
+	const index = createResourceMock.mock.calls.findIndex(
+		([options]) => options.url === 'frappe.client.set_value'
+	)
+	return createResourceMock.mock.results[index].value
+}
+
 // The route components are lazy imports, so a navigation started by a close
 // resolves a real module load — flushPromises only drains microtasks and would
 // return while the navigation is still pending. Wait for the router instead.
@@ -134,16 +142,26 @@ describe('the profile edit route', () => {
 			writable: true,
 			configurable: true,
 		})
+		// get_profile_details is a bare frappe.db.get_value, so a field the user
+		// never filled in arrives as null, not ''. `headline: ''` is the third
+		// case: what a field holds after one save through this form.
 		profileResource.data = {
 			name: 'john@example.com',
 			username: USERNAME,
 			first_name: 'John',
 			last_name: 'Doe',
 			user_image: '/files/john.png',
-			headline: 'Learner',
+			headline: '',
+			bio: null,
 			language: 'en',
+			open_to: '',
+			linkedin: null,
+			github: null,
+			twitter: null,
 		}
 		profileResource.reload.mockClear()
+		createResourceMock.mockClear()
+		vi.mocked(toast.error).mockClear()
 	})
 
 	// resolve(), not push(): matching is synchronous and does not pull in the
@@ -267,5 +285,99 @@ describe('the profile edit route', () => {
 		await flushPromises()
 
 		expect(router.currentRoute.value.name).toBe('ProfileAbout')
+	})
+
+	// Guards the seeding loop: it walks the draft's keys, so a key it misses is
+	// silently left blank rather than failing loudly.
+	it('seeds every field from the profile it was handed', async () => {
+		const router = makeRouter()
+		await router.push(`/user/${USERNAME}/edit`)
+		const wrapper = mountForm(router, USERNAME)
+		await flushPromises()
+
+		const valueOf = (label: string) =>
+			(wrapper.find(`input[data-label="${label}"]`).element as HTMLInputElement)
+				.value
+
+		expect(valueOf('First Name')).toBe('John')
+		expect(valueOf('Last Name')).toBe('Doe')
+		expect(valueOf('LinkedIn ID')).toBe('')
+		expect(wrapper.text()).not.toContain('Not Saved')
+	})
+
+	// '' is the only empty the field's options accept, in object form because
+	// Select drops a falsy option and the blank row would vanish with it.
+	it('offers the Open to blank as the value the field allows', async () => {
+		const router = makeRouter()
+		await router.push(`/user/${USERNAME}/edit`)
+		const wrapper = mountForm(router, USERNAME)
+		await flushPromises()
+
+		const openTo = wrapper
+			.findAllComponents({ name: 'FormControl' })
+			.find((control) => control.props('label') === 'Open to')
+
+		expect(openTo?.props('options')).toEqual([
+			{ label: '', value: '' },
+			'Work',
+			'Hiring',
+		])
+	})
+
+	// The blank is only worth offering if choosing it lands back where the field
+	// started. Read off the option rather than written as '' so the value the row
+	// carries and the value the dirty-check accepts cannot drift apart. Driven
+	// through the control's v-model, not an input event: a select has no keystroke.
+	it('returns to pristine when Open to goes back to blank', async () => {
+		const router = makeRouter()
+		await router.push(`/user/${USERNAME}/edit`)
+		const wrapper = mountForm(router, USERNAME)
+		await flushPromises()
+
+		const openTo = wrapper
+			.findAllComponents({ name: 'FormControl' })
+			.find((control) => control.props('label') === 'Open to')
+
+		await openTo?.setValue('Work')
+		expect(wrapper.text()).toContain('Not Saved')
+
+		const blank = (openTo?.props('options') as { value: string }[])[0].value
+		await openTo?.setValue(blank)
+		await flushPromises()
+		expect(wrapper.text()).not.toContain('Not Saved')
+	})
+
+	// An unfilled field arrives as null, an input can only return '', so clearing
+	// one used to latch "Not Saved" with no way off it but saving.
+	it('stays pristine when a null-backed field is cleared', async () => {
+		const router = makeRouter()
+		await router.push(`/user/${USERNAME}/edit`)
+		const wrapper = mountForm(router, USERNAME)
+		await flushPromises()
+
+		const linkedin = wrapper.find('input[data-label="LinkedIn ID"]')
+		await linkedin.setValue('a')
+		expect(wrapper.text()).toContain('Not Saved')
+
+		await linkedin.setValue('')
+		await flushPromises()
+		expect(wrapper.text()).not.toContain('Not Saved')
+	})
+
+	// The server strips a mandatory value before checking it, so spaces got past
+	// the form only to come back as its raw "Value missing" error.
+	it('refuses a first name of only spaces before posting it', async () => {
+		const router = makeRouter()
+		await router.push(`/user/${USERNAME}/edit`)
+		const wrapper = mountForm(router, USERNAME)
+		await flushPromises()
+
+		await wrapper.find('input[data-label="First Name"]').setValue('   ')
+		await wrapper.get('[data-testid="profile-save"]').trigger('click')
+
+		expect(saveResource().submit).not.toHaveBeenCalled()
+		expect(toast.error).toHaveBeenCalledWith(
+			'Please fill the mandatory fields: First Name'
+		)
 	})
 })

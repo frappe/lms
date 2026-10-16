@@ -23,19 +23,28 @@ vi.mock('@/stores/settings', () => ({ useSettings: () => ({}) }))
 vi.mock('@/stores/user', () => ({ usersStore: () => ({ userResource: {} }) }))
 vi.mock('@/stores/session', () => ({ sessionStore: () => ({ brand: {} }) }))
 
-vi.mock('frappe-ui', () => ({
-	createResource: () => ({ data: null, loading: false, reload: vi.fn() }),
-	usePageMeta: vi.fn(),
-	toast: { success: vi.fn(), error: vi.fn() },
-	Badge: passthrough,
-	Button: passthrough,
-	Dropdown: passthrough,
-	Tooltip: passthrough,
-	Tabs: passthrough,
-}))
+vi.mock('frappe-ui', async () => {
+	// Reactive like the real resource, which CourseDetail watches.
+	const { reactive } = await import('vue')
+	return {
+		createResource: () =>
+			reactive({ data: null, loading: false, reload: vi.fn() }),
+		usePageMeta: vi.fn(),
+		toast: { success: vi.fn(), error: vi.fn() },
+		Badge: passthrough,
+		Button: passthrough,
+		Dropdown: passthrough,
+		Tooltip: passthrough,
+	}
+})
 
-vi.mock('frappe-ui/frappe', () => ({
+// Mocks the specific `@framework/ui` submodules this file imports from — the
+// bare package root's barrel also `export *`s components (GeolocationField
+// among them) that import `leaflet`/`leaflet-draw` assets not installed here.
+vi.mock('@framework/ui/telemetry/index', () => ({
 	useTelemetry: () => ({ capture: vi.fn() }),
+}))
+vi.mock('@framework/ui/components/Onboarding/index', () => ({
 	useOnboarding: () => ({ updateOnboardingStep: vi.fn() }),
 }))
 
@@ -46,7 +55,7 @@ vi.mock('frappe-ui/frappe', () => ({
 const { stub } = vi.hoisted(() => ({
 	stub: () => ({ default: { render: () => null } }),
 }))
-vi.mock('@/components/Layouts/TabbedDetailPage.vue', stub)
+vi.mock('@/components/Layouts/pages/TabbedDetailPage.vue', stub)
 vi.mock('@/pages/Courses/CourseOverview.vue', stub)
 vi.mock('@/pages/Courses/CourseDashboard.vue', stub)
 vi.mock('@/pages/Courses/CourseEditor.vue', stub)

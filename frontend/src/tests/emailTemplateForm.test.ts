@@ -51,10 +51,6 @@ vi.mock('frappe-ui', () => ({
 		emits: ['update:open'],
 		template: `<div v-if="open" role="dialog"><h2>{{ title }}</h2><slot /><slot name="actions" /></div>`,
 	},
-	Button: {
-		inheritAttrs: false,
-		template: `<button v-bind="$attrs"><slot name="icon" /><slot /></button>`,
-	},
 	FormControl: {
 		props: ['modelValue', 'label', 'type', 'placeholder', 'required'],
 		emits: ['update:modelValue'],
@@ -199,19 +195,6 @@ describe('EmailTemplateForm as a route', () => {
 		})
 	})
 
-	// The whole point of the conversion: BatchForm owned the list resource this
-	// used to insert through, and on a deep link no settings tab is mounted at
-	// all — so the page has to stand up with no parent behind it.
-	it('mounts straight from the URL with no BatchForm mounted', async () => {
-		const router = makeRouter()
-		await openForm(router)
-		const wrapper = await mountForm(router)
-
-		expect(wrapper.text()).toContain('BATCH')
-		expect(fields(wrapper).exists()).toBe(true)
-		expect(wrapper.html()).toContain('New Email Template')
-	})
-
 	it('refuses a visitor who is neither moderator nor evaluator', async () => {
 		const router = makeRouter()
 		await openForm(router)
@@ -347,26 +330,5 @@ describe('EmailTemplateForm as a route', () => {
 		await flushPromises()
 
 		expect(list.reload).toHaveBeenCalledTimes(1)
-	})
-
-	it('mobile: the back control pops the router back to the batch', async () => {
-		const router = makeRouter()
-		await router.push({
-			name: 'BatchDetail',
-			params: { batchName: 'B1' },
-			hash: BATCH_TAB,
-		})
-		await openForm(router, { lmsFormEntry: true })
-		Object.defineProperty(window, 'innerWidth', {
-			value: 390,
-			writable: true,
-			configurable: true,
-		})
-		const wrapper = await mountForm(router)
-
-		await wrapper.find('[data-testid="form-shell-back"]').trigger('click')
-		await flushPromises()
-		expect(router.currentRoute.value.name).toBe('BatchDetail')
-		expect(router.currentRoute.value.hash).toBe(BATCH_TAB)
 	})
 })

@@ -1,7 +1,7 @@
 <template>
 	<ListPage
 		:breadcrumbs="breadcrumbs"
-		:title="__('All Batches')"
+		:title="pageTitle"
 		:rows="batches.data || []"
 		:loading="batches.list.loading"
 		:total-count="batchCount"
@@ -9,48 +9,23 @@
 		v-model:page-length="pageLength"
 		empty-name="Batches"
 		empty-icon="lucide-users"
+		:search-query="title"
+		:filtered="Boolean(currentCategory || certification)"
 		@load-more="batches.next()"
+		@clear-filters="clearFilters"
 	>
 		<template #actions>
-			<Dropdown
-				v-if="canCreateBatch()"
-				:options="[
-					{
-						label: __('New Batch'),
-						icon: 'lucide-users',
-						onClick() {
-							openFormRoute(router, { name: 'NewBatch' })
-						},
-					},
-					{
-						label: __('Import Batch'),
-						icon: 'lucide-upload',
-						onClick() {
-							router.push({
-								name: 'NewDataImport',
-								params: { doctype: 'LMS Batch' },
-							})
-						},
-					},
-				]"
-			>
-				<template v-slot="{ open }">
-					<Button variant="solid">
-						<template #prefix>
-							<span class="lucide-plus size-4" />
-						</template>
-						{{ __('Create') }}
-						<template #suffix>
-							<span
-								:class="[
-									'lucide-chevron-down ms-1 size-4 transform transition-transform',
-									open ? 'rotate-180' : '',
-								]"
-							/>
-						</template>
-					</Button>
-				</template>
-			</Dropdown>
+			<div v-if="canCreateBatch()" class="flex items-center gap-2">
+				<Button variant="subtle" @click="openBatchImport">
+					{{ __('Import') }}
+				</Button>
+				<Button variant="solid" @click="openNewBatch">
+					<template #prefix>
+						<span class="lucide-plus size-4" />
+					</template>
+					{{ __('New Batch') }}
+				</Button>
+			</div>
 		</template>
 
 		<template #filters>
@@ -65,7 +40,6 @@
 				:placeholder="__('Search')"
 				:aria-label="__('Search')"
 				type="text"
-				@input="updateBatches()"
 			>
 				<template #prefix>
 					<span class="lucide-search size-4 text-ink-gray-5" />
@@ -76,6 +50,7 @@
 				v-model="currentCategory"
 				:options="categories.filter((c) => c.value)"
 				:placeholder="__('Category')"
+				:ariaLabel="__('Category')"
 				@update:modelValue="updateBatches()"
 			/>
 			<ToggleFilter
@@ -88,11 +63,10 @@
 		</template>
 
 		<template #card="{ row }">
-			<router-link
+			<BatchCard
+				:batch="row"
 				:to="{ name: 'BatchDetail', params: { batchName: row.name } }"
-			>
-				<BatchCard :batch="row" />
-			</router-link>
+			/>
 		</template>
 	</ListPage>
 
@@ -103,7 +77,6 @@ import {
 	Button,
 	createListResource,
 	createResource,
-	Dropdown,
 	FormControl,
 	TabButtons,
 	usePageMeta,
@@ -114,8 +87,9 @@ import { computed, inject, onMounted, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { sessionStore } from '@/stores/session'
 import BatchCard from '@/pages/Batches/components/BatchCard.vue'
-import ListPage from '@/components/Layouts/ListPage.vue'
+import ListPage from '@/components/Layouts/pages/ListPage.vue'
 import { openFormRoute } from '@/composables/useFormRoute'
+import { setFormSource } from '@/composables/formTracking'
 
 const user = inject('$user')
 const dayjs = inject('$dayjs')
@@ -127,7 +101,12 @@ const title = ref('')
 const certification = ref(false)
 const filters = ref({})
 const is_student = computed(() => user.data?.is_student)
-const currentTab = ref(is_student.value ? 'all' : 'upcoming')
+const isAdmin = computed(() =>
+	['is_moderator', 'is_instructor', 'is_evaluator'].some(
+		(role) => user.data?.[role]
+	)
+)
+const currentTab = ref(isAdmin.value ? 'active' : 'all')
 const orderBy = ref('start_date')
 const readOnlyMode = window.read_only_mode
 const router = useRouter()
@@ -135,6 +114,8 @@ const router = useRouter()
 onMounted(() => {
 	setFiltersFromQuery()
 	updateBatches()
+	// TextInput emits on input and change; watched after query hydration to avoid a refetch.
+	watch(title, () => updateBatches())
 	categories.value = [
 		{
 			label: '',
@@ -184,9 +165,9 @@ const setCategories = (data) => {
 	}
 }
 
-// Upcoming and Archived are settled against the current time in Python rather
-// than in the query, and `enrolled` is not a field, so only the endpoint that
-// resolves both can say how many batches a tab really holds.
+// Active, Upcoming and Archived are settled against the current time in Python
+// rather than in the query, and `enrolled` is not a field, so only the
+// endpoint that resolves both can say how many batches a tab really holds.
 const batchCountResource = createResource({
 	url: 'lms.lms.utils.get_batch_count',
 	makeParams: () => ({ filters: filters.value }),
@@ -196,6 +177,14 @@ const batchCountResource = createResource({
 })
 
 const batchCount = computed(() => batchCountResource.data ?? null)
+
+const clearFilters = () => {
+	currentCategory.value = null
+	certification.value = false
+	// The title watcher reloads on its own; reloading here as well fetches twice.
+	if (title.value) title.value = ''
+	else updateBatches()
+}
 
 const updateBatches = () => {
 	updateFilters()
@@ -250,18 +239,22 @@ const updateTabFilter = () => {
 	if (!user.data) {
 		return
 	}
-	if (currentTab.value == 'enrolled' && is_student.value) {
+	if (currentTab.value == 'enrolled') {
 		filters.value['enrolled'] = 1
 		delete filters.value['start_date']
 		delete filters.value['published']
 		orderBy.value = 'start_date desc'
-	} else if (is_student.value) {
+	} else if (isAdmin.value) {
 		delete filters.value['enrolled']
-	} else {
 		delete filters.value['start_date']
+		delete filters.value['end_date']
 		delete filters.value['published']
 		orderBy.value = 'start_date desc'
-		if (currentTab.value == 'upcoming') {
+		if (currentTab.value == 'active') {
+			filters.value['end_date'] = ['>=', dayjs().format('YYYY-MM-DD')]
+			filters.value['published'] = 1
+			orderBy.value = 'start_date'
+		} else if (currentTab.value == 'upcoming') {
 			filters.value['start_date'] = ['>=', dayjs().format('YYYY-MM-DD')]
 			filters.value['published'] = 1
 			orderBy.value = 'start_date'
@@ -270,6 +263,8 @@ const updateTabFilter = () => {
 		} else if (currentTab.value == 'unpublished') {
 			filters.value['published'] = 0
 		}
+	} else {
+		delete filters.value['enrolled']
 	}
 }
 
@@ -321,37 +316,46 @@ watch(currentTab, () => {
 })
 
 const batchTabs = computed(() => {
-	let tabs = [
-		{
-			label: __('All'),
-			value: 'all',
-		},
-	]
-
-	if (
-		user.data?.is_moderator ||
-		user.data?.is_instructor ||
-		user.data?.is_evaluator
-	) {
-		tabs.push({ label: __('Upcoming'), value: 'upcoming' })
-		tabs.push({ label: __('Archived'), value: 'archived' })
-		tabs.push({ label: __('Unpublished'), value: 'unpublished' })
-	} else if (user.data) {
+	if (isAdmin.value) {
+		return [
+			{ label: __('Active'), value: 'active' },
+			{ label: __('Upcoming'), value: 'upcoming' },
+			{ label: __('Archived'), value: 'archived' },
+			{ label: __('Unpublished'), value: 'unpublished' },
+		]
+	}
+	const tabs = [{ label: __('All'), value: 'all' }]
+	if (user.data) {
 		tabs.push({ label: __('Enrolled'), value: 'enrolled' })
 	}
 	return tabs
 })
 
+// Roles can land after setup, leaving staff on `all`, which they have no tab for.
+watch(batchTabs, (tabs) => {
+	if (!tabs.some((tab) => tab.value === currentTab.value)) {
+		currentTab.value = tabs[0].value
+	}
+})
+
+const pageTitle = computed(() => {
+	const tab = batchTabs.value.find((t) => t.value === currentTab.value)
+	return __('{0} Batches').format(tab?.label)
+})
+
 const canCreateBatch = () => {
 	if (readOnlyMode) return false
-	if (
-		user.data?.is_moderator ||
-		user.data?.is_instructor ||
-		user.data?.is_evaluator
-	)
-		return true
-	return false
+	return Boolean(user.data?.is_moderator || user.data?.is_evaluator)
 }
+
+// openFormRoute, not a bare router.push: it stamps the history entry so the
+// form's own close() pops it instead of replacing.
+const openNewBatch = () => {
+	setFormSource('header_button')
+	openFormRoute(router, { name: 'NewBatch' })
+}
+const openBatchImport = () =>
+	router.push({ name: 'NewDataImport', params: { doctype: 'LMS Batch' } })
 
 const breadcrumbs = computed(() => [
 	{

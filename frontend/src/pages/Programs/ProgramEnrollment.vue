@@ -12,7 +12,7 @@
 				data-testid="program-enrollment-summary"
 				class="text-base text-ink-gray-9"
 			>
-				<div class="bg-surface-blue-2 text-ink-blue-6 p-2 rounded-md leading-5">
+				<div class="bg-surface-blue-2 text-ink-blue-5 p-2 rounded-5 leading-5">
 					<span>
 						{{
 							__('This program consists of {0} courses').format(
@@ -40,21 +40,21 @@
 				</div>
 
 				<div class="mt-5">
-					<div class="text-sm-semibold text-ink-gray-5">
+					<div class="text-sm-semibold text-ink-gray-6">
 						{{ __('Courses in this Program') }}
 					</div>
 					<div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-2">
 						<div
 							v-for="course in program.data.courses"
 							:key="course.name"
-							class="flex flex-col border border-outline-gray-2 p-2 rounded-md h-full"
+							class="flex flex-col border border-outline-gray-2 p-2 rounded-5 h-full"
 						>
 							<div class="font-semibold text-ink-gray-9 leading-5 mb-2">
 								{{ course.title }}
 							</div>
 
 							<div
-								class="flex items-center gap-x-5 text-sm text-ink-gray-5 mb-8"
+								class="flex items-center gap-x-5 text-sm text-ink-gray-6 mb-8"
 							>
 								<Tooltip :text="__('Lessons')">
 									<span class="flex items-center gap-x-1">
@@ -99,11 +99,14 @@
 	</FormShell>
 </template>
 <script setup lang="ts">
-import { createResource, toast, Tooltip } from 'frappe-ui'
-import { computed, inject, onMounted } from 'vue'
+import { createResource, toast, Tooltip, usePageMeta } from 'frappe-ui'
+import type { FrappeResourceError } from 'frappe-ui'
+import { computed, inject, onBeforeUnmount, onMounted } from 'vue'
 import FormShell from '@/components/FormShell.vue'
+import UserAvatar from '@/components/UserAvatar.vue'
 import HeaderButton from '@/components/HeaderButton.vue'
 import { useFormRoute } from '@/composables/useFormRoute'
+import { sessionStore } from '@/stores/session'
 import type { SessionUser } from '@/types'
 
 const props = defineProps<{
@@ -123,6 +126,15 @@ const parent = { name: 'Programs' }
 const { close, saveAndReplace } = useFormRoute(parent)
 
 const title = __('Enrollment for Program {0}').format(props.programName)
+
+const { brand } = sessionStore()
+// usePageMeta never restores on unmount, and the Programs list behind this
+// dialog stays mounted, so closing would leave this title on the list.
+const listTitle = document.title
+usePageMeta(() => ({ title, icon: brand.favicon }))
+onBeforeUnmount(() => {
+	if (document.title === title) document.title = listTitle
+})
 
 const program = createResource({
 	url: 'lms.lms.utils.get_program_details',
@@ -183,11 +195,9 @@ const enrollInProgram = () => {
 					params: { programName: props.programName },
 				})
 			},
-			onError(err: { messages?: string[] } | string) {
+			onError(err: FrappeResourceError) {
 				toast.error(
-					__('Failed to enroll in program: {0}').format(
-						typeof err === 'string' ? err : err.messages?.[0] ?? ''
-					)
+					__('Failed to enroll in program: {0}').format(err.messages?.[0] ?? '')
 				)
 			},
 		}

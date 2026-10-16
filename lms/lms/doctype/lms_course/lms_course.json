@@ -24,6 +24,7 @@
   "upcoming",
   "featured",
   "disable_self_learning",
+  "enforce_lesson_completion",
   "section_break_18",
   "short_introduction",
   "column_break_viqw",
@@ -94,6 +95,13 @@
    "fieldname": "disable_self_learning",
    "fieldtype": "Check",
    "label": "Disable Self Learning"
+  },
+  {
+   "default": "0",
+   "description": "Students must complete each lesson before the next one becomes available. A lesson a student cannot complete (quiz attempts exhausted, or a SCORM package that never reports completion) will block every lesson after it.",
+   "fieldname": "enforce_lesson_completion",
+   "fieldtype": "Check",
+   "label": "Enforce Lesson Completion"
   },
   {
    "fieldname": "image",

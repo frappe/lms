@@ -2,30 +2,38 @@ name: UI Tests
 
 on:
   pull_request:
+    paths-ignore:
+      - "**.md"
+      - "lms/locale/**"
   workflow_dispatch:
   push:
-    branches: 
+    branches:
       - main
       - develop
       - main-hotfix
+    paths-ignore:
+      - "**.md"
+      - "lms/locale/**"
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 permissions:
   # Do not change this as GITHUB_TOKEN is being used by roulette
   contents: read
 
 jobs:
-  
   test:
-    name: UI Tests (Cypress) - ${{ matrix.containers }}
+    name: UI Tests (Playwright)
     runs-on: ubuntu-latest
     timeout-minutes: 60
 
-    strategy:
-      fail-fast: false
-      matrix:
-        containers: [1, 2]
-
     services:
+      redis:
+        image: redis:alpine
+        ports:
+          - 6379:6379
       mariadb:
         image: mariadb:10.8
         env:
@@ -35,108 +43,90 @@ jobs:
         options: --health-cmd="mysqladmin ping" --health-interval=5s --health-timeout=2s --health-retries=3
 
     steps:
+      # Depth 2 keeps the PR base, the merge commit's first parent.
       - name: Clone
-        uses: actions/checkout@v3
-
-      - name: Setup Python
-        uses: actions/setup-python@v6
+        uses: actions/checkout@v4
         with:
-          python-version: '3.14'
+          fetch-depth: 2
 
-      - name: Check for valid Python & Merge Conflicts
+      - name: Select tests
+        id: select
+        if: >-
+          github.event_name == 'pull_request' &&
+          !contains(github.event.pull_request.labels.*.name, 'all-tests')
         run: |
-          python -m compileall -q -f "${GITHUB_WORKSPACE}"
-          if grep -lr --exclude-dir=node_modules "^<<<<<<< " "${GITHUB_WORKSPACE}"
-              then echo "Found merge conflicts"
-              exit 1
-          fi
-
-      - uses: actions/setup-node@v6
-        with:
-          node-version: 24
-          check-latest: true
+          set -euo pipefail
+          git diff --name-status --no-renames HEAD^1 HEAD \
+            | .github/helper/changed-tests.sh e2e >> "$GITHUB_OUTPUT"
 
       - name: Add to Hosts
-        run: |
-          echo "127.0.0.1 lms.test" | sudo tee -a /etc/hosts
+        run: echo "127.0.0.1 lms.test" | sudo tee -a /etc/hosts
 
-      - name: Cache pip
-        uses: actions/cache@v4
+      - uses: ./.github/actions/setup-bench
         with:
-          path: ~/.cache/pip
-          key: ${{ runner.os }}-pip-${{ hashFiles('**/*requirements.txt', '**/pyproject.toml', '**/setup.py') }}
-          restore-keys: |
-            ${{ runner.os }}-pip-
-            ${{ runner.os }}-
-
-      - name: Get yarn cache directory path
-        id: yarn-cache-dir-path
-        run: echo "dir=$(yarn cache dir)" >> $GITHUB_OUTPUT
-
-      - uses: actions/cache@v4
-        id: yarn-cache
-        with:
-          path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
-          key: ${{ runner.os }}-yarn-ui-${{ hashFiles('**/yarn.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-yarn-ui-
-
-      - name: Cache cypress binary
-        uses: actions/cache@v4
-        with:
-          path: ~/.cache/Cypress
-          key: ${{ runner.os }}-cypress
-
-      - name: Install Dependencies
-        run: |
-          bash ${GITHUB_WORKSPACE}/.github/helper/install_dependencies.sh
-          bash ${GITHUB_WORKSPACE}/.github/helper/install.sh
-        env:
-          BEFORE: ${{ env.GITHUB_EVENT_PATH.before }}
-          AFTER: ${{ env.GITHUB_EVENT_PATH.after }}
-          TYPE: ui
-          DB: mariadb
+          site: lms.test
+          db-root-password: "123"
+          build-assets: "true"
+          site-config: >-
+            {
+              "allow_tests": true,
+              "enable_ui_tests": true,
+              "auto_email_id": "test@example.com",
+              "mail_server": "smtp.example.com",
+              "mail_login": "test@example.com",
+              "mail_password": "test",
+              "host_name": "http://lms.test:8000",
+              "monitor": 1,
+              "server_script_enabled": true,
+              "mute_emails": true
+            }
 
       - name: Site Setup
+        working-directory: /home/runner/frappe-bench
         run: |
-          cd ~/frappe-bench/
           bench --site lms.test execute frappe.utils.install.complete_setup_wizard
           bench --site lms.test execute frappe.tests.ui_test_helpers.create_test_user
           bench --site lms.test set-password frappe@example.com admin
           bench --site lms.test execute lms.lms.utils.persona_captured
 
-      - name: cypress pre-requisites
+      - name: Start bench
+        working-directory: /home/runner/frappe-bench
         run: |
-          cd ~/frappe-bench/apps/lms
-          yarn add cypress@^10 --no-lockfile -W
+          sed -i -e 's/^watch:/# watch:/' -e 's/^schedule:/# schedule:/' Procfile
+          bench start &> bench_start.log &
+          curl --silent --show-error --retry 30 --retry-delay 2 --retry-all-errors \
+            --output /dev/null http://lms.test:8000/api/method/ping
+
+      - name: Cache Playwright browsers
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: ${{ runner.os }}-playwright-${{ hashFiles('yarn.lock') }}
+
+      - name: Install Playwright browsers
+        working-directory: /home/runner/frappe-bench/apps/lms
+        run: npx playwright install --with-deps chromium
 
       - name: UI Tests
-        run: cd ~/frappe-bench/ && bench --site lms.test run-ui-tests lms --headless
-        env:
-          CYPRESS_BASE_URL: http://lms.test:8000
-          SPLIT: ${{ strategy.job-total }}
-          SPLIT_INDEX: ${{ strategy.job-index }}
-
-      - name: Upload Cypress screenshots if tests fail
-        if: ${{ failure() }}
-        uses: actions/upload-artifact@v4
-        with:
-          name: cypress-screenshots-${{ matrix.containers }}
-          path: /home/runner/frappe-bench/apps/lms/cypress/screenshots
-          if-no-files-found: ignore
-
-      - name: Upload Cypress videos if tests fail
-        if: ${{ failure() }}
-        uses: actions/upload-artifact@v4
-        with:
-          name: cypress-videos-${{ matrix.containers }}
-          path: ~/frappe-bench/apps/lms/cypress/videos
-          if-no-files-found: ignore
-
-      - name: Stop server and wait for coverage file
+        working-directory: /home/runner/frappe-bench/apps/lms
+        # SPECS is empty on a full run.
         run: |
-          ps -ef | grep "[f]rappe serve" | awk '{print $2}' | xargs kill -s SIGINT
-          sleep 5
+          read -ra specs <<< "$SPECS"
+          npx playwright test --project=setup --project=e2e "${specs[@]}"
+        env:
+          PLAYWRIGHT_BASE_URL: http://lms.test:8000
+          CI: "true"
+          SPECS: ${{ steps.select.outputs.tests }}
+
+      - name: Upload Playwright results if tests fail
+        if: ${{ failure() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-results
+          path: |
+            /home/runner/frappe-bench/apps/lms/test-results
+            /home/runner/frappe-bench/apps/lms/playwright-report
+          if-no-files-found: ignore
 
       - name: Show bench output
         if: ${{ always() }}

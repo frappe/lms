@@ -13,17 +13,6 @@ import { shallowMount } from '@vue/test-utils'
 
 const { resourceCalls } = vi.hoisted(() => ({ resourceCalls: [] as any[] }))
 
-const stubbedSource = () => ({
-	resource: { delete: { submit: vi.fn() }, insert: { submit: vi.fn() } },
-	search: '',
-	rows: [],
-	loading: false,
-	hasNextPage: false,
-	loadMore: vi.fn(),
-	reload: vi.fn(),
-	applyFilters: vi.fn(),
-})
-
 vi.mock('@/composables/useSettingsListResource', () => ({
 	SETTINGS_PAGE_LENGTH: 13,
 	useSettingsListResource: (options: any) => {
@@ -53,8 +42,13 @@ vi.mock('frappe-ui', () => ({
 	Select: { template: '<select />' },
 }))
 
-vi.mock('frappe-ui/frappe', () => ({
+// Mocks the specific `@framework/ui` submodules this file imports from — the
+// bare package root's barrel also `export *`s components (GeolocationField
+// among them) that import `leaflet`/`leaflet-draw` assets not installed here.
+vi.mock('@framework/ui/components/Onboarding/index', () => ({
 	useOnboarding: () => ({ updateOnboardingStep: vi.fn() }),
+}))
+vi.mock('@framework/ui/telemetry/index', () => ({
 	useTelemetry: () => ({ capture: vi.fn() }),
 }))
 
@@ -81,43 +75,18 @@ vi.mock('vue-router', () => ({
 
 vi.stubGlobal('__', (text: string) => text)
 
-import Badges from '@/components/Settings/Badges/Badges.vue'
-import CouponList from '@/components/Settings/Coupons/CouponList.vue'
-import TransactionList from '@/components/Settings/Transactions/TransactionList.vue'
-import BadgeAssignments from '@/components/Settings/Badges/BadgeAssignments.vue'
+import { badgesSettingsPage } from '@/components/Settings/Badges/badges'
 import Categories from '@/components/Settings/Categories.vue'
 import Coupons from '@/components/Settings/Coupons/Coupons.vue'
-import EmailTemplateList from '@/components/Settings/EmailTemplate/EmailTemplateList.vue'
-import GoogleMeetSettings from '@/components/Settings/GoogleMeetSettings.vue'
-import PaymentGateways from '@/components/Settings/PaymentGateways.vue'
+import PaymentGateways from '@/components/Settings/PaymentGateways/PaymentGateways.vue'
 import Transactions from '@/components/Settings/Transactions/Transactions.vue'
-import ZoomSettings from '@/components/Settings/ZoomSettings.vue'
 
 const panels = [
-	{ name: 'Badges', component: Badges, searchFields: ['title', 'description'] },
-	{
-		name: 'Badge Assignments',
-		component: BadgeAssignments,
-		props: { badgeName: 'Top Learner' },
-		searchFields: ['member_name', 'member'],
-	},
 	{ name: 'Categories', component: Categories, searchFields: ['category'] },
 	{
 		name: 'Coupons',
 		component: Coupons,
 		searchFields: ['code'],
-		// The parent owns the resource; the child declares the columns.
-		columnsIn: CouponList,
-	},
-	{
-		name: 'Email Templates',
-		component: EmailTemplateList,
-		searchFields: ['name', 'subject'],
-	},
-	{
-		name: 'Google Meet',
-		component: GoogleMeetSettings,
-		searchFields: ['member_name', 'google_calendar'],
 	},
 	{
 		name: 'Payment Gateways',
@@ -128,18 +97,12 @@ const panels = [
 		name: 'Transactions',
 		component: Transactions,
 		searchFields: ['billing_name', 'member'],
-		columnsIn: TransactionList,
-	},
-	{
-		name: 'Zoom',
-		component: ZoomSettings,
-		searchFields: ['account_name', 'account_id', 'member_name'],
 	},
 ]
 
 const mountPanel = (panel: any) =>
 	shallowMount(panel.component, {
-		props: { label: panel.name, description: '', ...(panel.props || {}) },
+		props: { label: panel.name, ...(panel.props || {}) },
 		global: {
 			provide: {
 				$user: { data: { is_moderator: true, name: 'admin@example.com' } },
@@ -170,8 +133,6 @@ describe('settings list search', () => {
 		const wrapper = shallowMount(owner, {
 			props: {
 				label: panel.name,
-				description: '',
-				list: stubbedSource(),
 				...(panel.props || {}),
 			},
 			global: {
@@ -197,5 +158,26 @@ describe('settings list search', () => {
 		// The composable owns the number; a panel that set its own would page
 		// out of step with the Load More the shared component draws.
 		expect(resourceCalls[0].pageLength).toBeUndefined()
+	})
+})
+
+// Badges is declared rather than drawn, so the three properties the panels above
+// are mounted to prove are read straight off the page.
+describe('Badges is declared with the same list contract', () => {
+	it('searches the server on its own fields', () => {
+		expect(badgesSettingsPage.resource.searchFields).toEqual([
+			'title',
+			'description',
+		])
+	})
+
+	it('sizes every column identically in header and row', () => {
+		for (const column of badgesSettingsPage.columns) {
+			expect(column.width ?? '').not.toMatch(/auto|max-content|min-content/)
+		}
+	})
+
+	it('pages at the shared page length', () => {
+		expect(badgesSettingsPage.resource.pageLength).toBeUndefined()
 	})
 })

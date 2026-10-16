@@ -3,6 +3,11 @@
 		<div
 			class="w-full bg-surface-gray-3 rounded-full h-1"
 			:class="$attrs.class"
+			role="progressbar"
+			aria-valuemin="0"
+			aria-valuemax="100"
+			:aria-valuenow="value"
+			:aria-label="props.label"
 		>
 			<div
 				class="bg-surface-gray-10 rounded-full"
@@ -26,12 +31,15 @@ const props = defineProps({
 		type: String,
 		default: 'sm',
 	},
+	label: {
+		type: String,
+		default: () => __('Progress'),
+	},
 })
 
-const progressBarWidth = computed(() => {
-	const formattedPercentage = Math.min(Math.ceil(props.progress), 100)
-	return `${formattedPercentage}%`
-})
+const value = computed(() => Math.min(Math.ceil(props.progress), 100))
+
+const progressBarWidth = computed(() => `${value.value}%`)
 
 const progressBarHeight = computed(() => {
 	if (props.size === 'sm') {

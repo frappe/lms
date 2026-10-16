@@ -9,32 +9,30 @@
 		v-model:page-length="pageLength"
 		empty-name="Courses"
 		empty-icon="lucide-book-open"
+		:search-query="title"
+		:filtered="Boolean(currentCategory || certification)"
 		@load-more="courses.next()"
+		@clear-filters="clearFilters"
 	>
 		<template #actions>
-			<Dropdown
-				placement="right"
-				side="bottom"
-				v-if="canCreateCourse()"
-				:options="courseMenu"
-			>
-				<template v-slot="{ open }">
-					<Button variant="solid">
-						<template #prefix>
-							<span class="lucide-plus size-4" />
-						</template>
-						{{ __('Create') }}
-						<template #suffix>
-							<span
-								:class="[
-									'lucide-chevron-down ms-1 size-4 transform transition-transform',
-									open ? 'rotate-180' : '',
-								]"
-							/>
-						</template>
+			<div v-if="canCreateCourse()" class="flex items-center gap-2">
+				<Dropdown
+					align="end"
+					side="bottom"
+					:options="importMenu"
+					@update:open="(open) => open && capture('course_import_menu_opened')"
+				>
+					<Button variant="subtle">
+						{{ __('Import') }}
 					</Button>
-				</template>
-			</Dropdown>
+				</Dropdown>
+				<Button variant="solid" @click="openNewCourse">
+					<template #prefix>
+						<span class="lucide-plus size-4" />
+					</template>
+					{{ __('New Course') }}
+				</Button>
+			</div>
 		</template>
 
 		<template #filters>
@@ -48,7 +46,6 @@
 				:placeholder="__('Search')"
 				:aria-label="__('Search')"
 				type="text"
-				@input="updateCourses()"
 			>
 				<template #prefix>
 					<span class="lucide-search size-4 text-ink-gray-5" />
@@ -59,6 +56,7 @@
 				v-model="currentCategory"
 				:options="categories.data.filter((c) => c.value)"
 				:placeholder="__('Category')"
+				:ariaLabel="__('Category')"
 				@update:modelValue="updateCourses()"
 			/>
 			<ToggleFilter
@@ -71,11 +69,10 @@
 		</template>
 
 		<template #card="{ row }">
-			<router-link
+			<CourseCard
+				:course="row"
 				:to="{ name: 'CourseDetail', params: { courseName: row.name } }"
-			>
-				<CourseCard :course="row" />
-			</router-link>
+			/>
 		</template>
 	</ListPage>
 
@@ -93,13 +90,15 @@ import {
 } from 'frappe-ui'
 import ClearableCombobox from '@/components/Controls/ClearableCombobox.vue'
 import ToggleFilter from '@/components/Controls/ToggleFilter.vue'
-import ListPage from '@/components/Layouts/ListPage.vue'
+import ListPage from '@/components/Layouts/pages/ListPage.vue'
 import { computed, inject, onMounted, ref, watch } from 'vue'
 import { sessionStore } from '@/stores/session'
 import { canCreateCourse } from '@/utils'
 import CourseCard from '@/components/CourseCard.vue'
 import { useRouter } from 'vue-router'
 import { openFormRoute } from '@/composables/useFormRoute'
+import { setFormSource } from '@/composables/formTracking'
+import { useTelemetry } from '@framework/ui/telemetry/index'
 
 const user = inject('$user')
 const dayjs = inject('$dayjs')
@@ -120,6 +119,8 @@ const router = useRouter()
 onMounted(() => {
 	setFiltersFromQuery()
 	updateCourses()
+	// TextInput emits on input and change; watched after query hydration to avoid a refetch.
+	watch(title, updateCourses)
 })
 
 const setFiltersFromQuery = () => {
@@ -199,6 +200,14 @@ const categories = createListResource({
 	cache: ['course_categories'],
 	auto: true,
 })
+
+const clearFilters = () => {
+	currentCategory.value = null
+	certification.value = false
+	// The title watcher reloads on its own; reloading here as well fetches twice.
+	if (title.value) title.value = ''
+	else updateCourses()
+}
 
 const updateCourses = () => {
 	updateFilters()
@@ -343,36 +352,33 @@ const courseTabs = computed(() => {
 	return tabs
 })
 
-const courseMenu = computed(() => {
-	return [
-		{
-			label: __('New Course'),
-			icon: 'lucide-book-open',
-			onClick() {
-				// openFormRoute, not a bare router.push: it stamps the history
-				// entry so the form's own close() pops it instead of replacing.
-				openFormRoute(router, { name: 'NewCourse' })
-			},
+const { capture } = useTelemetry()
+
+// openFormRoute, not a bare router.push: it stamps the history entry so the
+// form's own close() pops it instead of replacing.
+const openNewCourse = () => {
+	setFormSource('header_button')
+	openFormRoute(router, { name: 'NewCourse' })
+}
+
+const importMenu = computed(() => [
+	{
+		label: __('Import from a spreadsheet'),
+		icon: 'lucide-upload',
+		onClick() {
+			capture('course_import_clicked', { via: 'spreadsheet' })
+			router.push({ name: 'NewDataImport', params: { doctype: 'LMS Course' } })
 		},
-		{
-			label: __('Import via Data Import Tool'),
-			icon: 'lucide-upload',
-			onClick() {
-				router.push({
-					name: 'NewDataImport',
-					params: { doctype: 'LMS Course' },
-				})
-			},
+	},
+	{
+		label: __('Import via ZIP'),
+		icon: 'lucide-folder-plus',
+		onClick() {
+			capture('course_import_clicked', { via: 'zip' })
+			openFormRoute(router, { name: 'CourseImport' })
 		},
-		{
-			label: __('Import via ZIP'),
-			icon: 'lucide-folder-plus',
-			onClick() {
-				openFormRoute(router, { name: 'CourseImport' })
-			},
-		},
-	]
-})
+	},
+])
 
 const breadcrumbs = computed(() => [
 	{

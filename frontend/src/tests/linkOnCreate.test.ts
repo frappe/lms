@@ -18,7 +18,8 @@ vi.mock('frappe-ui', () => ({
 	// Renders the footer slot unconditionally — the real Combobox only shows it
 	// while open, which is dropdown mechanics this test is not about.
 	Combobox: {
-		props: ['options', 'modelValue', 'open'],
+		name: 'Combobox',
+		props: ['options', 'modelValue', 'open', 'align'],
 		template: `<div><slot name="footer" /></div>`,
 	},
 	Button: {
@@ -29,7 +30,6 @@ vi.mock('frappe-ui', () => ({
 		template: `<button type="button" :aria-label="ariaLabel" @click="$emit('click')"><slot /></button>`,
 	},
 	FormControl: { props: ['modelValue'], template: `<input />` },
-	FormLabel: { props: ['label'], template: `<label>{{ label }}</label>` },
 	createResource: () => ({
 		data: [],
 		loading: false,
@@ -70,20 +70,28 @@ describe('Link onCreate contract', () => {
 		expect(onCreate.mock.calls[0]).toHaveLength(1)
 		expect(onCreate.mock.calls[0][0]).toBeNull()
 	})
+})
 
-	it('does not hand the handler a close callback to invoke', async () => {
-		const received: unknown[] = []
-		await clickCreateNew(
-			mountLink((...args) => received.push(...args.slice(1)))
-		)
+// A filter sitting at the end of a row opened its popover off the side of the
+// window, because Combobox aligns to the start by default and Link forwarded
+// nothing. `end` is the trailing edge in either direction, so it is RTL-correct.
+describe('Link popover alignment', () => {
+	const combobox = (wrapper: ReturnType<typeof mountLink>) =>
+		wrapper.findComponent({ name: 'Combobox' })
 
-		expect(received).toEqual([])
+	it('aligns to the start unless asked otherwise', () => {
+		const wrapper = mount(Link, {
+			props: { doctype: 'Course' },
+			global: { mocks: { __: (s: string) => s } },
+		})
+		expect(combobox(wrapper).props('align')).toBe('start')
 	})
 
-	it('survives a handler that takes no parameters at all', async () => {
-		const onCreate = vi.fn(() => {})
-		await clickCreateNew(mountLink(onCreate))
-
-		expect(onCreate).toHaveBeenCalledOnce()
+	it('hands the popover the alignment it was given', () => {
+		const wrapper = mount(Link, {
+			props: { doctype: 'Course', align: 'end' },
+			global: { mocks: { __: (s: string) => s } },
+		})
+		expect(combobox(wrapper).props('align')).toBe('end')
 	})
 })

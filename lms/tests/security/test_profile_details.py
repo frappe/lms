@@ -19,6 +19,8 @@ class TestProfileDetails(BaseTestUtils):
 	USERS = {
 		"member": ("profile-member@example.com", ["LMS Student"], "profilemember"),
 		"roleless": ("profile-roleless@example.com", [], "profileroleless"),
+		"moderator": ("profile-moderator@example.com", ["Moderator"], "profilemoderator"),
+		"admin": ("profile-admin@example.com", ["System Manager", "LMS Student"], "profileadmin"),
 	}
 
 	@classmethod
@@ -52,7 +54,6 @@ class TestProfileDetails(BaseTestUtils):
 				setattr(cls, attr, frappe._dict(email=email, username=username))
 		finally:
 			frappe.flags.in_import = original_in_import
-		frappe.db.commit()
 
 	def setUp(self):
 		super().setUp()
@@ -68,16 +69,12 @@ class TestProfileDetails(BaseTestUtils):
 
 		self.assertEqual(details.name, self.roleless.email)
 
-	def test_user_without_an_lms_role_cannot_load_someone_elses(self):
-		frappe.session.user = self.roleless.email
-		with self.assertRaises(frappe.PermissionError):
-			get_profile_details(self.member.username)
-
 	def test_lms_member_can_load_another_profile(self):
 		frappe.session.user = self.member.email
 		details = get_profile_details(self.roleless.username)
 
-		self.assertEqual(details.name, self.roleless.email)
+		self.assertEqual(details.username, self.roleless.username)
+		self.assertNotIn("name", details)
 
 	def test_unknown_username_does_not_leak_existence_to_a_roleless_caller(self):
 		"""Same error for a real username and a made-up one, so the endpoint
@@ -99,3 +96,28 @@ class TestProfileDetails(BaseTestUtils):
 		for bad in (["a"], {"b": 1}, 7, "", "   "):
 			with self.assertRaises((frappe.ValidationError, frappe.exceptions.FrappeTypeError)):
 				get_profile_details(bad)
+
+	def test_student_does_not_see_privileged_roles_of_other_user(self):
+		frappe.session.user = self.member.email
+		details = get_profile_details(self.admin.username)
+		self.assertNotIn("System Manager", details.roles)
+		# LMS-facing roles the UI needs are still exposed.
+		self.assertIn("LMS Student", details.roles)
+
+	def test_owner_sees_full_role_list(self):
+		frappe.session.user = self.admin.email
+		details = get_profile_details(self.admin.username)
+		self.assertIn("System Manager", details.roles)
+
+	def test_moderator_sees_full_role_list(self):
+		frappe.session.user = self.moderator.email
+		details = get_profile_details(self.admin.username)
+		self.assertIn("System Manager", details.roles)
+
+	def test_guest_is_denied(self):
+		# Every logged-in LMS user gets the LMS Student role (User before_insert hook
+		# add_lms_student_role), so Guest is the reachable no-LMS-role caller. The authz
+		# check must fire before any target lookup.
+		frappe.session.user = "Guest"
+		with self.assertRaises(frappe.PermissionError):
+			get_profile_details(self.admin.username)

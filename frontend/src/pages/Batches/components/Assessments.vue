@@ -16,7 +16,7 @@
 				:columns="assessmentColumns"
 				:rows="assessments.data"
 				row-key="name"
-				class="sm:border sm:rounded-lg"
+				class="sm:border sm:rounded-6"
 				:options="listOptions"
 			>
 				<template #cell="{ column, value }">
@@ -63,6 +63,12 @@ const props = defineProps({
 	batch: {
 		type: String,
 		required: true,
+	},
+	// Per-batch: a Course Creator only manages a batch they author, unlike the
+	// session-wide user.data.is_instructor.
+	canManage: {
+		type: Boolean,
+		default: false,
 	},
 	rows: {
 		type: Array,
@@ -169,7 +175,7 @@ const getRowRoute = (row) => {
 
 const canAddAssessments = () => {
 	if (readOnlyMode) return false
-	return user.data?.is_moderator || user.data?.is_evaluator
+	return user.data?.is_moderator || user.data?.is_evaluator || props.canManage
 }
 
 const assessmentColumns = computed(() => {
@@ -206,7 +212,7 @@ const getStatusTheme = (status) => {
 	if (status === 'Pass' || status === 'Passed') {
 		return 'green'
 	} else if (status === 'Not Graded') {
-		return 'orange'
+		return 'amber'
 	} else {
 		return 'red'
 	}

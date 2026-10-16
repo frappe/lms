@@ -12,6 +12,7 @@ from xml.dom.minidom import parseString
 
 import frappe
 from frappe import _
+from frappe.email.email_body import get_message_id
 from frappe.integrations.frappe_providers.frappecloud_billing import (
 	current_site_info,
 	is_fc_site,
@@ -20,10 +21,13 @@ from frappe.translate import get_all_translations
 from frappe.utils import (
 	add_days,
 	cint,
+	cstr,
 	date_diff,
 	flt,
 	format_date,
 	get_datetime,
+	get_fullname,
+	get_string_between,
 	get_system_timezone,
 	get_time,
 	getdate,
@@ -32,15 +36,28 @@ from frappe.utils import (
 from frappe.utils.response import Response
 from pypika import functions as fn
 
-from lms.lms.course_import_export import export_course_zip, import_course_zip
+from lms.lms.code_runner import code_to_store, run_test_cases
+from lms.lms.course_import_export import (
+	export_course_zip,
+	get_uploaded_zip_path,
+	import_course_zip,
+	validate_archive,
+)
 from lms.lms.doctype.course_lesson.course_lesson import (
 	cleanup_lesson_backreferences,
 	save_progress,
 )
+from lms.lms.doctype.lms_certificate.lms_certificate import evaluates_certificate, get_latest_certificate
+from lms.lms.doctype.lms_certificate_evaluation.lms_certificate_evaluation import can_evaluate
+from lms.lms.html_sanitizer import sanitize_rich_text
+from lms.lms.permissions import is_site_administrator
+from lms.lms.sidebar import LEGACY_VISIBILITY_FIELDS, ROW_FIELDS, get_sidebar_rows
 from lms.lms.utils import (
 	LMS_ROLES,
+	attach_file_to_doc,
 	can_modify_batch,
 	can_modify_course,
+	check_filter_value,
 	format_timezone,
 	get_batch_details,
 	get_course_details,
@@ -49,10 +66,17 @@ from lms.lms.utils import (
 	get_field_meta,
 	get_instructors,
 	get_lms_route,
+	guest_access_allowed,
+	guest_access_required,
 	has_course_instructor_role,
 	has_evaluator_role,
 	has_lms_role,
+	has_message,
 	has_moderator_role,
+	hide_user_emails,
+	prepare_inline_images,
+	resolve_page_length,
+	resolve_user,
 )
 
 
@@ -288,6 +312,7 @@ def verify_billing_access(doctype, name, billing_type):
 	return access, message
 
 
+# nosemgrep: security.guest-whitelisted-method - pre-existing grant, unchanged by this branch; guests see only open job posts. Flagged only because semgrep ci re-scans the whole function when its body changes.
 @frappe.whitelist(allow_guest=True)
 def get_job_details(job: str):
 	if not isinstance(job, str):
@@ -309,12 +334,15 @@ def get_job_details(job: str):
 			"creation",
 			"description",
 			"owner",
+			"status",
 		],
 		as_dict=1,
 	)
+	if not job_details or not can_see_job(job_details.pop("status"), job_details.owner):
+		return None
 
-	if job_details:
-		job_details.applicants = frappe.db.count("LMS Job Application", {"job": job})
+	job_details.applicants = frappe.db.count("LMS Job Application", {"job": job})
+	hide_user_emails([job_details], "owner")
 
 	return job_details
 
@@ -342,27 +370,57 @@ def get_own_assignment_submission(assignment: str):
 
 
 @frappe.whitelist()
-def get_application_users(user_names: list | str):
-	# temp function workaround:reverting once upstream restores dotted-field JOINs in `frappe.client.get_list`
-	if isinstance(user_names, str):
-		user_names = json.loads(user_names)
-	if not user_names:
+def get_application_users(applications: list | str) -> list:
+	"""Applicant display details per application the caller may read. Applicants are
+	identified by application, not by email; send_job_application_email reaches them."""
+	if isinstance(applications, str):
+		applications = json.loads(applications)
+	if not isinstance(applications, list) or not all(isinstance(name, str) for name in applications):
+		frappe.throw(_("Applications must be a list of names."))
+	if not applications:
 		return []
 
 	visible = frappe.get_list(
 		"LMS Job Application",
-		filters={"user": ["in", user_names]},
-		fields=["user"],
-		pluck="user",
+		filters={"name": ["in", applications]},
+		fields=["name", "user"],
 	)
-	visible_user_names = list(set(visible))
-	if not visible_user_names:
+	if not visible:
 		return []
 
-	return frappe.get_all(
-		"User",
-		filters={"name": ["in", visible_user_names]},
-		fields=["name", "user_image", "full_name", "email"],
+	users = {
+		user.pop("name"): user
+		for user in frappe.get_all(
+			"User",
+			filters={"name": ["in", list({row.user for row in visible})]},
+			fields=["name", "username", "full_name", "user_image"],
+		)
+	}
+	return [{"application": row.name, **users.get(row.user, {})} for row in visible]
+
+
+@frappe.whitelist(methods=["POST"])
+def send_job_application_email(application: str, subject: str, message: str, reply_to: str | None = None):
+	"""Email an applicant. The address is looked up here so the poster never holds it."""
+	from frappe.core.doctype.communication.email import make
+
+	for value in (application, subject, message):
+		if not isinstance(value, str):
+			frappe.throw(_("Application, subject and message must be strings."))
+	if reply_to is not None and not isinstance(reply_to, str):
+		frappe.throw(_("Reply To must be a string."))
+
+	frappe.has_permission("LMS Job Application", "read", doc=application, throw=True)
+	applicant = frappe.db.get_value("LMS Job Application", application, "user")
+	return make(
+		doctype="LMS Job Application",
+		name=application,
+		recipients=applicant,
+		cc=reply_to,
+		subject=subject,
+		content=message,
+		send_email=1,
+		now=True,
 	)
 
 
@@ -372,14 +430,46 @@ def sanitize_job_filters(filters, or_filters):
 
 	filters = {f: v for f, v in (filters or {}).items() if f in ALLOWED_FILTERS}
 	or_filters = {f: v for f, v in (or_filters or {}).items() if f in ALLOWED_OR_FILTERS}
+	for field, value in (filters | or_filters).items():
+		check_filter_value(field, value)
 
-	if filters.get("status") == "Closed" and "Moderator" not in frappe.get_roles():
-		filters["owner"] = frappe.session.user
+	if not sees_every_job():
+		if "status" not in filters:
+			filters["status"] = "Open"
+		elif not asks_only_open(filters["status"]):
+			filters["owner"] = frappe.session.user
 
 	return filters, or_filters
 
 
+def sees_every_job() -> bool:
+	return is_site_administrator() or "Moderator" in frappe.get_roles()
+
+
+def can_see_job(status: str, owner: str) -> bool:
+	"""A closed post is for its poster and staff; everyone else sees open posts. Guests see none
+	when the site turns guest access off."""
+	if not guest_access_allowed():
+		return False
+	return status == "Open" or owner == frappe.session.user or sees_every_job()
+
+
+def asks_only_open(status) -> bool:
+	"""Whether a status filter, in any spelling, can match nothing but Open posts.
+	Anything else could reach a closed post, so the caller is held to their own."""
+	values = status
+	if isinstance(status, list | tuple) and len(status) == 2:
+		operator, values = status
+		if not isinstance(operator, str) or operator.lower() not in ("=", "in"):
+			return False
+	if not isinstance(values, list | tuple):
+		values = [values]
+	return list(values) == ["Open"]
+
+
+# nosemgrep: security.guest-whitelisted-method - pre-existing grant, unchanged by this branch; guests are served only when guest access is on. Flagged only because the body changed.
 @frappe.whitelist(allow_guest=True)
+@guest_access_required(list)
 def get_job_opportunities(
 	filters: dict = None,
 	or_filters: dict = None,
@@ -421,13 +511,17 @@ def get_job_opportunities(
 	return jobs
 
 
+# nosemgrep: security.guest-whitelisted-method - pre-existing grant, unchanged by this branch; guests are served only when guest access is on. Flagged only because the body changed.
 @frappe.whitelist(allow_guest=True)
+@guest_access_required(int)
 def get_job_opportunities_count(filters: dict = None, or_filters: dict = None):
 	filters, or_filters = sanitize_job_filters(filters, or_filters)
 	return frappe.db.count("Job Opportunity", filters, or_filters)
 
 
+# nosemgrep: security.guest-whitelisted-method - pre-existing grant, unchanged by this branch; guests are served only when guest access is on. Flagged only because the body changed.
 @frappe.whitelist(allow_guest=True)
+@guest_access_required(frappe._dict)
 def get_chart_details():
 	details = frappe._dict()
 	details.enrollments = frappe.db.count("LMS Enrollment")
@@ -512,12 +606,10 @@ def get_evaluator_details(evaluator: str):
 		doc = frappe.new_doc("Course Evaluator")
 		doc.evaluator = evaluator
 
-	calendar = get_evaluator_calendar(evaluator)
-
 	return {
 		"slots": doc.as_dict(),
-		"calendar": calendar.name if calendar else None,
-		"is_authorized": calendar.authorization_code if calendar else None,
+		"calendar": get_evaluator_calendar(evaluator),
+		"google_enabled": is_google_calendar_enabled(),
 		# Evaluator Schedule holds bare wall-clock times and the whole booking
 		# pipeline reads them as system time, so the editor has to say so.
 		"timezone": format_timezone(get_system_timezone()),
@@ -528,9 +620,234 @@ def get_evaluator_calendar(evaluator: str):
 	"""Read-only. Provisioning moved to ensure_evaluator_calendar: creating a
 	Google Calendar document is a write, and this runs on a plain GET of the
 	profile page."""
-	return frappe.db.get_value(
-		"Google Calendar", {"user": evaluator}, ["name", "authorization_code"], as_dict=1
+	calendar = frappe.db.get_value(
+		"Google Calendar",
+		{"user": evaluator},
+		["name", "enable", "calendar_name", "push_to_google_calendar", "refresh_token"],
+		as_dict=1,
 	)
+	if not calendar:
+		return None
+
+	# Authorised means Google gave a refresh token. An authorization code alone
+	# is left behind when the token exchange fails, and sends nothing.
+	calendar.is_authorized = bool(calendar.pop("refresh_token"))
+	return calendar
+
+
+def is_google_calendar_enabled() -> bool:
+	settings = frappe.get_cached_doc("Google Settings")
+	return bool(settings.enable and settings.client_id)
+
+
+def get_own_calendar_doc():
+	"""The caller's Google Calendar, created on first use. Evaluators manage
+	only their own; anyone else's goes through Settings."""
+	if not is_google_calendar_enabled():
+		frappe.throw(
+			_("Google Calendar is not set up on this site yet. Ask your site administrator to turn it on.")
+		)
+	return frappe.get_doc("Google Calendar", ensure_evaluator_calendar())
+
+
+EVALUATOR_CALENDAR_FIELDS = {"enable", "calendar_name", "push_to_google_calendar"}
+
+
+@frappe.whitelist(methods=["POST"])
+def update_evaluator_calendar(fieldname: str, value: str | int | None = None):
+	"""Save one setting of the caller's own Google Calendar. Evaluators are
+	portal users with no write permission on Google Calendar, so this is their
+	only way to change it, and it never reaches anyone else's."""
+	if fieldname not in EVALUATOR_CALENDAR_FIELDS:
+		frappe.throw(_("{0} cannot be changed.").format(fieldname))
+
+	calendar = get_own_calendar_doc()
+	if fieldname == "calendar_name":
+		rename_own_calendar(calendar.name, value)
+	else:
+		calendar.set(fieldname, 1 if cint(value) else 0)
+		# nosemgrep: lms-unjustified-ignore-permissions - own calendar only (get_own_calendar_doc); portal evaluators have no Google Calendar write permission
+		calendar.save(ignore_permissions=True)
+	return get_evaluator_calendar(frappe.session.user)
+
+
+def rename_own_calendar(current: str, value) -> None:
+	"""The calendar's name is its record name (autoname field:calendar_name),
+	so changing it is a rename, as in Settings."""
+	value = cstr(value).strip()
+	if not value:
+		frappe.throw(_("Give your calendar a name."))
+	if len(value) > 140:
+		frappe.throw(_("Keep the calendar name under 140 characters."))
+	if value == current:
+		return
+	if frappe.db.exists("Google Calendar", value):
+		frappe.throw(_("Another calendar already has this name. Pick a different one."))
+
+	rename_on_google(current, value)
+
+	# A sign-in started before the rename finishes against the calendar by name.
+	# Read first: renaming clears the cache.
+	pending = get_pending_sign_in(frappe.session.user)
+	signing_in = bool(pending) and pending["calendar"] == current
+
+	from frappe.model.rename_doc import rename_doc
+
+	# nosemgrep: lms-unjustified-ignore-permissions - own calendar only (get_own_calendar_doc); portal evaluators have no Google Calendar write permission
+	rename_doc("Google Calendar", current, value, ignore_permissions=True, show_alert=False)
+
+	if signing_in:
+		set_pending_sign_in(frappe.session.user, value, pending["state"])
+
+
+def rename_on_google(current: str, value: str) -> None:
+	"""Frappe names the Google calendar only when it first creates it, so a later
+	rename has to reach Google too. Done first: if Google refuses, nothing changes."""
+	calendar = frappe.db.get_value(
+		"Google Calendar", current, ["google_calendar_id", "refresh_token"], as_dict=True
+	)
+	if not (calendar.google_calendar_id and calendar.refresh_token):
+		# Not on Google yet; it is created there under the new name.
+		return
+
+	from frappe.integrations.doctype.google_calendar.google_calendar import get_google_calendar_object
+
+	try:
+		google_calendar, _account = get_google_calendar_object(current)
+		google_calendar.calendars().patch(
+			calendarId=calendar.google_calendar_id, body={"summary": value}
+		).execute()
+	except Exception:
+		frappe.log_error(title=f"Could not rename Google Calendar {current}")
+		frappe.throw(_("Google Calendar didn't take the new name. Try again in a few minutes."))
+
+
+EVALUATOR_CALENDAR_CACHE = "lms_evaluator_calendar_authorization"
+
+
+def get_pending_sign_in(user: str) -> dict | None:
+	pending = frappe.cache.get_value(f"{EVALUATOR_CALENDAR_CACHE}:{user}")
+	# A sign-in started before `state` existed was stored as the calendar name
+	# alone; it can't be checked, so it is treated as none.
+	return pending if isinstance(pending, dict) else None
+
+
+def set_pending_sign_in(user: str, calendar: str, state: str):
+	frappe.cache.set_value(
+		f"{EVALUATOR_CALENDAR_CACHE}:{user}", {"calendar": calendar, "state": state}, expires_in_sec=900
+	)
+
+
+@frappe.whitelist(methods=["POST"])
+def authorize_evaluator_calendar():
+	"""Start Google sign-in for the caller's own calendar.
+
+	Frappe's authorize_access checks desk write permission, which portal
+	evaluators don't have. The redirect URI must stay Frappe's callback, since
+	that is the one registered with Google; lms overrides the callback (see
+	google_calendar_callback) to finish the flow for these users.
+	"""
+	from frappe.integrations.doctype.google_calendar.google_calendar import get_authentication_url
+
+	calendar = get_own_calendar_doc()
+	# Keyed by user, unlike Frappe's single shared slot, so two people signing
+	# in at once can't swap calendars. It expires so an abandoned sign-in can't
+	# capture a later one started from the desk. Google hands `state` back, so the
+	# callback knows the code came from this sign-in and not from a link someone
+	# sent with a code for their own Google account.
+	state = frappe.generate_hash(length=32)
+	set_pending_sign_in(frappe.session.user, calendar.name, state)
+
+	client_id = frappe.get_cached_doc("Google Settings").client_id
+	auth = get_authentication_url(client_id=client_id, redirect_uri=google_callback_uri())
+	auth["url"] += f"&state={state}"
+	return auth
+
+
+def google_callback_uri() -> str:
+	from frappe.integrations.doctype.google_calendar.google_calendar import google_callback
+	from frappe.utils import get_request_site_address
+
+	return (
+		f"{get_request_site_address(full_address=True)}"
+		f"?cmd={google_callback.__module__}.{google_callback.__qualname__}"
+	)
+
+
+@frappe.whitelist()
+def google_calendar_callback(code: str | None = None, state: str | None = None):
+	"""Overrides Frappe's google_callback. A sign-in started from the Slots tab
+	is finished here and lands back on it; every other sign-in goes to Frappe's
+	own callback unchanged."""
+	import secrets
+
+	from frappe.integrations.doctype.google_calendar import google_calendar as frappe_google_calendar
+
+	user = frappe.session.user
+	pending = get_pending_sign_in(user) if user != "Guest" else None
+	# A wrong or missing state is not this sign-in: the pending one is kept, so a
+	# forged link neither connects someone else's Google account nor cancels it.
+	if not (pending and state and secrets.compare_digest(state, pending["state"])):
+		# Portal users reach this path only for the Slots tab sign-in (auth.py lets
+		# them through for it). Frappe's own callback saves the code onto whichever
+		# calendar a desk user last started authorising, and only then checks
+		# permission, so it must never run for them.
+		if frappe.get_cached_value("User", user, "user_type") != "System User":
+			frappe.throw(_("Start the sign-in again from your Slots tab."), frappe.PermissionError)
+		return frappe_google_calendar.google_callback(code)
+
+	frappe.cache.delete_value(f"{EVALUATOR_CALENDAR_CACHE}:{user}")
+	calendar = frappe.get_doc("Google Calendar", pending["calendar"])
+	if calendar.user != user:
+		frappe.throw(_("This calendar is not yours."), frappe.PermissionError)
+
+	authorized = bool(code) and save_calendar_tokens(calendar, code)
+	if authorized:
+		# Google comes back with a GET, whose writes Frappe rolls back unless told
+		# to commit. Lost, the calendar would stay disconnected, and Google's code
+		# is single use.
+		frappe.local.flags.commit = True
+
+	username = frappe.db.get_value("User", user, "username")
+	location = get_lms_route(f"user/{username}/slots")
+	if not authorized:
+		location += "?calendar=failed"
+	frappe.local.response["type"] = "redirect"
+	frappe.local.response["location"] = location
+
+
+def save_calendar_tokens(calendar, code: str) -> bool:
+	"""Swap Google's one-time code for a refresh token, as Frappe's
+	authorize_access does, without its desk permission check."""
+	import requests
+	from frappe.integrations.google_oauth import GoogleOAuth
+
+	settings = frappe.get_cached_doc("Google Settings")
+	try:
+		response = requests.post(
+			GoogleOAuth.OAUTH_URL,
+			data={
+				"code": code,
+				"client_id": settings.client_id,
+				"client_secret": settings.get_password(fieldname="client_secret", raise_exception=False),
+				"redirect_uri": google_callback_uri(),
+				"grant_type": "authorization_code",
+			},
+			timeout=30,
+		).json()
+	except Exception:
+		frappe.log_error(title="Google Calendar authorization failed")
+		return False
+
+	if not response.get("refresh_token"):
+		frappe.log_error(title="Google Calendar authorization failed", message=frappe.as_json(response))
+		return False
+
+	calendar.authorization_code = code
+	calendar.refresh_token = response["refresh_token"]
+	# nosemgrep: lms-unjustified-ignore-permissions - the caller's own calendar, checked in google_calendar_callback
+	calendar.save(ignore_permissions=True)
+	return True
 
 
 @frappe.whitelist()
@@ -847,56 +1164,120 @@ def get_all_users():
 	return {user.name: user for user in users}
 
 
+@frappe.whitelist()
+def search_currencies(
+	doctype: str,
+	txt: str,
+	searchfield: str | None = None,
+	start: int = 0,
+	page_len: int = 10,
+	filters: dict | str | None = None,
+):
+	"""search_link `query` for the pricing pickers: LMS roles cannot read Currency."""
+	frappe.only_for(["Moderator", "Course Creator", "Batch Evaluator", "System Manager"])
+	if not isinstance(txt, str):
+		frappe.throw(_("Search text must be text."))
+
+	return frappe.get_all(
+		"Currency",
+		filters={"enabled": 1, "name": ["like", f"%{txt}%"]},
+		fields=["name"],
+		order_by="name",
+		limit_start=cint(start),
+		limit_page_length=cint(page_len),
+		as_list=True,
+	)
+
+
+# nosemgrep: security.guest-whitelisted-method - pre-existing grant, unchanged by this branch; the endpoint gates itself (a guest on a site with allow_guest_access off gets a bare []). Flagged only because semgrep ci re-scans the whole function when its body changes.
 @frappe.whitelist(allow_guest=True)
+@guest_access_required(list)
 def get_sidebar_settings():
 	lms_settings = frappe.get_single("LMS Settings")
-	if frappe.session.user == "Guest" and not lms_settings.allow_guest_access:
-		return []
-
+	rows = get_sidebar_rows(lms_settings)
 	sidebar_items = frappe._dict()
-	items = [
-		"courses",
-		"batches",
-		"certifications",
-		"jobs",
-		"statistics",
-		"notifications",
-		"programming_exercises",
-	]
-	for item in items:
-		sidebar_items[item] = lms_settings.get(item)
 
-	if len(lms_settings.sidebar_items):
-		web_pages = frappe.get_all(
-			"LMS Sidebar Item",
-			{"parenttype": "LMS Settings", "parentfield": "sidebar_items"},
-			["web_page", "route", "title as label", "icon", "name"],
+	# The seven legacy keys, derived from the rows that replaced them. Emitted
+	# for anything not updated in this change; the rows are the contract.
+	# Seeded from the Check fields first so a site whose patch has not run yet
+	# still gets an answer rather than seven missing keys.
+	for field in LEGACY_VISIBILITY_FIELDS:
+		sidebar_items[field] = cint(lms_settings.get(field))
+	for row in rows:
+		if row["name1"] in LEGACY_VISIBILITY_FIELDS:
+			sidebar_items[row["name1"]] = 0 if row["hidden"] else 1
+
+	sidebar_items.sidebar_rows = rows
+	sidebar_items.web_pages = [
+		frappe._dict(
+			web_page=row["web_page"],
+			route=row["to"],
+			label=row["label"],
+			icon=row["icon"],
+			name=row["name"],
+			to=row["to"],
 		)
-		for page in web_pages:
-			page.to = page.route
-
-		sidebar_items.web_pages = web_pages
+		for row in rows
+		if row["item_type"] == "Web Page" and not row["hidden"]
+	]
 
 	return sidebar_items
 
 
 @frappe.whitelist()
-def update_sidebar_item(webpage: str, icon: str):
-	frappe.only_for("Moderator")
-	filters = {
-		"web_page": webpage,
-		"parenttype": "LMS Settings",
-		"parentfield": "sidebar_items",
-		"parent": "LMS Settings",
-	}
+def update_sidebar_item(webpage: str, icon: str | None = None):
+	"""Add a published Web Page to the sidebar, or re-icon one already there.
 
-	if frappe.db.exists("LMS Sidebar Item", filters):
-		frappe.db.set_value("LMS Sidebar Item", filters, "icon", icon)
+	The only writer the "New" dialog has. It appends to LMS Settings and saves
+	the parent, so validate_sidebar_items assigns the row its id and idx and the
+	target checks run — the sidebar then folds the new row into "More" like any
+	other web page.
+	"""
+	frappe.only_for("Moderator")
+
+	if not frappe.db.exists("Web Page", {"name": webpage, "published": 1}):
+		frappe.throw(_("{0} is not a published web page.").format(frappe.bold(webpage)))
+
+	settings = frappe.get_single("LMS Settings")
+	existing = next(
+		(row for row in settings.sidebar_items if row.item_type == "Web Page" and row.web_page == webpage),
+		None,
+	)
+	if existing:
+		existing.icon = icon
 	else:
-		doc = frappe.new_doc("LMS Sidebar Item")
-		doc.update(filters)
-		doc.icon = icon
-		doc.insert()
+		settings.append("sidebar_items", {"item_type": "Web Page", "web_page": webpage, "icon": icon})
+
+	settings.save()
+	return get_sidebar_settings()
+
+
+@frappe.whitelist()
+def save_sidebar_items(rows: list):
+	"""Replace the sidebar table, and nothing else on LMS Settings.
+
+	The settings page edits one cached LMS Settings document shared by every
+	panel, and a document save sends every field that is dirty on it, so saving
+	the sidebar from there also commits whatever another panel left unsaved.
+	"""
+	frappe.only_for("Moderator")
+
+	if isinstance(rows, str):
+		rows = frappe.parse_json(rows)
+	if not isinstance(rows, list):
+		frappe.throw(_("Sidebar rows must be a list."))
+
+	settings = frappe.get_single("LMS Settings")
+	settings.set("sidebar_items", [])
+	for index, row in enumerate(rows):
+		if not isinstance(row, dict):
+			frappe.throw(_("Each sidebar row must be an object."))
+		item = {field: row.get(field) for field in ROW_FIELDS}
+		item["idx"] = index + 1
+		settings.append("sidebar_items", item)
+
+	settings.save()
+	return get_sidebar_settings()
 
 
 @frappe.whitelist()
@@ -913,7 +1294,7 @@ def delete_sidebar_item(webpage: str):
 	)
 
 
-@frappe.whitelist()
+@frappe.whitelist(methods=["POST"])
 def delete_lesson(lesson: str, chapter: str):
 	course = frappe.db.get_value("Course Chapter", chapter, "course")
 	if not can_modify_course(course):
@@ -925,6 +1306,8 @@ def delete_lesson(lesson: str, chapter: str):
 		pluck="lesson",
 		order_by="idx",
 	)
+	if lesson not in lessons:
+		frappe.throw(_("This lesson is not in that chapter."))
 	lessons.remove(lesson)
 	frappe.db.delete("Lesson Reference", {"parent": chapter, "lesson": lesson})
 	update_index(lessons, chapter)
@@ -946,8 +1329,14 @@ def delete_lesson(lesson: str, chapter: str):
 
 
 @frappe.whitelist()
-def create_lesson(chapter: str) -> str:
-	"""Create a draft "Untitled lesson" appended to the chapter, atomically via add_lesson() (inserts the Course Lesson + its Lesson Reference in one request that rolls back together; returns the new docname)."""
+def create_lesson(chapter: str, title: str | None = None, content: str | dict | None = None) -> str:
+	"""Append a lesson to the chapter, titled `title` or "Untitled lesson", atomically via add_lesson() (inserts the Course Lesson + its Lesson Reference in one request that rolls back together; returns the new docname).
+
+	`content` is the lesson's Editor.js document, as JSON or a dict. It is saved through the
+	lesson, so it is cleaned and its quizzes and assignments are checked as in the editor."""
+	if not isinstance(chapter, str):
+		frappe.throw(_("Chapter must be a string."))
+	title = _clean_lesson_title(title)
 	course = frappe.db.get_value("Course Chapter", chapter, "course")
 	if not course:
 		frappe.throw(_("Invalid chapter."))
@@ -955,19 +1344,63 @@ def create_lesson(chapter: str) -> str:
 		frappe.throw(_("You do not have permission to add a lesson."), frappe.PermissionError)
 
 	idx = frappe.db.count("Lesson Reference", {"parent": chapter}) + 1
-	return add_lesson(_("Untitled lesson"), chapter, course, idx)
+	lesson = add_lesson(title or _("Untitled lesson"), chapter, course, idx)
+	if content is not None:
+		doc = frappe.get_doc("Course Lesson", lesson)
+		doc.content = content if isinstance(content, str) else json.dumps(content)
+		doc.save()
+	return lesson
+
+
+def _clean_lesson_title(title: str | None) -> str | None:
+	if title is None:
+		return None
+	if not isinstance(title, str):
+		frappe.throw(_("Lesson title must be a string."))
+	title = title.strip()
+	if not title:
+		frappe.throw(_("Lesson title cannot be empty."))
+	max_length = _new_lesson_title_max_length()
+	if len(title) > max_length:
+		frappe.throw(_("Lesson title cannot be longer than {0} characters.").format(max_length))
+	return title
+
+
+def _new_lesson_title_max_length() -> int:
+	"""Course Lesson autonames "{####} {title}" into a 140-character name column, so the
+	title gets whatever the next number of the shared "" series leaves."""
+	series = frappe.qb.DocType("Series")
+	current = frappe.qb.from_(series).select(series.current).where(series.name == "").run()
+	next_number = cint(current[0][0]) + 1 if current else 1
+	return 140 - len(f"{next_number:04d} ")
 
 
 @frappe.whitelist()
 def update_lesson_index(lesson: str, sourceChapter: str, targetChapter: str, idx: int):
-	course = frappe.db.get_value("Course Chapter", sourceChapter, "course")
-	if not can_modify_course(course):
+	source_course = frappe.db.get_value("Course Chapter", sourceChapter, "course")
+	if not can_modify_course(source_course):
 		frappe.throw(_("You do not have permission to modify this lesson."), frappe.PermissionError)
 
+	if sourceChapter != targetChapter:
+		target_course = frappe.db.get_value("Course Chapter", targetChapter, "course")
+		if not target_course:
+			frappe.throw(_("Chapter {0} does not exist.").format(targetChapter), frappe.DoesNotExistError)
+		if not can_modify_course(target_course):
+			frappe.throw(_("You do not have permission to modify this lesson."), frappe.PermissionError)
+
 	hasMoved = sourceChapter == targetChapter
+	target_course = source_course
+	if not hasMoved:
+		target_course = frappe.db.get_value("Course Chapter", targetChapter, "course")
+		if not can_modify_course(target_course):
+			frappe.throw(_("You do not have permission to modify this lesson."), frappe.PermissionError)
+
 	update_source_chapter(lesson, sourceChapter, idx, hasMoved)
 	if not hasMoved:
 		update_target_chapter(lesson, targetChapter, idx)
+		# The lesson's own chapter/course must follow it, or progress checks
+		# that read Course Lesson directly keep using the old course.
+		frappe.db.set_value("Course Lesson", lesson, {"chapter": targetChapter, "course": target_course})
 
 
 def update_source_chapter(lesson: str, chapter: str, idx: int, hasMoved: bool = False):
@@ -1087,7 +1520,7 @@ def get_member(member: str):
 
 
 @frappe.whitelist()
-def get_members(start: int = 0, search: str = None, role: str = "All"):
+def get_members(start: int = 0, search: str = None, role: str = "All", limit_page_length: int | str = None):
 	frappe.only_for(["Moderator"])
 
 	lms_roles = LMS_ROLES
@@ -1117,7 +1550,7 @@ def get_members(start: int = 0, search: str = None, role: str = "All"):
 		filters=filters,
 		fields=MEMBER_FIELDS,
 		or_filters=or_filters,
-		page_length=MEMBERS_PAGE_LENGTH,
+		page_length=resolve_page_length(limit_page_length, default=MEMBERS_PAGE_LENGTH),
 		start=start,
 	)
 
@@ -1135,7 +1568,7 @@ def check_app_permission():
 	return has_lms_role()
 
 
-@frappe.whitelist()
+@frappe.whitelist(methods=["POST"])
 def save_evaluation_details(
 	member: str,
 	course: str,
@@ -1151,15 +1584,26 @@ def save_evaluation_details(
 	Save evaluation details for a member against a course.
 	"""
 	frappe.only_for(["Batch Evaluator", "Moderator"])
-	assigned_evaluator = get_evaluator(course, batch_name)
-	if not has_moderator_role() and frappe.session.user != assigned_evaluator:
+	user = frappe.session.user
+	if has_moderator_role():
+		evaluator = get_evaluator(course, batch_name) or user
+	elif can_evaluate(user, member, course, batch_name):
+		evaluator = user
+	else:
 		frappe.throw(
 			_("You are not the assigned evaluator for this course and batch."),
 			frappe.PermissionError,
 		)
-	evaluator = assigned_evaluator or frappe.session.user
 
-	evaluation = frappe.db.exists("LMS Certificate Evaluation", {"member": member, "course": course})
+	# Serialise saves per member; the locking read below then sees rows another
+	# request committed after this one's snapshot.
+	frappe.db.get_value("User", member, "name", for_update=True)
+	evaluation = frappe.db.get_value(
+		"LMS Certificate Evaluation",
+		{"member": member, "course": course, "batch_name": batch_name or ("is", "not set")},
+		"name",
+		for_update=True,
+	)
 
 	details = {
 		"date": date_value,
@@ -1188,7 +1632,7 @@ def save_evaluation_details(
 		return doc.name
 
 
-@frappe.whitelist()
+@frappe.whitelist(methods=["POST"])
 def save_certificate_details(
 	member: str,
 	issue_date: str,
@@ -1202,15 +1646,22 @@ def save_certificate_details(
 	Save certificate details for a member against a course.
 	"""
 	frappe.only_for(["Batch Evaluator", "Moderator"])
-	assigned_evaluator = get_evaluator(course, batch_name)
-	if not has_moderator_role() and frappe.session.user != assigned_evaluator:
+	if not has_moderator_role() and not evaluates_certificate(
+		course, batch_name, member, frappe.session.user
+	):
 		frappe.throw(
 			_("You are not the assigned evaluator for this course and batch."),
 			frappe.PermissionError,
 		)
-	evaluator = assigned_evaluator or frappe.session.user
+	evaluator = get_evaluator(course, batch_name) or frappe.session.user
 
-	certificate = frappe.db.exists("LMS Certificate", {"member": member, "course": course})
+	frappe.db.get_value("User", member, "name", for_update=True)
+	certificate = frappe.db.get_value(
+		"LMS Certificate",
+		{"member": member, "course": course, "batch_name": batch_name or ("is", "not set")},
+		"name",
+		for_update=True,
+	)
 
 	details = {
 		"published": published,
@@ -1333,11 +1784,13 @@ def get_new_gateway_fields(doctype: str):
 
 @frappe.whitelist()
 def get_announcements(batch: str):
+	from lms.lms.permissions import can_author_batch
+
 	roles = frappe.get_roles()
 	is_batch_student = frappe.db.exists(
 		"LMS Batch Enrollment", {"batch": batch, "member": frappe.session.user}
 	)
-	is_admin = "Moderator" in roles or "Batch Evaluator" in roles
+	is_admin = "Moderator" in roles or "Batch Evaluator" in roles or can_author_batch(batch)
 
 	if not (is_batch_student or is_admin):
 		frappe.throw(
@@ -1365,7 +1818,71 @@ def get_announcements(batch: str):
 	for communication in communications:
 		communication.image = frappe.get_cached_value("User", communication.sender, "user_image")
 
-	return communications
+	return hide_user_emails(communications, "sender", "recipients", "cc")
+
+
+def get_batch_members(batch: str) -> list[str]:
+	return frappe.get_all("LMS Batch Enrollment", {"batch": batch}, pluck="member")
+
+
+@frappe.whitelist(methods=["POST"])
+def send_batch_announcement(batch: str, subject: str, content: str, reply_to: str):
+	"""BCC every student of the batch. Their addresses are looked up here, so the
+	author never holds them."""
+	from frappe.core.doctype.communication.email import make
+
+	for value in (batch, subject, content, reply_to):
+		if not isinstance(value, str):
+			frappe.throw(_("Batch, subject, content and reply-to must be strings."))
+
+	frappe.has_permission("LMS Batch", "email", doc=batch, throw=True)
+	students = get_batch_members(batch)
+	if not students:
+		frappe.throw(_("No students in this batch"))
+
+	return make(
+		doctype="LMS Batch",
+		name=batch,
+		recipients=reply_to,
+		bcc=", ".join(students),
+		subject=subject,
+		content=content,
+		send_email=1,
+	)
+
+
+@frappe.whitelist(methods=["POST"])
+def generate_batch_certificates(batch: str, details: dict) -> dict:
+	"""One certificate per student of the batch, inserted under the caller's own
+	LMS Certificate permissions. Returns the failures rather than stopping at one."""
+	if not isinstance(batch, str):
+		frappe.throw(_("Batch must be a string."))
+	if isinstance(details, str):
+		details = json.loads(details)
+	if not isinstance(details, dict):
+		frappe.throw(_("Details must be an object."))
+
+	frappe.has_permission("LMS Batch", "read", doc=batch, throw=True)
+	fields = ("issue_date", "expiry_date", "template", "published", "course", "evaluator")
+	values = {field: details.get(field) for field in fields}
+
+	results = [_insert_batch_certificate(batch, member, values) for member in get_batch_members(batch)]
+	errors = [error for error in results if error]
+	return {"created": len(results) - len(errors), "errors": errors}
+
+
+def _insert_batch_certificate(batch: str, member: str, values: dict) -> str | None:
+	"""The error message if the insert fails, else None."""
+	frappe.db.savepoint("batch_certificate")
+	try:
+		frappe.get_doc(
+			{"doctype": "LMS Certificate", "batch_name": batch, "member": member, **values}
+		).insert()
+	except (frappe.ValidationError, frappe.PermissionError) as e:
+		frappe.db.rollback(save_point="batch_certificate")
+		return str(e) or _("Unable to generate certificate")
+	finally:
+		frappe.clear_messages()
 
 
 @frappe.whitelist()
@@ -1466,9 +1983,12 @@ def give_discussions_permission():
 				).save()
 
 
-@frappe.whitelist()
+# Pinned to POST by .github/semgrep/security.yml's lms-mutating-whitelist-needs-post:
+# validate_csrf_token returns early on GET, and the SCORM extraction's writes to disk
+# outlive frappe's GET auto-rollback.
+@frappe.whitelist(methods=["POST"])
 def upsert_chapter(
-	title: str, course: str, is_scorm_package: bool, scorm_package: dict = None, name: str = None
+	title: str, course: str, is_scorm_package: bool = False, scorm_package: dict = None, name: str = None
 ):
 	if not isinstance(title, str):
 		frappe.throw(_("title must be a string"))
@@ -1481,6 +2001,18 @@ def upsert_chapter(
 		frappe.throw(_("You do not have permission to modify this chapter."), frappe.PermissionError)
 
 	values = frappe._dict({"title": title, "course": course, "is_scorm_package": is_scorm_package})
+
+	if name:
+		chapter = frappe.get_doc("Course Chapter", name)
+	elif is_scorm_package:
+		# extract_package keys the extraction dir off this chapter's own docname
+		# (not its title, so two titles can't collide), which a fresh chapter needs
+		# first; the whole request rolls back if extraction throws below.
+		chapter = frappe.new_doc("Course Chapter")
+		chapter.update(values)
+		chapter.insert()
+	else:
+		chapter = None
 
 	if is_scorm_package:
 		scorm_package = frappe._dict(scorm_package or {})
@@ -1503,7 +2035,7 @@ def upsert_chapter(
 			values.update(stored)
 			values["scorm_package"] = None
 		else:
-			extract_path = extract_package(course, title, scorm_package)
+			extract_path = extract_package(course, chapter.name, scorm_package)
 			values.update(
 				{
 					"scorm_package": scorm_package.name,
@@ -1513,8 +2045,7 @@ def upsert_chapter(
 				}
 			)
 
-	if name:
-		chapter = frappe.get_doc("Course Chapter", name)
+	if chapter is not None:
 		chapter.update(values)
 		chapter.save()
 	else:
@@ -1522,6 +2053,7 @@ def upsert_chapter(
 		chapter.update(values)
 		chapter.save()
 
+	if not name:
 		# Link the new chapter into the outline here (was client-side frappe.client.insert in ChapterModal.vue, which didn't reliably persist on CI); keeps the Chapter Reference atomic with the chapter.
 		course_doc = frappe.get_doc("LMS Course", course)
 		course_doc.append("chapters", {"chapter": chapter.name})
@@ -1576,8 +2108,15 @@ def _scorm_extract_path(course: str, title: str) -> str:
 	if not course_root.startswith(scorm_root + os.sep):
 		frappe.throw(_("Invalid course or chapter name"))
 
-	# Must resolve strictly inside the course dir. A title of "."/""/"sub/.." collapses to course_root, whose rmtree would wipe every chapter.
-	extract_path = os.path.realpath(os.path.join(course_root, title))
+	# A "/" only joins segments; "", "." or ".." as one is a traversal attempt
+	# and must be rejected, not sanitised into something that merges two chapters.
+	segments = title.split("/")
+	if any(segment in ("", ".", "..") for segment in segments):
+		frappe.throw(_("Invalid course or chapter name"))
+
+	# Must resolve strictly inside the course dir; belt-and-suspenders against
+	# anything the segment check above didn't anticipate.
+	extract_path = os.path.realpath(os.path.join(course_root, "-".join(segments)))
 	if not extract_path.startswith(course_root + os.sep):
 		frappe.throw(_("Invalid course or chapter name"))
 
@@ -1589,20 +2128,35 @@ def extract_package(course: str, title: str, scorm_package: dict):
 	zip_path = package.get_full_path()
 	extract_path = _scorm_extract_path(course, title)
 
-	# Clear any previously extracted package so a re-upload doesn't leave stale files served (path confirmed under the course dir above).
-	if os.path.exists(extract_path):
-		shutil.rmtree(extract_path)
+	# Extract to a sibling of the real dir and only swap it in once every check
+	# passes, so a rejected replacement never touches the chapter's working files.
+	tmp_path = f"{extract_path}.tmp-{frappe.generate_hash(length=8)}"
+	try:
+		with zipfile.ZipFile(zip_path, "r") as zf:
+			validate_archive(zf)
 
-	with zipfile.ZipFile(zip_path, "r") as zf:
-		dest = os.path.realpath(extract_path)
-		for info in zf.infolist():
-			# Reject symlink entries outright: a symlink + a path through it could escape the course dir once materialised.
-			if stat.S_ISLNK(info.external_attr >> 16):
-				frappe.throw(_("Invalid file path in package"))
-			target = os.path.realpath(os.path.join(extract_path, info.filename))
-			if not target.startswith(dest + os.sep) and target != dest:
-				frappe.throw(_("Invalid file path in package"))
-		zf.extractall(extract_path)
+			dest = os.path.realpath(tmp_path)
+			for info in zf.infolist():
+				# Reject symlink entries outright: a symlink + a path through it could escape the course dir once materialised.
+				if stat.S_ISLNK(info.external_attr >> 16):
+					frappe.throw(_("Invalid file path in package"))
+				target = os.path.realpath(os.path.join(tmp_path, info.filename))
+				if not target.startswith(dest + os.sep) and target != dest:
+					frappe.throw(_("Invalid file path in package"))
+			zf.extractall(tmp_path)
+
+		# Resolve the manifest now, while a hostile/malformed one still leaves the
+		# chapter's existing package (at extract_path) untouched. A package with no
+		# manifest at all is unchanged behaviour: get_launch_file returns None for it.
+		get_launch_file(tmp_path)
+
+		if os.path.exists(extract_path):
+			shutil.rmtree(extract_path)
+		shutil.move(tmp_path, extract_path)
+	except Exception:
+		if os.path.exists(tmp_path):
+			shutil.rmtree(tmp_path)
+		raise
 
 	return extract_path
 
@@ -1693,16 +2247,15 @@ def add_lesson(title: str, chapter: str, course: str, idx: int):
 
 @frappe.whitelist()
 def delete_chapter(chapter: str):
+	if not isinstance(chapter, str):
+		frappe.throw(_("chapter must be a string"))
+
 	course = frappe.db.get_value("Course Chapter", chapter, "course")
 	if not can_modify_course(course):
 		frappe.throw(_("You do not have permission to delete this chapter."), frappe.PermissionError)
 
-	chapterInfo = frappe.db.get_value(
-		"Course Chapter", chapter, ["is_scorm_package", "scorm_package_path"], as_dict=True
-	)
-
-	if chapterInfo.is_scorm_package:
-		delete_scorm_package(chapterInfo.scorm_package_path)
+	if frappe.db.get_value("Course Chapter", chapter, "is_scorm_package"):
+		delete_scorm_package(chapter)
 
 	course = frappe.db.get_value("Chapter Reference", {"chapter": chapter}, "parent")
 
@@ -1739,10 +2292,46 @@ def delete_chapter(chapter: str):
 			i += 1
 
 
-def delete_scorm_package(scorm_package_path: str):
-	scorm_package_path = frappe.get_site_path("public", scorm_package_path[1:])
-	if os.path.exists(scorm_package_path):
-		shutil.rmtree(scorm_package_path)
+def delete_scorm_package(chapter: str):
+	"""Remove the package this chapter extracted, and nothing else: scorm_package_path is a plain field any course writer can set."""
+	course, stored = frappe.db.get_value("Course Chapter", chapter, ["course", "scorm_package_path"])
+	if not stored:
+		return
+
+	# Packages extracted before 68e7b210e live under public/scorm, everything since under private/scorm.
+	dirs = {root: _scorm_package_dir(root, course, stored) for root in ("private", "public")}
+	if not any(dirs.values()):
+		return
+
+	# Compare resolved directories, not raw strings: "/scorm/C/Shared" and
+	# "/scorm/C/./Shared" name the same package but would not string-match.
+	sibling_paths = frappe.get_all(
+		"Course Chapter", filters={"course": course, "name": ["!=", chapter]}, pluck="scorm_package_path"
+	)
+	for sibling in sibling_paths:
+		if not sibling:
+			continue
+		sibling_dirs = {root: _scorm_package_dir(root, course, sibling) for root in dirs}
+		if any(package_dir and package_dir == sibling_dirs[root] for root, package_dir in dirs.items()):
+			return
+
+	for package_dir in dirs.values():
+		if package_dir and os.path.isdir(package_dir):
+			shutil.rmtree(package_dir)
+
+
+def _scorm_package_dir(root: str, course: str, stored: str) -> str | None:
+	"""The directory "/scorm/<course>/<title>" names under <site>/<root>/scorm, or None unless it is exactly one package of `course`."""
+	segments = [segment for segment in stored.strip("/").split("/") if segment not in ("", ".")]
+	if len(segments) != 3 or segments[0] != "scorm" or segments[1] != course:
+		return None
+
+	course_root = os.path.join(os.path.realpath(frappe.get_site_path(root, "scorm")), course)
+	package_dir = os.path.realpath(os.path.join(course_root, segments[2]))
+	# Checked after symlinks resolve, so neither segment can point the rmtree elsewhere.
+	if os.path.dirname(package_dir) != course_root:
+		return None
+	return package_dir
 
 
 @frappe.whitelist()
@@ -1891,14 +2480,14 @@ def get_notifications(filters: dict = None):
 		for sender in frappe.get_all(
 			"User",
 			filters={"name": ["in", sender_names]},
-			fields=["name", "full_name", "user_image"],
+			fields=["name", "full_name", "user_image", "username"],
 		):
-			senders[sender.name] = sender
+			senders[sender.pop("name")] = sender
 
 	for notification in notifications:
 		notification["from_user_details"] = senders.get(notification.from_user, {})
 
-	return notifications
+	return hide_user_emails(notifications, "from_user")
 
 
 @frappe.whitelist(allow_guest=True)
@@ -1968,8 +2557,81 @@ def cancel_evaluation(evaluation: dict):
 			frappe.delete_doc("Event", event.parent, ignore_permissions=True)
 
 
+@frappe.whitelist(methods=["POST"])
+def send_contact_us_email(subject: str, content: str) -> str:
+	"""Email the address configured in LMS Settings, images and all.
+
+	The recipient is read here rather than taken from the request, which is what
+	the browser's old call to frappe.core.doctype.communication.email.make did.
+	That method is still whitelisted and still listed in lms.auth.ALLOWED_PATHS,
+	so this closes the path the LMS UI takes, not the method itself.
+	"""
+	if not isinstance(subject, str) or not isinstance(content, str):
+		frappe.throw(_("Subject and message must both be text."))
+
+	if not subject.strip():
+		frappe.throw(_("Please add a subject."))
+
+	if not has_message(content):
+		frappe.throw(_("Please write a message."))
+
+	recipient = frappe.db.get_single_value("LMS Settings", "contact_us_email")
+	if not recipient:
+		frappe.throw(_("This site has no contact address. Ask a moderator to set one in LMS Settings."))
+
+	subject = subject.strip()
+	message_id = get_string_between("<", get_message_id(), ">")
+	# Every field that decides where this goes is set here, not accepted from the request.
+	# nosemgrep: lms-unjustified-ignore-permissions - a student holds no create permission on Communication
+	communication = frappe.get_doc(
+		{
+			"doctype": "Communication",
+			"communication_type": "Communication",
+			"communication_medium": "Email",
+			"subject": subject,
+			"content": content,
+			"sender": frappe.session.user,
+			"sender_full_name": get_fullname(frappe.session.user),
+			"recipients": recipient,
+			"sent_or_received": "Sent",
+			# Without it a reply cannot be threaded back to this record.
+			"message_id": message_id,
+		}
+	).insert(ignore_permissions=True)
+
+	# Built from the stored copy, which Communication sanitizes on save, rather
+	# than from the request. The record keeps its `src` URLs, so it still
+	# renders in Desk once the files below are attached to it; only the outgoing
+	# message carries `embed`. Same split as Helpdesk's HD Ticket.
+	body, inline_images = prepare_inline_images(communication.content)
+	for image in inline_images:
+		attach_file_to_doc(image["filename"], "Communication", communication.name)
+
+	frappe.sendmail(
+		recipients=[recipient],
+		sender=frappe.session.user,
+		subject=subject,
+		content=body,
+		inline_images=inline_images,
+		communication=communication.name,
+		message_id=message_id,
+	)
+	return communication.name
+
+
 @frappe.whitelist()
-def get_certification_details(course: str):
+def get_certification_details(course: str) -> dict:
+	"""Everything the certification CTA and page need about one course.
+
+	`title` and `evaluator` are served here because LMS Student has no read
+	permission on LMS Course, so a client-side frappe.client.get_value for them
+	fails for the learner the page exists for.
+	"""
+	# Unreachable while require_type_annotated_api_methods is on, since frappe
+	# coerces the argument first. This is the guard for every other caller.
+	if not isinstance(course, str):
+		frappe.throw(_("course must be a string"))
+
 	membership = None
 	filters = {"course": course, "member": frappe.session.user}
 
@@ -1981,19 +2643,107 @@ def get_certification_details(course: str):
 			as_dict=1,
 		)
 
-	paid_certificate = frappe.db.get_value("LMS Course", course, "paid_certificate")
-	certificate = frappe.db.get_value(
-		"LMS Certificate",
-		{"member": frappe.session.user, "course": course},
-		["name", "template"],
-		as_dict=1,
+	# Same gate as get_course_details: an unenrolled, non-staff caller can only
+	# see a published course, or they can enumerate titles that were never
+	# meant to be visible. A course that doesn't exist isn't gated here.
+	is_course_published = frappe.db.get_value("LMS Course", course, "published")
+	course_exists = is_course_published is not None
+	if course_exists and not is_course_published and not can_modify_course(course) and not membership:
+		frappe.throw(_("You do not have permission to view this course."), frappe.PermissionError)
+
+	details = (
+		frappe.db.get_value(
+			"LMS Course",
+			course,
+			["title", "paid_certificate", "evaluator"],
+			as_dict=1,
+		)
+		or frappe._dict()
 	)
+	certificate = get_latest_certificate(frappe.session.user, course)
+	# The page only needs to know an evaluator exists once the certificate has
+	# been paid for, so that is the gate rather than bare enrollment.
+	evaluator = details.evaluator if membership and membership.purchased_certificate else None
 
 	return {
+		"title": details.title,
 		"membership": membership,
-		"paid_certificate": paid_certificate,
+		"paid_certificate": details.paid_certificate,
+		"has_evaluator": bool(evaluator),
+		"evaluator": evaluator if evaluator == frappe.session.user else None,
 		"certificate": certificate,
 	}
+
+
+MEMBER_PROFILE_FIELDS = ("first_name", "last_name", "username", "phone", "mobile_no", "location", "bio")
+
+
+@frappe.whitelist(methods=["POST"])
+def add_member(
+	email: str,
+	first_name: str | None = None,
+	last_name: str | None = None,
+	profile: dict | str | None = None,
+) -> dict:
+	"""Add a website user from the members screens. Moderators have no create on
+	User, so this is the one way in, and it only ever makes a website user. The
+	profile is saved in the same request, so a failed save adds nobody."""
+	frappe.only_for("Moderator")
+	# Lowercased as User names are, so the duplicate check below matches them.
+	email = (email or "").strip().lower()
+	# validate_email_address returns every valid address it finds, joined by
+	# commas, so a list of addresses would pass a plain truth check.
+	if "," in email or frappe.utils.validate_email_address(email) != email:
+		frappe.throw(_("Enter a valid email address."))
+	if frappe.db.exists("User", email):
+		frappe.throw(_("{0} is already a member.").format(frappe.bold(email)), frappe.DuplicateEntryError)
+
+	user = frappe.get_doc(
+		{
+			"doctype": "User",
+			"email": email,
+			"first_name": (first_name or "").strip() or None,
+			"last_name": (last_name or "").strip() or None,
+			"user_type": "Website User",
+		}
+	)
+	set_member_profile(user, profile)
+	# nosemgrep: lms-unjustified-ignore-permissions - Moderators add members here only; the user is always a website user
+	user.insert(ignore_permissions=True)
+	return {"name": user.name, "email": user.email, "full_name": user.full_name}
+
+
+@frappe.whitelist(methods=["POST"])
+def update_member(member: str, profile: dict | str) -> dict:
+	"""Save the profile fields the members screen edits. Email, password and the
+	rest of the account stay out of reach; roles go through save_role."""
+	frappe.only_for("Moderator")
+	if (
+		not isinstance(member, str)
+		or member in ("Administrator", "Guest")
+		or not frappe.db.exists("User", member)
+	):
+		frappe.throw(_("Member {0} does not exist.").format(member), frappe.DoesNotExistError)
+	check_can_manage_member(member)
+
+	user = frappe.get_doc("User", member)
+	set_member_profile(user, profile)
+	# nosemgrep: lms-unjustified-ignore-permissions - Moderators edit only the profile fields above, never a System Manager's
+	user.save(ignore_permissions=True)
+	return {"name": user.name, "full_name": user.full_name}
+
+
+def set_member_profile(user, profile: dict | str | None):
+	"""Copy only the profile fields onto the user; the rest of the account stays as it is."""
+	profile = frappe.parse_json(profile) or {}
+	user.update({field: profile[field] for field in MEMBER_PROFILE_FIELDS if field in profile})
+	user.bio = sanitize_rich_text(user.bio)
+
+
+def check_can_manage_member(member: str):
+	"""Only a System Manager changes or deletes a System Manager's account."""
+	if is_site_administrator(member) and not is_site_administrator():
+		frappe.throw(_("Only a System Manager can change this account."), frappe.PermissionError)
 
 
 @frappe.whitelist()
@@ -2046,7 +2796,7 @@ def save_evaluator_role(user: str, value: int):
 	return True
 
 
-@frappe.whitelist()
+@frappe.whitelist(methods=["POST"])
 def delete_member(user: str):
 	frappe.only_for("Moderator")
 	if not isinstance(user, str):
@@ -2055,6 +2805,7 @@ def delete_member(user: str):
 		frappe.throw(_("This user cannot be deleted."), frappe.PermissionError)
 	if not frappe.db.exists("User", user):
 		frappe.throw(_("User {0} does not exist.").format(user))
+	check_can_manage_member(user)
 	frappe.delete_doc("User", user, ignore_permissions=True)
 	frappe.clear_cache(user=user)
 	return True
@@ -2093,7 +2844,9 @@ def get_meta_info(type: str, route: str):
 @frappe.whitelist()
 def update_meta_info(meta_type: str, route: str, meta_tags: list):
 	frappe.only_for(["Course Creator", "Batch Evaluator", "Moderator"])
-	validate_meta_data_permissions(meta_type)
+	if not isinstance(meta_type, str) or not isinstance(route, str):
+		frappe.throw(_("Meta type and route must be strings."))
+	validate_meta_data_permissions(meta_type, route)
 	validate_meta_tags(meta_tags)
 
 	parent_name = f"{meta_type}/{route}"
@@ -2144,66 +2897,173 @@ def create_meta(parent_name: str, tag_properties: dict):
 		}
 	)
 	route_meta.append("meta_tags", tag_properties)
-	route_meta.insert()
+	# nosemgrep: lms-unjustified-ignore-permissions - only System Manager has DocPerms; caller can modify the course/batch
+	route_meta.insert(ignore_permissions=True)
 
 
 def create_meta_tag(tag_properties: dict):
 	new_tag = frappe.new_doc("Website Meta Tag")
 	new_tag.update(tag_properties)
-	new_tag.insert()
+	# nosemgrep: lms-unjustified-ignore-permissions - only System Manager has DocPerms; caller can modify the course/batch
+	new_tag.insert(ignore_permissions=True)
 
 
-def validate_meta_data_permissions(meta_type: str):
-	roles = frappe.get_roles()
-
+def validate_meta_data_permissions(meta_type: str, route: str):
 	if meta_type == "courses":
-		if not ("Course Creator" in roles or "Moderator" in roles):
-			frappe.throw(_("You do not have permission to update meta tags."))
-
+		allowed = can_modify_course(route)
 	elif meta_type == "batches":
-		if not ("Batch Evaluator" in roles or "Moderator" in roles):
-			frappe.throw(_("You do not have permission to update meta tags."))
+		allowed = can_modify_batch(route)
+	else:
+		allowed = False
+
+	if not allowed:
+		frappe.throw(_("You do not have permission to update meta tags."))
+
+
+def can_read_expected_output(doc) -> bool:
+	return 1 in doc.get_permlevel_access("read")
+
+
+def _redact_expected(case, author: bool) -> str | None:
+	"""Withhold a hidden case's answer from a learner. Shared by both endpoints below."""
+	if case.hidden and not author:
+		return None
+	return case.expected_output
 
 
 @frappe.whitelist()
-def create_programming_exercise_submission(exercise: str, submission: str, code: str, test_cases: list):
-	frappe.only_for(["Moderator", "Course Creator", "Batch Evaluator"])
+def get_programming_exercise(exercise: str) -> dict:
+	"""Return an exercise with hidden cases' expected output blanked (not dropped, as
+	`frappe.client.get` would), so the frontend can tell withheld from absent."""
+	if not isinstance(exercise, str):
+		frappe.throw(_("exercise must be a string"))
+
+	doc = frappe.get_doc("LMS Programming Exercise", exercise)
+	doc.check_permission("read")
+	return _exercise_for_viewer(doc, can_read_expected_output(doc))
+
+
+def _exercise_for_viewer(doc, author: bool) -> dict:
+	return {
+		"name": doc.name,
+		"title": doc.title,
+		"language": doc.language,
+		"problem_statement": doc.problem_statement,
+		"starter_code": doc.starter_code,
+		"test_cases": [
+			{
+				"idx": case.idx,
+				"input": case.input,
+				"hidden": case.hidden,
+				"expected_output": _redact_expected(case, author),
+			}
+			for case in doc.test_cases
+		],
+	}
+
+
+@frappe.whitelist()
+def evaluate_programming_exercise(exercise: str, outputs: list) -> list[dict]:
+	"""Score a run server-side. The browser runs the code, so it holds each input,
+	but it must never hold a hidden case's expected output."""
+	if not isinstance(exercise, str):
+		frappe.throw(_("exercise must be a string"))
+	if not isinstance(outputs, list):
+		frappe.throw(_("outputs must be a list"))
+
+	doc = frappe.get_doc("LMS Programming Exercise", exercise)
+	doc.check_permission("read")
+	return _score_outputs(doc, outputs)
+
+
+def _score_outputs(doc, outputs: list) -> list[dict]:
+	if len(outputs) != len(doc.test_cases):
+		frappe.throw(_("Expected {0} outputs, got {1}").format(len(doc.test_cases), len(outputs)))
+
+	author = can_read_expected_output(doc)
+	return [
+		_score_test_case(case, produced, author)
+		for case, produced in zip(doc.test_cases, outputs, strict=True)
+	]
+
+
+def _score_test_case(case, produced, author: bool) -> dict:
+	output = cstr(produced).strip()
+	expected = cstr(case.expected_output).strip()
+	return {
+		"idx": case.idx,
+		"status": "Passed" if output == expected else "Failed",
+		"hidden": case.hidden,
+		"output": output,
+		"expected_output": _redact_expected(case, author),
+	}
+
+
+@frappe.whitelist()
+def create_programming_exercise_submission(exercise: str, submission: str, code: str):
+	frappe.only_for(["Moderator", "Course Creator", "Batch Evaluator", "LMS Student"])
 	if submission == "new":
-		return make_new_exercise_submission(exercise, code, test_cases)
-	else:
-		update_exercise_submission(submission, code, test_cases)
+		return make_new_exercise_submission(exercise, code)
+	update_exercise_submission(submission, code)
+	# The page takes the reply as the submission's name for its next save.
+	return submission
 
 
-def make_new_exercise_submission(exercise: str, code: str, test_cases: list):
+def run_submitted_code(exercise: str, code: str) -> tuple[list[dict], str]:
+	"""Run `code`, as the page ran it, against every test case on the code runner
+	and score it. Nothing the browser reports about a run is trusted, so a learner
+	cannot save a pass it did not earn, nor store a hidden case's answer in a row
+	it can read back. Returns the scored rows and the code to store."""
+	doc = frappe.get_doc("LMS Programming Exercise", exercise)
+	doc.check_permission("read")
+
+	outputs = run_test_cases(doc.language, code, doc.test_cases)
+	scored = _score_outputs(doc, outputs)
+	rows = [
+		{
+			"input": case.input,
+			"output": row["output"],
+			"expected_output": row["expected_output"],
+			"status": row["status"],
+		}
+		for case, row in zip(doc.test_cases, scored, strict=True)
+	]
+	return rows, code_to_store(doc.language, doc.starter_code, code)
+
+
+def make_new_exercise_submission(exercise: str, code: str):
+	rows, stored_code = run_submitted_code(exercise, code)
+
 	submission = frappe.new_doc("LMS Programming Exercise Submission")
 	submission.exercise = exercise
 	submission.member = frappe.session.user
-	submission.code = code
+	submission.code = stored_code
+	# Nothing stripped: tells the page not to add the boilerplate back on load.
+	submission.full_code = stored_code == code
+	for row in rows:
+		submission.append("test_cases", row)
 
-	for test_case in test_cases:
-		submission.append(
-			"test_cases",
-			{
-				"input": test_case.get("input"),
-				"output": test_case.get("output"),
-				"expected_output": test_case.get("expected_output"),
-				"status": test_case.get("status", test_case.get("status", "Failed")),
-			},
-		)
-
-	submission.status = get_exercise_status(test_cases)
+	submission.status = get_exercise_status(rows)
 	submission.insert()
 	return submission.name
 
 
-def update_exercise_submission(submission: str, code: str, test_cases: list):
-	member = frappe.db.get_value("LMS Programming Exercise Submission", submission, "member")
+def update_exercise_submission(submission: str, code: str):
+	member, exercise = frappe.db.get_value(
+		"LMS Programming Exercise Submission", submission, ["member", "exercise"]
+	) or (None, None)
 	if member != frappe.session.user:
 		frappe.throw(_("You do not have permission to update this submission."), frappe.PermissionError)
 
-	update_test_cases(test_cases, submission)
-	status = get_exercise_status(test_cases)
-	frappe.db.set_value("LMS Programming Exercise Submission", submission, {"status": status, "code": code})
+	# Run against the submission's own exercise, never one named in the request.
+	rows, stored_code = run_submitted_code(exercise, code)
+	update_test_cases(rows, submission)
+	status = get_exercise_status(rows)
+	frappe.db.set_value(
+		"LMS Programming Exercise Submission",
+		submission,
+		{"status": status, "code": stored_code, "full_code": stored_code == code},
+	)
 
 
 def get_exercise_status(test_cases: list):
@@ -2439,6 +3299,7 @@ def get_profile_details(username: str):
 	if not is_own_profile and not has_moderator_role():
 		roles = [role for role in roles if role in LMS_ROLES]
 	details.roles = roles
+	hide_user_emails([details], "name")
 	return details
 
 
@@ -2509,6 +3370,67 @@ def calculate_current_streak(all_dates: list, streak: int):
 	return 0
 
 
+def can_start_live_class(batch: str) -> bool:
+	"""Who sees a class's start link: the staff the Start button is shown to."""
+	from lms.lms.permissions import can_author_batch
+
+	return "Batch Evaluator" in frappe.get_roles() or can_author_batch(batch)
+
+
+@frappe.whitelist()
+def start_live_class(live_class: str):
+	"""The batch page's Start button. A batch's instructors open their class here, as
+	the start link is readable by role only, and a role spans every batch."""
+	details = frappe.db.get_value(
+		"LMS Live Class", live_class, ["batch_name", "start_url", "join_url"], as_dict=True
+	)
+	if not details or not can_start_live_class(details.batch_name):
+		frappe.throw(_("You cannot start this live class."), frappe.PermissionError)
+
+	frappe.local.response["type"] = "redirect"
+	frappe.local.response["location"] = details.start_url or details.join_url
+
+
+@frappe.whitelist()
+def get_live_class_start_url(live_class: str) -> str:
+	"""The link start_live_class redirects to, for a caller that cannot follow a redirect."""
+	details = frappe.db.get_value(
+		"LMS Live Class", live_class, ["batch_name", "start_url", "join_url"], as_dict=True
+	)
+	if not details or not can_start_live_class(details.batch_name):
+		frappe.throw(_("You cannot start this live class."), frappe.PermissionError)
+	return details.start_url or details.join_url
+
+
+@frappe.whitelist(methods=["POST"])
+def add_students_to_batch(batch: str, members: list | str) -> dict:
+	"""Enroll each member in the batch, as adding them one at a time would. A member who cannot
+	be added is reported in `errors` and does not stop the rest. `members` is a list of users, or
+	that list as JSON."""
+	if not isinstance(batch, str) or not frappe.db.exists("LMS Batch", batch):
+		frappe.throw(_("Invalid batch."))
+	if isinstance(members, str):
+		members = frappe.parse_json(members)
+	if not isinstance(members, list) or not all(isinstance(member, str) for member in members):
+		frappe.throw(_("Members must be a list of users."))
+
+	added, errors = [], []
+	for member in members:
+		messages = len(frappe.local.message_log)
+		frappe.db.savepoint("add_student_to_batch")
+		try:
+			frappe.get_doc({"doctype": "LMS Batch Enrollment", "batch": batch, "member": member}).insert()
+		except Exception as e:
+			frappe.db.rollback(save_point="add_student_to_batch")
+			# The row's messages are its error below, not a message for the whole request.
+			del frappe.local.message_log[messages:]
+			errors.append({"member": member, "error": str(e)})
+		else:
+			frappe.db.release_savepoint("add_student_to_batch")
+			added.append(member)
+	return {"added": added, "errors": errors}
+
+
 @frappe.whitelist()
 def get_my_live_classes():
 	my_live_classes = []
@@ -2539,6 +3461,7 @@ def get_my_live_classes():
 			"start_url",
 			"join_url",
 			"owner",
+			"batch_name",
 		],
 		limit=2,
 		order_by="date",
@@ -2546,15 +3469,19 @@ def get_my_live_classes():
 
 	if len(live_class_details):
 		for live_class in live_class_details:
-			live_class.course_title = frappe.db.get_value("LMS Course", live_class.course, "title")
+			# The start link opens the class as its host; learners join with join_url.
+			if not can_start_live_class(live_class.batch_name):
+				live_class.start_url = None
 
 			my_live_classes.append(live_class)
 
-	return my_live_classes
+	return hide_user_emails(my_live_classes, "owner")
 
 
 @frappe.whitelist()
-def get_created_courses():
+def get_created_courses(start: int = 0, limit_page_length: int | str = None):
+	"""Courses the user instructs, newest published first. A Moderator who instructs none gets
+	every course. Three at a time unless `limit_page_length` asks for more."""
 	created_courses = []
 	roles = frappe.get_roles()
 
@@ -2566,15 +3493,20 @@ def get_created_courses():
 		.join(Course)
 		.on(CourseInstructor.parent == Course.name)
 		.select(Course.name)
+		.distinct()
+		.where(CourseInstructor.parenttype == "LMS Course")
 		.orderby(Course.published_on, order=frappe.qb.desc)
-		.limit(3)
+		.orderby(Course.name)
+		.limit(resolve_page_length(limit_page_length, default=3))
+		.offset(cint(start))
 	)
 
-	query = base_query.where(CourseInstructor.instructor == frappe.session.user)
-	results = query.run(as_dict=True)
-
-	if not len(results) and ("Moderator" in roles):
-		results = base_query.run(as_dict=True)
+	instructs_any = frappe.db.exists(
+		"Course Instructor", {"parenttype": "LMS Course", "instructor": frappe.session.user}
+	)
+	if instructs_any or "Moderator" not in roles:
+		base_query = base_query.where(CourseInstructor.instructor == frappe.session.user)
+	results = base_query.run(as_dict=True)
 
 	courses = [row["name"] for row in results]
 	for course in courses:
@@ -2585,7 +3517,9 @@ def get_created_courses():
 
 
 @frappe.whitelist()
-def get_created_batches():
+def get_created_batches(start: int = 0, limit_page_length: int | str = None, upcoming: bool = True):
+	"""Batches the user instructs. Upcoming ones, soonest first, unless `upcoming` is 0. Four at a
+	time unless `limit_page_length` asks for more."""
 	created_batches = []
 
 	CourseInstructor = frappe.qb.DocType("Course Instructor")
@@ -2596,11 +3530,16 @@ def get_created_batches():
 		.join(Batch)
 		.on(CourseInstructor.parent == Batch.name)
 		.select(Batch.name)
+		.distinct()
 		.where(CourseInstructor.instructor == frappe.session.user)
-		.where(Batch.start_date >= getdate())
-		.orderby(Batch.start_date, order=frappe.qb.asc)
-		.limit(4)
+		.where(CourseInstructor.parenttype == "LMS Batch")
+		.orderby(Batch.start_date, order=frappe.qb.asc if cint(upcoming) else frappe.qb.desc)
+		.orderby(Batch.name)
+		.limit(resolve_page_length(limit_page_length, default=4))
+		.offset(cint(start))
 	)
+	if cint(upcoming):
+		query = query.where(Batch.start_date >= getdate())
 
 	results = query.run(as_dict=True)
 	batches = [row["name"] for row in results]
@@ -2613,7 +3552,9 @@ def get_created_batches():
 
 
 @frappe.whitelist()
-def get_admin_live_classes():
+def get_admin_live_classes(start: int = 0, limit_page_length: int | str = None):
+	"""Upcoming live classes in batches the user instructs, soonest first. Four at a time unless
+	`limit_page_length` asks for more."""
 	CourseInstructor = frappe.qb.DocType("Course Instructor")
 	LMSLiveClass = frappe.qb.DocType("LMS Live Class")
 
@@ -2632,18 +3573,25 @@ def get_admin_live_classes():
 			LMSLiveClass.start_url,
 			LMSLiveClass.join_url,
 			LMSLiveClass.owner,
+			LMSLiveClass.batch_name,
+			LMSLiveClass.timezone,
+			LMSLiveClass.conferencing_provider,
 		)
 		.where(CourseInstructor.instructor == frappe.session.user)
+		.where(CourseInstructor.parenttype == "LMS Batch")
 		.where(LMSLiveClass.date >= getdate())
 		.orderby(LMSLiveClass.date, order=frappe.qb.asc)
-		.limit(4)
+		.orderby(LMSLiveClass.name)
+		.limit(resolve_page_length(limit_page_length, default=4))
+		.offset(cint(start))
 	)
-	results = query.run(as_dict=True)
-	return results
+	return hide_user_emails(query.run(as_dict=True), "owner")
 
 
 @frappe.whitelist()
-def get_admin_evals():
+def get_admin_evals(start: int = 0, limit_page_length: int | str = None):
+	"""The user's upcoming evaluations, soonest first. Four at a time unless `limit_page_length`
+	asks for more."""
 	evals = frappe.get_all(
 		"LMS Certificate Request",
 		{
@@ -2662,14 +3610,15 @@ def get_admin_evals():
 			"member",
 			"member_name",
 		],
-		limit=4,
-		order_by="date asc",
+		start=cint(start),
+		limit=resolve_page_length(limit_page_length, default=4),
+		order_by="date asc, name asc",
 	)
 
 	for evaluation in evals:
 		evaluation.course_title = frappe.db.get_value("LMS Course", evaluation.course, "title")
 
-	return evals
+	return hide_user_emails(evals, "member")
 
 
 @frappe.whitelist()
@@ -2813,7 +3762,11 @@ def get_lesson_completion_stats(course: str):
 
 @frappe.whitelist()
 def get_course_assessment_progress(course: str, member: str):
-	if not can_modify_course(course):
+	# The member must be this course's student: the course's assessments may be
+	# placed in other courses too, and their students' work is not this course's.
+	if not can_modify_course(course) or not frappe.db.exists(
+		"LMS Enrollment", {"course": course, "member": member}
+	):
 		frappe.throw(
 			_("You do not have permission to access this course's assessment data."), frappe.PermissionError
 		)
@@ -2934,8 +3887,15 @@ def get_assessment_from_lesson(course: str, assessment_type: str):
 
 @frappe.whitelist()
 def get_badges(member: str):
+	"""`member` is a User name or a username: profile pages only know the username."""
 	if not has_lms_role():
 		frappe.throw(_("You do not have permission to access badges."), frappe.PermissionError)
+	if not isinstance(member, str):
+		frappe.throw(_("Member must be a string."))
+
+	member = resolve_user(member)
+	if not member:
+		return []
 
 	badges = frappe.get_all(
 		"LMS Badge Assignment",
@@ -2943,7 +3903,24 @@ def get_badges(member: str):
 		["name", "member", "badge", "badge_image", "badge_description", "issued_on"],
 	)
 
-	return badges
+	return hide_user_emails(badges, "member")
+
+
+@frappe.whitelist()
+def get_user_certificates(username: str) -> list:
+	"""A profile's certificates, looked up by username so the page needs no email."""
+	if not isinstance(username, str):
+		frappe.throw(_("Username must be a string."))
+
+	member = frappe.db.get_value("User", {"username": username}, "name")
+	if not member:
+		return []
+
+	return frappe.get_list(
+		"LMS Certificate",
+		filters={"member": member},
+		fields=["name", "course_title", "batch_title", "issue_date", "template"],
+	)
 
 
 @frappe.whitelist()
@@ -3042,10 +4019,23 @@ def export_course_as_zip(course_name: str):
 	export_course_zip(course_name)
 
 
+# POST only: frappe rolls back a GET request, and the rollback deletes the new File and its ZIP.
+@frappe.whitelist(methods=["POST"])
+def export_course_as_file(course_name: str) -> str:
+	"""Export the course as a ZIP kept as a private File, and return its file_url, for a caller that
+	cannot take a download. The File is attached to nothing, so only the exporter can open it."""
+	if not can_modify_course(course_name):
+		frappe.throw(_("You do not have permission to export this course."), frappe.PermissionError)
+
+	return export_course_zip(course_name, as_file=True)
+
+
 @frappe.whitelist()
 def import_course_from_zip(zip_file_path: str):
+	"""`zip_file_path` is the file_url of a ZIP the caller uploaded, or may otherwise read."""
 	frappe.only_for(["Moderator", "Course Creator"])
-	return import_course_zip(zip_file_path)
+	zip_path = get_uploaded_zip_path(zip_file_path)
+	return import_course_zip(os.path.relpath(zip_path, frappe.get_site_path()))
 
 
 @frappe.whitelist()
@@ -3073,3 +4063,33 @@ def delete_category(category: str):
 
 	frappe.delete_doc("LMS Category", category)
 	return unlinked
+
+
+@frappe.whitelist()
+def get_system_preferences():
+	from frappe.core.doctype.user.user import get_timezones
+
+	return {
+		"language": frappe.db.get_single_value("System Settings", "language"),
+		"time_zone": frappe.db.get_single_value("System Settings", "time_zone"),
+		"timezones": get_timezones().get("timezones", []),
+	}
+
+
+@frappe.whitelist()
+def set_system_preferences(language: str = None, time_zone: str = None):
+	from frappe.core.doctype.user.user import get_timezones
+
+	frappe.only_for("System Manager")
+
+	if language:
+		if not frappe.db.exists("Language", language):
+			frappe.throw(_("{0} is not a valid language").format(language))
+		frappe.db.set_single_value("System Settings", "language", language)
+
+	if time_zone:
+		if time_zone not in get_timezones().get("timezones", []):
+			frappe.throw(_("{0} is not a valid timezone").format(time_zone))
+		frappe.db.set_single_value("System Settings", "time_zone", time_zone)
+
+	frappe.clear_cache()

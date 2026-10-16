@@ -1,0 +1,82 @@
+{
+ "actions": [],
+ "autoname": "hash",
+ "creation": "2026-07-31 16:56:23.586914",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "quiz_submission",
+  "event_type",
+  "severity",
+  "timestamp"
+ ],
+ "fields": [
+  {
+   "fieldname": "quiz_submission",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Quiz Submission",
+   "options": "LMS Quiz Submission",
+   "reqd": 1
+  },
+  {
+   "fieldname": "event_type",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Event Type",
+   "options": "tab_switch\nno_face\nmultiple_faces\nfocus_loss\ncamera_disconnect",
+   "reqd": 1
+  },
+  {
+   "fieldname": "severity",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Severity",
+   "options": "violation\nwarning",
+   "reqd": 1
+  },
+  {
+   "fieldname": "timestamp",
+   "fieldtype": "Datetime",
+   "in_list_view": 1,
+   "label": "Timestamp"
+  }
+ ],
+ "in_create": 1,
+ "links": [],
+ "modified": "2026-07-31 17:03:29.672534",
+ "modified_by": "sayali@frappe.io",
+ "module": "LMS",
+ "name": "LMS Quiz Violation Log",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "select": 1,
+   "share": 1,
+   "write": 1
+  },
+  {
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Instructor",
+   "select": 1,
+   "share": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "sort_field": "timestamp",
+ "sort_order": "ASC",
+ "states": []
+}

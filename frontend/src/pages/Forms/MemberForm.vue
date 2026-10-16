@@ -1,6 +1,6 @@
 <template>
 	<FormShell
-		:title="isEdit ? __('Edit Member') : __('Add New Member')"
+		:title="isEdit ? __('Edit Member') : __('New Member')"
 		size="lg"
 		@close="close"
 	>
@@ -38,28 +38,10 @@
 					<div class="text-p-sm-medium text-ink-gray-7">
 						{{ __('Roles') }}
 					</div>
-					<div class="grid md:grid-cols-2 gap-x-6 gap-y-3">
-						<BooleanSwitch
-							size="sm"
-							:label="__('Student')"
-							v-model="roles.lms_student"
-						/>
-						<BooleanSwitch
-							size="sm"
-							:label="__('Course Creator')"
-							v-model="roles.course_creator"
-						/>
-						<BooleanSwitch
-							size="sm"
-							:label="__('Evaluator')"
-							v-model="roles.batch_evaluator"
-						/>
-						<BooleanSwitch
-							size="sm"
-							:label="__('Moderator')"
-							v-model="roles.moderator"
-						/>
-					</div>
+					<RoleSwitches
+						:model-value="roles"
+						@toggle="(key, value) => (roles[key] = value)"
+					/>
 				</div>
 			</div>
 		</template>
@@ -67,7 +49,7 @@
 			<div v-if="!refusal" class="flex items-center justify-end">
 				<HeaderButton
 					data-testid="member-save"
-					:label="__('Save')"
+					:label="isEdit ? __('Save') : __('Create')"
 					variant="solid"
 					:loading="submitting"
 					:disabled="isEdit && !memberRow"
@@ -79,13 +61,20 @@
 </template>
 <script setup lang="ts">
 import { call, createResource, FormControl, toast } from 'frappe-ui'
+import type { FrappeResourceError } from 'frappe-ui'
 import { computed, inject, onMounted, reactive, ref, watch } from 'vue'
-import { useOnboarding, useTelemetry } from 'frappe-ui/frappe'
-import BooleanSwitch from '@/components/Controls/BooleanSwitch.vue'
+import { useOnboarding } from '@framework/ui/components/Onboarding/index'
+import { useTelemetry } from '@framework/ui/telemetry/index'
+import RoleSwitches from '@/components/Controls/RoleSwitches.vue'
 import FormShell from '@/components/FormShell.vue'
 import HeaderButton from '@/components/HeaderButton.vue'
 import { useFormRoute } from '@/composables/useFormRoute'
 import { notifyMembersChanged } from '@/stores/members'
+import {
+	ROLE_ROWS,
+	noRoles,
+	type MemberRoleKey,
+} from '@/components/Settings/Members/members'
 import { cleanError } from '@/utils'
 import type { Resource, SessionUser } from '@/types'
 
@@ -127,12 +116,12 @@ const refusal = computed(() => {
 	return ''
 })
 
-const ROLE_MAP: Record<string, string> = {
-	moderator: 'Moderator',
-	course_creator: 'Course Creator',
-	batch_evaluator: 'Batch Evaluator',
-	lms_student: 'LMS Student',
-}
+// The server's name for each role, keyed the same way `roles` is. Derived
+// from ROLE_ROWS rather than hand-duplicated, so this can't silently drift
+// from the desktop settings form's own mapping.
+const ROLE_MAP = Object.fromEntries(
+	ROLE_ROWS.map((row) => [row.key, row.role])
+) as Record<MemberRoleKey, string>
 
 const member = reactive({
 	email: isEdit.value ? props.memberID : '',
@@ -140,12 +129,7 @@ const member = reactive({
 	last_name: '',
 })
 
-const roles = reactive({
-	moderator: false,
-	course_creator: false,
-	batch_evaluator: false,
-	lms_student: false,
-})
+const roles = reactive(noRoles())
 
 const initialRoles = reactive({ ...roles })
 const submitting = ref(false)
@@ -197,11 +181,14 @@ const reloadMembers = () => {
 	notifyMembersChanged()
 }
 
-const errorMessage = (err: { messages?: string[] }, fallback: string): string =>
+const errorMessage = (err: FrappeResourceError, fallback: string): string =>
 	cleanError(err.messages?.[0]) || fallback
 
 const assignRoles = async (userEmail: string) => {
-	for (const [key, checked] of Object.entries(roles)) {
+	for (const [key, checked] of Object.entries(roles) as [
+		MemberRoleKey,
+		boolean
+	][]) {
 		if (checked)
 			await call('lms.lms.api.save_role', {
 				user: userEmail,
@@ -219,13 +206,10 @@ const addMember = async () => {
 
 	submitting.value = true
 	try {
-		const created = await call('frappe.client.insert', {
-			doc: {
-				doctype: 'User',
-				email: member.email.trim(),
-				first_name: member.first_name.trim() || undefined,
-				last_name: member.last_name.trim() || undefined,
-			},
+		const created = await call('lms.lms.api.add_member', {
+			email: member.email.trim(),
+			first_name: member.first_name.trim() || undefined,
+			last_name: member.last_name.trim() || undefined,
 		})
 
 		await assignRoles(created.name)

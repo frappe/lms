@@ -7,14 +7,26 @@ import frappe
 from frappe import _
 from frappe.email.doctype.email_template.email_template import get_email_template
 from frappe.model.document import Document
+from frappe.query_builder import Bracket
+from pypika.terms import LiteralValue
+
+from lms.lms.doctype.lms_enrollment.lms_enrollment import validate_identity_unchanged
+from lms.lms.permissions import authored_batch_condition, can_author_batch, is_site_administrator
+from lms.lms.utils import has_moderator_role
+
+# Roles that keep today's blanket access: every row, every ptype.
+UNSCOPED_ROLES = ("Moderator", "Batch Evaluator")
 
 
 class LMSBatchEnrollment(Document):
 	def after_insert(self):
 		send_confirmation_email(self)
-		self.add_member_to_live_class()
+		from lms.lms.doctype.lms_live_class.lms_live_class import add_learner_to_live_classes
+
+		add_learner_to_live_classes(self.batch)
 
 	def validate(self):
+		validate_identity_unchanged(self, ("batch", "member"))
 		self.validate_owner()
 		self.validate_duplicate_members()
 		self.validate_payment()
@@ -27,12 +39,20 @@ class LMSBatchEnrollment(Document):
 			return
 
 		roles = frappe.get_roles()
-		if "Moderator" not in roles and "Batch Evaluator" not in roles:
-			frappe.throw(_("You must be a Moderator or Batch Evaluator to enroll users in a batch."))
+		if "Moderator" in roles or "Batch Evaluator" in roles:
+			return
+		# Scoped, unlike the two roles above: a Course Creator may only enrol
+		# members into a batch they are actually tagged an instructor/evaluator on.
+		if can_author_batch(self.batch):
+			return
+
+		frappe.throw(
+			_("You must be a Moderator, Batch Evaluator, or this batch's instructor to enroll users.")
+		)
 
 	def validate_payment(self):
 		paid_batch = frappe.db.get_value("LMS Batch", self.batch, "paid_batch")
-		if paid_batch and not self.is_admin():
+		if paid_batch and not self.can_skip_payment():
 			payment = frappe.db.exists(
 				"LMS Payment",
 				{
@@ -51,14 +71,19 @@ class LMSBatchEnrollment(Document):
 		batch_details = frappe.db.get_value(
 			"LMS Batch", self.batch, ["allow_self_enrollment", "paid_batch"], as_dict=True
 		)
-		if batch_details.paid_batch:
+		if batch_details.paid_batch or batch_details.allow_self_enrollment:
 			return
-		if not batch_details.allow_self_enrollment and not self.is_admin():
-			frappe.throw(_("Enrollment in this batch is restricted. Please contact the Administrator."))
+		# Enrolling someone else was already authorised by validate_owner.
+		if self.owner != self.member or can_author_batch(self.batch):
+			return
+		frappe.throw(_("Enrollment in this batch is restricted. Please contact the Administrator."))
 
-	def is_admin(self):
-		roles = frappe.get_roles(frappe.session.user)
-		return "Course Creator" in roles or "Moderator" in roles or "Batch Evaluator" in roles
+	def can_skip_payment(self):
+		"""Only a site admin or Moderator enrolls themselves without paying. The
+		batch's tagged instructors and evaluators may also enroll others free."""
+		if self.owner != self.member:
+			return can_author_batch(self.batch)
+		return is_site_administrator() or bool(has_moderator_role())
 
 	def validate_duplicate_members(self):
 		# Lock the batch row for the rest of this transaction before reading. The
@@ -100,36 +125,21 @@ class LMSBatchEnrollment(Document):
 				enrollment.course = course.course
 				enrollment.member = self.member
 				enrollment.enrollment_from_batch = self.batch
-				enrollment.save()
-
-	def add_member_to_live_class(self):
-		live_classes = frappe.get_all("LMS Live Class", {"batch_name": self.batch}, ["name", "event"])
-
-		for live_class in live_classes:
-			if live_class.event:
-				# Scoped bypass: adds only self.member to events of this batch's own live
-				# classes. A self-enrolling student has no create permission on Event
-				# Participants; the authorization boundary is enrollment creation itself.
-				frappe.get_doc(
-					{
-						"doctype": "Event Participants",
-						"reference_doctype": "User",
-						"reference_docname": self.member,
-						"email": self.member,
-						"parent": live_class.event,
-						"parenttype": "Event",
-						"parentfield": "event_participants",
-					}
-				).save(ignore_permissions=True)
+				# Adding the learner to the batch is what was authorised and paid for;
+				# its courses come with it, whoever added them.
+				enrollment.flags.via_batch_enrollment = True
+				# nosemgrep: lms-unjustified-ignore-permissions - the batch enrolment saving this was already authorised; the course enrolment is part of it
+				enrollment.save(ignore_permissions=True)
 
 
 @frappe.whitelist()
-def send_confirmation_email(doc: Document):
+def send_confirmation_email(doc: Document | str):
 	if isinstance(doc, str):
-		doc = frappe._dict(json.loads(doc))
+		name = frappe.parse_json(doc).get("name")
+		doc = frappe.get_doc("LMS Batch Enrollment", name)
 
 	roles = frappe.get_roles()
-	is_admin = "Moderator" in roles or "Batch Evaluator" in roles
+	is_admin = "Moderator" in roles or "Batch Evaluator" in roles or can_author_batch(doc.batch)
 	is_member = doc.member == frappe.session.user
 
 	if not is_member and not is_admin:
@@ -191,3 +201,45 @@ def send_mail(doc):
 		header=[_(batch.title), "green"],
 		retry=3,
 	)
+
+
+def has_permission(doc, ptype="read", user=None):
+	"""A Course Creator's unconditional DocPerm row narrowed to the batches they
+	author. Moderator and Batch Evaluator keep today's blanket access; an
+	enrolled member reads their own row either way."""
+	user = user or frappe.session.user
+	roles = frappe.get_roles(user)
+	if is_site_administrator(user) or any(role in roles for role in UNSCOPED_ROLES):
+		return True
+
+	if doc.is_new():
+		# Mirrors validate_owner(): self-enrollment needs no batch authorship.
+		# Whether this batch actually allows it is validate()'s decision.
+		if doc.get("member") == user:
+			return True
+		return can_author_batch(doc.get("batch"), user=user)
+
+	stored = frappe.db.get_value(doc.doctype, doc.name, ["batch", "member"], as_dict=True)
+	if not stored:
+		return False
+
+	if ptype in ("read", "select", "print") and stored.member == user and doc.get("member") == user:
+		return True
+
+	# Both the stored and the submitted batch, or a save could move the row out
+	# of its owner's reach by repointing it at a batch they don't author.
+	batches = {stored.batch, doc.get("batch")} - {None}
+	return all(can_author_batch(batch, user=user) for batch in batches)
+
+
+def get_permission_query_conditions(user=None):
+	"""List-read counterpart of :func:`has_permission`, as SQL."""
+	user = user or frappe.session.user
+	roles = frappe.get_roles(user)
+	if is_site_administrator(user) or any(role in roles for role in UNSCOPED_ROLES):
+		return ""
+
+	enrollment = frappe.qb.DocType("LMS Batch Enrollment")
+	member = LiteralValue(frappe.db.escape(user))
+	condition = Bracket((enrollment.member == member) | authored_batch_condition(enrollment.batch, user))
+	return condition.get_sql(with_namespace=True, quote_char="`" if frappe.db.db_type == "mariadb" else '"')

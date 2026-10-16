@@ -1,12 +1,16 @@
 # Copyright (c) 2021, FOSS United and Contributors
 # See license.txt
 
+import io
 import unittest
+import zipfile
 
 import frappe
 
 from lms.lms.course_import_export import (
 	get_assessments_from_lesson,
+	get_course_fields,
+	read_json_from_zip,
 	replace_assessment_names,
 )
 
@@ -19,6 +23,9 @@ class TestImportExportContentGuards(unittest.TestCase):
 	whole export. These readers must fail soft. Fixture-free: the non-JSON paths
 	never reach the DB.
 	"""
+
+	def test_export_carries_the_lesson_locking_setting(self):
+		self.assertIn("enforce_lesson_completion", get_course_fields())
 
 	def test_get_assessments_from_lesson_non_json(self):
 		# Non-JSON content yields no assessments/questions/test_cases and never hits the DB.
@@ -52,3 +59,33 @@ class TestImportExportContentGuards(unittest.TestCase):
 		# Round-trips without raising; the well-formed paragraph is preserved.
 		result = replace_assessment_names(None, content)
 		self.assertIn("paragraph", result)
+
+
+class TestReadJsonFromZip(unittest.TestCase):
+	def setUp(self):
+		buffer = io.BytesIO()
+		with zipfile.ZipFile(buffer, "w") as archive:
+			archive.writestr("course.json", '{"title": "Course"}')
+			archive.writestr("broken.json", "{not json")
+		self.zip_file = zipfile.ZipFile(buffer)
+		self.addCleanup(self.zip_file.close)
+
+	def _error_logs(self):
+		return len(
+			frappe.get_all(
+				"Error Log", filters={"method": ("like", "Error reading %from ZIP%")}, pluck="name"
+			)
+		)
+
+	def test_reads_a_member(self):
+		self.assertEqual(read_json_from_zip(self.zip_file, "course.json"), {"title": "Course"})
+
+	def test_a_missing_optional_member_is_skipped_without_an_error_log(self):
+		before = self._error_logs()
+		self.assertIsNone(read_json_from_zip(self.zip_file, "instructors.json"))
+		self.assertEqual(self._error_logs(), before)
+
+	def test_an_unreadable_member_is_still_logged(self):
+		before = self._error_logs()
+		self.assertIsNone(read_json_from_zip(self.zip_file, "broken.json"))
+		self.assertEqual(self._error_logs(), before + 1)

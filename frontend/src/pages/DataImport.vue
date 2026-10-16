@@ -1,26 +1,41 @@
 <template>
 	<PageHeader :breadcrumbs="breadcrumbs" />
-	<div class="data-import-host">
-		<DataImport
-			:doctype="route.params.doctype"
-			:importName="route.params.importName"
-			:doctypeMap="doctypeMap"
+	<div class="mx-auto flex min-h-0 w-full max-w-5xl flex-1 flex-col p-5">
+		<DataImportWizard
+			:dataImport="dataImport"
+			:onOpenList="canOpenList ? openList : undefined"
+			@open-record="openRecord"
+			@open-imports="openImports"
+			@new-import="newImport"
 		/>
 	</div>
 </template>
 <script setup lang="ts">
 import { usePageMeta } from 'frappe-ui'
-import { DataImport } from 'frappe-ui/frappe'
-import PageHeader from '@/components/Layouts/PageHeader.vue'
+import {
+	DataImportWizard,
+	useDataImport,
+} from '@framework/ui/components/DataImport/index'
+import PageHeader from '@/components/Layouts/pages/PageHeader.vue'
 import type { Breadcrumb } from '@/types'
 import { sessionStore } from '../stores/session'
+import { importTarget, importTitle } from '@/utils/dataImport'
+import { useScreenSize } from '@/utils/composables'
 import { useRoute, useRouter } from 'vue-router'
-import { computed, inject, onMounted } from 'vue'
+import { computed, inject, onMounted, ref, watch } from 'vue'
 
 const { brand } = sessionStore()
 const route = useRoute()
 const router = useRouter()
 const user = inject<any>('$user')
+const { isMobile } = useScreenSize()
+
+// Both route segments are single dynamic params (routes.js), never repeated —
+// narrowed here because vue-router types every param as `string | string[]`.
+const param = (key: 'doctype' | 'importName') => {
+	const value = route.params[key]
+	return (Array.isArray(value) ? value[0] : value) || undefined
+}
 
 onMounted(() => {
 	if (!user.data?.is_moderator) {
@@ -30,33 +45,52 @@ onMounted(() => {
 	}
 })
 
-const doctypeMap = {
-	'LMS Course': {
-		title: 'Courses',
-		listRoute: '/courses',
-		pageRoute: `/courses/docname`,
-	},
-	'LMS Batch': {
-		title: 'Batches',
-		listRoute: '/batches',
-	},
-	'LMS Category': {
-		title: 'Categories',
-		listRoute: '/lms',
-	},
+const name = ref<string | null>(param('importName') ?? null)
+// With no doctype in the route, the wizard's first step asks for one.
+const dataImport = useDataImport(name, { doctype: () => param('doctype') })
+
+// The first save names a new import; keep the URL on it so a reload reopens it.
+watch(name, (importName) => {
+	if (importName && importName !== param('importName')) {
+		router.replace({ name: 'DataImport', params: { importName } })
+	}
+})
+watch(
+	() => route.params.importName,
+	() => (name.value = param('importName') ?? null)
+)
+
+const openList = (doctype: string) => importTarget(doctype)?.openList(router)
+
+// The wizard shows "Go to list" only when it is given somewhere to go.
+const canOpenList = computed(() => {
+	const target = importTarget(dataImport.doc.value.reference_doctype)
+	return Boolean(target && !(target.listInSettings && isMobile.value))
+})
+
+const openRecord = (doctype: string, docname: string) =>
+	importTarget(doctype)?.openRecord?.(router, docname)
+
+const openImports = (doctype: string) =>
+	router.push({
+		name: 'DataImportList',
+		query: { doctype, status: 'Pending' },
+	})
+
+const newImport = (doctype: string) => {
+	router.push({ name: 'NewDataImport', params: { doctype } })
 }
 
-// Named here rather than taken from the imported component: its own trail is
-// internal state we cannot reach, and the page still needs a back link on a
-// phone.
 const breadcrumbs = computed<Breadcrumb[]>(() => {
-	const crumbs: Breadcrumb[] = [
+	const doctype = dataImport.doc.value.reference_doctype || param('doctype')
+	return [
 		{ label: __('Data Import'), route: { name: 'DataImportList' } },
+		{
+			label: doctype
+				? __('Importing {0}').format(importTitle(doctype))
+				: __('New Import'),
+		},
 	]
-	if (route.params.importName) crumbs.push({ label: __('Import') })
-	else if (route.params.doctype)
-		crumbs.push({ label: String(route.params.doctype) })
-	return crumbs
 })
 
 usePageMeta(() => {
@@ -66,21 +100,3 @@ usePageMeta(() => {
 	}
 })
 </script>
-
-<style scoped>
-/* frappe-ui's DataImport hard-codes its own sticky header (no slot, no prop to
-   turn it off), so suppressing it here is the only way this page gets the
-   app's header like every other page.
-
-   Its step indicator is rendered twice, `hidden lg:flex` inside that header and
-   a `lg:hidden` copy in the page below it. Hiding the header alone would
-   therefore leave a desk with no steps at all, so the in-page copy (matched on
-   the width class only it carries) is shown at every width instead. */
-.data-import-host :deep(> header) {
-	display: none;
-}
-
-.data-import-host :deep(.lg\:hidden.w-\[90\%\]) {
-	display: flex;
-}
-</style>

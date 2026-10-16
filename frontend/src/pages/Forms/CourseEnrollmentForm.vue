@@ -1,5 +1,5 @@
 <template>
-	<FormShell :title="__('Enroll a Student')" size="xl" @close="close">
+	<FormShell :title="__('Enroll Student')" size="xl" @close="close">
 		<template #default>
 			<div v-if="loadingCourse" class="p-4 text-base text-ink-gray-6">
 				{{ __('Loading...') }}
@@ -38,7 +38,7 @@
 			>
 				<HeaderButton
 					data-testid="course-enrollment-save"
-					:label="__('Save')"
+					:label="__('Enroll')"
 					variant="solid"
 					:loading="enrollment.loading"
 					@click="enrollStudent()"
@@ -54,6 +54,7 @@ import {
 	getCachedListResource,
 	toast,
 } from 'frappe-ui'
+import type { FrappeResourceError } from 'frappe-ui'
 import { computed, inject, ref } from 'vue'
 import { useRoute } from 'vue-router'
 import { openSettings } from '@/utils'
@@ -61,12 +62,8 @@ import Link from '@/components/Controls/Link.vue'
 import FormShell from '@/components/FormShell.vue'
 import HeaderButton from '@/components/HeaderButton.vue'
 import { useFormRoute } from '@/composables/useFormRoute'
-import type {
-	CourseDetails,
-	CourseInstructorInfo,
-	Resource,
-	SessionUser,
-} from '@/types'
+import type { CourseDetails, Resource, SessionUser } from '@/types'
+import { isInstructorOf } from '@/utils/instructors'
 import { resourceErrorMessage, submitResource } from '@/utils/resource'
 
 const props = defineProps<{
@@ -113,9 +110,7 @@ const course = createResource({
 const loadingCourse = computed(() => !course.data && course.loading)
 
 const isInstructor = computed(() =>
-	(course.data?.instructors ?? []).some(
-		(instructor: CourseInstructorInfo) => instructor.name === user.data?.name
-	)
+	isInstructorOf(course.data?.instructors, user.data?.username)
 )
 
 // Copied from CourseDetail.vue's isAdmin(), which gated the Dashboard tab the
@@ -161,14 +156,15 @@ const reloadStudents = () => {
 // neither field is — it closes its own dropdown first, so there is no second
 // close callback to invoke here.
 //
-// Leaving the form to open Settings is the modal's behaviour kept intact: the
-// settings drawer would otherwise sit under a full-screen form on a phone.
+// The form stays open behind Settings, an overlay that pushes a hash entry
+// over the form's own route. Closing the form here would pop that entry and
+// Settings would never appear; staying open also keeps what the user typed.
 const openMemberSettings = () => {
-	if (openSettings('Members')) close()
+	openSettings('members')
 }
 
 const openPaymentSettings = () => {
-	if (openSettings('Transactions')) close()
+	openSettings('transactions')
 }
 
 const validateData = (): boolean => {
@@ -195,7 +191,7 @@ const enrollStudent = () => {
 				toast.success(__('Student enrolled successfully'))
 				saveAndReplace(parent)
 			},
-			onError(err: unknown) {
+			onError(err: FrappeResourceError) {
 				toast.error(resourceErrorMessage(err, __('Error')))
 			},
 		}

@@ -26,6 +26,9 @@ class LMSBadge(Document):
 			award(self, doc.get(self.user_field))
 
 	def rule_condition_satisfied(self, doc):
+		if self.event == "Manual Assignment":
+			return False
+
 		doc_before_save = doc.get_doc_before_save()
 
 		if self.event == "New" and doc_before_save is not None:
@@ -53,7 +56,8 @@ def award(doc, member):
 			"issued_on": frappe.utils.now(),
 		}
 	)
-	assignment.save()
+	# nosemgrep: lms-unjustified-ignore-permissions - award() is not reachable directly by a user
+	assignment.save(ignore_permissions=True)
 	return assignment.name
 
 
