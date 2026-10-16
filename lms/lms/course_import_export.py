@@ -436,8 +436,9 @@ def get_uploaded_zip_path(file_url):
 
 
 def get_file_md5(file_path):
-	"""The md5 Frappe stores as File.content_hash, read in chunks."""
+	"""The md5 Frappe stores as File.content_hash, read in chunks so a large ZIP is not held in memory."""
 	digest = hashlib.md5(usedforsecurity=False)
+	# nosemgrep: frappe-security-file-traversal - file_path comes from get_local_file_path, inside the site's files folders
 	with open(file_path, "rb") as f:
 		for chunk in iter(lambda: f.read(1024 * 1024), b""):
 			digest.update(chunk)
