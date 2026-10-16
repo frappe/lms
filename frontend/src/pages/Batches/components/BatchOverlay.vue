@@ -73,7 +73,7 @@
 				<Button
 					v-if="
 						batch.data.paid_batch &&
-						batch.data.seats_left > 0 &&
+						hasSeatsLeft &&
 						batch.data.accept_enrollments
 					"
 					class="w-full mt-4"
@@ -95,7 +95,7 @@
 					class="w-full mt-2"
 					v-else-if="
 						batch.data.allow_self_enrollment &&
-						batch.data.seats_left &&
+						hasSeatsLeft &&
 						batch.data.accept_enrollments
 					"
 					@click="enrollInBatch()"
@@ -161,6 +161,10 @@ const enrollInBatch = () => {
 		}
 	)
 }
+
+const hasSeatsLeft = computed(() => {
+	return !props.batch.data?.seat_count || props.batch.data.seats_left > 0
+})
 
 const isStudent = computed(() => {
 	return user.data ? Boolean(props.batch.data?.is_student) : false
