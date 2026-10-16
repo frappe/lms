@@ -138,6 +138,21 @@ class TestAgentApis(BaseTestUtils):
 		self.assertFalse(file_doc.attached_to_doctype)
 		self.assertFalse(frappe.has_permission("File", "read", doc=file_doc, user=self.moderator))
 
+	def test_a_failed_export_file_leaves_no_zip(self):
+		from unittest.mock import patch
+
+		def zips():
+			return {
+				name for name in os.listdir(frappe.get_site_path("private", "files")) if name.endswith(".zip")
+			}
+
+		before = zips()
+		self._as(self.instructor)
+		with patch("lms.lms.course_import_export.keep_export_as_file", side_effect=frappe.ValidationError):
+			with self.assertRaises(frappe.ValidationError):
+				export_course_as_file(self.courses[4])
+		self.assertEqual(zips(), before)
+
 	def test_the_start_link_is_returned_to_the_instructor_only(self):
 		live_class = frappe.get_doc(
 			{
