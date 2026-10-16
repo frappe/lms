@@ -82,3 +82,24 @@ describe('BatchOverlay seat limits', () => {
 		expect(free.text()).not.toContain('Enroll Now')
 	})
 })
+
+describe('BatchOverlay when the viewer cannot join', () => {
+	it('says enrollment is closed once the batch has started', () => {
+		const w = mountOverlay({ allow_self_enrollment: 1, accept_enrollments: 0 })
+		expect(w.text()).toContain('Enrollment for this batch is closed')
+		expect(w.text()).not.toContain('Enroll Now')
+	})
+
+	it('points to the administrator when self-enrollment is off', () => {
+		const w = mountOverlay({ seat_count: 0 })
+		expect(w.text()).toContain(
+			'Contact the Administrator to enroll for this batch'
+		)
+	})
+
+	it('leaves a full batch to its Sold Out badge', () => {
+		const w = mountOverlay({ seat_count: 5, seats_left: 0 })
+		expect(w.text()).toContain('Sold Out')
+		expect(w.text()).not.toContain('Contact the Administrator')
+	})
+})
