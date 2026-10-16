@@ -124,6 +124,45 @@ class TestCourseImportScope(BaseTestUtils):
 	def _is_batch_evaluator(self, user):
 		return bool(frappe.db.exists("Has Role", {"parent": user, "role": "Batch Evaluator"}))
 
+	def _upload_as(self, user, zip_path):
+		frappe.set_user(user)
+		try:
+			return frappe.get_doc(
+				{
+					"doctype": "File",
+					"file_url": zip_path,
+					"file_name": os.path.basename(zip_path),
+					"is_private": 1,
+				}
+			).insert(ignore_permissions=True)
+		finally:
+			frappe.set_user("Administrator")
+
+	def _assert_refused(self, user, file_url):
+		courses = frappe.db.count("LMS Course")
+		frappe.set_user(user)
+		try:
+			with self.assertRaises(frappe.PermissionError):
+				import_course_from_zip(file_url)
+		finally:
+			frappe.set_user("Administrator")
+		self.assertEqual(frappe.db.count("LMS Course"), courses)
+
+	def test_a_course_creator_cannot_import_another_users_private_zip(self):
+		upload = self._upload_as(self.exercise_author, self._archive(instructor=self.exercise_author))
+		self._assert_refused(self.course_creator, upload.file_url)
+
+	def test_a_file_row_of_ones_own_does_not_open_another_users_zip(self):
+		upload = self._upload_as(self.exercise_author, self._archive(instructor=self.exercise_author))
+		# A later File row naming the same url, owned by the caller. Frappe refuses to let the
+		# caller make one, but an admin can, and the caller then owns a readable row.
+		later = self._upload_as("Administrator", upload.file_url)
+		frappe.db.set_value("File", later.name, "owner", self.course_creator)
+		self._assert_refused(self.course_creator, upload.file_url)
+
+	def test_a_zip_with_no_uploaded_file_is_refused(self):
+		self._assert_refused(self.course_creator, self._archive())
+
 	def test_a_course_creator_import_cannot_grant_batch_evaluator(self):
 		course = self._import_as(self.course_creator, self._archive(evaluator=self.student))
 
