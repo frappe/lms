@@ -7,8 +7,9 @@ import json
 import frappe
 from frappe.utils import add_days, nowdate
 
+from lms.lms.api import get_chart_details
 from lms.lms.test_helpers import BaseTestUtils
-from lms.lms.utils import get_chart_data
+from lms.lms.utils import get_chart_data, get_course_completion_data
 
 STATISTICS_CHARTS = ("New Signups", "Course Enrollments", "Certification")
 
@@ -104,3 +105,49 @@ class TestChartDataAccess(BaseTestUtils):
 		rows = get_chart_data(chart_name="New Signups")
 		counts = {str(row["date"])[:10]: row["count"] for row in rows}
 		self.assertGreaterEqual(counts.get(backdated, 0), 1, json.dumps(counts, default=str))
+
+	def test_a_range_over_a_year_is_refused(self):
+		self._as("Guest")
+		for from_date, to_date in (("1000-01-01", nowdate()), (nowdate(), "3000-01-01")):
+			with self.subTest(from_date=from_date, to_date=to_date):
+				with self.assertRaises(frappe.ValidationError):
+					get_chart_data(chart_name="New Signups", from_date=from_date, to_date=to_date)
+
+	def test_an_end_date_before_the_start_is_refused(self):
+		self._as("Guest")
+		with self.assertRaises(frappe.ValidationError):
+			get_chart_data(chart_name="New Signups", from_date=nowdate(), to_date=add_days(nowdate(), -1))
+
+	def test_a_year_of_daily_rows_is_served(self):
+		self._as("Guest")
+		rows = get_chart_data(
+			chart_name="New Signups", from_date=add_days(nowdate(), -365), to_date=nowdate()
+		)
+		self.assertGreaterEqual(len(rows), 365)
+
+	def test_an_unknown_timegrain_is_refused(self):
+		self._as("Guest")
+		with self.assertRaises(frappe.ValidationError):
+			get_chart_data(chart_name="New Signups", timegrain="Hourly")
+
+	def test_statistics_are_empty_for_guests_when_guest_access_is_off(self):
+		previous = frappe.db.get_single_value("LMS Settings", "allow_guest_access")
+		frappe.db.set_single_value("LMS Settings", "allow_guest_access", 0)
+		self.addCleanup(frappe.db.set_single_value, "LMS Settings", "allow_guest_access", previous)
+
+		self._as("Guest")
+		self.assertEqual(get_chart_data(chart_name="New Signups"), [])
+		self.assertFalse(get_chart_details())
+		self.assertEqual(get_course_completion_data(), [])
+
+		frappe.set_user(self.student)
+		self.assertTrue(get_chart_data(chart_name="New Signups"))
+		self.assertTrue(get_chart_details())
+		self.assertTrue(get_course_completion_data())
+
+	def test_a_longer_period_allows_a_longer_range(self):
+		self._as("Guest")
+		rows = get_chart_data(
+			chart_name="New Signups", timegrain="Yearly", from_date=add_days(nowdate(), -3 * 365)
+		)
+		self.assertGreaterEqual(len(rows), 3)

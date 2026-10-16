@@ -17,6 +17,7 @@ from frappe.rate_limiter import rate_limit
 from frappe.utils import (
 	add_months,
 	cint,
+	date_diff,
 	escape_html,
 	flt,
 	fmt_money,
@@ -791,6 +792,9 @@ def get_lesson_count(course: str) -> int:
 
 
 STATISTICS_CHARTS = ("New Signups", "Course Enrollments", "Certification")
+# Days in one period of each timegrain, rounded up, so a range stays within MAX_CHART_PERIODS rows.
+CHART_TIMEGRAIN_DAYS = {"Daily": 1, "Weekly": 7, "Monthly": 31, "Quarterly": 92, "Yearly": 366}
+MAX_CHART_PERIODS = 366
 
 
 # nosemgrep: security.guest-whitelisted-method - pre-existing grant; this branch narrows it to the Statistics charts. Flagged only because the body changed.
@@ -802,8 +806,14 @@ def get_chart_data(
 	from_date: str = None,
 	to_date: str = None,
 ):
+	if not guest_access_allowed():
+		return []
+
 	if not isinstance(chart_name, str) or chart_name not in STATISTICS_CHARTS:
 		frappe.throw(_("This chart is not available."), frappe.PermissionError)
+
+	if timegrain not in CHART_TIMEGRAIN_DAYS:
+		frappe.throw(_("Show the chart by day, week, month, quarter or year."))
 
 	try:
 		chart = frappe.get_doc("Dashboard Chart", chart_name)
@@ -814,7 +824,7 @@ def get_chart_data(
 	if not chart.is_public and not frappe.has_permission("Dashboard Chart", "read", doc=chart):
 		frappe.throw(_("This chart is not available."), frappe.PermissionError)
 
-	from_date, to_date = get_chart_date_range(from_date, to_date)
+	from_date, to_date = get_chart_date_range(from_date, to_date, timegrain)
 	doctype = chart.document_type
 	datefield = chart.based_on
 	value_field = chart.value_based_on or "1"
@@ -832,7 +842,7 @@ def get_chart_data(
 	return data
 
 
-def get_chart_date_range(from_date: str, to_date: str):
+def get_chart_date_range(from_date: str, to_date: str, timegrain: str = "Daily"):
 	if not from_date:
 		from_date = add_months(getdate(), -1)
 	if not to_date:
@@ -840,6 +850,13 @@ def get_chart_date_range(from_date: str, to_date: str):
 
 	from_date = get_datetime(from_date).strftime("%Y-%m-%d")
 	to_date = get_datetime(to_date)
+
+	days = date_diff(to_date, from_date)
+	if days < 0:
+		frappe.throw(_("Choose an end date on or after the start date."))
+	# Each period in the range becomes a row, so a wide range means a slow, large response.
+	if days > MAX_CHART_PERIODS * CHART_TIMEGRAIN_DAYS[timegrain]:
+		frappe.throw(_("Choose a shorter date range, or show the chart by a longer period."))
 
 	return from_date, to_date
 
@@ -888,6 +905,9 @@ def get_chart_details(
 @frappe.whitelist(allow_guest=True)
 @rate_limit(limit=500, seconds=60 * 60)
 def get_course_completion_data():
+	if not guest_access_allowed():
+		return []
+
 	all_membership = frappe.db.count("LMS Enrollment")
 	completed = frappe.db.count("LMS Enrollment", {"progress": ["like", "%100%"]})
 
