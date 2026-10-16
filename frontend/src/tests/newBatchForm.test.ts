@@ -1,5 +1,10 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { enableAutoUnmount, flushPromises, mount } from '@vue/test-utils'
+import {
+	enableAutoUnmount,
+	flushPromises,
+	mount,
+	type VueWrapper,
+} from '@vue/test-utils'
 import {
 	createMemoryHistory,
 	createRouter,
@@ -7,8 +12,6 @@ import {
 	type Router,
 } from 'vue-router'
 import { defineComponent, h } from 'vue'
-
-vi.stubGlobal('__', (text: string) => text)
 
 // The form registers a window-level keydown listener and only removes it on
 // unmount. Without this, wrappers left mounted by earlier tests keep listening
@@ -69,7 +72,13 @@ vi.mock('@/stores/user', () => ({ usersStore: () => ({ userResource: {} }) }))
 
 vi.mock('frappe-ui', () => ({
 	createListResource: createListResourceMock,
-	createResource: () => ({ data: [], reload: vi.fn(), loading: false }),
+	createResource: () => ({
+		data: [],
+		reload: vi.fn(),
+		update: vi.fn(),
+		fetch: vi.fn(),
+		loading: false,
+	}),
 	call: vi.fn(),
 	toast: { success: vi.fn(), error: vi.fn() },
 	Dialog: {
@@ -110,15 +119,26 @@ vi.mock(
 	})
 )
 
-// The rich text editor drags in ProseMirror; the form's behaviour under test
-// does not involve it.
+// The rich text editor drags in ProseMirror. A textarea that emits `change`
+// is enough to fill the batch details the way the real editor does.
 vi.mock('@/components/RichTextEditor.vue', () => ({
-	default: defineComponent({ render: () => h('div') }),
+	default: defineComponent({
+		emits: ['change'],
+		setup:
+			(_props, { emit }) =>
+			() =>
+				h('textarea', {
+					'data-testid': 'rich-text',
+					onInput: (e: Event) =>
+						emit('change', (e.target as HTMLTextAreaElement).value),
+				}),
+	}),
 }))
 vi.mock('@/components/Modals/NewMemberModal.vue', () => ({
 	default: defineComponent({ render: () => h('div') }),
 }))
 
+import { toast } from 'frappe-ui'
 import NewBatchForm from '@/pages/Forms/NewBatchForm.vue'
 
 // The list page hosts the form as a child route, so it has to render a nested
@@ -188,6 +208,30 @@ const FIELD_LABELS = [
 	'Batch Details',
 ]
 
+const inputFor = (wrapper: VueWrapper, label: string) =>
+	wrapper
+		.findAll('label')
+		.find((l) => l.text() === label)!
+		.get('input')
+
+// Fills every field LMS Batch requires.
+const fillRequired = async (wrapper: VueWrapper): Promise<void> => {
+	await inputFor(wrapper, 'Title').setValue('My batch')
+	await inputFor(wrapper, 'Start Date').setValue('2026-11-01')
+	await inputFor(wrapper, 'End Date').setValue('2026-11-30')
+	await inputFor(wrapper, 'Start Time').setValue('10:00')
+	await inputFor(wrapper, 'End Time').setValue('11:00')
+	wrapper
+		.findAllComponents(passthrough)
+		.find((c) => c.props('label') === 'Timezone')!
+		.vm.$emit('update:modelValue', 'Asia/Kolkata')
+	await inputFor(wrapper, 'Description').setValue('Short')
+	wrapper
+		.findComponent({ name: 'MultiLink' })
+		.vm.$emit('update:modelValue', ['mod@example.com'])
+	await wrapper.get('[data-testid="rich-text"]').setValue('<p>Details</p>')
+}
+
 // Ctrl/Cmd+S is handled on window, but the handler ignores events whose target
 // is not an HTMLElement — so this has to be dispatched from an element and
 // allowed to bubble, or the test would pass without exercising the guard.
@@ -200,6 +244,7 @@ const pressCtrlS = (): void => {
 describe('NewBatchForm as a route', () => {
 	beforeEach(() => {
 		insertSubmit.mockReset()
+		vi.mocked(toast.error).mockReset()
 		createListResourceMock.mockClear()
 		captureMock.mockReset()
 		Object.defineProperty(window, 'innerWidth', {
@@ -272,6 +317,7 @@ describe('NewBatchForm as a route', () => {
 		// Control: the shortcut does reach saveBatch for a permitted user, so a
 		// green refusal below cannot be the dispatch silently going nowhere.
 		const permitted = await mountForm(router, moderator)
+		await fillRequired(permitted)
 		pressCtrlS()
 		expect(insertSubmit).toHaveBeenCalledTimes(1)
 		permitted.unmount()
@@ -286,8 +332,44 @@ describe('NewBatchForm as a route', () => {
 		const router = makeRouter()
 		await router.push({ name: 'NewBatch' })
 		const wrapper = await mountForm(router, moderator)
+		await fillRequired(wrapper)
 
 		await wrapper.find('[data-testid="new-batch-save"]').trigger('click')
+		expect(insertSubmit).toHaveBeenCalledTimes(1)
+	})
+
+	// Regression: empty create showed a raw server error (#3024, fixed in
+	// #3047).
+	it('names the first missing field instead of sending an empty batch', async () => {
+		const router = makeRouter()
+		await router.push({ name: 'NewBatch' })
+		const wrapper = await mountForm(router, moderator)
+		const save = () =>
+			wrapper.find('[data-testid="new-batch-save"]').trigger('click')
+
+		await save()
+		expect(insertSubmit).not.toHaveBeenCalled()
+		expect(toast.error).toHaveBeenLastCalledWith('Add a Title before saving.')
+
+		// Control: the same form, completed, reaches the server.
+		await fillRequired(wrapper)
+		await save()
+		expect(insertSubmit).toHaveBeenCalledTimes(1)
+	})
+
+	// Regression: image-only batch details failed the required check (#3047
+	// review).
+	it('accepts batch details that are only an image', async () => {
+		const router = makeRouter()
+		await router.push({ name: 'NewBatch' })
+		const wrapper = await mountForm(router, moderator)
+		await fillRequired(wrapper)
+		await wrapper
+			.get('[data-testid="rich-text"]')
+			.setValue('<p><img src="/files/a.png"></p>')
+
+		await wrapper.find('[data-testid="new-batch-save"]').trigger('click')
+		expect(toast.error).not.toHaveBeenCalled()
 		expect(insertSubmit).toHaveBeenCalledTimes(1)
 	})
 
@@ -311,6 +393,7 @@ describe('NewBatchForm as a route', () => {
 		await router.push({ name: 'Batches' })
 		await router.push({ name: 'NewBatch', state: { lmsFormEntry: true } })
 		const wrapper = await mountForm(router, moderator)
+		await fillRequired(wrapper)
 
 		insertSubmit.mockImplementation(
 			(_doc: unknown, options: { onSuccess: (d: unknown) => void }) => {

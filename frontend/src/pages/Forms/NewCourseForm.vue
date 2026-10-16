@@ -150,6 +150,7 @@ import type { Resource } from '@/types'
 import RichTextEditor from '@/components/RichTextEditor.vue'
 import { InputLabel, useInputLabeling } from 'frappe-ui/experimental'
 import { submitResource } from '@/utils/resource'
+import { validateCourse } from '@/utils/courseForm'
 
 interface InstructorOption {
 	label: string
@@ -337,6 +338,14 @@ const onInstructorCreated = (newUser: any) => {
 const saveCourse = () => {
 	if (!canCreate.value) return
 	sanitizeStringFields(course.value as Record<string, unknown>)
+	const error = validateCourse({
+		doc: course.value,
+		instructors: course.value.instructors,
+	})
+	if (error) {
+		toast.error(error)
+		return
+	}
 	submitResource(
 		courses.insert,
 		{
