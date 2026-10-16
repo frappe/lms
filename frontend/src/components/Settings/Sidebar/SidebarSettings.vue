@@ -340,14 +340,22 @@ const moveRow = async (row: SidebarRowDraft, delta: number) => {
 // settings.save. One cached 'LMS Settings' document is shared by every panel,
 // so saving from here would commit whatever another panel left dirty on it.
 //
-// call() carries no request sequence, so a rapid second edit can start a
-// second persist() before the first resolves. Each call takes a token, and a
-// superseded response is dropped instead of overwriting the table with a
-// now-stale snapshot.
+// Each save replaces the whole table and carries no request sequence, so two
+// in flight at once could commit out of order and leave the older table. Saves
+// run one after another; one superseded before it starts is skipped, since
+// the newer save sends the whole table anyway, and a superseded response is
+// dropped instead of overwriting the table with a stale snapshot.
 let requestToken = 0
+let queue: Promise<void> = Promise.resolve()
 
-const persist = async () => {
+const persist = () => {
 	const token = ++requestToken
+	queue = queue.then(() => write(token))
+	return queue
+}
+
+const write = async (token: number) => {
+	if (token !== requestToken) return
 	try {
 		await call('lms.lms.api.save_sidebar_items', {
 			rows: withoutClientId(rows.value),

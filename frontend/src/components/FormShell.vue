@@ -4,6 +4,7 @@
 		:open="true"
 		:title="title"
 		:size="size"
+		:position="position"
 		@update:open="onDialogToggle"
 	>
 		<template #title>
@@ -15,7 +16,21 @@
 			</div>
 		</template>
 		<template #default>
-			<slot />
+			<!-- The fields scroll inside the dialog so the title and the submit
+			     button stay in view on a short screen. 17rem is the dialog's own
+			     margins, header and footer. The side padding keeps focus rings
+			     from being clipped. -->
+			<div
+				data-testid="form-shell-dialog-body"
+				class="-mx-1 overflow-y-auto px-1"
+				:class="
+					position === 'top'
+						? 'max-h-[calc(80dvh-17rem)]'
+						: 'max-h-[calc(100dvh-17rem)]'
+				"
+			>
+				<slot />
+			</div>
 		</template>
 		<template #actions>
 			<slot name="actions" />
@@ -81,7 +96,7 @@
 // applies square icon-button sizing when the slot's vnode type name starts with
 // `lucide-`, which a plain `<span class="lucide-save">` does not satisfy.
 import { Dialog } from 'frappe-ui'
-import type { DialogSize } from 'frappe-ui'
+import type { DialogPosition, DialogSize } from 'frappe-ui'
 import { nextTick, onBeforeUnmount, onMounted, ref, useId, watch } from 'vue'
 import { useEventListener, useMediaQuery } from '@vueuse/core'
 import { useScreenSize } from '@/utils/composables'
@@ -96,9 +111,19 @@ import { focusedElementOwnsLayer, trapTab } from '@/composables/useFocusTrap'
 // and browser-back would hard-cut regardless.
 const reduceMotion = useMediaQuery('(prefers-reduced-motion: reduce)')
 
-withDefaults(defineProps<{ title: string; size?: DialogSize }>(), {
-	size: '3xl',
-})
+// `position="top"` keeps a form whose height changes (a message appearing above
+// Save) from shifting the whole dialog, as a centred one does.
+withDefaults(
+	defineProps<{
+		title: string
+		size?: DialogSize
+		position?: DialogPosition
+	}>(),
+	{
+		size: '3xl',
+		position: 'center',
+	}
+)
 
 const emit = defineEmits<{ close: [] }>()
 const { isMobile } = useScreenSize()

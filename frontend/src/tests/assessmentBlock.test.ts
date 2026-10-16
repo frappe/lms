@@ -2,7 +2,7 @@
 // Came with this branch's one-helper mount for assessment blocks.
 // Added on feat/assessment-visual-redesign to cover the wrapper every block uses.
 import { describe, expect, it, vi } from 'vitest'
-import { defineComponent, h, inject } from 'vue'
+import { defineComponent, h, inject, markRaw } from 'vue'
 import { mount } from '@vue/test-utils'
 import AssessmentBlock from '@/components/Assessment/AssessmentBlock.vue'
 
@@ -38,7 +38,11 @@ const moderator = {
 
 const mountBlock = (user: unknown, studentView = false) =>
 	mount(AssessmentBlock, {
-		props: { is: Child, props: { assignmentID: 'ASG-1' }, studentView },
+		props: {
+			is: markRaw(Child),
+			props: { assignmentID: 'ASG-1' },
+			studentView,
+		},
 		global: {
 			provide: { $user: user },
 			mocks: { __: (text: string) => text },

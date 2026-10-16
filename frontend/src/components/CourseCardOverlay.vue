@@ -152,20 +152,14 @@ import { resourceErrorMessage } from '@/utils/resource'
 import { useRouter } from 'vue-router'
 import CertificationLinks from '@/components/CertificationLinks.vue'
 import VideoPreview from '@/components/VideoPreview.vue'
-import { useTelemetry } from '@framework/ui/telemetry/index'
 import { openExternal } from '@/utils/openExternal'
-import type {
-	CourseDetails,
-	CourseInstructorInfo,
-	Resource,
-	SessionUser,
-} from '@/types'
+import type { CourseDetails, Resource, SessionUser } from '@/types'
+import { isInstructorOf } from '@/utils/instructors'
 
 const router = useRouter()
 const user = inject<SessionUser>('$user')!
 const readOnlyMode = (window as Window & { read_only_mode?: boolean })
 	.read_only_mode
-const { capture } = useTelemetry()
 
 const props = withDefaults(
 	defineProps<{
@@ -192,7 +186,6 @@ function enrollStudent() {
 		},
 	})
 		.then(() => {
-			capture('enrolled_in_course', { course: courseName })
 			toast.success(__('You have been enrolled in this course'))
 			setTimeout(() => {
 				router.push({
@@ -212,15 +205,8 @@ function enrollStudent() {
 		})
 }
 
-const is_instructor = (): boolean => {
-	let user_is_instructor = false
-	props.course.data?.instructors.forEach((instructor: CourseInstructorInfo) => {
-		if (!user_is_instructor && instructor.name == user.data?.name) {
-			user_is_instructor = true
-		}
-	})
-	return user_is_instructor
-}
+const is_instructor = (): boolean =>
+	isInstructorOf(props.course.data?.instructors, user.data?.username)
 
 const priceLabel = computed<string>(() => {
 	if (props.course.data?.paid_course) return props.course.data?.price || ''

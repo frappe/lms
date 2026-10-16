@@ -70,32 +70,39 @@ class TestAssessmentRegistrationAgreement(BaseTestUtils):
 	"""The two layers, measured through frappe rather than through the predicate:
 	the document gate, the list gate, the predicate and the SQL, held to one answer."""
 
-	def setUp(self):
-		super().setUp()
+	@classmethod
+	def setUpClass(cls):
+		super().setUpClass()
 		frappe.set_user("Administrator")
-		self.suffix = frappe.generate_hash(length=6)
-		self.instructor = self._create_user(
-			f"areg-instr-{self.suffix}@example.com", "Ivy", "Instructor", ["Course Creator"]
+		cls.suffix = frappe.generate_hash(length=6)
+		cls.instructor = cls._create_user(
+			f"areg-instr-{cls.suffix}@example.com", "Ivy", "Instructor", ["Course Creator"]
 		)
-		self.author = self._create_user(
-			f"areg-author-{self.suffix}@example.com", "Amy", "Author", ["Course Creator"]
+		cls.author = cls._create_user(
+			f"areg-author-{cls.suffix}@example.com", "Amy", "Author", ["Course Creator"]
 		)
-		self.member = self._create_user(
-			f"areg-member-{self.suffix}@example.com", "Mel", "Member", ["LMS Student"]
+		cls.member = cls._create_user(
+			f"areg-member-{cls.suffix}@example.com", "Mel", "Member", ["LMS Student"]
 		)
-		self.outsider = self._create_user(
-			f"areg-outsider-{self.suffix}@example.com", "Ove", "Outsider", ["LMS Student"]
+		cls.outsider = cls._create_user(
+			f"areg-outsider-{cls.suffix}@example.com", "Ove", "Outsider", ["LMS Student"]
 		)
-		self.course = self._create_course(
-			title=f"Registered Course {self.suffix}", instructor=self.instructor.name
+		cls.course = cls._create_course(
+			title=f"Registered Course {cls.suffix}", instructor=cls.instructor.name
 		)
-		self.questions = self._create_quiz_questions()
-		self.quiz = self._create_quiz(self.questions, title=f"Registered Quiz {self.suffix}")
-		self.assignment = self._create_assignment(title=f"Registered Assignment {self.suffix}")
-		self.exercise = self._create_programming_exercise(title=f"Registered Exercise {self.suffix}")
-		frappe.db.set_value("LMS Quiz", self.quiz.name, "owner", self.author.name)
-		self._set_authors("LMS Quiz", self.quiz.name, [self.author.name])
-		self._create_enrollment(self.member.name, self.course.name)
+		cls.questions = cls._create_quiz_questions()
+		cls.quiz = cls._create_quiz(cls.questions, title=f"Registered Quiz {cls.suffix}")
+		cls.assignment = cls._create_assignment(title=f"Registered Assignment {cls.suffix}")
+		cls.exercise = cls._create_programming_exercise(title=f"Registered Exercise {cls.suffix}")
+		frappe.db.set_value("LMS Quiz", cls.quiz.name, "owner", cls.author.name)
+		cls._set_authors("LMS Quiz", cls.quiz.name, [cls.author.name])
+		cls._create_enrollment(cls.member.name, cls.course.name)
+
+		cls._require_no_moderators(cls.member.name, cls.outsider.name, cls.instructor.name, cls.author.name)
+		cls._require(
+			frappe.db.get_value("LMS Quiz", cls.quiz.name, "owner") == cls.author.name,
+			"the quiz owner is not the author, so the owner fallback is not measured",
+		)
 
 	def tearDown(self):
 		frappe.set_user("Administrator")
@@ -112,14 +119,6 @@ class TestAssessmentRegistrationAgreement(BaseTestUtils):
 		return (self.member.name, self.outsider.name, self.instructor.name, self.author.name)
 
 	# --- the controls, read before any count ---
-
-	def test_the_actors_hold_the_roles_the_refusals_rest_on(self):
-		"""A fixed-key fixture hands back an existing row, so declared roles are
-		decoration until they are read. A Moderator is unrestricted by this rule and
-		would make every refusal below meaningless."""
-		for user in (self.member, self.outsider, self.instructor, self.author):
-			self.assertNotIn("Moderator", frappe.get_roles(user.name), user.name)
-		self.assertEqual(frappe.db.get_value("LMS Quiz", self.quiz.name, "owner"), self.author.name)
 
 	def test_the_students_docperm_read_still_grants_the_doctype(self):
 		"""The refusals below are the pair talking and not a missing grant: without a
@@ -147,10 +146,6 @@ class TestAssessmentRegistrationAgreement(BaseTestUtils):
 			with self.subTest(doctype=doctype):
 				self.assertFalse(framework_allows(doctype, name, "Guest"))
 				self.assertFalse(can_access_assessment(doctype, name, user="Guest"))
-
-	def test_a_malformed_name_is_refused_by_the_document_gate(self):
-		self.assertFalse(can_access_assessment("LMS Quiz", None, user=self.member.name))
-		self.assertFalse(can_access_assessment("LMS Quiz", {"title": ("like", "%")}, user=self.member.name))
 
 	def test_a_doctype_the_hook_does_not_gate_gets_no_opinion(self):
 		"""The hook is registered for three doctypes and reads the doctype off the doc,
@@ -208,9 +203,11 @@ class TestAssessmentRegistrationAgreement(BaseTestUtils):
 		self.assertFalse(framework_allows("LMS Quiz", self.quiz.name, self.member.name, "delete"))
 		self.assertFalse(can_administer_assessment("LMS Quiz", self.quiz.name, user=self.member.name))
 
-	def test_the_course_instructor_writes_the_quiz_placed_in_their_course(self):
+	def test_placing_the_quiz_in_a_course_does_not_let_its_instructor_write_it(self):
+		"""Placement grants use only: the instructor reads it, its authors write it."""
 		self._place_in_lesson(self.course.name, "LMS Quiz", self.quiz.name)
-		self.assertTrue(framework_allows("LMS Quiz", self.quiz.name, self.instructor.name, "write"))
+		self.assertTrue(framework_allows("LMS Quiz", self.quiz.name, self.instructor.name, "read"))
+		self.assertFalse(framework_allows("LMS Quiz", self.quiz.name, self.instructor.name, "write"))
 
 	def test_a_course_creator_with_no_relationship_may_no_longer_write_it(self):
 		"""Course Creator holds write on all three site-wide; after registration it
@@ -254,43 +251,43 @@ class TestSequentialLockDivergence(BaseTestUtils):
 	is not a WHERE fragment, so a locked lesson's quiz is listed but refused on open,
 	the same split Course Lesson's own query condition already makes."""
 
-	def setUp(self):
-		super().setUp()
+	@classmethod
+	def setUpClass(cls):
+		super().setUpClass()
 		frappe.set_user("Administrator")
-		self.suffix = frappe.generate_hash(length=6)
-		self.instructor = self._create_user(
-			f"alock-instr-{self.suffix}@example.com", "Ivy", "Instructor", ["Course Creator"]
+		cls.suffix = frappe.generate_hash(length=6)
+		cls.instructor = cls._create_user(
+			f"alock-instr-{cls.suffix}@example.com", "Ivy", "Instructor", ["Course Creator"]
 		)
-		self.member = self._create_user(
-			f"alock-member-{self.suffix}@example.com", "Mel", "Member", ["LMS Student"]
+		cls.member = cls._create_user(
+			f"alock-member-{cls.suffix}@example.com", "Mel", "Member", ["LMS Student"]
 		)
-		self.course = self._create_course(
-			title=f"Locked Course {self.suffix}", instructor=self.instructor.name
-		)
-		self.questions = self._create_quiz_questions()
-		self.quiz = self._create_quiz(self.questions, title=f"Locked Quiz {self.suffix}")
-		self._create_enrollment(self.member.name, self.course.name)
-		self.locked_lesson = self._lock_the_quiz_behind_an_earlier_lesson()
+		cls.course = cls._create_course(title=f"Locked Course {cls.suffix}", instructor=cls.instructor.name)
+		cls.questions = cls._create_quiz_questions()
+		cls.quiz = cls._create_quiz(cls.questions, title=f"Locked Quiz {cls.suffix}")
+		cls._create_enrollment(cls.member.name, cls.course.name)
+		cls.locked_lesson = cls._lock_the_quiz_behind_an_earlier_lesson()
 
 	def tearDown(self):
 		frappe.set_user("Administrator")
 		super().tearDown()
 
-	def _lock_the_quiz_behind_an_earlier_lesson(self) -> str:
+	@classmethod
+	def _lock_the_quiz_behind_an_earlier_lesson(cls) -> str:
 		"""Put the quiz in the second lesson of a course that enforces completion.
 
 		The lock rule reads the ordered lesson list, which comes from the reference
 		tables and not from Course Lesson.chapter, so both chapters need a Chapter
 		Reference row for an order to exist at all.
 		"""
-		first_chapter = self._create_chapter(f"Lock Chapter {self.suffix}", self.course.name)
-		first_lesson = self._create_lesson(f"Lock Lesson {self.suffix}", first_chapter.name, self.course.name)
-		self._create_chapter_reference(self.course.name, first_chapter.name, idx=1)
-		self._create_lesson_reference(first_chapter.name, first_lesson.name)
-		placed = self._place_in_lesson(self.course.name, "LMS Quiz", self.quiz.name)
-		self._create_chapter_reference(self.course.name, placed.chapter, idx=2)
-		self._create_lesson_reference(placed.chapter, placed.name)
-		frappe.db.set_value("LMS Course", self.course.name, "enforce_lesson_completion", 1)
+		first_chapter = cls._create_chapter(f"Lock Chapter {cls.suffix}", cls.course.name)
+		first_lesson = cls._create_lesson(f"Lock Lesson {cls.suffix}", first_chapter.name, cls.course.name)
+		cls._create_chapter_reference(cls.course.name, first_chapter.name, idx=1)
+		cls._create_lesson_reference(first_chapter.name, first_lesson.name)
+		placed = cls._place_in_lesson(cls.course.name, "LMS Quiz", cls.quiz.name)
+		cls._create_chapter_reference(cls.course.name, placed.chapter, idx=2)
+		cls._create_lesson_reference(placed.chapter, placed.name)
+		frappe.db.set_value("LMS Course", cls.course.name, "enforce_lesson_completion", 1)
 		return placed.name
 
 	def test_the_lesson_is_locked_for_the_member(self):

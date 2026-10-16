@@ -22,13 +22,15 @@ const DEFAULT_SLUG = 'general'
 const isSettingsHash = (hash: string) => hash.startsWith(`${PREFIX}/`)
 
 // '#settings/<slug>' or '#settings/<slug>/<record>'. The record is a docname, or
-// the reserved id 'new' for a create form.
+// the reserved id 'new' for a create form. A docname may itself hold '/', so the
+// record is everything after the slug.
 const partsOf = (hash: string) =>
 	isSettingsHash(hash) ? hash.slice(PREFIX.length + 1).split('/') : []
 
 const slugFromHash = (hash: string) => partsOf(hash)[0] ?? ''
 
-const recordFromHash = (hash: string) => partsOf(hash)[1] || null
+const recordFromHash = (hash: string) =>
+	partsOf(hash).slice(1).join('/') || null
 
 const hashFor = (slug?: string | null, record?: string | null) => {
 	const base = `${PREFIX}/${slug || DEFAULT_SLUG}`

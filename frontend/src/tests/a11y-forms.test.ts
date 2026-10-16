@@ -96,15 +96,28 @@ describe('rich text editors', () => {
 		}
 	})
 
-	it('puts its name and a focus ring on the tiptap textbox', () => {
+	it('names the tiptap textbox and shows where focus is', () => {
 		document.elementFromPoint ??= () => null
 		const w = mount(RichTextEditor, {
 			props: { ariaLabel: 'Your reply', content: '' },
 		})
 		const box = w.get('[role="textbox"]')
 		expect(box.attributes('aria-label')).toBe('Your reply')
-		expect(box.classes()).toContain('focus-visible:ring-2')
+		// A boxed editor shows focus on its border, as other inputs do.
+		expect(box.classes()).not.toContain('focus-visible:ring-2')
+		expect(w.get('[data-testid="rich-text-editor"]').classes()).toContain(
+			'focus-within:border-outline-gray-4'
+		)
 		w.unmount()
+
+		// A ghost editor has no border, so the textbox carries the ring.
+		const ghost = mount(RichTextEditor, {
+			props: { ariaLabel: 'Your reply', content: '', variant: 'ghost' },
+		})
+		expect(ghost.get('[role="textbox"]').classes()).toContain(
+			'focus-visible:ring-2'
+		)
+		ghost.unmount()
 	})
 })
 
@@ -156,7 +169,12 @@ describe('named controls and focus outlines', () => {
 		for (const sw of switches)
 			expectIdsDeclared(file, attr(sw, 'aria-labelledby') ?? '')
 		const title = elements(file).find((el) => el.tag === 'textarea')!
-		expect(attr(title, 'class')).toMatch(/\bfocus-visible:ring-2\b/)
+		// The ring is bound, not static: it shows only after keyboard input.
+		const boundClass = (title.props ?? []).find(
+			(p) =>
+				p.type === DIRECTIVE && p.name === 'bind' && p.arg?.content === 'class'
+		)
+		expect(boundClass?.exp?.content).toMatch(/\bfocus:ring-2\b/)
 	})
 
 	it('names the marks input and tags trigger, and gives JobForm an h1', () => {

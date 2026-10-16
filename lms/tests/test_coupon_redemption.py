@@ -27,6 +27,27 @@ BILLING_ADDRESS = {
 }
 
 
+def _delete_committed(doctype, name):
+	"""Delete without the Deleted Document copy and the timeline comment, which a
+	committed fixture would otherwise leave on the site."""
+	in_import = frappe.flags.in_import
+	frappe.flags.in_import = True
+	try:
+		frappe.delete_doc(doctype, name, force=True, ignore_permissions=True, delete_permanently=True)
+	finally:
+		frappe.flags.in_import = in_import
+
+
+def _delete_committed_user(user):
+	"""What deleting a User leaves behind: its own Notification Settings delete is
+	not permanent, and its defaults, share comment and role audit trail stay."""
+	_delete_committed("Notification Settings", user)
+	_delete_committed("User", user)
+	frappe.db.delete("DefaultValue", {"parent": user})
+	frappe.db.delete("Comment", {"reference_doctype": "User", "reference_name": user})
+	frappe.db.delete("Permission Log", {"for_doctype": "User", "for_document": user})
+
+
 class _CouponRedemptionFixtures:
 	"""Shared fixture helpers for both coupon-redemption test classes below.
 	Not a TestCase itself: mixed into one savepoint-isolated class and one
@@ -55,7 +76,7 @@ class _CouponRedemptionFixtures:
 		courses = [self.course.name] + [course.name for course in self.extra_courses]
 		for doctype, field in (("LMS Enrollment", "course"), ("LMS Payment", "payment_for_document")):
 			for name in frappe.get_all(doctype, {field: ("in", courses)}, pluck="name"):
-				frappe.delete_doc(doctype, name, force=True, ignore_permissions=True)
+				_delete_committed(doctype, name)
 
 	def _create_coupon(self, redemption_count=0, usage_limit=None, percentage_discount=10):
 		coupon = frappe.new_doc("LMS Coupon")
@@ -457,10 +478,10 @@ class TestCouponRedemptionConcurrency(_CouponRedemptionFixtures, BaseTestUtils):
 		self._delete_course_records()
 		for doctype, name in reversed(self._committed_items):
 			if frappe.db.exists(doctype, name):
-				frappe.delete_doc(doctype, name, force=True, ignore_permissions=True)
+				_delete_committed(doctype, name)
 		self._committed_items = []
 		for course in [self.course, *self.extra_courses]:
-			frappe.delete_doc("LMS Course", course.name, force=True, ignore_permissions=True)
+			_delete_committed("LMS Course", course.name)
 		self.extra_courses = []
-		frappe.delete_doc("User", self.instructor.name, force=True, ignore_permissions=True)
+		_delete_committed_user(self.instructor.name)
 		frappe.db.commit()  # nosemgrep

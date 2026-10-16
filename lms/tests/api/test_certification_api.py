@@ -55,7 +55,9 @@ class TestGetCertificationDetails(BaseTestUtils):
 
 		details = get_certification_details(self.course.name)
 		self.assertEqual(details["title"], self.course.title)
-		self.assertEqual(details["evaluator"], self.evaluator.name)
+		self.assertTrue(details["has_evaluator"])
+		# The evaluator's login email is for staff only.
+		self.assertIsNone(details["evaluator"])
 		self.assertEqual(details["paid_certificate"], 1)
 		self.assertEqual(details["membership"]["purchased_certificate"], 1)
 
@@ -105,6 +107,7 @@ class TestGetCertificationDetails(BaseTestUtils):
 		details = get_certification_details(self.course.name)
 		self.assertIsNotNone(details["membership"])
 		self.assertIsNone(details["evaluator"])
+		self.assertFalse(details["has_evaluator"])
 
 	def test_certificate_carries_the_issue_date_the_page_renders(self):
 		certificate = self._create_certificate(self.course.name, self.student.name)

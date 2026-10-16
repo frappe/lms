@@ -200,7 +200,7 @@ def give_user_list_permission():
 	for role in roles:
 		permlevel = 0
 		create_role(doctype, role, permlevel)
-	create_role(doctype, "System Manager", 1)
+	create_role(doctype, "System Manager", 1, write=1)
 
 
 def give_event_permission():
@@ -219,9 +219,11 @@ def create_role(doctype, role, permlevel, write=0, create=0):
 	add_permission(doctype, role, permlevel)
 	update_permission_property(doctype, role, permlevel, "select", 1)
 
-	if role in ["Moderator", "System Manager"] or write == 1:
+	# Only what the caller asks for: write or create on User would let a role
+	# change any account, System Managers' included.
+	if write == 1:
 		update_permission_property(doctype, role, permlevel, "write", 1)
-	if role == "Moderator" or create == 1:
+	if create == 1:
 		update_permission_property(doctype, role, permlevel, "create", 1)
 
 

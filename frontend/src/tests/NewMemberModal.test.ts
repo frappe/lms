@@ -120,8 +120,8 @@ describe('NewMemberModal: add mode', () => {
 	it('shows add title/action, visible name fields, editable required email', async () => {
 		const w = mountModal()
 		await open(w)
-		expect(w.get('[data-testid="title"]').text()).toBe('Add New Member')
-		expect(w.find('[data-testid="action-Add"]').exists()).toBe(true)
+		expect(w.get('[data-testid="title"]').text()).toBe('New Member')
+		expect(w.find('[data-testid="action-Create"]').exists()).toBe(true)
 		expect(w.find('[data-testid="field-First Name"]').exists()).toBe(true)
 		const email = w.get('[data-testid="field-Email"]')
 		expect(email.attributes('disabled')).toBeUndefined()
@@ -131,27 +131,24 @@ describe('NewMemberModal: add mode', () => {
 	it('blocks submit and toasts when email is empty (no network)', async () => {
 		const w = mountModal()
 		await open(w)
-		await clickAction(w, 'Add')
+		await clickAction(w, 'Create')
 		expect(toastMock.error).toHaveBeenCalledWith('Email is required')
 		expect(callMock).not.toHaveBeenCalled()
 		expect(closeMock).not.toHaveBeenCalled()
 	})
 
-	it('inserts the user then assigns only the selected roles, emits created, closes', async () => {
+	it('adds the member then assigns only the selected roles, emits created, closes', async () => {
 		const w = mountModal()
 		await open(w)
-		callMock.mockResolvedValueOnce({ name: 'jane@doe.com' }) // insert
+		callMock.mockResolvedValueOnce({ name: 'jane@doe.com' }) // add_member
 		await w.get('[data-testid="field-Email"]').setValue('jane@doe.com')
 		await w.get('[data-testid="role-Moderator"]').trigger('click')
-		await clickAction(w, 'Add')
+		await clickAction(w, 'Create')
 
-		expect(callMock).toHaveBeenCalledWith('frappe.client.insert', {
-			doc: {
-				doctype: 'User',
-				email: 'jane@doe.com',
-				first_name: undefined,
-				last_name: undefined,
-			},
+		expect(callMock).toHaveBeenCalledWith('lms.lms.api.add_member', {
+			email: 'jane@doe.com',
+			first_name: undefined,
+			last_name: undefined,
 		})
 		const roleCalls = saveRoleCalls()
 		expect(roleCalls).toHaveLength(1)
@@ -171,7 +168,7 @@ describe('NewMemberModal: add mode', () => {
 		await w.get('[data-testid="field-Email"]').setValue('x@y.com')
 		await w.get('[data-testid="role-Moderator"]').trigger('click')
 		await w.get('[data-testid="role-Student"]').trigger('click')
-		await clickAction(w, 'Add')
+		await clickAction(w, 'Create')
 		const roles = saveRoleCalls().map((c) => c[1].role)
 		expect(roles).toContain('Moderator')
 		expect(roles).toContain('LMS Student')
@@ -189,12 +186,12 @@ describe('NewMemberModal: add mode', () => {
 		).toBe('false')
 	})
 
-	it('toasts on insert failure without closing', async () => {
+	it('toasts when adding fails, without closing', async () => {
 		const w = mountModal()
 		await open(w)
 		callMock.mockRejectedValueOnce({ messages: ['boom'] })
 		await w.get('[data-testid="field-Email"]').setValue('a@b.com')
-		await clickAction(w, 'Add')
+		await clickAction(w, 'Create')
 		expect(toastMock.error).toHaveBeenCalledWith('boom')
 		expect(closeMock).not.toHaveBeenCalled()
 	})
@@ -344,7 +341,7 @@ describe('NewMemberModal: adversarial / state isolation', () => {
 		await w.setProps({ editMember: null })
 		await open(w)
 
-		expect(w.get('[data-testid="title"]').text()).toBe('Add New Member')
+		expect(w.get('[data-testid="title"]').text()).toBe('New Member')
 		expect(w.find('[data-testid="field-First Name"]').exists()).toBe(true)
 		expect(
 			w.get('[data-testid="role-Moderator"]').attributes('data-checked')
@@ -358,7 +355,7 @@ describe('NewMemberModal: adversarial / state isolation', () => {
 		const w = mountModal()
 		await open(w)
 		await w.get('[data-testid="field-Email"]').setValue('   ')
-		await clickAction(w, 'Add')
+		await clickAction(w, 'Create')
 		expect(toastMock.error).toHaveBeenCalledWith('Email is required')
 		expect(callMock).not.toHaveBeenCalled()
 	})

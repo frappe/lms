@@ -4,7 +4,19 @@
 			<div v-if="!canManageAssignments" class="p-4 text-base text-ink-gray-6">
 				{{ __('You are not permitted to manage assignments.') }}
 			</div>
-			<div v-else data-testid="assignment-fields" class="space-y-4 text-base">
+			<fieldset
+				v-else
+				:disabled="!canEdit"
+				data-testid="assignment-fields"
+				class="m-0 min-w-0 space-y-4 border-0 p-0 text-base"
+			>
+				<p
+					v-if="canWrite === false"
+					data-testid="assignment-read-only-note"
+					class="text-ink-gray-6"
+				>
+					{{ __('Only the authors of this assignment can edit it.') }}
+				</p>
 				<FormControl
 					v-model="assignment.title"
 					:label="__('Title')"
@@ -71,13 +83,13 @@
 						:ariaRequired="true"
 						:content="assignment.question"
 						@change="(val: string) => (assignment.question = val)"
-						:editable="true"
+						:editable="canEdit"
 						:fixedMenu="true"
 						minHeight="10rem"
 						maxHeight="18rem"
 					/>
 				</div>
-			</div>
+			</fieldset>
 		</template>
 		<template #actions>
 			<div
@@ -94,8 +106,9 @@
 					icon="lucide-clipboard-list"
 				/>
 				<HeaderButton
+					v-if="canEdit"
 					data-testid="assignment-save"
-					:label="__('Save')"
+					:label="isNew ? __('Create') : __('Save')"
 					variant="solid"
 					:loading="saving"
 					@click="saveAssignment"
@@ -123,6 +136,7 @@ import RichTextEditor from '@/components/RichTextEditor.vue'
 import { InputLabel } from 'frappe-ui/experimental'
 import { resourceErrorMessage, submitResource } from '@/utils/resource'
 import { toDatetimeLocal, fromDatetimeLocal } from '@/utils/schedule'
+import { useCanWrite } from '@/composables/useCanWrite'
 
 const questionLabelId = useId()
 
@@ -140,8 +154,14 @@ const { close, saveAndReplace } = useFormRoute({ name: 'Assignments' })
 
 const isNew = computed(() => props.assignmentID === 'new')
 
+// Placing an assignment grants use only, so a non-author opens it read-only.
+const canWrite = useCanWrite('LMS Assignment', () =>
+	isNew.value ? undefined : props.assignmentID
+)
+const canEdit = computed(() => canWrite.value === true)
+
 const formTitle = computed(() =>
-	isNew.value ? __('Create an Assignment') : __('Edit Assignment')
+	isNew.value ? __('New Assignment') : __('Edit Assignment')
 )
 
 // Copied off the two places Assignments.vue gates this form today: the page
@@ -293,7 +313,7 @@ const updateAssignment = (): void => {
 }
 
 const saveAssignment = (): void => {
-	if (!canManageAssignments.value) return
+	if (!canManageAssignments.value || !canEdit.value) return
 	if (!validateFields()) return
 	if (isNew.value) newAssignment.submit()
 	else updateAssignment()

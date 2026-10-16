@@ -2,7 +2,7 @@
 	<PageHeader :breadcrumbs="breadcrumbs">
 		<template #actions>
 			<template v-if="canManageExercise">
-				<Badge v-if="!isNew" :theme="saved ? 'green' : 'amber'">
+				<Badge v-if="!isNew && canEdit" :theme="saved ? 'green' : 'amber'">
 					{{ saved ? __('Saved') : __('Not saved') }}
 				</Badge>
 				<template v-if="!isNew">
@@ -23,6 +23,7 @@
 						@click="goToSubmissions()"
 					/>
 					<HeaderButton
+						v-if="canEdit"
 						data-testid="programming-exercise-delete"
 						variant="subtle"
 						theme="red"
@@ -37,10 +38,11 @@
 	<div v-if="!canManageExercise" class="p-5 text-base text-ink-gray-6">
 		{{ __('You are not permitted to manage programming exercises.') }}
 	</div>
-	<div
+	<fieldset
 		v-else
+		:disabled="!canEdit"
 		data-testid="programming-exercise-fields"
-		class="grid flex-1 grid-cols-1 lg:min-h-0 lg:grid-cols-[7fr,3fr]"
+		class="m-0 grid min-w-0 flex-1 grid-cols-1 border-0 p-0 lg:min-h-0 lg:grid-cols-[7fr,3fr]"
 	>
 		<div
 			class="flex min-h-0 flex-col gap-8 overflow-y-auto p-5"
@@ -58,6 +60,13 @@
 				/>
 			</div>
 			<template v-else>
+				<p
+					v-if="canWrite === false"
+					data-testid="programming-exercise-read-only-note"
+					class="text-base text-ink-gray-6"
+				>
+					{{ __('Only the authors of this programming exercise can edit it.') }}
+				</p>
 				<div class="flex flex-col gap-1.5">
 					<InputLabel
 						:id="problemStatementLabelId"
@@ -70,7 +79,7 @@
 							:ariaRequired="true"
 							:content="exercise.problem_statement"
 							@change="onProblemStatementChange"
-							:editable="true"
+							:editable="canEdit"
 							:fixedMenu="true"
 							minHeight="12rem"
 						/>
@@ -86,6 +95,7 @@
 							v-model="exercise.starter_code"
 							:language="exercise.language"
 							:label="__('Starter Code')"
+							:readonly="!canEdit"
 							contentClass="min-h-[24rem]"
 						/>
 					</div>
@@ -129,7 +139,7 @@
 				:required="true"
 			/>
 		</div>
-	</div>
+	</fieldset>
 </template>
 <script setup lang="ts">
 import { computed, inject, ref, shallowRef, useId, watch } from 'vue'
@@ -153,6 +163,7 @@ import PageHeader from '@/components/Layouts/pages/PageHeader.vue'
 import ProgrammingExerciseSubmission from '@/pages/ProgrammingExercises/ProgrammingExerciseSubmission.vue'
 import RichTextEditor from '@/components/RichTextEditor.vue'
 import { useAutosaveDoc } from '@/composables/useAutosaveDoc'
+import { useCanWrite } from '@/composables/useCanWrite'
 import {
 	saveShortcut,
 	useKeyboardShortcuts,
@@ -170,7 +181,7 @@ const creating = ref(false)
 
 const props = withDefaults(
 	defineProps<{
-		exerciseID: string
+		exerciseID?: string
 	}>(),
 	{
 		exerciseID: 'new',
@@ -178,6 +189,12 @@ const props = withDefaults(
 )
 
 const isNew = computed(() => props.exerciseID === 'new')
+
+// Placing an exercise grants use only, so a non-author opens it read-only.
+const canWrite = useCanWrite('LMS Programming Exercise', () =>
+	isNew.value ? undefined : props.exerciseID
+)
+const canEdit = computed(() => canWrite.value === true)
 
 // Its own list resource, but every option here is deliberately byte-identical
 // to ProgrammingExercises.vue:131-138. createListResource returns whichever
@@ -333,7 +350,7 @@ watch(
 )
 
 const autosave = useAutosaveDoc({
-	payload: () => (isNew.value ? null : formPayload()),
+	payload: () => (isNew.value || !canEdit.value ? null : formPayload()),
 	// frappe-ui's submit() never rejects, so the error is read off the resource.
 	async save(body) {
 		await exercises.setValue.submit({ name: props.exerciseID, ...body })
@@ -447,7 +464,7 @@ const togglePreview = async () => {
 }
 
 const deleteExercise = () => {
-	if (isNew.value || !canManageExercise.value) return
+	if (isNew.value || !canManageExercise.value || !canEdit.value) return
 	submitResource(exercises.delete, props.exerciseID, {
 		onSuccess() {
 			// delete refetches the list (listResource.js:161); the count was

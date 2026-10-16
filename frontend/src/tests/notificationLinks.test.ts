@@ -1,3 +1,4 @@
+// @vitest-environment node
 // Guards reading an assignment-submission notification link back into a route.
 // Came with this branch's move of assignment submissions under /assignments.
 // Added on feat/assessment-visual-redesign to keep old server links opening.

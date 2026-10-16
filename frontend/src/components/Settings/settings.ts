@@ -262,6 +262,7 @@ export const settingsTree: SettingsGroup[] = [
 				label: 'Users',
 				slug: 'members',
 				icon: 'lucide-user',
+				records: true,
 				page: membersSettingsPage,
 			},
 		],

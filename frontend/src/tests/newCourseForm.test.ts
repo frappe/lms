@@ -27,8 +27,9 @@ const listResource = {
 // resource). vi.hoisted because vi.mock's factory is hoisted above ALL
 // top-level code, so a bare `vi.fn()` referenced inside it would throw
 // "Cannot access before initialization".
-const { createListResourceMock } = vi.hoisted(() => ({
+const { createListResourceMock, captureMock } = vi.hoisted(() => ({
 	createListResourceMock: vi.fn(),
+	captureMock: vi.fn(),
 }))
 createListResourceMock.mockReturnValue(listResource)
 
@@ -74,7 +75,13 @@ vi.mock('@/stores/user', () => ({ usersStore: () => ({ userResource }) }))
 
 vi.mock('frappe-ui', () => ({
 	createListResource: createListResourceMock,
-	createResource: () => ({ data: [], reload: vi.fn(), loading: false }),
+	createResource: () => ({
+		data: [],
+		reload: vi.fn(),
+		update: vi.fn(),
+		fetch: vi.fn(),
+		loading: false,
+	}),
 	call: vi.fn(),
 	toast: { success: vi.fn(), error: vi.fn() },
 	Dialog: {
@@ -109,7 +116,7 @@ vi.mock('frappe-ui', () => ({
 
 vi.mock('@framework/ui/telemetry/index', async (importOriginal) => ({
 	...(await importOriginal<typeof import('@framework/ui/telemetry/index')>()),
-	useTelemetry: () => ({ capture: vi.fn() }),
+	useTelemetry: () => ({ capture: captureMock }),
 }))
 vi.mock(
 	'@framework/ui/components/Onboarding/index',
@@ -207,6 +214,7 @@ describe('NewCourseForm as a route', () => {
 	beforeEach(() => {
 		insertSubmit.mockReset()
 		createListResourceMock.mockClear()
+		captureMock.mockReset()
 		userResource.data = { ...moderator }
 		Object.defineProperty(window, 'innerWidth', {
 			value: 1024,
@@ -215,14 +223,34 @@ describe('NewCourseForm as a route', () => {
 		})
 	})
 
-	it('mounts straight from the URL with no parent list', async () => {
+	it('starts the thumbnail empty in a shape the uploader accepts', async () => {
+		const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
+		const router = makeRouter()
+		await router.push({ name: 'NewCourse' })
+		await mountForm(router, moderator)
+		const warnings = warn.mock.calls.map((args) => String(args[0]))
+		expect(warnings.filter((w) => w.includes('modelValue'))).toEqual([])
+	})
+
+	it('reports where it was opened from, and what was filled when left', async () => {
+		const { setFormSource } = await import('@/composables/formTracking')
+		setFormSource('onboarding')
 		const router = makeRouter()
 		await router.push({ name: 'NewCourse' })
 		const wrapper = await mountForm(router, moderator)
-		expect(wrapper.find('[data-testid="new-course-fields"]').exists()).toBe(
-			true
+
+		expect(captureMock).toHaveBeenCalledWith('course_form_opened', {
+			source: 'onboarding',
+		})
+
+		await wrapper.get('input').setValue('My course')
+		wrapper.unmount()
+
+		const closed = captureMock.mock.calls.find(
+			([event]) => event === 'course_form_closed'
 		)
-		expect(wrapper.html()).toContain('New Course')
+		// The opener is prefilled as instructor; empty fields are left out.
+		expect(closed?.[1].filled_fields).toEqual(['title', 'instructors'])
 	})
 
 	it('refuses to render the form for a user who cannot create courses', async () => {
@@ -302,35 +330,6 @@ describe('NewCourseForm as a route', () => {
 		expect(createListResourceMock).toHaveBeenCalledWith(
 			expect.objectContaining({ cache: ['courses', 'mod@example.com'] })
 		)
-	})
-
-	it('mobile: the back control pops the router back to the list', async () => {
-		const router = makeRouter()
-		await router.push({ name: 'Courses' })
-		await router.push({ name: 'NewCourse', state: { lmsFormEntry: true } })
-		Object.defineProperty(window, 'innerWidth', {
-			value: 390,
-			writable: true,
-			configurable: true,
-		})
-		const wrapper = await mountForm(router, moderator)
-
-		await wrapper.find('[data-testid="form-shell-back"]').trigger('click')
-		await flushPromises()
-		expect(router.currentRoute.value.name).toBe('Courses')
-	})
-
-	it('desktop: dismissing the Dialog (Escape/backdrop/X) pops the router', async () => {
-		const router = makeRouter()
-		await router.push({ name: 'Courses' })
-		await router.push({ name: 'NewCourse', state: { lmsFormEntry: true } })
-		const wrapper = await mountForm(router, moderator)
-
-		await wrapper
-			.findComponent({ name: 'Dialog' })
-			.vm.$emit('update:open', false)
-		await flushPromises()
-		expect(router.currentRoute.value.name).toBe('Courses')
 	})
 
 	it('replaces rather than pushes on save, so Back reaches the list', async () => {

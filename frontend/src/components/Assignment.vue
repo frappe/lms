@@ -70,11 +70,36 @@
 							theme="amber"
 							:title="scheduleMessage"
 						/>
-						<div
-							v-if="showUploader() && canModifyAssignment && !scheduleBlocked"
-						>
+						<template v-if="showUploader()">
+							<div
+								v-if="attachment"
+								data-testid="assignment-attachment"
+								class="flex h-9 items-center gap-x-2 rounded-4 border border-outline-gray-2 px-2.5"
+							>
+								<span
+									class="lucide-file-text size-4 shrink-0 text-ink-gray-6"
+								/>
+								<a
+									:href="safeUrl(attachment)"
+									v-external
+									class="min-w-0 flex-1 truncate text-base text-ink-gray-8 !no-underline"
+								>
+									{{ attachment.split('/').pop() }}
+								</a>
+								<Button
+									v-if="canModifyAssignment"
+									variant="ghost"
+									size="sm"
+									:aria-label="__('Remove submission')"
+									@click="removeSubmission()"
+								>
+									<template #icon>
+										<span class="lucide-x size-4" />
+									</template>
+								</Button>
+							</div>
 							<AssignmentUploadPrompt
-								v-if="!attachment"
+								v-else-if="canModifyAssignment"
 								:type="assignment.data.type"
 							>
 								<FileUploader
@@ -108,34 +133,12 @@
 									</template>
 								</FileUploader>
 							</AssignmentUploadPrompt>
-							<div
-								v-else
-								data-testid="assignment-attachment"
-								class="flex h-9 items-center gap-x-2 rounded-4 border border-outline-gray-2 px-2.5"
-							>
-								<span
-									class="lucide-file-text size-4 shrink-0 text-ink-gray-6"
-								/>
-								<a
-									:href="safeUrl(attachment)"
-									v-external
-									class="min-w-0 flex-1 truncate text-base text-ink-gray-8 !no-underline"
-								>
-									{{ attachment.split('/').pop() }}
-								</a>
-								<Button
-									variant="ghost"
-									size="sm"
-									:aria-label="__('Remove submission')"
-									@click="removeSubmission()"
-								>
-									<template #icon>
-										<span class="lucide-x size-4" />
-									</template>
-								</Button>
-							</div>
-						</div>
-						<div v-else-if="assignment.data.type == 'URL' && !scheduleBlocked">
+						</template>
+						<div
+							v-else-if="
+								assignment.data.type == 'URL' && (!scheduleBlocked || answer)
+							"
+						>
 							<FormControl
 								v-model="answer"
 								type="text"
@@ -144,7 +147,7 @@
 								:disabled="!canModifyAssignment"
 							/>
 						</div>
-						<div v-else-if="!showUploader() && !scheduleBlocked">
+						<div v-else-if="!scheduleBlocked || answer">
 							<InputLabel
 								:id="answerLabelId"
 								:label="__('Write your answer here')"

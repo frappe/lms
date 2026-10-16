@@ -2,8 +2,6 @@ name: Build Container Image
 on:
   workflow_dispatch:
   push:
-    branches:
-      - main
     tags:
       - "*"
 jobs:

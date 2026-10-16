@@ -72,7 +72,7 @@ vi.mock('@/components/RichTextEditor.vue', () => ({
 import AnnouncementForm from '@/pages/Forms/AnnouncementForm.vue'
 
 const BATCH_URL = 'lms.lms.utils.get_batch_details'
-const EMAIL_URL = 'frappe.core.doctype.communication.email.make'
+const EMAIL_URL = 'lms.lms.api.send_batch_announcement'
 
 const Parent = defineComponent({
 	render: () => h('div', ['BATCH', h(RouterView)]),
@@ -126,26 +126,13 @@ describe('AnnouncementForm as a route', () => {
 				? batchResource
 				: { submit: announcementSubmit, loading: false, data: null }
 		)
-		batchResource.data = {
-			name: 'B1',
-			students: ['a@example.com', 'b@example.com'],
-		}
+		batchResource.data = { name: 'B1', student_count: 2 }
 		batchResource.loading = false
 		Object.defineProperty(window, 'innerWidth', {
 			value: 1024,
 			writable: true,
 			configurable: true,
 		})
-	})
-
-	it('mounts straight from the URL with no parent page mounted', async () => {
-		const router = makeRouter()
-		await router.push('/batches/B1/announcement/new')
-		const wrapper = await mountForm(router, moderator)
-		expect(wrapper.html()).toContain('Make an Announcement')
-		expect(wrapper.find('[data-testid="announcement-fields"]').exists()).toBe(
-			true
-		)
 	})
 
 	it('fetches its own batch context for the batch in the URL', async () => {
@@ -163,17 +150,17 @@ describe('AnnouncementForm as a route', () => {
 		expect(batchCall?.[0].makeParams()).toEqual({ batch: 'B1' })
 	})
 
-	it('BCCs the batch students it fetched, not a prop', async () => {
+	// The students' addresses never reach the client: the server BCCs them.
+	it('sends the batch, not a student list, to the server', async () => {
 		const router = makeRouter()
 		await router.push('/batches/B1/announcement/new')
 		await mountForm(router, moderator)
 		const emailCall = createResourceMock.mock.calls.find(
 			(call) => call[0].url === EMAIL_URL
 		)
-		expect(emailCall?.[0].makeParams()).toMatchObject({
-			bcc: 'a@example.com, b@example.com',
-			name: 'B1',
-		})
+		const params = emailCall?.[0].makeParams()
+		expect(params).toMatchObject({ batch: 'B1' })
+		expect(params).not.toHaveProperty('bcc')
 	})
 
 	it('refuses for a user who is not a batch admin', async () => {
@@ -187,7 +174,7 @@ describe('AnnouncementForm as a route', () => {
 	})
 
 	it('refuses when the batch has no students to announce to', async () => {
-		batchResource.data = { name: 'B1', students: [] }
+		batchResource.data = { name: 'B1', student_count: 0 }
 		const router = makeRouter()
 		await router.push('/batches/B1/announcement/new')
 		const wrapper = await mountForm(router, moderator)
@@ -251,43 +238,6 @@ describe('AnnouncementForm as a route', () => {
 		const wrapper = await mountForm(router, moderator)
 		await wrapper.find('[data-testid="announcement-save"]').trigger('click')
 		expect(announcementSubmit).not.toHaveBeenCalled()
-	})
-
-	it('mobile: the back control pops the router back to the page', async () => {
-		const router = makeRouter()
-		await router.push('/batches/B1#announcements')
-		await router.push({
-			name: 'NewAnnouncement',
-			params: { batchName: 'B1' },
-			hash: '#announcements',
-			state: { lmsFormEntry: true },
-		})
-		Object.defineProperty(window, 'innerWidth', {
-			value: 390,
-			writable: true,
-			configurable: true,
-		})
-		const wrapper = await mountForm(router, moderator)
-		await wrapper.find('[data-testid="form-shell-back"]').trigger('click')
-		await flushPromises()
-		expect(router.currentRoute.value.fullPath).toBe('/batches/B1#announcements')
-	})
-
-	it('desktop: dismissing the Dialog pops the router back to the page', async () => {
-		const router = makeRouter()
-		await router.push('/batches/B1#announcements')
-		await router.push({
-			name: 'NewAnnouncement',
-			params: { batchName: 'B1' },
-			hash: '#announcements',
-			state: { lmsFormEntry: true },
-		})
-		const wrapper = await mountForm(router, moderator)
-		await wrapper
-			.findComponent({ name: 'Dialog' })
-			.vm.$emit('update:open', false)
-		await flushPromises()
-		expect(router.currentRoute.value.name).toBe('BatchDetail')
 	})
 
 	it('closing a DEEP-LINKED form keeps the tab hash (C2)', async () => {

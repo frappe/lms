@@ -6,7 +6,16 @@ from lms.lms.doctype.lms_course.lms_course import update_course_statistics
 from lms.lms.utils import create_user, get_course_progress
 
 
-def create_demo_data(args: dict = None):
+def create_demo_data(setup_args: dict | None = None):
+	# Sample content, not the site's own: kept out of product telemetry.
+	frappe.flags.in_lms_demo = True
+	try:
+		_create_demo_data()
+	finally:
+		frappe.flags.in_lms_demo = False
+
+
+def _create_demo_data():
 	course = create_course()
 	student = create_user(
 		email="ash@ipp.com",

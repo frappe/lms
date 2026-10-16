@@ -27,10 +27,13 @@ vi.mock('@/components/UserAvatar.vue', () => ({
 }))
 vi.mock('frappe-ui', async (importOriginal) => ({
 	...(await importOriginal<Record<string, unknown>>()),
-	Tooltip: { template: '<slot />' },
+	Tooltip: { props: ['text', 'side'], template: '<slot />' },
 }))
 
-const global = { mocks: { __: (s: string) => globalThis.__(s) } }
+const global = {
+	mocks: { __: (s: string) => globalThis.__(s) },
+	stubs: { 'router-link': { template: '<a><slot /></a>' } },
+}
 
 describe('embedded frames', () => {
 	// Guards: untitled embed and PDF iframes. Introduced in #713, #1467 and

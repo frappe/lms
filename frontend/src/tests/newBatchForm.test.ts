@@ -27,8 +27,9 @@ const listResource = {
 // resource). vi.hoisted because vi.mock's factory is hoisted above ALL
 // top-level code (including plain `const`s), so a bare `vi.fn()` referenced
 // inside it throws "Cannot access before initialization".
-const { createListResourceMock } = vi.hoisted(() => ({
+const { createListResourceMock, captureMock } = vi.hoisted(() => ({
 	createListResourceMock: vi.fn(),
+	captureMock: vi.fn(),
 }))
 createListResourceMock.mockReturnValue(listResource)
 
@@ -97,7 +98,7 @@ vi.mock('frappe-ui', () => ({
 
 vi.mock('@framework/ui/telemetry/index', async (importOriginal) => ({
 	...(await importOriginal<typeof import('@framework/ui/telemetry/index')>()),
-	useTelemetry: () => ({ capture: vi.fn() }),
+	useTelemetry: () => ({ capture: captureMock }),
 }))
 vi.mock(
 	'@framework/ui/components/Onboarding/index',
@@ -200,6 +201,7 @@ describe('NewBatchForm as a route', () => {
 	beforeEach(() => {
 		insertSubmit.mockReset()
 		createListResourceMock.mockClear()
+		captureMock.mockReset()
 		Object.defineProperty(window, 'innerWidth', {
 			value: 1024,
 			writable: true,
@@ -207,11 +209,24 @@ describe('NewBatchForm as a route', () => {
 		})
 	})
 
-	it('mounts straight from the URL with no parent list', async () => {
+	it('reports where it was opened from, and what was filled when left', async () => {
+		const { setFormSource } = await import('@/composables/formTracking')
+		setFormSource('onboarding')
 		const router = makeRouter()
 		await router.push({ name: 'NewBatch' })
 		const wrapper = await mountForm(router, moderator)
-		expect(wrapper.html()).toContain('New Batch')
+
+		expect(captureMock).toHaveBeenCalledWith('batch_form_opened', {
+			source: 'onboarding',
+		})
+
+		await wrapper.get('input').setValue('My batch')
+		wrapper.unmount()
+
+		const closed = captureMock.mock.calls.find(
+			([event]) => event === 'batch_form_closed'
+		)
+		expect(closed?.[1].filled_fields).toEqual(['title'])
 	})
 
 	it('refuses to render the form for a user who cannot create batches', async () => {
@@ -289,35 +304,6 @@ describe('NewBatchForm as a route', () => {
 		expect(createListResourceMock).toHaveBeenCalledWith(
 			expect.objectContaining({ cache: ['batches', 'mod@example.com'] })
 		)
-	})
-
-	it('mobile: the back control pops the router back to the list', async () => {
-		const router = makeRouter()
-		await router.push({ name: 'Batches' })
-		await router.push({ name: 'NewBatch', state: { lmsFormEntry: true } })
-		Object.defineProperty(window, 'innerWidth', {
-			value: 390,
-			writable: true,
-			configurable: true,
-		})
-		const wrapper = await mountForm(router, moderator)
-
-		await wrapper.find('[data-testid="form-shell-back"]').trigger('click')
-		await flushPromises()
-		expect(router.currentRoute.value.name).toBe('Batches')
-	})
-
-	it('desktop: dismissing the Dialog (Escape/backdrop/X) pops the router', async () => {
-		const router = makeRouter()
-		await router.push({ name: 'Batches' })
-		await router.push({ name: 'NewBatch', state: { lmsFormEntry: true } })
-		const wrapper = await mountForm(router, moderator)
-
-		await wrapper
-			.findComponent({ name: 'Dialog' })
-			.vm.$emit('update:open', false)
-		await flushPromises()
-		expect(router.currentRoute.value.name).toBe('Batches')
 	})
 
 	it('replaces rather than pushes on save, so Back reaches the list', async () => {

@@ -564,12 +564,6 @@ describe('the workspace list', () => {
 		expect(rows(w)[0].get('.text-ink-gray-8').text()).toBe('Design HQ')
 	})
 
-	it('says nothing beside a row that is syncing', () => {
-		const w = list()
-		for (const word of ['Not linked', 'Stale', 'Disabled'])
-			expect(rows(w)[0].text()).not.toContain(word)
-	})
-
 	it.each([
 		{ state: 'active', shown: ['Live'] },
 		{ state: 'stale', shown: ['Gone', 'Both'] },

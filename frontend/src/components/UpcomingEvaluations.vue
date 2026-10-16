@@ -196,7 +196,7 @@ const openEvalCall = (evl) => {
 
 const evaluationCourses = computed(() => {
 	return props.courses.filter((course) => {
-		return course.evaluator && course.evaluator != ''
+		return course.has_evaluator
 	})
 })
 

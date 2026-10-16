@@ -153,9 +153,18 @@
 							:label="__('Instructors')"
 							:placeholder="__('Select instructors')"
 							:required="true"
+							:disabled="!batch.data?.can_change_instructors"
 							variant="outline"
 							:onCreate="() => (showMemberModal = true)"
-						/>
+						>
+							<template #summary="{ selected, summary }">
+								{{
+									selected.length
+										? summarisePeople(selected.map((o) => o.label))
+										: summary
+								}}
+							</template>
+						</MultiLink>
 						<Select
 							v-model="batchDetail.doc.medium"
 							:label="__('Medium')"
@@ -335,6 +344,7 @@ import { useRoute, useRouter } from 'vue-router'
 import Uploader from '@/components/Controls/Uploader.vue'
 import VideoPreviewField from '@/components/Controls/VideoPreviewField.vue'
 import MultiLink from '@/components/Controls/MultiLink.vue'
+import { summarisePeople } from '@/utils/peopleSummary'
 import Link from '@/components/Controls/Link.vue'
 import Select from '@/components/Controls/Select.vue'
 import BatchCourses from '@/pages/Batches/components/BatchCourses.vue'

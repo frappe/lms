@@ -1,3 +1,4 @@
+// @vitest-environment node
 /**
  * useSettingsListResource: the paging, search and delete contract behind every
  * settings list.

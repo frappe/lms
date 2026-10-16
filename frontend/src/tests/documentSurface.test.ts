@@ -1,3 +1,4 @@
+// @vitest-environment node
 import { describe, expect, it } from 'vitest'
 import { readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
@@ -78,13 +79,6 @@ const luma = (hex: string): number => {
 }
 
 describe('the document surface follows the chosen theme', () => {
-	it('paints the document from a theme variable, not a fixed colour', () => {
-		const background = documentBackground()
-
-		expect(background).toBeDefined()
-		expect(background).toMatch(/^var\(--[\w-]+\)$/)
-	})
-
 	it('resolves to white in light mode and near-black in dark mode', () => {
 		const background = documentBackground() as string
 

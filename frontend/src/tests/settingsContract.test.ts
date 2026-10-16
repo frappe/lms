@@ -61,6 +61,22 @@ describe('the settings tree', () => {
 
 		expect(new Set(names).size).toBe(names.length)
 	})
+
+	// Settings.vue binds the record model only where `records` is declared.
+	// Without it the page keeps the record in local state: Back skips the
+	// dirty guard and a refresh loses the open record.
+	it('declares records on every custom page that opens a record', () => {
+		const undeclared = items
+			.filter((item) => item.page.kind === 'custom' && !item.records)
+			.filter((item) => {
+				const props = (item.page as { component: { props?: object } }).component
+					.props
+				return Boolean(props && 'record' in props)
+			})
+			.map((item) => item.slug)
+
+		expect(undeclared).toEqual([])
+	})
 })
 
 // A NEW_RECORD source builds no document resource, so nothing here reaches the

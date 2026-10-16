@@ -101,6 +101,16 @@ vi.mock(
 	})
 )
 
+// The server's write answer for the exercise, read at mount.
+const authorship = vi.hoisted(() => ({ canWrite: true as boolean | null }))
+vi.mock('@/composables/useCanWrite', async () => {
+	const { ref } = await import('vue')
+	return {
+		useCanWrite: (_doctype: string, name: () => string | undefined) =>
+			ref(name() ? authorship.canWrite : true),
+	}
+})
+
 // The rich text editor drags in ProseMirror; a button stands in for typing.
 vi.mock('@/components/RichTextEditor.vue', () => ({
 	default: defineComponent({
@@ -151,6 +161,12 @@ vi.mock('@/components/Controls/ChildTable.vue', () => ({
 
 import ProgrammingExerciseForm from '@/pages/Forms/ProgrammingExerciseForm.vue'
 import { toast } from 'frappe-ui'
+
+// CodeMirror measures the selection with these; jsdom has neither, and
+// CodeMirror logs the TypeError instead of throwing it.
+Range.prototype.getBoundingClientRect ??= () => new DOMRect(0, 0, 0, 0)
+Range.prototype.getClientRects ??= () =>
+	Object.assign([], { item: () => null }) as unknown as DOMRectList
 
 // The form is its own page, so the list stub needs no nested RouterView.
 const List = defineComponent({
@@ -236,6 +252,7 @@ const FIELD_LABELS = [
 
 describe('ProgrammingExerciseForm as a route', () => {
 	beforeEach(() => {
+		authorship.canWrite = true
 		insertSubmit.mockReset()
 		setValueSubmit.mockReset()
 		deleteSubmit.mockReset()
@@ -253,14 +270,13 @@ describe('ProgrammingExerciseForm as a route', () => {
 		})
 	})
 
-	it('mounts straight from the URL with no parent list', async () => {
+	it('takes no exercise from the /new route without warning', async () => {
+		const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
 		const router = makeRouter()
 		await router.push('/programming-exercises/new')
-		const wrapper = await mountForm(router, moderator)
-		expect(wrapper.html()).toContain('New Programming Exercise')
-		expect(
-			wrapper.find('[data-testid="programming-exercise-fields"]').exists()
-		).toBe(true)
+		await mountForm(router, moderator)
+		const warnings = warn.mock.calls.map((args) => String(args[0]))
+		expect(warnings.filter((w) => w.includes('exerciseID'))).toEqual([])
 	})
 
 	it('refuses to render the form for a user who cannot manage exercises', async () => {
@@ -469,6 +485,44 @@ describe('ProgrammingExerciseForm as a route', () => {
 			name: 'EX-0001',
 			title: 'Renamed',
 		})
+		vi.useRealTimers()
+	})
+
+	// Placing an exercise made its edit screen writable since #2826.
+	// Added for audit finding #3 on branch fix/assessment-placement-use-only.
+	it('opens read-only for someone who only placed the exercise', async () => {
+		vi.useFakeTimers()
+		authorship.canWrite = false
+		createDocumentResourceMock.mockImplementation(
+			documentResourceStub({
+				name: 'EX-0001',
+				title: 'T',
+				language: 'Python',
+				test_cases: [],
+			})
+		)
+		const router = makeRouter()
+		await router.push('/programming-exercises/edit/EX-0001')
+		const wrapper = await mountForm(router, moderator)
+
+		expect(
+			wrapper.find('[data-testid="programming-exercise-read-only-note"]').text()
+		).toBe('Only the authors of this programming exercise can edit it.')
+		expect(
+			wrapper.find('[data-testid="programming-exercise-delete"]').exists()
+		).toBe(false)
+		expect(
+			wrapper
+				.find('[data-testid="programming-exercise-fields"]')
+				.attributes('disabled')
+		).toBeDefined()
+		expect(
+			wrapper.find('[data-testid="programming-exercise-submissions"]').exists()
+		).toBe(true)
+
+		await wrapper.get('[data-testid="add-case"]').trigger('click')
+		await vi.advanceTimersByTimeAsync(1500)
+		expect(setValueSubmit).not.toHaveBeenCalled()
 		vi.useRealTimers()
 	})
 
