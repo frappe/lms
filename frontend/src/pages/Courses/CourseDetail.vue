@@ -301,6 +301,10 @@ type CourseEditorApi = {
 }
 const courseEditorRef = ref<CourseEditorApi | null>(null)
 
+type PublishResponse = {
+	__onload?: { quizzes_without_questions?: string[] }
+}
+
 const publishToggle = createResource({
 	url: 'frappe.client.set_value',
 	makeParams() {
@@ -311,10 +315,18 @@ const publishToggle = createResource({
 			value: course.data?.published ? 0 : 1,
 		}
 	},
-	onSuccess() {
+	onSuccess(data: PublishResponse) {
 		toast.success(
 			course.data?.published ? __('Course unpublished') : __('Course published')
 		)
+		const emptyQuizzes = data?.__onload?.quizzes_without_questions
+		if (emptyQuizzes?.length) {
+			toast.warning(
+				__(
+					'These quizzes have no questions, so learners skip them: {0}'
+				).format(emptyQuizzes.join(', '))
+			)
+		}
 		course.reload()
 	},
 	onError(err: { messages?: string[] } | string) {
