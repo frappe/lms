@@ -9,6 +9,7 @@ import os
 import zipfile
 
 import frappe
+from frappe.core.doctype.file.utils import get_content_hash
 
 from lms.lms.api import import_course_from_zip
 from lms.lms.test_helpers import BaseTestUtils
@@ -152,13 +153,56 @@ class TestCourseImportScope(BaseTestUtils):
 		upload = self._upload_as(self.exercise_author, self._archive(instructor=self.exercise_author))
 		self._assert_refused(self.course_creator, upload.file_url)
 
-	def test_a_file_row_of_ones_own_does_not_open_another_users_zip(self):
+	def test_a_course_creator_can_import_a_zip_another_user_uploaded_first(self):
 		upload = self._upload_as(self.exercise_author, self._archive(instructor=self.exercise_author))
-		# A later File row naming the same url, owned by the caller. Frappe refuses to let the
-		# caller make one, but an admin can, and the caller then owns a readable row.
-		later = self._upload_as("Administrator", upload.file_url)
-		frappe.db.set_value("File", later.name, "owner", self.course_creator)
-		self._assert_refused(self.course_creator, upload.file_url)
+		with open(frappe.get_site_path(upload.file_url.lstrip("/")), "rb") as f:
+			content = f.read()
+		frappe.set_user(self.course_creator)
+		try:
+			# The same bytes uploaded again: Frappe gives the new File the earlier upload's url.
+			reupload = frappe.get_doc(
+				{"doctype": "File", "file_name": "course.zip", "content": content, "is_private": 1}
+			).insert()
+			self.assertEqual(reupload.file_url, upload.file_url)
+			course = import_course_from_zip(reupload.file_url)
+		finally:
+			frappe.set_user("Administrator")
+		self.assertIn(self.course_creator, self._instructors(course))
+
+	def test_a_planted_content_hash_does_not_hand_over_other_bytes(self):
+		other = self._archive(instructor=self.exercise_author)
+		with open(frappe.get_site_path(other.lstrip("/")), "rb") as f:
+			content = f.read()
+		planted = self._upload_as(self.exercise_author, self._archive(instructor=self.exercise_author))
+		# The owner sets their row's hash to that of a ZIP someone else will upload.
+		frappe.db.set_value("File", planted.name, "content_hash", get_content_hash(content))
+		frappe.set_user(self.course_creator)
+		try:
+			reupload = frappe.get_doc(
+				{"doctype": "File", "file_name": "course.zip", "content": content, "is_private": 1}
+			).insert()
+		finally:
+			frappe.set_user("Administrator")
+		self.assertEqual(reupload.file_url, planted.file_url)
+		self._assert_refused(self.course_creator, reupload.file_url)
+
+	def test_an_honest_row_beside_a_planted_hash_does_not_hand_over_other_bytes(self):
+		other = self._archive(instructor=self.exercise_author)
+		with open(frappe.get_site_path(other.lstrip("/")), "rb") as f:
+			content = f.read()
+		honest = self._upload_as(self.exercise_author, self._archive(instructor=self.exercise_author))
+		frappe.share.add("File", honest.name, self.course_creator, read=1)
+		planted = self._upload_as(self.exercise_author, honest.file_url)
+		frappe.db.set_value("File", planted.name, "content_hash", get_content_hash(content))
+		frappe.set_user(self.course_creator)
+		try:
+			reupload = frappe.get_doc(
+				{"doctype": "File", "file_name": "course.zip", "content": content, "is_private": 1}
+			).insert()
+		finally:
+			frappe.set_user("Administrator")
+		self.assertEqual(reupload.file_url, honest.file_url)
+		self._assert_refused(self.course_creator, reupload.file_url)
 
 	def test_a_zip_with_no_uploaded_file_is_refused(self):
 		self._assert_refused(self.course_creator, self._archive())

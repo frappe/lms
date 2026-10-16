@@ -1,3 +1,4 @@
+import hashlib
 import json
 import os
 import re
@@ -407,23 +408,40 @@ def frappe_json_dumps(data):
 def get_uploaded_zip_path(file_url):
 	"""The path on disk of the uploaded course ZIP at file_url, if the caller may read it.
 
-	Matched on the File row that first named this url, as in get_exportable_file: a later row
-	naming the same url can be one the caller made for someone else's file."""
+	Any File row naming this url exactly will do, as for Frappe's own /private/files route. A user
+	who uploads bytes that are already stored gets a row under the earlier upload's url."""
 	rows = frappe.get_all(
 		"File",
 		filters={"file_url": file_url, "is_folder": 0},
 		fields=["name", "file_url"],
 		order_by="creation asc",
 	)
-	original = next((row.name for row in rows if row.file_url == file_url), None)
-	file_doc = frappe.get_doc("File", original) if original else None
-	if not file_doc or not frappe.has_permission("File", "read", doc=file_doc):
+	matching = [frappe.get_doc("File", row.name) for row in rows if row.file_url == file_url]
+	file_doc = next((doc for doc in matching if frappe.has_permission("File", "read", doc=doc)), None)
+	if not file_doc:
 		frappe.throw(_("Upload the course ZIP again and import it from there."), frappe.PermissionError)
 
 	file_path = get_local_file_path(file_doc)
 	if not file_path:
 		frappe.throw(_("Invalid ZIP file"))
+	# A row's owner can edit its content_hash, which decides whose url an upload of the same bytes
+	# gets. Every row at this url must still describe the bytes on disk, the caller's own included.
+	on_disk = get_file_md5(file_path)
+	if any(doc.content_hash and doc.content_hash != on_disk for doc in matching):
+		frappe.throw(
+			_("This ZIP can't be imported. Ask your System Manager to check the file."),
+			frappe.PermissionError,
+		)
 	return file_path
+
+
+def get_file_md5(file_path):
+	"""The md5 Frappe stores as File.content_hash, read in chunks."""
+	digest = hashlib.md5(usedforsecurity=False)
+	with open(file_path, "rb") as f:
+		for chunk in iter(lambda: f.read(1024 * 1024), b""):
+			digest.update(chunk)
+	return digest.hexdigest()
 
 
 def import_course_zip(zip_file_path):
