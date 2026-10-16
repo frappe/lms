@@ -1,6 +1,8 @@
 # Copyright (c) 2026, FOSS United and Contributors
 # See license.txt
 
+from unittest.mock import patch
+
 import frappe
 from frappe.tests.utils import FrappeTestCase
 
@@ -371,3 +373,10 @@ class TestDraftScope(BaseTestUtils):
 		self.assertFalse(
 			self.visible_as(self.student.name, "LMS Batch", "any-batch", published=1, start_date="2000-01-01")
 		)
+
+
+class TestMissingIndex(FrappeTestCase):
+	# Regression: search 500'd while the index was missing (#3030, fixed in #3050).
+	def test_a_missing_index_returns_nothing(self):
+		with patch("lms.sqlite.LearningSearch.index_exists", return_value=False):
+			self.assertEqual(search_sqlite("cour"), [])
