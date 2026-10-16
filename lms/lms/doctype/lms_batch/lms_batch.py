@@ -11,7 +11,7 @@ from frappe import _
 from frappe.desk.doctype.notification_log.notification_log import make_notification_logs
 from frappe.model.document import Document
 from frappe.query_builder import Bracket
-from frappe.utils import add_days, cint, format_datetime, get_time, nowdate
+from frappe.utils import add_days, cint, format_datetime, get_time, getdate, nowdate
 from pypika.terms import LiteralValue
 
 from lms.lms.permissions import (
@@ -125,7 +125,7 @@ class LMSBatch(Document):
 			)
 
 	def validate_batch_end_date(self):
-		if self.end_date < self.start_date:
+		if getdate(self.end_date) < getdate(self.start_date):
 			frappe.throw(_("Batch end date cannot be before the batch start date"))
 
 	def validate_batch_time(self):
@@ -174,7 +174,7 @@ class LMSBatch(Document):
 				)
 
 	def validate_evaluation_end_date(self):
-		if self.evaluation_end_date and self.evaluation_end_date < self.end_date:
+		if self.evaluation_end_date and getdate(self.evaluation_end_date) < getdate(self.end_date):
 			frappe.throw(_("Evaluation end date cannot be less than the batch end date."))
 
 	def validate_seats_left(self):
@@ -211,7 +211,11 @@ class LMSBatch(Document):
 						_("Row #{0} End time cannot be outside the batch duration.").format(schedule.idx)
 					)
 
-			if schedule.date < self.start_date or schedule.date > self.end_date:
+			if not schedule.date:
+				frappe.throw(_("Row #{0} Date is required.").format(schedule.idx))
+
+			date = getdate(schedule.date)
+			if date < getdate(self.start_date) or date > getdate(self.end_date):
 				frappe.throw(_("Row #{0} Date cannot be outside the batch duration.").format(schedule.idx))
 
 	def validate_conferencing_provider(self):
