@@ -119,12 +119,14 @@ const startButton = (tool: Quiz) =>
 		(button) => button.textContent?.trim() === 'Start Quiz'
 	)
 
+const CSRF_TOKEN = 'test-csrf-token'
+
 beforeEach(() => {
 	submitted.length = 0
 	called.length = 0
 	sendBeacon.mockClear()
 	Object.assign(navigator, { sendBeacon })
-	Object.assign(window, { translatedMessages: {} })
+	Object.assign(window, { translatedMessages: {}, csrf_token: CSRF_TOKEN })
 	localStorage.clear()
 	vi.useFakeTimers()
 })
@@ -133,6 +135,7 @@ afterEach(() => {
 	for (const tool of tools) tool.destroy()
 	tools = []
 	document.body.replaceChildren()
+	delete window.csrf_token
 	vi.useRealTimers()
 })
 
@@ -158,6 +161,21 @@ describe('tearing down an inline quiz keeps the completion gate shut', () => {
 		expect(submitted).not.toContain(SUBMIT_URL)
 		expect(called).not.toContain('lms.lms.api.mark_lesson_progress')
 		expect(sendBeacon).not.toHaveBeenCalled()
+	})
+
+	it('beacons a live attempt with the CSRF token on pagehide', async () => {
+		const tool = await renderQuizBlock()
+		startButton(tool)!.click()
+		await flushPromises()
+
+		window.dispatchEvent(new Event('pagehide'))
+
+		expect(sendBeacon).toHaveBeenCalledTimes(1)
+		const url = String(sendBeacon.mock.calls[0]?.[0] ?? '')
+		const params = new URL(url, 'https://example.com').searchParams
+		expect(params.get('quiz')).toBe('quiz-a')
+		expect(params.get('submission_reason')).toBe('browser_closed')
+		expect(params.get('csrf_token')).toBe(CSRF_TOKEN)
 	})
 
 	it('starts a remounted quiz from the beginning, with no result to show', async () => {
