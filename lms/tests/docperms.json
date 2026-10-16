@@ -382,6 +382,15 @@
 			"share",
 			"report",
 			"export"
+		],
+		"Moderator#0": [
+			"read",
+			"write",
+			"create",
+			"delete",
+			"share",
+			"report",
+			"export"
 		]
 	},
 	"LMS Certificate Request": {

@@ -74,6 +74,7 @@ from lms.lms.utils import (
 	has_moderator_role,
 	hide_user_emails,
 	prepare_inline_images,
+	resolve_page_length,
 	resolve_user,
 )
 
@@ -1267,7 +1268,7 @@ def delete_sidebar_item(webpage: str):
 	)
 
 
-@frappe.whitelist()
+@frappe.whitelist(methods=["POST"])
 def delete_lesson(lesson: str, chapter: str):
 	course = frappe.db.get_value("Course Chapter", chapter, "course")
 	if not can_modify_course(course):
@@ -1279,6 +1280,8 @@ def delete_lesson(lesson: str, chapter: str):
 		pluck="lesson",
 		order_by="idx",
 	)
+	if lesson not in lessons:
+		frappe.throw(_("This lesson is not in that chapter."))
 	lessons.remove(lesson)
 	frappe.db.delete("Lesson Reference", {"parent": chapter, "lesson": lesson})
 	update_index(lessons, chapter)
@@ -1300,8 +1303,11 @@ def delete_lesson(lesson: str, chapter: str):
 
 
 @frappe.whitelist()
-def create_lesson(chapter: str, title: str | None = None) -> str:
-	"""Append a lesson to the chapter, titled `title` or "Untitled lesson", atomically via add_lesson() (inserts the Course Lesson + its Lesson Reference in one request that rolls back together; returns the new docname)."""
+def create_lesson(chapter: str, title: str | None = None, content: str | dict | None = None) -> str:
+	"""Append a lesson to the chapter, titled `title` or "Untitled lesson", atomically via add_lesson() (inserts the Course Lesson + its Lesson Reference in one request that rolls back together; returns the new docname).
+
+	`content` is the lesson's Editor.js document, as JSON or a dict. It is saved through the
+	lesson, so it is cleaned and its quizzes and assignments are checked as in the editor."""
 	if not isinstance(chapter, str):
 		frappe.throw(_("Chapter must be a string."))
 	title = _clean_lesson_title(title)
@@ -1312,7 +1318,12 @@ def create_lesson(chapter: str, title: str | None = None) -> str:
 		frappe.throw(_("You do not have permission to add a lesson."), frappe.PermissionError)
 
 	idx = frappe.db.count("Lesson Reference", {"parent": chapter}) + 1
-	return add_lesson(title or _("Untitled lesson"), chapter, course, idx)
+	lesson = add_lesson(title or _("Untitled lesson"), chapter, course, idx)
+	if content is not None:
+		doc = frappe.get_doc("Course Lesson", lesson)
+		doc.content = content if isinstance(content, str) else json.dumps(content)
+		doc.save()
+	return lesson
 
 
 def _clean_lesson_title(title: str | None) -> str | None:
@@ -1483,7 +1494,7 @@ def get_member(member: str):
 
 
 @frappe.whitelist()
-def get_members(start: int = 0, search: str = None, role: str = "All"):
+def get_members(start: int = 0, search: str = None, role: str = "All", limit_page_length: int | str = None):
 	frappe.only_for(["Moderator"])
 
 	lms_roles = LMS_ROLES
@@ -1513,7 +1524,7 @@ def get_members(start: int = 0, search: str = None, role: str = "All"):
 		filters=filters,
 		fields=MEMBER_FIELDS,
 		or_filters=or_filters,
-		page_length=MEMBERS_PAGE_LENGTH,
+		page_length=resolve_page_length(limit_page_length, default=MEMBERS_PAGE_LENGTH),
 		start=start,
 	)
 
@@ -1948,7 +1959,7 @@ def give_discussions_permission():
 # outlive frappe's GET auto-rollback.
 @frappe.whitelist(methods=["POST"])
 def upsert_chapter(
-	title: str, course: str, is_scorm_package: bool, scorm_package: dict = None, name: str = None
+	title: str, course: str, is_scorm_package: bool = False, scorm_package: dict = None, name: str = None
 ):
 	if not isinstance(title, str):
 		frappe.throw(_("title must be a string"))
@@ -3352,6 +3363,46 @@ def start_live_class(live_class: str):
 
 
 @frappe.whitelist()
+def get_live_class_start_url(live_class: str) -> str:
+	"""The link start_live_class redirects to, for a caller that cannot follow a redirect."""
+	details = frappe.db.get_value(
+		"LMS Live Class", live_class, ["batch_name", "start_url", "join_url"], as_dict=True
+	)
+	if not details or not can_start_live_class(details.batch_name):
+		frappe.throw(_("You cannot start this live class."), frappe.PermissionError)
+	return details.start_url or details.join_url
+
+
+@frappe.whitelist(methods=["POST"])
+def add_students_to_batch(batch: str, members: list | str) -> dict:
+	"""Enroll each member in the batch, as adding them one at a time would. A member who cannot
+	be added is reported in `errors` and does not stop the rest. `members` is a list of users, or
+	that list as JSON."""
+	if not isinstance(batch, str) or not frappe.db.exists("LMS Batch", batch):
+		frappe.throw(_("Invalid batch."))
+	if isinstance(members, str):
+		members = frappe.parse_json(members)
+	if not isinstance(members, list) or not all(isinstance(member, str) for member in members):
+		frappe.throw(_("Members must be a list of users."))
+
+	added, errors = [], []
+	for member in members:
+		messages = len(frappe.local.message_log)
+		frappe.db.savepoint("add_student_to_batch")
+		try:
+			frappe.get_doc({"doctype": "LMS Batch Enrollment", "batch": batch, "member": member}).insert()
+		except Exception as e:
+			frappe.db.rollback(save_point="add_student_to_batch")
+			# The row's messages are its error below, not a message for the whole request.
+			del frappe.local.message_log[messages:]
+			errors.append({"member": member, "error": str(e)})
+		else:
+			frappe.db.release_savepoint("add_student_to_batch")
+			added.append(member)
+	return {"added": added, "errors": errors}
+
+
+@frappe.whitelist()
 def get_my_live_classes():
 	my_live_classes = []
 
@@ -3389,7 +3440,6 @@ def get_my_live_classes():
 
 	if len(live_class_details):
 		for live_class in live_class_details:
-			live_class.course_title = frappe.db.get_value("LMS Course", live_class.course, "title")
 			# The start link opens the class as its host; learners join with join_url.
 			if not can_start_live_class(live_class.batch_name):
 				live_class.start_url = None
@@ -3400,7 +3450,9 @@ def get_my_live_classes():
 
 
 @frappe.whitelist()
-def get_created_courses():
+def get_created_courses(start: int = 0, limit_page_length: int | str = None):
+	"""Courses the user instructs, newest published first. A Moderator who instructs none gets
+	every course. Three at a time unless `limit_page_length` asks for more."""
 	created_courses = []
 	roles = frappe.get_roles()
 
@@ -3413,15 +3465,19 @@ def get_created_courses():
 		.on(CourseInstructor.parent == Course.name)
 		.select(Course.name)
 		.distinct()
+		.where(CourseInstructor.parenttype == "LMS Course")
 		.orderby(Course.published_on, order=frappe.qb.desc)
-		.limit(3)
+		.orderby(Course.name)
+		.limit(resolve_page_length(limit_page_length, default=3))
+		.offset(cint(start))
 	)
 
-	query = base_query.where(CourseInstructor.instructor == frappe.session.user)
-	results = query.run(as_dict=True)
-
-	if not len(results) and ("Moderator" in roles):
-		results = base_query.run(as_dict=True)
+	instructs_any = frappe.db.exists(
+		"Course Instructor", {"parenttype": "LMS Course", "instructor": frappe.session.user}
+	)
+	if instructs_any or "Moderator" not in roles:
+		base_query = base_query.where(CourseInstructor.instructor == frappe.session.user)
+	results = base_query.run(as_dict=True)
 
 	courses = [row["name"] for row in results]
 	for course in courses:
@@ -3432,7 +3488,9 @@ def get_created_courses():
 
 
 @frappe.whitelist()
-def get_created_batches():
+def get_created_batches(start: int = 0, limit_page_length: int | str = None, upcoming: bool = True):
+	"""Batches the user instructs. Upcoming ones, soonest first, unless `upcoming` is 0. Four at a
+	time unless `limit_page_length` asks for more."""
 	created_batches = []
 
 	CourseInstructor = frappe.qb.DocType("Course Instructor")
@@ -3445,10 +3503,14 @@ def get_created_batches():
 		.select(Batch.name)
 		.distinct()
 		.where(CourseInstructor.instructor == frappe.session.user)
-		.where(Batch.start_date >= getdate())
-		.orderby(Batch.start_date, order=frappe.qb.asc)
-		.limit(4)
+		.where(CourseInstructor.parenttype == "LMS Batch")
+		.orderby(Batch.start_date, order=frappe.qb.asc if cint(upcoming) else frappe.qb.desc)
+		.orderby(Batch.name)
+		.limit(resolve_page_length(limit_page_length, default=4))
+		.offset(cint(start))
 	)
+	if cint(upcoming):
+		query = query.where(Batch.start_date >= getdate())
 
 	results = query.run(as_dict=True)
 	batches = [row["name"] for row in results]
@@ -3461,7 +3523,9 @@ def get_created_batches():
 
 
 @frappe.whitelist()
-def get_admin_live_classes():
+def get_admin_live_classes(start: int = 0, limit_page_length: int | str = None):
+	"""Upcoming live classes in batches the user instructs, soonest first. Four at a time unless
+	`limit_page_length` asks for more."""
 	CourseInstructor = frappe.qb.DocType("Course Instructor")
 	LMSLiveClass = frappe.qb.DocType("LMS Live Class")
 
@@ -3480,17 +3544,25 @@ def get_admin_live_classes():
 			LMSLiveClass.start_url,
 			LMSLiveClass.join_url,
 			LMSLiveClass.owner,
+			LMSLiveClass.batch_name,
+			LMSLiveClass.timezone,
+			LMSLiveClass.conferencing_provider,
 		)
 		.where(CourseInstructor.instructor == frappe.session.user)
+		.where(CourseInstructor.parenttype == "LMS Batch")
 		.where(LMSLiveClass.date >= getdate())
 		.orderby(LMSLiveClass.date, order=frappe.qb.asc)
-		.limit(4)
+		.orderby(LMSLiveClass.name)
+		.limit(resolve_page_length(limit_page_length, default=4))
+		.offset(cint(start))
 	)
 	return hide_user_emails(query.run(as_dict=True), "owner")
 
 
 @frappe.whitelist()
-def get_admin_evals():
+def get_admin_evals(start: int = 0, limit_page_length: int | str = None):
+	"""The user's upcoming evaluations, soonest first. Four at a time unless `limit_page_length`
+	asks for more."""
 	evals = frappe.get_all(
 		"LMS Certificate Request",
 		{
@@ -3509,8 +3581,9 @@ def get_admin_evals():
 			"member",
 			"member_name",
 		],
-		limit=4,
-		order_by="date asc",
+		start=cint(start),
+		limit=resolve_page_length(limit_page_length, default=4),
+		order_by="date asc, name asc",
 	)
 
 	for evaluation in evals:
@@ -3915,6 +3988,17 @@ def export_course_as_zip(course_name: str):
 		frappe.throw(_("You do not have permission to export this course."), frappe.PermissionError)
 
 	export_course_zip(course_name)
+
+
+# POST only: frappe rolls back a GET request, and the rollback deletes the new File and its ZIP.
+@frappe.whitelist(methods=["POST"])
+def export_course_as_file(course_name: str) -> str:
+	"""Export the course as a ZIP kept as a private File, and return its file_url, for a caller that
+	cannot take a download. The File is attached to nothing, so only the exporter can open it."""
+	if not can_modify_course(course_name):
+		frappe.throw(_("You do not have permission to export this course."), frappe.PermissionError)
+
+	return export_course_zip(course_name, as_file=True)
 
 
 @frappe.whitelist()

@@ -50,7 +50,7 @@ MIN_RATIO_CHECK_BYTES = 1024 * 1024
 MAX_ARCHIVE_JSON_BYTES = 10 * 1024 * 1024
 
 
-def export_course_zip(course_name):
+def export_course_zip(course_name, as_file=False):
 	course = frappe.get_doc("LMS Course", course_name)
 	chapters = get_chapters_for_export(course.chapters)
 	lessons = get_lessons_for_export(course_name)
@@ -60,7 +60,7 @@ def export_course_zip(course_name):
 	assessments, questions, test_cases = get_course_assessments(lessons)
 	safe_time = frappe.utils.now_datetime().strftime("%Y%m%d_%H%M%S")
 	zip_filename = f"{course.name}_{safe_time}_{secrets.token_hex(4)}.zip"
-	create_course_zip(
+	return create_course_zip(
 		zip_filename,
 		course,
 		chapters,
@@ -71,6 +71,7 @@ def export_course_zip(course_name):
 		test_cases,
 		instructors,
 		evaluator,
+		as_file,
 	)
 
 
@@ -246,6 +247,7 @@ def create_course_zip(
 	test_cases,
 	instructors,
 	evaluator,
+	as_file=False,
 ):
 	try:
 		tmp_path = os.path.join(tempfile.gettempdir(), zip_filename)
@@ -262,6 +264,13 @@ def create_course_zip(
 			evaluator,
 		)
 		final_path = move_zip_to_private(tmp_path, zip_filename)
+		if as_file:
+			try:
+				return keep_export_as_file(zip_filename)
+			except Exception:
+				# No File row points at the ZIP, so nothing would ever delete it.
+				delete_file(final_path)
+				raise
 		schedule_file_deletion(final_path, delay_seconds=600)  # 10 minutes
 		serve_zip(final_path, zip_filename)
 	except Exception:
@@ -338,6 +347,20 @@ def write_assets(zip_file, assets):
 		file_path = get_local_file_path(file_doc)
 		if file_path:
 			zip_file.write(file_path, asset_member_path(file_doc.file_url))
+
+
+def keep_export_as_file(zip_filename):
+	"""Keep the exported ZIP as a private File owned by the exporter, and return its file_url. It is
+	attached to nothing: attached to the course, anyone who can read the course could open it."""
+	file_doc = frappe.get_doc(
+		{
+			"doctype": "File",
+			"file_name": zip_filename,
+			"file_url": f"/private/files/{zip_filename}",
+			"is_private": 1,
+		}
+	).insert()
+	return file_doc.file_url
 
 
 def move_zip_to_private(tmp_path, zip_filename):

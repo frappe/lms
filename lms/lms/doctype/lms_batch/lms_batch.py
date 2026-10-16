@@ -531,10 +531,8 @@ def get_batch_timetable(batch: str):
 		"LMS Batch Enrollment", {"batch": batch, "member": frappe.session.user}
 	)
 	is_admin = "Moderator" in roles or "Batch Evaluator" in roles
-	if not (is_batch_student or is_admin):
-		frappe.throw(
-			_("You do not have permission to access announcements for this batch."), frappe.PermissionError
-		)
+	if not (is_batch_student or is_admin or can_instruct_batch(batch)):
+		frappe.throw(_("You do not have permission to see this batch's timetable."), frappe.PermissionError)
 
 	timetable = frappe.get_all(
 		"LMS Batch Timetable",
