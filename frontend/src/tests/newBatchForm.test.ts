@@ -27,8 +27,9 @@ const listResource = {
 // resource). vi.hoisted because vi.mock's factory is hoisted above ALL
 // top-level code (including plain `const`s), so a bare `vi.fn()` referenced
 // inside it throws "Cannot access before initialization".
-const { createListResourceMock } = vi.hoisted(() => ({
+const { createListResourceMock, captureMock } = vi.hoisted(() => ({
 	createListResourceMock: vi.fn(),
+	captureMock: vi.fn(),
 }))
 createListResourceMock.mockReturnValue(listResource)
 
@@ -99,7 +100,7 @@ vi.mock('frappe-ui', () => ({
 }))
 
 vi.mock('frappe-ui/frappe', () => ({
-	useTelemetry: () => ({ capture: vi.fn() }),
+	useTelemetry: () => ({ capture: captureMock }),
 	useOnboarding: () => ({ updateOnboardingStep: vi.fn() }),
 }))
 
@@ -194,6 +195,7 @@ describe('NewBatchForm as a route', () => {
 	beforeEach(() => {
 		insertSubmit.mockReset()
 		createListResourceMock.mockClear()
+		captureMock.mockReset()
 		Object.defineProperty(window, 'innerWidth', {
 			value: 1024,
 			writable: true,
@@ -206,6 +208,26 @@ describe('NewBatchForm as a route', () => {
 		await router.push({ name: 'NewBatch' })
 		const wrapper = await mountForm(router, moderator)
 		expect(wrapper.html()).toContain('New Batch')
+	})
+
+	it('reports where it was opened from, and what was filled when left', async () => {
+		const { setFormSource } = await import('@/composables/formTracking')
+		setFormSource('onboarding')
+		const router = makeRouter()
+		await router.push({ name: 'NewBatch' })
+		const wrapper = await mountForm(router, moderator)
+
+		expect(captureMock).toHaveBeenCalledWith('batch_form_opened', {
+			source: 'onboarding',
+		})
+
+		await wrapper.get('input').setValue('My batch')
+		wrapper.unmount()
+
+		const closed = captureMock.mock.calls.find(
+			([event]) => event === 'batch_form_closed'
+		)
+		expect(closed?.[1].filled_fields).toEqual(['title'])
 	})
 
 	it('refuses to render the form for a user who cannot create batches', async () => {

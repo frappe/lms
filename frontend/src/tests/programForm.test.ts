@@ -242,7 +242,7 @@ beforeEach(() => {
 describe('ProgramForm as a route', () => {
 	it('mounts straight from the URL with no parent list', async () => {
 		const { wrapper } = await deepLink('new')
-		expect(wrapper.html()).toContain('Create Program')
+		expect(wrapper.html()).toContain('New Program')
 		expect(wrapper.find('[data-testid="program-fields"]').exists()).toBe(true)
 	})
 

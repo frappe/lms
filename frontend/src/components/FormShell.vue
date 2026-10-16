@@ -16,7 +16,21 @@
 			</div>
 		</template>
 		<template #default>
-			<slot />
+			<!-- The fields scroll inside the dialog so the title and the submit
+			     button stay in view on a short screen. 17rem is the dialog's own
+			     margins, header and footer. The side padding keeps focus rings
+			     from being clipped. -->
+			<div
+				data-testid="form-shell-dialog-body"
+				class="-mx-1 overflow-y-auto px-1"
+				:class="
+					position === 'top'
+						? 'max-h-[calc(80dvh-17rem)]'
+						: 'max-h-[calc(100dvh-17rem)]'
+				"
+			>
+				<slot />
+			</div>
 		</template>
 		<template #actions>
 			<slot name="actions" />

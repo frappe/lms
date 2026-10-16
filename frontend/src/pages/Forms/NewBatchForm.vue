@@ -133,7 +133,7 @@
 			<div v-if="canCreateBatch" class="flex items-center justify-end">
 				<HeaderButton
 					data-testid="new-batch-save"
-					:label="__('Save')"
+					:label="__('Create')"
 					variant="solid"
 					:loading="batches.insert.loading"
 					@click="saveBatch()"
@@ -171,8 +171,10 @@ import NewMemberModal from '@/components/Modals/NewMemberModal.vue'
 import RichTextEditor from '@/components/RichTextEditor.vue'
 import { InputLabel, useInputLabeling } from '@/components/Form/labeling'
 import { submitResource } from '@/utils/resource'
+import { filledFields, takeFormSource } from '@/composables/formTracking'
 
 const { capture } = useTelemetry()
+const batchCreated = ref(false)
 const { updateOnboardingStep } = useOnboarding('learning')
 const dateFormat = getDateFormat()
 const user = inject<any>('$user')
@@ -273,6 +275,7 @@ const saveBatch = () => {
 		},
 		{
 			onSuccess(data: any) {
+				batchCreated.value = true
 				toast.success(__('Batch created successfully'))
 				// replace, not push: the form entry is consumed so Back reaches
 				// the list rather than a stale empty form.
@@ -311,14 +314,19 @@ const keyboardShortcut = (e: KeyboardEvent) => {
 
 onMounted(() => {
 	window.addEventListener('keydown', keyboardShortcut)
-	capture('batch_form_opened')
+	capture('batch_form_opened', { source: takeFormSource() })
 })
 
 onBeforeUnmount(() => {
 	window.removeEventListener('keydown', keyboardShortcut)
-	capture('batch_form_closed', {
-		data: batch.value,
-	})
+	if (!batchCreated.value) {
+		capture('batch_form_closed', {
+			data: batch.value,
+			// Which fields were filled when the form was left, to see where
+			// people stop.
+			filled_fields: filledFields(batch.value),
+		})
+	}
 })
 
 const timezoneResource = createResource({

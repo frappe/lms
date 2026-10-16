@@ -263,7 +263,7 @@ describe('the member form route', () => {
 			expect(fields(wrapper).exists()).toBe(true)
 			// Add mode asks for nothing: there is no member to load yet.
 			expect(lookup.fetch).not.toHaveBeenCalled()
-			expect(wrapper.text()).toContain('Add New Member')
+			expect(wrapper.text()).toContain('New Member')
 		})
 
 		it('closes onto the account page it can reach by URL', async () => {

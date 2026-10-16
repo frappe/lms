@@ -144,7 +144,7 @@ describe('AnnouncementForm as a route', () => {
 		const router = makeRouter()
 		await router.push('/batches/B1/announcement/new')
 		const wrapper = await mountForm(router, moderator)
-		expect(wrapper.html()).toContain('Make an Announcement')
+		expect(wrapper.html()).toContain('New Announcement')
 		expect(wrapper.find('[data-testid="announcement-fields"]').exists()).toBe(
 			true
 		)

@@ -11,6 +11,7 @@
 						:label="__('Title')"
 						:required="true"
 						autocomplete="off"
+						variant="outline"
 					/>
 					<Link
 						v-model="course.category"
@@ -18,6 +19,7 @@
 						:label="__('Category')"
 						:inlineCreate="true"
 						:onCreate="createCategory"
+						variant="outline"
 					/>
 					<MultiLink
 						ref="instructorsRef"
@@ -30,6 +32,7 @@
 						:label="__('Instructors')"
 						:placeholder="__('Select instructors')"
 						:required="true"
+						variant="outline"
 						:onCreate="openMemberModal"
 					>
 						<template #prefix>
@@ -77,7 +80,9 @@
 						v-model="course.short_introduction"
 						:label="__('Short introduction')"
 						type="textarea"
+						:rows="2"
 						:required="true"
+						variant="outline"
 					/>
 					<div class="space-y-1.5">
 						<InputLabel
@@ -92,7 +97,7 @@
 							@change="(val: string) => (course.description = val)"
 							:editable="true"
 							:fixedMenu="true"
-							editorClass="prose-sm max-w-none border-b border-x border-outline-elevation-2 bg-surface-gray-2 rounded-b-md py-1 px-2 min-h-[10rem] max-h-[17rem] overflow-auto"
+							editorClass="prose-sm max-w-none border-b border-x border-outline-elevation-2 bg-surface-base rounded-b-md py-1 px-2 min-h-[7rem] max-h-[17rem] overflow-auto"
 						/>
 					</div>
 				</div>
@@ -102,7 +107,7 @@
 			<div v-if="canCreate" class="flex items-center justify-end">
 				<HeaderButton
 					data-testid="new-course-save"
-					:label="__('Save')"
+					:label="__('Create')"
 					variant="solid"
 					:loading="courses.insert.loading"
 					@click="saveCourse()"
@@ -128,6 +133,7 @@ import {
 import { useOnboarding, useTelemetry } from 'frappe-ui/frappe'
 import { computed, inject, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import FormShell from '@/components/FormShell.vue'
+import { filledFields, takeFormSource } from '@/composables/formTracking'
 import HeaderButton from '@/components/HeaderButton.vue'
 import { useFormRoute } from '@/composables/useFormRoute'
 import Link from '@/components/Controls/Link.vue'
@@ -204,15 +210,21 @@ const course = ref<Course>({
 	title: '',
 	short_introduction: '',
 	description: '',
-	instructors: [],
+	// Whoever creates the course usually teaches it, and on a new site they
+	// are the only person who can. Administrator is a system account, never
+	// an instructor, and the instructor search leaves it out too.
+	instructors:
+		canCreate.value && user.data?.name && user.data.name !== 'Administrator'
+			? [user.data.name]
+			: [],
 	category: undefined,
 	image: null,
 })
 
-const INSTRUCTOR_ROLES = ['Course Creator', 'Batch Evaluator']
+const INSTRUCTOR_ROLES = ['Moderator', 'Course Creator', 'Batch Evaluator']
 const MAX_VISIBLE_AVATARS = 3
 const thumbnailGuidelines = __(
-	'Upload a 750×422 image (.jpg, .jpeg, .gif, or .png). Shown on the catalog card and lesson hero.'
+	'Upload a 750×422 image (.jpg, .jpeg, .gif, or .png). Shown on the course card.'
 )
 const { inputId: descriptionId, labelId: descriptionLabelId } =
 	useInputLabeling({})
@@ -263,7 +275,8 @@ watch(
 	(vals) => {
 		const missing = (vals || []).filter((v) => !resolvedDetails.value.has(v))
 		if (missing.length) selectedDetails.reload()
-	}
+	},
+	{ immediate: true }
 )
 
 const resolvedSelected = computed<InstructorOption[]>(() =>
@@ -378,7 +391,7 @@ const keyboardShortcut = (e: KeyboardEvent) => {
 
 onMounted(() => {
 	window.addEventListener('keydown', keyboardShortcut)
-	capture('course_form_opened')
+	capture('course_form_opened', { source: takeFormSource() })
 })
 
 onBeforeUnmount(() => {
@@ -386,6 +399,9 @@ onBeforeUnmount(() => {
 	if (!courseCreated.value) {
 		capture('course_form_closed', {
 			data: course.value,
+			// Which fields were filled when the form was left, to see where
+			// people stop.
+			filled_fields: filledFields(course.value),
 		})
 	}
 })

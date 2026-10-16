@@ -1,11 +1,11 @@
 <template>
 	<Dialog
 		v-model:open="show"
-		:title="isEdit ? __('Edit Member') : __('Add New Member')"
+		:title="isEdit ? __('Edit Member') : __('New Member')"
 		size="lg"
 		:actions="[
 			{
-				label: isEdit ? __('Save') : __('Add'),
+				label: isEdit ? __('Save') : __('Create'),
 				variant: 'solid',
 				loading: submitting,
 				onClick: ({ close }: any) => submit(close),

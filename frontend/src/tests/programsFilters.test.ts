@@ -268,7 +268,7 @@ describe('Programs list', () => {
 
 		const create = wrapper
 			.findAll('button')
-			.find((button) => button.text() === 'Create')
+			.find((button) => button.text() === 'New Program')
 		expect(create).toBeDefined()
 		await create!.trigger('click')
 		await flushPromises()

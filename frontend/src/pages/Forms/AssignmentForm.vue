@@ -108,7 +108,7 @@
 				<HeaderButton
 					v-if="canEdit"
 					data-testid="assignment-save"
-					:label="__('Save')"
+					:label="isNew ? __('Create') : __('Save')"
 					variant="solid"
 					:loading="saving"
 					@click="saveAssignment"
@@ -160,7 +160,7 @@ const canWrite = useCanWrite('LMS Assignment', () =>
 const canEdit = computed(() => canWrite.value === true)
 
 const formTitle = computed(() =>
-	isNew.value ? __('Create an Assignment') : __('Edit Assignment')
+	isNew.value ? __('New Assignment') : __('Edit Assignment')
 )
 
 // Copied off the two places Assignments.vue gates this form today: the page

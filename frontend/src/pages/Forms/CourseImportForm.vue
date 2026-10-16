@@ -82,7 +82,7 @@
 			<div v-if="canCreate" class="flex items-center justify-end">
 				<HeaderButton
 					data-testid="course-import-submit"
-					:label="__('Save')"
+					:label="__('Import')"
 					variant="solid"
 					@click="importZip"
 				/>

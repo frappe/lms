@@ -215,6 +215,7 @@
 						@click="toggleSidebar()"
 					/>
 				</Tooltip>
+				<span class="sr-only">{{ readOnlyNotice }}</span>
 			</div>
 		</div>
 		<HelpModal
@@ -284,6 +285,7 @@ import {
 	IntermediateStepModal,
 	useTelemetry,
 } from 'frappe-ui/frappe'
+import { setFormSource } from '@/composables/formTracking'
 import InviteIcon from '@/components/Icons/InviteIcon.vue'
 import UserDropdown from '@/components/Sidebar/UserDropdown.vue'
 import CollapseSidebar from '@/components/Icons/CollapseSidebar.vue'
@@ -321,6 +323,10 @@ let onboardingDetails
 let isOnboardingStepsCompleted = false
 const readOnlyMode = window.read_only_mode
 const isRtl = document.documentElement.dir === 'rtl'
+const openCourseForm = () => {
+	setFormSource('onboarding')
+	openFormRoute(router, { name: 'NewCourse' })
+}
 const iconProps = {
 	strokeWidth: 1.5,
 	width: 16,
@@ -438,9 +444,9 @@ const steps = reactive([
 		completed: false,
 		onClick: () => {
 			minimize.value = true
-			router.push({
-				name: 'Courses',
-			})
+			// Opens the form itself: sent to the course list instead, nothing
+			// happened when the list was already open.
+			openCourseForm()
 		},
 	},
 	{
@@ -459,7 +465,7 @@ const steps = reactive([
 					hash: '#editor',
 				})
 			} else {
-				openFormRoute(router, { name: 'NewCourse' })
+				openCourseForm()
 			}
 		},
 	},
@@ -479,7 +485,7 @@ const steps = reactive([
 					hash: '#editor',
 				})
 			} else {
-				openFormRoute(router, { name: 'NewCourse' })
+				openCourseForm()
 			}
 		},
 	},
@@ -512,7 +518,8 @@ const steps = reactive([
 		completed: false,
 		onClick: () => {
 			minimize.value = true
-			router.push({ name: 'Batches' })
+			setFormSource('onboarding')
+			openFormRoute(router, { name: 'NewBatch' })
 		},
 	},
 	{

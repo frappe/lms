@@ -1,5 +1,5 @@
 <template>
-	<FormShell :title="__('Enroll a Student')" size="lg" @close="close">
+	<FormShell :title="__('Enroll Student')" size="lg" @close="close">
 		<template #default>
 			<div v-if="refusal" class="p-4 text-base text-ink-gray-6">
 				{{ refusal }}
@@ -30,7 +30,7 @@
 			<HeaderButton
 				v-if="!refusal"
 				data-testid="batch-student-save"
-				:label="__('Save')"
+				:label="__('Enroll')"
 				variant="solid"
 				:loading="enrollment.loading"
 				@click="submit"

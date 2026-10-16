@@ -37,7 +37,7 @@
 				<template #prefix>
 					<span class="lucide-plus size-4" />
 				</template>
-				{{ __('Create') }}
+				{{ __('New Programming Exercise') }}
 			</Button>
 		</template>
 

@@ -232,7 +232,7 @@ describe('LiveClassForm as a route', () => {
 		const router = makeRouter()
 		await router.push('/batches/B1/live-class/new')
 		const wrapper = await mountForm(router, moderator)
-		expect(wrapper.html()).toContain('Create a Live Class')
+		expect(wrapper.html()).toContain('New Live Class')
 		expect(wrapper.find('[data-testid="live-class-fields"]').exists()).toBe(
 			true
 		)
