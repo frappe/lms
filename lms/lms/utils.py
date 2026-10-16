@@ -1299,7 +1299,7 @@ DEFAULT_PAGE_LENGTH = 24
 MAX_PAGE_LENGTH = 120
 
 
-def resolve_page_length(limit_page_length=None) -> int:
+def resolve_page_length(limit_page_length=None, default: int = DEFAULT_PAGE_LENGTH) -> int:
 	"""How many rows a list endpoint returns for a client-supplied page size.
 
 	`createListResource` sends `limit_page_length` and advances `start` by the
@@ -1307,7 +1307,7 @@ def resolve_page_length(limit_page_length=None) -> int:
 	size and the next page repeats rows. Bounded because these endpoints are
 	open to guests and an unbounded page size is a cheap way to ask for a table.
 	"""
-	page_length = cint(limit_page_length) or DEFAULT_PAGE_LENGTH
+	page_length = cint(limit_page_length) or default
 	return min(max(page_length, 1), MAX_PAGE_LENGTH)
 
 
@@ -3353,7 +3353,10 @@ def get_program_details(program_name: str) -> dict:
 	is_member = frappe.db.exists(
 		"LMS Program Member", {"parent": program_name, "member": frappe.session.user}
 	)
-	if not is_published and not is_member:
+	can_edit = frappe.db.exists("LMS Program", program_name) and frappe.has_permission(
+		"LMS Program", "write", program_name
+	)
+	if not is_published and not is_member and not can_edit:
 		frappe.throw(_("You are not authorized to view the details of this program."))
 
 	program = frappe.db.get_value(
