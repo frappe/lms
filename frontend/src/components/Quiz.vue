@@ -1047,8 +1047,12 @@ const handlePageHide = () => {
 			submission_reason: 'browser_closed',
 =======
 			submission_reason: reason,
+<<<<<<< HEAD
 			csrf_token: token
 >>>>>>> f60fdb5 (fix(quiz): include CSRF token in unload submit beacon)
+=======
+			csrf_token: token,
+>>>>>>> 46f9572 (style(quiz): add trailing comma for prettier)
 		})
 		// Beacons go out as a query string, so only spend the URL budget on the
 		// log when there is one.
