@@ -147,6 +147,7 @@ import type { Resource } from '@/types'
 import RichTextEditor from '@/components/RichTextEditor.vue'
 import { InputLabel, useInputLabeling } from '@/components/Form/labeling'
 import { submitResource } from '@/utils/resource'
+import { validateCourse } from '@/utils/courseForm'
 
 interface InstructorOption {
 	label: string
@@ -343,7 +344,19 @@ const validateFields = () => {
 
 const saveCourse = () => {
 	if (!canCreate.value) return
+<<<<<<< HEAD
 	validateFields()
+=======
+	sanitizeStringFields(course.value as Record<string, unknown>)
+	const error = validateCourse({
+		doc: course.value,
+		instructors: course.value.instructors,
+	})
+	if (error) {
+		toast.error(error)
+		return
+	}
+>>>>>>> 0ebea52 (fix: check required fields before creating a record)
 	submitResource(
 		courses.insert,
 		{

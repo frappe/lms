@@ -171,6 +171,7 @@ import NewMemberModal from '@/components/Modals/NewMemberModal.vue'
 import RichTextEditor from '@/components/RichTextEditor.vue'
 import { InputLabel, useInputLabeling } from '@/components/Form/labeling'
 import { submitResource } from '@/utils/resource'
+import { validateBatch } from '@/utils/batchForm'
 import { filledFields, takeFormSource } from '@/composables/formTracking'
 
 const { capture } = useTelemetry()
@@ -264,7 +265,19 @@ const validateFields = () => {
 
 const saveBatch = () => {
 	if (!canCreateBatch.value) return
+<<<<<<< HEAD
 	validateFields()
+=======
+	sanitizeStringFields(batch.value as Record<string, unknown>)
+	const error = validateBatch({
+		doc: batch.value,
+		instructors: batch.value.instructors,
+	})
+	if (error) {
+		toast.error(error)
+		return
+	}
+>>>>>>> 0ebea52 (fix: check required fields before creating a record)
 	submitResource(
 		batches.insert,
 		{

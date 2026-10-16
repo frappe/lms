@@ -48,27 +48,16 @@ test.describe("Course Creation", () => {
 			.locator("input")
 			.fill(courseTitle);
 
-		// Instructors: MultiSelect
-		await fields
-			.locator("label")
-			.filter({ hasText: "Instructors" })
-			.locator("xpath=..")
-			.locator("button")
-			.first()
-			.click();
-
-		await page
-			.locator('[data-slot="content-body"] [data-slot="input"]')
-			.fill("frappe");
-		// Cypress budgeted a 10s find plus its own 20s default actionability
-		// wait (~30s combined); a single Playwright `.click({timeout})` covers
-		// both the find and the actionability wait in one window, so match
-		// the combined budget rather than just the find half of it.
-		await page
-			.locator('[data-slot="content-body"] [role="option"]')
-			.first()
-			.click({ timeout: 30000 });
-		await page.keyboard.press("Escape");
+		// The form pre-fills the signed-in user as instructor; clicking their
+		// option would deselect them and the form now refuses to save.
+		await expect(
+			fields
+				.locator("label")
+				.filter({ hasText: "Instructors" })
+				.locator("xpath=..")
+				.locator("button")
+				.first()
+		).toContainText("Frappe");
 
 		// Thumbnail
 		await fields
