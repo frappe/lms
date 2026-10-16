@@ -72,6 +72,7 @@
 	</ListPage>
 </template>
 <script setup lang="ts">
+<<<<<<< HEAD
 import {
 	Avatar,
 	Badge,
@@ -104,6 +105,15 @@ const filters = ref<Filters>({
 })
 const router = useRouter()
 const pageLength = ref<number>(24)
+=======
+import { Avatar, Badge } from 'frappe-ui'
+import { computed, inject } from 'vue'
+import SubmissionsPage from '@/components/Submissions/SubmissionsPage.vue'
+import type { ListRow, SessionUser, SubmissionsConfig } from '@/types'
+import { serverTime } from '@/utils/dayjs'
+
+const user = inject<SessionUser>('$user')!
+>>>>>>> c0e8940 (fix: read relative times in the site timezone)
 
 onMounted(() => {
 	setFiltersFromRoute()
@@ -211,6 +221,31 @@ const listOptions: ListViewOptions = {
 			submissionID: String(row.name),
 		},
 	}),
+<<<<<<< HEAD
+=======
+	parentCrumb: {
+		label: __('Programming Exercises'),
+		route: { name: 'ProgrammingExercises' },
+	},
+	scopeCrumb: {
+		filterKey: 'exercise',
+		doctype: 'LMS Programming Exercise',
+		titleField: 'title',
+		route: (value: string) => ({
+			name: 'ProgrammingExerciseForm',
+			params: { exerciseID: value },
+		}),
+	},
+	title: 'Submissions',
+	pageTitle: 'Programming Exercise Submissions',
+	emptyName: 'Programming Exercise Submissions',
+	emptyIcon: 'lucide-file-code',
+	transform: (rows: ListRow[]) =>
+		rows.map((row) => ({
+			...row,
+			modified: serverTime(row.modified as string).fromNow(),
+		})),
+>>>>>>> c0e8940 (fix: read relative times in the site timezone)
 }
 
 const submissionColumns = computed(() => {

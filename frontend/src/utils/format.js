@@ -1,7 +1,8 @@
 import { useTimeAgo } from '@vueuse/core'
+import { serverTime } from '@/utils/dayjs'
 
 export function timeAgo(date) {
-	return useTimeAgo(date).value
+	return useTimeAgo(serverTime(date).toDate()).value
 }
 
 // Map the site's System Settings date_format (boot data) to dayjs tokens.
