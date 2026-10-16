@@ -66,6 +66,14 @@ class TestSignupForm(UnitTestCase):
 		html = self.render()
 		self.assertIn('class="es-button w-full btn-signup"', html)
 
+	def test_required_fields_are_marked(self):
+		# Regression: the button stayed grey with no hint which fields it waits on
+		# (#3012, fixed in #3051).
+		soup = BeautifulSoup(self.render(), "html.parser")
+		for field in ("signup_fullname", "signup_email"):
+			marker = soup.select_one(f'label[for="{field}"] span[aria-hidden="true"]')
+			self.assertEqual(marker.text, "*")
+
 	def test_does_not_reuse_the_framework_signup_class(self):
 		html = self.render()
 		self.assertIn("signup-form", html)
