@@ -83,11 +83,19 @@ export class Program {
 	renderExercise(exercise: string) {
 		if (this.readOnly) {
 			const { userResource } = usersStore()
+<<<<<<< HEAD
 			call('frappe.client.get_value', {
+=======
+			if (!userResource.data) {
+				this.mountSubmission(exercise, 'new')
+				return
+			}
+			call<{ name?: string } | null>('frappe.client.get_value', {
+>>>>>>> a65bb05 (fix: hide sidebar progress and skip exercise lookup for guests)
 				doctype: 'LMS Programming Exercise Submission',
 				filters: {
 					exercise: exercise,
-					member: userResource.data?.name,
+					member: userResource.data.name,
 				},
 				fieldname: ['name'],
 			}).then((data: { name: string }) => {

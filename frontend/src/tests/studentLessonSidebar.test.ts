@@ -93,3 +93,49 @@ describe('StudentLessonSidebar locked lesson', () => {
 		expect(wrapper.emitted('select-lesson')).toBeUndefined()
 	})
 })
+<<<<<<< HEAD
+=======
+
+describe('StudentLessonSidebar completed lesson', () => {
+	// Guards: completion shown by an icon alone. Introduced in #2674; test added
+	// with the a11y audit remediation.
+	it('announces a completed lesson in text', () => {
+		const rows = mountSidebar().findAll('li li')
+
+		expect(rows[0].get('.sr-only').text()).toBe('Completed')
+		expect(rows[1].find('.sr-only').exists()).toBe(false)
+	})
+})
+
+describe('StudentLessonSidebar without progress', () => {
+	// Guards #3010: a guest saw "Completed 0%" and an empty ring per lesson.
+	const mountGuest = () =>
+		mount(StudentLessonSidebar, {
+			props: {
+				courseName: 'COURSE-1',
+				courseTitle: 'Course 1',
+				selectedLessonNumber: '1-2',
+				withProgress: false,
+			},
+			global: {
+				mocks: { __: (s: string) => s },
+				stubs: { 'router-link': { template: '<a><slot /></a>' } },
+			},
+		})
+
+	it('shows no completion summary or progress bar', () => {
+		const wrapper = mountGuest()
+
+		expect(wrapper.text()).not.toContain('Completed')
+		expect(wrapper.find('[style*="width"]').exists()).toBe(false)
+		expect(wrapper.text()).toContain('Course 1')
+	})
+
+	it('shows no completion ring on a lesson row', () => {
+		const rows = mountGuest().findAll('li li')
+
+		expect(rows[1].findAll('svg')).toHaveLength(1)
+		expect(rows[2].find('.sr-only').text()).toBe('Locked')
+	})
+})
+>>>>>>> a65bb05 (fix: hide sidebar progress and skip exercise lookup for guests)

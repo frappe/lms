@@ -6,7 +6,19 @@
  */
 import { describe, expect, it, vi, beforeEach } from 'vitest'
 
+<<<<<<< HEAD
 const { calls } = vi.hoisted(() => ({ calls: { value: [] as any[] } }))
+=======
+const { calls, mountBlock, unmount, user } = vi.hoisted(() => {
+	const unmount = vi.fn()
+	return {
+		user: { data: { name: 'me@example.com' } as { name: string } | null },
+		calls: { value: [] as any[] },
+		unmount,
+		mountBlock: vi.fn(() => ({ unmount })),
+	}
+})
+>>>>>>> a65bb05 (fix: hide sidebar progress and skip exercise lookup for guests)
 
 declare global {
 	interface Window {
@@ -29,7 +41,7 @@ vi.mock('frappe-ui', () => ({
 }))
 vi.mock('@/stores/settings', () => ({ useSettings: () => ({}) }))
 vi.mock('@/stores/user', () => ({
-	usersStore: () => ({ userResource: { data: { name: 'me@example.com' } } }),
+	usersStore: () => ({ userResource: user }),
 }))
 vi.mock('@/router', () => ({ default: { push: vi.fn() } }))
 vi.mock('../translation', () => ({ default: {} }))
@@ -62,6 +74,7 @@ async function iframeSrc(config: Record<string, unknown> | undefined) {
 
 describe('programming-exercise iframe URL', () => {
 	beforeEach(() => {
+		user.data = { name: 'me@example.com' }
 		calls.value = []
 	})
 
@@ -98,5 +111,27 @@ describe('getEditorTools wiring', () => {
 		const tools = getEditorTools() as Record<string, any>
 
 		expect(tools.program.config.studentView).toBe(false)
+	})
+})
+
+describe('the programming exercise block for a guest', () => {
+	// Guards #3010: the lookup 403'd for guests, and with no member it dropped
+	// the member filter and could match someone else's submission.
+	beforeEach(() => {
+		user.data = null
+		calls.value = []
+		mountBlock.mockClear()
+	})
+
+	it('skips the submission lookup', async () => {
+		await renderInLesson({ studentView: false })
+
+		expect(calls.value).toEqual([])
+	})
+
+	it('still mounts the exercise as a new submission', async () => {
+		await renderInLesson({ studentView: false })
+
+		expect(mountedWith().props.props.submissionID).toBe('new')
 	})
 })
