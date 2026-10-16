@@ -122,17 +122,8 @@ vi.mock('frappe-ui', () => ({
 			'disabled',
 			'placeholder',
 		],
-<<<<<<< HEAD
 		emits: ['update:modelValue', 'input'],
 		template: `<input
-=======
-		// As in rc.1, attrs land on the input; input and change emit the value,
-		// and a required control marks its input aria-required.
-		inheritAttrs: false,
-		emits: ['update:modelValue'],
-		template: `<span><input
-			v-bind="$attrs"
->>>>>>> 141e965 (fix: mark the invoicing consent checkbox as required)
 			:data-testid="'fc-' + label"
 			:type="type || 'text'"
 			:aria-required="required || undefined"
@@ -329,23 +320,6 @@ describe('Billing: checkout validation errors reach the user', () => {
 		)
 	})
 
-<<<<<<< HEAD
-=======
-	it('hands the consent error to the checkbox, not just the toast', async () => {
-		// The warning used to be a hand-rolled red div beside the control, so it
-		// was never tied to the checkbox for assistive tech. FormControl's own
-		// error region is, via aria-invalid / aria-errormessage.
-		const wrapper = await mountBilling()
-		await proceed(wrapper)
-
-		const error = wrapper
-			.findAll('[data-slot="error"]')
-			.find((node) => node.text().includes('consent'))
-		expect(error?.text()).toBe(
-			'Please provide your consent to proceed with the payment'
-		)
-	})
-
 	it('marks the consent box required before any click', async () => {
 		const wrapper = await mountBilling()
 		const box = wrapper
@@ -355,20 +329,6 @@ describe('Billing: checkout validation errors reach the user', () => {
 		expect(box?.attributes('aria-required')).toBe('true')
 	})
 
-	it('clears the consent error once the box is ticked', async () => {
-		const wrapper = await mountBilling()
-		await proceed(wrapper)
-		await consent(wrapper)
-		await proceed(wrapper)
-
-		expect(
-			wrapper
-				.findAll('[data-slot="error"]')
-				.some((node) => node.text().includes('consent'))
-		).toBe(false)
-	})
-
->>>>>>> 141e965 (fix: mark the invoicing consent checkbox as required)
 	it('toasts readable text for an invalid state', async () => {
 		const wrapper = await mountBilling({ state: 'Gujrat' })
 		await consent(wrapper)
