@@ -267,26 +267,48 @@ const saving = computed<boolean>(() =>
 	Boolean(newAssignment.loading || assignmentDoc?.setValue?.loading)
 )
 
+// An image-only question has no text but is not empty (CourseCreatorCard.vue).
+const hasContent = (html: string): boolean =>
+	html.replace(/<[^>]*>/g, '').trim().length > 0 || /<img\b/i.test(html)
+
+const missingRequiredField = (): string | undefined => {
+	const required: [string, boolean][] = [
+		[__('Title'), Boolean(assignment.title)],
+		[__('Submission Type'), Boolean(assignment.type)],
+		[__('Question'), hasContent(assignment.question)],
+	]
+	return required.find(([, filled]) => !filled)?.[0]
+}
+
+const validateSchedule = (): boolean => {
+	if (!assignment.enable_scheduling) {
+		assignment.schedule_start = null
+		assignment.schedule_end = null
+		return true
+	}
+	if (!assignment.schedule_start) {
+		toast.error(__('Schedule Start is required when scheduling is enabled.'))
+		return false
+	}
+	if (
+		assignment.schedule_end &&
+		new Date(assignment.schedule_end) <= new Date(assignment.schedule_start)
+	) {
+		toast.error(__('Schedule End must be after Schedule Start.'))
+		return false
+	}
+	return true
+}
+
 const validateFields = (): boolean => {
 	assignment.title = sanitizeOnWrite(assignment.title.trim())
 	assignment.question = sanitizeOnWrite(assignment.question)
-	if (assignment.enable_scheduling) {
-		if (!assignment.schedule_start) {
-			toast.error(__('Schedule Start is required when scheduling is enabled.'))
-			return false
-		}
-		if (
-			assignment.schedule_end &&
-			new Date(assignment.schedule_end) <= new Date(assignment.schedule_start)
-		) {
-			toast.error(__('Schedule End must be after Schedule Start.'))
-			return false
-		}
-	} else {
-		assignment.schedule_start = null
-		assignment.schedule_end = null
+	const missing = missingRequiredField()
+	if (missing) {
+		toast.error(__('Add a {0} before saving.').format(missing))
+		return false
 	}
-	return true
+	return validateSchedule()
 }
 
 const updateAssignment = (): void => {
