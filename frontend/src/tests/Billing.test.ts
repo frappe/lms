@@ -126,6 +126,7 @@ vi.mock('frappe-ui', () => ({
 		template: `<input
 			:data-testid="'fc-' + label"
 			:type="type || 'text'"
+			:aria-required="required || undefined"
 			:value="modelValue"
 			@change="$emit('update:modelValue', type === 'checkbox' ? $event.target.checked : $event.target.value)"
 		/>`,
@@ -317,6 +318,15 @@ describe('Billing: checkout validation errors reach the user', () => {
 		expect(toastMock.error).toHaveBeenCalledWith(
 			'Please provide your consent to proceed with the payment.'
 		)
+	})
+
+	it('marks the consent box required before any click', async () => {
+		const wrapper = await mountBilling()
+		const box = wrapper
+			.findAll('input[type="checkbox"]')
+			.find((i) => i.attributes('data-testid')?.includes('consent'))
+
+		expect(box?.attributes('aria-required')).toBe('true')
 	})
 
 	it('toasts readable text for an invalid state', async () => {
