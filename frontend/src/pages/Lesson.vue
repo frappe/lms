@@ -299,6 +299,7 @@
 					:courseName="courseName"
 					:courseTitle="lesson.data.course_title"
 					:progress="lessonProgress"
+					:withProgress="Boolean(user.data)"
 					:selectedLessonNumber="`${chapterNumber}-${lessonNumber}`"
 					:completedLesson="completedLesson"
 				/>
@@ -330,6 +331,7 @@
 			<StudentLessonSidebar
 				:courseName="courseName"
 				:progress="lessonProgress"
+				:withProgress="Boolean(user.data)"
 				:selectedLessonNumber="`${chapterNumber}-${lessonNumber}`"
 				:completedLesson="completedLesson"
 				:hideHeader="true"
