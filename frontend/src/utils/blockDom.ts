@@ -25,7 +25,7 @@ export const embedFrame = (
 // The "Assignment: <title>" placeholder every non-readOnly block renders.
 export const blockNotice = (text: string): HTMLDivElement => {
 	const card = document.createElement('div')
-	card.className = 'border rounded-md p-4 text-center bg-surface-sidebar mb-4'
+	card.className = 'border rounded-5 p-4 text-center bg-surface-sidebar mb-4'
 	const label = document.createElement('span')
 	label.className = 'font-medium'
 	label.textContent = text

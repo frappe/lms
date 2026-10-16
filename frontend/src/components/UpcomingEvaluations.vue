@@ -10,7 +10,7 @@
 		</div>
 		<div
 			v-if="endDate && !endDateHasPassed"
-			class="text-sm leading-5 bg-surface-amber-1 text-ink-amber-6 p-2 rounded-md mb-4"
+			class="text-sm leading-5 bg-surface-amber-1 text-ink-amber-5 p-2 rounded-5 mb-4"
 		>
 			{{ __('The last day to schedule your evaluations is ') }}
 			<span class="font-medium">
@@ -20,7 +20,7 @@
 		</div>
 		<div
 			v-else-if="endDateHasPassed"
-			class="text-sm leading-5 bg-surface-red-1 text-ink-red-6 p-2 rounded-md mb-4"
+			class="text-sm leading-5 bg-surface-red-1 text-ink-red-5 p-2 rounded-5 mb-4"
 		>
 			{{
 				__(
@@ -35,7 +35,7 @@
 			>
 				<div v-for="evl in upcoming_evals.data" :key="evl.name">
 					<div
-						class="border hover:border-outline-gray-3 text-ink-gray-7 rounded-md p-3"
+						class="border hover:border-outline-gray-3 text-ink-gray-7 rounded-5 p-3"
 					>
 						<div class="flex justify-between mb-3">
 							<span class="font-semibold text-ink-gray-9 leading-5">
@@ -52,7 +52,6 @@
 										},
 									},
 								]"
-								placement="left"
 								side="left"
 							>
 								<template v-slot="{ open }">
@@ -211,7 +210,7 @@ const cancelEvaluation = (evl) => {
 				label: __('Cancel'),
 				theme: 'red',
 				variant: 'solid',
-				onClick(close) {
+				onClick({ close }) {
 					call('lms.lms.api.cancel_evaluation', { evaluation: evl })
 						.then(() => {
 							upcoming_evals.reload()

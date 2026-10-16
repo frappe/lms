@@ -1,14 +1,14 @@
 <template>
 	<Popover bare>
-		<template #trigger="{ isOpen, toggle }" class="flex w-full">
-			<slot v-bind="{ isOpen, togglePopover: toggle }"></slot>
+		<template #trigger="{ open, setOpen }" class="flex w-full">
+			<slot v-bind="{ open, setOpen }"></slot>
 		</template>
 		<template #default>
 			<div
-				class="absolute start-1/2 mt-3 max-w-sm -translate-x-1/2 transform rounded-lg bg-surface-base px-4 sm:px-0 lg:max-w-3xl"
+				class="absolute start-1/2 mt-3 max-w-sm -translate-x-1/2 transform rounded-6 bg-surface-base px-4 sm:px-0 lg:max-w-3xl"
 			>
 				<div
-					class="overflow-hidden rounded-lg p-3 shadow-2xl ring-1 ring-black ring-opacity-5"
+					class="overflow-hidden rounded-6 p-3 shadow-2xl ring-1 ring-black ring-opacity-5"
 				>
 					<div class="flex items-center gap-x-2">
 						<div class="flex-1">
@@ -21,7 +21,7 @@
 							/>
 						</div>
 						<FileUploader
-							:uploadArgs="{ private: false }"
+							:private="false"
 							@success="(file) => $emit('select', file.file_url)"
 						>
 							<template
@@ -39,9 +39,9 @@
 						class="relative mt-2 grid w-[25.5rem] gap-2 bg-surface-base lg:grid-cols-2"
 					>
 						<Button
-							v-for="image in $resources.images.data"
+							v-for="image in images.data"
 							:key="image.id"
-							class="h-[50px] w-[200px] overflow-hidden rounded hover:opacity-80"
+							class="h-[50px] w-[200px] overflow-hidden rounded-4 hover:opacity-80"
 							@click="$emit('select', image.urls.raw)"
 						>
 							<img
@@ -67,32 +67,28 @@
 	</Popover>
 </template>
 
-<script>
+<script setup>
 // import { Popover, PopoverButton, PopoverPanel } from '@headlessui/vue'
-import { Popover, FileUploader, Button } from 'frappe-ui'
+import { Popover, FileUploader, Button, createResource } from 'frappe-ui'
+import { ref, watch } from 'vue'
 import { safeUrl } from '@/utils/safeUrl'
 
-export default {
-	name: 'UnsplashImageBrowser',
-	components: {
-		Popover,
-		FileUploader,
-	},
-	emits: ['select'],
-	resources: {
-		images() {
-			return {
-				url: 'gameplan.api.get_unsplash_photos',
-				params: { keyword: this.search },
-				auto: true,
-				debounce: 500,
-			}
-		},
-	},
-	data() {
-		return {
-			search: '',
-		}
-	},
-}
+defineEmits(['select'])
+
+const search = ref('')
+
+const images = createResource({
+	url: 'gameplan.api.get_unsplash_photos',
+	makeParams: () => ({ keyword: search.value }),
+	auto: true,
+	debounce: 500,
+})
+
+// `auto: true` only fires the debounced fetch once, on creation — it does not
+// re-run on later `search` changes. See EditCoverImage.vue for the same
+// pattern.
+watch(
+	() => search.value,
+	() => images.reload()
+)
 </script>

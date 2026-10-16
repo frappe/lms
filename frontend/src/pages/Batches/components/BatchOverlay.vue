@@ -1,5 +1,5 @@
 <template>
-	<div v-if="batch.data" class="border-2 rounded-md lg:w-72">
+	<div v-if="batch.data" class="border-2 rounded-5 lg:w-72">
 		<VideoPreview
 			:video-link="batch.data.video_link"
 			:fallback-image="batch.data.image"

@@ -22,7 +22,7 @@
 				</div>
 
 				<div
-					class="grid grid-cols-2 bg-surface-gray-1 px-2.5 py-2 rounded-md mt-8"
+					class="grid grid-cols-2 bg-surface-gray-1 px-2.5 py-2 rounded-5 mt-8"
 				>
 					<div class="space-y-1 border-e border-outline-gray-2 me-4">
 						<div class="text-ink-gray-6">
@@ -43,7 +43,7 @@
 				</div>
 
 				<div
-					class="text-ink-gray-7 border border-outline-gray-1 px-2.5 py-2 rounded-md text-xs leading-5 mt-5"
+					class="text-ink-gray-7 border border-outline-gray-1 px-2.5 py-2 rounded-5 text-xs leading-5 mt-5"
 				>
 					{{
 						__(

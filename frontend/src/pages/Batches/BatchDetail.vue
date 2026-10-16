@@ -11,7 +11,7 @@
 		doc-prop="batch"
 	>
 		<template #actions="{ tab, instance }">
-			<Badge v-if="tab?.key === 'settings' && instance?.isDirty" theme="orange">
+			<Badge v-if="tab?.key === 'settings' && instance?.isDirty" theme="amber">
 				{{ __('Not Saved') }}
 			</Badge>
 			<Button
@@ -25,7 +25,6 @@
 			<Dropdown
 				v-if="isAdmin && batchMenu(tab).length"
 				:options="batchMenu(tab)"
-				placement="left"
 				side="left"
 			>
 				<template v-slot="{ open }">

@@ -15,7 +15,7 @@
 					data-palette-item
 					:data-active="item.isActive ? 'true' : 'false'"
 					:disabled="item.isStale"
-					class="flex items-center justify-between p-2 rounded w-full text-start"
+					class="flex items-center justify-between p-2 rounded-4 w-full text-start"
 					:class="[
 						item.isStale
 							? 'opacity-50 cursor-default'

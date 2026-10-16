@@ -117,7 +117,8 @@
 				<Alert
 					v-else-if="showOpenEndedNotice"
 					class="mb-5"
-					theme="yellow"
+					theme="amber"
+					dismissible
 					:title="__('Manual grading')"
 					@dismiss="dismissOpenEndedNotice"
 				>

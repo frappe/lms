@@ -108,10 +108,19 @@ vi.mock('frappe-ui', () => ({
 	Select: passthrough,
 }))
 
-vi.mock('frappe-ui/frappe', () => ({
+vi.mock('@framework/ui/telemetry/index', async (importOriginal) => ({
+	...(await importOriginal<typeof import('@framework/ui/telemetry/index')>()),
 	useTelemetry: () => ({ capture: captureMock }),
-	useOnboarding: () => ({ updateOnboardingStep: vi.fn() }),
 }))
+vi.mock(
+	'@framework/ui/components/Onboarding/index',
+	async (importOriginal) => ({
+		...(await importOriginal<
+			typeof import('@framework/ui/components/Onboarding/index')
+		>()),
+		useOnboarding: () => ({ updateOnboardingStep: vi.fn() }),
+	})
+)
 
 // The rich text editor drags in ProseMirror. A textarea that emits `change`
 // is enough to fill the batch details the way the real editor does.

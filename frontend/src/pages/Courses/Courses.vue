@@ -96,7 +96,7 @@ import CourseCard from '@/components/CourseCard.vue'
 import { useRouter } from 'vue-router'
 import { openFormRoute } from '@/composables/useFormRoute'
 import { setFormSource } from '@/composables/formTracking'
-import { useTelemetry } from 'frappe-ui/frappe'
+import { useTelemetry } from '@framework/ui/telemetry/index'
 
 const user = inject('$user')
 const dayjs = inject('$dayjs')

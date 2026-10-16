@@ -9,7 +9,7 @@
 		/>
 		<FileUploader
 			:fileTypes="[fileType]"
-			:uploadArgs="{ private: false }"
+			:private="false"
 			:validateFile="(file: File) => validateFile(file, true, type)"
 			@success="(file: { file_url: string }) => saveFile(file)"
 			@failure="onUploadFailure"
@@ -21,7 +21,7 @@
 				>
 					<div
 						:class="[
-							'relative shrink-0 border rounded-md bg-surface-gray-2 grid place-items-center overflow-hidden',
+							'relative shrink-0 border rounded-5 bg-surface-gray-2 grid place-items-center overflow-hidden',
 							previewBoxClasses,
 						]"
 					>
@@ -145,8 +145,8 @@ const fileType = computed<string>(() =>
 
 const previewBoxClasses = computed<string>(() => {
 	if (props.shape === 'circle') return 'size-24 rounded-full'
-	if (props.size === 'sm') return 'w-24 aspect-[750/422] rounded'
-	return 'w-56 aspect-[750/422] rounded-md'
+	if (props.size === 'sm') return 'w-24 aspect-[750/422] rounded-4'
+	return 'w-56 aspect-[750/422] rounded-5'
 })
 
 const saveFile = (file: { file_url: string }) => {

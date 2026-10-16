@@ -96,7 +96,7 @@
 							{{ outlineStats }}
 						</div>
 					</div>
-					<div class="border rounded-md p-2">
+					<div class="border rounded-5 p-2">
 						<SkeletonLoader
 							v-if="outline.loading && !outline.data"
 							variant="course-outline"

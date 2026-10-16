@@ -19,7 +19,7 @@
 				<div class="flex flex-col">
 					<div class="text-p-base-medium text-ink-gray-7">
 						{{ __('Select Payment Gateway') }}
-						<span class="text-ink-red-6">*</span>
+						<span class="text-ink-red-5">*</span>
 					</div>
 					<div class="text-p-sm text-ink-gray-5">
 						{{ __('Choose a payment provider to configure its credentials.') }}
