@@ -89,7 +89,7 @@
 							<template #prefix>
 								<span class="lucide-calendar-days size-3 text-ink-gray-7" />
 							</template>
-							{{ dayjs(job.data.creation).fromNow() }}
+							{{ serverTime(job.data.creation).fromNow() }}
 						</Badge>
 						<Badge size="lg">
 							<template #prefix>
@@ -145,9 +145,9 @@ import HeaderButton from '@/components/HeaderButton.vue'
 import JobApplicationModal from '@/components/Modals/JobApplicationModal.vue'
 import { safeUrl } from '@/utils/safeUrl'
 import { openExternal } from '@/utils/openExternal'
+import { serverTime } from '@/utils/dayjs'
 
 const user = inject('$user')
-const dayjs = inject('$dayjs')
 const { brand } = sessionStore()
 const showApplicationModal = ref(false)
 const readOnlyMode = window.read_only_mode
