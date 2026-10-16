@@ -139,3 +139,19 @@ class TestJobVisibility(BaseTestUtils):
 	def test_an_open_post_keeps_its_details_for_guest(self):
 		details = self.as_user("Guest", get_job_details, self.open_job.name)
 		self.assertEqual(details.job_title, self.open_job.job_title)
+
+	def test_guests_see_no_jobs_when_guest_access_is_off(self):
+		previous = frappe.db.get_single_value("LMS Settings", "allow_guest_access")
+		frappe.db.set_single_value("LMS Settings", "allow_guest_access", 0)
+		self.addCleanup(frappe.db.set_single_value, "LMS Settings", "allow_guest_access", previous)
+
+		self.assertEqual(self.listed("Guest", "Open"), set())
+		count = self.as_user("Guest", get_job_opportunities_count, filters=frappe._dict(status="Open"))
+		self.assertEqual(count, 0)
+		self.assertIsNone(self.as_user("Guest", get_job_details, self.open_job.name))
+		meta = self.as_user("Guest", get_meta_from_document, f"job-openings/{self.open_job.name}")
+		self.assertNotEqual((meta or {}).get("title"), self.open_job.job_title)
+
+		self.assertIn(self.open_job.name, self.listed(self.student.name, "Open"))
+		details = self.as_user(self.student.name, get_job_details, self.open_job.name)
+		self.assertEqual(details.job_title, self.open_job.job_title)
