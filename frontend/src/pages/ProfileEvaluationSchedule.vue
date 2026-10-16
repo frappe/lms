@@ -41,7 +41,8 @@
 	<Event v-model="showEvent" :event="currentEvent" />
 </template>
 <script setup>
-import { Calendar, createListResource, Button } from 'frappe-ui'
+import { createListResource, Button } from 'frappe-ui'
+import { Calendar } from 'frappe-ui/experimental'
 import { inject, ref } from 'vue'
 import Event from '@/components/Modals/Event.vue'
 

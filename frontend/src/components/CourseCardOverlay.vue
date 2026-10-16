@@ -1,5 +1,5 @@
 <template>
-	<div class="border-2 rounded-md min-w-80 max-w-sm">
+	<div class="border-2 rounded-5 min-w-80 max-w-sm">
 		<VideoPreview
 			:video-link="course.data?.video_link"
 			:fallback-image="course.data?.image"

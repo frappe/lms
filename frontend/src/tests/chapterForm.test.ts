@@ -15,23 +15,24 @@ vi.stubGlobal('__', (text: string) => text)
 // newBatchForm.test.ts, FormShell.test.ts), so importActual() on it throws
 // ERR_MODULE_NOT_FOUND: every export the form and FormShell pull in has to be
 // stubbed by hand.
-const { createResourceMock, getCachedResourceMock, passthrough } =
-	vi.hoisted(() => {
-	// @/utils pulls in plyr, which touches matchMedia at import time.
-	window.matchMedia ??= (() => ({
-		matches: false,
-		addEventListener: () => {},
-		removeEventListener: () => {},
-	})) as unknown as typeof window.matchMedia
-	return {
-		createResourceMock: vi.fn(),
-		getCachedResourceMock: vi.fn(),
-		passthrough: {
-			inheritAttrs: false,
-			template: `<div><slot name="icon" /><slot /></div>`,
-		},
+const { createResourceMock, getCachedResourceMock, passthrough } = vi.hoisted(
+	() => {
+		// @/utils pulls in plyr, which touches matchMedia at import time.
+		window.matchMedia ??= (() => ({
+			matches: false,
+			addEventListener: () => {},
+			removeEventListener: () => {},
+		})) as unknown as typeof window.matchMedia
+		return {
+			createResourceMock: vi.fn(),
+			getCachedResourceMock: vi.fn(),
+			passthrough: {
+				inheritAttrs: false,
+				template: `<div><slot name="icon" /><slot /></div>`,
+			},
+		}
 	}
-})
+)
 
 // HeaderButton wraps frappe-ui's Button in a Tooltip below the mobile
 // breakpoint, and the hand-written frappe-ui mock here has no Tooltip. Stub it
@@ -75,10 +76,19 @@ vi.mock('frappe-ui', () => ({
 	Switch: passthrough,
 }))
 
-vi.mock('frappe-ui/frappe', () => ({
+vi.mock('@framework/ui/telemetry/index', async (importOriginal) => ({
+	...(await importOriginal<typeof import('@framework/ui/telemetry/index')>()),
 	useTelemetry: () => ({ capture: vi.fn() }),
-	useOnboarding: () => ({ updateOnboardingStep: vi.fn() }),
 }))
+vi.mock(
+	'@framework/ui/components/Onboarding/index',
+	async (importOriginal) => ({
+		...(await importOriginal<
+			typeof import('@framework/ui/components/Onboarding/index')
+		>()),
+		useOnboarding: () => ({ updateOnboardingStep: vi.fn() }),
+	})
+)
 
 vi.mock('@/components/Controls/BooleanSwitch.vue', () => ({
 	default: {

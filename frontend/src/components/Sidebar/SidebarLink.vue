@@ -2,7 +2,7 @@
 	<button
 		v-if="link && !link.onlyMobile"
 		:data-notifications-trigger="link.panel === 'notifications' ? '' : null"
-		class="flex w-full h-7 cursor-pointer items-center rounded text-ink-gray-8 duration-300 ease-in-out focus:outline-none focus:transition-none focus-visible:rounded focus-visible:ring-2 focus-visible:ring-outline-gray-3"
+		class="flex w-full h-7 cursor-pointer items-center rounded-4 text-ink-gray-8 duration-300 ease-in-out focus:outline-none focus:transition-none focus-visible:rounded-4 focus-visible:ring-2 focus-visible:ring-outline-gray-3"
 		:class="
 			isActive ? 'bg-surface-elevation-3 shadow-sm' : 'hover:bg-surface-gray-2'
 		"
@@ -12,11 +12,7 @@
 			class="flex items-center w-full duration-300 ease-in-out group"
 			:class="isCollapsed ? 'p-1 relative' : 'px-2 py-1'"
 		>
-			<Tooltip
-				:text="__(link.label)"
-				placement="right"
-				:disabled="!isCollapsed"
-			>
+			<Tooltip :text="__(link.label)" side="right" :disabled="!isCollapsed">
 				<slot name="icon">
 					<span class="grid size-4 flex-shrink-0 place-items-center">
 						<component
@@ -28,9 +24,9 @@
 			</Tooltip>
 			<Tooltip
 				:text="__(link.label)"
-				placement="right"
+				side="right"
 				:disabled="isCollapsed"
-				:hoverDelay="1.5"
+				:hoverDelay="1500"
 			>
 				<span
 					class="min-w-0 truncate text-p-sm duration-300 ease-in-out"

@@ -183,7 +183,7 @@ describe('SettingsList', () => {
 
 	it('keeps the header in the same scroller as the rows', () => {
 		// Not a stylistic preference. The header and the rows are separate grid
-		// containers sharing one `--list-columns` track list, so they only line up
+		// containers sharing one `--_list-columns` track list, so they only line up
 		// while they are the same width. With the header outside the scroller, a
 		// classic (space-taking) scrollbar makes the rows' content box ~15px
 		// narrower, the `fr` track absorbs the entire difference, and every fixed

@@ -12,7 +12,7 @@
 		<template #default>
 			<EditorFixedMenu
 				v-if="fixedMenu"
-				class="w-full overflow-x-auto rounded-t-lg border border-outline-elevation-2"
+				class="w-full overflow-x-auto rounded-t-6 border border-outline-elevation-2"
 				:items="toolbar"
 			/>
 			<EditorContent :class="editorClass" />

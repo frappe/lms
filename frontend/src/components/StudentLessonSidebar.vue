@@ -31,7 +31,7 @@
 					:defaultOpen="chapterDefaultOpen(chapter)"
 				>
 					<DisclosureButton
-						class="w-full flex items-center justify-between rounded px-3 py-2 hover:bg-surface-gray-2 text-start"
+						class="w-full flex items-center justify-between rounded-4 px-3 py-2 hover:bg-surface-gray-2 text-start"
 					>
 						<div
 							class="flex items-center gap-2 text-base-medium leading-5 text-ink-gray-9 min-w-0"
@@ -74,7 +74,7 @@
 													query: studentViewQuery,
 											  }
 									"
-									class="flex w-full items-center gap-3 rounded ps-9 pe-3 py-2 text-start text-sm leading-5 text-ink-gray-8 hover:bg-surface-gray-2"
+									class="flex w-full items-center gap-3 rounded-4 ps-9 pe-3 py-2 text-start text-sm leading-5 text-ink-gray-8 hover:bg-surface-gray-2"
 									:class="[
 										lesson.locked
 											? 'cursor-not-allowed opacity-60'

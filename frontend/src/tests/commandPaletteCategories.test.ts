@@ -20,7 +20,8 @@ const resource = {
 
 vi.mock('frappe-ui', () => ({
 	createResource: () => resource,
-	debounce: (fn: (...args: unknown[]) => void) => fn,
+	debounce: (fn: (...args: unknown[]) => void) =>
+		Object.assign(fn, { cancel: () => {} }),
 	Dialog: Object.assign(
 		{ props: ['open', 'size', 'bare'], template: `<div><slot /></div>` },
 		{ Title: { template: `<div><slot /></div>` } }

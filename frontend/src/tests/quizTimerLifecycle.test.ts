@@ -105,11 +105,14 @@ vi.mock('frappe-ui', async () => {
 		Checkbox: passthrough,
 		Dialog: { props: ['open'], template: '<div v-if="open"><slot /></div>' },
 		FormControl: passthrough,
-		ListView: passthrough,
 		LoadingIndicator: passthrough,
-		TextEditor: passthrough,
 	}
 })
+
+vi.mock('frappe-ui/experimental', () => ({
+	ListView: { template: '<div><slot /></div>' },
+	TextEditor: { template: '<div><slot /></div>' },
+}))
 
 vi.mock('@/components/ProgressBar.vue', () => ({
 	default: { template: '<div />' },

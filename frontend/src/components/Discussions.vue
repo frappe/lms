@@ -29,7 +29,7 @@
 					type="button"
 					data-testid="topic-row"
 					@click="showReplies(topic)"
-					class="flex items-center cursor-pointer py-4 px-2 rounded-md w-full text-start"
+					class="flex items-center cursor-pointer py-4 px-2 rounded-5 w-full text-start"
 					:class="[
 						{ 'border-b': index + 1 != topics.data.length },
 						currentTopic?.name === topic.name ? 'bg-surface-gray-2' : '',
@@ -79,7 +79,7 @@
 	</div>
 	<div
 		v-else
-		class="flex flex-col items-center justify-center border-2 border-dashed mt-5 py-8 rounded-md"
+		class="flex flex-col items-center justify-center border-2 border-dashed mt-5 py-8 rounded-5"
 	>
 		<span class="lucide-message-square-text size-7 text-ink-gray-4 me-2" />
 		<div class="mt-2">

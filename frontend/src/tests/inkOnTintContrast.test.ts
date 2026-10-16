@@ -9,8 +9,9 @@
  * oklch(.205 0 0) but those surfaces only reach oklch(.33), so it stays bad.
  *
  * frappe-ui's own pairings are the reference (Badge.vue:47-78): solid is
- * `text-ink-<colour>-1` on `bg-surface-<colour>-7`, subtle is
- * `text-ink-<colour>-8` on `bg-surface-<colour>-2`.
+ * `text-white` on `bg-surface-<colour>-7` (post-#1016 ink shift, the old
+ * white `ink-<colour>-1` step has no v2 destination), subtle is
+ * `text-ink-<colour>-7` on `bg-surface-<colour>-2`.
  *
  * Raw palette colours (`bg-purple-500`) are banned in the same sweep: the preset
  * builds them from lightModeColors whatever the theme, so they never adapt while

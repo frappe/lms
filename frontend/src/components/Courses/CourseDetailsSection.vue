@@ -38,7 +38,7 @@
 							type="button"
 							:aria-expanded="open"
 							:class="[
-								'relative inline-flex w-full min-h-7 items-center gap-2 rounded border border-outline-gray-2 bg-surface-base px-2 text-start text-base text-ink-gray-8 outline-none transition-colors hover:border-outline-gray-3 hover:shadow-sm focus:border-outline-gray-4 focus:shadow-sm',
+								'relative inline-flex w-full min-h-7 items-center gap-2 rounded-4 border border-outline-gray-2 bg-surface-base px-2 text-start text-base text-ink-gray-8 outline-none transition-colors hover:border-outline-gray-3 hover:shadow-sm focus:border-outline-gray-4 focus:shadow-sm',
 								open && 'border-outline-gray-4 shadow-sm',
 							]"
 						>

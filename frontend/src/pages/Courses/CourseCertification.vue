@@ -12,7 +12,7 @@
 				</div>
 				<button
 					type="button"
-					class="border p-3 w-fit min-w-60 rounded-md space-y-2 hover:bg-surface-gray-1 cursor-pointer mt-5 text-start block"
+					class="border p-3 w-fit min-w-60 rounded-5 space-y-2 hover:bg-surface-gray-1 cursor-pointer mt-5 text-start block"
 					@click="openCertificate"
 				>
 					<div class="text-ink-gray-9 font-semibold">

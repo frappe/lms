@@ -1,5 +1,5 @@
 <template>
-	<SettingsDialog v-model="show" v-model:tab="activeTab" size="5xl">
+	<SettingsDialog v-model:open="show" v-model:tab="activeTab" size="5xl">
 		<template #title>{{ __('Settings') }}</template>
 		<SettingsSidebar>
 			<SettingsNavGroup
