@@ -1,5 +1,7 @@
 <template>
+	<NotFound v-if="(batch.fetched || batch.error) && !batch.data?.name" />
 	<TabbedDetailPage
+		v-else
 		ref="page"
 		:tabs="tabs"
 		:breadcrumbs="breadcrumbs"
@@ -120,7 +122,12 @@ import Discussions from '@/components/Discussions.vue'
 import HeaderButton from '@/components/HeaderButton.vue'
 import ShortcutTooltip from '@/components/ShortcutTooltip.vue'
 import SkeletonLoader from '@/components/SkeletonLoader.vue'
+<<<<<<< HEAD
 import TabbedDetailPage from '@/components/Layouts/TabbedDetailPage.vue'
+=======
+import TabbedDetailPage from '@/components/Layouts/pages/TabbedDetailPage.vue'
+import NotFound from '@/pages/NotFound.vue'
+>>>>>>> a5d7ad5 (fix: show not found for a batch the viewer cannot see)
 import { openBatchForm } from '@/composables/useBatchForms'
 
 const router = useRouter()
@@ -147,11 +154,6 @@ const batch = createResource({
 		batch: props.batchName,
 	}),
 	auto: true,
-	onSuccess: (data) => {
-		if (!data) {
-			router.push({ name: 'Batches' })
-		}
-	},
 })
 
 // The router reuses this component when you go straight from one batch to
