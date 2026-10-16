@@ -48,12 +48,51 @@
 				>
 					{{ chapter.lessons.length }}
 				</span>
+<<<<<<< HEAD
 				<Tooltip :text="__('Edit Chapter')" placement="bottom">
 					<span
 						v-if="allowEdit && chapter.is_scorm_package"
 						@click.prevent="emit('edit-chapter', chapter)"
 						class="lucide-file-pen-line size-4 text-ink-gray-9 invisible group-hover:visible"
 					/>
+=======
+				<template v-if="isScormChapterLocked">
+					<Tooltip :text="lockReason">
+						<span
+							class="lucide-lock-keyhole size-4 text-ink-gray-4"
+							aria-hidden="true"
+						/>
+					</Tooltip>
+					<span class="sr-only">{{ __('Locked') }}</span>
+					<span class="sr-only">{{ lockReason }}</span>
+				</template>
+				<template
+					v-else-if="chapter.is_scorm_package && isScormChapterComplete"
+				>
+					<span
+						class="lucide-check size-4 text-ink-green-8"
+						aria-hidden="true"
+					/>
+					<span class="sr-only">{{ __('Completed') }}</span>
+				</template>
+			</component>
+			<div v-if="allowEdit" class="flex items-center gap-x-4 shrink-0">
+				<Tooltip
+					v-if="chapter.is_scorm_package"
+					:text="__('Edit Chapter')"
+					side="bottom"
+				>
+					<Button
+						variant="ghost"
+						:label="__('Edit Chapter')"
+						class="invisible group-hover:visible group-focus-within:visible [@media(hover:none)]:visible"
+						@click="emit('edit-chapter', chapter)"
+					>
+						<template #icon>
+							<span class="lucide-file-pen-line size-4 text-ink-gray-9" />
+						</template>
+					</Button>
+>>>>>>> 6c536fd (fix: say why a lesson or chapter is locked)
 				</Tooltip>
 				<Tooltip :text="__('Delete Chapter')" placement="bottom">
 					<span
@@ -142,14 +181,14 @@
 									/>
 								</div>
 								<template v-if="lesson.locked">
-									<span
-										class="lucide-lock-keyhole h-4 w-4 text-ink-gray-4 ms-2"
-										:title="
-											__('Complete the previous lesson to unlock this one')
-										"
-										aria-hidden="true"
-									/>
+									<Tooltip :text="lockReason">
+										<span
+											class="lucide-lock-keyhole h-4 w-4 text-ink-gray-4 ms-2"
+											aria-hidden="true"
+										/>
+									</Tooltip>
 									<span class="sr-only">{{ __('Locked') }}</span>
+									<span class="sr-only">{{ lockReason }}</span>
 								</template>
 								<span
 									v-else-if="lesson.is_complete"
@@ -281,6 +320,10 @@ const isScormChapterComplete = computed<boolean>(() =>
 			props.chapter.lessons.every((l) => l.is_complete)
 	)
 )
+
+// Lessons unlock in course order: one stays locked while any earlier lesson is
+// incomplete (compute_locked_lessons).
+const lockReason = __('Complete the previous lessons to unlock this one')
 
 // A SCORM chapter has no DisclosurePanel, so it never reaches the per-lesson lock
 // affordance below: without this it looks identical to an open one and the student
