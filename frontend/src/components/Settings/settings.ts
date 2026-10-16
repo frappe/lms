@@ -287,6 +287,7 @@ export const settingsTree: SettingsGroup[] = [
 									name: 'default_currency',
 									type: 'link',
 									doctype: 'Currency',
+									query: 'lms.lms.api.search_currencies',
 									description:
 										'Default currency used for course and batch pricing.',
 									// Shown, never written by being shown. Nothing on the

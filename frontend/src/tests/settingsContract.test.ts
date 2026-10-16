@@ -77,6 +77,18 @@ describe('the settings tree', () => {
 
 		expect(undeclared).toEqual([])
 	})
+
+	// Regression: currency picker 403 for LMS roles (#3023, fixed in #3038).
+	it('searches every Currency link through the LMS query', () => {
+		const currencyLinks = items
+			.flatMap(fieldsOfItem)
+			.filter((field) => field.type === 'link' && field.doctype === 'Currency')
+
+		expect(currencyLinks).not.toHaveLength(0)
+		for (const field of currencyLinks) {
+			expect(field).toHaveProperty('query', 'lms.lms.api.search_currencies')
+		}
+	})
 })
 
 // A NEW_RECORD source builds no document resource, so nothing here reaches the

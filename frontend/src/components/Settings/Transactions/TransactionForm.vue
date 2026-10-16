@@ -157,6 +157,7 @@
 					v-model="doc.currency"
 					class="w-56"
 					doctype="Currency"
+					query="lms.lms.api.search_currencies"
 					:aria-label="__('Currency')"
 					:required="required('currency')"
 				/>
