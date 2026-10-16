@@ -24,36 +24,13 @@
 				</SettingsNavItem>
 			</SettingsNavGroup>
 		</SettingsSidebar>
-<<<<<<< HEAD
-		<SettingsContent v-if="data.doc">
+		<SettingsContent v-if="data.doc" class="min-w-0">
 			<SettingsPanel
 				v-for="item in items"
 				:key="item.label"
 				:value="item.label"
-			>
-=======
-		<SettingsContent class="min-w-0">
-			<SettingsPanel
-				v-for="item in items"
-				:key="item.slug"
-				:value="item.slug"
 				class="min-w-0"
 			>
-				<SettingsFieldsPanel
-					v-if="item.page.kind === 'fields'"
-					:page="item.page"
-					:title="__(item.label)"
-					:data="sharedDocument(item.page)"
-				/>
-				<SettingsListPanel
-					v-else-if="item.page.kind === 'list'"
-					:page="item.page"
-					:title="__(item.label)"
-					:record="recordFor(item)"
-					@update:record="(record) => openRecord(item, record)"
-					@renamed="(name) => renameRecord(item, name)"
-				/>
->>>>>>> 342274b (fix: keep the dialog's content column within its width)
 				<component
 					v-if="item.template"
 					:is="item.template"
