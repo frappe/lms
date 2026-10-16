@@ -36,7 +36,7 @@ function assertFrameworkUiLinked(frontend) {
 
 export default defineConfig(async ({ mode }) => {
 	const isDev = mode === 'development'
-	assertFrameworkUiLinked(__dirname)
+	assertFrameworkUiLinked(import.meta.dirname)
 	const frappeui = await importFrappeUIPlugin(isDev)
 
 	const config = {
@@ -82,13 +82,17 @@ export default defineConfig(async ({ mode }) => {
 			// at `${BASE_URL}pdfjs/...`. Served in dev too (static-copy dev middleware).
 			viteStaticCopy({
 				targets: [
+					// stripBase: the plugin keeps the source path under dest
+					// otherwise (pdfjs/cmaps/node_modules/pdfjs-dist/cmaps/...).
 					{
 						src: 'node_modules/pdfjs-dist/cmaps/*',
 						dest: 'pdfjs/cmaps',
+						rename: { stripBase: true },
 					},
 					{
 						src: 'node_modules/pdfjs-dist/standard_fonts/*',
 						dest: 'pdfjs/standard_fonts',
+						rename: { stripBase: true },
 					},
 				],
 			}),
@@ -137,7 +141,7 @@ export default defineConfig(async ({ mode }) => {
 			// apps/frappe/ui that has no node_modules beside it.
 			preserveSymlinks: true,
 			alias: {
-				'@': path.resolve(__dirname, 'src'),
+				'@': path.resolve(import.meta.dirname, 'src'),
 			},
 			// Force one copy of prosemirror; duplicate copies break tiptap's
 			// instanceof checks and crash the list buttons.
@@ -158,7 +162,6 @@ export default defineConfig(async ({ mode }) => {
 				'tailwind.config.js',
 				'highlight.js',
 				'plyr',
-				'interactjs',
 			],
 			exclude: mode === 'production' ? [] : ['frappe-ui'],
 		},
