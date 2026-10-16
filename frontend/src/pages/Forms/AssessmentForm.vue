@@ -84,9 +84,9 @@ const refusal = computed(() => {
 })
 
 const assessmentTypes = computed(() => [
-	{ label: 'Quiz', value: 'LMS Quiz' },
-	{ label: 'Assignment', value: 'LMS Assignment' },
-	{ label: 'Programming Exercise', value: 'LMS Programming Exercise' },
+	{ label: __('Quiz'), value: 'LMS Quiz' },
+	{ label: __('Assignment'), value: 'LMS Assignment' },
+	{ label: __('Programming Exercise'), value: 'LMS Programming Exercise' },
 ])
 
 const assessmentResource = createResource({
