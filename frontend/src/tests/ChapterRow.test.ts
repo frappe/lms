@@ -27,7 +27,8 @@ vi.mock('frappe-ui', () => ({
 		`,
 	},
 	Tooltip: {
-		template: `<span><slot /></span>`,
+		props: ['text'],
+		template: `<span :data-tooltip="text"><slot /></span>`,
 	},
 	toast: {
 		success: vi.fn(),
@@ -245,5 +246,42 @@ describe('ChapterRow draft lesson', () => {
 		expect(wrapper.find('[data-testid="outline-draft-lesson"]').exists()).toBe(
 			false
 		)
+	})
+})
+
+describe('ChapterRow lock reason', () => {
+	// Guards #3015: the lock gave no reason. Lessons unlock in course order, so a
+	// lesson stays locked while any earlier one is incomplete.
+	const reason = 'Complete the previous lessons to unlock this one'
+	const lockTooltip = (wrapper: ReturnType<typeof mountRow>) =>
+		wrapper
+			.findAll('[data-tooltip]')
+			.find((el) => el.find('.lucide-lock-keyhole').exists())
+
+	it('explains a locked lesson', () => {
+		const wrapper = mountRow({
+			...chapter,
+			idx: 1,
+			lessons: [
+				{ name: 'LESSON-1', title: 'Lesson 1', number: '2-1', locked: 1 },
+			],
+		})
+
+		expect(lockTooltip(wrapper)?.attributes('data-tooltip')).toBe(reason)
+		expect(wrapper.get('.cursor-not-allowed').text()).toContain(reason)
+	})
+
+	it('explains a locked SCORM chapter', () => {
+		const wrapper = mountRow({
+			...chapter,
+			idx: 1,
+			is_scorm_package: 1 as const,
+			lessons: [
+				{ name: 'LESSON-1', title: 'SCORM Lesson', number: '1-1', locked: 1 },
+			],
+		})
+
+		expect(lockTooltip(wrapper)?.attributes('data-tooltip')).toBe(reason)
+		expect(wrapper.text()).toContain(reason)
 	})
 })
