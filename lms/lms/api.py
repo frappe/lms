@@ -444,7 +444,10 @@ def sees_every_job() -> bool:
 
 
 def can_see_job(status: str, owner: str) -> bool:
-	"""A closed post is for its poster and staff; everyone else sees open posts."""
+	"""A closed post is for its poster and staff; everyone else sees open posts. Guests see none
+	when the site turns guest access off."""
+	if not guest_access_allowed():
+		return False
 	return status == "Open" or owner == frappe.session.user or sees_every_job()
 
 
@@ -470,6 +473,9 @@ def get_job_opportunities(
 	limit_start: int = None,
 	limit_page_length: int = None,
 ):
+	if not guest_access_allowed():
+		return []
+
 	if limit_page_length is not None:
 		page_length = cint(limit_page_length)
 	if limit_start is not None:
@@ -505,6 +511,9 @@ def get_job_opportunities(
 
 @frappe.whitelist(allow_guest=True)
 def get_job_opportunities_count(filters: dict = None, or_filters: dict = None):
+	if not guest_access_allowed():
+		return 0
+
 	filters, or_filters = sanitize_job_filters(filters, or_filters)
 	return frappe.db.count("Job Opportunity", filters, or_filters)
 
