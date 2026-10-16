@@ -24,11 +24,12 @@
 				</SettingsNavItem>
 			</SettingsNavGroup>
 		</SettingsSidebar>
-		<SettingsContent v-if="data.doc">
+		<SettingsContent v-if="data.doc" class="min-w-0">
 			<SettingsPanel
 				v-for="item in items"
 				:key="item.label"
 				:value="item.label"
+				class="min-w-0"
 			>
 				<component
 					v-if="item.template"
