@@ -988,11 +988,14 @@ const handlePageHide = (): void => {
 const sendSubmitBeacon = (reason: SubmissionReason): void => {
 	if (props.preview) return
 	if (activeQuestion.value > 0 && !quizSubmission.data && quiz.data) {
+		const token = window.csrf_token
+		if (!token) return
 		const params = new URLSearchParams({
 			quiz: quiz.data.name,
 			results: localStorage.getItem(quiz.data.title) || '[]',
 			violation_count: String(violationCount.value),
 			submission_reason: reason,
+			csrf_token: token
 		})
 		// Beacons go out as a query string, so only spend the URL budget on the
 		// log when there is one.
