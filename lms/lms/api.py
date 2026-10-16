@@ -37,7 +37,12 @@ from frappe.utils.response import Response
 from pypika import functions as fn
 
 from lms.lms.code_runner import code_to_store, run_test_cases
-from lms.lms.course_import_export import export_course_zip, import_course_zip, validate_archive
+from lms.lms.course_import_export import (
+	export_course_zip,
+	get_uploaded_zip_path,
+	import_course_zip,
+	validate_archive,
+)
 from lms.lms.doctype.course_lesson.course_lesson import (
 	cleanup_lesson_backreferences,
 	save_progress,
@@ -3905,8 +3910,10 @@ def export_course_as_zip(course_name: str):
 
 @frappe.whitelist()
 def import_course_from_zip(zip_file_path: str):
+	"""`zip_file_path` is the file_url of a ZIP the caller uploaded, or may otherwise read."""
 	frappe.only_for(["Moderator", "Course Creator"])
-	return import_course_zip(zip_file_path)
+	zip_path = get_uploaded_zip_path(zip_file_path)
+	return import_course_zip(os.path.relpath(zip_path, frappe.get_site_path()))
 
 
 @frappe.whitelist()

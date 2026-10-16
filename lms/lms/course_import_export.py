@@ -404,6 +404,28 @@ def frappe_json_dumps(data):
 	return json.dumps(data, indent=4, default=default)
 
 
+def get_uploaded_zip_path(file_url):
+	"""The path on disk of the uploaded course ZIP at file_url, if the caller may read it.
+
+	Matched on the File row that first named this url, as in get_exportable_file: a later row
+	naming the same url can be one the caller made for someone else's file."""
+	rows = frappe.get_all(
+		"File",
+		filters={"file_url": file_url, "is_folder": 0},
+		fields=["name", "file_url"],
+		order_by="creation asc",
+	)
+	original = next((row.name for row in rows if row.file_url == file_url), None)
+	file_doc = frappe.get_doc("File", original) if original else None
+	if not file_doc or not frappe.has_permission("File", "read", doc=file_doc):
+		frappe.throw(_("Upload the course ZIP again and import it from there."), frappe.PermissionError)
+
+	file_path = get_local_file_path(file_doc)
+	if not file_path:
+		frappe.throw(_("Invalid ZIP file"))
+	return file_path
+
+
 def import_course_zip(zip_file_path):
 	zip_file_path = zip_file_path.lstrip("/")
 	actual_path = frappe.get_site_path(zip_file_path)
