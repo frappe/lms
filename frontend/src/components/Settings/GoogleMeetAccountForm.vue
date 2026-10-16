@@ -40,7 +40,7 @@ import { User } from '@/types'
 import { openSettings, cleanError } from '@/utils'
 import Link from '@/components/Controls/Link.vue'
 import SettingsLayout from '@/components/Layouts/SettingsLayout.vue'
-import { useTelemetry } from 'frappe-ui/frappe'
+import { useTelemetry } from '@framework/ui/telemetry/index'
 
 interface GoogleMeetAccount {
 	name: string

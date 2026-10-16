@@ -149,15 +149,15 @@
 
 <script setup lang="ts">
 import { computed, onMounted, ref, useSlots, watch } from 'vue'
+import { Checkbox } from 'frappe-ui'
 import {
-	Checkbox,
 	ListHeader,
 	ListHeaderItem,
 	ListRowItem,
 	ListRows,
 	ListSelectBanner,
 	ListView,
-} from 'frappe-ui'
+} from 'frappe-ui/experimental'
 import type { ListColumn, ListRow, ListViewOptions } from '@/types'
 import { useScreenSize } from '@/utils/composables'
 

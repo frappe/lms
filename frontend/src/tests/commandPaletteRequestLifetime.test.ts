@@ -1,11 +1,12 @@
 /**
  * When a debounced search is allowed to reach the server.
  *
- * frappe-ui's `debounce` returns a bare function with no `.cancel()`, so a call
- * already scheduled cannot be cleared — the palette disarms it instead, and
- * these cases are what that has to cover. This file holds the pending call
- * rather than timing it, so a test decides when the trailing tick lands, and
- * whether anything is still interested by then.
+ * frappe-ui's `debounce` (>= 1.0.0-beta.65) returns a function with
+ * `.cancel()`, and the palette calls it whenever the search is invalidated —
+ * closing, unmounting, leaving a category — so a scheduled call never reaches
+ * the tick at all. This file holds the pending call rather than timing it, so
+ * a test decides when the trailing tick would have landed, and can assert it
+ * was cancelled instead.
  */
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { mount } from '@vue/test-utils'
@@ -20,8 +21,14 @@ let tick: (() => void) | null = null
 
 vi.mock('frappe-ui', () => ({
 	createResource: () => resource,
-	debounce: (fn: () => void) => () => {
-		tick = fn
+	debounce: (fn: () => void) => {
+		const armed = () => {
+			tick = fn
+		}
+		armed.cancel = () => {
+			tick = null
+		}
+		return armed
 	},
 	Dialog: Object.assign(
 		{ props: ['open', 'size', 'bare'], template: `<div><slot /></div>` },
@@ -123,9 +130,9 @@ describe('a scheduled search', () => {
 
 		await wrapper.setProps({ modelValue: false })
 		await nextTick()
-		tick!()
-		await nextTick()
 
+		// Cancelled outright, not merely disarmed — there is no tick left to fire.
+		expect(tick).toBeNull()
 		expect(resource.submit).not.toHaveBeenCalled()
 	})
 
@@ -134,9 +141,8 @@ describe('a scheduled search', () => {
 		await type(wrapper, 'kub')
 
 		wrapper.unmount()
-		tick!()
-		await nextTick()
 
+		expect(tick).toBeNull()
 		expect(resource.submit).not.toHaveBeenCalled()
 	})
 
@@ -147,9 +153,8 @@ describe('a scheduled search', () => {
 
 		await press(wrapper, 'Escape')
 		await nextTick()
-		tick!()
-		await nextTick()
 
+		expect(tick).toBeNull()
 		expect(resource.submit).not.toHaveBeenCalled()
 	})
 })

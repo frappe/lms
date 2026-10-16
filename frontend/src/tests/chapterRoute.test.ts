@@ -66,10 +66,19 @@ vi.mock('frappe-ui', () => ({
 	Switch: passthrough,
 }))
 
-vi.mock('frappe-ui/frappe', () => ({
+vi.mock('@framework/ui/telemetry/index', async (importOriginal) => ({
+	...(await importOriginal<typeof import('@framework/ui/telemetry/index')>()),
 	useTelemetry: () => ({ capture: vi.fn() }),
-	useOnboarding: () => ({ updateOnboardingStep: vi.fn() }),
 }))
+vi.mock(
+	'@framework/ui/components/Onboarding/index',
+	async (importOriginal) => ({
+		...(await importOriginal<
+			typeof import('@framework/ui/components/Onboarding/index')
+		>()),
+		useOnboarding: () => ({ updateOnboardingStep: vi.fn() }),
+	})
+)
 
 vi.mock('@/components/Controls/BooleanSwitch.vue', () => ({
 	default: { props: ['modelValue', 'label'], template: `<label />` },

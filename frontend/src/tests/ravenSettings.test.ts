@@ -1407,10 +1407,10 @@ describe('leaving a Raven detail page', () => {
  */
 describe('the mass-removal confirmation', () => {
 	const DialogStub = {
-		props: ['modelValue', 'actions'],
-		emits: ['update:modelValue'],
+		props: ['open', 'actions'],
+		emits: ['update:open'],
 		template: `<div>
-			<button data-testid="dismiss" @click="$emit('update:modelValue', false)" />
+			<button data-testid="dismiss" @click="$emit('update:open', false)" />
 			<button
 				v-for="a in actions"
 				:key="a.label"

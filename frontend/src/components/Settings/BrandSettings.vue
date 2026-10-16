@@ -47,13 +47,13 @@
 			<div class="flex flex-col justify-between gap-4">
 				<div class="flex items-center flex-1 gap-5">
 					<div
-						class="flex items-center justify-center rounded border border-outline-elevation-2 size-20"
+						class="flex items-center justify-center rounded-4 border border-outline-elevation-2 size-20"
 					>
 						<img
 							v-if="branding.data.banner_image?.file_url"
 							:src="safeUrl(branding.data.banner_image.file_url)"
 							alt="Logo"
-							class="size-8 rounded"
+							class="size-8 rounded-4"
 						/>
 						<span v-else class="lucide-image size-5 text-ink-gray-4" />
 					</div>
@@ -81,13 +81,13 @@
 			<div class="flex flex-col justify-between gap-4">
 				<div class="flex items-center flex-1 gap-5">
 					<div
-						class="flex items-center justify-center rounded border border-outline-elevation-2 size-20"
+						class="flex items-center justify-center rounded-4 border border-outline-elevation-2 size-20"
 					>
 						<img
 							v-if="branding.data.favicon?.file_url"
 							:src="safeUrl(branding.data.favicon.file_url)"
 							alt="Favicon"
-							class="size-8 rounded"
+							class="size-8 rounded-4"
 						/>
 						<span v-else class="lucide-image size-5 text-ink-gray-4" />
 					</div>

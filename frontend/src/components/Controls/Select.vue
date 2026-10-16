@@ -25,7 +25,7 @@ import type { SelectOption, SelectOptionValue } from 'frappe-ui'
 
 defineOptions({ inheritAttrs: false })
 
-type SelectSize = 'sm' | 'md' | 'lg' | 'xl'
+type SelectSize = 'xs' | 'sm' | 'md' | 'lg'
 type SelectVariant = 'subtle' | 'outline' | 'ghost'
 
 const props = withDefaults(

@@ -2,7 +2,7 @@
 	<div class="">
 		<PageHeader :breadcrumbs="breadcrumbs">
 			<template #actions>
-				<Badge v-if="isDirty" theme="orange">
+				<Badge v-if="isDirty" theme="amber">
 					{{ __('Not Saved') }}
 				</Badge>
 				<ShortcutTooltip :label="__('Save')" combo="Mod+S" :disabled="isMobile">
@@ -52,7 +52,7 @@
 							@change="(val) => (job.description = val)"
 							:editable="true"
 							:fixedMenu="true"
-							editorClass="prose-sm max-w-none border-b border-x border-outline-elevation-2 bg-surface-gray-2 rounded-b-md py-1 px-2 min-h-[20rem] max-h-[70vh] overflow-y-auto mb-4"
+							editorClass="prose-sm max-w-none border-b border-x border-outline-elevation-2 bg-surface-gray-2 rounded-b-5 py-1 px-2 min-h-[20rem] max-h-[70vh] overflow-y-auto mb-4"
 						/>
 					</div>
 				</div>

@@ -1,7 +1,8 @@
 <template>
 	<List
 		:columns="tracks"
-		class="-mx-3 list-row-px-3 flex min-h-0 flex-col [--list-row-height:3.5rem]"
+		:row-height="ROW_HEIGHT_PX"
+		class="-mx-3 list-row-px-3 flex min-h-0 flex-col"
 	>
 		<div
 			role="presentation"
@@ -55,7 +56,7 @@
 									</div>
 									<Badge
 										v-if="rowStatus?.(row)"
-										theme="orange"
+										theme="amber"
 										class="ms-2 shrink-0"
 									>
 										{{ rowStatus(row) }}
@@ -121,7 +122,7 @@
 											? column.ariaLabel(row)
 											: __('More options'),
 									}"
-									placement="right"
+									align="end"
 								/>
 							</slot>
 						</ListCell>
@@ -219,15 +220,22 @@ const props = withDefaults(
 	}
 )
 
+// v1 List sizes rows to content unless given `:row-height` (its own
+// `--_list-row-height`, internal and reset at every list root — not a public
+// hook). This is the one number both the prop and the ceiling below read, so
+// they can't drift apart the way the old `--list-row-height` var and the
+// prop-less <List> did.
+const ROW_HEIGHT_PX = 56
+
 // A ceiling, not a fixed height: a hard height clips on a short viewport, where
 // the tab panel above bounds it and the rows past the edge are gone rather than
-// scrolled to. An inline style because the row height is a custom property, and
-// a tailwind class assembled from a prop is what the JIT scan cannot see. The
-// `2rem` is the header, which shares the scroll box.
+// scrolled to. An inline style because a tailwind class assembled from a prop is
+// what the JIT scan cannot see. The `2rem` is the header, which shares the
+// scroll box.
 const scrollerStyle = computed(() =>
 	props.visibleRows
 		? {
-				maxHeight: `calc(var(--list-row-height) * ${props.visibleRows} + 2rem)`,
+				maxHeight: `calc(${ROW_HEIGHT_PX}px * ${props.visibleRows} + 2rem)`,
 		  }
 		: undefined
 )

@@ -6,7 +6,7 @@
 		<audio @ended="handleAudioEnd" controlsList="nodownload" class="mb-4">
 			<source :src="safeUrl(encodeURI(file))" type="audio/mp3" />
 		</audio>
-		<div class="flex items-center gap-x-2 shadow rounded-lg p-1 w-1/2">
+		<div class="flex items-center gap-x-2 shadow rounded-6 p-1 w-1/2">
 			<Button
 				variant="ghost"
 				:label="isPlaying ? __('Pause') : __('Play')"

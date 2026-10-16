@@ -1,6 +1,6 @@
 <template>
 	<div
-		class="flex w-full flex-col gap-2 rounded"
+		class="flex w-full flex-col gap-2 rounded-4"
 		:role="problem ? 'group' : undefined"
 		:aria-labelledby="problem ? nameId : undefined"
 		:aria-invalid="problem ? 'true' : undefined"
@@ -76,7 +76,7 @@
 			data-testid="row-status"
 		>
 			<Badge v-if="foreign" theme="gray" :label="managedByLabel" />
-			<Badge v-if="paused" theme="orange" :label="__('Paused')" />
+			<Badge v-if="paused" theme="amber" :label="__('Paused')" />
 		</div>
 	</div>
 </template>

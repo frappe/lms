@@ -11,7 +11,7 @@
 						v-for="evaluation in evals?.data"
 						:key="evaluation.name"
 						:to="profileRoute(user.data?.username, 'ProfileEvaluationSchedule')"
-						class="border rounded-md p-3 flex flex-col h-full"
+						class="border rounded-5 p-3 flex flex-col h-full"
 						:class="
 							user.data?.username
 								? 'cursor-pointer hover:border-outline-gray-3'
@@ -58,7 +58,7 @@
 					<div
 						v-for="cls in liveClasses?.data"
 						:key="cls.name"
-						class="border hover:border-outline-gray-3 rounded-md p-3"
+						class="border hover:border-outline-gray-3 rounded-5 p-3"
 					>
 						<div class="text-ink-gray-9 text-lg-semibold leading-5 mb-1">
 							{{ cls.title }}
@@ -88,7 +88,7 @@
 									v-if="user.data?.is_moderator || user.data?.is_evaluator"
 									:href="safeUrl(cls.start_url)"
 									v-external
-									class="cursor-pointer inline-flex items-center justify-center gap-2 transition-colors focus:outline-none text-ink-gray-8 bg-surface-gray-2 hover:bg-surface-gray-3 active:bg-surface-gray-4 focus-visible:ring focus-visible:ring-outline-gray-3 h-7 text-base px-2 rounded"
+									class="cursor-pointer inline-flex items-center justify-center gap-2 transition-colors focus:outline-none text-ink-gray-8 bg-surface-gray-2 hover:bg-surface-gray-3 active:bg-surface-gray-4 focus-visible:ring focus-visible:ring-outline-gray-3 h-7 text-base px-2 rounded-4"
 									:class="cls.join_url ? 'w-full' : 'w-1/2'"
 								>
 									<span class="lucide-monitor size-4" />
@@ -97,7 +97,7 @@
 								<a
 									:href="safeUrl(cls.join_url)"
 									v-external
-									class="w-full cursor-pointer inline-flex items-center justify-center gap-2 transition-colors focus:outline-none text-ink-gray-8 bg-surface-gray-2 hover:bg-surface-gray-3 active:bg-surface-gray-4 focus-visible:ring focus-visible:ring-outline-gray-3 h-7 text-base px-2 rounded"
+									class="w-full cursor-pointer inline-flex items-center justify-center gap-2 transition-colors focus:outline-none text-ink-gray-8 bg-surface-gray-2 hover:bg-surface-gray-3 active:bg-surface-gray-4 focus-visible:ring focus-visible:ring-outline-gray-3 h-7 text-base px-2 rounded-4"
 								>
 									<span class="lucide-video size-4" />
 									{{ __('Join') }}
@@ -106,9 +106,9 @@
 							<Tooltip
 								v-else-if="hasClassEnded(cls)"
 								:text="__('This class has ended')"
-								placement="right"
+								side="right"
 							>
-								<div class="flex items-center gap-x-2 text-ink-amber-6 w-fit">
+								<div class="flex items-center gap-x-2 text-ink-amber-5 w-fit">
 									<span class="lucide-info size-4" />
 									<span>
 										{{ __('Ended') }}

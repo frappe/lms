@@ -32,7 +32,7 @@
 						<FileUploader
 							v-if="!data[field.name]"
 							:fileTypes="['image/*']"
-							:uploadArgs="{ private: !field.public }"
+							:private="!field.public"
 							:validateFile="validateFile"
 							@success="(file) => (data[field.name] = file.file_url)"
 						>
@@ -57,13 +57,13 @@
 						<div v-else>
 							<div class="flex items-center text-sm gap-x-2">
 								<div
-									class="flex items-center justify-center rounded border border-outline-elevation-2 bg-surface-gray-2"
+									class="flex items-center justify-center rounded-4 border border-outline-elevation-2 bg-surface-gray-2"
 									:class="field.size == 'lg' ? 'px-5 py-5' : 'px-20 py-8'"
 								>
 									<img
 										:src="safeUrl(fileUrl(data[field.name]))"
 										alt=""
-										class="rounded"
+										class="rounded-4"
 										:class="field.size == 'lg' ? 'w-36' : 'size-6'"
 									/>
 								</div>
@@ -76,7 +76,7 @@
 									type="button"
 									:aria-label="__('Remove image')"
 									@click="data[field.name] = null"
-									class="lucide-x border text-ink-gray-7 border-outline-elevation-2 rounded-md cursor-pointer w-5 h-5 p-1 ms-4"
+									class="lucide-x border text-ink-gray-7 border-outline-elevation-2 rounded-5 cursor-pointer w-5 h-5 p-1 ms-4"
 								/>
 							</div>
 						</div>
@@ -175,7 +175,7 @@ import CodeEditor from '@/components/Controls/CodeEditor.vue'
 import { seedCheckboxDefaults } from '@/components/Settings/mobileSettings'
 import { safeUrl } from '@/utils/safeUrl'
 
-// The FileUploader above binds :uploadArgs="{ private: !field.public }", and it
+// The FileUploader above binds :private="!field.public", and it
 // is written inline deliberately. Privacy is the FIELD's decision, never this
 // component's: the backend maps every Attach / Attach Image field of a
 // third-party <Gateway> Settings doctype to type 'Upload' (api.py

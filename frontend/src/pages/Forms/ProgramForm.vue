@@ -5,7 +5,7 @@
 		@close="close"
 	>
 		<template #header-action>
-			<Badge theme="orange" v-if="dirty">
+			<Badge theme="amber" v-if="dirty">
 				{{ __('Not Saved') }}
 			</Badge>
 		</template>
@@ -64,7 +64,7 @@
 						:rowKey="'course'"
 					>
 						<ListHeader
-							class="mb-2 grid items-center gap-x-4 rounded bg-surface-gray-2 p-2"
+							class="mb-2 grid items-center gap-x-4 rounded-4 bg-surface-gray-2 p-2"
 						>
 							<ListHeaderItem
 								:item="item"
@@ -235,14 +235,16 @@ import {
 	createListResource,
 	Dialog,
 	FormControl,
+	toast,
+} from 'frappe-ui'
+import {
 	ListSelectBanner,
 	ListView,
 	ListHeader,
 	ListHeaderItem,
 	ListRows,
 	ListRow,
-	toast,
-} from 'frappe-ui'
+} from 'frappe-ui/experimental'
 import { computed, inject, ref, watch, getCurrentInstance } from 'vue'
 
 import { Program, ProgramCourse, ProgramMember } from '@/types'
@@ -601,7 +603,7 @@ const deleteProgram = () => {
 				label: __('Delete'),
 				theme: 'red',
 				variant: 'solid',
-				onClick(closeDialog: () => void) {
+				onClick({ close: closeDialog }: { close: () => void }) {
 					submitResource(programs.delete, programId.value, {
 						onSuccess() {
 							toast.success(__('Program deleted successfully'))

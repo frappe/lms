@@ -29,7 +29,7 @@
 				@ended="videoEnded"
 				@click="togglePlay"
 				oncontextmenu="return false"
-				class="rounded-md border border-outline-gray-1 cursor-pointer"
+				class="rounded-5 border border-outline-gray-1 cursor-pointer"
 				ref="videoRef"
 				:src="safeUrl(fileURL)"
 				:type="type"
@@ -55,7 +55,7 @@
 				</div>
 			</button>
 			<div
-				class="flex items-center gap-x-2 py-2 px-1 text-ink-base bg-gradient-to-b from-transparent to-black/75 absolute bottom-0 start-0 end-0 mx-auto rounded-md"
+				class="flex items-center gap-x-2 py-2 px-1 text-ink-base bg-gradient-to-b from-transparent to-black/75 absolute bottom-0 start-0 end-0 mx-auto rounded-5"
 				:class="{
 					'invisible group-hover:visible': playing,
 				}"
