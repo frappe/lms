@@ -71,7 +71,9 @@
 							{{ row.full_name }}
 						</div>
 						<div class="mb-4 line-clamp-1 text-sm leading-5">
-							{{ row.headline || 'Joined ' + dayjs(row.creation).fromNow() }}
+							{{
+								row.headline || 'Joined ' + serverTime(row.creation).fromNow()
+							}}
 						</div>
 					</div>
 				</div>
@@ -115,6 +117,7 @@ import { useRouter } from 'vue-router'
 import UserAvatar from '@/components/UserAvatar.vue'
 import ListPage from '@/components/Layouts/ListPage.vue'
 import { profileRoute } from '@/utils/routes'
+import { serverTime } from '@/utils/dayjs'
 
 const filters = ref({})
 const currentCategory = ref('')

@@ -68,12 +68,15 @@
 						<a
 							:href="safeUrl(job.data.company_website)"
 							v-external
+							:aria-label="job.data.company_name"
 							class="me-4"
 						>
-							<img
-								:src="safeUrl(job.data.company_logo)"
-								class="size-10 rounded-lg object-contain cursor-pointer"
-								:alt="job.data.company_name"
+							<Avatar
+								:image="safeUrl(job.data.company_logo)"
+								:label="job.data.company_name"
+								size="2xl"
+								shape="square"
+								class="cursor-pointer"
 							/>
 						</a>
 						<div class="">
@@ -92,7 +95,7 @@
 							<template #prefix>
 								<span class="lucide-calendar-days size-3 text-ink-gray-7" />
 							</template>
-							{{ dayjs(job.data.creation).fromNow() }}
+							{{ serverTime(job.data.creation).fromNow() }}
 						</Badge>
 						<Badge size="lg">
 							<template #prefix>
@@ -140,7 +143,7 @@
 	</div>
 </template>
 <script setup>
-import { Badge, createResource, usePageMeta } from 'frappe-ui'
+import { Avatar, Badge, createResource, usePageMeta } from 'frappe-ui'
 import { inject, ref, computed, watch, nextTick } from 'vue'
 import { sessionStore } from '../stores/session'
 import PageHeader from '@/components/Layouts/PageHeader.vue'
@@ -148,9 +151,9 @@ import HeaderButton from '@/components/HeaderButton.vue'
 import JobApplicationModal from '@/components/Modals/JobApplicationModal.vue'
 import { safeUrl } from '@/utils/safeUrl'
 import { openExternal } from '@/utils/openExternal'
+import { serverTime } from '@/utils/dayjs'
 
 const user = inject('$user')
-const dayjs = inject('$dayjs')
 const { brand } = sessionStore()
 const showApplicationModal = ref(false)
 const readOnlyMode = window.read_only_mode

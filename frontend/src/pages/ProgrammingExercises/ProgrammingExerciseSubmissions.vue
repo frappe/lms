@@ -91,10 +91,10 @@ import { computed, inject, onMounted, ref, watch } from 'vue'
 import { sessionStore } from '@/stores/session'
 import { useRouter } from 'vue-router'
 import Link from '@/components/Controls/Link.vue'
+import { serverTime } from '@/utils/dayjs'
 import ListPage from '@/components/Layouts/ListPage.vue'
 
 const { brand } = sessionStore()
-const dayjs = inject('$dayjs') as any
 const user = inject('$user') as any
 const filterFields = ['exercise', 'member', 'status']
 const filters = ref<Filters>({
@@ -145,7 +145,7 @@ const submissions = createListResource({
 		return data.map((submission: ProgrammingExerciseSubmission) => {
 			return {
 				...submission,
-				modified: dayjs(submission.modified).fromNow(),
+				modified: serverTime(submission.modified).fromNow(),
 			}
 		})
 	},
