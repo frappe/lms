@@ -10,7 +10,7 @@
 					:rows="feedbackList as ListRow[]"
 					row-key="name"
 					:options="listOptions"
-					class="border rounded-lg py-2 px-3"
+					class="border rounded-6 py-2 px-3"
 				>
 					<template #cell="{ column, row, value }">
 						<div

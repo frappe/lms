@@ -19,13 +19,14 @@ jobs:
         with:
           path: apps/lms
 
-      # Only the package the link points at. `develop`, because ConditionBuilder
-      # is on no version-16 branch or v16 tag. It is bundled into the SPA at
-      # build time, so this pins what LMS builds against, not what it runs on.
+      # Only the package the link points at. `version-16`, the released line
+      # main-hotfix ships against: develop's ui/ renamed DataImport to
+      # DataImportWizard. It is bundled into the SPA at build time, so this pins
+      # what LMS builds against, not what it runs on.
       - uses: actions/checkout@v4
         with:
           repository: frappe/frappe
-          ref: develop
+          ref: version-16
           path: apps/frappe
           sparse-checkout: ui
 

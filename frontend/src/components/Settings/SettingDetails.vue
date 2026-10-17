@@ -5,7 +5,7 @@
 				v-if="data.isDirty"
 				:label="__('Not Saved')"
 				variant="subtle"
-				theme="orange"
+				theme="amber"
 			/>
 		</template>
 		<template #header-actions>

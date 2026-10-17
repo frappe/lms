@@ -34,13 +34,12 @@
 		v-model:open="list.deleteOpen.value"
 		entity="workspace"
 		:name="list.toDelete.value?.label ?? ''"
-		:loading="list.deleting.value"
 		:message="
 			__(
 				'This deletes the workspace mapping and every channel mapping under it, with their conditions, and removes everyone those conditions added to its channels. Anyone added by hand in Raven stays. This action cannot be undone.'
 			)
 		"
-		@confirm="list.confirmDelete"
+		:on-confirm="list.confirmDelete"
 	/>
 </template>
 

@@ -20,8 +20,8 @@
 				v-if="quiz.data.duration"
 				class="inline-flex items-center gap-1.5 text-sm font-medium px-3 py-1.5 rounded-full transition-colors"
 				:class="{
-					'bg-surface-red-1 text-ink-red-6': timerUrgency === 'critical',
-					'bg-surface-orange-1 text-ink-orange-6': timerUrgency === 'warning',
+					'bg-surface-red-1 text-ink-red-5': timerUrgency === 'critical',
+					'bg-surface-orange-1 text-ink-orange-5': timerUrgency === 'warning',
 					'bg-surface-gray-3 text-ink-gray-7': timerUrgency === 'normal',
 				}"
 			>
@@ -45,7 +45,7 @@
 
 		<div v-if="activeQuestion == 0" class="space-y-4">
 			<!-- Info card — full width -->
-			<div class="border rounded-xl overflow-hidden">
+			<div class="border rounded-7 overflow-hidden">
 				<div class="px-5 pt-5 pb-4 space-y-3 text-center">
 					<h2 class="text-xl font-semibold text-ink-gray-9 leading-snug">
 						{{ quiz.data.title }}
@@ -77,14 +77,14 @@
 						</span>
 						<span
 							v-if="quiz.data.duration"
-							class="inline-flex items-center gap-1.5 bg-surface-blue-1 text-ink-blue-6 text-xs font-medium px-2.5 py-1 rounded-full"
+							class="inline-flex items-center gap-1.5 bg-surface-blue-1 text-ink-blue-5 text-xs font-medium px-2.5 py-1 rounded-full"
 						>
 							<span class="lucide-timer size-3.5" />
 							{{ quiz.data.duration }} {{ __('min') }}
 						</span>
 						<span
 							v-if="quiz.data.enable_proctoring"
-							class="inline-flex items-center gap-1.5 bg-surface-orange-1 text-ink-orange-6 text-xs font-medium px-2.5 py-1 rounded-full"
+							class="inline-flex items-center gap-1.5 bg-surface-orange-1 text-ink-orange-5 text-xs font-medium px-2.5 py-1 rounded-full"
 						>
 							<span class="lucide-camera size-3.5" />
 							{{ __('Proctored') }}
@@ -253,8 +253,8 @@
 						}}</Button>
 					</template>
 					<template v-else-if="attemptsExhausted">
-						<div class="bg-surface-red-1 rounded-lg px-4 py-3 mb-3">
-							<div class="text-sm text-ink-red-6 leading-5">
+						<div class="bg-surface-red-1 rounded-6 px-4 py-3 mb-3">
+							<div class="text-sm text-ink-red-5 leading-5">
 								{{
 									__(
 										"You've used all {0} {1} for this quiz. Reach out to your instructor if you need to try again."
@@ -270,8 +270,8 @@
 						}}</Button>
 					</template>
 					<template v-else-if="scheduleBlocked">
-						<div class="bg-surface-amber-1 rounded-lg px-4 py-3 mb-3">
-							<div class="text-sm text-ink-amber-6 leading-5">
+						<div class="bg-surface-amber-1 rounded-6 px-4 py-3 mb-3">
+							<div class="text-sm text-ink-amber-5 leading-5">
 								{{ scheduleMessage }}
 							</div>
 						</div>
@@ -316,7 +316,7 @@
 				class="grid gap-4 md:grid-cols-2"
 			>
 				<!-- Camera setup -->
-				<div class="border rounded-xl overflow-hidden flex flex-col">
+				<div class="border rounded-7 overflow-hidden flex flex-col">
 					<div class="px-4 py-3 border-b">
 						<div class="text-sm font-semibold text-ink-gray-8">
 							{{ __('Camera Setup') }}
@@ -343,7 +343,7 @@
 				</div>
 
 				<!-- Proctoring rules -->
-				<div class="border rounded-xl overflow-hidden flex flex-col">
+				<div class="border rounded-7 overflow-hidden flex flex-col">
 					<div class="px-4 py-3 border-b">
 						<div class="text-sm font-semibold text-ink-gray-8">
 							{{ __('Proctoring Rules') }}
@@ -412,9 +412,9 @@
 						</div>
 						<div class="flex items-start gap-3 px-4 py-3 bg-surface-orange-1">
 							<span
-								class="lucide-alert-triangle size-4 shrink-0 text-ink-orange-5 mt-0.5"
+								class="lucide-alert-triangle size-4 shrink-0 text-ink-orange-4 mt-0.5"
 							/>
-							<div class="text-sm text-ink-orange-6 leading-5">
+							<div class="text-sm text-ink-orange-5 leading-5">
 								{{
 									__(
 										'After {0} {1}, the quiz will be automatically submitted.'
@@ -435,7 +435,7 @@
 			<div v-for="(question, qtidx) in questions" :key="question.name">
 				<div
 					v-if="qtidx == activeQuestion - 1 && questionDetails.data"
-					class="border rounded-lg p-5"
+					class="border rounded-6 p-5"
 				>
 					<div class="flex flex-wrap items-baseline justify-between gap-x-4">
 						<div class="min-w-0 text-sm text-ink-gray-5">
@@ -451,68 +451,76 @@
 						class="text-ink-gray-9 font-semibold mt-2 leading-5 break-words [&_img]:h-auto [&_img]:max-w-full"
 						v-safe-html:rich="questionDetails.data.question"
 					></div>
-					<div
-						v-if="questionDetails.data.type == 'Choices'"
-						v-for="index in MAX_OPTIONS"
-						:key="index"
-					>
-						<label
-							v-if="questionDetails.data[`option_${index}`]"
-							class="flex items-center bg-surface-gray-3 rounded-md p-3 mt-4 w-full min-w-0 cursor-pointer focus:border-blue-600"
+					<template v-if="questionDetails.data.type == 'Choices'">
+						<RadioGroup
+							v-if="!showAnswers.length && !questionDetails.data.multiple"
+							class="mt-4"
+							:model-value="selectedIndex"
+							:name="encodeURIComponent(questionDetails.data.question)"
+							@update:model-value="markAnswer"
 						>
-							<input
-								v-if="!showAnswers.length && !questionDetails.data.multiple"
-								type="radio"
-								:name="encodeURIComponent(questionDetails.data.question)"
-								class="w-3.5 h-3.5 shrink-0 text-ink-gray-9 focus:ring-outline-elevation-2"
-								@change="markAnswer(index)"
-								:checked="selectedOptions[index - 1]"
-							/>
+							<template v-for="index in MAX_OPTIONS" :key="index">
+								<Radio
+									v-if="questionDetails.data[`option_${index}`]"
+									:value="index"
+									:class="OPTION_ROW_CLASSES"
+								>
+									<template #label>
+										<span
+											:class="OPTION_LABEL_CLASSES"
+											v-safe-html:rich="questionDetails.data[`option_${index}`]"
+										/>
+									</template>
+								</Radio>
+							</template>
+						</RadioGroup>
 
-							<input
-								v-else-if="!showAnswers.length && questionDetails.data.multiple"
-								type="checkbox"
-								:name="encodeURIComponent(questionDetails.data.question)"
-								class="w-3.5 h-3.5 shrink-0 text-ink-gray-9 rounded-sm focus:ring-outline-elevation-2"
-								@change="markAnswer(index)"
-								:checked="selectedOptions[index - 1]"
-							/>
+						<div v-else v-for="index in MAX_OPTIONS" :key="index">
+							<Checkbox
+								v-if="
+									!showAnswers.length && questionDetails.data[`option_${index}`]
+								"
+								class="mt-4"
+								:class="OPTION_ROW_CLASSES"
+								:model-value="!!selectedOptions[index - 1]"
+								@update:model-value="markAnswer(index)"
+							>
+								<template #label>
+									<span
+										:class="OPTION_LABEL_CLASSES"
+										v-safe-html:rich="questionDetails.data[`option_${index}`]"
+									/>
+								</template>
+							</Checkbox>
+
 							<div
-								v-else-if="quiz.data.show_answers"
-								v-for="(answer, idx) in showAnswers"
-								:key="idx"
-								class="shrink-0"
+								v-else-if="
+									quiz.data.show_answers &&
+									questionDetails.data[`option_${index}`]
+								"
+								class="mt-4 flex items-center"
+								:class="OPTION_ROW_CLASSES"
 							>
-								<div v-if="index - 1 == idx">
-									<span
-										v-if="answer == 1"
-										class="lucide-check-circle w-4 h-4 text-ink-green-5"
-									/>
-									<span
-										v-else-if="answer == 2"
-										class="lucide-minus-circle w-4 h-4 text-ink-green-5"
-									/>
-									<span
-										v-else-if="answer == 0"
-										class="lucide-x-circle w-4 h-4 text-ink-red-6"
-									/>
-									<span v-else class="lucide-minus-circle w-4 h-4" />
-								</div>
+								<span
+									class="w-4 h-4 shrink-0"
+									:class="answerIconClass(showAnswers[index - 1])"
+								/>
+								<span
+									class="ms-2 flex-1"
+									:class="OPTION_LABEL_CLASSES"
+									v-safe-html:rich="questionDetails.data[`option_${index}`]"
+								/>
 							</div>
-							<span
-								class="ms-2 min-w-0 flex-1 break-words text-ink-gray-9 [&_img]:h-auto [&_img]:max-w-full"
-								v-safe-html:rich="questionDetails.data[`option_${index}`]"
+
+							<div
+								v-if="questionDetails.data[`explanation_${index}`]"
+								class="mt-2 break-words text-xs text-ink-gray-7"
+								v-show="showAnswers.length"
 							>
-							</span>
-						</label>
-						<div
-							v-if="questionDetails.data[`explanation_${index}`]"
-							class="mt-2 break-words text-xs text-ink-gray-7"
-							v-show="showAnswers.length"
-						>
-							{{ questionDetails.data[`explanation_${index}`] }}
+								{{ questionDetails.data[`explanation_${index}`] }}
+							</div>
 						</div>
-					</div>
+					</template>
 					<div v-else-if="questionDetails.data.type == 'User Input'">
 						<FormControl
 							v-model="possibleAnswer"
@@ -524,25 +532,24 @@
 							<Badge v-if="showAnswers[0]" :label="__('Correct')" theme="green">
 								<template #prefix>
 									<span
-										class="lucide-check-circle w-4 h-4 text-ink-green-5 me-1"
+										class="lucide-check-circle w-4 h-4 text-ink-green-4 me-1"
 									/>
 								</template>
 							</Badge>
 							<Badge v-else theme="red" :label="__('Incorrect')">
 								<template #prefix>
-									<span class="lucide-x-circle w-4 h-4 text-ink-red-6 me-1" />
+									<span class="lucide-x-circle w-4 h-4 text-ink-red-5 me-1" />
 								</template>
 							</Badge>
 						</div>
 					</div>
 					<div v-else>
 						<RichTextEditor
-							class="mt-4"
 							:content="possibleAnswer"
 							@change="(val) => (possibleAnswer = val)"
 							:editable="true"
 							:fixedMenu="true"
-							editorClass="prose-sm max-w-none border-b border-x border-outline-elevation-2 bg-surface-gray-2 rounded-b-md py-1 px-2 min-h-[7rem]"
+							editorClass="prose-sm max-w-none border-b border-x border-outline-elevation-2 bg-surface-gray-2 rounded-b-5 py-1 px-2 min-h-[7rem]"
 						/>
 					</div>
 					<div class="flex items-center mt-8 gap-4">
@@ -550,8 +557,10 @@
 							<Checkbox
 								v-if="!quiz.data.show_answers"
 								:label="__('Mark for review')"
-								:model-value="reviewQuestions.includes(activeQuestion) ? 1 : 0"
-								@change="markForReview($event, activeQuestion)"
+								:model-value="reviewQuestions.includes(activeQuestion)"
+								@update:model-value="
+									(checked) => markForReview(checked, activeQuestion)
+								"
 							/>
 						</div>
 						<div class="flex-1 flex justify-end gap-2">
@@ -595,7 +604,7 @@
 			<!-- Activity log (shown during quiz, below the question card) -->
 			<div
 				v-if="quiz.data.enable_proctoring && summaryLog.length"
-				class="border rounded-lg overflow-hidden mt-4"
+				class="border rounded-6 overflow-hidden mt-4"
 			>
 				<div
 					class="px-4 py-2.5 border-b flex items-center justify-between bg-surface-gray-1"
@@ -618,8 +627,8 @@
 							class="size-1.5 rounded-full shrink-0"
 							:class="
 								entry.severity === 'violation'
-									? 'bg-ink-red-6'
-									: 'bg-ink-orange-6'
+									? 'bg-surface-red-6'
+									: 'bg-surface-orange-6'
 							"
 						/>
 						<span class="text-sm text-ink-gray-7 flex-1">{{
@@ -641,15 +650,15 @@
 										violationEventLabels[entry.eventType] || entry.eventType
 									)
 								"
-								class="h-8 w-11 rounded border object-cover"
+								class="h-8 w-11 rounded-4 border object-cover"
 							/>
 						</a>
 						<span
 							class="text-xs font-medium uppercase tracking-wide shrink-0"
 							:class="
 								entry.severity === 'violation'
-									? 'text-ink-red-6'
-									: 'text-ink-orange-6'
+									? 'text-ink-red-5'
+									: 'text-ink-orange-5'
 							"
 						>
 							{{
@@ -660,7 +669,7 @@
 				</div>
 			</div>
 
-			<div v-if="!quiz.data.show_answers" class="border rounded-lg p-4 mt-4">
+			<div v-if="!quiz.data.show_answers" class="border rounded-6 p-4 mt-4">
 				<div class="font-semibold">
 					{{ __('Questions') }}
 				</div>
@@ -679,7 +688,7 @@
 						:class="{
 							'bg-surface-gray-7 text-ink-base font-medium':
 								activeQuestion == index,
-							'bg-surface-blue-2 text-ink-blue-6':
+							'bg-surface-blue-2 text-ink-blue-5':
 								activeQuestion != index && attemptedQuestions.includes(index),
 							'bg-surface-gray-3':
 								activeQuestion != index && !attemptedQuestions.includes(index),
@@ -690,7 +699,7 @@
 				</nav>
 			</div>
 
-			<div v-if="reviewQuestions.length" class="border rounded-lg p-4 mt-4">
+			<div v-if="reviewQuestions.length" class="border rounded-6 p-4 mt-4">
 				<div class="font-semibold">
 					{{ __('Questions marked for review') }}
 				</div>
@@ -708,7 +717,7 @@
 			</div>
 		</div>
 		<div v-else class="space-y-4">
-			<div class="border rounded-lg overflow-hidden">
+			<div class="border rounded-6 overflow-hidden">
 				<!-- Violation banner shown when quiz was auto-submitted due to max violations -->
 				<div
 					v-if="
@@ -717,12 +726,12 @@
 					class="bg-surface-red-2 px-5 py-4 border-b border-outline-red-2"
 				>
 					<div class="flex items-center gap-2.5 mb-1">
-						<span class="lucide-shield-x size-4 text-ink-red-6 shrink-0" />
-						<span class="text-sm font-semibold text-ink-red-7">{{
+						<span class="lucide-shield-x size-4 text-ink-red-5 shrink-0" />
+						<span class="text-sm font-semibold text-ink-red-6">{{
 							__('Maximum violations reached')
 						}}</span>
 					</div>
-					<p class="text-sm text-ink-red-6 leading-5 ps-6.5">
+					<p class="text-sm text-ink-red-5 leading-5 ps-6.5">
 						{{
 							__(
 								'This quiz was submitted automatically because you reached the maximum of {0} {1}. Reach out to your instructor if you need to try again.'
@@ -781,7 +790,7 @@
 			<!-- Activity log persists into summary view for proctored quizzes -->
 			<div
 				v-if="quiz.data.enable_proctoring && summaryLog.length"
-				class="border rounded-lg overflow-hidden"
+				class="border rounded-6 overflow-hidden"
 			>
 				<div
 					class="px-4 py-2.5 border-b flex items-center justify-between bg-surface-gray-1"
@@ -804,8 +813,8 @@
 							class="size-1.5 rounded-full shrink-0"
 							:class="
 								entry.severity === 'violation'
-									? 'bg-ink-red-6'
-									: 'bg-ink-orange-6'
+									? 'bg-surface-red-6'
+									: 'bg-surface-orange-6'
 							"
 						/>
 						<span class="text-sm text-ink-gray-7 flex-1">{{
@@ -827,15 +836,15 @@
 										violationEventLabels[entry.eventType] || entry.eventType
 									)
 								"
-								class="h-8 w-11 rounded border object-cover"
+								class="h-8 w-11 rounded-4 border object-cover"
 							/>
 						</a>
 						<span
 							class="text-xs font-medium uppercase tracking-wide shrink-0"
 							:class="
 								entry.severity === 'violation'
-									? 'text-ink-red-6'
-									: 'text-ink-orange-6'
+									? 'text-ink-red-5'
+									: 'text-ink-orange-5'
 							"
 						>
 							{{
@@ -916,13 +925,13 @@
 						/>
 					</div>
 					<div class="flex justify-between text-xs">
-						<span class="text-ink-green-7 font-medium"
+						<span class="text-ink-green-6 font-medium"
 							>{{ attemptedQuestions.length }} {{ __('attempted') }}</span
 						>
 						<span
 							:class="
 								questions.length - attemptedQuestions.length > 0
-									? 'text-ink-orange-7 font-medium'
+									? 'text-ink-orange-6 font-medium'
 									: 'text-ink-gray-5'
 							"
 						>
@@ -945,6 +954,8 @@ import {
 	Dialog,
 	LoadingIndicator,
 	FormControl,
+	Radio,
+	RadioGroup,
 	toast,
 } from 'frappe-ui'
 import {
@@ -969,6 +980,30 @@ const activeQuestion = ref(0)
 const currentQuestion = ref('')
 const MAX_OPTIONS = 10
 const selectedOptions = ref(Array(MAX_OPTIONS).fill(0))
+
+// The option row is the surface, not the control. RadioGroup's own `padded`
+// draws a surface only on hover, and the quiz wants every option to read as a
+// card, so the row keeps its own classes and the group stays unpadded.
+const OPTION_ROW_CLASSES =
+	'bg-surface-gray-3 rounded-5 p-3 w-full min-w-0 cursor-pointer'
+const OPTION_LABEL_CLASSES =
+	'min-w-0 break-words text-ink-gray-9 [&_img]:h-auto [&_img]:max-w-full'
+
+// RadioGroup is single-select, so it models the one chosen option rather than
+// the 0/1-per-option array the rest of the quiz (and the submit payload) uses.
+const selectedIndex = computed(() => {
+	const chosen = selectedOptions.value.findIndex((value) => value)
+	return chosen === -1 ? undefined : chosen + 1
+})
+
+// showAnswers holds 1 correct / 2 partially correct / 0 wrong, and undefined
+// for an option the learner never touched.
+const answerIconClass = (answer) => {
+	if (answer == 1) return 'lucide-check-circle text-ink-green-4'
+	if (answer == 2) return 'lucide-minus-circle text-ink-green-4'
+	if (answer == 0) return 'lucide-x-circle text-ink-red-5'
+	return 'lucide-minus-circle'
+}
 const showAnswers = reactive([])
 const questions = ref([])
 const attemptedQuestions = ref([])
@@ -1697,8 +1732,8 @@ const recordCurrentAttempt = () => {
 	addToLocalStorage()
 }
 
-const markForReview = (event, questionNumber) => {
-	if (event.target.checked) {
+const markForReview = (checked, questionNumber) => {
+	if (checked) {
 		if (!reviewQuestions.value.includes(questionNumber)) {
 			reviewQuestions.value.push(questionNumber)
 		}

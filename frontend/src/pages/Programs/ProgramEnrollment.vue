@@ -12,7 +12,7 @@
 				data-testid="program-enrollment-summary"
 				class="text-base text-ink-gray-9"
 			>
-				<div class="bg-surface-blue-2 text-ink-blue-6 p-2 rounded-md leading-5">
+				<div class="bg-surface-blue-2 text-ink-blue-5 p-2 rounded-5 leading-5">
 					<span>
 						{{
 							__('This program consists of {0} courses').format(
@@ -47,7 +47,7 @@
 						<div
 							v-for="course in program.data.courses"
 							:key="course.name"
-							class="flex flex-col border border-outline-gray-2 p-2 rounded-md h-full"
+							class="flex flex-col border border-outline-gray-2 p-2 rounded-5 h-full"
 						>
 							<div class="font-semibold text-ink-gray-9 leading-5 mb-2">
 								{{ course.title }}
@@ -100,6 +100,7 @@
 </template>
 <script setup lang="ts">
 import { createResource, toast, Tooltip } from 'frappe-ui'
+import type { FrappeResourceError } from 'frappe-ui'
 import { computed, inject, onMounted } from 'vue'
 import FormShell from '@/components/FormShell.vue'
 import HeaderButton from '@/components/HeaderButton.vue'
@@ -183,11 +184,9 @@ const enrollInProgram = () => {
 					params: { programName: props.programName },
 				})
 			},
-			onError(err: { messages?: string[] } | string) {
+			onError(err: FrappeResourceError) {
 				toast.error(
-					__('Failed to enroll in program: {0}').format(
-						typeof err === 'string' ? err : err.messages?.[0] ?? ''
-					)
+					__('Failed to enroll in program: {0}').format(err.messages?.[0] ?? '')
 				)
 			},
 		}

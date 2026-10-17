@@ -12,7 +12,7 @@ export interface SettingsListAvatar {
 	label?: string
 }
 
-export type BadgeTheme = 'gray' | 'blue' | 'green' | 'orange' | 'red'
+export type BadgeTheme = 'gray' | 'blue' | 'green' | 'amber' | 'red'
 
 export interface SettingsListBadge {
 	label: string

@@ -1,7 +1,7 @@
 <template>
 	<div>
 		<div
-			class="relative overflow-x-auto border border-outline-gray-2 rounded-md"
+			class="relative overflow-x-auto border border-outline-gray-2 rounded-5"
 		>
 			<table class="w-full text-sm text-start text-ink-gray-5">
 				<thead

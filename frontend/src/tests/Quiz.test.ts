@@ -10,23 +10,8 @@ const resourceState = vi.hoisted(() => ({
 	// Every resource submit, by url. `request` only records reads.
 	submits: [] as string[],
 	response: null as any,
-}))
-
-// Copied verbatim from frappe-ui 1.0.0-beta.29 `src/components/Button/Button.vue` so the stub reproduces the real state classes the pager relies on.
-const buttonClasses = vi.hoisted(() => ({
-	variant: {
-		'gray-solid':
-			'text-ink-base bg-surface-gray-10 hover:bg-surface-gray-9 active:bg-surface-gray-8',
-		'gray-subtle':
-			'text-ink-gray-8 bg-surface-gray-2 hover:bg-surface-gray-3 active:bg-surface-gray-4',
-		'blue-subtle':
-			'text-ink-blue-6 bg-surface-blue-2 hover:bg-surface-blue-3 active:bg-surface-blue-4',
-	} as Record<string, string>,
-	disabled: {
-		'gray-solid': 'bg-surface-gray-2 text-ink-gray-4',
-		'gray-subtle': 'bg-surface-gray-2 text-ink-gray-4',
-		'blue-subtle': 'bg-surface-blue-2 text-ink-blue-link',
-	} as Record<string, string>,
+	// Per-option verdict check_answer returns: 1 correct, 2 partial, 0 wrong.
+	checkAnswer: [] as unknown[],
 }))
 
 vi.mock('frappe-ui', async () => {
@@ -55,6 +40,10 @@ vi.mock('frappe-ui', async () => {
 				const transformed = options.transform?.(raw)
 				resource.data = transformed == null ? raw : transformed
 				options.onSuccess?.(raw)
+			}
+
+			if (options.url === 'lms.lms.doctype.lms_quiz.lms_quiz.check_answer') {
+				options.onSuccess?.(resourceState.checkAnswer)
 			}
 
 			resource.loading = false
@@ -87,36 +76,47 @@ vi.mock('frappe-ui', async () => {
 		call: vi.fn(),
 		toast: { warning: vi.fn(), error: vi.fn() },
 		Button: {
-			props: {
-				label: { type: String, default: undefined },
-				theme: { type: String, default: 'gray' },
-				variant: { type: String, default: 'subtle' },
-				disabled: { type: Boolean, default: false },
-			},
+			props: { disabled: { type: Boolean, default: false } },
 			emits: ['click'],
-			computed: {
-				stateClasses(this: any) {
-					const key = `${this.theme}-${this.variant}`
-					const map = this.disabled
-						? buttonClasses.disabled
-						: buttonClasses.variant
-					return map[key] ?? ''
-				},
-			},
-			template: `<button type="button" :class="stateClasses" :disabled="disabled" :aria-label="label" @click="$emit('click')"><slot /></button>`,
+			template: `<button type="button" :disabled="disabled" @click="$emit('click')"><slot /></button>`,
 		},
 		Badge: empty,
-		Checkbox: empty,
+		// The option controls render their content through a `label` slot, so a
+		// bare `<slot />` stub would drop every answer from the markup.
+		Checkbox: {
+			props: ['modelValue'],
+			template: '<div><slot name="label" /><slot /></div>',
+		},
+		// `Radio` reaches its group through provide/inject and is meaningless
+		// outside one, so the stubs keep that contract rather than flattening it.
+		RadioGroup: {
+			props: ['modelValue', 'name'],
+			emits: ['update:modelValue'],
+			provide(this: any) {
+				return {
+					pickRadio: (value: unknown) => this.$emit('update:modelValue', value),
+				}
+			},
+			template: '<div><slot /></div>',
+		},
+		Radio: {
+			props: ['value'],
+			inject: ['pickRadio'],
+			template:
+				'<button type="button" class="radio-option" @click="pickRadio(value)"><slot name="label" /></button>',
+		},
 		Dialog: {
 			props: ['open'],
 			template: '<div v-if="open"><slot /></div>',
 		},
 		FormControl: empty,
-		ListView: empty,
 		LoadingIndicator: empty,
-		TextEditor: empty,
 	}
 })
+
+vi.mock('frappe-ui/experimental', () => ({
+	ListView: { template: '<div><slot /></div>' },
+}))
 
 vi.mock('@/components/ProgressBar.vue', () => ({
 	default: { template: '<div />' },
@@ -179,6 +179,7 @@ beforeEach(() => {
 	resourceState.request.mockReset()
 	resourceState.submits.length = 0
 	resourceState.response = quizResponse()
+	resourceState.checkAnswer = []
 	localStorage.clear()
 })
 
@@ -303,5 +304,51 @@ describe('Quiz pass mark', () => {
 
 	it('shows the pass mark when the quiz has questions', async () => {
 		expect((await render(3)).text()).toContain('Passing score: 70%')
+	})
+})
+
+describe('Quiz choices', () => {
+	// `Check` only renders when the quiz shows answers, and it is the only
+	// caller of checkAnswer, so this is the one flow that reaches the verdict
+	// markup at all.
+	beforeEach(() => {
+		const response = choicesQuizResponse(1)
+		response.quiz.show_answers = 1
+		resourceState.response = response
+	})
+
+	const pickFirstAndCheck = async (wrapper: VueWrapper<any>) => {
+		await startQuiz(wrapper)
+		await wrapper.findAll('.radio-option')[0].trigger('click')
+		const check = wrapper.findAll('button').find((b) => b.text() === 'Check')
+		expect(check).toBeDefined()
+		await check!.trigger('click')
+		await flushPromises()
+	}
+
+	it('sends the option the learner picks', async () => {
+		const wrapper = mountQuiz()
+		await flushPromises()
+		resourceState.checkAnswer = [1, 0]
+		await pickFirstAndCheck(wrapper)
+
+		// The warning toast instead of a request would mean getAnswers() saw
+		// nothing selected, i.e. RadioGroup never reached selectedOptions.
+		expect(resourceState.request.mock.calls.map((call) => call[0])).toContain(
+			'lms.lms.doctype.lms_quiz.lms_quiz.check_answer'
+		)
+		wrapper.unmount()
+	})
+
+	it('marks each option right or wrong once checked, keeping the labels', async () => {
+		const wrapper = mountQuiz()
+		await flushPromises()
+		resourceState.checkAnswer = [1, 0]
+		await pickFirstAndCheck(wrapper)
+
+		expect(wrapper.text()).toContain('First option 1')
+		expect(wrapper.text()).toContain('Second option 1')
+		expect(wrapper.find('.lucide-check-circle').exists()).toBe(true)
+		wrapper.unmount()
 	})
 })
