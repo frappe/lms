@@ -5,13 +5,13 @@ cd ~ || exit
 echo "Setting Up Bench..."
 
 pip install frappe-bench
-bench -v init frappe-bench --skip-assets --python "$(which python)"
+bench -v init frappe-bench --frappe-branch version-16 --skip-assets --python "$(which python)"
 cd ./frappe-bench || exit
 
 bench -v setup requirements
 
 echo "Setting Up LMS App..."
-bench get-app "https://github.com/frappe/payments"
+bench get-app --branch version-16 "https://github.com/frappe/payments"
 bench get-app lms "${GITHUB_WORKSPACE}"
 
 echo "Setting Up Sites & Database..."
