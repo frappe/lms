@@ -1,5 +1,6 @@
 import { test as setup } from "@playwright/test";
 import { authFile } from "./config";
+import { csrfToken } from "./helpers";
 
 // Every spec used to call cy.login() before nearly every `it()`, re-
 // authenticating dozens of times per run for no reason — Cypress can only
@@ -25,6 +26,14 @@ setup("authenticate", async ({ request }) => {
 			`Login as ${user} failed: ${response.status()} ${await response.text()}`
 		);
 	}
+
+	// Login leaves the session without a CSRF token; the first page render
+	// mints one (frappe.sessions.get_csrf_token). Left to the specs, two
+	// workers opening /lms at once on this shared session each minted their
+	// own, the later write won, and the other page failed every POST with
+	// CSRFTokenError. Minting it here, before any worker starts, means every
+	// page reuses the same token.
+	await csrfToken(request);
 
 	await request.storageState({ path: authFile });
 });
