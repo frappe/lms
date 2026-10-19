@@ -84,23 +84,19 @@ const setWideScreen = (wide: boolean) => {
 }
 
 describe('Discussions master-detail', () => {
-<<<<<<< HEAD
-<<<<<<< HEAD
-	it('renders all topic rows', async () => {
-		const wrapper = mountDiscussions()
-		await flushPromises()
-		expect(wrapper.findAll('[data-testid="topic-row"]')).toHaveLength(2)
-=======
-=======
 	beforeEach(() => {
 		resource = loadedResource()
 	})
 
->>>>>>> b35c474 (fix: hide notes from guests and keep the thread state in sync when auto-opening)
 	afterEach(() => {
 		// @ts-expect-error removing the stub restores jsdom's missing matchMedia
 		delete window.matchMedia
->>>>>>> ace5f5e (fix(discussions): open the newest question instead of an empty thread pane)
+	})
+
+	it('renders all topic rows', async () => {
+		const wrapper = mountDiscussions()
+		await flushPromises()
+		expect(wrapper.findAll('[data-testid="topic-row"]')).toHaveLength(2)
 	})
 
 	it('keeps the list visible and shows the thread when a topic is selected', async () => {

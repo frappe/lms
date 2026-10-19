@@ -481,9 +481,6 @@ const { isMobile } = useScreenSize()
 const showChapters = ref(false)
 let timerInterval = null
 
-<<<<<<< HEAD
-const tabs = ref([])
-
 const props = defineProps({
 	courseName: {
 		type: String,
@@ -498,13 +495,6 @@ const props = defineProps({
 		required: true,
 	},
 })
-=======
-const props = defineProps<{
-	courseName: string
-	chapterNumber: string
-	lessonNumber: string
-}>()
->>>>>>> f5a255c (fix(lesson): show the notes and community tabs on the first load of a lesson)
 
 let collapsedByLesson = false
 const isCourseAdmin = () =>
@@ -1256,7 +1246,7 @@ const updateNotes = () => {
 // Built from the current lesson, not pushed on each change: a page opened
 // straight on a quiz lesson never flips allowDiscussions, so pushed tabs never
 // appeared, and tabs pushed on an earlier lesson stayed after moving on.
-const tabs = computed<LessonTab[]>(() => [
+const tabs = computed(() => [
 	// Guests cannot save notes, so they get none.
 	...(user.data && !isAdmin.value
 		? [{ label: __('Notes'), value: 'Notes' }]
@@ -1272,25 +1262,9 @@ watch(
 		if (!options.some((tab) => tab.value === currentTab.value)) {
 			currentTab.value = options[0]?.value
 		}
-<<<<<<< HEAD
-		currentTab.value = 'Notes'
-	} else {
-		currentTab.value = allowDiscussions.value ? 'Community' : null
-	}
-	if (allowDiscussions.value) {
-		if (!tabs.value.find((tab) => tab.value === 'Community')) {
-			tabs.value.push({
-				label: __('Community'),
-				value: 'Community',
-			})
-		}
-	}
-})
-=======
 	},
 	{ immediate: true }
 )
->>>>>>> f5a255c (fix(lesson): show the notes and community tabs on the first load of a lesson)
 
 const redirectToLogin = () => {
 	window.location.href = `/login?redirect-to=${getLmsRoute(
