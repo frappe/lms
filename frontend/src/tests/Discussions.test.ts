@@ -6,8 +6,9 @@
  * master-detail layout the list stays rendered, the selected topic's thread
  * renders alongside it, and the selected row is marked.
  */
-import { describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { flushPromises, mount } from '@vue/test-utils'
+import { reactive } from 'vue'
 import Discussions from '@/components/Discussions.vue'
 
 const TOPICS = [
@@ -31,9 +32,12 @@ const TOPICS = [
 
 // frappe-ui's internal module resolution doesn't work under vitest; stub the
 // pieces Discussions uses.
+// Each mount gets this resource; a test can swap it for one that loads later.
+let resource: { data?: typeof TOPICS; reload: () => void; refresh: () => void }
+const loadedResource = () => ({ data: TOPICS, reload: vi.fn(), refresh: vi.fn() })
 vi.mock('frappe-ui', () => ({
 	Button: { template: '<button><slot /></button>' },
-	createResource: () => ({ data: TOPICS, reload: vi.fn(), refresh: vi.fn() }),
+	createResource: () => resource,
 }))
 vi.mock('@/components/DiscussionReplies.vue', () => ({
 	default: {
@@ -74,7 +78,21 @@ const mountDiscussions = () =>
 		},
 	})
 
+// jsdom has no matchMedia, so each test that needs one adds it and it is removed after.
+const setWideScreen = (wide: boolean) => {
+	window.matchMedia = (() => ({ matches: wide })) as unknown as typeof window.matchMedia
+}
+
 describe('Discussions master-detail', () => {
+	beforeEach(() => {
+		resource = loadedResource()
+	})
+
+	afterEach(() => {
+		// @ts-expect-error removing the stub restores jsdom's missing matchMedia
+		delete window.matchMedia
+	})
+
 	it('keeps the list visible and shows the thread when a topic is selected', async () => {
 		const wrapper = mountDiscussions()
 		await flushPromises()
@@ -83,6 +101,30 @@ describe('Discussions master-detail', () => {
 		expect(wrapper.findAll('[data-testid="topic-row"]')).toHaveLength(2)
 		// ... and the thread for the selected topic is shown
 		expect(wrapper.get('[data-testid="thread"]').text()).toBe('First question')
+	})
+
+	it('opens the newest question on wide screens', async () => {
+		setWideScreen(true)
+		const wrapper = mountDiscussions()
+		await flushPromises()
+		expect(wrapper.get('[data-testid="thread"]').text()).toBe('First question')
+	})
+
+	it('opens the newest question when the questions load after mounting', async () => {
+		setWideScreen(true)
+		resource = reactive({ data: undefined, reload: vi.fn(), refresh: vi.fn() })
+		const wrapper = mountDiscussions()
+		await flushPromises()
+		resource.data = TOPICS
+		await flushPromises()
+		expect(wrapper.get('[data-testid="thread"]').text()).toBe('First question')
+	})
+
+	it('keeps only the list on phones', async () => {
+		setWideScreen(false)
+		const wrapper = mountDiscussions()
+		await flushPromises()
+		expect(wrapper.find('[data-testid="thread"]').exists()).toBe(false)
 	})
 
 	it('marks the selected row', async () => {

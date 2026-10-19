@@ -265,7 +265,7 @@
 						</div>
 					</div>
 					<div
-						v-if="lesson.data && (allowDiscussions || tabs.length > 1)"
+						v-if="lesson.data && tabs.length"
 						class="mt-10 pb-20 pt-5 border-t px-5"
 						ref="discussionsContainer"
 					>
@@ -496,8 +496,6 @@ const settingsStore = useSettings()
 const { isMobile } = useScreenSize()
 const showChapters = ref(false)
 let timerInterval: ReturnType<typeof setInterval> | undefined
-
-const tabs = ref<LessonTab[]>([])
 
 const props = defineProps<{
 	courseName: string
@@ -1295,27 +1293,28 @@ const updateNotes = () => {
 	notes.reload()
 }
 
-watch(allowDiscussions, () => {
-	if (!isAdmin.value) {
-		if (!tabs.value.find((tab) => tab.value === 'Notes')) {
-			tabs.value.push({
-				label: __('Notes'),
-				value: 'Notes',
-			})
+// Built from the current lesson, not pushed on each change: a page opened
+// straight on a quiz lesson never flips allowDiscussions, so pushed tabs never
+// appeared, and tabs pushed on an earlier lesson stayed after moving on.
+const tabs = computed<LessonTab[]>(() => [
+	// Guests cannot save notes, so they get none.
+	...(user.data && !isAdmin.value
+		? [{ label: __('Notes'), value: 'Notes' }]
+		: []),
+	...(allowDiscussions.value
+		? [{ label: __('Community'), value: 'Community' }]
+		: []),
+])
+
+watch(
+	tabs,
+	(options) => {
+		if (!options.some((tab) => tab.value === currentTab.value)) {
+			currentTab.value = options[0]?.value
 		}
-		currentTab.value = 'Notes'
-	} else {
-		currentTab.value = allowDiscussions.value ? 'Community' : undefined
-	}
-	if (allowDiscussions.value) {
-		if (!tabs.value.find((tab) => tab.value === 'Community')) {
-			tabs.value.push({
-				label: __('Community'),
-				value: 'Community',
-			})
-		}
-	}
-})
+	},
+	{ immediate: true }
+)
 
 const redirectToLogin = () => {
 	window.location.href = `/login?redirect-to=${getLmsRoute(
