@@ -66,12 +66,6 @@
 				:topic="currentTopic"
 				v-model:showTopics="showTopics"
 			/>
-			<div
-				v-else
-				class="hidden md:flex h-full items-center justify-center py-10 text-ink-gray-4"
-			>
-				{{ __('Select a question to view the thread') }}
-			</div>
 		</div>
 	</div>
 	<div v-else-if="singleThread && topics.data">
@@ -182,6 +176,20 @@ const showReplies = (topic) => {
 	showTopics.value = false
 	currentTopic.value = topic
 }
+
+// On wide screens the thread sits beside the list, so open the newest question
+// instead of leaving that side empty. Phones show the list or a thread, not
+// both, so they keep the list.
+watch(
+	() => topics.data,
+	(data) => {
+		if (props.singleThread || currentTopic.value || !data?.length) return
+		if (window.matchMedia?.('(min-width: 768px)').matches) {
+			showReplies(data[0])
+		}
+	},
+	{ immediate: true }
+)
 
 // DiscussionReplies' back button (shown only on mobile) sets showTopics = true;
 // treat that as "deselect" so the master list returns on small screens.

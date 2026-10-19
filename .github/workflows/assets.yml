@@ -1,8 +1,26 @@
 name: Pre-build assets
 
+# Every push to develop or main builds the prebuilt assets Pilot downloads.
+# Some of those commits are also advertised in frappe/marketplace, so Pilot
+# benches offer the update:
+#
+#   - develop: every push, as the nightly release.
+#   - main: only the release commit semantic-release pushes (on_release.yml),
+#     as the stable release. Merging main-hotfix into main is not a release.
+#
+# The marketplace checks need the assets for the commit, so the release PR
+# opens only after they are built. It is merged once its checks pass.
+
 on:
   push:
     branches: [develop, main]
+
+# Release PRs for one branch edit the same entry, so a second PR opened before
+# the first merges would conflict. One run per branch at a time; a waiting run
+# is replaced by a newer push.
+concurrency:
+  group: assets-${{ github.ref }}
+  cancel-in-progress: false
 
 jobs:
   assets:
@@ -13,3 +31,46 @@ jobs:
       frappe-branch: ${{ github.ref_name == 'main' && 'version-16' || 'develop' }}
     permissions:
       contents: write
+
+  marketplace:
+    name: Open the marketplace release PR
+    needs: assets
+    if: >-
+      github.ref_name == 'develop' ||
+      startsWith(github.event.head_commit.message, 'chore(release):')
+    uses: frappe/marketplace/.github/workflows/publish-release.yml@main
+    with:
+      app: lms
+      branch: ${{ github.ref_name }}
+      commit: ${{ github.sha }}
+      channel: ${{ github.ref_name == 'main' && 'stable' || 'nightly' }}
+    secrets:
+      registry_token: ${{ secrets.MARKETPLACE_PR_TOKEN }}
+
+  marketplace-merge:
+    name: Merge the marketplace release PR
+    needs: marketplace
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - env:
+          GH_TOKEN: ${{ secrets.MARKETPLACE_PR_TOKEN }}
+          GH_REPO: frappe/marketplace
+          COMMIT: ${{ github.sha }}
+        run: |
+          # publish-release.yml names the branch publish/<app>-<first 8 characters of the commit>.
+          pr=$(gh pr list --head "publish/lms-${COMMIT:0:8}" --json number --jq '.[0].number')
+          if [ -z "$pr" ]; then
+            echo "No marketplace PR: the marketplace already lists this commit."
+            exit 0
+          fi
+          # The marketplace checks start some time after the PR opens, and
+          # `gh pr checks` fails while the PR has none. Wait up to 5 minutes for them.
+          for attempt in $(seq 20); do
+            count=$(gh pr checks "$pr" --json name --jq length 2>/dev/null || true)
+            [ "${count:-0}" -gt 0 ] && break
+            [ "$attempt" = 20 ] && { echo "The marketplace PR has no checks."; exit 1; }
+            sleep 15
+          done
+          gh pr checks "$pr" --watch --fail-fast --interval 30
+          gh pr merge "$pr" --squash --delete-branch
