@@ -52,14 +52,14 @@
    "fieldtype": "Select",
    "in_list_view": 1,
    "label": "Type",
-   "options": "Choices\nUser Input\nOpen Ended",
+   "options": "Choices\nUser Input\nOpen Ended\nBlanks",
    "read_only": 1
   }
  ],
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2024-10-07 15:01:38.800906",
+ "modified": "2026-10-19 12:00:00.000000",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Quiz Question",

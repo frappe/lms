@@ -162,11 +162,16 @@ const typeFilterMenu = computed(() => [
 	},
 	{ label: __('User input'), onClick: () => (typeFilter.value = 'User Input') },
 	{ label: __('Open ended'), onClick: () => (typeFilter.value = 'Open Ended') },
+	{
+		label: __('Fill in the blanks'),
+		onClick: () => (typeFilter.value = 'Blanks'),
+	},
 ])
 const activeTypeLabel = computed(() => {
 	if (typeFilter.value === 'Choices') return __('Choices')
 	if (typeFilter.value === 'User Input') return __('User input')
 	if (typeFilter.value === 'Open Ended') return __('Open ended')
+	if (typeFilter.value === 'Blanks') return __('Fill in the blanks')
 	return __('All types')
 })
 

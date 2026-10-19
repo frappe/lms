@@ -137,6 +137,8 @@ function typeDbFilters(): Record<string, unknown> {
 			return { type: 'User Input' }
 		case 'open_ended':
 			return { type: 'Open Ended' }
+		case 'blanks':
+			return { type: 'Blanks' }
 		default:
 			return {}
 	}

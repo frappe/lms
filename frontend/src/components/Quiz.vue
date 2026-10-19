@@ -332,7 +332,8 @@
 								</div>
 								<div
 									:id="questionTextId"
-									class="text-p-base font-semibold text-ink-gray-9 break-words [&_img]:h-auto [&_img]:max-w-full"
+									ref="questionTextEl"
+									class="text-p-base font-semibold text-ink-gray-9 break-words [&_img]:h-auto [&_img]:max-w-full [&_table]:my-2 [&_table]:border-collapse [&_td]:border [&_th]:border [&_td]:border-outline-gray-3 [&_th]:border-outline-gray-3 [&_td]:px-3 [&_th]:px-3 [&_td]:py-1.5 [&_th]:py-1.5 [&_td]:align-middle"
 									v-safe-html:rich="questionDetails.data.question"
 								></div>
 							</div>
@@ -440,8 +441,26 @@
 									</FeedbackBanner>
 								</div>
 							</div>
+							<div
+								v-else-if="questionDetails.data.type == 'Blanks'"
+								role="status"
+								class="empty:absolute"
+							>
+								<FeedbackBanner
+									v-if="showAnswers.length"
+									data-testid="quiz-feedback"
+									:correct="showAnswers.every((v) => !!v)"
+								>
+									{{
+										__('{0} of {1} correct').format(
+											showAnswers.filter((v) => !!v).length,
+											showAnswers.length
+										)
+									}}
+								</FeedbackBanner>
+							</div>
 							<div v-else>
-								<RichTextEditor
+							<RichTextEditor
 									:content="possibleAnswer"
 									@change="(val) => (possibleAnswer = val)"
 									:editable="true"
@@ -872,6 +891,10 @@ const attemptedQuestions = ref<number[]>([])
 const reviewQuestions = ref<number[]>([])
 const showSubmissionConfirmation = ref(false)
 const possibleAnswer = ref<string | null>(null)
+// "Blanks" questions: one entry per [[n]] marker in the question text.
+const blankAnswers = ref<string[]>([])
+// A template ref inside v-for is an array, hence the .flat() where it is read.
+const questionTextEl = ref<HTMLElement | HTMLElement[] | null>(null)
 const timer = ref(0)
 let timerInterval: ReturnType<typeof setInterval> | undefined
 const violationCount = ref(0)
@@ -1362,8 +1385,10 @@ const loadSavedAnswers = (): void => {
 							}
 						}
 					})
+				} else if (details.type == 'Blanks') {
+					blankAnswers.value = localAnswers.map((a) => a ?? '')
 				} else {
-					possibleAnswer.value = localAnswers[0] ?? null
+				possibleAnswer.value = localAnswers[0] ?? null
 				}
 			}
 		}
@@ -1575,8 +1600,10 @@ const getAnswers = (): Answer[] => {
 		selectedOptions.value.forEach((value, index) => {
 			if (value) answers.push(details[`option_${index + 1}`])
 		})
+	} else if (details.type == 'Blanks') {
+		answers.push(...blankAnswers.value)
 	} else {
-		answers.push(possibleAnswer.value)
+	answers.push(possibleAnswer.value)
 	}
 
 	return answers
@@ -1601,7 +1628,9 @@ const checkAnswer = (): void => {
 		},
 		auto: true,
 		onSuccess(data: AnswerVerdict[] | AnswerVerdict) {
-			if (details.type == 'Choices' && Array.isArray(data)) {
+			if (details.type == 'Blanks' && Array.isArray(data)) {
+				showAnswers.splice(0, showAnswers.length, ...data)
+			} else if (details.type == 'Choices' && Array.isArray(data)) {
 				selectedOptions.value.forEach((option, index) => {
 					if (option) {
 						showAnswers[index] = data[index]
@@ -1663,7 +1692,8 @@ const resetQuestion = () => {
 	)
 	showAnswers.length = 0
 	possibleAnswer.value = null
-}
+	blankAnswers.value = []
+	}
 
 // One promise for the submit in flight, from the moment it is asked for (submitQuiz
 // can defer the request by 500ms) until the server answers: true once saved.
@@ -1759,6 +1789,7 @@ const resetQuiz = () => {
 	)
 	showAnswers.length = 0
 	possibleAnswer.value = null
+	blankAnswers.value = []
 	attemptedQuestions.value = []
 	reviewQuestions.value = []
 	quizSubmission.reset()
@@ -1777,8 +1808,65 @@ const getInstructions = (question: QuizQuestionDetails): string => {
 	if (question.type == 'Choices')
 		if (question.multiple) return __('Choose all answers that apply')
 		else return __('Choose one answer')
+	else if (question.type == 'Blanks') return __('Fill in each blank')
 	else return __('Type your answer')
-}
+	}
+
+	// Swap each [[n]] marker in the rendered question text for a text input, so a
+	// whole worksheet can be one question. Re-run to sync values and verdicts.
+	const mountBlanks = (): void => {
+		const root = [questionTextEl.value].flat()[0]
+		if (!root || questionDetails.data?.type != 'Blanks') return
+		if (!root.querySelector('input[data-blank]')) {
+			const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT)
+			const nodes: Text[] = []
+			while (walker.nextNode()) nodes.push(walker.currentNode as Text)
+			let count = 0
+			for (const node of nodes) {
+				const parts = (node.nodeValue ?? '').split(/\[\[(\d+)\]\]/)
+				if (parts.length == 1) continue
+				const fragment = document.createDocumentFragment()
+				parts.forEach((part, i) => {
+					if (i % 2 == 0) return part && fragment.append(part)
+					const input = document.createElement('input')
+					input.type = 'text'
+					input.autocomplete = 'off'
+					input.dataset.blank = part
+					input.setAttribute('aria-label', __('Blank {0}').format(part))
+					input.className =
+						'mx-1 inline-block w-36 rounded border border-outline-gray-2 bg-surface-base px-2 py-0.5 text-p-base font-normal text-ink-gray-9'
+					input.addEventListener('input', () => {
+						blankAnswers.value[Number(part) - 1] = input.value
+					})
+					fragment.append(input)
+					count++
+				})
+				node.replaceWith(fragment)
+			}
+			blankAnswers.value = Array.from(
+				{ length: count },
+				(_, i) => blankAnswers.value[i] ?? ''
+			)
+		}
+		root.querySelectorAll<HTMLInputElement>('input[data-blank]').forEach((input) => {
+			const i = Number(input.dataset.blank) - 1
+			input.value = blankAnswers.value[i] ?? ''
+			input.disabled = !!showAnswers.length
+			const verdict = showAnswers.length ? showAnswers[i] : undefined
+			input.style.borderColor =
+				verdict === undefined
+					? ''
+					: verdict
+						? 'var(--ink-green-4)'
+						: 'var(--ink-red-5)'
+		})
+	}
+
+	watch(
+		[() => questionDetails.data, activeQuestion, () => [...showAnswers]],
+		() => nextTick(mountBlanks),
+		{ flush: 'post' }
+	)
 
 const handleSubmitClick = (): void => {
 	if (!quiz.data?.show_answers) {

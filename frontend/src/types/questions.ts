@@ -4,7 +4,7 @@
 export interface LmsQuestionListRow {
 	name: string
 	question: string
-	type: 'Choices' | 'User Input' | 'Open Ended'
+	type: 'Choices' | 'User Input' | 'Open Ended' | 'Blanks'
 	multiple: number
 	/** frappe's own `owner`, shown as the author until LMS Question has one. */
 	owner: string
@@ -22,3 +22,4 @@ export type QuestionTypeFilter =
 	| 'multiple'
 	| 'user_input'
 	| 'open_ended'
+	| 'blanks'

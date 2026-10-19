@@ -16,5 +16,5 @@ export interface LMSQuizQuestion {
 	/**	Question Detail : Text	*/
 	question_detail?: string
 	/**	Type : Select	*/
-	type?: 'Choices' | 'User Input' | 'Open Ended'
+	type?: 'Choices' | 'User Input' | 'Open Ended' | 'Blanks'
 }

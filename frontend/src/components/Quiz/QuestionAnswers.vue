@@ -143,6 +143,43 @@
 			</Button>
 		</div>
 	</div>
+
+	<div v-else-if="uiType === 'blanks'" class="space-y-2" data-testid="blank-rows">
+		<p class="text-p-sm text-ink-gray-6">
+			{{
+				__(
+					'Write [[1]], [[2]]… in the question where each blank goes. Then give the accepted answers for each blank, separated by |'
+				)
+			}}
+		</p>
+		<p
+			v-if="!blankCount || !blanksOrdered"
+			class="flex items-center gap-1.5 text-p-sm text-ink-red-5"
+		>
+			<span class="lucide-circle-alert size-4 shrink-0" />
+			{{
+				!blankCount
+					? __('Add at least one blank, written as [[1]]')
+					: __('Number the blanks 1, 2, 3… in the order they appear')
+			}}
+		</p>
+		<div v-for="n in blankCount" :key="n" class="flex items-center gap-3">
+			<span class="w-10 shrink-0 text-p-sm text-ink-gray-6">{{
+				'[[' + n + ']]'
+			}}</span>
+			<FormControl
+				:class="[
+					'flex-1',
+					revealErrors && !blankLine(n).trim() ? INVALID_INPUT_CLASS : null,
+				]"
+				variant="outline"
+				:modelValue="blankLine(n)"
+				:aria-label="__('Accepted answers for blank {0}').format(n)"
+				:placeholder="__('Accepted answers for blank {0}').format(n)"
+				@update:modelValue="(val) => setBlankLine(n, val)"
+			/>
+		</div>
+	</div>
 </template>
 
 <script setup>
@@ -152,7 +189,9 @@ import {
 	MAX_OPTIONS,
 	REQUIRED_OPTIONS,
 	REQUIRED_POSSIBILITIES,
+	blankNumbers,
 	blankOptionFields,
+	blanksNumberedInOrder,
 	hasRequiredCorrectOptions,
 	hasRequiredOptions,
 	hasRequiredPossibilities,
@@ -282,6 +321,31 @@ watch(
 	},
 	{ immediate: true }
 )
+
+// Blanks: one line of accepted answers per [[n]] marker in the question text,
+// stored newline-joined in blank_answers. The line count follows the marker count.
+const blankCount = computed(() => blankNumbers(props.question.question).length)
+const blanksOrdered = computed(() =>
+	blanksNumberedInOrder(props.question.question)
+)
+const blankLines = () => String(props.question.blank_answers ?? '').split('\n')
+const blankLine = (n) => blankLines()[n - 1] ?? ''
+const setBlankLine = (n, val) => {
+	const current = blankLines()
+	const lines = Array.from(
+		{ length: blankCount.value },
+		(_, i) => current[i] ?? ''
+	)
+	lines[n - 1] = String(val ?? '').replace(/\n/g, ' ')
+	props.question.blank_answers = lines.join('\n')
+}
+// Removing a marker must drop its line, or the server sees more lines than blanks.
+watch(blankCount, (count) => {
+	if (props.uiType !== 'blanks' || !props.question.blank_answers) return
+	const trimmed = blankLines().slice(0, count).join('\n')
+	if (trimmed !== props.question.blank_answers)
+		props.question.blank_answers = trimmed
+})
 
 // A radio nobody clicks is never blurred, so any blurred option arms the group.
 const anyRequiredOptionTouched = computed(() =>

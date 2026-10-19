@@ -50,6 +50,16 @@ export const QUESTION_TYPES = [
 		},
 		icon: 'lucide-align-left',
 	},
+	{
+		value: 'blanks',
+		get label() {
+			return __('Fill in the blanks')
+		},
+		get description() {
+			return __('Many blanks in one question · auto-graded')
+		},
+		icon: 'lucide-text-select',
+	},
 ]
 
 // A fixed object, not QUESTION_TYPES[0], so uiTypeMeta always has a label and icon
@@ -87,6 +97,7 @@ export const blankOptionFields = () => {
 		fields[`explanation_${i}`] = null
 		fields[`possibility_${i}`] = null
 	}
+	fields.blank_answers = null
 	return fields
 }
 
@@ -97,6 +108,7 @@ export const marksLabel = (n) =>
 export function toUiType(question) {
 	if (question?.type === 'User Input') return 'user_input'
 	if (question?.type === 'Open Ended') return 'open_ended'
+	if (question?.type === 'Blanks') return 'blanks'
 	return question?.multiple ? 'multiple' : 'single'
 }
 
@@ -120,6 +132,8 @@ export function toBackendType(uiValue) {
 			return { type: 'User Input', multiple: 0 }
 		case 'open_ended':
 			return { type: 'Open Ended', multiple: 0 }
+		case 'blanks':
+			return { type: 'Blanks', multiple: 0 }
 		case 'single':
 		default:
 			return { type: 'Choices', multiple: 0 }
@@ -197,6 +211,22 @@ export const hasRequiredPossibilities = (question) =>
 		filled(question?.[`possibility_${i + 1}`])
 	).filter(Boolean).length >= REQUIRED_POSSIBILITIES
 
+// The [[1]], [[2]]... markers in a Blanks question's text, in order of appearance.
+// validate_blanks on the server reads the same pattern off the same HTML.
+export const blankNumbers = (html) =>
+	[...String(html ?? '').matchAll(/\[\[(\d+)\]\]/g)].map((m) => Number(m[1]))
+
+export const blanksNumberedInOrder = (html) =>
+	blankNumbers(html).every((n, i) => n === i + 1)
+
+// One line of accepted answers per marker, none empty.
+export const hasRequiredBlanks = (question) => {
+	const numbers = blankNumbers(question?.question)
+	if (!numbers.length || !blanksNumberedInOrder(question.question)) return false
+	const lines = String(question.blank_answers ?? '').split('\n')
+	return numbers.every((_, i) => filled(lines[i]))
+}
+
 // The mandatory-field rule for one question, shared by the card in a quiz and
 // the dialog over the Questions list, so the two cannot disagree about what
 // Save allows. The form marks fields red from the same predicates.
@@ -211,6 +241,8 @@ export const isQuestionValid = (question, uiType) => {
 		)
 
 	if (uiType === 'user_input') return hasRequiredPossibilities(question)
+
+	if (uiType === 'blanks') return hasRequiredBlanks(question)
 
 	// open_ended: the question text is the only requirement.
 	return true

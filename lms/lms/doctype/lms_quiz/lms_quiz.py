@@ -4,6 +4,7 @@
 import json
 import os
 import re
+import unicodedata
 import warnings
 from binascii import Error as BinasciiError
 from functools import partial
@@ -591,7 +592,9 @@ def process_results(results: list, quiz_details: dict):
 		result["marks_out_of"] = question_details.marks
 		result["question_type"] = question_details.type
 
-		if question_details.type != "Open Ended":
+		if question_details.type == "Blanks":
+			_grade_blanks(result, question_details, quiz_details)
+		elif question_details.type != "Open Ended":
 			if question_details.type == "User Input":
 				correct = bool(check_input_answers(question_details.question, result["answer"][0]))
 			else:
@@ -622,6 +625,17 @@ def process_results(results: list, quiz_details: dict):
 		"is_open_ended": is_open_ended,
 		"answer_files": answer_files,
 	}
+
+
+def _grade_blanks(result: dict, question_details, quiz_details):
+	"""One question, many blanks: marks are split evenly across blanks (partial credit)."""
+	verdicts = check_blank_answers(question_details.question, result["answer"])
+	right = sum(verdicts)
+	result["answer"] = " / ".join(result["answer"][: len(verdicts)])
+	result["is_correct"] = 1 if verdicts and right == len(verdicts) else 0
+	result["marks"] = cint(question_details.marks) * right // len(verdicts) if verdicts else 0
+	if not right and quiz_details.enable_negative_marking:
+		result["marks"] = -quiz_details.marks_to_cut
 
 
 def verify_answer(question: str, answer: list):
@@ -780,6 +794,9 @@ def check_answer(quiz: str, question: str, question_type: str, answers: str):
 	if question_type == "Choices":
 		return check_choice_answers(question, answers)
 
+	if question_type == "Blanks":
+		return check_blank_answers(question, answers)
+
 	# A blank input answer (empty list, or the [null] the UI emits for an untouched field)
 	# scores as incorrect; coerce to "" so answers[0] can't IndexError / feed None onward.
 	answer = answers[0] if answers else ""
@@ -815,6 +832,25 @@ def check_input_answers(question: str, answer: str):
 		if possibility and fuzz.token_sort_ratio(possibility, answer) > 85:
 			return 1
 	return 0
+
+
+def _normalise_blank(text) -> str:
+	# NFKC folds half-width kana and full-width latin, so ﾍﾞﾝﾀﾞｰ matches ベンダー.
+	return unicodedata.normalize("NFKC", text).strip() if isinstance(text, str) else ""
+
+
+def check_blank_answers(question: str, answers: list) -> list[int]:
+	"""1/0 per blank, in order. Accepted answers for a blank are the `|`-separated
+	entries on its line of LMS Question.blank_answers, matched like User Input."""
+	raw = frappe.db.get_value("LMS Question", question, "blank_answers") or ""
+	verdicts = []
+	for index, line in enumerate(line for line in raw.splitlines() if line.strip()):
+		given = _normalise_blank(answers[index] if index < len(answers) else "")
+		accepted = [_normalise_blank(a) for a in line.split("|")]
+		verdicts.append(
+			int(bool(given) and any(a and fuzz.token_sort_ratio(a, given) > 85 for a in accepted))
+		)
+	return verdicts
 
 
 @frappe.whitelist()
@@ -863,7 +899,7 @@ def get_question_meta(questions: str | list):
 	return meta
 
 
-QUESTION_BANK_TYPES = ("Choices", "User Input", "Open Ended")
+QUESTION_BANK_TYPES = ("Choices", "User Input", "Open Ended", "Blanks")
 
 
 def _name_list(value):
