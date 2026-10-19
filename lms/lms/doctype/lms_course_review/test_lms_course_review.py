@@ -73,6 +73,15 @@ class TestRichText(BaseTestUtils):
 	def test_text_with_no_tag_is_kept(self):
 		self.assertEqual(sanitize_rich_text("a & b"), "a & b")
 
+	def test_deeply_encoded_text_is_cleaned_quickly(self):
+		import time
+
+		value = "&" + "amp;" * 10000 + "lt;form action=x&gt;"
+		started = time.monotonic()
+		text = to_plain_text(value)
+		self.assertLess(time.monotonic() - started, 2)
+		self.assertNotIn("<", text)
+
 	def test_plain_text_keeps_what_was_typed(self):
 		self.assertEqual(to_plain_text("2 < 3 & 4 > 1"), "2 < 3 & 4 > 1")
 

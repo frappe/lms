@@ -31,14 +31,22 @@ def sanitize_rich_text(value: str | None) -> str | None:
 	return sanitize_html(value, always_sanitize=True, disallowed_tags=FORM_CONTROL_TAGS)
 
 
+MAX_PLAIN_TEXT_PASSES = 10
+
+
 def to_plain_text(value: str | None) -> str | None:
 	"""Text with every tag removed and the rest kept as typed, for fields shown as plain text.
-	An HTML cleaner would store `a & b` as `a &amp; b`. Repeated until nothing changes, because
-	get_text turns the text `&lt;b&gt;` into `<b>`, which the next pass removes. Each change
-	shortens the text, so the loop ends."""
+	An HTML cleaner would store `a & b` as `a &amp; b`. Repeated because get_text turns the
+	text `&lt;b&gt;` into `<b>`, which the next pass removes. Each pass reads the whole text,
+	so the passes are bounded."""
 	if not isinstance(value, str):
 		return value
 
-	while (text := BeautifulSoup(value, "html.parser").get_text()) != value:
+	for _ in range(MAX_PLAIN_TEXT_PASSES):
+		text = BeautifulSoup(value, "html.parser").get_text()
+		if text == value:
+			return value
 		value = text
-	return value
+	# Still decoding after that many layers, which no one types: drop every `<` so nothing
+	# left can open a tag.
+	return value.replace("<", "")
