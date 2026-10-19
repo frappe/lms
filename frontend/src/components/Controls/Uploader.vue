@@ -145,12 +145,8 @@ const fileType = computed<string>(() =>
 
 const previewBoxClasses = computed<string>(() => {
 	if (props.shape === 'circle') return 'size-24 rounded-full'
-<<<<<<< HEAD
+	if (props.size === 'sm') return 'w-24 aspect-[750/422] rounded'
 	return 'w-56 aspect-[750/422] rounded-md'
-=======
-	if (props.size === 'sm') return 'w-24 aspect-[750/422] rounded-4'
-	return 'w-56 aspect-[750/422] rounded-5'
->>>>>>> e7d32b3 (fix(course): fit the new course form on a laptop screen)
 })
 
 const saveFile = (file: { file_url: string }) => {
