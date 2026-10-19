@@ -52,11 +52,11 @@ Only a batch instructor can schedule a class. Get the host's start link with `me
 
 Only a Moderator or the course's assigned evaluator can record evaluations and issue certificates.
 
-Record an evaluation with `method call lms.lms.api.save_evaluation_details`. Pass `member`, `course`, `date_value`, `start_time`, `end_time` and `status` (`Pending`, `In Progress`, `Pass` or `Fail`). `rating` counts stars from 0 to 5. A `Pass` or `Fail` needs a rating above 0. Calling it again for the same learner and course updates the evaluation.
+Record an evaluation with `method call lms.lms.api.save_evaluation_details`. Pass `member`, `course`, `date_value`, `start_time`, `end_time` and `status` (`Pending`, `In Progress`, `Pass` or `Fail`). For a batch, also pass `batch_name`: without it, Learning checks the course's own evaluator instead of the batch course's evaluator, and records a course-wide evaluation. `rating` counts stars from 0 to 5. A `Pass` or `Fail` needs a rating above 0. Calling it again for the same learner and course updates the evaluation.
 
 Issue certificates with these calls:
 
 - One learner: `method call lms.lms.api.save_certificate_details` with `member`, `issue_date`, `template` and `course` or `batch_name`. `template` is a Print Format for `LMS Certificate`. Calling it again for the same learner updates the certificate.
 - A whole batch: `method call lms.lms.api.generate_batch_certificates -F batch=<b> -F 'details:={...}'`, where `details` holds `issue_date`, `template`, `course` and `published`. It returns how many certificates it made, and lists the students it skipped, such as those already certified.
 
-Each certificate emails the learner. `save_certificate_details` does not check progress, so check that the learner finished the course first, with `get_batch_student_progress` or the learner's `LMS Enrollment`.
+Each certificate emails the learner. A course certificate needs the learner to be enrolled in the course. When the course has `enable_certification` on, it also needs 100% progress. Otherwise Learning does not check progress, so check that the learner finished the course first, with `get_batch_student_progress` or the learner's `LMS Enrollment`.

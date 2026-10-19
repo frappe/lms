@@ -23,7 +23,7 @@ Read and change these documents with `frappectl`. Use the app's own methods wher
 
 ## 1. Connect
 
-Ask the human for a frappectl profile with write access, and pass it as `-s <p>`. Check it with `frappectl -s <p> method call lms.lms.utils.get_roles -F name=<user>`, which lists the user's Learning roles.
+Ask the human for a frappectl profile with write access, and pass it as `-s <p>`. Check it with `frappectl -s <p> method call lms.lms.utils.get_courses -F 'filters:={"created":1}'`, which any signed-in user can call. A Moderator or Batch Evaluator can also read the user's Learning roles with `method call lms.lms.utils.get_roles -F name=<user>`.
 
 The user needs a Learning role:
 
@@ -86,7 +86,7 @@ Several methods act only for the signed-in user: `enroll_in_batch`, `enroll_in_p
 ## 4. Traps
 
 - **Deletes cannot be undone.** There is no trash and no prompt. Ask the human first, and name what will go:
-  - `delete_course` removes its chapters, lessons, enrollments, progress, quizzes, quiz submissions, evaluations, certificates, reviews and discussions.
+  - `delete_course` removes its chapters, lessons, enrollments, progress, evaluations, certificates, reviews and discussions. It keeps its quizzes, assignments and their submissions, and clears their link to the course.
   - `delete_chapter` removes its lessons, their progress and their discussions.
   - `delete_batch` removes its student list, timetable, feedback and discussions. It keeps the batch certificates and the students' course enrollments.
 - **Publishing can notify everyone.** When the site's notification setting is Email or In-app, every enabled user gets an email or an in-app notification. A batch sends it as soon as it is published. A course sends it in the daily job, for the courses published that day. Clearing `upcoming` on a course emails each user who asked to be told. Ask before you publish.
