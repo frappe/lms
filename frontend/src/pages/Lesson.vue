@@ -1297,7 +1297,10 @@ const updateNotes = () => {
 // straight on a quiz lesson never flips allowDiscussions, so pushed tabs never
 // appeared, and tabs pushed on an earlier lesson stayed after moving on.
 const tabs = computed<LessonTab[]>(() => [
-	...(isAdmin.value ? [] : [{ label: __('Notes'), value: 'Notes' }]),
+	// Guests cannot save notes, so they get none.
+	...(user.data && !isAdmin.value
+		? [{ label: __('Notes'), value: 'Notes' }]
+		: []),
 	...(allowDiscussions.value
 		? [{ label: __('Community'), value: 'Community' }]
 		: []),
