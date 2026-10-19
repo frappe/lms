@@ -4,9 +4,6 @@ pull_request_rules:
           - label="backport develop"
       actions:
           backport:
-              # Without this Mergify commits conflict markers and opens a PR that fails CI.
-              # With it, Mergify comments that the backport failed, and it is done by hand.
-              ignore_conflicts: false
               branches:
                   - develop
               assignees:
@@ -17,9 +14,6 @@ pull_request_rules:
           - label="backport main-hotfix"
       actions:
           backport:
-              # Without this Mergify commits conflict markers and opens a PR that fails CI.
-              # With it, Mergify comments that the backport failed, and it is done by hand.
-              ignore_conflicts: false
               branches:
                   - main-hotfix
               assignees:
@@ -30,9 +24,6 @@ pull_request_rules:
           - label="backport main"
       actions:
           backport:
-              # Without this Mergify commits conflict markers and opens a PR that fails CI.
-              # With it, Mergify comments that the backport failed, and it is done by hand.
-              ignore_conflicts: false
               branches:
                   - main
               assignees:
@@ -43,9 +34,6 @@ pull_request_rules:
           - label="backport version-15-hotfix"
       actions:
           backport:
-              # Without this Mergify commits conflict markers and opens a PR that fails CI.
-              # With it, Mergify comments that the backport failed, and it is done by hand.
-              ignore_conflicts: false
               branches:
                   - version-15-hotfix
               assignees:
@@ -56,9 +44,6 @@ pull_request_rules:
           - label="backport version-16-hotfix"
       actions:
           backport:
-              # Without this Mergify commits conflict markers and opens a PR that fails CI.
-              # With it, Mergify comments that the backport failed, and it is done by hand.
-              ignore_conflicts: false
               branches:
                   - version-16-hotfix
               assignees:
@@ -69,9 +54,6 @@ pull_request_rules:
           - label="backport all-hotfixes"
       actions:
           backport:
-              # Without this Mergify commits conflict markers and opens a PR that fails CI.
-              # With it, Mergify comments that the backport failed, and it is done by hand.
-              ignore_conflicts: false
               branches:
                   - version-15-hotfix
                   - version-16-hotfix
