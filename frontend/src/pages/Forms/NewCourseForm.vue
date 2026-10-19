@@ -72,6 +72,7 @@
 						v-model="course.image"
 						:label="__('Course thumbnail')"
 						:required="false"
+						size="sm"
 						:description="thumbnailGuidelines"
 					/>
 				</div>
@@ -224,7 +225,7 @@ const course = ref<Course>({
 const INSTRUCTOR_ROLES = ['Moderator', 'Course Creator', 'Batch Evaluator']
 const MAX_VISIBLE_AVATARS = 3
 const thumbnailGuidelines = __(
-	'Upload a 750×422 image (.jpg, .jpeg, .gif, or .png). Shown on the course card.'
+	'A 750×422 .jpg, .gif or .png, shown on the course card.'
 )
 const { inputId: descriptionId, labelId: descriptionLabelId } =
 	useInputLabeling({})
