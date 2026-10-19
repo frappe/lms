@@ -185,7 +185,7 @@ watch(
 	(data) => {
 		if (props.singleThread || currentTopic.value || !data?.length) return
 		if (window.matchMedia?.('(min-width: 768px)').matches) {
-			currentTopic.value = data[0]
+			showReplies(data[0])
 		}
 	},
 	{ immediate: true }
