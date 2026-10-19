@@ -22,11 +22,12 @@ const { createListResourceMock, createDocumentResourceMock, resources } =
 
 // vi.mock's factory is hoisted above every top-level const, so anything it
 // references has to be hoisted too.
-const { passthrough } = vi.hoisted(() => ({
+const { passthrough, selected } = vi.hoisted(() => ({
 	passthrough: {
 		inheritAttrs: false,
 		template: `<div><slot name="prefix" /><slot /></div>`,
 	},
+	selected: { keys: [] as string[] },
 }))
 
 const insertSubmit = vi.fn()
@@ -122,7 +123,18 @@ vi.mock('frappe-ui/experimental', () => ({
 	ListHeaderItem: passthrough,
 	ListRows: passthrough,
 	ListRow: passthrough,
-	ListSelectBanner: { template: `<div />` },
+	ListSelectBanner: defineComponent({
+		setup:
+			(_, { slots }) =>
+			() =>
+				h(
+					'div',
+					slots.actions?.({
+						selections: new Set(selected.keys),
+						unselectAll: () => {},
+					})
+				),
+	}),
 }))
 
 vi.mock('@/utils', () => ({
@@ -147,7 +159,18 @@ vi.mock('@/components/Programs/ProgramProgressSummary.vue', () => ({
 // and has its own tests (responsiveListView.test.ts, listPage.test.ts); rendering
 // it here would only exercise those against this file's frappe-ui stubs.
 vi.mock('@/components/ResponsiveListView.vue', () => ({
-	default: defineComponent({ render: () => h('div') }),
+	default: defineComponent({
+		setup:
+			(_, { slots }) =>
+			() =>
+				h(
+					'div',
+					slots['selection-actions']?.({
+						selections: new Set(selected.keys),
+						unselectAll: () => {},
+					})
+				),
+	}),
 }))
 
 import Link from '@/components/Controls/Link.vue'
@@ -245,6 +268,7 @@ beforeEach(() => {
 	deleteSubmit.mockReset()
 	$dialog.mockReset()
 	savedSpy.mockReset()
+	selected.keys = []
 	Object.defineProperty(window, 'innerWidth', {
 		value: 1024,
 		writable: true,
@@ -545,6 +569,32 @@ describe('ProgramForm as a route', () => {
 				description: 'b@example.com',
 			})
 			expect(payload.program_members[1].full_name).toBe('B Member')
+		})
+
+		const deleteSelected = async (wrapper: any, bannerIndex: number) => {
+			await wrapper
+				.findAll('button[label="Delete"]')
+				[bannerIndex].trigger('click')
+			await wrapper.find('[data-testid="program-save"]').trigger('click')
+			return setValueSubmit.mock.calls[0][0]
+		}
+
+		it('deletes saved courses selected in the list', async () => {
+			selected.keys = ['course-a', 'course-c']
+			const wrapper = await loadProgram(THREE_COURSES, MEMBER_ROWS)
+
+			const payload = await deleteSelected(wrapper, 0)
+			expect(payload.program_courses.map((row: any) => row.course)).toEqual([
+				'course-b',
+			])
+		})
+
+		it('deletes saved members selected in the list', async () => {
+			selected.keys = ['member@example.com']
+			const wrapper = await loadProgram(THREE_COURSES, MEMBER_ROWS)
+
+			const payload = await deleteSelected(wrapper, 1)
+			expect(payload.program_members).toEqual([])
 		})
 	})
 })

@@ -572,11 +572,11 @@ const remove = (
 	const selectionsArray = Array.from(selections)
 	if (type === 'courses') {
 		program.value.program_courses = program.value.program_courses.filter(
-			(c: any) => !selectionsArray.includes(c.name || c.course)
+			(c: any) => !selectionsArray.includes(c.course)
 		)
 	} else {
 		program.value.program_members = program.value.program_members.filter(
-			(m: any) => !selectionsArray.includes(m.name || m.member)
+			(m: any) => !selectionsArray.includes(m.member)
 		)
 	}
 	dirty.value = true
