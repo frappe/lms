@@ -128,6 +128,7 @@ const props = withDefaults(
 const emit = defineEmits<{
 	(e: 'update:modelValue', value: string): void
 	(e: 'change', value: string): void
+	(e: 'select', option: LinkOption | null): void
 }>()
 
 defineOptions({ inheritAttrs: false })
@@ -248,6 +249,10 @@ function onSelect(val: unknown): void {
 	emit(
 		valuePropPassed.value ? 'change' : 'update:modelValue',
 		selected == null ? '' : String(selected)
+	)
+	emit(
+		'select',
+		resolvedOptions.value.find((o) => o.value === selected) || null
 	)
 }
 

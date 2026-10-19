@@ -181,6 +181,7 @@
 							v-model="course"
 							doctype="LMS Course"
 							:label="__('Course')"
+							@select="setSelectedTitle"
 						/>
 
 						<Link
@@ -191,6 +192,7 @@
 								ignore_user_type: 1,
 							}"
 							:label="__('Program Member')"
+							@select="setSelectedTitle"
 							:onCreate="
 								(value: string, close: () => void) =>
 									openSettings('members', close)
@@ -264,6 +266,7 @@ const showFormDialog = ref(false)
 const currentForm = ref<'course' | 'member'>('course')
 const course = ref<string>('')
 const member = ref<string>('')
+const selectedTitle = ref<string>('')
 const showProgressDialog = ref(false)
 const dirty = ref(false)
 const user = inject<any>('$user')
@@ -487,11 +490,20 @@ const updateProgram = () => {
 const openChildForm = (formType: 'course' | 'member') => {
 	currentForm.value = formType
 	showFormDialog.value = true
+	selectedTitle.value = ''
 	if (formType === 'course') {
 		course.value = ''
 	} else {
 		member.value = ''
 	}
+}
+
+const setSelectedTitle = (
+	option: { label: string; value: string; description?: string } | null
+) => {
+	selectedTitle.value =
+		(option?.label !== option?.value ? option?.label : option?.description) ||
+		''
 }
 
 const addCourse = (close: () => void) => {
@@ -506,6 +518,7 @@ const addCourse = (close: () => void) => {
 	if (!existingCourse) {
 		program.value.program_courses.push({
 			course: course.value,
+			course_title: selectedTitle.value || course.value,
 			idx: program.value.program_courses.length + 1,
 		} as ProgramCourse)
 		if (!isNew.value) {
@@ -530,6 +543,7 @@ const addMember = (close: () => void) => {
 	if (!existingMember) {
 		program.value.program_members.push({
 			member: member.value,
+			full_name: selectedTitle.value,
 		} as ProgramMember)
 		if (!isNew.value) {
 			dirty.value = true
@@ -604,7 +618,7 @@ const courseColumns = computed(() => {
 	return [
 		{
 			label: 'Title',
-			key: isNew.value ? 'course' : 'course_title',
+			key: 'course_title',
 			width: 1,
 		},
 	]

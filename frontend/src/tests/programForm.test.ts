@@ -150,6 +150,8 @@ vi.mock('@/components/ResponsiveListView.vue', () => ({
 	default: defineComponent({ render: () => h('div') }),
 }))
 
+import Link from '@/components/Controls/Link.vue'
+
 import ProgramForm from '@/pages/Forms/ProgramForm.vue'
 
 const savedSpy = vi.fn()
@@ -471,6 +473,78 @@ describe('ProgramForm as a route', () => {
 			const { wrapper } = await deepLink('data-science')
 			await wrapper.find('[data-testid="program-delete"]').trigger('click')
 			expect($dialog).toHaveBeenCalledTimes(1)
+		})
+
+		const addThroughDialog = async (
+			wrapper: any,
+			addButtonIndex: number,
+			option: { label: string; value: string; description?: string }
+		) => {
+			const addButtons = wrapper
+				.findAll('button')
+				.filter((button: any) => button.text() === 'Add')
+			await addButtons[addButtonIndex].trigger('click')
+			const link = wrapper.findComponent(Link)
+			link.vm.$emit('update:modelValue', option.value)
+			link.vm.$emit('select', option)
+			await flushPromises()
+			const dialog = wrapper
+				.findAllComponents({ name: 'Dialog' })
+				.find((d: any) => d.props('actions'))
+			dialog.props('actions')[0].onClick({ close: vi.fn() })
+			await flushPromises()
+			await wrapper.find('[data-testid="program-save"]').trigger('click')
+			return setValueSubmit.mock.calls[0][0]
+		}
+
+		it('shows the course title on a newly added course before saving', async () => {
+			const wrapper = await loadProgram(COURSE_ROWS, MEMBER_ROWS)
+
+			const payload = await addThroughDialog(wrapper, 0, {
+				value: 'course-b',
+				label: 'Course B',
+				description: 'course-b',
+			})
+			expect(payload.program_courses[1]).toEqual({
+				course: 'course-b',
+				course_title: 'Course B',
+				idx: 2,
+			})
+		})
+
+		it('falls back to the course name when the option has no title', async () => {
+			const wrapper = await loadProgram(COURSE_ROWS, MEMBER_ROWS)
+
+			const payload = await addThroughDialog(wrapper, 0, {
+				value: 'course-b',
+				label: 'course-b',
+			})
+			expect(payload.program_courses[1].course_title).toBe('course-b')
+		})
+
+		it('shows the full name on a newly added member before saving', async () => {
+			const wrapper = await loadProgram(COURSE_ROWS, MEMBER_ROWS)
+
+			const payload = await addThroughDialog(wrapper, 1, {
+				value: 'b@example.com',
+				label: 'b@example.com',
+				description: 'B Member',
+			})
+			expect(payload.program_members[1]).toEqual({
+				member: 'b@example.com',
+				full_name: 'B Member',
+			})
+		})
+
+		it('reads the full name from the label when the link shows titles first', async () => {
+			const wrapper = await loadProgram(COURSE_ROWS, MEMBER_ROWS)
+
+			const payload = await addThroughDialog(wrapper, 1, {
+				value: 'b@example.com',
+				label: 'B Member',
+				description: 'b@example.com',
+			})
+			expect(payload.program_members[1].full_name).toBe('B Member')
 		})
 	})
 })
