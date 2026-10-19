@@ -2,7 +2,7 @@
 
 ## Members
 
-These calls need the Moderator role.
+These calls need the Moderator role, except `search_users_by_role`, which a Course Creator or Batch Evaluator can also call.
 
 | Task | Call |
 |---|---|
@@ -16,7 +16,7 @@ A new member gets the LMS Student role and nothing else. Give other roles with `
 
 ## Roles
 
-Learning has four roles. Read a user's roles with `method call lms.lms.utils.get_roles -F name=<user>`. Change one with `method call lms.lms.api.save_role -F user=<user> -F role=<role> -F value:=1` (or `value:=0` to remove it).
+Learning has four roles. A Moderator or Batch Evaluator can read a user's roles with `method call lms.lms.utils.get_roles -F name=<user>`. Change one with `method call lms.lms.api.save_role -F user=<user> -F role=<role> -F value:=1` (or `value:=0` to remove it).
 
 | Role | What it allows |
 |---|---|
