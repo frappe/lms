@@ -309,7 +309,7 @@
 						</div>
 					</div>
 					<div
-						v-if="lesson.data && (allowDiscussions || tabs.length > 1)"
+						v-if="lesson.data && tabs.length"
 						class="mt-10 pb-20 pt-5 border-t px-5"
 						ref="discussionsContainer"
 					>
@@ -481,6 +481,7 @@ const { isMobile } = useScreenSize()
 const showChapters = ref(false)
 let timerInterval = null
 
+<<<<<<< HEAD
 const tabs = ref([])
 
 const props = defineProps({
@@ -497,6 +498,13 @@ const props = defineProps({
 		required: true,
 	},
 })
+=======
+const props = defineProps<{
+	courseName: string
+	chapterNumber: string
+	lessonNumber: string
+}>()
+>>>>>>> f5a255c (fix(lesson): show the notes and community tabs on the first load of a lesson)
 
 let collapsedByLesson = false
 const isCourseAdmin = () =>
@@ -1245,14 +1253,23 @@ const updateNotes = () => {
 	notes.reload()
 }
 
-watch(allowDiscussions, () => {
-	if (!isAdmin.value) {
-		if (!tabs.value.find((tab) => tab.value === 'Notes')) {
-			tabs.value.push({
-				label: __('Notes'),
-				value: 'Notes',
-			})
+// Built from the current lesson, not pushed on each change: a page opened
+// straight on a quiz lesson never flips allowDiscussions, so pushed tabs never
+// appeared, and tabs pushed on an earlier lesson stayed after moving on.
+const tabs = computed<LessonTab[]>(() => [
+	...(isAdmin.value ? [] : [{ label: __('Notes'), value: 'Notes' }]),
+	...(allowDiscussions.value
+		? [{ label: __('Community'), value: 'Community' }]
+		: []),
+])
+
+watch(
+	tabs,
+	(options) => {
+		if (!options.some((tab) => tab.value === currentTab.value)) {
+			currentTab.value = options[0]?.value
 		}
+<<<<<<< HEAD
 		currentTab.value = 'Notes'
 	} else {
 		currentTab.value = allowDiscussions.value ? 'Community' : null
@@ -1266,6 +1283,11 @@ watch(allowDiscussions, () => {
 		}
 	}
 })
+=======
+	},
+	{ immediate: true }
+)
+>>>>>>> f5a255c (fix(lesson): show the notes and community tabs on the first load of a lesson)
 
 const redirectToLogin = () => {
 	window.location.href = `/login?redirect-to=${getLmsRoute(
