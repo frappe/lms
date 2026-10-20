@@ -3453,21 +3453,24 @@ def get_program_details(program_name: str) -> dict:
 	return program
 
 
-@frappe.whitelist()
+@frappe.whitelist(methods=["POST"])
 def enroll_in_program(program: str):
 	validate_program_enrollment(program)
 
-	if not frappe.db.exists("LMS Program Member", {"parent": program, "member": frappe.session.user}):
-		program_member = frappe.new_doc("LMS Program Member")
-		program_member.update(
-			{
-				"parent": program,
-				"parenttype": "LMS Program",
-				"parentfield": "members",
-				"member": frappe.session.user,
-			}
-		)
-		program_member.save(ignore_permissions=True)
+	member = frappe.session.user
+	# The program row lock makes a concurrent enrolment wait, then see this one's row.
+	frappe.db.get_value("LMS Program", program, "name", for_update=True)
+	members = {"parent": program, "parenttype": "LMS Program", "parentfield": "program_members"}
+	if frappe.db.exists("LMS Program Member", {**members, "member": member}):
+		return
+
+	# Saving the program would rewrite every member row; insert the one row instead.
+	member_count = frappe.db.count("LMS Program Member", members) + 1
+	# nosemgrep: lms-unjustified-ignore-permissions - learners cannot write programs; the session user is enrolling only themselves in a published program
+	frappe.get_doc(
+		{"doctype": "LMS Program Member", **members, "member": member, "idx": member_count}
+	).insert(ignore_permissions=True)
+	frappe.db.set_value("LMS Program", program, "member_count", member_count)
 
 
 def validate_program_enrollment(program: str):
