@@ -129,68 +129,15 @@ const announcement = reactive({
 	announcement: '',
 })
 
-<<<<<<< HEAD
-=======
-const layout = [
-	{
-		sections: [
-			{
-				columns: [
-					{
-						fields: [
-							{
-								fieldname: 'subject',
-								fieldtype: 'Data',
-								label: __('Subject'),
-								reqd: true,
-							},
-							{
-								fieldname: 'replyTo',
-								fieldtype: 'Data',
-								label: __('Reply To'),
-								reqd: true,
-							},
-							{
-								fieldname: 'announcement',
-								fieldtype: 'Text Editor',
-								label: __('Announcement'),
-								reqd: true,
-								ui: {
-									component: RichTextEditorField,
-									props: {
-										fixedMenu: true,
-										minHeight: '200px',
-									},
-								},
-							},
-						],
-					},
-				],
-			},
-		],
-	},
-]
-
 // The students are BCC'd on the server; this form never holds their addresses.
->>>>>>> cae0f68 (fix: send no caller another user's email)
 const announcementResource = createResource({
 	url: 'lms.lms.api.send_batch_announcement',
 	makeParams() {
 		return {
-<<<<<<< HEAD
-			recipients: announcement.replyTo,
-			bcc: (batch.data?.students || []).join(', '),
+			batch: props.batchName,
 			subject: announcement.subject,
 			content: announcement.announcement,
-			doctype: 'LMS Batch',
-			name: props.batchName,
-			send_email: 1,
-=======
-			batch: props.batchName,
-			subject: doc.value.subject,
-			content: doc.value.announcement,
-			reply_to: doc.value.replyTo,
->>>>>>> cae0f68 (fix: send no caller another user's email)
+			reply_to: announcement.replyTo,
 		}
 	},
 })

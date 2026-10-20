@@ -71,11 +71,8 @@ from lms.lms.utils import (
 	has_moderator_role,
 	hide_user_emails,
 	prepare_inline_images,
-<<<<<<< HEAD
 	resolve_page_length,
-=======
 	resolve_user,
->>>>>>> cae0f68 (fix: send no caller another user's email)
 )
 
 

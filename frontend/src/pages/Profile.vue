@@ -141,15 +141,11 @@
 					v-model="activeTab"
 				/>
 			</div>
-<<<<<<< HEAD
-			<router-view :profile="profile" :key="profile.data?.name" />
-=======
 			<router-view
 				v-if="!awaitingEmail"
 				:profile="profile"
-				:key="profile.data.username"
+				:key="profile.data?.username"
 			/>
->>>>>>> cae0f68 (fix: send no caller another user's email)
 		</div>
 	</div>
 	<NotFound v-else-if="(profile.fetched || profile.error) && !profile.data" />

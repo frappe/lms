@@ -447,65 +447,7 @@ import InlineLessonMenu from '@/components/Notes/InlineLessonMenu.vue'
 import { parseStoredEditorJs } from '@/utils/lessonForm'
 import { getLmsRoute } from '@/utils/basePath'
 import { provideStudentView } from '@/composables/useStudentView'
-<<<<<<< HEAD
-=======
-import type { UserResource } from '@/composables/useStudentView'
-import type { Note, Notes as NotesResource } from '@/types'
 import { isInstructorOf } from '@/utils/instructors'
-
-interface LessonProgressEvent {
-	course: string
-	lesson: string
-	progress: number
-}
-
-interface LessonSocket {
-	on: (event: string, handler: (data: LessonProgressEvent) => void) => void
-	off: (event: string, handler: (data: LessonProgressEvent) => void) => void
-}
-
-interface LessonPayload {
-	locked?: boolean
-	is_scorm_package?: boolean
-	chapter_name?: string
-	membership?: { progress?: number } | null
-	content?: string | null
-	instructor_content?: string | null
-}
-
-interface OutlineChapter {
-	lessons?: { number: string; locked?: boolean }[]
-}
-
-interface PlayerEvent {
-	detail?: { code?: number; message?: string }
-}
-
-// The subset of Plyr (and its YouTube/Vimeo `embed`) this page drives.
-interface LessonPlayer {
-	source: string
-	currentTime: number
-	duration: number
-	embed: { seekTo: (seconds: number, allowSeekAhead: boolean) => void }
-	on: (event: string, handler: (event: PlayerEvent) => void) => void
-	play: () => void
-	pause: () => void
-	_lmsEndedAttached?: boolean
-}
-
-interface WatchedVideo {
-	source: string
-	watch_time: number
-}
-
-type TrackedVideo = HTMLVideoElement & {
-	_lmsErrorAttached?: boolean
-	_lmsEndedAttached?: boolean
-}
-
-type LessonTab = { label: string; value: string }
-type Crumb = { label: string; route: RouteLocationRaw }
->>>>>>> cae0f68 (fix: send no caller another user's email)
 
 const router = useRouter()
 const route = useRoute()

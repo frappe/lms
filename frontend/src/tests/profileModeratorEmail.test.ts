@@ -29,19 +29,18 @@ vi.mock('frappe-ui', () => ({
 	toast: { success: vi.fn(), error: vi.fn() },
 	Button: passthrough,
 	TabButtons: passthrough,
+	Tooltip: passthrough,
 }))
 
 const { stub } = vi.hoisted(() => ({
 	stub: () => ({ default: { render: () => null } }),
 }))
-vi.mock('@/components/Layouts/pages/PageHeader.vue', stub)
+vi.mock('@/components/Layouts/PageHeader.vue', stub)
 vi.mock('@/components/HeaderButton.vue', stub)
 vi.mock('@/components/UserAvatar.vue', stub)
 vi.mock('@/components/NoPermission.vue', stub)
 vi.mock('@/pages/NotFound.vue', stub)
-vi.mock('@/components/Profile/ProfileAvatar.vue', stub)
-vi.mock('@/components/Profile/ProfileCover.vue', stub)
-vi.mock('@/components/Profile/ProfileSocialLinks.vue', stub)
+vi.mock('@/components/Modals/EditCoverImage.vue', stub)
 
 // @ts-expect-error a JS SFC has no generated types (TS7016), as in announcementForm.test.ts.
 import Profile from '@/pages/Profile.vue'

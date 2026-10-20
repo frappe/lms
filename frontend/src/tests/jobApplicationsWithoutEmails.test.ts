@@ -50,15 +50,11 @@ vi.mock('frappe-ui', async () => {
 	}
 })
 
-vi.mock('frappe-ui/experimental', () => ({
-	InputLabel: { template: '<label />' },
-}))
-
 vi.mock('@/stores/session', () => ({
 	sessionStore: () => ({ brand: { favicon: '' } }),
 }))
 
-vi.mock('@/components/Layouts/pages/ListPage.vue', () => ({
+vi.mock('@/components/Layouts/ListPage.vue', () => ({
 	default: { props: ['rows', 'columns'], template: '<div />' },
 }))
 
@@ -115,8 +111,7 @@ describe('JobApplications without applicant emails', () => {
 			{ application: 'APP-1', username: 'sam', full_name: 'Sam Stud' },
 		]
 		await flushPromises()
-		const ListPage = (await import('@/components/Layouts/pages/ListPage.vue'))
-			.default
+		const ListPage = (await import('@/components/Layouts/ListPage.vue')).default
 		const rows = wrapper.findComponent(ListPage as any)
 		const columns = rows.props('columns').map((c: any) => c.key)
 		expect(rows.props('rows')[0].full_name).toBe('Sam Stud')
