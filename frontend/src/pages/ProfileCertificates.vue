@@ -57,5 +57,5 @@ const certificates = createResource({
 const certificateUrl = (certificate) =>
 	`/api/method/frappe.utils.print_format.download_pdf?doctype=LMS+Certificate&name=${
 		certificate.name
-	}&format=${encodeURIComponent(certificate.template)}`
+	}&format=${encodeURIComponent(certificate.template)}&no_letterhead=1`
 </script>
