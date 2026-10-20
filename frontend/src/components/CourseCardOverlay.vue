@@ -10,20 +10,12 @@
 			</div>
 			<div v-if="!readOnlyMode">
 				<div v-if="course.data?.membership" class="space-y-2 mb-8">
-<<<<<<< HEAD
-					<router-link
-						:to="{
-=======
 					<ProgressBar :progress="progress" :label="__('Course progress')" />
 					<div v-if="lessonCounts.total" class="text-p-sm text-ink-gray-7">
 						{{ lessonsCompletedLabel }}
 					</div>
-					<Button
-						variant="solid"
-						size="md"
-						class="w-full"
-						:route="{
->>>>>>> 103b333 (fix: show learner progress in the course side card)
+					<router-link
+						:to="{
 							name: 'Lesson',
 							params: {
 								courseName: course.data?.name,
@@ -36,25 +28,15 @@
 							},
 						}"
 					>
-<<<<<<< HEAD
 						<Button variant="solid" size="md" class="w-full">
 							<template #prefix>
 								<span class="lucide-book-text size-4" />
 							</template>
 							<span>
-								{{ __('Continue Learning') }}
+								{{ progress ? __('Continue Learning') : __('Start Learning') }}
 							</span>
 						</Button>
 					</router-link>
-=======
-						<template #prefix>
-							<span class="lucide-book-text size-4" />
-						</template>
-						<span>
-							{{ progress ? __('Continue Learning') : __('Start Learning') }}
-						</span>
-					</Button>
->>>>>>> 103b333 (fix: show learner progress in the course side card)
 					<CertificationLinks :courseName="course.data.name" class="w-full" />
 				</div>
 				<router-link

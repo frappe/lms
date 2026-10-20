@@ -38,6 +38,7 @@ const mountWith = (data: Record<string, unknown>, outlineData: unknown) => {
 		global: {
 			provide: { $user: { data: { name: 'learner@example.com' } } },
 			mocks: { __: globalThis.__ },
+			stubs: { 'router-link': passthrough },
 		},
 	})
 }
@@ -50,9 +51,9 @@ describe('the learner progress in the course side card', () => {
 			[{ lessons: lessons(5, 6) }, { lessons: lessons(7, 8) }]
 		)
 
-		expect(
-			wrapper.find('[role="progressbar"]').attributes('aria-valuenow')
-		).toBe('86')
+		expect(wrapper.find('[style*="width"]').attributes('style')).toContain(
+			'width: 86%'
+		)
 		expect(wrapper.text()).toContain('12 of 14 lessons completed')
 		expect(wrapper.text()).toContain('Continue Learning')
 		expect(wrapper.text()).not.toContain('Start Learning')
