@@ -1020,10 +1020,17 @@ onUnmounted(() => {
 // Oldest first. violationLog is built newest-first for the on-screen activity
 // list, but the server derives the stored violation count from this payload, so
 // it ships in the order the events actually happened.
+<<<<<<< HEAD
 // withFrames=false for the pagehide beacon: that goes out as a query string, and a
 // handful of base64 stills would push it past the URL limit and drop the log
 // entirely. The events matter more there than the pictures of them.
 const serialiseViolationLog = (withFrames = true) =>
+=======
+// withFrames=false for the pagehide beacon: browsers cap beacon payloads at
+// ~64KB, and a handful of base64 stills would push it over and drop the
+// submission entirely. The events matter more there than the pictures of them.
+const serialiseViolationLog = (withFrames = true): string =>
+>>>>>>> 5a643b7 (fix: send the quiz unload beacon's CSRF token in the body)
 	JSON.stringify(
 		[...violationLog.value]
 			.reverse()
@@ -1032,22 +1039,29 @@ const serialiseViolationLog = (withFrames = true) =>
 
 const handlePageHide = () => {
 	if (props.preview) return
+<<<<<<< HEAD
 	if (activeQuestion.value > 0 && !quizSubmission.data) {
+=======
+	if (activeQuestion.value > 0 && !quizSubmission.data && quiz.data) {
+>>>>>>> 5a643b7 (fix: send the quiz unload beacon's CSRF token in the body)
 		const params = new URLSearchParams({
 			quiz: quiz.data.name,
 			results: localStorage.getItem(quiz.data.title) || '[]',
 			violation_count: String(violationCount.value),
+<<<<<<< HEAD
 			submission_reason: 'browser_closed',
+=======
+			submission_reason: reason,
+>>>>>>> 5a643b7 (fix: send the quiz unload beacon's CSRF token in the body)
 		})
-		// Beacons go out as a query string, so only spend the URL budget on the
-		// log when there is one.
+		if (window.csrf_token) params.set('csrf_token', window.csrf_token)
 		if (violationLog.value.length) {
 			params.set('violation_events', serialiseViolationLog(false))
 		}
 
 		navigator.sendBeacon(
-			'/api/method/lms.lms.doctype.lms_quiz.lms_quiz.submit_quiz?' +
-				params.toString()
+			'/api/method/lms.lms.doctype.lms_quiz.lms_quiz.submit_quiz',
+			params
 		)
 	}
 }
