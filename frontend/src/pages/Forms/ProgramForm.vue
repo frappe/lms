@@ -255,11 +255,7 @@ import Link from '@/components/Controls/Link.vue'
 import ResponsiveListView from '@/components/ResponsiveListView.vue'
 import Draggable from 'vuedraggable'
 import ProgramProgressSummary from '@/components/Programs/ProgramProgressSummary.vue'
-<<<<<<< HEAD
 import { submitResource } from '@/utils/resource'
-=======
-import { resourceErrorMessage, submitResource } from '@/utils/resource'
->>>>>>> 20ffebc (refactor: inline program course reindex and skip in-place drops)
 
 const showFormDialog = ref(false)
 const currentForm = ref<'course' | 'member'>('course')
@@ -542,39 +538,6 @@ const addMember = (close: () => void) => {
 	}
 }
 
-<<<<<<< HEAD
-const updateOrder = async (e: any) => {
-	let sourceIdx = e.from.dataset.idx
-	let targetIdx = e.to.dataset.idx
-
-	if (isNew.value) {
-		let courses = program.value.program_courses
-		courses.splice(targetIdx, 0, courses.splice(sourceIdx, 1)[0])
-		courses.forEach((course, index) => {
-			course.idx = index + 1
-		})
-		dirty.value = true
-	} else {
-		let courses = programCourses.data
-		courses.splice(targetIdx, 0, courses.splice(sourceIdx, 1)[0])
-
-		for (const [index, course] of courses.entries()) {
-			submitResource(
-				programCourses.setValue,
-				{
-					name: course.name,
-					idx: index + 1,
-				},
-				{
-					onError(err: any) {
-						toast.warning(__(err.messages?.[0] || err))
-					},
-				}
-			)
-			await wait(100)
-		}
-	}
-=======
 const updateOrder = (e: { oldIndex: number; newIndex: number }) => {
 	if (e.oldIndex === e.newIndex) return
 	// vuedraggable updates the bound array before emitting `end`.
@@ -582,10 +545,7 @@ const updateOrder = (e: { oldIndex: number; newIndex: number }) => {
 		course.idx = index + 1
 	})
 	dirty.value = true
->>>>>>> 20ffebc (refactor: inline program course reindex and skip in-place drops)
 }
-
-const wait = (ms: number) => new Promise((res) => setTimeout(res, ms))
 
 const remove = (
 	selections: string[],
