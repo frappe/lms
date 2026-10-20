@@ -1135,7 +1135,7 @@ def prepare_inline_images(html: str | None) -> tuple[str, list[dict]]:
 				)
 			)
 
-		content = file.get_content()
+		content = read_file_bytes(file)
 		total_bytes += len(content)
 		if total_bytes > MAX_INLINE_IMAGE_BYTES:
 			frappe.throw(
@@ -1149,6 +1149,15 @@ def prepare_inline_images(html: str | None) -> tuple[str, list[dict]]:
 		inline_images.append({"filename": file.file_url, "filecontent": content})
 
 	return str(soup), inline_images
+
+
+def read_file_bytes(file: Document) -> bytes:
+	"""The file's bytes as stored. File.get_content on version-16 returns most images and
+	PDFs as str, because it tries windows-1250 on any content that is not UTF-8."""
+	file.validate_file_path()
+	# nosemgrep: frappe-security-file-traversal - validate_file_path keeps the path inside the site's files folders
+	with open(file.get_full_path(), "rb") as f:
+		return f.read()
 
 
 def get_readable_files(file_urls: list[str]) -> dict:
@@ -1204,16 +1213,19 @@ def attach_file_to_doc(file_url: str, doctype: str, docname: str) -> None:
 	if frappe.db.exists("File", filters):
 		return
 
-	# A student cannot create a File row against a Communication they do not own.
-	# nosemgrep: lms-unjustified-ignore-permissions - prepare_inline_images already checked has_permission on this file
-	frappe.get_doc(
+	file = frappe.get_doc(
 		{
 			"doctype": "File",
 			"file_url": file_url,
 			"is_private": 1 if file_url.startswith("/private/") else 0,
 			**filters,
 		}
-	).insert(ignore_permissions=True)
+	)
+	# Without it version-16 re-reads the image as text and writes a copy under a new url.
+	file.flags.copy_from_existing_file = True
+	# A student cannot create a File row against a Communication they do not own.
+	# nosemgrep: lms-unjustified-ignore-permissions - prepare_inline_images already checked has_permission on this file
+	file.insert(ignore_permissions=True)
 
 
 def check_multicurrency(amount: float, currency: str, country: str = None, amount_usd: float = None):

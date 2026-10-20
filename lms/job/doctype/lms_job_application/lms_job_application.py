@@ -5,7 +5,7 @@ import frappe
 from frappe import _
 from frappe.model.document import Document
 
-from lms.lms.utils import get_attachable_file, validate_attachable_file
+from lms.lms.utils import get_attachable_file, read_file_bytes, validate_attachable_file
 
 
 class LMSJobApplication(Document):
@@ -54,7 +54,7 @@ class LMSJobApplication(Document):
 				attachments=[
 					{
 						"fname": resume_file.file_name,
-						"fcontent": resume_file.get_content(),
+						"fcontent": read_file_bytes(resume_file),
 					}
 				],
 				header=[subject, "green"],
