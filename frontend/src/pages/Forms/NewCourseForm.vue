@@ -344,10 +344,7 @@ const validateFields = () => {
 
 const saveCourse = () => {
 	if (!canCreate.value) return
-<<<<<<< HEAD
 	validateFields()
-=======
-	sanitizeStringFields(course.value as Record<string, unknown>)
 	const error = validateCourse({
 		doc: course.value,
 		instructors: course.value.instructors,
@@ -356,7 +353,6 @@ const saveCourse = () => {
 		toast.error(error)
 		return
 	}
->>>>>>> 0ebea52 (fix: check required fields before creating a record)
 	submitResource(
 		courses.insert,
 		{

@@ -265,10 +265,7 @@ const validateFields = () => {
 
 const saveBatch = () => {
 	if (!canCreateBatch.value) return
-<<<<<<< HEAD
 	validateFields()
-=======
-	sanitizeStringFields(batch.value as Record<string, unknown>)
 	const error = validateBatch({
 		doc: batch.value,
 		instructors: batch.value.instructors,
@@ -277,7 +274,6 @@ const saveBatch = () => {
 		toast.error(error)
 		return
 	}
->>>>>>> 0ebea52 (fix: check required fields before creating a record)
 	submitResource(
 		batches.insert,
 		{

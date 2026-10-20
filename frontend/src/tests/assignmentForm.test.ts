@@ -140,6 +140,7 @@ vi.mock('@/composables/useCanWrite', async () => {
 	}
 })
 
+import { toast } from 'frappe-ui'
 import AssignmentForm from '@/pages/Forms/AssignmentForm.vue'
 
 // The list page hosts the form as a child route, so the stub has to render a
@@ -536,6 +537,7 @@ describe('AssignmentForm as a route', () => {
 			state: { lmsFormEntry: true },
 		})
 		const wrapper = await mountForm(router, moderator)
+		await fillRequired(wrapper)
 
 		insertSubmit.mockImplementation(() =>
 			insertOptions.current.onSuccess({ name: 'ASG-0002' })
