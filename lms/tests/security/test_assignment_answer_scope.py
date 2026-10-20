@@ -30,6 +30,10 @@ MODEL_ANSWER = "<p>THE-MODEL-ANSWER-NO-STUDENT-MAY-READ</p>"
 ABSENT = "<absent>"
 
 
+def drop_nulls(document):
+	return {key: value for key, value in document.items() if value is not None}
+
+
 class TestAssignmentAnswerScope(BaseTestUtils):
 	"""`answer` is the model answer on a row every account on the site can read.
 
@@ -137,10 +141,12 @@ class TestAssignmentAnswerScope(BaseTestUtils):
 
 	def _single_doc_read(self, label):
 		"""The REST single-doc path. `frappe.get_doc` runs no permission check at all,
-		so the read has to go through the endpoint that applies field-level ones."""
+		so the read has to go through the endpoint that applies field-level ones.
+		Nulls are dropped as develop's `client.get` does; version-16 returns a withheld
+		field as None instead."""
 		frappe.set_user(getattr(self, label).name)
 		try:
-			return client_get("LMS Assignment", self.assignment.name)
+			return drop_nulls(client_get("LMS Assignment", self.assignment.name))
 		finally:
 			frappe.set_user("Administrator")
 
