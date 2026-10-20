@@ -171,6 +171,7 @@ import NewMemberModal from '@/components/Modals/NewMemberModal.vue'
 import RichTextEditor from '@/components/RichTextEditor.vue'
 import { InputLabel, useInputLabeling } from '@/components/Form/labeling'
 import { submitResource } from '@/utils/resource'
+import { validateBatch } from '@/utils/batchForm'
 import { filledFields, takeFormSource } from '@/composables/formTracking'
 
 const { capture } = useTelemetry()
@@ -265,6 +266,14 @@ const validateFields = () => {
 const saveBatch = () => {
 	if (!canCreateBatch.value) return
 	validateFields()
+	const error = validateBatch({
+		doc: batch.value,
+		instructors: batch.value.instructors,
+	})
+	if (error) {
+		toast.error(error)
+		return
+	}
 	submitResource(
 		batches.insert,
 		{

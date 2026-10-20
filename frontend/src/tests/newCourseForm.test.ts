@@ -1,5 +1,10 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { enableAutoUnmount, flushPromises, mount } from '@vue/test-utils'
+import {
+	enableAutoUnmount,
+	flushPromises,
+	mount,
+	type VueWrapper,
+} from '@vue/test-utils'
 import {
 	createMemoryHistory,
 	createRouter,
@@ -7,8 +12,6 @@ import {
 	type Router,
 } from 'vue-router'
 import { defineComponent, h } from 'vue'
-
-vi.stubGlobal('__', (text: string) => text)
 
 // The form registers a window-level keydown listener and only removes it on
 // unmount. Without this, wrappers left mounted by earlier tests keep listening
@@ -122,15 +125,26 @@ vi.mock('frappe-ui/frappe', () => ({
 	useOnboarding: () => ({ updateOnboardingStep: vi.fn() }),
 }))
 
-// The rich text editor drags in ProseMirror; the form's behaviour under test
-// does not involve it.
+// The rich text editor drags in ProseMirror. A textarea that emits `change`
+// is enough to fill the description the way the real editor does.
 vi.mock('@/components/RichTextEditor.vue', () => ({
-	default: defineComponent({ render: () => h('div') }),
+	default: defineComponent({
+		emits: ['change'],
+		setup:
+			(_props, { emit }) =>
+			() =>
+				h('textarea', {
+					'data-testid': 'rich-text',
+					onInput: (e: Event) =>
+						emit('change', (e.target as HTMLTextAreaElement).value),
+				}),
+	}),
 }))
 vi.mock('@/components/Modals/NewMemberModal.vue', () => ({
 	default: defineComponent({ render: () => h('div') }),
 }))
 
+import { toast } from 'frappe-ui'
 import NewCourseForm from '@/pages/Forms/NewCourseForm.vue'
 
 // The list page hosts the form as a child route, so it has to render a nested
@@ -195,6 +209,20 @@ const FIELD_LABELS = [
 	'Course description',
 ]
 
+const inputFor = (wrapper: VueWrapper, label: string) =>
+	wrapper
+		.findAll('label')
+		.find((l) => l.text() === label)!
+		.get('input')
+
+// Fills every field LMS Course requires. The opener is already prefilled as
+// instructor.
+const fillRequired = async (wrapper: VueWrapper): Promise<void> => {
+	await inputFor(wrapper, 'Title').setValue('My course')
+	await inputFor(wrapper, 'Short introduction').setValue('Intro')
+	await wrapper.get('[data-testid="rich-text"]').setValue('<p>About</p>')
+}
+
 // Ctrl/Cmd+S is handled on window, but the handler ignores events whose target
 // is not an HTMLElement — so this has to be dispatched from an element and
 // allowed to bubble, or the test would pass without exercising the guard.
@@ -207,6 +235,7 @@ const pressCtrlS = (): void => {
 describe('NewCourseForm as a route', () => {
 	beforeEach(() => {
 		insertSubmit.mockReset()
+		vi.mocked(toast.error).mockReset()
 		createListResourceMock.mockClear()
 		captureMock.mockReset()
 		userResource.data = { ...moderator }
@@ -301,6 +330,7 @@ describe('NewCourseForm as a route', () => {
 		// Control: the shortcut does reach saveCourse for a permitted user, so a
 		// green refusal below cannot be the dispatch silently going nowhere.
 		const permitted = await mountForm(router, moderator)
+		await fillRequired(permitted)
 		pressCtrlS()
 		expect(insertSubmit).toHaveBeenCalledTimes(1)
 		permitted.unmount()
@@ -316,8 +346,56 @@ describe('NewCourseForm as a route', () => {
 		const router = makeRouter()
 		await router.push({ name: 'NewCourse' })
 		const wrapper = await mountForm(router, moderator)
+		await fillRequired(wrapper)
 
 		await wrapper.find('[data-testid="new-course-save"]').trigger('click')
+		expect(insertSubmit).toHaveBeenCalledTimes(1)
+	})
+
+	// Regression: empty create showed a raw server error (#3024, fixed in
+	// #3047).
+	it('names the first missing field instead of sending an empty course', async () => {
+		const router = makeRouter()
+		await router.push({ name: 'NewCourse' })
+		const wrapper = await mountForm(router, moderator)
+		const save = () =>
+			wrapper.find('[data-testid="new-course-save"]').trigger('click')
+
+		await save()
+		expect(insertSubmit).not.toHaveBeenCalled()
+		expect(toast.error).toHaveBeenLastCalledWith('Add a Title before saving.')
+
+		await inputFor(wrapper, 'Title').setValue('My course')
+		await inputFor(wrapper, 'Short introduction').setValue('Intro')
+		await save()
+		expect(insertSubmit).not.toHaveBeenCalled()
+		expect(toast.error).toHaveBeenLastCalledWith(
+			'Add a Description before saving.'
+		)
+
+		// Control: the same form, completed, reaches the server.
+		await wrapper.get('[data-testid="rich-text"]').setValue('<p>About</p>')
+		await save()
+		expect(insertSubmit).toHaveBeenCalledTimes(1)
+	})
+
+	// Regression: image-only course description failed the required check
+	// (#3047 review).
+	it('accepts a description that is only an image', async () => {
+		const router = makeRouter()
+		await router.push({ name: 'NewCourse' })
+		const wrapper = await mountForm(router, moderator)
+		await fillRequired(wrapper)
+		const editor = wrapper.get('[data-testid="rich-text"]')
+		const save = () =>
+			wrapper.find('[data-testid="new-course-save"]').trigger('click')
+
+		await editor.setValue('<p></p>')
+		await save()
+		expect(insertSubmit).not.toHaveBeenCalled()
+
+		await editor.setValue('<p><img src="/files/a.png"></p>')
+		await save()
 		expect(insertSubmit).toHaveBeenCalledTimes(1)
 	})
 
@@ -370,6 +448,7 @@ describe('NewCourseForm as a route', () => {
 		await router.push({ name: 'Courses' })
 		await router.push({ name: 'NewCourse', state: { lmsFormEntry: true } })
 		const wrapper = await mountForm(router, moderator)
+		await fillRequired(wrapper)
 
 		insertSubmit.mockImplementation(
 			(_doc: unknown, options: { onSuccess: (d: unknown) => void }) => {
