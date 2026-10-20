@@ -221,11 +221,11 @@ class TestReconcileCustomDocPermPermlevels(IntegrationTestCase):
 		frappe.set_user(moderator.name)
 		try:
 			# Red-phase control: before the patch runs, the pre-upgrade shadow leaves
-			# the Moderator without the answer key at all.
+			# the Moderator without the answer. Develop's client.get drops the key;
+			# version-16 returns it as None.
 			before = client_get(ASSIGNMENT_DOCTYPE, assignment.name)
-			self.assertNotIn(
-				"answer",
-				before,
+			self.assertIsNone(
+				before.get("answer"),
 				"control failed: Moderator already reads the answer before the patch runs",
 			)
 		finally:
