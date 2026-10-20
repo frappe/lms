@@ -44,7 +44,7 @@ vi.mock('@/components/Discussions.vue', inert)
 vi.mock('@/components/SkeletonLoader.vue', inert)
 vi.mock('@/components/ShortcutTooltip.vue', inert)
 vi.mock('@/components/HeaderButton.vue', inert)
-vi.mock('@/components/Layouts/pages/TabbedDetailPage.vue', () => ({
+vi.mock('@/components/Layouts/TabbedDetailPage.vue', () => ({
 	default: {
 		props: ['tabs', 'breadcrumbs', 'published', 'loading', 'doc', 'docProp'],
 		template: `<div :data-published="published"><slot name="solo" /></div>`,
