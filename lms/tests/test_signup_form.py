@@ -31,11 +31,23 @@ class TestSignupForm(UnitTestCase):
 				return lms_settings.get(fieldname)
 			return original(doctype, fieldname, *args, **kwargs)
 
-		return patch.object(frappe.db, "get_single_value", side_effect=get_single_value)
+		# A plain function, not a MagicMock: jinja's sandbox refuses to call a mock.
+		return patch.object(frappe.db, "get_single_value", get_single_value)
 
 	def render(self, **lms_settings):
 		with self.patched_settings(lms_settings):
-			return frappe.get_template(SIGNUP_FORM).render({})
+			self.drop_cached_jenv()
+			try:
+				return frappe.get_template(SIGNUP_FORM).render({})
+			finally:
+				self.drop_cached_jenv()
+
+	def drop_cached_jenv(self):
+		"""On version-16 the template globals hold frappe.db.get_single_value itself, bound
+		when the environment is built, so a cached one would not see the patch."""
+		for key in ("jenv_restricted", "jenv_unrestricted"):
+			if hasattr(frappe.local, key):
+				delattr(frappe.local, key)
 
 	def render_without_framework_templates(self, **lms_settings):
 		"""Render with only LMS's own templates on the loader path, the way a site
