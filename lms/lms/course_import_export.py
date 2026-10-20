@@ -352,14 +352,20 @@ def write_assets(zip_file, assets):
 def keep_export_as_file(zip_filename):
 	"""Keep the exported ZIP as a private File owned by the exporter, and return its file_url. It is
 	attached to nothing: attached to the course, anyone who can read the course could open it."""
+	file_path = frappe.get_site_path("private", "files", zip_filename)
 	file_doc = frappe.get_doc(
 		{
 			"doctype": "File",
 			"file_name": zip_filename,
 			"file_url": f"/private/files/{zip_filename}",
 			"is_private": 1,
+			"file_size": os.path.getsize(file_path),
+			"content_hash": get_file_md5(file_path),
 		}
-	).insert()
+	)
+	# Without it version-16 re-reads the ZIP as text and keeps a corrupted copy instead.
+	file_doc.flags.copy_from_existing_file = True
+	file_doc.insert()
 	return file_doc.file_url
 
 
