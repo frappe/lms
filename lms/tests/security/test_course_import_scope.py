@@ -102,16 +102,9 @@ class TestCourseImportScope(BaseTestUtils):
 		return f"/private/files/{os.path.basename(path)}"
 
 	def _import_as(self, user, zip_path):
+		upload = self._upload_as(user, zip_path)
 		frappe.set_user(user)
 		try:
-			upload = frappe.get_doc(
-				{
-					"doctype": "File",
-					"file_url": zip_path,
-					"file_name": os.path.basename(zip_path),
-					"is_private": 1,
-				}
-			).insert(ignore_permissions=True)
 			return import_course_from_zip(upload.file_url)
 		finally:
 			frappe.set_user("Administrator")
@@ -126,13 +119,17 @@ class TestCourseImportScope(BaseTestUtils):
 		return bool(frappe.db.exists("Has Role", {"parent": user, "role": "Batch Evaluator"}))
 
 	def _upload_as(self, user, zip_path):
+		"""With the bytes, as an upload sends them. A File inserted by url alone is
+		re-read from disk, and version-16 decodes most ZIPs as text doing so."""
+		with open(frappe.get_site_path(zip_path.lstrip("/")), "rb") as f:
+			content = f.read()
 		frappe.set_user(user)
 		try:
 			return frappe.get_doc(
 				{
 					"doctype": "File",
-					"file_url": zip_path,
 					"file_name": os.path.basename(zip_path),
+					"content": content,
 					"is_private": 1,
 				}
 			).insert(ignore_permissions=True)
