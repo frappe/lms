@@ -329,16 +329,52 @@ def get_instructors(doctype: str, docname: str):
 	return instructor_details
 
 
+def get_public_instructors(doctype: str, docname: str) -> list:
+	return hide_user_emails(get_instructors(doctype, docname), "name")
+
+
+def hide_user_emails(rows: list, *fields: str) -> list:
+	"""A User's name is their login email. Drop each of `fields` that names another
+	user, whatever the caller's roles; the caller keeps their own."""
+	for row in rows:
+		for field in fields:
+			if row.get(field) != frappe.session.user:
+				row.pop(field, None)
+	return rows
+
+
+def resolve_user(user_or_username: str) -> str | None:
+	"""The User name for a User name or a username, so callers can identify people
+	without holding their email."""
+	if frappe.db.exists("User", user_or_username):
+		return user_or_username
+	return frappe.db.get_value("User", {"username": user_or_username}, "name")
+
+
 def get_average_rating(course: str):
-	ratings = [review.rating for review in get_reviews(course)]
+	ratings = [review.rating for review in _course_reviews(course)]
 	if not len(ratings):
 		return None
 	return sum(ratings) / len(ratings)
 
 
+# nosemgrep: security.guest-whitelisted-method - pre-existing grant, unchanged by this branch; the endpoint gates itself (guests get [] unless guest access is on and the course is published). Flagged only because semgrep ci re-scans the whole function when its body changes.
 @frappe.whitelist(allow_guest=True)
 @rate_limit(limit=500, seconds=60 * 60)
 def get_reviews(course: str):
+	if not guest_access_allowed():
+		return []
+
+	is_course_published = frappe.db.get_value("LMS Course", course, "published")
+	if not is_course_published and not can_modify_course(course) and not get_membership(course):
+		return []
+
+	return hide_user_emails(_course_reviews(course), "owner")
+
+
+def _course_reviews(course: str) -> list:
+	"""Every review row, ungated: the nightly statistics job averages courses whose
+	page nobody may open."""
 	reviews = frappe.get_all(
 		"LMS Course Review",
 		{"course": course},
@@ -1446,7 +1482,7 @@ def get_course_categories() -> list:
 
 def get_course_card_details(courses: list) -> list:
 	for course in courses:
-		course.instructors = get_instructors("LMS Course", course.name)
+		course.instructors = get_public_instructors("LMS Course", course.name)
 
 		if course.paid_course and course.published == 1:
 			course.amount, course.currency = check_multicurrency(
@@ -1597,7 +1633,7 @@ def get_course_details(course: str):
 	if not course_details:
 		return {}
 
-	course_details.instructors = get_instructors("LMS Course", course_details.name)
+	course_details.instructors = get_public_instructors("LMS Course", course_details.name)
 	course_details.membership = membership
 	course_details.rating_count = frappe.db.count("LMS Course Review", {"course": course})
 	course_details.update(get_course_content_stats(course))
@@ -2055,7 +2091,7 @@ def get_lesson(course: str, chapter: int, lesson: int) -> dict:
 	lesson_details.prev = neighbours["prev"]
 	lesson_details.membership = membership
 	lesson_details.icon = get_lesson_icon(lesson_details.body, lesson_details.content)
-	lesson_details.instructors = get_instructors("LMS Course", course)
+	lesson_details.instructors = get_public_instructors("LMS Course", course)
 	lesson_details.course_title = course_info.title
 	lesson_details.paid_certificate = course_info.paid_certificate
 	lesson_details.disable_self_learning = course_info.disable_self_learning
@@ -2161,7 +2197,7 @@ def get_batch_details(batch: str):
 		as_dict=True,
 	)
 
-	batch_details.instructors = get_instructors("LMS Batch", batch)
+	batch_details.instructors = get_public_instructors("LMS Batch", batch)
 	batch_details.can_manage = can_manage
 	# The rule LMSBatch.validate_instructor_changes applies.
 	batch_details.can_change_instructors = instructs
@@ -2180,14 +2216,15 @@ def get_batch_details(batch: str):
 	batch_details.courses = frappe.get_all(
 		"Batch Course", filters={"parent": batch}, fields=["course", "title", "evaluator"]
 	)
+	for course in batch_details.courses:
+		course.has_evaluator = bool(course.evaluator)
+	hide_user_emails(batch_details.courses, "evaluator")
 	batch_details.assessments = frappe.get_all(
 		"LMS Assessment", {"parent": batch}, ["assessment_name", "assessment_type"]
 	)
 
-	if can_manage:
-		batch_details.students = batch_students
-	elif is_student_enrolled:
-		batch_details.students = [frappe.session.user]
+	batch_details.is_student = is_student_enrolled
+	batch_details.student_count = len(batch_students)
 
 	if batch_details.paid_batch and batch_details.start_date >= getdate():
 		batch_details.amount, batch_details.currency = check_multicurrency(
@@ -2502,17 +2539,27 @@ def get_exercise_details(assessment: dict, member: str) -> dict:
 
 @frappe.whitelist()
 def get_batch_student_progress(member: str, batch: str) -> dict:
+	"""`member` is the student's enrollment in this batch, a username or a User name."""
 	from lms.lms.permissions import can_author_batch
 
 	if "Batch Evaluator" not in frappe.get_roles() and not can_author_batch(batch):
 		frappe.throw(_("You are not authorized to view the students of this batch."))
+	if not isinstance(member, str):
+		frappe.throw(_("Member must be a string."))
+
+	member = frappe.db.get_value(
+		"LMS Batch Enrollment", {"name": member, "batch": batch}, "member"
+	) or resolve_user(member)
+	if not member:
+		frappe.throw(_("Student not found."), frappe.DoesNotExistError)
 	# The batch's assessments may run elsewhere too; only this batch's students count.
 	if not frappe.db.exists("LMS Batch Enrollment", {"batch": batch, "member": member}):
 		frappe.throw(_("This student is not enrolled in this batch."), frappe.PermissionError)
 
 	details = get_batch_student_details(member)
 	calculate_student_progress(batch, details)
-	return details
+	details.pop("email", None)
+	return hide_user_emails([details], "name")[0]
 
 
 def get_course_completion_stats(batch: str) -> list:
@@ -2810,7 +2857,7 @@ def get_discussion_topics(doctype: str, docname: str, single_thread: bool = Fals
 		# answers is one less than the total reply count.
 		topic.reply_count = max(reply_counts.get(topic.name, 0) - 1, 0)
 
-	return topics
+	return hide_user_emails(topics, "owner")
 
 
 def create_discussion_topic(doctype: str, docname: str) -> str:
@@ -2846,7 +2893,7 @@ def get_discussion_replies(topic: str):
 	for reply in replies:
 		reply.user = frappe.db.get_value("User", reply.owner, ["full_name", "user_image"], as_dict=True)
 
-	return replies
+	return hide_user_emails(replies, "owner")
 
 
 @frappe.whitelist()
@@ -3575,7 +3622,7 @@ def get_batch_type(filters: dict) -> str:
 
 def get_batch_card_details(batches: list) -> list:
 	for batch in batches:
-		batch.instructors = get_instructors("LMS Batch", batch.name)
+		batch.instructors = get_public_instructors("LMS Batch", batch.name)
 		students_count = frappe.db.count("LMS Batch Enrollment", {"batch": batch.name})
 
 		if batch.seat_count:

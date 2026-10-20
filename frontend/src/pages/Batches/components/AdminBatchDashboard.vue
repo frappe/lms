@@ -201,13 +201,13 @@ const certificationCount = createResource({
 	auto: true,
 })
 
-// The Enrolled card used to read batch.data.students.length, refreshed by the
+// The Enrolled card used to read the batch's student list, refreshed by the
 // enrollment modal calling batch.reload() on the resource it was handed. The
 // routed form has no such handle — get_batch_details deliberately carries no
 // cache key (useBatchForms.ts) — so the count comes from its own cached
 // resource, shaped like certificationCount above, which the form can reach by
-// key. The two numbers are identical: get_batch_details builds `students` from
-// exactly this get_all with no further filter.
+// key. The two numbers are identical: get_batch_details builds `student_count`
+// from exactly this get_all with no further filter.
 const studentCount = createResource({
 	url: 'frappe.client.get_count',
 	cache: ['batch_student_count', props.batch?.data?.name],
@@ -225,7 +225,6 @@ const students = createListResource({
 	},
 	fields: [
 		'name',
-		'member',
 		'member_name',
 		'member_username',
 		'member_image',
@@ -293,7 +292,8 @@ const studentListOptions: ListViewOptions = {
 	selectable: false,
 	showTooltip: false,
 	onRowClick: (row: ListRow) => {
-		currentStudent.value = row.member
+		// member_username is copied at enrollment and goes stale on a rename.
+		currentStudent.value = row.name
 		showProgressModal.value = true
 	},
 }

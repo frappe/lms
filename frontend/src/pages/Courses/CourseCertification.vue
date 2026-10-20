@@ -94,8 +94,8 @@ if (user.data) {
 const certificate = computed(() => certification.data?.certificate)
 const courseTitle = computed(() => certification.data?.title)
 
-/* UpcomingEvaluations takes the batch shape, where each row carries its own
-   evaluator. A course evaluated on its own is a list of one. */
+/* UpcomingEvaluations takes the batch shape, where each row says whether it
+   has an evaluator. A course evaluated on its own is a list of one. */
 const courses = computed(() => {
 	const details = certification.data
 	if (!details?.title) return []
@@ -103,7 +103,7 @@ const courses = computed(() => {
 		{
 			course: props.courseName,
 			title: details.title,
-			evaluator: details.evaluator,
+			has_evaluator: Boolean(details.has_evaluator),
 		},
 	]
 })

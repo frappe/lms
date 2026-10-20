@@ -159,7 +159,7 @@ describe('BulkCertificatesForm as a route', () => {
 		batchResource.data = {
 			name: 'B1',
 			certification: 1,
-			students: ['a@example.com', 'b@example.com'],
+			student_count: 2,
 			courses: [{ course: 'COURSE-1' }],
 		}
 		batchResource.loading = false
@@ -208,7 +208,7 @@ describe('BulkCertificatesForm as a route', () => {
 	})
 
 	it('refuses when the batch is not a certification batch', async () => {
-		batchResource.data = { name: 'B1', certification: 0, students: ['a'] }
+		batchResource.data = { name: 'B1', certification: 0, student_count: 1 }
 		const router = makeRouter()
 		await router.push('/batches/B1/certificates')
 		const wrapper = await mountForm(router, moderator)
@@ -219,7 +219,7 @@ describe('BulkCertificatesForm as a route', () => {
 	})
 
 	it('refuses when the batch has no students', async () => {
-		batchResource.data = { name: 'B1', certification: 1, students: [] }
+		batchResource.data = { name: 'B1', certification: 1, student_count: 0 }
 		const router = makeRouter()
 		await router.push('/batches/B1/certificates')
 		const wrapper = await mountForm(router, moderator)
@@ -243,7 +243,9 @@ describe('BulkCertificatesForm as a route', () => {
 		expect(labels).toHaveLength(FIELD_LABELS.length)
 	})
 
-	it('inserts one certificate per student, through its own resource', async () => {
+	// The students' addresses never reach the client: the server certifies
+	// each enrolled student itself.
+	it('certifies the batch in one server call, naming no student', async () => {
 		const router = makeRouter()
 		await router.push('/batches/B1/certificates')
 		const wrapper = await mountForm(router, moderator)
@@ -251,11 +253,33 @@ describe('BulkCertificatesForm as a route', () => {
 		await wrapper
 			.find('[data-testid="bulk-certificates-save"]')
 			.trigger('click')
-		expect(certificateSubmit).toHaveBeenCalledTimes(2)
-		expect(certificateSubmit.mock.calls[0][0]).toMatchObject({
-			batch: 'B1',
-			member: 'a@example.com',
-		})
+		expect(certificateSubmit).toHaveBeenCalledTimes(1)
+		const call = createResourceMock.mock.calls.find(
+			(c) => c[0].url === 'lms.lms.api.generate_batch_certificates'
+		)
+		const params = call?.[0].makeParams()
+		expect(params).toMatchObject({ batch: 'B1' })
+		expect(JSON.stringify(params)).not.toContain('member')
+	})
+
+	it('stays open and shows each failure the server reports', async () => {
+		certificateSubmit.mockImplementation(
+			(_params: unknown, options: { onSuccess: (r: unknown) => void }) => {
+				options.onSuccess({ created: 1, errors: ['Sam is already certified'] })
+				return Promise.resolve()
+			}
+		)
+		const router = makeRouter()
+		await router.push('/batches/B1/certificates')
+		const wrapper = await mountForm(router, moderator)
+		await wrapper
+			.find('[data-testid="bulk-certificates-save"]')
+			.trigger('click')
+		await flushPromises()
+
+		expect(toastError).toHaveBeenCalledWith('Sam is already certified')
+		expect(toastSuccess).not.toHaveBeenCalled()
+		expect(router.currentRoute.value.name).toBe('BulkCertificates')
 	})
 
 	it('does not insert anything when the gate refuses', async () => {

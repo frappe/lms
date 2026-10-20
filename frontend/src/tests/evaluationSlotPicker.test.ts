@@ -105,7 +105,7 @@ async function mountPicker(schedule = SCHEDULE) {
 			props: {
 				modelValue: true,
 				reloadEvals: { reload: vi.fn() },
-				courses: [{ course: COURSE, title: 'A Course', evaluator: 'eva' }],
+				courses: [{ course: COURSE, title: 'A Course', has_evaluator: true }],
 				batch: 'batch-1',
 			},
 			global: {

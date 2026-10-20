@@ -31,7 +31,7 @@
 							</Badge>
 						</div>
 						<div class="text-sm text-ink-gray-7">
-							{{ studentDetails.data.email }}
+							{{ studentDetails.data.username }}
 						</div>
 					</div>
 				</div>
