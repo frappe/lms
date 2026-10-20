@@ -137,11 +137,15 @@ def create_lms_certificate(source_name: str, target_doc: dict = None):
 		)
 
 	# get_mapped_doc checks create before it maps, so seed the scope that check reads.
-	target_doc = target_doc or {
-		"doctype": "LMS Certificate",
-		"course": evaluation.course,
-		"batch_name": evaluation.batch_name,
-	}
+	# A Document, not a dict: version-16's get_mapped_doc takes only a str or a Document.
+	target_doc = frappe.get_doc(
+		target_doc
+		or {
+			"doctype": "LMS Certificate",
+			"course": evaluation.course,
+			"batch_name": evaluation.batch_name,
+		}
+	)
 
 	doc = get_mapped_doc(
 		"LMS Certificate Evaluation",
