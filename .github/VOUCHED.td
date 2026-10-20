@@ -15,5 +15,6 @@ Bowrna
 FawazAlhafiz
 frappe-pr-bot
 mergify[bot]
+Nagaraj-62
 NagariaHussain
 sayali-fossist
