@@ -28,6 +28,10 @@ PACKAGE_PATH = "/scorm/canary-course/canary-chapter"
 ABSENT = "<absent>"
 
 
+def drop_nulls(document):
+	return {key: value for key, value in document.items() if value is not None}
+
+
 class ScormChapterFixture(BaseTestUtils):
 	"""One course with an intro chapter and a SCORM chapter after it, five actors. Shared
 	by all three suites so the row the permlevel hides is the row the endpoint serves.
@@ -121,10 +125,12 @@ class ScormChapterFixture(BaseTestUtils):
 
 	def _single_doc_read(self, label):
 		"""The REST single-doc path. `frappe.get_doc` runs no permission check at all,
-		so the read has to go through the endpoint that applies field-level ones."""
+		so the read has to go through the endpoint that applies field-level ones.
+		Nulls are dropped as develop's `client.get` does; version-16 returns a withheld
+		field as None instead."""
 		frappe.set_user(getattr(self, label).name)
 		try:
-			return client_get("Course Chapter", self.chapter.name)
+			return drop_nulls(client_get("Course Chapter", self.chapter.name))
 		finally:
 			frappe.set_user("Administrator")
 
