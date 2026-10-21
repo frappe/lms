@@ -383,6 +383,26 @@ describe('ProfileEvaluator with no saved hours', () => {
 	})
 })
 
+describe('ProfileEvaluator time off', () => {
+	it('clears both dates with an icon button, not a text one', async () => {
+		const wrapper = await mountPanel({ timeOff: ['2030-01-01', '2030-01-05'] })
+		const section = wrapper.find('[data-testid="time-off"]')
+		const clear = section.find('button[aria-label="Clear time off"]')
+
+		expect(clear.attributes('data-icon')).toBe('lucide-x')
+		expect(clear.text()).toBe('')
+		await clear.trigger('click')
+
+		const values = section
+			.findAll('input[data-type="date"]')
+			.map((i) => (i.element as HTMLInputElement).value)
+		expect(values).toEqual(['', ''])
+		expect(section.find('button[aria-label="Clear time off"]').exists()).toBe(
+			false
+		)
+	})
+})
+
 describe('ProfileEvaluator read-only', () => {
 	it("shows a moderator someone else's week as text, with no controls", async () => {
 		const wrapper = await mountPanel({
