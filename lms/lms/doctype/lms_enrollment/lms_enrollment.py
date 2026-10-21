@@ -13,9 +13,19 @@ IDENTITY_FIELDS = ("course", "member", "enrollment_from_batch")
 
 class LMSEnrollment(Document):
 	def before_insert(self):
+		self.enforce_member_ownership()
 		self.validate_duplicate_enrollment()
 		self.validate_course_enrollment_eligibility()
 		self.validate_owner()
+
+	def enforce_member_ownership(self):
+		"""The member is the caller, unless the caller manages the course or the
+		row comes with a batch enrolment, which authorised its member already."""
+		if self.flags.via_batch_enrollment or self.managed_by_caller():
+			return
+		if self.member and self.member != frappe.session.user:
+			frappe.throw(_("You cannot enroll another user."), frappe.PermissionError)
+		self.member = frappe.session.user
 
 	def validate(self):
 		validate_identity_unchanged(self, IDENTITY_FIELDS)
