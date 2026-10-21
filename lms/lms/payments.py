@@ -115,6 +115,7 @@ def get_payment_link(
 		"payment_gateway": payment_gateway,
 		"redirect_to": redirect_to,
 		"payment": payment.name,
+		"receipt": payment.name,
 	}
 
 	# The controller creates the order itself when no `order_id` is supplied

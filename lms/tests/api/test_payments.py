@@ -118,6 +118,16 @@ class TestPaymentLink(BaseTestUtils):
 
 		self.assertEqual(self.controller.get_payment_url_calls[0]["amount"], 500)
 
+	def test_order_receipt_names_the_lms_payment(self):
+		"""The payment callback accepts a Razorpay payment only when its order's
+		receipt is the LMS Payment being credited."""
+		self._buy_course()
+
+		receipt = self.controller.create_order_calls[0]["receipt"]
+		self.assertEqual(
+			frappe.db.get_value("LMS Payment", receipt, "payment_for_document"), self.course.name
+		)
+
 	def test_the_request_carrying_the_order_id_is_written_last(self):
 		"""The controller writes two Integration Requests per attempt: the paise
 		order payload, then the checkout payload with the `order_id`.
