@@ -196,10 +196,10 @@ def give_lms_roles_to_admin():
 
 def give_user_list_permission():
 	doctype = "User"
-	roles = ["Course Creator", "Moderator", "Batch Evaluator"]
-	for role in roles:
-		permlevel = 0
-		create_role(doctype, role, permlevel)
+	create_role(doctype, "Moderator", 0)
+	# Select resolves User links and pickers without opening anyone's profile.
+	for role in ["Course Creator", "Batch Evaluator"]:
+		create_role(doctype, role, 0, read=0)
 	create_role(doctype, "System Manager", 1, write=1)
 
 
@@ -212,12 +212,14 @@ def give_event_permission():
 	create_role(doctype, "System Manager", 0, 1, 1)
 
 
-def create_role(doctype, role, permlevel, write=0, create=0):
+def create_role(doctype, role, permlevel, write=0, create=0, read=1):
 	if frappe.db.exists("Custom DocPerm", {"parent": doctype, "role": role, "permlevel": permlevel}):
 		return
 
 	add_permission(doctype, role, permlevel)
 	update_permission_property(doctype, role, permlevel, "select", 1)
+	if read == 0:
+		update_permission_property(doctype, role, permlevel, "read", 0)
 
 	# Only what the caller asks for: write or create on User would let a role
 	# change any account, System Managers' included.
