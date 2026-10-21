@@ -2,6 +2,7 @@ import functools
 import hashlib
 import json
 import re
+import time
 from datetime import date, datetime
 from urllib.parse import quote, urlsplit
 from zoneinfo import ZoneInfo
@@ -3191,6 +3192,13 @@ def update_payment_record(doctype: str, docname: str):
 		return
 
 	try:
+		if not is_payment_for_this_checkout(data, doctype, docname):
+			return
+	except RazorpayUnavailableError:
+		queue_payment_recheck(data, doctype, docname, frappe.flags.payment_recheck or 0)
+		return
+
+	try:
 		update_payment_details(data)
 	except Exception as e:
 		if not frappe.db.is_unique_key_violation(e):
@@ -3262,6 +3270,144 @@ def payment_already_recorded(data: dict) -> bool:
 	# kept apart by the unique constraint on payment_id, which is what makes
 	# update_payment_details fail for whichever one loses.
 	return bool(frappe.db.exists("LMS Payment", {"payment_id": payment_id}))
+
+
+def is_payment_for_this_checkout(data: dict, doctype: str, docname: str) -> bool:
+	"""The callback payload is built from the Integration Request, which the
+	browser can amend, so only the LMS Payment row and the gateway's own record
+	are trusted here."""
+	payment = frappe.db.get_value(
+		"LMS Payment",
+		data.payment,
+		[
+			"name",
+			"member",
+			"payment_for_document_type",
+			"payment_for_document",
+			"currency",
+			"amount",
+			"amount_with_gst",
+		],
+		as_dict=True,
+	)
+
+	if (
+		not payment
+		or payment.member != frappe.session.user
+		or payment.payment_for_document_type != doctype
+		or payment.payment_for_document != docname
+	):
+		return refuse_payment(data, "The LMS Payment does not belong to this user and document.")
+
+	if not data.get("razorpay_payment_id") and data.get("payment_gateway") != "Razorpay":
+		return True
+
+	return verify_razorpay_payment(data, payment)
+
+
+def verify_razorpay_payment(data: dict, payment: dict) -> bool:
+	payment_id = data.get("razorpay_payment_id")
+	if not payment_id or not isinstance(payment_id, str):
+		return refuse_payment(data, "The callback carries no Razorpay payment id.")
+
+	try:
+		client = get_razorpay_client()
+		gateway_payment = frappe._dict(fetch_from_razorpay(client.payment.fetch, payment_id))
+		order = None
+		if gateway_payment.order_id:
+			order = frappe._dict(fetch_from_razorpay(client.order.fetch, gateway_payment.order_id))
+	except RazorpayUnavailableError:
+		raise
+	except Exception:
+		return refuse_payment(data, f"Razorpay lookup failed:\n{frappe.get_traceback()}")
+
+	mismatch = get_razorpay_mismatch(gateway_payment, order, payment)
+	if mismatch:
+		return refuse_payment(data, mismatch)
+
+	data.order_id = order.id
+	return True
+
+
+RAZORPAY_LOOKUP_ATTEMPTS = 3
+PAYMENT_RECHECKS = 3
+
+
+class RazorpayUnavailableError(Exception):
+	pass
+
+
+def queue_payment_recheck(data: dict, doctype: str, docname: str, recheck: int = 0):
+	"""The buyer has paid, so a lookup Razorpay could not answer is checked again
+	from a background job rather than refused."""
+	if recheck >= PAYMENT_RECHECKS:
+		refuse_payment(data, "Razorpay could not be reached to verify it. Complete it by hand.")
+		return
+	frappe.enqueue(
+		"lms.lms.utils.recheck_payment",
+		queue="long",
+		enqueue_after_commit=True,
+		data=dict(data),
+		doctype=doctype,
+		docname=docname,
+		recheck=recheck + 1,
+	)
+
+
+def recheck_payment(data: dict, doctype: str, docname: str, recheck: int):
+	time.sleep(60 * recheck)
+	frappe.flags.data = frappe._dict(data)
+	frappe.flags.payment_recheck = recheck
+	try:
+		update_payment_record(doctype, docname)
+	finally:
+		frappe.flags.data = None
+		frappe.flags.payment_recheck = None
+
+
+def fetch_from_razorpay(fetch, record_id: str) -> dict:
+	"""Retry the lookup while Razorpay is unreachable or failing on its side, so a
+	paid checkout is not refused over a blip. An unknown id is refused at once."""
+	from razorpay.errors import GatewayError, ServerError
+
+	for attempt in range(RAZORPAY_LOOKUP_ATTEMPTS):
+		try:
+			return fetch(record_id)
+		except (GatewayError, ServerError, requests.ConnectionError, requests.Timeout) as e:
+			if attempt == RAZORPAY_LOOKUP_ATTEMPTS - 1:
+				raise RazorpayUnavailableError(str(e)) from e
+			time.sleep(attempt + 1)
+
+
+def get_razorpay_client():
+	from payments.utils import get_payment_gateway_controller
+
+	controller = get_payment_gateway_controller("Razorpay")
+	controller.init_client()
+	return controller.client
+
+
+def get_razorpay_mismatch(gateway_payment: dict, order: dict | None, payment: dict) -> str | None:
+	if gateway_payment.status not in ("authorized", "captured"):
+		return f"Razorpay payment status is {gateway_payment.status}."
+
+	if not order or order.receipt != payment.name:
+		return f"Razorpay order {gateway_payment.order_id} was not created for LMS Payment {payment.name}."
+
+	if (gateway_payment.currency or "").upper() != (payment.currency or "").upper():
+		return f"Razorpay payment currency {gateway_payment.currency} does not match {payment.currency}."
+
+	expected = flt(get_payment_total(payment)) * 100
+	if abs(cint(gateway_payment.amount) - expected) >= 1:
+		return f"Razorpay payment amount {gateway_payment.amount} does not match {expected}."
+
+
+def refuse_payment(data: dict, reason: str) -> bool:
+	frappe.log_error(
+		title="Payment callback refused",
+		message=f"LMS Payment {data.get('payment')} for {frappe.session.user}: {reason}",
+	)
+	return False
 
 
 def complete_enrollment(payment_name: str, doctype: str, docname: str):

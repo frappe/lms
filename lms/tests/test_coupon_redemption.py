@@ -13,6 +13,7 @@ from lms.lms.doctype.lms_payment.lms_payment import (
 from lms.lms.payments import get_payment_link
 from lms.lms.test_helpers import BaseTestUtils
 from lms.lms.utils import complete_enrollment, update_coupon_redemption, update_payment_record
+from lms.tests.fixtures.razorpay import mock_razorpay
 
 # A worker that never reaches the barrier must not hang the whole suite.
 THREAD_TIMEOUT = 30
@@ -147,7 +148,9 @@ class _CouponRedemptionFixtures:
 
 	def _callback(self, payment, razorpay_payment_id, course=None):
 		"""What the gateway controller does before handing over: publish the
-		payload of the callback it is handling."""
+		payload of the callback it is handling. Razorpay reports the payment as
+		made for the order of the first LMS Payment it was registered with."""
+		self.razorpay.add_payment(razorpay_payment_id, receipt=payment.name, amount=payment.amount * 100)
 		frappe.flags.data = {
 			"payment": payment.name,
 			"payment_gateway": "Razorpay",
@@ -157,6 +160,22 @@ class _CouponRedemptionFixtures:
 			update_payment_record("LMS Course", course or self.course.name)
 		finally:
 			frappe.flags.data = None
+
+	def _stripe_callback(self, payment, stripe_token_id, course=None):
+		frappe.flags.data = {
+			"payment": payment.name,
+			"payment_gateway": "Stripe",
+			"stripe_token_id": stripe_token_id,
+		}
+		try:
+			update_payment_record("LMS Course", course or self.course.name)
+		finally:
+			frappe.flags.data = None
+
+	def _mock_razorpay(self):
+		patcher = mock_razorpay()
+		self.razorpay = patcher.__enter__()
+		self.addCleanup(patcher.__exit__, None, None, None)
 
 	def _checkout(self, coupon, address=None):
 		return get_payment_link(
@@ -200,6 +219,7 @@ class TestCouponRedemption(_CouponRedemptionFixtures, BaseTestUtils):
 		self.course = self._new_course_for_instructor(self.instructor)
 		self.extra_courses = []
 		self._committed_items = []
+		self._mock_razorpay()
 
 	# Counting
 
@@ -372,6 +392,7 @@ class TestCouponRedemptionConcurrency(_CouponRedemptionFixtures, BaseTestUtils):
 		# Skip BaseTestUtils.setUp: these tests commit.
 		super(BaseTestUtils, self).setUp()
 		self._new_course_fixture()
+		self._mock_razorpay()
 
 	def tearDown(self):
 		# Skip BaseTestUtils.tearDown: there is no savepoint to roll back to.
@@ -405,12 +426,13 @@ class TestCouponRedemptionConcurrency(_CouponRedemptionFixtures, BaseTestUtils):
 	def test_parallel_callbacks_for_one_gateway_payment_credit_one_payment(self):
 		"""Retries for one gateway payment can be resolved to different LMS
 		Payment rows, which do not contend with each other. One transaction, one
-		credited payment."""
+		credited payment. Stripe, because Razorpay's order check already turns
+		away the row the order was not created for."""
 		coupon = self._create_coupon()
 		payments = [self._create_payment(coupon) for _ in range(2)]
 
 		def deliver(payment):
-			self._callback(payment, "pay_shared")
+			self._stripe_callback(payment, "tok_shared")
 
 		self.assertEqual(self._in_parallel(coupon, deliver, payments), 1)
 
@@ -427,7 +449,7 @@ class TestCouponRedemptionConcurrency(_CouponRedemptionFixtures, BaseTestUtils):
 		self._drop_unique_payment_id()
 
 		def deliver(payment):
-			self._callback(payment, "pay_shared", course=payment.payment_for_document)
+			self._stripe_callback(payment, "tok_shared", course=payment.payment_for_document)
 
 		try:
 			self.assertEqual(self._in_parallel(coupon, deliver, payments), 1)
