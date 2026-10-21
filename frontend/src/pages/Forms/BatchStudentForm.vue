@@ -48,6 +48,7 @@ import {
 	toast,
 } from 'frappe-ui'
 import { useOnboarding } from '@framework/ui/components/Onboarding/index'
+import { seesOnboarding } from '@/utils/onboarding'
 import { useRoute } from 'vue-router'
 import { openSettings } from '@/utils'
 import Link from '@/components/Controls/Link.vue'
@@ -157,7 +158,7 @@ const submit = () => {
 		{},
 		{
 			onSuccess() {
-				if (user.data?.is_system_manager) {
+				if (seesOnboarding(user.data)) {
 					updateOnboardingStep('add_batch_student')
 				}
 				reloadDashboard()

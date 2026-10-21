@@ -9,6 +9,8 @@ export type FormSource =
 	| 'header_button'
 	| 'onboarding'
 	| 'admin_home'
+	| 'course_editor'
+	| 'course_editor_empty_state'
 	| 'direct'
 
 let pending: FormSource | null = null

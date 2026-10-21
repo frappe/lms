@@ -82,6 +82,7 @@ import { call, createResource, FormControl, toast } from 'frappe-ui'
 import type { FrappeResourceError } from 'frappe-ui'
 import { computed, inject, onMounted, reactive, ref, watch } from 'vue'
 import { useOnboarding } from '@framework/ui/components/Onboarding/index'
+import { seesOnboarding } from '@/utils/onboarding'
 import { useTelemetry } from '@framework/ui/telemetry/index'
 import BooleanSwitch from '@/components/Controls/BooleanSwitch.vue'
 import FormShell from '@/components/FormShell.vue'
@@ -229,7 +230,7 @@ const addMember = async () => {
 
 		await assignRoles(created.name)
 
-		if (user.data?.is_system_manager) updateOnboardingStep('invite_students')
+		if (seesOnboarding(user.data)) updateOnboardingStep('invite_students')
 		capture('user_added')
 		toast.success(__('Member added successfully'))
 		reloadMembers()

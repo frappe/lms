@@ -1793,9 +1793,6 @@ def get_outline_lessons(chapter_names: list) -> list:
 			CourseLesson.include_in_preview.as_("include_in_preview"),
 			CourseLesson.body.as_("body"),
 			CourseLesson.content.as_("content"),
-			CourseLesson.youtube.as_("youtube"),
-			CourseLesson.quiz_id.as_("quiz_id"),
-			CourseLesson.question.as_("question"),
 			CourseLesson.file_type.as_("file_type"),
 			CourseLesson.course.as_("course"),
 			CourseLesson.chapter.as_("chapter"),
@@ -1905,6 +1902,8 @@ def build_outline(
 	progress: bool,
 	enforce_completion: bool = False,
 ) -> list:
+	# The outline is the course sidebar: titles, order and icons. Lesson content
+	# (video, quiz, question) belongs to get_lesson, which checks who may open it.
 	chapter_idx_by_name = {c.name: c.idx for c in chapters}
 	lessons_by_chapter = {}
 	for lr in lesson_rows:
@@ -1913,9 +1912,6 @@ def build_outline(
 			title=lr.title,
 			include_in_preview=lr.include_in_preview,
 			icon=get_lesson_icon(lr.body, lr.content),
-			youtube=lr.youtube,
-			quiz_id=lr.quiz_id,
-			question=lr.question,
 			file_type=lr.file_type,
 			course=lr.course,
 			chapter=lr.chapter,
@@ -1931,9 +1927,6 @@ def build_outline(
 		for lessons in lessons_by_chapter.values():
 			for lesson in lessons:
 				lesson.locked = 1 if lesson.name in locked else 0
-				if lesson.locked:
-					# The quiz is part of the gated lesson, not a separate resource.
-					lesson.quiz_id = None
 
 	outline = []
 	for c in chapters:

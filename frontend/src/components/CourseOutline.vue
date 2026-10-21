@@ -22,20 +22,6 @@
 			</Button>
 		</div>
 		<div
-			v-if="allowEdit && outline.data && !outline.data.length"
-			class="flex flex-col items-center justify-center gap-3 px-6 py-16 text-center text-ink-gray-5 h-full"
-		>
-			<span class="lucide-book-open size-8" />
-			<div class="text-sm">{{ __('No chapters yet') }}</div>
-			<Button @click="openChapterForm()">
-				<template #prefix>
-					<span class="lucide-plus size-4" />
-				</template>
-				{{ __('Create chapter') }}
-			</Button>
-		</div>
-		<div
-			v-else
 			:class="{
 				'border-2 rounded-5 py-2 px-2': showOutline && outline.data?.length,
 			}"

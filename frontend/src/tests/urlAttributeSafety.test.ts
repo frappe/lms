@@ -88,6 +88,10 @@ const EXEMPT = new Map<string, string>([
 	],
 	['../components/Settings/Raven/RavenSetupRow.vue', 'constant https literal'],
 	[
+		'../components/CourseEditorEmptyState.vue',
+		'docs link picked from a table of constant https literals',
+	],
+	[
 		'../pages/ProfileCertificates.vue',
 		'template literal rooted at /api/method/',
 	],
