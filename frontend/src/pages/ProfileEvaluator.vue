@@ -176,7 +176,8 @@
 						v-if="timeOff.from || timeOff.to"
 						class="sm:self-end"
 						variant="ghost"
-						:label="__('Clear')"
+						icon="lucide-x"
+						:aria-label="__('Clear time off')"
 						@click="clearTimeOff"
 					/>
 				</div>
