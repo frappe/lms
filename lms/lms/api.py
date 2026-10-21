@@ -869,7 +869,7 @@ def ensure_evaluator_calendar():
 	their behalf, but only for themselves, and only when they ask for it by
 	starting the authorisation flow.
 	"""
-	frappe.only_for(EVALUATOR_ROLES)
+	frappe.only_for("Batch Evaluator")
 	user = frappe.session.user
 
 	existing = frappe.db.get_value("Google Calendar", {"user": user}, "name")
@@ -919,21 +919,33 @@ def enforce_evaluator_access(evaluator: str) -> str:
 	frappe.only_for(EVALUATOR_ROLES)
 	evaluator = validate_evaluator_name(evaluator)
 
-	if evaluator == frappe.session.user:
-		return evaluator
+	if evaluator != frappe.session.user and "Moderator" not in frappe.get_roles():
+		frappe.throw(_("You can only see or change your own availability."), frappe.PermissionError)
 
-	if "Moderator" in frappe.get_roles():
-		return evaluator
+	if not frappe.db.exists("User", evaluator):
+		frappe.throw(_("Evaluator {0} not found").format(evaluator), frappe.DoesNotExistError)
 
-	frappe.throw(_("You can only see or change your own availability."), frappe.PermissionError)
+	# Only a Batch Evaluator can be picked as a course or batch evaluator (that
+	# role and the Course Evaluator record move together), so nobody else has
+	# availability to keep. A Moderator gives the role from the Roles tab.
+	if "Batch Evaluator" not in frappe.get_roles(evaluator):
+		frappe.throw(
+			_("{0} doesn't have the Batch Evaluator role, so they have no availability to set.").format(
+				evaluator
+			),
+			frappe.PermissionError,
+			title=_("Not an evaluator"),
+		)
+
+	return evaluator
 
 
 def get_owned_evaluator_doc(evaluator: str, create: bool = False):
 	"""Resolve the caller's (or, for a Moderator, the target's) availability.
 
-	`create` is only ever set by the one endpoint that means "this person is an
-	evaluator now" (adding a slot), and only after that call's own arguments
-	have been validated. Editing, deleting or setting unavailability on a record
+	`create` is only ever set by adding a slot, for a Batch Evaluator who has no
+	record yet (the role given in Desk, say), and only after that call's own
+	arguments have been validated. Editing, deleting or setting unavailability on a record
 	that does not exist is a mistake, not a reason to conjure one: saving a
 	Course Evaluator grants the Batch Evaluator role, so creating on those paths
 	handed out a role for a write that was then rejected.
@@ -945,9 +957,6 @@ def get_owned_evaluator_doc(evaluator: str, create: bool = False):
 
 	if not create:
 		frappe.throw(_("{0} has no availability set up yet.").format(evaluator), frappe.DoesNotExistError)
-
-	if not frappe.db.exists("User", evaluator):
-		frappe.throw(_("Evaluator {0} not found").format(evaluator), frappe.DoesNotExistError)
 
 	doc = frappe.new_doc("Course Evaluator")
 	doc.evaluator = evaluator
