@@ -350,7 +350,7 @@ def send_system_notification_for_published_batch(batch):
 	frappe.db.set_value("LMS Batch", batch.name, "notification_sent", 1)
 
 
-@frappe.whitelist()
+@frappe.whitelist(methods=["POST"])
 def create_live_class(
 	batch_name: str,
 	zoom_account: str,
@@ -448,7 +448,7 @@ def delete_zoom_meeting(meeting_id, headers):
 	)
 
 
-@frappe.whitelist()
+@frappe.whitelist(methods=["POST"])
 def create_google_meet_live_class(
 	batch_name: str,
 	google_meet_account: str,
