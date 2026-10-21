@@ -358,13 +358,10 @@ describe('BatchStudentForm as a route', () => {
 		expect(count.reload).toHaveBeenCalledTimes(1)
 	})
 
-	it('ticks the onboarding step only for a system manager', async () => {
+	it('ticks the onboarding step for a moderator', async () => {
 		const router = makeRouter()
 		await openForm(router)
-		const wrapper = await mountForm(router, {
-			...moderator,
-			is_system_manager: true,
-		})
+		const wrapper = await mountForm(router)
 		await pickStudent(wrapper)
 		succeedOnSubmit()
 
@@ -374,10 +371,13 @@ describe('BatchStudentForm as a route', () => {
 		expect(updateOnboardingStepMock).toHaveBeenCalledWith('add_batch_student')
 	})
 
-	it('leaves the onboarding step alone for a plain moderator', async () => {
+	it('leaves the onboarding step alone for a user who does not see onboarding', async () => {
 		const router = makeRouter()
 		await openForm(router)
-		const wrapper = await mountForm(router)
+		const wrapper = await mountForm(router, {
+			name: 'evaluator@example.com',
+			is_evaluator: true,
+		})
 		await pickStudent(wrapper)
 		succeedOnSubmit()
 

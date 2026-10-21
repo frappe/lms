@@ -182,17 +182,14 @@ test.describe("Course Creation", () => {
 			.or(page.getByRole("tab"))
 			.filter({ hasText: "Course editor" })
 			.click();
-		// The toolbar's "Add" renders before CourseOutline mounts and does
-		// nothing until it has, which waits on the course as well as the
-		// outline. Its empty state is the sign it is there.
-		await expect(
-			page.getByRole("button", { name: "Create chapter" })
-		).toBeVisible({ timeout: 20000 });
+		// A course without chapters shows one empty state in place of the
+		// chapters panel and its toolbar; its "Create chapter" is the only way
+		// in, and it waits on the course as well as the outline.
+		const createChapter = page.getByRole("button", { name: "Create chapter" });
+		await expect(createChapter).toBeVisible({ timeout: 20000 });
 
-		// Add a chapter via the toolbar "Add" button (CourseEditor hides
-		// CourseOutline's own header). Scope to the chapter dialog by its Title
-		// field.
-		await page.getByRole("button", { name: "Add" }).click();
+		// Scope to the chapter dialog by its Title field.
+		await createChapter.click();
 		const chapterDialog = page
 			.locator("[data-dismissable-layer]")
 			.filter({ has: page.locator("label", { hasText: "Title" }) });
@@ -206,7 +203,8 @@ test.describe("Course Creation", () => {
 		// ChapterForm.vue is a form route now, and a new chapter submits with
 		// "Add".
 		await chapterDialog.getByTestId("chapter-save").click();
-		await expect(page.getByText("Test Chapter")).toBeVisible({
+		// exact: the editor's next empty state names the chapter in a sentence.
+		await expect(page.getByText("Test Chapter", { exact: true })).toBeVisible({
 			timeout: 15000,
 		});
 
@@ -258,9 +256,7 @@ test.describe("Course Creation", () => {
 			.getByRole("button", { name: "Delete" })
 			.click();
 		await expect(page.getByText("Lesson deleted successfully")).toBeVisible();
-		await expect(
-			page.getByText("Select a lesson on the right to start editing.")
-		).toBeVisible();
+		await expect(page.getByText("Pick a lesson to edit")).toBeVisible();
 		await expect(page.getByTestId("outline-lesson")).toHaveCount(1);
 		await expect(
 			page.getByTestId("outline-lesson").filter({ hasText: "Test Lesson" })

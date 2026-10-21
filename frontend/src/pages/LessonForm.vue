@@ -162,6 +162,7 @@ import BlockEditor from '@/components/BlockEditor.vue'
 import BottomSheet from '@/components/BottomSheet.vue'
 import { useScreenSize } from '@/utils/composables'
 import { useOnboarding } from '@framework/ui/components/Onboarding/index'
+import { seesOnboarding } from '@/utils/onboarding'
 import { useTelemetry } from '@framework/ui/telemetry/index'
 import {
 	useKeyboardShortcuts,
@@ -698,7 +699,7 @@ const linkLesson = (lessonName) =>
 		{ lesson: lessonName },
 		{
 			onSuccess() {
-				if (user.data?.is_system_manager)
+				if (seesOnboarding(user.data))
 					updateOnboardingStep('create_first_lesson')
 
 				toast.success(__('Lesson created successfully'))

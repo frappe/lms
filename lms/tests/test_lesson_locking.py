@@ -500,16 +500,30 @@ class TestLessonLockingIntegration(BaseTestUtils):
 
 		self.assertEqual(lock_state.call_count, 1)
 
-	def test_outline_does_not_publish_the_quiz_of_a_locked_lesson(self):
+	def test_outline_carries_no_lesson_content_for_anyone(self):
+		# The outline is readable before the lesson is, by guests included, so it must
+		# not carry what the lesson page gates: the video, the quiz and the question.
 		self._enable()
 		quiz = self._create_lesson_quiz(self.lessons[2].name)
-		frappe.db.set_value("Course Lesson", self.lessons[2].name, "quiz_id", quiz.name)
+		frappe.db.set_value(
+			"Course Lesson",
+			self.lessons[2].name,
+			{"quiz_id": quiz.name, "youtube": "https://youtu.be/gated000000", "question": "Gated?"},
+		)
 
 		from lms.lms.utils import get_course_outline
 
-		outline = get_course_outline(self.course.name, progress=True)
-		lessons = [lesson for chapter in outline for lesson in chapter.lessons]
-		self.assertIsNone(lessons[2].quiz_id)
+		for user, progress in ((self.student.name, True), ("Guest", False)):
+			frappe.set_user(user)
+			try:
+				outline = get_course_outline(self.course.name, progress=progress)
+			finally:
+				frappe.set_user("Administrator")
+			lessons = [lesson for chapter in outline for lesson in chapter.lessons]
+			self.assertEqual(len(lessons), 3, f"{user} did not receive the outline")
+			for lesson in lessons:
+				for field in ("youtube", "quiz_id", "question"):
+					self.assertNotIn(field, lesson, f"{user} received {field} for {lesson.name}")
 
 	def test_progress_is_published_to_the_completing_member_alone(self):
 		# The outline reload for a quiz or assignment completion rides on this event,
