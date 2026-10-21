@@ -246,6 +246,7 @@
 <script setup>
 import { getSidebarLinks } from '@/utils'
 import { usersStore } from '@/stores/user'
+import { seesOnboarding } from '@/utils/onboarding'
 import { useSidebar } from '@/stores/sidebar'
 import { useSettings } from '@/stores/settings'
 import { Button, call, Tooltip, toast } from 'frappe-ui'
@@ -325,6 +326,22 @@ const openCourseForm = () => {
 	setFormSource('onboarding')
 	openFormRoute(router, { name: 'NewCourse' })
 }
+<<<<<<< HEAD
+=======
+
+// Opens the help panel, or brings it back when it was minimized.
+const toggleHelp = () => {
+	showHelpModal.value = minimize.value ? true : !showHelpModal.value
+	minimize.value = !showHelpModal.value
+	if (showHelpModal.value) {
+		capture('onboarding_help_opened', {
+			role: userResource.data?.is_system_manager
+				? 'system_manager'
+				: 'moderator',
+		})
+	}
+}
+>>>>>>> 23e2bf5 (feat: continue-your-course panel and Getting started for moderators)
 const iconProps = {
 	strokeWidth: 1.5,
 	width: 16,
@@ -633,7 +650,7 @@ const articles = ref([
 ])
 
 const setUpOnboarding = () => {
-	if (userResource.data?.is_system_manager) {
+	if (seesOnboarding(userResource.data)) {
 		onboardingDetails = useOnboarding('learning')
 		onboardingDetails.setUp(steps)
 		isOnboardingStepsCompleted = onboardingDetails.isOnboardingStepsCompleted
