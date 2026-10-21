@@ -1,14 +1,6 @@
 # Copyright (c) 2024, Frappe and Contributors
 # See license.txt
 
-<<<<<<< HEAD
-# import frappe
-from frappe.tests import UnitTestCase
-
-
-class TestLMSJobApplication(UnitTestCase):
-	pass
-=======
 import io
 from unittest.mock import patch
 
@@ -67,4 +59,3 @@ class TestResumeAttachment(IntegrationTestCase):
 
 		attachment = sendmail.call_args.kwargs["attachments"][0]
 		self.assertEqual(attachment["fcontent"], pdf)
->>>>>>> ec36677 (fix: keep stored file bytes intact on frappe version-16)
