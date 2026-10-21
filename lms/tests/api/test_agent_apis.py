@@ -5,6 +5,7 @@ page's few rows, inputs the screens send in a second request, and plain JSON ans
 
 import json
 import os
+import zipfile
 
 import frappe
 from frappe.utils import add_days, nowdate
@@ -137,6 +138,28 @@ class TestAgentApis(BaseTestUtils):
 		self.assertEqual(file_doc.owner, self.instructor)
 		self.assertFalse(file_doc.attached_to_doctype)
 		self.assertFalse(frappe.has_permission("File", "read", doc=file_doc, user=self.moderator))
+
+	def test_the_kept_export_is_the_zip_that_was_built(self):
+		"""Version-16 re-read a File inserted by url as text, so the row pointed at a
+		re-encoded copy under a new name and the ZIP that was built was left orphaned."""
+
+		def zips():
+			return {
+				name for name in os.listdir(frappe.get_site_path("private", "files")) if name.endswith(".zip")
+			}
+
+		before = zips()
+		self._as(self.instructor)
+		file_url = export_course_as_file(self.courses[4])
+		new_zips = zips() - before
+		for name in new_zips:
+			path = frappe.get_site_path("private", "files", name)
+			self.addCleanup(lambda path=path: os.path.exists(path) and os.remove(path))
+
+		self.assertEqual(new_zips, {os.path.basename(file_url)})
+		with zipfile.ZipFile(frappe.get_site_path(file_url.lstrip("/"))) as archive:
+			self.assertIsNone(archive.testzip())
+			self.assertIn("course.json", archive.namelist())
 
 	def test_a_failed_export_file_leaves_no_zip(self):
 		from unittest.mock import patch
