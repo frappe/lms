@@ -62,6 +62,16 @@ check vitest "$(subset 'src/tests/a.test.ts')" \
 check vitest "$full"
 check e2e "$(subset 'e2e/a.spec.ts')" M e2e/a.spec.ts
 check e2e "$full" M frontend/src/tests/a.test.ts
+# The server suite ignores the frontend, like ci.yml's paths-ignore; the
+# other suites do not.
+check server "$(subset 'lms.tests.test_a')" \
+	M lms/tests/test_a.py \
+	M frontend/src/pages/A.vue \
+	M lms/lms/doctype/lms_course/lms_course.js
+check server "$full" M frontend/src/pages/A.vue
+check vitest "$full" M frontend/src/pages/A.vue
+# The one frontend file a server test reads still counts.
+check server "$full" M frontend/src/utils/lessonForm.ts
 
 # An early "full" must still read the whole list, or the writer of a large diff
 # dies of SIGPIPE and fails the workflow step under pipefail.

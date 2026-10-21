@@ -5,13 +5,30 @@ on:
       - main
       - develop
       - main-hotfix
-    paths-ignore:
-      - "**.md"
-      - "lms/locale/**"
+    # The frontend and Vue, TS, JS and CSS files are Vitest's and the UI
+    # tests' business, except the one frontend file a server test reads.
+    # Keep in step with is_ignored in .github/helper/changed-tests.sh.
+    paths:
+      - "**"
+      - "!**.md"
+      - "!lms/locale/**"
+      - "!frontend/**"
+      - "!**.vue"
+      - "!**.ts"
+      - "!**.js"
+      - "!**.css"
+      - "frontend/src/utils/lessonForm.ts"
   pull_request:
-    paths-ignore:
-      - "**.md"
-      - "lms/locale/**"
+    paths:
+      - "**"
+      - "!**.md"
+      - "!lms/locale/**"
+      - "!frontend/**"
+      - "!**.vue"
+      - "!**.ts"
+      - "!**.js"
+      - "!**.css"
+      - "frontend/src/utils/lessonForm.ts"
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
