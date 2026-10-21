@@ -1,53 +1,52 @@
 /**
- * Tests for ProfileEvaluator.vue: the evaluator availability panel.
- *
- * Focus: every write goes through the ownership-checked `lms.lms.api`
- * endpoints. It used to call `frappe.client.insert` / `set_value` / `delete`
- * directly, which fall back to Course Evaluator's role permissions. Those
- * grant Moderator blanket write with no owner condition, so a Moderator could
- * edit any other evaluator's calendar.
- *
- * Also guards the unavailability dates: they were wired with `@blur`, but the
- * date control renders as a popover, so the write has to hang off
- * `@update:modelValue` to be reached at all.
+ * ProfileEvaluator.vue: the evaluator's weekly availability, time off and
+ * Google Calendar. Edits stay local until one Save, which writes through the
+ * own-record `lms.lms.api` endpoints and never `frappe.client.*` (those fall
+ * back to Course Evaluator's role permissions).
  */
-import { describe, expect, it, vi, beforeEach } from 'vitest'
-import { flushPromises, mount } from '@vue/test-utils'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { enableAutoUnmount, flushPromises, mount } from '@vue/test-utils'
+import type { VueWrapper } from '@vue/test-utils'
 
-const { resources } = vi.hoisted(() => ({ resources: { value: [] as any[] } }))
+const { resources, toast } = vi.hoisted(() => ({
+	resources: { value: [] as any[] },
+	toast: { success: vi.fn(), error: vi.fn() },
+}))
 
 vi.mock('frappe-ui', async () => {
-	// Reactive, like the real resource, so seeding `data` re-renders the panel.
 	const { reactive } = await import('vue')
 	return {
 		createResource: (config: any) => {
 			const res: any = reactive({ loading: false, config, data: null })
-			res.submit = vi.fn((values: any) => {
-				res.lastParams = config.makeParams ? config.makeParams(values) : values
-				return Promise.resolve()
-			})
-			res.reload = vi.fn()
+			res.submit = vi.fn(() => Promise.resolve())
+			res.reload = vi.fn(() => Promise.resolve())
 			resources.value.push(res)
 			return res
 		},
-		toast: { success: vi.fn(), error: vi.fn(), info: vi.fn() },
+		toast,
 		Button: {
-			props: ['label'],
+			props: ['label', 'icon', 'disabled', 'loading', 'variant'],
 			emits: ['click'],
-			template: `<button @click="$emit('click')">{{ label }}<slot /></button>`,
+			template: `<button :data-icon="icon" :data-variant="variant" :disabled="disabled"
+				@click="$emit('click')">{{ label }}</button>`,
 		},
 		Badge: { props: ['label', 'theme'], template: `<span>{{ label }}</span>` },
+		Tooltip: { template: `<div><slot /></div>` },
+		ErrorMessage: {
+			props: ['message'],
+			template: `<p data-testid="error">{{ message }}</p>`,
+		},
 		Switch: {
-			props: ['modelValue', 'size'],
+			props: ['modelValue'],
 			emits: ['update:modelValue'],
-			template: `<input type="checkbox" :checked="modelValue"
-			@change="$emit('update:modelValue', $event.target.checked)" />`,
+			template: `<input type="checkbox" role="switch" :checked="modelValue"
+				@change="$emit('update:modelValue', $event.target.checked)" />`,
 		},
 		FormControl: {
-			props: ['modelValue', 'type', 'label', 'options', 'id', 'disabled'],
+			props: ['modelValue', 'type', 'label', 'id', 'format'],
 			emits: ['update:modelValue'],
 			template: `<input :id="id" :data-type="type" :data-label="label"
-			:value="modelValue" @input="$emit('update:modelValue', $event.target.value)" />`,
+				:value="modelValue" @input="$emit('update:modelValue', $event.target.value)" />`,
 		},
 	}
 })
@@ -60,232 +59,367 @@ vi.mock('vue-router', () => ({
 	useRoute: () => ({ query: routeQuery.value }),
 	useRouter: () => ({ replace: routerReplace }),
 }))
+vi.mock('@/utils/format', () => ({ getDateFormat: () => 'YYYY-MM-DD' }))
 
-vi.mock('@/utils', () => ({ convertToTitleCase: (s: string) => s }))
-
-// translation.js installs String.prototype.format at app boot.
 String.prototype.format = function (...args: unknown[]) {
 	return this.replace(/\{(\d+)\}/g, (_: string, i: number) => String(args[i]))
 }
 
 const EVALUATOR = 'eva@example.com'
 
-function findResource(url: string) {
-	return resources.value.find((r) => r.config.url === url)
+const find = (url: string) => resources.value.find((r) => r.config.url === url)
+
+interface MountOptions {
+	viewer?: { name: string; username: string; is_moderator?: boolean }
+	googleEnabled?: boolean
+	invites?: boolean
+	timeOff?: [string | null, string | null]
 }
 
-async function mountPanel(
-	sessionUser = EVALUATOR,
-	sessionUsername = 'eva',
-	isModerator = false
-) {
+async function mountPanel(options: MountOptions = {}) {
+	const {
+		viewer = { name: EVALUATOR, username: 'eva' },
+		googleEnabled = true,
+		invites = true,
+		timeOff = [null, null],
+	} = options
 	resources.value = []
-	const wrapper = mount(
-		await import('@/pages/ProfileEvaluator.vue').then((m) => m.default),
-		{
-			props: {
-				profile: { data: { name: EVALUATOR, username: 'eva' } },
-			},
-			global: {
-				provide: {
-					$user: {
-						data: {
-							name: sessionUser,
-							email: sessionUser,
-							username: sessionUsername,
-							is_evaluator: true,
-							is_moderator: isModerator,
-						},
-					},
-				},
-				mocks: { __: (s: string) => s },
-			},
-		}
+	const { default: ProfileEvaluator } = await import(
+		'@/pages/ProfileEvaluator.vue'
 	)
-	// The details resource is `auto`, so seed what the panel renders from.
-	const details = findResource('lms.lms.api.get_evaluator_details')
-	details.data = {
+	const wrapper = mount(ProfileEvaluator, {
+		props: { profile: { data: { name: EVALUATOR, username: 'eva' } } },
+		global: {
+			provide: { $user: { data: { ...viewer, is_evaluator: true } } },
+			mocks: { __: (s: string) => s },
+		},
+	})
+	find('lms.lms.api.get_evaluator_details').data = {
 		slots: {
-			name: EVALUATOR,
+			evaluator: EVALUATOR,
 			schedule: [
-				{ name: 42, day: 'Monday', start_time: '09:00', end_time: '10:00' },
+				{
+					name: 2,
+					day: 'Monday',
+					start_time: '14:00:00',
+					end_time: '15:00:00',
+				},
+				{ name: 1, day: 'Monday', start_time: '9:00:00', end_time: '10:00:00' },
 			],
+			unavailable_from: timeOff[0],
+			unavailable_to: timeOff[1],
 		},
 		calendar: null,
-		google_enabled: true,
+		google_enabled: googleEnabled,
+		evaluation_invites: invites,
+		timezone: 'Asia/Kolkata (GMT+5:30)',
 	}
 	await flushPromises()
 	return wrapper
 }
 
-describe('ProfileEvaluator availability writes', () => {
-	beforeEach(() => {
-		vi.stubGlobal('__', (s: string) => s)
-		resources.value = []
+const day = (wrapper: VueWrapper, name: string) =>
+	wrapper.find(`[data-testid="day-${name}"]`)
+
+const button = (wrapper: VueWrapper, label: string) =>
+	wrapper.findAll('button').find((b) => b.text() === label)
+
+const writes = () =>
+	resources.value.filter(
+		(r) =>
+			r.config.url !== 'lms.lms.api.get_evaluator_details' &&
+			r.submit.mock.calls.length
+	)
+
+beforeEach(() => {
+	vi.stubGlobal('__', (s: string) => s)
+	toast.success.mockReset()
+	toast.error.mockReset()
+	routeQuery.value = {}
+	routerReplace.mockReset()
+	window.read_only_mode = undefined
+})
+enableAutoUnmount(afterEach)
+
+describe('ProfileEvaluator week', () => {
+	it('lists all seven days, each range under its own day', async () => {
+		const wrapper = await mountPanel()
+
+		expect(wrapper.findAll('[data-testid^="day-"]')).toHaveLength(7)
+		const monday = day(wrapper, 'Monday')
+		const starts = monday
+			.findAll('[data-testid="range"]')
+			.map(
+				(r) =>
+					(r.find('input[data-type="time"]').element as HTMLInputElement).value
+			)
+		expect(starts).toEqual(['09:00', '14:00'])
+		expect(day(wrapper, 'Tuesday').text()).toContain('Unavailable')
+		expect(wrapper.text()).toContain('Times are in Asia/Kolkata (GMT+5:30).')
 	})
 
-	it('adds a slot through the ownership-checked endpoint', async () => {
-		await mountPanel()
-		const create = findResource('lms.lms.api.add_evaluator_slot')
-		expect(create).toBeTruthy()
+	it('names every control for screen readers', async () => {
+		const wrapper = await mountPanel()
+		const monday = day(wrapper, 'Monday')
+
+		expect(monday.find('[role="switch"]').attributes('aria-label')).toBe(
+			'Available on Monday'
+		)
+		const range = monday.find('[data-testid="range"]')
+		const named = range
+			.findAll('input')
+			.map((input) =>
+				range.find(`label[for="${input.attributes('id')}"]`).text()
+			)
+		expect(named).toEqual(['Monday start time', 'Monday end time'])
+		const remove = range.find('button[data-icon="lucide-x"]')
+		expect(remove.attributes('aria-label')).toBe(
+			'Remove 09:00 – 10:00 on Monday'
+		)
 	})
 
-	it('updates a slot through the ownership-checked endpoint', async () => {
-		await mountPanel()
-		const update = findResource('lms.lms.api.update_evaluator_slot')
-		expect(update).toBeTruthy()
+	it('changes nothing on the server until Save', async () => {
+		const wrapper = await mountPanel()
+		expect(button(wrapper, 'Discard')).toBeUndefined()
+		expect(button(wrapper, 'Save')!.attributes('disabled')).toBeDefined()
 
-		update.submit({ name: 42, field: 'day', value: 'Friday' })
-		expect(update.lastParams).toEqual({
-			evaluator: EVALUATOR,
-			slot: 42,
-			fieldname: 'day',
-			value: 'Friday',
+		await day(wrapper, 'Tuesday').find('[role="switch"]').setValue(true)
+		await day(wrapper, 'Monday')
+			.find('button[data-icon="lucide-x"]')
+			.trigger('click')
+
+		expect(writes()).toEqual([])
+		expect(toast.success).not.toHaveBeenCalled()
+		expect(button(wrapper, 'Discard')).toBeTruthy()
+		expect(button(wrapper, 'Save')!.attributes('disabled')).toBeUndefined()
+	})
+
+	it('turning a day on adds 09:00 to 17:00, and + adds the next hour', async () => {
+		const wrapper = await mountPanel()
+		await day(wrapper, 'Friday').find('[role="switch"]').setValue(true)
+		await day(wrapper, 'Friday')
+			.find('button[data-icon="lucide-plus"]')
+			.trigger('click')
+
+		const values = day(wrapper, 'Friday')
+			.findAll('input[data-type="time"]')
+			.map((i) => (i.element as HTMLInputElement).value)
+		expect(values).toEqual(['09:00', '17:00', '17:00', '18:00'])
+	})
+
+	it('Discard puts back what was saved', async () => {
+		const wrapper = await mountPanel()
+		await day(wrapper, 'Monday').find('[role="switch"]').setValue(false)
+		expect(day(wrapper, 'Monday').text()).toContain('Unavailable')
+
+		await button(wrapper, 'Discard')!.trigger('click')
+
+		expect(
+			day(wrapper, 'Monday').findAll('[data-testid="range"]')
+		).toHaveLength(2)
+		expect(button(wrapper, 'Discard')).toBeUndefined()
+	})
+
+	it('saves the whole week and the time off in one call, with one toast', async () => {
+		const wrapper = await mountPanel()
+		await day(wrapper, 'Wednesday').find('[role="switch"]').setValue(true)
+		const [from, to] = wrapper.findAll('input[data-type="date"]')
+		await from.setValue('2030-01-01')
+		await to.setValue('2030-01-05')
+
+		await button(wrapper, 'Save')!.trigger('click')
+		await flushPromises()
+
+		const save = find('lms.lms.api.save_evaluator_availability')
+		expect(save.submit).toHaveBeenCalledTimes(1)
+		expect(save.submit.mock.calls[0][0]).toEqual({
+			schedule: [
+				{ day: 'Monday', start_time: '09:00', end_time: '10:00' },
+				{ day: 'Monday', start_time: '14:00', end_time: '15:00' },
+				{ day: 'Wednesday', start_time: '09:00', end_time: '17:00' },
+			],
+			unavailable_from: '2030-01-01',
+			unavailable_to: '2030-01-05',
 		})
+		expect(find('lms.lms.api.get_evaluator_details').reload).toHaveBeenCalled()
+		expect(toast.success).toHaveBeenCalledTimes(1)
+		expect(toast.success).toHaveBeenCalledWith('Availability saved')
 	})
 
-	it('deletes a slot through the ownership-checked endpoint', async () => {
-		await mountPanel()
-		const remove = findResource('lms.lms.api.delete_evaluator_slot')
-		expect(remove).toBeTruthy()
+	it('shows a server refusal inline, not as a toast', async () => {
+		const wrapper = await mountPanel()
+		find(
+			'lms.lms.api.save_evaluator_availability'
+		).submit.mockRejectedValueOnce({
+			messages: ['Slot Times are overlapping for some schedules.'],
+		})
+		await day(wrapper, 'Friday').find('[role="switch"]').setValue(true)
 
-		remove.submit({ name: 42 })
-		expect(remove.lastParams).toEqual({ evaluator: EVALUATOR, slot: 42 })
+		await button(wrapper, 'Save')!.trigger('click')
+		await flushPromises()
+
+		expect(wrapper.find('[data-testid="error"]').text()).toBe(
+			'Slot Times are overlapping for some schedules.'
+		)
+		expect(toast.error).not.toHaveBeenCalled()
+		expect(toast.success).not.toHaveBeenCalled()
 	})
 
-	it('never writes availability through raw framework endpoints', async () => {
+	it.each([
+		{
+			name: 'an end before its start',
+			start: '16:00',
+			end: '15:00',
+			message: 'End time must be after the start time.',
+		},
+		{
+			name: 'an overlap',
+			start: '09:30',
+			end: '15:00',
+			message: 'Overlaps with 09:00 – 10:00.',
+		},
+	])(
+		'blocks Save on $name and says so under the range',
+		async ({ start, end, message }) => {
+			const wrapper = await mountPanel()
+			const second = day(wrapper, 'Monday').findAll('[data-testid="range"]')[1]
+			const [startInput, endInput] = second.findAll('input')
+			await startInput.setValue(start)
+			await endInput.setValue(end)
+
+			await button(wrapper, 'Save')!.trigger('click')
+			await flushPromises()
+
+			const updated = day(wrapper, 'Monday').findAll('[data-testid="range"]')
+			expect(updated[1].find('[data-testid="error"]').text()).toBe(message)
+			expect(
+				find('lms.lms.api.save_evaluator_availability').submit
+			).not.toHaveBeenCalled()
+		}
+	)
+
+	it('asks for both time-off dates only once Save is tried', async () => {
+		const wrapper = await mountPanel()
+		await wrapper.findAll('input[data-type="date"]')[0].setValue('2030-01-01')
+		expect(
+			wrapper.find('[data-testid="time-off"] [data-testid="error"]').exists()
+		).toBe(false)
+
+		await button(wrapper, 'Save')!.trigger('click')
+
+		expect(
+			wrapper.find('[data-testid="time-off"] [data-testid="error"]').text()
+		).toBe('Set both dates, or clear them.')
+		expect(
+			find('lms.lms.api.save_evaluator_availability').submit
+		).not.toHaveBeenCalled()
+	})
+
+	it('never writes through raw framework endpoints', async () => {
 		await mountPanel()
 		const raw = resources.value.filter((r) =>
-			String(r.config.url).startsWith('frappe.client.')
+			String(r.config.url).startsWith('frappe.')
 		)
 		expect(raw).toEqual([])
 	})
+})
 
-	it('writes the unavailability date on change, not on blur', async () => {
-		const wrapper = await mountPanel()
-		const unavailability = findResource(
-			'lms.lms.api.set_evaluator_unavailability'
+describe('ProfileEvaluator read-only', () => {
+	it("shows a moderator someone else's week as text, with no controls", async () => {
+		const wrapper = await mountPanel({
+			viewer: { name: 'mod@example.com', username: 'mod', is_moderator: true },
+			timeOff: ['2030-01-01', '2030-01-05'],
+		})
+
+		expect(day(wrapper, 'Monday').text()).toContain(
+			'09:00 – 10:00, 14:00 – 15:00'
 		)
-
-		await wrapper
-			.findAll('button')
-			.find((b) => b.text() === 'Add time off')!
-			.trigger('click')
-		const dateFields = wrapper.findAll('[data-type="date"]')
-		expect(dateFields.length).toBe(2)
-
-		await dateFields[0].setValue('2026-08-01')
-		expect(unavailability.submit).toHaveBeenCalled()
-		expect(unavailability.lastParams).toEqual({
-			evaluator: EVALUATOR,
-			fieldname: 'unavailable_from',
-			value: '2026-08-01',
-		})
+		expect(day(wrapper, 'Tuesday').text()).toContain('Unavailable')
+		expect(wrapper.findAll('input')).toHaveLength(0)
+		expect(button(wrapper, 'Save')).toBeUndefined()
+		expect(wrapper.find('[data-testid="time-off"]').text()).toContain(
+			'2030-01-01 to 2030-01-05'
+		)
+		expect(wrapper.find('[data-testid="calendar"]').exists()).toBe(false)
 	})
 
-	// The watcher used to be deep, so a calendar toggle (which edits the loaded
-	// details in place) put the last load's empty time off back over a date
-	// the evaluator had just saved.
-	it('keeps a saved time-off date when a calendar setting changes', async () => {
+	it('shows the evaluator their own week read-only while the site updates', async () => {
+		window.read_only_mode = true
 		const wrapper = await mountPanel()
-		await wrapper
-			.findAll('button')
-			.find((b) => b.text() === 'Add time off')!
-			.trigger('click')
-		const from = wrapper.findAll('[data-type="date"]')[0]
-		await from.setValue('2026-08-01')
 
-		findResource('lms.lms.api.update_evaluator_calendar').config.onSuccess({
-			enable: 1,
-			push_to_google_calendar: 0,
-			calendar_name: 'Eva',
-			is_authorized: true,
-		})
-		await flushPromises()
-
-		expect(
-			(wrapper.findAll('[data-type="date"]')[0].element as HTMLInputElement)
-				.value
-		).toBe('2026-08-01')
-	})
-
-	it('names each slot control for screen readers', async () => {
-		const wrapper = await mountPanel()
-		// The mocked resource is not reactive, so re-render to pick up the seed.
-		wrapper.vm.$forceUpdate()
-		await flushPromises()
-		const slot = wrapper.find('[data-testid="slot"]')
-		const labels = slot.findAll('input').map((i) => i.attributes('aria-label'))
-		expect(labels).toEqual(['Day', 'Start time', 'End time'])
-		expect(slot.find('button').attributes('aria-label')).toBe('Remove Monday')
+		expect(wrapper.findAll('input')).toHaveLength(0)
+		expect(button(wrapper, 'Save')).toBeUndefined()
+		expect(wrapper.text()).toContain(
+			"You can't change your availability while the site is updating."
+		)
 	})
 })
 
-// Portal evaluators have no Settings modal and no write permission on Google
-// Calendar, so the Slots tab is where they manage it, through lms.lms.api only.
-describe('ProfileEvaluator calendar settings', () => {
-	beforeEach(() => {
-		vi.stubGlobal('__', (s: string) => s)
-		resources.value = []
-		routeQuery.value = {}
-		routerReplace.mockReset()
-	})
+describe('ProfileEvaluator Google Calendar', () => {
+	it.each([
+		{
+			googleEnabled: false,
+			invites: true,
+			says: "isn't set up on this site",
+			controls: false,
+		},
+		{
+			googleEnabled: true,
+			invites: false,
+			says: 'Evaluation invites are off',
+			controls: true,
+		},
+		{
+			googleEnabled: true,
+			invites: true,
+			says: 'Google Meet link',
+			controls: true,
+		},
+	])(
+		'Google on: $googleEnabled, invites on: $invites',
+		async ({ googleEnabled, invites, says, controls }) => {
+			const wrapper = await mountPanel({ googleEnabled, invites })
+			const section = wrapper.find('[data-testid="calendar"]')
 
-	it('saves a toggled setting through the own-calendar endpoint', async () => {
+			expect(section.text()).toContain(says)
+			expect(section.find('[role="switch"]').exists()).toBe(controls)
+		}
+	)
+
+	it('saves a calendar change with Save, through the own-calendar endpoint', async () => {
 		const wrapper = await mountPanel()
-		const update = findResource('lms.lms.api.update_evaluator_calendar')
-
+		const update = find('lms.lms.api.update_evaluator_calendar')
 		await wrapper
-			.find('input[aria-label="Push to Google Calendar"]')
+			.find('[role="switch"][aria-label="Add events to Google"]')
 			.setValue(false)
+		expect(update.submit).not.toHaveBeenCalled()
+
+		await button(wrapper, 'Save')!.trigger('click')
+		await flushPromises()
 
 		expect(update.submit).toHaveBeenCalledTimes(1)
-		expect(update.lastParams).toEqual({
+		expect(update.submit.mock.calls[0][0]).toEqual({
 			fieldname: 'push_to_google_calendar',
 			value: 0,
 		})
 	})
 
-	it("signs in through lms, not Frappe's desk-only authorize_access", async () => {
-		await mountPanel()
-		expect(
-			findResource('lms.lms.api.authorize_evaluator_calendar')
-		).toBeTruthy()
-		const frappeEndpoints = resources.value.filter((r) =>
-			String(r.config.url).startsWith('frappe.integrations.')
-		)
-		expect(frappeEndpoints).toEqual([])
-	})
-
-	it('has no Save button: every change saves itself', async () => {
+	it('holds Connect until unsaved changes are saved', async () => {
 		const wrapper = await mountPanel()
-		const labels = wrapper.findAll('button').map((b) => b.text())
-		expect(labels).not.toContain('Save')
-	})
+		expect(button(wrapper, 'Connect')!.attributes('disabled')).toBeUndefined()
 
-	it('hides the calendar from a Moderator viewing someone else', async () => {
-		const wrapper = await mountPanel('mod@example.com', 'mod', true)
-		expect(wrapper.find('[data-testid="calendar"]').exists()).toBe(false)
+		await day(wrapper, 'Friday').find('[role="switch"]').setValue(true)
+
+		expect(button(wrapper, 'Connect')!.attributes('disabled')).toBeDefined()
 	})
 
 	it('says so when Google did not finish signing in', async () => {
 		routeQuery.value = { calendar: 'failed' }
 		await mountPanel()
-		const { toast } = await import('frappe-ui')
+
 		expect(toast.error).toHaveBeenCalledWith(
-			expect.stringContaining('Try authorizing again')
+			expect.stringContaining('Try again')
 		)
 		expect(routerReplace).toHaveBeenCalled()
-	})
-
-	// The profile carries no email, so the owner check matches on username.
-	it('lets the evaluator edit their own slots, matched by username', async () => {
-		const wrapper = await mountPanel()
-		expect(wrapper.text()).toContain('Add slot')
-	})
-
-	it("keeps a moderator read-only on someone else's slots", async () => {
-		const wrapper = await mountPanel('mod@example.com', 'mod', true)
-		expect(wrapper.text()).not.toContain('Add slot')
 	})
 })

@@ -1,6 +1,7 @@
 import type { Ref } from 'vue'
 import type { LMSCourse } from './lms/LMSCourse'
 import type { LMSBatch } from './lms/LMSBatch'
+import type { CourseEvaluator } from './lms/CourseEvaluator'
 
 export interface Resource<T = unknown> {
 	data: T
@@ -147,4 +148,24 @@ export interface CourseFormContext {
 	relatedCourses: Ref<string[]>
 	meta: CourseFormMeta
 	markDirty: () => void
+}
+
+export interface EvaluatorCalendar {
+	name?: string
+	enable: 0 | 1
+	calendar_name: string
+	push_to_google_calendar: 0 | 1
+	is_authorized: boolean
+}
+
+// lms.lms.api.get_evaluator_details, also returned by save_evaluator_availability.
+export interface EvaluatorDetails {
+	slots: Pick<
+		CourseEvaluator,
+		'evaluator' | 'schedule' | 'unavailable_from' | 'unavailable_to'
+	>
+	calendar: EvaluatorCalendar | null
+	google_enabled: boolean
+	timezone: string
+	evaluation_invites: boolean
 }
