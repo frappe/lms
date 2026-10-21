@@ -621,6 +621,9 @@ def validate_attachable_file(doc: Document, fieldname: str) -> None:
 		)
 
 
+MAX_MENTIONS_PER_REPLY = 10
+
+
 def handle_notifications(doc: Document, method: str):
 	topic = frappe.db.get_value(
 		"Discussion Topic",
@@ -704,7 +707,7 @@ def mentioned_users(html: str) -> list[str]:
 
 
 def notify_mentions_on_portal(doc: Document, topic: dict):
-	mentions = mentioned_users(doc.reply)
+	mentions = get_mention_recipients(doc, topic)
 	if not mentions:
 		return
 
@@ -746,7 +749,7 @@ def notify_mentions_via_email(doc: Document, topic: dict):
 	if not outgoing_email_account or not frappe.conf.get("mail_login"):
 		return
 
-	mentions = mentioned_users(doc.reply)
+	mentions = get_mention_recipients(doc, topic)
 	if not mentions:
 		return
 
@@ -784,6 +787,33 @@ def notify_mentions_via_email(doc: Document, topic: dict):
 			header=[subject, "green"],
 			retry=3,
 		)
+
+
+def get_mention_recipients(doc: Document, topic: dict) -> list[str]:
+	mentions = mentioned_users(doc.reply)[:MAX_MENTIONS_PER_REPLY]
+	if not mentions:
+		return []
+	users = frappe.get_all(
+		"User", {"name": ("in", mentions), "enabled": 1, "allowed_in_mentions": 1}, pluck="name"
+	)
+	return [user for user in users if is_topic_participant(user, topic)]
+
+
+def is_topic_participant(user: str, topic: dict) -> bool:
+	from lms.lms.permissions import can_author_batch, can_author_course
+
+	if topic.reference_doctype == "Course Lesson":
+		course = frappe.db.get_value("Course Lesson", topic.reference_docname, "course")
+		return bool(
+			frappe.db.exists("LMS Enrollment", {"course": course, "member": user})
+			or can_author_course(course, user=user)
+		)
+	batch = topic.reference_docname
+	return bool(
+		frappe.db.exists("LMS Batch Enrollment", {"batch": batch, "member": user})
+		or has_evaluator_role(user)
+		or can_author_batch(batch, user=user)
+	)
 
 
 def get_lesson_count(course: str) -> int:
