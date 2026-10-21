@@ -1,0 +1,123 @@
+import type { EvaluatorSchedule } from '@/types/lms/EvaluatorSchedule'
+
+export type Weekday = EvaluatorSchedule['day']
+
+export const WEEKDAYS: Weekday[] = [
+	'Monday',
+	'Tuesday',
+	'Wednesday',
+	'Thursday',
+	'Friday',
+	'Saturday',
+	'Sunday',
+]
+
+export interface TimeRange {
+	key: number
+	start: string
+	end: string
+}
+
+export type Week = Record<Weekday, TimeRange[]>
+
+export interface ScheduleRow {
+	day: Weekday
+	start_time: string
+	end_time: string
+}
+
+let nextKey = 0
+
+export const newRange = (start: string, end: string): TimeRange => ({
+	key: ++nextKey,
+	start,
+	end,
+})
+
+// The server sends Time as "9:00:00"; the picker and comparisons want "09:00".
+export const toHHMM = (time: string | null | undefined): string => {
+	if (!time) return ''
+	const [hour = '', minute = ''] = time.split(':')
+	return `${hour.padStart(2, '0')}:${minute.padStart(2, '0')}`
+}
+
+export const emptyWeek = (): Week =>
+	Object.fromEntries(WEEKDAYS.map((day) => [day, []])) as unknown as Week
+
+export const toWeek = (rows: Pick<ScheduleRow, keyof ScheduleRow>[]): Week => {
+	const week = emptyWeek()
+	for (const row of rows) {
+		if (!week[row.day]) continue
+		week[row.day].push(newRange(toHHMM(row.start_time), toHHMM(row.end_time)))
+	}
+	for (const day of WEEKDAYS) {
+		week[day].sort((a, b) => a.start.localeCompare(b.start))
+	}
+	return week
+}
+
+export const toRows = (week: Week): ScheduleRow[] =>
+	WEEKDAYS.flatMap((day) =>
+		week[day].map((range) => ({
+			day,
+			start_time: range.start,
+			end_time: range.end,
+		}))
+	)
+
+const addHour = (time: string): string => {
+	const hour = Number(time.split(':')[0]) + 1
+	if (hour > 23) return '23:59'
+	return `${String(hour).padStart(2, '0')}:${time.split(':')[1] ?? '00'}`
+}
+
+// A new range starts where the day's last one ends, so it never overlaps.
+export const nextRange = (ranges: TimeRange[]): TimeRange => {
+	const last = ranges[ranges.length - 1]
+	if (!last) return newRange('09:00', '17:00')
+	const start = last.end || '09:00'
+	return newRange(start, addHour(start))
+}
+
+export const formatRange = (range: TimeRange): string =>
+	`${range.start} – ${range.end}`
+
+// Keyed by range, so each message renders under the row it belongs to.
+export const rangeErrors = (ranges: TimeRange[]): Record<number, string> => {
+	const errors: Record<number, string> = {}
+	for (const range of ranges) {
+		if (!range.start || !range.end) {
+			errors[range.key] = __('Set both a start and an end time.')
+		} else if (range.end <= range.start) {
+			errors[range.key] = __('End time must be after the start time.')
+		}
+	}
+	const valid = ranges.filter((range) => !errors[range.key])
+	for (const range of valid) {
+		const clash = valid.find(
+			(other) =>
+				other !== range && other.start < range.end && range.start < other.end
+		)
+		if (clash) {
+			errors[range.key] = __('Overlaps with {0}.').format(formatRange(clash))
+		}
+	}
+	return errors
+}
+
+export interface TimeOff {
+	from: string | null
+	to: string | null
+}
+
+// The server refuses a range whose end is not after its start, so this does too.
+export const timeOffError = (timeOff: TimeOff): string => {
+	if (!timeOff.from && !timeOff.to) return ''
+	if (!timeOff.from || !timeOff.to) {
+		return __('Set both dates, or clear them.')
+	}
+	if (timeOff.to <= timeOff.from) {
+		return __('The end date must be after the start date.')
+	}
+	return ''
+}
