@@ -165,15 +165,31 @@
 			<h2 class="text-lg font-semibold text-ink-gray-9">
 				{{ __('Time off') }}
 			</h2>
-			<p class="mt-1 text-p-sm text-ink-gray-6">
-				{{
-					isSessionUser
-						? __("Learners can't book you between these dates.")
-						: __("Learners can't book this evaluator between these dates.")
-				}}
-			</p>
-			<template v-if="canEdit">
-				<div class="mt-5 flex flex-wrap items-start gap-4">
+			<div
+				v-if="showEmptyTimeOff"
+				class="mt-5 rounded-6 border border-outline-gray-2"
+				data-testid="empty-time-off"
+			>
+				<EmptyStateLayout
+					:name="__('Time off')"
+					icon="lucide-calendar-off"
+					width="lg"
+					:title="__('No time off planned')"
+					:description="timeOffDescription"
+				>
+					<Button
+						v-if="canEdit"
+						variant="subtle"
+						:label="__('Add time off')"
+						@click="editingTimeOff = true"
+					/>
+				</EmptyStateLayout>
+			</div>
+			<div v-else class="mt-5 rounded-6 border border-outline-gray-2">
+				<div
+					v-if="canEdit && editingTimeOff"
+					class="flex flex-wrap items-start gap-4 px-4 py-3.5"
+				>
 					<FormControl
 						v-model="timeOff.from"
 						type="date"
@@ -189,7 +205,6 @@
 						:format="dateFormat"
 					/>
 					<Button
-						v-if="timeOff.from || timeOff.to"
 						class="sm:self-end"
 						variant="ghost"
 						icon="lucide-x"
@@ -197,15 +212,33 @@
 						@click="clearTimeOff"
 					/>
 				</div>
+				<div
+					v-else
+					class="flex items-center justify-between gap-4 px-4 py-3.5"
+					data-testid="time-off-range"
+				>
+					<span class="text-base text-ink-gray-8">{{ timeOffRange }}</span>
+					<div v-if="canEdit" class="flex items-center gap-1">
+						<Button
+							variant="ghost"
+							icon="lucide-pencil"
+							:aria-label="__('Edit time off')"
+							@click="editingTimeOff = true"
+						/>
+						<Button
+							variant="ghost"
+							icon="lucide-x"
+							:aria-label="__('Clear time off')"
+							@click="clearTimeOff"
+						/>
+					</div>
+				</div>
 				<ErrorMessage
 					v-if="timeOffMessage"
-					class="mt-2"
+					class="px-4 pb-3.5"
 					:message="timeOffMessage"
 				/>
-			</template>
-			<p v-else class="mt-4 text-p-sm text-ink-gray-8">
-				{{ timeOffSummary }}
-			</p>
+			</div>
 		</section>
 
 		<section v-if="showCalendar" data-testid="calendar">
@@ -300,6 +333,7 @@ import {
 	toast,
 	Tooltip,
 } from 'frappe-ui'
+import dayjs from 'dayjs'
 import { computed, inject, onMounted, reactive, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import type { EvaluatorDetails, Resource, SessionUser } from '@/types/api'
@@ -363,6 +397,7 @@ const timeOff = reactive<TimeOff>({ from: null, to: null })
 const calendarDraft = reactive({ enable: true, calendar_name: '', push: true })
 const baseline = ref('')
 const startingWeek = ref(false)
+const editingTimeOff = ref(false)
 const attempted = ref(false)
 const saving = ref(false)
 const saveError = ref('')
@@ -386,6 +421,8 @@ const load = (data: EvaluatorDetails | null) => {
 	baseline.value = snapshot()
 	attempted.value = false
 	startingWeek.value = false
+	// A half-set range (from older data) has nothing to summarise, so it opens.
+	editingTimeOff.value = Boolean(timeOff.from) !== Boolean(timeOff.to)
 	saveError.value = ''
 }
 
@@ -428,10 +465,36 @@ const hasErrors = computed(
 		Boolean(timeOffError(timeOff))
 )
 
-const timeOffSummary = computed(() =>
+const showEmptyTimeOff = computed(
+	() => !timeOff.from && !timeOff.to && !editingTimeOff.value
+)
+
+const timeOffDescription = computed(() =>
+	isSessionUser.value
+		? __("Learners can't book you during time off.")
+		: __("Learners can't book this evaluator during time off.")
+)
+
+const readableDate = (date: string): string => {
+	const parsed = dayjs(date)
+	const sameYear = parsed.year() === dayjs().year()
+	return parsed.format(sameYear ? 'ddd, D MMM' : 'ddd, D MMM YYYY')
+}
+
+const timeOffRange = computed(() =>
 	timeOff.from && timeOff.to
-		? __('{0} to {1}').format(timeOff.from, timeOff.to)
-		: __('No time off planned.')
+		? `${readableDate(timeOff.from)} – ${readableDate(timeOff.to)}`
+		: ''
+)
+
+// Picking the end date of a valid range is the natural end of an edit.
+watch(
+	() => timeOff.to,
+	() => {
+		if (editingTimeOff.value && timeOff.from && !timeOffError(timeOff)) {
+			editingTimeOff.value = false
+		}
+	}
 )
 
 const calendarDescription = computed(() => {
@@ -481,6 +544,7 @@ const weekPresets = computed(() => [
 const clearTimeOff = () => {
 	timeOff.from = null
 	timeOff.to = null
+	editingTimeOff.value = false
 }
 
 const discard = () => load(evaluator.data)
