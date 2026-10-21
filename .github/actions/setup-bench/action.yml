@@ -37,9 +37,6 @@ runs:
         node-version: ${{ inputs.node-version }}
         check-latest: true
 
-    - name: Install bench
-      shell: bash
-      run: pip install frappe-bench
 
     # The bench's virtualenv links to the exact Python build, so a patch
     # release has to miss the cache rather than restore a broken env.
@@ -55,6 +52,22 @@ runs:
         payments=$(git ls-remote https://github.com/frappe/payments HEAD | cut -f1)
         test -n "$frappe" && test -n "$payments"
         echo "key=bench-${ImageOS:-unknown}-py$PYTHON_VERSION-$frappe-$payments-$SETUP_HASH" >> "$GITHUB_OUTPUT"
+
+    # bench installs through uv; pip installs bench itself. Keyed with the
+    # bench, so a frappe or payments dependency bump saves a fresh entry.
+    - name: Cache package downloads
+      uses: actions/cache@v4
+      with:
+        path: |
+          ~/.cache/pip
+          ~/.cache/uv
+        key: packages-${{ steps.key.outputs.key }}-${{ hashFiles('pyproject.toml') }}
+        restore-keys: |
+          packages-
+
+    - name: Install bench
+      shell: bash
+      run: pip install frappe-bench
 
     - name: Restore bench
       id: restore
@@ -131,11 +144,47 @@ runs:
           lms-node-modules-${{ runner.os }}-node${{ inputs.node-version }}-${{
           hashFiles('yarn.lock', 'frontend/yarn.lock') }}
 
+    # The build depends on the bench (frappe's build tooling, and assets.json
+    # already holding frappe's entries) and on the lms sources, so both are in
+    # the key. A PR that leaves the frontend alone restores the last build.
+    - name: Cache built lms assets
+      if: inputs.build-assets == 'true'
+      id: assets
+      uses: actions/cache@v4
+      with:
+        path: |
+          ~/frappe-bench/apps/lms/lms/public/dist
+          ~/frappe-bench/apps/lms/lms/public/frontend
+          ~/frappe-bench/apps/lms/lms/www/_lms.html
+          ~/frappe-bench/sites/assets/assets.json
+          ~/frappe-bench/sites/assets/assets-rtl.json
+          ~/frappe-bench/sites/assets/locale
+        key: >-
+          lms-assets-${{ steps.key.outputs.key }}-${{
+          hashFiles('frontend/src/**', 'frontend/public/**', 'frontend/index.html',
+          'frontend/*.config.*', 'frontend/package.json', 'frontend/yarn.lock',
+          'lms/public/**', 'lms/locale/**', 'package.json', 'yarn.lock') }}
+
     - name: Build lms assets
       if: inputs.build-assets == 'true'
       shell: bash
       working-directory: /home/runner/frappe-bench
+      env:
+        SITE: ${{ inputs.site }}
+        ASSETS_CACHED: ${{ steps.assets.outputs.cache-hit }}
       run: |
         set -euo pipefail
+        # Playwright and its config live in apps/lms, so the packages are
+        # needed whether or not the assets are built here.
         (cd apps/lms && yarn install --frozen-lockfile)
-        bench build --app lms
+        if [ "$ASSETS_CACHED" = "true" ]; then
+          # The outputs are back; only the sites/assets/<app> links are missing.
+          (cd sites && ../env/bin/python -c '
+          import os, frappe, frappe.bundler as bundler
+          frappe.init(site=os.environ["SITE"])
+          bundler.setup()
+          bundler.make_asset_dirs(verbose=False)
+          ')
+        else
+          bench build --app lms
+        fi
