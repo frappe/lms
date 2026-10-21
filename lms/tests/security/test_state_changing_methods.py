@@ -53,9 +53,7 @@ class TestStateChangingMethods(BaseTestUtils):
 	def test_every_state_changing_method_is_post_only(self):
 		for fn in STATE_CHANGING:
 			with self.subTest(fn=fn.__name__):
-				self.assertEqual(
-					tuple(frappe.allowed_http_methods_for_whitelisted_func[fn]), ("POST",)
-				)
+				self.assertEqual(tuple(frappe.allowed_http_methods_for_whitelisted_func[fn]), ("POST",))
 
 	def test_get_is_refused_before_the_body_runs(self):
 		for fn in STATE_CHANGING:
