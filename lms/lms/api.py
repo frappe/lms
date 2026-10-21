@@ -32,6 +32,7 @@ from frappe.utils import (
 	get_time,
 	getdate,
 	now,
+	strip_html,
 )
 from frappe.utils.response import Response
 from pypika import functions as fn
@@ -3514,6 +3515,125 @@ def get_created_courses(start: int = 0, limit_page_length: int | str = None):
 		created_courses.append(course_details)
 
 	return created_courses
+
+
+@frappe.whitelist()
+def get_course_to_continue():
+	"""The unpublished course the caller edited last, with the steps left before it can
+	be published. None once the site has a published course of its own, since the panel
+	exists to get the first course out; the demo course does not count. Only the
+	course's instructors see it, so the draft is always the caller's own work."""
+	if site_has_published_course():
+		# The panel stops asking once the site is past its first course.
+		return {"done": True}
+
+	draft = last_edited_draft(frappe.session.user)
+	if not draft:
+		return None
+
+	lesson = last_edited_lesson(draft.name)
+	return {
+		"course": draft.name,
+		"title": draft.title,
+		"last_edited": draft.last_edit,
+		"lesson": lesson.name if lesson else None,
+		"steps": continue_steps(draft.name),
+	}
+
+
+def site_has_published_course() -> bool:
+	from lms.lms.telemetry import DEMO_COURSE_TITLE
+
+	return bool(frappe.db.exists("LMS Course", {"published": 1, "title": ["!=", DEMO_COURSE_TITLE]}))
+
+
+def last_edited_draft(user: str):
+	"""The draft `user` instructs whose course, chapters or lessons changed most recently,
+	with that moment as `last_edit`.
+
+	Editing a lesson does not touch the course document, so the course's own
+	`modified` alone would point at the wrong draft."""
+	from lms.lms.telemetry import DEMO_COURSE_TITLE
+
+	drafts = frappe.get_all(
+		"LMS Course",
+		filters=[
+			["published", "=", 0],
+			["title", "!=", DEMO_COURSE_TITLE],
+			["Course Instructor", "instructor", "=", user],
+		],
+		fields=["name", "title", "modified"],
+		distinct=True,
+	)
+	if not drafts:
+		return None
+
+	by_name = {}
+	for draft in drafts:
+		draft.last_edit = draft.modified
+		by_name[draft.name] = draft
+	for doctype in ("Course Chapter", "Course Lesson"):
+		for row in latest_change_per_course(doctype, list(by_name)):
+			draft = by_name[row.course]
+			draft.last_edit = max(draft.last_edit, row.modified)
+
+	return max(drafts, key=lambda draft: draft.last_edit)
+
+
+def latest_change_per_course(doctype: str, courses: list) -> list:
+	from frappe.query_builder.functions import Max
+
+	Table = frappe.qb.DocType(doctype)
+	return (
+		frappe.qb.from_(Table)
+		.select(Table.course, Max(Table.modified).as_("modified"))
+		.where(Table.course.isin(courses))
+		.groupby(Table.course)
+	).run(as_dict=True)
+
+
+def last_edited_lesson(course: str):
+	rows = frappe.get_all(
+		"Course Lesson",
+		filters={"course": course},
+		fields=["name", "modified"],
+		order_by="modified desc",
+		limit=1,
+	)
+	return rows[0] if rows else None
+
+
+def continue_steps(course: str) -> list:
+	"""The mandatory steps between a new course and a published one. Title, description
+	and instructors are required at creation, so they are never open."""
+	has_chapter = bool(frappe.db.exists("Chapter Reference", {"parent": course}))
+	return [
+		{"name": "chapter", "done": has_chapter},
+		{"name": "lesson", "done": has_chapter and has_lesson_with_content(course)},
+		{"name": "publish", "done": False},
+	]
+
+
+def has_lesson_with_content(course: str) -> bool:
+	"""A lesson counts once it carries something a learner can open: editor blocks,
+	a video, a quiz, a SCORM package, or legacy markdown."""
+	lessons = frappe.get_all(
+		"Course Lesson",
+		filters={"course": course},
+		fields=["body", "content", "youtube", "quiz_id", "is_scorm_package"],
+	)
+	for lesson in lessons:
+		if lesson.youtube or lesson.quiz_id or lesson.is_scorm_package:
+			return True
+		if strip_html(lesson.body or "").strip():
+			return True
+		if any(block_has_data(block) for block in get_editorjs_blocks(lesson.content)):
+			return True
+	return False
+
+
+def block_has_data(block: dict) -> bool:
+	return any(value for value in (block.get("data") or {}).values())
 
 
 @frappe.whitelist()

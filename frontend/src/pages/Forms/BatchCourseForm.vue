@@ -37,6 +37,7 @@
 import { computed, inject, ref } from 'vue'
 import { createListResource, getCachedListResource, toast } from 'frappe-ui'
 import { useOnboarding } from '@framework/ui/components/Onboarding/index'
+import { seesOnboarding } from '@/utils/onboarding'
 import { useRoute, useRouter } from 'vue-router'
 import Link from '@/components/Controls/Link.vue'
 import FormShell from '@/components/FormShell.vue'
@@ -119,7 +120,7 @@ const submit = () => {
 		},
 		{
 			onSuccess() {
-				if (user.data?.is_system_manager) {
+				if (seesOnboarding(user.data)) {
 					updateOnboardingStep('add_batch_course')
 				}
 				reloadBatchCourses()
