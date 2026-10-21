@@ -10,6 +10,7 @@ from lms.lms.api import (
 	ensure_evaluator_calendar,
 	get_evaluator_details,
 	google_calendar_callback,
+	save_evaluator_availability,
 	set_evaluator_unavailability,
 	update_evaluator_calendar,
 	update_evaluator_slot,
@@ -490,6 +491,139 @@ class TestEvaluatorAvailability(BaseTestUtils):
 
 		with self.assertRaises(frappe.DoesNotExistError):
 			add_evaluator_slot("no-such-user@example.com", "Monday", "09:00:00", "10:00:00")
+
+	# --- one save for the whole week -----------------------------------------
+
+	WEEK = [
+		{"day": "Monday", "start_time": "09:00", "end_time": "12:00"},
+		{"day": "Monday", "start_time": "14:00", "end_time": "17:00"},
+		{"day": "Wednesday", "start_time": "10:00", "end_time": "11:00"},
+	]
+
+	def _schedule_of(self, evaluator):
+		doc = frappe.get_doc("Course Evaluator", evaluator)
+		return [(row.day, str(row.start_time), str(row.end_time)) for row in doc.schedule]
+
+	def test_replaces_the_week_and_the_time_off(self):
+		frappe.session.user = self.evaluator.email
+
+		details = save_evaluator_availability(self.WEEK, "2030-01-01", "2030-01-05")
+
+		self.assertEqual(
+			self._schedule_of(self.evaluator.email),
+			[
+				("Monday", "9:00:00", "12:00:00"),
+				("Monday", "14:00:00", "17:00:00"),
+				("Wednesday", "10:00:00", "11:00:00"),
+			],
+		)
+		doc = frappe.get_doc("Course Evaluator", self.evaluator.email)
+		self.assertEqual(str(doc.unavailable_from), "2030-01-01")
+		self.assertEqual(str(doc.unavailable_to), "2030-01-05")
+		self.assertEqual(len(details["slots"]["schedule"]), 3)
+
+	def test_an_empty_week_and_no_time_off_clear_everything(self):
+		frappe.session.user = self.evaluator.email
+
+		save_evaluator_availability([], None, None)
+
+		self.assertEqual(self._schedule_of(self.evaluator.email), [])
+		self.assertIsNone(frappe.db.get_value("Course Evaluator", self.evaluator.email, "unavailable_from"))
+
+	def test_a_new_evaluator_gets_their_record_on_first_save(self):
+		self._reset_target(self.fresh_evaluator.email, drop_role=False)
+		frappe.session.user = self.fresh_evaluator.email
+
+		save_evaluator_availability(self.WEEK[:1])
+
+		self.assertEqual(self._schedule_of(self.fresh_evaluator.email), [("Monday", "9:00:00", "12:00:00")])
+
+	def test_overlapping_ranges_on_one_day_are_refused(self):
+		"""The controller still validates a whole-week save, not just the client."""
+		frappe.session.user = self.evaluator.email
+		overlapping = [
+			{"day": "Friday", "start_time": "09:00", "end_time": "12:00"},
+			{"day": "Friday", "start_time": "11:00", "end_time": "13:00"},
+		]
+
+		with self.assertRaises(frappe.ValidationError):
+			save_evaluator_availability(overlapping)
+
+		self.assertEqual(self._schedule_of(self.evaluator.email), [("Monday", "9:00:00", "10:00:00")])
+
+	def test_the_same_times_on_different_days_do_not_overlap(self):
+		frappe.session.user = self.evaluator.email
+		week = [{"day": day, "start_time": "09:00", "end_time": "10:00"} for day in ("Monday", "Tuesday")]
+
+		save_evaluator_availability(week)
+
+		self.assertEqual(len(self._schedule_of(self.evaluator.email)), 2)
+
+	def test_invalid_values_are_refused_and_nothing_changes(self):
+		frappe.session.user = self.evaluator.email
+		cases = [
+			("schedule_not_a_list", "Monday", None, None),
+			("schedule_a_dict", {"day": "Monday"}, None, None),
+			("row_not_a_dict", ["Monday"], None, None),
+			("bad_day", [{"day": "Noonday", "start_time": "09:00", "end_time": "10:00"}], None, None),
+			("bad_time", [{"day": "Monday", "start_time": "25:99", "end_time": "10:00"}], None, None),
+			("missing_time", [{"day": "Monday", "start_time": "09:00"}], None, None),
+			("end_before_start", [{"day": "Monday", "start_time": "11:00", "end_time": "10:00"}], None, None),
+			(
+				"too_many_rows",
+				[{"day": "Monday", "start_time": "09:00", "end_time": "10:00"}] * 101,
+				None,
+				None,
+			),
+			("half_time_off", [], "2030-01-01", None),
+			("time_off_out_of_order", [], "2030-01-05", "2030-01-01"),
+			("bad_date", [], "garbage", "2030-01-01"),
+			("date_not_a_string", [], ["2030-01-01"], "2030-01-02"),
+		]
+		for case, schedule, from_date, to_date in cases:
+			with self.subTest(case=case):
+				with self.assertRaises((frappe.ValidationError, frappe.exceptions.FrappeTypeError)):
+					save_evaluator_availability(schedule, from_date, to_date)
+				self.assertEqual(self._schedule_of(self.evaluator.email), [("Monday", "9:00:00", "10:00:00")])
+
+	def test_callers_who_cannot_evaluate_are_refused(self):
+		cases = [
+			("guest", "Guest"),
+			("student", self.student.email),
+			("course_creator", self.course_creator.email),
+			("moderator_without_the_role", self.plain_moderator.email),
+		]
+		for case, caller in cases:
+			with self.subTest(case=case):
+				if caller != "Guest":
+					self._reset_target(caller)
+				frappe.session.user = caller
+
+				with self.assertRaises(frappe.PermissionError):
+					save_evaluator_availability(self.WEEK)
+
+				frappe.session.user = self.original_user
+				self.assertFalse(frappe.db.exists("Course Evaluator", caller))
+
+	def test_it_only_ever_writes_the_callers_own_record(self):
+		"""There is no evaluator parameter, so a peer's record is out of reach."""
+		self.other_schedule
+		frappe.session.user = self.evaluator.email
+
+		save_evaluator_availability(self.WEEK)
+
+		self.assertEqual(self._schedule_of(self.other_evaluator.email), [("Monday", "9:00:00", "10:00:00")])
+
+	def test_details_say_whether_evaluation_invites_are_on(self):
+		setting = ("LMS Settings", "send_calendar_invite_for_evaluations")
+		original = frappe.db.get_single_value(*setting)
+		self.addCleanup(frappe.db.set_single_value, *setting, original)
+		frappe.session.user = self.evaluator.email
+		for value in (0, 1):
+			with self.subTest(value=value):
+				frappe.db.set_single_value(*setting, value)
+				details = get_evaluator_details(self.evaluator.email)
+				self.assertIs(details["evaluation_invites"], bool(value))
 
 
 class TestEvaluatorCalendarSettings(BaseTestUtils):

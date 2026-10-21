@@ -623,6 +623,10 @@ def get_evaluator_details(evaluator: str):
 		# Evaluator Schedule holds bare wall-clock times and the whole booking
 		# pipeline reads them as system time, so the editor has to say so.
 		"timezone": format_timezone(get_system_timezone()),
+		# schedule_evals only puts bookings on the evaluator's calendar when this is on.
+		"evaluation_invites": bool(
+			frappe.db.get_single_value("LMS Settings", "send_calendar_invite_for_evaluations")
+		),
 	}
 
 
@@ -1074,6 +1078,53 @@ def set_evaluator_unavailability(evaluator: str, fieldname: str, value: str | No
 
 	doc.set(fieldname, validate_unavailability_date(value))
 	doc.save(ignore_permissions=True)
+
+
+EVALUATOR_MAX_SLOTS = 100
+
+
+def validate_schedule_row(row, position: int) -> dict:
+	if not isinstance(row, dict):
+		frappe.throw(_("Row {0} of the schedule is not a time range.").format(position))
+
+	day = row.get("day")
+	if day not in EVALUATOR_SLOT_DAYS:
+		frappe.throw(_("Row {0}: {1} is not a valid day.").format(position, day))
+
+	return {
+		"day": day,
+		"start_time": validate_slot_time(row.get("start_time")),
+		"end_time": validate_slot_time(row.get("end_time")),
+	}
+
+
+@frappe.whitelist(methods=["POST"])
+def save_evaluator_availability(
+	schedule: list, unavailable_from: str | None = None, unavailable_to: str | None = None
+):
+	"""Replace the caller's weekly schedule and time off in one save. Always the
+	caller's own: a Moderator reviews other evaluators' availability, never edits
+	it here."""
+	if not isinstance(schedule, list):
+		frappe.throw(_("Schedule must be a list of time ranges."))
+	if len(schedule) > EVALUATOR_MAX_SLOTS:
+		frappe.throw(_("Keep the schedule under {0} time ranges.").format(EVALUATOR_MAX_SLOTS))
+
+	rows = [validate_schedule_row(row, position) for position, row in enumerate(schedule, start=1)]
+	unavailable_from = validate_unavailability_date(unavailable_from)
+	unavailable_to = validate_unavailability_date(unavailable_to)
+	if bool(unavailable_from) != bool(unavailable_to):
+		frappe.throw(_("Set both dates of your time off, or clear both."), title=_("Time off incomplete"))
+
+	doc = get_owned_evaluator_doc(frappe.session.user, create=True)
+	doc.schedule = []
+	for row in rows:
+		doc.append("schedule", row)
+	doc.unavailable_from = unavailable_from
+	doc.unavailable_to = unavailable_to
+	# nosemgrep: lms-unjustified-ignore-permissions - caller's own record only (get_owned_evaluator_doc on session user); evaluators have no Course Evaluator write permission
+	doc.save(ignore_permissions=True)
+	return get_evaluator_details(frappe.session.user)
 
 
 @frappe.whitelist()
