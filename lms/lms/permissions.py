@@ -1327,6 +1327,63 @@ def assessment_submission_has_permission(doc, ptype: str | None = None, user: st
 	)
 
 
+def can_view_member_activity(member: str | None, *, user: str | None = None) -> bool:
+	"""Whether `user` may read `member`'s learning activity: the member themselves,
+	a site administrator or Moderator, or staff of a course or batch the member is
+	enrolled in. The same reach the list API gives them over the member's records."""
+	if not member:
+		return False
+	user = user or frappe.session.user
+	if user == member or _is_unrestricted(user):
+		return True
+	return _member_in_a_taught_course(member, user) or _member_in_a_staffed_batch(member, user)
+
+
+def _member_in_a_taught_course(member: str, user: str) -> bool:
+	"""One query: the courses `user` teaches stay a subquery."""
+	enrollment = frappe.qb.DocType("LMS Enrollment")
+	return bool(
+		frappe.qb.from_(enrollment)
+		.select(enrollment.name)
+		.where(
+			(enrollment.member == LiteralValue(frappe.db.escape(member)))
+			& enrollment.course.isin(_taught("LMS Course", user))
+		)
+		.limit(1)
+		.run()
+	)
+
+
+def _member_in_a_staffed_batch(member: str, user: str, batches: list | None = None) -> bool:
+	"""Whether `member` is enrolled in a batch `user` instructs or evaluates a course
+	of, among `batches` when given. One query: the staffed batches are subqueries."""
+	if batches is not None and not batches:
+		return False
+	enrollment = frappe.qb.DocType("LMS Batch Enrollment")
+	staffed = enrollment.batch.isin(_taught("LMS Batch", user)) | enrollment.batch.isin(_evaluated(user))
+	query = (
+		frappe.qb.from_(enrollment)
+		.select(enrollment.name)
+		.where((enrollment.member == LiteralValue(frappe.db.escape(member))) & staffed)
+	)
+	if batches is not None:
+		query = query.where(enrollment.batch.isin(batches))
+	return bool(query.limit(1).run())
+
+
+def _evaluated(user: str):
+	"""Names of the batches `user` evaluates a course of."""
+	batch_course = frappe.qb.DocType("Batch Course")
+	return (
+		frappe.qb.from_(batch_course)
+		.select(batch_course.parent)
+		.where(
+			(batch_course.evaluator == LiteralValue(frappe.db.escape(user)))
+			& (batch_course.parenttype == "LMS Batch")
+		)
+	)
+
+
 def can_review_submission(doctype: str, name: str, member: str, *, user: str | None = None) -> bool:
 	"""Whether `user` may read and grade `member`'s work on this assessment: its
 	authors, or staff of a course or batch that places it and that `member` is
@@ -1349,21 +1406,7 @@ def _course_staff_reach(doctype: str, name: str, member: str, user: str) -> bool
 
 
 def _batch_staff_reach(doctype: str, name: str, member: str, user: str) -> bool:
-	batches = _running_batches(doctype, name)
-	if not batches:
-		return False
-	instructor = frappe.qb.DocType("Course Instructor")
-	staffed = set(_taught("LMS Batch", user).where(instructor.parent.isin(batches)).run(pluck=True))
-	staffed |= set(
-		frappe.get_all(
-			"Batch Course",
-			filters={"evaluator": user, "parenttype": "LMS Batch", "parent": ("in", batches)},
-			pluck="parent",
-		)
-	)
-	if not staffed:
-		return False
-	return bool(frappe.db.exists("LMS Batch Enrollment", {"batch": ("in", list(staffed)), "member": member}))
+	return _member_in_a_staffed_batch(member, user, _running_batches(doctype, name))
 
 
 def _assessment_reach_condition(doctype: str, assessment, user: str, *, include_members: bool) -> Bracket:
