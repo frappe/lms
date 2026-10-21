@@ -3317,7 +3317,7 @@ def enroll_in_course(course: str, payment_name: str):
 		enrollment.save(ignore_permissions=True)
 
 
-@frappe.whitelist()
+@frappe.whitelist(methods=["POST"])
 def enroll_in_batch(batch: str, payment_name: str = None):
 	if not frappe.db.exists("LMS Batch", batch):
 		frappe.throw(_("The specified batch does not exist."))
