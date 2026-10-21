@@ -1,9 +1,11 @@
 # Copyright (c) 2021, FOSS United and contributors
 # For license information, please see license.txt
 
+import copy
 import json
 import os
 import re
+import time
 import warnings
 from binascii import Error as BinasciiError
 from functools import partial
@@ -711,24 +713,34 @@ def create_submission(
 	violation_count: int = 0,
 	submission_reason: str = "manual",
 ):
-	submission = frappe.new_doc("LMS Quiz Submission")
-	# Score and percentage are calculated by the controller function
-	submission.update(
-		{
-			"doctype": "LMS Quiz Submission",
-			"quiz": quiz,
-			"result": results,
-			"score": 0,
-			"score_out_of": score_out_of,
-			"member": frappe.session.user,
-			"percentage": 0,
-			"passing_percentage": passing_percentage,
-			"violation_count": violation_count,
-			"submission_reason": submission_reason,
-		}
-	)
-	submission.save(ignore_permissions=True)
-	return submission
+	# The attempt count's locking read covers an index gap that other learners'
+	# submissions share, so their inserts can deadlock; nothing is written before
+	# this in the request, so the loser is retried.
+	for attempt in range(3):
+		submission = frappe.new_doc("LMS Quiz Submission")
+		# Score and percentage are calculated by the controller function
+		submission.update(
+			{
+				"doctype": "LMS Quiz Submission",
+				"quiz": quiz,
+				"result": copy.deepcopy(results),
+				"score": 0,
+				"score_out_of": score_out_of,
+				"member": frappe.session.user,
+				"percentage": 0,
+				"passing_percentage": passing_percentage,
+				"violation_count": violation_count,
+				"submission_reason": submission_reason,
+			}
+		)
+		try:
+			submission.save(ignore_permissions=True)
+			return submission
+		except frappe.QueryDeadlockError:
+			frappe.db.rollback()
+			if attempt == 2:
+				raise
+			time.sleep(0.1 * (attempt + 1))
 
 
 def save_progress_after_quiz(quiz_details: dict, percentage: float):

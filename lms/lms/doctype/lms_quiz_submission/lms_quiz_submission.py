@@ -5,6 +5,7 @@ import frappe
 from frappe import _
 from frappe.desk.doctype.notification_log.notification_log import make_notification_logs
 from frappe.model.document import Document
+from frappe.query_builder.functions import Count
 from frappe.utils import cint
 
 from lms.lms.html_sanitizer import sanitize_rich_text
@@ -35,8 +36,16 @@ class LMSQuizSubmission(Document):
 		if max_attempts == 0:
 			return
 
-		current_user_submission_count = frappe.db.count(
-			self.doctype, filters={"quiz": self.quiz, "member": self.member}
+		# Submissions by one member queue on their User row. The count is a locking
+		# read, so it also sees an attempt committed while this one waited.
+		frappe.db.get_value("User", self.member, "name", for_update=True)
+		submission = frappe.qb.DocType(self.doctype)
+		current_user_submission_count = (
+			frappe.qb.from_(submission)
+			.select(Count("*"))
+			.where((submission.member == self.member) & (submission.quiz == self.quiz))
+			.for_update()
+			.run()[0][0]
 		)
 		if current_user_submission_count >= max_attempts:
 			frappe.throw(
