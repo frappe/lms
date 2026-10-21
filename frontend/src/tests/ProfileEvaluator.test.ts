@@ -32,6 +32,12 @@ vi.mock('frappe-ui', async () => {
 		},
 		Badge: { props: ['label', 'theme'], template: `<span>{{ label }}</span>` },
 		Tooltip: { template: `<div><slot /></div>` },
+		Dropdown: {
+			props: ['options', 'button'],
+			template: `<div data-testid="presets" :aria-label="button.label">
+				<button v-for="o in options" :key="o.label" @click="o.onClick()">{{ o.label }}</button>
+			</div>`,
+		},
 		ErrorMessage: {
 			props: ['message'],
 			template: `<p data-testid="error">{{ message }}</p>`,
@@ -323,6 +329,11 @@ describe('ProfileEvaluator week', () => {
 	})
 })
 
+const timesOf = (wrapper: VueWrapper, name: string) =>
+	day(wrapper, name)
+		.findAll('input[data-type="time"]')
+		.map((i) => (i.element as HTMLInputElement).value)
+
 describe('ProfileEvaluator with no saved hours', () => {
 	const emptyState = (wrapper: VueWrapper) =>
 		wrapper.find('[data-testid="empty-week"]')
@@ -336,15 +347,55 @@ describe('ProfileEvaluator with no saved hours', () => {
 		)
 		expect(wrapper.findAll('[data-testid^="day-"]')).toHaveLength(0)
 
-		await button(wrapper, 'Add weekly hours')!.trigger('click')
+		await button(wrapper, 'Set hours manually')!.trigger('click')
 
 		expect(emptyState(wrapper).exists()).toBe(false)
 		expect(wrapper.findAll('[data-testid^="day-"]')).toHaveLength(7)
 	})
 
+	it('stages 9:00–17:00 on weekdays from the empty state, unsaved', async () => {
+		const wrapper = await mountPanel({ schedule: [] })
+
+		await button(wrapper, 'Use 9:00–17:00, Mon–Fri')!.trigger('click')
+
+		for (const name of [
+			'Monday',
+			'Tuesday',
+			'Wednesday',
+			'Thursday',
+			'Friday',
+		]) {
+			expect(timesOf(wrapper, name)).toEqual(['09:00', '17:00'])
+		}
+		expect(day(wrapper, 'Saturday').text()).toContain('Unavailable')
+		expect(day(wrapper, 'Sunday').text()).toContain('Unavailable')
+		expect(writes()).toEqual([])
+		expect(button(wrapper, 'Save')!.attributes('disabled')).toBeUndefined()
+
+		await button(wrapper, 'Discard')!.trigger('click')
+		expect(emptyState(wrapper).exists()).toBe(true)
+	})
+
+	it('saves the weekday preset as five wall-clock rows', async () => {
+		const wrapper = await mountPanel({ schedule: [] })
+		await button(wrapper, 'Use 9:00–17:00, Mon–Fri')!.trigger('click')
+
+		await button(wrapper, 'Save')!.trigger('click')
+		await flushPromises()
+
+		const save = find('lms.lms.api.save_evaluator_availability')
+		expect(save.submit.mock.calls[0][0].schedule).toEqual(
+			['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'].map((d) => ({
+				day: d,
+				start_time: '09:00',
+				end_time: '17:00',
+			}))
+		)
+	})
+
 	it('goes back to the empty state on Discard', async () => {
 		const wrapper = await mountPanel({ schedule: [] })
-		await button(wrapper, 'Add weekly hours')!.trigger('click')
+		await button(wrapper, 'Set hours manually')!.trigger('click')
 		await day(wrapper, 'Monday').find('[role="switch"]').setValue(true)
 
 		await button(wrapper, 'Discard')!.trigger('click')
@@ -380,6 +431,34 @@ describe('ProfileEvaluator with no saved hours', () => {
 
 		expect(emptyState(wrapper).text()).toContain('No weekly hours set')
 		expect(emptyState(wrapper).find('button').exists()).toBe(false)
+	})
+})
+
+describe('ProfileEvaluator weekday preset', () => {
+	it('offers no preset menu while the week is empty', async () => {
+		const wrapper = await mountPanel({ schedule: [] })
+		expect(wrapper.find('[data-testid="presets"]').exists()).toBe(false)
+	})
+
+	it('replaces the staged hours, and Discard undoes it', async () => {
+		const wrapper = await mountPanel()
+		const menu = wrapper.find('[data-testid="presets"]')
+		expect(menu.attributes('aria-label')).toBe('More options')
+
+		await button(wrapper, 'Reset to 9:00–17:00, Mon–Fri')!.trigger('click')
+
+		expect(timesOf(wrapper, 'Monday')).toEqual(['09:00', '17:00'])
+		expect(timesOf(wrapper, 'Friday')).toEqual(['09:00', '17:00'])
+		expect(writes()).toEqual([])
+
+		await button(wrapper, 'Discard')!.trigger('click')
+		expect(timesOf(wrapper, 'Monday')).toEqual([
+			'09:00',
+			'10:00',
+			'14:00',
+			'15:00',
+		])
+		expect(day(wrapper, 'Friday').text()).toContain('Unavailable')
 	})
 })
 
