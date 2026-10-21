@@ -37,7 +37,27 @@
 			</p>
 			<ErrorMessage v-if="saveError" class="mt-3" :message="saveError" />
 
+			<div
+				v-if="showEmptyWeek"
+				class="mt-5 rounded-6 border border-outline-gray-2"
+				data-testid="empty-week"
+			>
+				<EmptyStateLayout
+					:name="__('Weekly hours')"
+					icon="lucide-calendar-clock"
+					width="lg"
+					:title="emptyWeekTitle"
+					:description="emptyWeekDescription"
+				>
+					<Button
+						v-if="canEdit"
+						:label="__('Add weekly hours')"
+						@click="startingWeek = true"
+					/>
+				</EmptyStateLayout>
+			</div>
 			<ul
+				v-else
 				class="mt-5 divide-y divide-outline-gray-2 rounded-6 border border-outline-gray-2"
 			>
 				<li
@@ -265,6 +285,7 @@ import {
 import { computed, inject, onMounted, reactive, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import type { EvaluatorDetails, Resource, SessionUser } from '@/types/api'
+import EmptyStateLayout from '@/components/Layouts/EmptyStateLayout.vue'
 import { getDateFormat } from '@/utils/format'
 import { resourceErrorMessage } from '@/utils/resource'
 import { safeUrl } from '@/utils/safeUrl'
@@ -322,6 +343,7 @@ const week = ref<Week>(emptyWeek())
 const timeOff = reactive<TimeOff>({ from: null, to: null })
 const calendarDraft = reactive({ enable: true, calendar_name: '', push: true })
 const baseline = ref('')
+const startingWeek = ref(false)
 const attempted = ref(false)
 const saving = ref(false)
 const saveError = ref('')
@@ -344,12 +366,30 @@ const load = (data: EvaluatorDetails | null) => {
 		data?.calendar?.calendar_name || props.profile.data?.name || ''
 	baseline.value = snapshot()
 	attempted.value = false
+	startingWeek.value = false
 	saveError.value = ''
 }
 
 watch(() => evaluator.data, load, { immediate: true })
 
 const dirty = computed(() => snapshot() !== baseline.value)
+
+// Seven "Unavailable" rows read as a broken list, so a week with nothing saved
+// starts as an empty state until the evaluator chooses to add hours.
+const emptyWeekTitle = computed(() =>
+	canEdit.value ? __('No weekly hours yet') : __('No weekly hours set')
+)
+const emptyWeekDescription = computed(() =>
+	canEdit.value
+		? __("Students can't book an evaluation with you until you add hours.")
+		: __("Students can't book an evaluation with this evaluator yet.")
+)
+const showEmptyWeek = computed(
+	() =>
+		Boolean(details.value) &&
+		!(details.value?.slots?.schedule ?? []).length &&
+		!startingWeek.value
+)
 
 const errors = computed(
 	() =>

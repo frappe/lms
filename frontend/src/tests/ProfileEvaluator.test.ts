@@ -74,7 +74,13 @@ interface MountOptions {
 	googleEnabled?: boolean
 	invites?: boolean
 	timeOff?: [string | null, string | null]
+	schedule?: Record<string, unknown>[]
 }
+
+const MONDAY = [
+	{ name: 2, day: 'Monday', start_time: '14:00:00', end_time: '15:00:00' },
+	{ name: 1, day: 'Monday', start_time: '9:00:00', end_time: '10:00:00' },
+]
 
 async function mountPanel(options: MountOptions = {}) {
 	const {
@@ -82,6 +88,7 @@ async function mountPanel(options: MountOptions = {}) {
 		googleEnabled = true,
 		invites = true,
 		timeOff = [null, null],
+		schedule = MONDAY,
 	} = options
 	resources.value = []
 	const { default: ProfileEvaluator } = await import(
@@ -97,15 +104,7 @@ async function mountPanel(options: MountOptions = {}) {
 	find('lms.lms.api.get_evaluator_details').data = {
 		slots: {
 			evaluator: EVALUATOR,
-			schedule: [
-				{
-					name: 2,
-					day: 'Monday',
-					start_time: '14:00:00',
-					end_time: '15:00:00',
-				},
-				{ name: 1, day: 'Monday', start_time: '9:00:00', end_time: '10:00:00' },
-			],
+			schedule,
 			unavailable_from: timeOff[0],
 			unavailable_to: timeOff[1],
 		},
@@ -321,6 +320,66 @@ describe('ProfileEvaluator week', () => {
 			String(r.config.url).startsWith('frappe.')
 		)
 		expect(raw).toEqual([])
+	})
+})
+
+describe('ProfileEvaluator with no saved hours', () => {
+	const emptyState = (wrapper: VueWrapper) =>
+		wrapper.find('[data-testid="empty-week"]')
+
+	it('shows an empty state, and its button reveals the week', async () => {
+		const wrapper = await mountPanel({ schedule: [] })
+
+		expect(emptyState(wrapper).text()).toContain('No weekly hours yet')
+		expect(emptyState(wrapper).text()).toContain(
+			"Students can't book an evaluation with you until you add hours."
+		)
+		expect(wrapper.findAll('[data-testid^="day-"]')).toHaveLength(0)
+
+		await button(wrapper, 'Add weekly hours')!.trigger('click')
+
+		expect(emptyState(wrapper).exists()).toBe(false)
+		expect(wrapper.findAll('[data-testid^="day-"]')).toHaveLength(7)
+	})
+
+	it('goes back to the empty state on Discard', async () => {
+		const wrapper = await mountPanel({ schedule: [] })
+		await button(wrapper, 'Add weekly hours')!.trigger('click')
+		await day(wrapper, 'Monday').find('[role="switch"]').setValue(true)
+
+		await button(wrapper, 'Discard')!.trigger('click')
+
+		expect(emptyState(wrapper).exists()).toBe(true)
+	})
+
+	it('goes back to the empty state when zero ranges are saved', async () => {
+		const wrapper = await mountPanel()
+		const details = find('lms.lms.api.get_evaluator_details')
+		details.reload.mockImplementation(() => {
+			details.data = {
+				...details.data,
+				slots: { ...details.data.slots, schedule: [] },
+			}
+			return Promise.resolve()
+		})
+		await day(wrapper, 'Monday').find('[role="switch"]').setValue(false)
+
+		await button(wrapper, 'Save')!.trigger('click')
+		await flushPromises()
+
+		const save = find('lms.lms.api.save_evaluator_availability')
+		expect(save.submit.mock.calls[0][0].schedule).toEqual([])
+		expect(emptyState(wrapper).exists()).toBe(true)
+	})
+
+	it("says so without a button on someone else's profile", async () => {
+		const wrapper = await mountPanel({
+			schedule: [],
+			viewer: { name: 'mod@example.com', username: 'mod', is_moderator: true },
+		})
+
+		expect(emptyState(wrapper).text()).toContain('No weekly hours set')
+		expect(emptyState(wrapper).find('button').exists()).toBe(false)
 	})
 })
 
