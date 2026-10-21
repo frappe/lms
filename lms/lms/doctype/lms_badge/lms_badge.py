@@ -16,8 +16,10 @@ class LMSBadge(Document):
 			except ValueError:
 				frappe.throw(_("Condition must be in valid JSON format."))
 		elif self.condition:
+			# Syntax check only: the code object is discarded, and the condition runs
+			# through frappe.safe_eval. ast.parse would be looser than the compiler.
 			try:
-				compile(self.condition, "<string>", "eval")
+				compile(self.condition, "<string>", "eval")  # nosemgrep
 			except Exception:
 				frappe.throw(_("Condition must be valid python code."))
 
