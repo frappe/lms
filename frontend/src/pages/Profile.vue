@@ -60,7 +60,7 @@
 				/>
 			</div>
 			<router-view
-				v-if="!awaitingEmail"
+				v-if="!awaitingEmail && !onBlockedEvaluatorTab"
 				:profile="profile"
 				:key="profile.data.username"
 			/>
@@ -190,7 +190,7 @@ const setActiveTab = () => {
 			activeTab.value = convertToTitleCase(section)
 		}
 	})
-	if (!activeTab.value) activeTab.value = 'About'
+	if (!activeTab.value || onBlockedEvaluatorTab.value) activeTab.value = 'About'
 }
 
 // The edit form is a child route, not a tab, and `edit` matches none of the tab
@@ -210,7 +210,8 @@ watchEffect(() => {
 	// push carries no hash. That took '#settings/<slug>' straight back off the
 	// URL, so settings never opened on this page.
 	if (!target || route.name === target.name) return
-	router.push(target)
+	if (onBlockedEvaluatorTab.value) router.replace(target)
+	else router.push(target)
 })
 
 watch(
@@ -241,12 +242,28 @@ const canSeeEvaluatorTabs = () => {
 	return $user.data?.is_evaluator && isSessionUser()
 }
 
-const isEvaluatorOrModerator = () => {
-	return (
-		profile.data?.roles?.includes('Batch Evaluator') ||
-		profile.data?.roles?.includes('Moderator')
-	)
+// Only a Batch Evaluator can be picked as a course or batch evaluator, so only
+// their profile has availability. Moderator alone lets you edit it, not have it.
+const profileCanEvaluate = () => {
+	return Boolean(profile.data?.roles?.includes('Batch Evaluator'))
 }
+
+const showEvaluatorTabs = () => canSeeEvaluatorTabs() && profileCanEvaluate()
+
+const EVALUATOR_TABS = ['ProfileEvaluator', 'ProfileEvaluationSchedule']
+
+// A deep link to /slots or /schedule is sent to About once the profile it names
+// is known and can't show them.
+const onBlockedEvaluatorTab = computed(
+	() =>
+		EVALUATOR_TABS.includes(route.name) &&
+		profile.data?.username === props.username &&
+		!showEvaluatorTabs()
+)
+
+watch(onBlockedEvaluatorTab, (blocked) => {
+	if (blocked) activeTab.value = 'About'
+})
 
 const getTabButtons = () => {
 	let buttons = [
@@ -257,7 +274,7 @@ const getTabButtons = () => {
 		buttons.push({ label: __('Roles'), value: 'Roles' })
 	}
 
-	if (canSeeEvaluatorTabs() && isEvaluatorOrModerator()) {
+	if (showEvaluatorTabs()) {
 		buttons.push({ label: __('Slots'), value: 'Slots' })
 		buttons.push({ label: __('Schedule'), value: 'Schedule' })
 	}
