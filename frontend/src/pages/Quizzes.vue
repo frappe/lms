@@ -18,17 +18,21 @@
 		</template>
 
 		<template #actions>
-			<router-link :to="{ name: 'QuizSubmissions' }">
-				<HeaderButton :label="__('Submissions')" icon="lucide-file-check" />
-			</router-link>
-			<router-link :to="{ name: 'Questions' }">
-				<HeaderButton :label="__('Questions')" icon="lucide-circle-help" />
-			</router-link>
+			<HeaderButton
+				:route="{ name: 'QuizSubmissions' }"
+				:label="__('Submissions')"
+				icon="lucide-file-check"
+			/>
+			<HeaderButton
+				:route="{ name: 'Questions' }"
+				:label="__('Questions')"
+				icon="lucide-circle-help"
+			/>
 			<Button v-if="!readOnlyMode" variant="solid" @click="createQuiz">
 				<template #prefix>
 					<span class="lucide-plus size-4" />
 				</template>
-				{{ __('Create') }}
+				{{ __('New Quiz') }}
 			</Button>
 		</template>
 

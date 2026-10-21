@@ -49,10 +49,6 @@ vi.mock('frappe-ui', () => ({
 		emits: ['update:open'],
 		template: `<div v-if="open" role="dialog"><h2>{{ title }}</h2><slot /><slot name="actions" /></div>`,
 	},
-	Button: {
-		inheritAttrs: false,
-		template: `<button v-bind="$attrs"><slot name="icon" /><slot /></button>`,
-	},
 	FormControl: {
 		props: ['modelValue', 'label', 'type'],
 		emits: ['update:modelValue'],
@@ -87,7 +83,7 @@ vi.mock('@/components/Controls/Link.vue', () => ({
 import CourseEnrollmentForm from '@/pages/Forms/CourseEnrollmentForm.vue'
 
 const courseResource = reactive<{
-	data: { name: string; instructors: { name: string }[] } | null
+	data: { name: string; instructors: { username: string }[] } | null
 	loading: boolean
 }>({ data: null, loading: false })
 const enrollResource = reactive({ loading: false, submit: vi.fn() })
@@ -132,9 +128,16 @@ const makeRouter = (): Router =>
 		],
 	})
 
-const moderator = { name: 'mod@example.com', is_moderator: true }
-const instructor = { name: 'teacher@example.com' }
-const outsider = { name: 'someone@example.com' }
+const moderator = {
+	name: 'mod@example.com',
+	username: 'mod',
+	is_moderator: true,
+}
+const instructor = { name: 'teacher@example.com', username: 'teacher' }
+const outsider = { name: 'someone@example.com', username: 'someone' }
+// What get_course_details sends a non-staff caller: no `name`, which is the
+// instructor's login email.
+const publicInstructor = { username: 'teacher', full_name: 'Teacher' }
 
 // TabbedDetailPage hashes the tab KEY, and the Enroll button only exists on the
 // dashboard tab.
@@ -204,7 +207,7 @@ describe('CourseEnrollmentForm as a route', () => {
 
 		expect(wrapper.text()).toContain('COURSE')
 		expect(fields(wrapper).exists()).toBe(true)
-		expect(wrapper.html()).toContain('Enroll a Student')
+		expect(wrapper.html()).toContain('Enroll Student')
 	})
 
 	it('fetches the course itself, keyed off the route param', async () => {
@@ -223,7 +226,7 @@ describe('CourseEnrollmentForm as a route', () => {
 	})
 
 	it('refuses a visitor who is neither moderator nor an instructor of it', async () => {
-		courseResource.data = { name: 'COURSE-1', instructors: [instructor] }
+		courseResource.data = { name: 'COURSE-1', instructors: [publicInstructor] }
 		const router = makeRouter()
 		await openForm(router)
 		const wrapper = await mountForm(router, outsider)
@@ -238,12 +241,21 @@ describe('CourseEnrollmentForm as a route', () => {
 	// The gate CourseDetail put on the Dashboard tab was moderator OR instructor,
 	// and instructor-ness is only knowable from the fetched course.
 	it('lets an instructor of the course through once the fetch lands', async () => {
-		courseResource.data = { name: 'COURSE-1', instructors: [instructor] }
+		courseResource.data = { name: 'COURSE-1', instructors: [publicInstructor] }
 		const router = makeRouter()
 		await openForm(router)
 		const wrapper = await mountForm(router, instructor)
 
 		expect(fields(wrapper).exists()).toBe(true)
+	})
+
+	it('never matches a visitor with no username to an instructor row', async () => {
+		courseResource.data = { name: 'COURSE-1', instructors: [{ username: '' }] }
+		const router = makeRouter()
+		await openForm(router)
+		const wrapper = await mountForm(router, { name: 'someone@example.com' })
+
+		expect(fields(wrapper).exists()).toBe(false)
 	})
 
 	it('says so while the course it needs to judge that is still in flight', async () => {

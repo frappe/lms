@@ -19,7 +19,7 @@
 				<div class="flex flex-col">
 					<div class="text-p-base-medium text-ink-gray-7">
 						{{ __('Select Payment Gateway') }}
-						<span class="text-ink-red-6">*</span>
+						<span class="text-ink-red-5">*</span>
 					</div>
 					<div class="text-p-sm text-ink-gray-5">
 						{{ __('Choose a payment provider to configure its credentials.') }}
@@ -72,6 +72,7 @@ const paymentGateway = createResource({
 		}
 	},
 	transform(data: any) {
+		maskCredentials(data.fields, data.doctype)
 		arrangeFields(data.fields)
 		data.sections = makeSections(data.fields)
 		return data
@@ -104,6 +105,43 @@ const gatewayFields = createResource({
 		}
 	},
 })
+
+/**
+ * Credential-shaped names. The provider doctypes type their secrets
+ * inconsistently (GoCardless' `access_token` and `webhooks_secret`, Mpesa's
+ * `consumer_key` and Braintree's `public_key` are all plain `Data`), so the
+ * fieldtype cannot be trusted on its own. This defaults to masking, because
+ * the safe failure is a hidden field rather than a leaked one.
+ *
+ * Presentation only. A Data field is still stored unencrypted: the fieldtype
+ * is what routes a value into Frappe's encrypted store, and those doctypes
+ * belong to the payments app, not here.
+ */
+const CREDENTIAL_NAME = /secret|token|password|passphrase|salt|key/i
+
+/**
+ * The credentials that are public on purpose and have to stay readable:
+ * Stripe publishes its key to the browser, and Razorpay's `api_key` is the
+ * `key_id` its checkout script takes.
+ */
+const PUBLIC_CREDENTIALS = new Set([
+	'Stripe Settings.publishable_key',
+	'Razorpay Settings.api_key',
+])
+
+const TEXT_TYPES = ['Data', 'Password', 'Small Text']
+
+// SettingFields draws a `password` field with frappe-ui's Password.
+const maskCredentials = (fields: any[], doctype: string) => {
+	for (const field of fields) {
+		if (!TEXT_TYPES.includes(field.type)) continue
+		const secret =
+			field.type === 'Password' ||
+			(CREDENTIAL_NAME.test(field.name) &&
+				!PUBLIC_CREDENTIALS.has(`${doctype}.${field.name}`))
+		if (secret) field.type = 'password'
+	}
+}
 
 const arrangeFields = (fields: any[]) => {
 	fields = fields.sort((a, b) => {
@@ -139,6 +177,7 @@ watch(newGateway, () => {
 	let gatewayDoc = getNewGateway()
 	gatewayFields.reload({ doctype: gatewayDoc.name }).then(() => {
 		let fields = gatewayFields.data || []
+		maskCredentials(fields, gatewayDoc.name)
 		arrangeFields(fields)
 		newGatewayFields.value = makeSections(fields)
 		prepareGatewayData(fields)

@@ -63,14 +63,17 @@
 					:required="true"
 					class="w-full"
 				/>
-				<CodeEditor
-					v-model="badge.condition"
-					:label="__('Condition')"
-					type="JavaScript"
-					:required="true"
-					:showBorder="true"
-					height="82px"
-				/>
+				<div>
+					<SettingsCodeField
+						v-model="badge.condition"
+						:field="{
+							label: 'Condition',
+							mode: 'javascript',
+							reqd: true,
+							rows: 3,
+						}"
+					/>
+				</div>
 			</div>
 			<div class="space-y-4"></div>
 		</div>
@@ -78,11 +81,11 @@
 </template>
 <script setup lang="ts">
 import { Combobox, Button, call, FormControl, toast } from 'frappe-ui'
+import SettingsCodeField from '@/components/Layouts/SettingsCodeField.vue'
 import BooleanSwitch from '@/components/Controls/BooleanSwitch.vue'
 import { computed, ref, watch } from 'vue'
 import { cleanError } from '@/utils'
 import type { Badges, Badge } from '@/types'
-import CodeEditor from '@/components/Controls/CodeEditor.vue'
 import Uploader from '@/components/Controls/Uploader.vue'
 import SettingsLayout from '@/components/Layouts/SettingsLayout.vue'
 import Select from '@/components/Controls/Select.vue'

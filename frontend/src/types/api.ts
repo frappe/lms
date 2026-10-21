@@ -40,7 +40,9 @@ export interface SessionUser {
 	}
 }
 
-export interface CourseInstructorInfo extends UserInfo {
+// `name` is the login email, sent only to the instructor themselves.
+export interface CourseInstructorInfo extends Omit<UserInfo, 'name'> {
+	name?: string
 	instructor?: string
 	bio?: string | null
 }
@@ -67,8 +69,12 @@ export interface CourseDetails
 
 export interface BatchDetails extends Omit<LMSBatch, 'instructors'> {
 	instructors: string[]
-	students?: string[]
+	student_count?: number
+	is_student?: boolean
 	batch_details_raw?: string
+	/** A listed instructor of this batch, or a Moderator: the server refuses
+	 * instructor-list changes from anyone else, a tagged evaluator included. */
+	can_change_instructors?: boolean
 }
 
 export interface CourseReviewInfo {
@@ -99,6 +105,8 @@ export interface OutlineChapter {
 
 export interface CertificationInfo {
 	title?: string | null
+	has_evaluator?: boolean
+	// The evaluator's login email, sent only to the evaluator themselves.
 	evaluator?: string | null
 	certificate?: {
 		name: string

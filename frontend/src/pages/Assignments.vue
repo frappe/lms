@@ -23,7 +23,7 @@
 				<template #prefix>
 					<span class="lucide-plus size-4" />
 				</template>
-				{{ __('Create') }}
+				{{ __('New Assignment') }}
 			</Button>
 		</template>
 

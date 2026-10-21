@@ -1,5 +1,10 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { enableAutoUnmount, flushPromises, mount } from '@vue/test-utils'
+import {
+	enableAutoUnmount,
+	flushPromises,
+	mount,
+	type VueWrapper,
+} from '@vue/test-utils'
 import {
 	createMemoryHistory,
 	createRouter,
@@ -7,6 +12,7 @@ import {
 	type Router,
 } from 'vue-router'
 import { defineComponent, h } from 'vue'
+import dayjs from '@/utils/dayjs'
 
 vi.stubGlobal('__', (text: string) => text)
 enableAutoUnmount(afterEach)
@@ -19,6 +25,7 @@ const {
 	getCachedListResourceMock,
 	zoomSubmit,
 	meetSubmit,
+	openSettingsMock,
 } = vi.hoisted(() => {
 	// @/utils reaches plyr, which touches matchMedia at import time.
 	window.matchMedia ??= (() => ({
@@ -39,8 +46,14 @@ const {
 		getCachedListResourceMock: vi.fn(),
 		zoomSubmit: vi.fn(),
 		meetSubmit: vi.fn(),
+		openSettingsMock: vi.fn(),
 	}
 })
+
+vi.mock('@/utils/', async (importOriginal) => ({
+	...(await importOriginal<object>()),
+	openSettings: openSettingsMock,
+}))
 
 // HeaderButton wraps frappe-ui's Button in a Tooltip below the mobile
 // breakpoint, and the hand-written frappe-ui mock here has no Tooltip. Stub it
@@ -120,14 +133,17 @@ const makeRouter = (): Router =>
 					},
 				],
 			},
+			{
+				path: '/user/:username/slots',
+				name: 'ProfileEvaluator',
+				component: Parent,
+			},
 		],
 	})
 
 const provide = (user: Record<string, unknown>) => ({
 	$user: { data: user },
-	$dayjs: Object.assign(() => ({ format: () => '2026-07-31' }), {
-		tz: () => ({}),
-	}),
+	$dayjs: dayjs,
 })
 
 const mountForm = async (router: Router, user: Record<string, unknown>) => {
@@ -143,9 +159,27 @@ const mountForm = async (router: Router, user: Record<string, unknown>) => {
 	return wrapper
 }
 
+// A valid class, so the form's own checks let the submit through.
+const fillForm = async (wrapper: VueWrapper) => {
+	const values: Record<string, string> = {
+		Title: 'Intro',
+		Date: '2099-01-01',
+		Time: '10:30',
+		'Duration (in minutes)': '60',
+	}
+	for (const label of wrapper.findAll('label')) {
+		const value = values[norm(label.text())]
+		if (value) await label.find('input').setValue(value)
+	}
+}
+
 const moderator = { name: 'mod@example.com', is_moderator: true }
 const student = { name: 'student@example.com' }
-const evaluator = { name: 'eval@example.com', is_evaluator: true }
+const evaluator = {
+	name: 'ash@example.com',
+	username: 'ashley',
+	is_evaluator: true,
+}
 
 const norm = (text: string) =>
 	text
@@ -198,7 +232,7 @@ describe('LiveClassForm as a route', () => {
 		const router = makeRouter()
 		await router.push('/batches/B1/live-class/new')
 		const wrapper = await mountForm(router, moderator)
-		expect(wrapper.html()).toContain('Create a Live Class')
+		expect(wrapper.html()).toContain('New Live Class')
 		expect(wrapper.find('[data-testid="live-class-fields"]').exists()).toBe(
 			true
 		)
@@ -226,7 +260,7 @@ describe('LiveClassForm as a route', () => {
 		expect(wrapper.find('[data-testid="live-class-fields"]').exists()).toBe(
 			false
 		)
-		expect(wrapper.html()).toContain('not permitted')
+		expect(wrapper.html()).toContain('Ask one of its instructors or a Moderator')
 	})
 
 	it('refuses an evaluator the batch does not tag', async () => {
@@ -236,11 +270,26 @@ describe('LiveClassForm as a route', () => {
 		expect(wrapper.find('[data-testid="live-class-fields"]').exists()).toBe(
 			false
 		)
-		expect(wrapper.html()).toContain('not permitted')
+		expect(wrapper.html()).toContain('Ask one of its instructors or a Moderator')
 	})
 
-	it('opens for an evaluator the batch tags', async () => {
+	it('refuses an evaluator the batch tags but does not list as an instructor', async () => {
 		batchResource.data = { ...batchResource.data, can_manage: true }
+		const router = makeRouter()
+		await router.push('/batches/B1/live-class/new')
+		const wrapper = await mountForm(router, evaluator)
+		expect(wrapper.find('[data-testid="live-class-fields"]').exists()).toBe(
+			false
+		)
+		expect(wrapper.html()).toContain('Ask one of its instructors or a Moderator')
+	})
+
+	it('opens for an instructor of the batch', async () => {
+		batchResource.data = {
+			...batchResource.data,
+			can_manage: true,
+			can_schedule_classes: true,
+		}
 		const router = makeRouter()
 		await router.push('/batches/B1/live-class/new')
 		const wrapper = await mountForm(router, evaluator)
@@ -274,10 +323,25 @@ describe('LiveClassForm as a route', () => {
 		expect(labels).toHaveLength(FIELD_LABELS.length)
 	})
 
+	// Empty fields used to reach the server, and an empty duration came back as
+	// an Internal Server Error.
+	it('stops an incomplete form before it reaches the server', async () => {
+		const router = makeRouter()
+		await router.push('/batches/B1/live-class/new')
+		const wrapper = await mountForm(router, moderator)
+		await wrapper.find('[data-testid="live-class-save"]').trigger('click')
+		await flushPromises()
+
+		expect(zoomSubmit).not.toHaveBeenCalled()
+		const { toast } = await import('frappe-ui')
+		expect(toast.error).toHaveBeenLastCalledWith('Please enter a title.')
+	})
+
 	it('submits through the endpoint the batch provider selects', async () => {
 		const router = makeRouter()
 		await router.push('/batches/B1/live-class/new')
 		const wrapper = await mountForm(router, moderator)
+		await fillForm(wrapper)
 		await wrapper.find('[data-testid="live-class-save"]').trigger('click')
 		expect(zoomSubmit).toHaveBeenCalledTimes(1)
 		expect(meetSubmit).not.toHaveBeenCalled()
@@ -290,8 +354,132 @@ describe('LiveClassForm as a route', () => {
 		const meetRouter = makeRouter()
 		await meetRouter.push('/batches/B1/live-class/new')
 		const meetWrapper = await mountForm(meetRouter, moderator)
+		await fillForm(meetWrapper)
 		await meetWrapper.find('[data-testid="live-class-save"]').trigger('click')
 		expect(meetSubmit).toHaveBeenCalledTimes(1)
+	})
+
+	// Guards a missing Google Calendar flashing past as a toast, whose action sat
+	// outside the Dialog: the first click on it closed the form instead.
+	describe('when the Google Calendar is missing', () => {
+		const calendarMissing = (submit: ReturnType<typeof vi.fn>) =>
+			submit.mockImplementation(
+				(_doc: unknown, options: { onError: (e: unknown) => void }) =>
+					options.onError({
+						exc_type: 'GoogleCalendarMissingError',
+						messages: [
+							'A Google Calendar connection is needed to send invites for live classes.',
+						],
+					})
+			)
+
+		const shownLine = (wrapper: VueWrapper) => {
+			const line = wrapper.find('[data-testid="live-class-calendar-missing"]')
+			expect(line.exists()).toBe(true)
+			return { text: line.text(), setUp: line.find('button') }
+		}
+
+		beforeEach(async () => {
+			openSettingsMock.mockReset()
+			const { toast } = await import('frappe-ui')
+			vi.mocked(toast.error).mockClear()
+		})
+
+		it('shows in the form, with no settings link for a Zoom class', async () => {
+			calendarMissing(zoomSubmit)
+			const router = makeRouter()
+			await router.push('/batches/B1/live-class/new')
+			const wrapper = await mountForm(router, moderator)
+			await fillForm(wrapper)
+			await wrapper.find('[data-testid="live-class-save"]').trigger('click')
+			await flushPromises()
+
+			const line = shownLine(wrapper)
+			expect(line.text).toBe(
+				'Ask your site administrator to set up your Google Calendar to schedule Zoom classes.'
+			)
+			expect(line.setUp.exists()).toBe(false)
+			const { toast } = await import('frappe-ui')
+			expect(toast.error).not.toHaveBeenCalled()
+			expect(wrapper.find('[role="dialog"]').exists()).toBe(true)
+		})
+
+		it('opens the Google Meet settings for a Google Meet batch', async () => {
+			batchResource.data = {
+				name: 'B1',
+				conferencing_provider: 'Google Meet',
+				google_meet_account: 'meet-1',
+			}
+			calendarMissing(meetSubmit)
+			const router = makeRouter()
+			await router.push('/batches/B1/live-class/new')
+			const wrapper = await mountForm(router, moderator)
+			await fillForm(wrapper)
+			await wrapper.find('[data-testid="live-class-save"]').trigger('click')
+			await flushPromises()
+
+			await shownLine(wrapper).setUp.trigger('click')
+			expect(openSettingsMock).toHaveBeenCalledWith('Google Meet Accounts')
+		})
+
+		it('points anyone who cannot open the settings to their administrator', async () => {
+			calendarMissing(zoomSubmit)
+			const router = makeRouter()
+			await router.push('/batches/B1/live-class/new')
+			const wrapper = await mountForm(router, moderator)
+			await fillForm(wrapper)
+			await wrapper.find('[data-testid="live-class-save"]').trigger('click')
+			await flushPromises()
+
+			const line = shownLine(wrapper)
+			expect(line.setUp.exists()).toBe(false)
+			expect(line.text).toContain('site administrator')
+		})
+		// Evaluators have no Settings modal; their own calendar lives on their
+		// profile's Slots tab, which is where a Zoom class's invites come from.
+		it('sends an evaluator to their own Slots tab for a Zoom class', async () => {
+			// Listed as the batch's instructor: only then may an evaluator schedule its classes.
+			batchResource.data = {
+				...batchResource.data,
+				can_manage: true,
+				can_schedule_classes: true,
+			}
+			calendarMissing(zoomSubmit)
+			const router = makeRouter()
+			await router.push('/batches/B1/live-class/new')
+			const wrapper = await mountForm(router, evaluator)
+			await fillForm(wrapper)
+			await wrapper.find('[data-testid="live-class-save"]').trigger('click')
+			await flushPromises()
+
+			const line = shownLine(wrapper)
+			expect(line.text).not.toContain('site administrator')
+			await line.setUp.trigger('click')
+			await flushPromises()
+			expect(router.currentRoute.value.fullPath).toBe('/user/ashley/slots')
+			expect(openSettingsMock).not.toHaveBeenCalled()
+		})
+
+		it("points an evaluator to the administrator for a Meet account's calendar", async () => {
+			batchResource.data = {
+				name: 'B1',
+				conferencing_provider: 'Google Meet',
+				google_meet_account: 'meet-1',
+				can_manage: true,
+				can_schedule_classes: true,
+			}
+			calendarMissing(meetSubmit)
+			const router = makeRouter()
+			await router.push('/batches/B1/live-class/new')
+			const wrapper = await mountForm(router, evaluator)
+			await fillForm(wrapper)
+			await wrapper.find('[data-testid="live-class-save"]').trigger('click')
+			await flushPromises()
+
+			const line = shownLine(wrapper)
+			expect(line.setUp.exists()).toBe(false)
+			expect(line.text).toContain('site administrator')
+		})
 	})
 
 	it('refreshes the Classes tab list after a create, by cache key', async () => {
@@ -303,6 +491,7 @@ describe('LiveClassForm as a route', () => {
 		zoomSubmit.mockImplementation(
 			(_doc: unknown, options: { onSuccess: () => void }) => options.onSuccess()
 		)
+		await fillForm(wrapper)
 		await wrapper.find('[data-testid="live-class-save"]').trigger('click')
 		await flushPromises()
 		expect(getCachedListResourceMock).toHaveBeenCalledWith([
@@ -374,7 +563,8 @@ describe('the Classes tab opener', () => {
 
 	const mountTab = async (
 		router: Router,
-		user: Record<string, unknown> = moderator
+		user: Record<string, unknown> = moderator,
+		access: Record<string, boolean> = {}
 	) =>
 		mount(LiveClass, {
 			props: {
@@ -383,6 +573,7 @@ describe('the Classes tab opener', () => {
 						name: 'B1',
 						conferencing_provider: 'Zoom',
 						zoom_account: 'zoom-1',
+						...access,
 					},
 				},
 			},
@@ -392,6 +583,61 @@ describe('the Classes tab opener', () => {
 				mocks: { __: (text: string) => text },
 			},
 		})
+
+	// Retry is refused by the server for anyone who cannot edit the class, so an
+	// evaluator who is not on the batch must not be offered it.
+	describe('a class whose invites failed', () => {
+		const failedClass = {
+			name: 'LC1',
+			title: 'Intro',
+			date: '2099-01-01',
+			time: '10:00:00',
+			duration: 60,
+			invite_status: 'Failed',
+		}
+
+		beforeEach(() => {
+			liveClassList.data = [failedClass] as never[]
+		})
+		afterEach(() => {
+			liveClassList.data = []
+		})
+
+		const retryButton = (wrapper: VueWrapper) =>
+			wrapper.findAll('button').find((b) => b.text() === 'Retry')
+
+		it('offers Retry to a moderator', async () => {
+			const router = makeRouter()
+			await router.push('/batches/B1#classes')
+			const wrapper = await mountTab(router)
+			expect(wrapper.text()).toContain('Invites not sent')
+			expect(retryButton(wrapper)).toBeTruthy()
+		})
+
+		it('does not offer Retry to an evaluator who is not on the batch', async () => {
+			const router = makeRouter()
+			await router.push('/batches/B1#classes')
+			const wrapper = await mountTab(router, evaluator)
+			expect(retryButton(wrapper)).toBeFalsy()
+		})
+
+		it('does not offer Retry to an evaluator the batch tags but does not list as an instructor', async () => {
+			const router = makeRouter()
+			await router.push('/batches/B1#classes')
+			const wrapper = await mountTab(router, evaluator, { can_manage: true })
+			expect(retryButton(wrapper)).toBeFalsy()
+		})
+
+		it('offers Retry to an instructor of the batch', async () => {
+			const router = makeRouter()
+			await router.push('/batches/B1#classes')
+			const wrapper = await mountTab(router, evaluator, {
+				can_manage: true,
+				can_schedule_classes: true,
+			})
+			expect(retryButton(wrapper)).toBeTruthy()
+		})
+	})
 
 	it('registers its list under the key the form refreshes', async () => {
 		const router = makeRouter()
@@ -407,6 +653,23 @@ describe('the Classes tab opener', () => {
 		await router.push('/batches/B1#classes')
 		const wrapper = await mountTab(router, evaluator)
 		expect(wrapper.find('[data-testid="live-class-add"]').exists()).toBe(false)
+	})
+
+	it('offers no Add to an evaluator the batch tags but does not list as an instructor', async () => {
+		const router = makeRouter()
+		await router.push('/batches/B1#classes')
+		const wrapper = await mountTab(router, evaluator, { can_manage: true })
+		expect(wrapper.find('[data-testid="live-class-add"]').exists()).toBe(false)
+	})
+
+	it('offers Add to an instructor of the batch', async () => {
+		const router = makeRouter()
+		await router.push('/batches/B1#classes')
+		const wrapper = await mountTab(router, evaluator, {
+			can_manage: true,
+			can_schedule_classes: true,
+		})
+		expect(wrapper.find('[data-testid="live-class-add"]').exists()).toBe(true)
 	})
 
 	it('opens the form route carrying the current tab hash (C2)', async () => {

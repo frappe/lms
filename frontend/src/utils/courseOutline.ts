@@ -28,25 +28,150 @@ export function lessonExistsByName(chapters: Chapters, name: string): boolean {
 	)
 }
 
-export interface LessonSelection {
-	number?: string
-	name?: string | null
+/** The `?editLesson` number of a new, not yet created lesson in a chapter. */
+export function draftLessonNumber(chapterIdx: number | string): string {
+	return `${chapterIdx}-new`
+}
+
+export function findLessonNumberByName(
+	chapters: Chapters,
+	name: string
+): string | null {
+	for (const chapter of chapters ?? []) {
+		const lesson = chapter.lessons?.find((l) => l.name === name)
+		if (lesson) return lesson.number
+	}
+	return null
 }
 
 /**
- * A lesson selection is stale once the lesson it points at has left the outline
- * (e.g. it was deleted). Prefer the stable docname: the positional `number`
- * shifts when lesson references resequence on delete/reorder, so it's only a
- * fallback when a name wasn't resolved.
+ * What the course editor is asked to open. A draft is tied to its chapter's
+ * docname and a token that the lesson it becomes keeps as its form key. A
+ * position (`number`) or the course default is pinned to a lesson docname as
+ * soon as it resolves.
  */
-export function isSelectionStale(
-	selected: LessonSelection | null | undefined,
-	chapters: Chapters
-): boolean {
-	if (!selected || !chapters) return false
-	return selected.name
-		? !lessonExistsByName(chapters, selected.name)
-		: !lessonExistsByNumber(chapters, selected.number ?? '')
+export type EditorTarget =
+	| { kind: 'draft'; chapter: string; token: string }
+	| { kind: 'lesson'; name: string; token?: string; chapter?: string }
+	| { kind: 'number'; number: string }
+	| { kind: 'default' }
+
+export interface EditorSelection {
+	chapterNumber: string
+	lessonNumber: string
+	number: string
+	name: string | null
+	title: string
+	draftChapter?: string
+	formKey: string
+}
+
+export type SelectionQuery = Partial<
+	Record<'editLesson' | 'draftChapter' | 'editLessonName', string>
+>
+
+export const SELECTION_PARAMS = [
+	'editLesson',
+	'draftChapter',
+	'editLessonName',
+] as const
+
+type Query = Record<string, unknown>
+
+export function targetFromQuery(
+	query: Query,
+	draftToken: () => string
+): EditorTarget | null {
+	const { editLesson, draftChapter, editLessonName } = query
+	if (typeof editLessonName === 'string' && editLessonName) {
+		return { kind: 'lesson', name: editLessonName }
+	}
+	if (typeof editLesson !== 'string' || !editLesson) return null
+	if (!editLesson.endsWith('-new'))
+		return { kind: 'number', number: editLesson }
+	if (typeof draftChapter !== 'string' || !draftChapter) return null
+	return { kind: 'draft', chapter: draftChapter, token: draftToken() }
+}
+
+function lessonSelection(
+	number: string,
+	name: string,
+	formKey: string
+): EditorSelection {
+	const [chapterNumber, lessonNumber] = number.split('-')
+	return { chapterNumber, lessonNumber, number, name, title: '', formKey }
+}
+
+function firstLessonNumber(chapters: Chapters): string | null {
+	return chapters?.find((c) => c.lessons?.length)?.lessons?.[0]?.number ?? null
+}
+
+/**
+ * The selection a target resolves to against the outline, or null while the
+ * outline doesn't have it yet. A created lesson the outline hasn't caught up
+ * with keeps its draft's form open, with no position.
+ */
+export function resolveTarget(
+	target: EditorTarget | null,
+	chapters: Chapters,
+	storedNumber: string | null
+): EditorSelection | null {
+	if (!target) return null
+	if (target.kind === 'draft') {
+		const chapter = chapters?.find((c) => c.name === target.chapter)
+		if (!chapter) return null
+		return {
+			chapterNumber: String(chapter.idx),
+			lessonNumber: 'new',
+			number: draftLessonNumber(chapter.idx),
+			name: null,
+			title: '',
+			draftChapter: chapter.name,
+			formKey: target.token,
+		}
+	}
+	if (target.kind === 'lesson') {
+		const number = findLessonNumberByName(chapters, target.name)
+		const formKey = target.token ?? target.name
+		if (number) return lessonSelection(number, target.name, formKey)
+		if (!target.token) return null
+		return {
+			chapterNumber: '',
+			lessonNumber: '',
+			number: '',
+			name: target.name,
+			title: '',
+			formKey,
+		}
+	}
+	const number =
+		target.kind === 'number'
+			? target.number
+			: lessonExistsByNumber(chapters, storedNumber ?? '')
+			? storedNumber
+			: firstLessonNumber(chapters)
+	const name = number && findLessonNameByNumber(chapters, number)
+	return name ? lessonSelection(number, name, name) : null
+}
+
+/**
+ * The URL params for what is open: its position once resolved, the docname of
+ * a created lesson the outline hasn't confirmed yet, none once the target is
+ * cleared. Null leaves the URL alone: an unresolved position or draft came
+ * from the URL, which already names it.
+ */
+export function selectionQuery(
+	target: EditorTarget | null,
+	selection: EditorSelection | null
+): SelectionQuery | null {
+	if (!target) return {}
+	if (selection?.number) {
+		return selection.draftChapter
+			? { editLesson: selection.number, draftChapter: selection.draftChapter }
+			: { editLesson: selection.number }
+	}
+	if (target.kind === 'lesson') return { editLessonName: target.name }
+	return null
 }
 
 /**

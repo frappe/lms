@@ -1,6 +1,6 @@
 <template>
 	<div
-		class="flex flex-col border rounded-md p-3 h-full hover:border-outline-gray-3"
+		class="flex flex-col border rounded-5 p-3 h-full hover:border-outline-gray-3"
 	>
 		<div class="flex gap-x-4 mb-4">
 			<div class="flex flex-col space-y-2 flex-1 break-all">
@@ -36,16 +36,15 @@
 				{{ job.work_mode }}
 			</Badge>
 			<Badge>
-				{{ dayjs(job.creation).fromNow() }}
+				{{ serverTime(job.creation).fromNow() }}
 			</Badge>
 		</div>
 	</div>
 </template>
 <script setup>
-import { inject } from 'vue'
 import { Badge } from 'frappe-ui'
+import { serverTime } from '@/utils/dayjs'
 
-const dayjs = inject('$dayjs')
 const props = defineProps({
 	job: {
 		type: Object,

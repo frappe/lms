@@ -16,13 +16,23 @@ export default defineConfig({
 		vue(),
 	],
 	publicDir: false,
-	resolve: { dedupe: ['vue', 'frappe-ui'] },
+	resolve: {
+		dedupe: ['vue', 'frappe-ui'],
+		// Select straight from its file: this frappe-ui's main entry has dynamic
+		// imports, which Rolldown cannot fold into the one-file IIFE this builds.
+		alias: {
+			'frappe-ui-select': path.resolve(
+				import.meta.dirname,
+				'node_modules/frappe-ui/src/components/Select/Select.vue'
+			),
+		},
+	},
 	css: {
 		postcss: {
 			plugins: [
 				tailwindcss({
 					config: path.resolve(
-						__dirname,
+						import.meta.dirname,
 						'tailwind.signup-select.config.js'
 					),
 				}),
@@ -35,8 +45,8 @@ export default defineConfig({
 		emptyOutDir: true,
 		assetsInlineLimit: 0,
 		cssCodeSplit: false,
-		rollupOptions: {
-			input: path.resolve(__dirname, 'src/signup-select.js'),
+		rolldownOptions: {
+			input: path.resolve(import.meta.dirname, 'src/signup-select.js'),
 			output: {
 				format: 'iife',
 				name: 'LMSSignupSelect',

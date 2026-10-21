@@ -153,9 +153,18 @@
 							:label="__('Instructors')"
 							:placeholder="__('Select instructors')"
 							:required="true"
+							:disabled="!batch.data?.can_change_instructors"
 							variant="outline"
 							:onCreate="() => (showMemberModal = true)"
-						/>
+						>
+							<template #summary="{ selected, summary }">
+								{{
+									selected.length
+										? summarisePeople(selected.map((o) => o.label))
+										: summary
+								}}
+							</template>
+						</MultiLink>
 						<Select
 							v-model="batchDetail.doc.medium"
 							:label="__('Medium')"
@@ -193,7 +202,7 @@
 							:required="true"
 						/>
 						<div
-							class="rounded-t-lg rounded-b-md outline-none transition-[box-shadow] duration-150 ease-[cubic-bezier(0.23,1,0.32,1)]"
+							class="rounded-t-6 rounded-b-5 outline-none transition-[box-shadow] duration-150 ease-[cubic-bezier(0.23,1,0.32,1)]"
 						>
 							<RichTextEditor
 								:id="batchDetailsId"
@@ -201,7 +210,7 @@
 								@change="(val: string) => updateBatchDetails(val)"
 								:editable="true"
 								:fixedMenu="true"
-								editorClass="prose-sm max-w-none border-b border-x border-outline-gray-2 hover:border-outline-gray-3 hover:shadow-sm focus-within:border-outline-gray-4 focus-within:shadow-sm rounded-b-md py-1 px-2 min-h-[7rem] max-h-[16rem] overflow-y-scroll transition-colors"
+								editorClass="prose-sm max-w-none border-b border-x border-outline-gray-2 hover:border-outline-gray-3 hover:shadow-sm focus-within:border-outline-gray-4 focus-within:shadow-sm rounded-b-5 py-1 px-2 min-h-[7rem] max-h-[16rem] overflow-y-scroll transition-colors"
 							/>
 						</div>
 					</div>
@@ -312,7 +321,9 @@ import {
 	toast,
 	call,
 } from 'frappe-ui'
-import { InputLabel, useInputLabeling } from '@/components/Form/labeling'
+import type { FrappeResourceError } from 'frappe-ui'
+import { reportAutosaveError } from '@/utils/resource'
+import { InputLabel, useInputLabeling } from 'frappe-ui/experimental'
 import { useDebounceFn } from '@vueuse/core'
 import BooleanSwitch from '@/components/Controls/BooleanSwitch.vue'
 import {
@@ -331,6 +342,7 @@ import { useRoute, useRouter } from 'vue-router'
 import Uploader from '@/components/Controls/Uploader.vue'
 import VideoPreviewField from '@/components/Controls/VideoPreviewField.vue'
 import MultiLink from '@/components/Controls/MultiLink.vue'
+import { summarisePeople } from '@/utils/peopleSummary'
 import Link from '@/components/Controls/Link.vue'
 import Select from '@/components/Controls/Select.vue'
 import BatchCourses from '@/pages/Batches/components/BatchCourses.vue'
@@ -545,13 +557,8 @@ const updateBatch = (opts: { silent?: boolean } = {}): void => {
 				// the saved changes without a page reload (mirrors CourseForm).
 				props.batch.reload()
 			},
-			onError(err: { messages?: string[] } | string) {
-				const msg =
-					typeof err === 'string' ? err : err.messages?.[0] ?? __('Error')
-				// Autosave failures stay quiet; the orange "Not Saved" badge remains
-				// (isDirty is untouched) so the change isn't silently lost.
-				if (!opts.silent) toast.error(msg)
-				console.error(err)
+			onError(err: FrappeResourceError) {
+				reportAutosaveError(err, opts.silent)
 			},
 		}
 	)

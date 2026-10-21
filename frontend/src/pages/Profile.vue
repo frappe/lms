@@ -12,77 +12,20 @@
 				/>
 			</template>
 		</PageHeader>
-		<div class="group relative h-[130px] w-full">
-			<img
-				v-if="profile.data.cover_image"
-				:src="safeUrl(profile.data.cover_image)"
-				alt=""
-				class="h-[130px] w-full object-cover object-center"
-			/>
-			<div
-				v-else
-				:class="{ 'bg-surface-gray-2': !profile.data.cover_image }"
-				class="h-[130px] w-full"
-			></div>
-			<div
-				class="absolute bottom-[30%] md:bottom-0 start-[50%] mb-4 flex -translate-x-1/2 gap-x-2 opacity-0 transition-opacity focus-within:opacity-100 group-hover:opacity-100"
-				v-if="isSessionUser()"
-			>
-				<EditCoverImage
-					@select="(imageUrl) => coverImage.submit({ url: imageUrl })"
-				>
-					<template #default>
-						<Button v-if="!readOnlyMode" variant="outline">
-							<template #prefix>
-								<span class="lucide-edit size-4 text-ink-gray-7" />
-							</template>
-							{{ __('Edit') }}
-						</Button>
-					</template>
-				</EditCoverImage>
-			</div>
-		</div>
+		<ProfileCover
+			:cover-image="profile.data.cover_image"
+			:is-session-user="isSessionUser()"
+			:read-only="readOnlyMode"
+			@select="(imageUrl) => coverImage.submit({ url: imageUrl })"
+		/>
 		<div class="mx-auto -mt-10 md:-mt-4 max-w-4xl translate-x-0 px-5">
 			<div class="flex flex-col md:flex-row items-center">
 				<div>
-					<div class="relative">
-						<img
-							v-if="profile.data.user_image"
-							:src="safeUrl(profile.data.user_image)"
-							:alt="profile.data.full_name"
-							class="object-cover h-[100px] w-[100px] rounded-full border-4 border-white object-cover"
-						/>
-						<div
-							v-else
-							class="flex items-center justify-center h-[100px] w-[100px] rounded-full border-4 border-white bg-surface-gray-2 text-4xl-semibold text-ink-gray-7"
-						>
-							{{ profile.data.full_name.charAt(0).toUpperCase() }}
-						</div>
-						<Tooltip
-							v-if="profile.data.open_to"
-							:text="
-								profile.data.open_to === 'Work'
-									? __('Open to Work')
-									: __('Hiring')
-							"
-							placement="right"
-						>
-							<div
-								class="absolute bottom-3 end-1 p-0.5 bg-surface-base rounded-full"
-							>
-								<div
-									class="rounded-full w-fit"
-									:class="
-										profile.data.open_to === 'Work'
-											? 'bg-surface-green-7 text-ink-green-1'
-											: 'bg-surface-violet-7 text-ink-violet-1'
-									"
-								>
-									<span class="lucide-badge-check size-5" />
-								</div>
-							</div>
-						</Tooltip>
-					</div>
+					<ProfileAvatar
+						:image="profile.data.user_image"
+						:full-name="profile.data.full_name"
+						:open-to="profile.data.open_to"
+					/>
 				</div>
 				<div class="ms-6 mt-5">
 					<h1 class="text-4xl-semibold text-ink-gray-9">
@@ -91,32 +34,11 @@
 					<div class="text-base text-ink-gray-7 mt-1">
 						{{ profile.data.headline }}
 					</div>
-					<div class="flex items-center gap-x-4 mt-2">
-						<a
-							v-if="profile.data.twitter"
-							:href="safeUrl(profile.data.twitter)"
-							v-external
-							:aria-label="__('Twitter')"
-						>
-							<Twitter class="size-4 text-ink-gray-5 cursor-pointer" />
-						</a>
-						<a
-							v-if="profile.data.linkedin"
-							:href="safeUrl(profile.data.linkedin)"
-							v-external
-							:aria-label="__('LinkedIn')"
-						>
-							<Linkedin class="size-4 text-ink-gray-5 cursor-pointer" />
-						</a>
-						<a
-							v-if="profile.data.github"
-							:href="safeUrl(profile.data.github)"
-							v-external
-							:aria-label="__('GitHub')"
-						>
-							<Github class="size-4 text-ink-gray-5 cursor-pointer" />
-						</a>
-					</div>
+					<ProfileSocialLinks
+						:twitter="profile.data.twitter"
+						:linkedin="profile.data.linkedin"
+						:github="profile.data.github"
+					/>
 				</div>
 				<Button
 					v-if="isSessionUser() && !readOnlyMode"
@@ -132,16 +54,16 @@
 
 			<div class="mb-4 mt-10">
 				<TabButtons
-					:class="
-						isMobile
-							? 'flex w-full [&>div]:w-full [&_button]:min-w-0 [&_button]:grow [&_button>span]:w-full'
-							: 'inline-block'
-					"
+					:fluid="isMobile"
 					:options="getTabButtons()"
 					v-model="activeTab"
 				/>
 			</div>
-			<router-view :profile="profile" :key="profile.data?.name" />
+			<router-view
+				v-if="!awaitingEmail"
+				:profile="profile"
+				:key="profile.data?.username"
+			/>
 		</div>
 	</div>
 	<NotFound v-else-if="(profile.fetched || profile.error) && !profile.data" />
@@ -152,7 +74,6 @@ import {
 	call,
 	createResource,
 	TabButtons,
-	Tooltip,
 	toast,
 	usePageMeta,
 } from 'frappe-ui'
@@ -160,16 +81,16 @@ import { computed, inject, watch, ref, onMounted, watchEffect } from 'vue'
 import PageHeader from '@/components/Layouts/PageHeader.vue'
 import HeaderButton from '@/components/HeaderButton.vue'
 import { sessionStore } from '@/stores/session'
-import { Github, Linkedin, Twitter } from 'lucide-vue-next'
 import { useRoute, useRouter } from 'vue-router'
 import { convertToTitleCase } from '@/utils'
 import { useScreenSize } from '@/utils/composables'
 import UserAvatar from '@/components/UserAvatar.vue'
 import NoPermission from '@/components/NoPermission.vue'
 import NotFound from '@/pages/NotFound.vue'
-import EditCoverImage from '@/components/Modals/EditCoverImage.vue'
+import ProfileAvatar from '@/components/Profile/ProfileAvatar.vue'
+import ProfileCover from '@/components/Profile/ProfileCover.vue'
+import ProfileSocialLinks from '@/components/Profile/ProfileSocialLinks.vue'
 import { openFormRoute } from '@/composables/useFormRoute'
-import { safeUrl } from '@/utils/safeUrl'
 
 const { user, brand } = sessionStore()
 const $user = inject('$user')
@@ -199,6 +120,52 @@ const profile = createResource({
 		}
 	},
 })
+
+// get_profile_details sends another user's email to no one. The moderator-only
+// tabs (Roles, Slots, Schedule) act on it, so a moderator reads it from User
+// under their own DocPerms, and the tabs wait for it.
+const resolvedEmail = ref(null)
+
+const applyResolvedEmail = () => {
+	const data = profile.data
+	if (data && !data.name && resolvedEmail.value?.username === data.username)
+		data.name = resolvedEmail.value.name
+}
+
+// A lookup can outlive a navigation to another profile, so each response is
+// bound to the username it asked about and dropped once that profile is gone.
+const settleEmail = (username, name) => {
+	if (username !== profile.data?.username) return
+	resolvedEmail.value = { username, name }
+	applyResolvedEmail()
+}
+
+const profileEmail = createResource({ url: 'frappe.client.get_value' })
+
+const awaitingEmail = computed(
+	() =>
+		Boolean($user.data?.is_moderator) &&
+		Boolean(profile.data) &&
+		!profile.data.name &&
+		resolvedEmail.value?.username !== profile.data.username
+)
+
+watch(
+	() => awaitingEmail.value && profile.data?.username,
+	(username) => {
+		if (!username) return
+		profileEmail.submit(
+			{ doctype: 'User', filters: { username }, fieldname: 'name' },
+			{
+				onSuccess: (data) => settleEmail(username, data?.name || null),
+				onError: () => settleEmail(username, null),
+			}
+		)
+	},
+	{ immediate: true }
+)
+
+watch(() => profile.data, applyResolvedEmail)
 
 const coverImage = createResource({
 	url: 'frappe.client.set_value',
@@ -256,11 +223,17 @@ const editProfile = () => {
 }
 
 const isSessionUser = () => {
-	return $user.data?.name === profile.data?.name
+	return (
+		Boolean(profile.data?.username) &&
+		$user.data?.username === profile.data?.username
+	)
 }
 
-const currentUserHasHigherAccess = () => {
-	return $user.data?.is_evaluator || $user.data?.is_moderator
+// Another evaluator's slots and schedule are keyed on their email, which only a
+// moderator is sent; the endpoints refuse anyone else anyway.
+const canSeeEvaluatorTabs = () => {
+	if ($user.data?.is_moderator) return true
+	return $user.data?.is_evaluator && isSessionUser()
 }
 
 const isEvaluatorOrModerator = () => {
@@ -279,7 +252,7 @@ const getTabButtons = () => {
 		buttons.push({ label: __('Roles'), value: 'Roles' })
 	}
 
-	if (currentUserHasHigherAccess() && isEvaluatorOrModerator()) {
+	if (canSeeEvaluatorTabs() && isEvaluatorOrModerator()) {
 		buttons.push({ label: __('Slots'), value: 'Slots' })
 		buttons.push({ label: __('Schedule'), value: 'Schedule' })
 	}

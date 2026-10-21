@@ -85,3 +85,34 @@ class TestLMSCourseInstructors(BaseTestUtils):
 		# and it must be persisted, not only present on the in-memory document
 		course.reload()
 		self.assertEqual([row.instructor for row in course.instructors], [course.owner])
+
+
+class TestPublishWarnsAboutEmptyQuizzes(BaseTestUtils):
+	def setUp(self):
+		super().setUp()
+		self.course = _new_course(["Administrator"]).insert()
+		chapter = self._create_chapter("Publish Warning Chapter", self.course.name)
+		self.quiz = self._create_quiz([], title=f"Unfilled Quiz {frappe.generate_hash(length=6)}")
+		content = frappe.as_json({"blocks": [{"type": "quiz", "data": {"quiz": self.quiz.name}}]})
+		self._create_lesson("Publish Warning Lesson", chapter.name, self.course.name, content)
+		self.course.reload()
+		frappe.clear_messages()
+
+	def _publish(self):
+		self.course.published = 1
+		self.course.save()
+
+	def test_publishing_lists_quizzes_without_questions(self):
+		self._publish()
+
+		self.assertEqual(self.course.get_onload("quizzes_without_questions"), [self.quiz.title])
+		self.assertIn(self.quiz.title, frappe.as_json(frappe.message_log))
+
+	def test_saving_an_already_published_course_does_not_warn_again(self):
+		self._publish()
+		frappe.clear_messages()
+		self.course.reload()
+		self.course.description = "Edited after publishing"
+		self.course.save()
+
+		self.assertEqual(frappe.message_log, [])

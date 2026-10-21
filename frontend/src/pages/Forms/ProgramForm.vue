@@ -1,11 +1,11 @@
 <template>
 	<FormShell
-		:title="isNew ? __('Create Program') : __('Edit Program')"
+		:title="isNew ? __('New Program') : __('Edit Program')"
 		size="2xl"
 		@close="close"
 	>
 		<template #header-action>
-			<Badge theme="orange" v-if="dirty">
+			<Badge theme="amber" v-if="dirty">
 				{{ __('Not Saved') }}
 			</Badge>
 		</template>
@@ -64,7 +64,7 @@
 						:rowKey="'course'"
 					>
 						<ListHeader
-							class="mb-2 grid items-center gap-x-4 rounded bg-surface-gray-2 p-2"
+							class="mb-2 grid items-center gap-x-4 rounded-4 bg-surface-gray-2 p-2"
 						>
 							<ListHeaderItem
 								:item="item"
@@ -219,7 +219,7 @@
 				/>
 				<HeaderButton
 					data-testid="program-save"
-					:label="__('Save')"
+					:label="isNew ? __('Create') : __('Save')"
 					variant="solid"
 					@click="saveProgram()"
 				/>
@@ -235,14 +235,17 @@ import {
 	createListResource,
 	Dialog,
 	FormControl,
+	toast,
+} from 'frappe-ui'
+import type { FrappeResourceError } from 'frappe-ui'
+import {
 	ListSelectBanner,
 	ListView,
 	ListHeader,
 	ListHeaderItem,
 	ListRows,
 	ListRow,
-	toast,
-} from 'frappe-ui'
+} from 'frappe-ui/experimental'
 import { computed, inject, ref, watch, getCurrentInstance } from 'vue'
 
 import { Program, ProgramCourse, ProgramMember } from '@/types'
@@ -255,7 +258,7 @@ import Link from '@/components/Controls/Link.vue'
 import ResponsiveListView from '@/components/ResponsiveListView.vue'
 import Draggable from 'vuedraggable'
 import ProgramProgressSummary from '@/components/Programs/ProgramProgressSummary.vue'
-import { submitResource } from '@/utils/resource'
+import { resourceErrorMessage, submitResource } from '@/utils/resource'
 
 const showFormDialog = ref(false)
 const currentForm = ref<'course' | 'member'>('course')
@@ -337,13 +340,14 @@ const programDoc = createDocumentResource({
 	doctype: 'LMS Program',
 	name: isNew.value ? undefined : programId.value,
 	auto: !isNew.value,
-	onError(err: any) {
-		toast.warning(__(err.messages?.[0] || err))
+	onError(err: FrappeResourceError) {
+		toast.warning(resourceErrorMessage(err, __('Error')))
 	},
 })
 
 const programCourses = createListResource({
 	doctype: 'LMS Program Course',
+	pageLength: 99999,
 	fields: ['course', 'course_title', 'name', 'idx'],
 	parent: 'LMS Program',
 	orderBy: 'idx',
@@ -354,6 +358,7 @@ const programCourses = createListResource({
 
 const programMembers = createListResource({
 	doctype: 'LMS Program Member',
+	pageLength: 99999,
 	fields: ['member', 'full_name', 'progress', 'name'],
 	parent: 'LMS Program',
 	orderBy: 'creation desc',
@@ -425,7 +430,6 @@ const saveProgram = () => {
 	validateTitle()
 	if (isNew.value) createNewProgram()
 	else updateProgram()
-	dirty.value = false
 }
 
 // Saving navigates onward by REPLACING, so the entry this form was opened on is
@@ -444,11 +448,12 @@ const createNewProgram = () => {
 		},
 		{
 			onSuccess() {
+				dirty.value = false
 				toast.success(__('Program created successfully'))
 				afterSave()
 			},
-			onError(err: any) {
-				toast.warning(__(err.messages?.[0] || err))
+			onError(err: FrappeResourceError) {
+				toast.warning(resourceErrorMessage(err, __('Error')))
 			},
 		}
 	)
@@ -468,11 +473,12 @@ const updateProgram = () => {
 		},
 		{
 			onSuccess() {
+				dirty.value = false
 				toast.success(__('Program updated successfully'))
 				afterSave()
 			},
-			onError(err: any) {
-				toast.warning(__(err.messages?.[0] || err))
+			onError(err: FrappeResourceError) {
+				toast.warning(resourceErrorMessage(err, __('Error')))
 			},
 		}
 	)
@@ -535,40 +541,14 @@ const addMember = (close: () => void) => {
 	}
 }
 
-const updateOrder = async (e: any) => {
-	let sourceIdx = e.from.dataset.idx
-	let targetIdx = e.to.dataset.idx
-
-	if (isNew.value) {
-		let courses = program.value.program_courses
-		courses.splice(targetIdx, 0, courses.splice(sourceIdx, 1)[0])
-		courses.forEach((course, index) => {
-			course.idx = index + 1
-		})
-		dirty.value = true
-	} else {
-		let courses = programCourses.data
-		courses.splice(targetIdx, 0, courses.splice(sourceIdx, 1)[0])
-
-		for (const [index, course] of courses.entries()) {
-			submitResource(
-				programCourses.setValue,
-				{
-					name: course.name,
-					idx: index + 1,
-				},
-				{
-					onError(err: any) {
-						toast.warning(__(err.messages?.[0] || err))
-					},
-				}
-			)
-			await wait(100)
-		}
-	}
+const updateOrder = (e: { oldIndex: number; newIndex: number }) => {
+	if (e.oldIndex === e.newIndex) return
+	// vuedraggable updates the bound array before emitting `end`.
+	program.value.program_courses.forEach((course, index) => {
+		course.idx = index + 1
+	})
+	dirty.value = true
 }
-
-const wait = (ms: number) => new Promise((res) => setTimeout(res, ms))
 
 const remove = (
 	selections: string[],
@@ -601,7 +581,7 @@ const deleteProgram = () => {
 				label: __('Delete'),
 				theme: 'red',
 				variant: 'solid',
-				onClick(closeDialog: () => void) {
+				onClick({ close: closeDialog }: { close: () => void }) {
 					submitResource(programs.delete, programId.value, {
 						onSuccess() {
 							toast.success(__('Program deleted successfully'))
@@ -609,8 +589,8 @@ const deleteProgram = () => {
 							closeDialog()
 							close()
 						},
-						onError(err: any) {
-							toast.warning(__(err.messages?.[0] || err))
+						onError(err: FrappeResourceError) {
+							toast.warning(resourceErrorMessage(err, __('Error')))
 							closeDialog()
 						},
 					})

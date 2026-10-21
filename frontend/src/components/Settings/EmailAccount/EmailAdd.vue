@@ -33,7 +33,7 @@
 			<div v-if="selectedService" class="flex flex-col gap-4">
 				<!-- email service provider info -->
 				<div
-					class="flex items-center gap-2 rounded-md p-2 text-ink-gray-6 ring-1 ring-outline-gray-3"
+					class="flex items-center gap-2 rounded-5 p-2 text-ink-gray-6 ring-1 ring-outline-gray-3"
 				>
 					<CircleAlert class="size-5 shrink-0" />
 					<div class="text-wrap text-p-xs">
@@ -82,7 +82,7 @@
 
 <script setup lang="ts">
 import SettingsLayout from '@/components/Layouts/SettingsLayout.vue'
-import { useTelemetry } from 'frappe-ui/frappe'
+import { useTelemetry } from '@framework/ui/telemetry/index'
 import { EmailAccount, EmailService, EmailStep } from '@/types'
 import {
 	Button,

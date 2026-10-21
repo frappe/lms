@@ -1,5 +1,5 @@
 <template>
-	<FormShell :title="__('Enroll a Student')" size="lg" @close="close">
+	<FormShell :title="__('Enroll Student')" size="lg" @close="close">
 		<template #default>
 			<div v-if="refusal" class="p-4 text-base text-ink-gray-6">
 				{{ refusal }}
@@ -30,7 +30,7 @@
 			<HeaderButton
 				v-if="!refusal"
 				data-testid="batch-student-save"
-				:label="__('Save')"
+				:label="__('Enroll')"
 				variant="solid"
 				:loading="enrollment.loading"
 				@click="submit"
@@ -47,7 +47,8 @@ import {
 	getCachedResource,
 	toast,
 } from 'frappe-ui'
-import { useOnboarding } from 'frappe-ui/frappe'
+import { useOnboarding } from '@framework/ui/components/Onboarding/index'
+import { seesOnboarding } from '@/utils/onboarding'
 import { useRoute } from 'vue-router'
 import { openSettings } from '@/utils'
 import Link from '@/components/Controls/Link.vue'
@@ -157,7 +158,7 @@ const submit = () => {
 		{},
 		{
 			onSuccess() {
-				if (user.data?.is_system_manager) {
+				if (seesOnboarding(user.data)) {
 					updateOnboardingStep('add_batch_student')
 				}
 				reloadDashboard()

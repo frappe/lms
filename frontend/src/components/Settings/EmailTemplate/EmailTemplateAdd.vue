@@ -52,7 +52,7 @@
 					:editable="true"
 					:fixed-menu="true"
 					:placeholder="richPlaceholder"
-					editor-class="prose-sm max-w-none border-b border-x border-outline-elevation-2 bg-surface-gray-2 rounded-b-md py-1 px-2 min-h-[7rem] max-h-[18rem] overflow-y-auto"
+					editor-class="prose-sm max-w-none border-b border-x border-outline-elevation-2 bg-surface-gray-2 rounded-b-5 py-1 px-2 min-h-[7rem] max-h-[18rem] overflow-y-auto"
 					@change="(val) => (template.response = val)"
 				/>
 			</div>
@@ -72,7 +72,7 @@ import {
 	toast,
 } from 'frappe-ui'
 import { computed, reactive, ref, useId } from 'vue'
-import { InputLabel } from '@/components/Form/labeling'
+import { InputLabel } from 'frappe-ui/experimental'
 import { cleanError } from '@/utils'
 import type { EmailTemplate, EmailTemplateStep } from '@/types'
 import RichTextEditor from '@/components/RichTextEditor.vue'

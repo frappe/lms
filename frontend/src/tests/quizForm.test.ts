@@ -147,6 +147,11 @@ createDocumentResourceMock.mockImplementation((options: any) => {
 	return resource
 })
 
+// QuizForm.vue's `useTelemetry()` needs a stub here.
+vi.mock('@framework/ui/telemetry/index', () => ({
+	useTelemetry: () => ({ capture: vi.fn() }),
+}))
+
 vi.mock('frappe-ui', () => ({
 	createResource: createResourceMock,
 	createDocumentResource: createDocumentResourceMock,
@@ -163,11 +168,10 @@ vi.mock('frappe-ui', () => ({
 			title: String,
 			description: String,
 			theme: String,
-			variant: String,
-			dismissible: { type: Boolean, default: true },
+			dismissible: { type: Boolean, default: false },
 		},
 		emits: ['dismiss'],
-		template: `<div role="alert" :data-theme="theme"><span>{{ title }}</span><slot name="description">{{ description }}</slot><button v-if="dismissible" type="button" aria-label="Dismiss" @click="$emit('dismiss')" /><slot name="footer" /></div>`,
+		template: `<div role="alert" :data-theme="theme"><span>{{ title }}</span><slot name="description">{{ description }}</slot><button v-if="dismissible" type="button" aria-label="Dismiss" @click="$emit('dismiss')" /></div>`,
 	},
 	Tooltip: { template: `<span><slot /></span>` },
 	Button: {
@@ -219,7 +223,7 @@ vi.mock('frappe-ui', () => ({
 	},
 	// Menu options are rendered as real buttons so the route pushes behind Preview/Submissions/Delete are reachable, and `theme` is exposed so the destructive row can be asserted rather than assumed.
 	Dropdown: {
-		props: ['options', 'placement'],
+		props: ['options'],
 		template: `<div class="dropdown">
       <slot :open="false" />
       <button
@@ -768,6 +772,14 @@ describe('legacy quiz URLs', () => {
 		const router = await realRouter()
 		await router.push(from)
 		expect(router.currentRoute.value.fullPath).toBe(to)
+	})
+
+	it('carries the quiz into the filter, not into a param the list lacks', async () => {
+		const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
+		const router = await realRouter()
+		await router.push('/quiz-submissions/some-quiz')
+		const warnings = warn.mock.calls.map((args) => String(args[0]))
+		expect(warnings.filter((w) => w.includes('quizID'))).toEqual([])
 	})
 
 	// The redirect is a bare `:quizID`, so it sits alongside the static siblings it

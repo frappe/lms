@@ -10,7 +10,7 @@
 	>
 		<template #actions="{ tab }">
 			<template v-if="tab?.key === 'settings' && courseFormRef">
-				<Badge v-if="courseFormRef.isDirty" theme="orange">
+				<Badge v-if="courseFormRef.isDirty" theme="amber">
 					{{ __('Not Saved') }}
 				</Badge>
 				<Dropdown
@@ -23,10 +23,19 @@
 					side="bottom"
 					align="end"
 				/>
+				<Button
+					v-if="user.data?.is_moderator && !isMobile"
+					:variant="course.data?.published ? 'subtle' : 'solid'"
+					:theme="course.data?.published ? 'red' : 'gray'"
+					:loading="publishToggle.loading"
+					@click="togglePublishCourse"
+				>
+					{{ course.data?.published ? __('Unpublish') : __('Publish') }}
+				</Button>
 				<Tooltip
 					v-if="!courseFormRef.isDirty"
 					:text="__('No changes to save')"
-					:hoverDelay="0.1"
+					:hoverDelay="100"
 				>
 					<HeaderButton :label="__('Save')" variant="solid" disabled />
 				</Tooltip>
@@ -66,36 +75,32 @@
 						</template>
 					</Button>
 				</Tooltip>
-				<router-link
-					:to="{
-						name: 'Lesson',
-						params: {
-							courseName: props.courseName,
-							chapterNumber: editorSelected.chapterNumber,
-							lessonNumber: editorSelected.lessonNumber,
-						},
-						query: { studentView: 1 },
-					}"
-				>
+				<template v-if="studentViewRoute">
 					<Tooltip v-if="isMobile" :text="__('Student View')">
-						<Button variant="outline" class="!size-9">
+						<Button
+							variant="outline"
+							class="!size-9"
+							:label="__('Student View')"
+							:route="studentViewRoute"
+						>
 							<template #icon>
 								<span class="lucide-eye size-4" />
 							</template>
 						</Button>
 					</Tooltip>
-					<Button v-else variant="outline">
+					<Button v-else variant="outline" :route="studentViewRoute">
 						<template #prefix>
 							<span class="lucide-eye size-4" />
 						</template>
 						{{ __('Student View') }}
 					</Button>
-				</router-link>
+				</template>
 			</template>
 			<Button
 				v-if="tab?.key === 'dashboard' && course.data && isMobile"
 				variant="outline"
 				class="!size-9"
+				:label="__('Enroll')"
 				:tooltip="__('Enroll')"
 				@click="openEnrollForm()"
 			>
@@ -112,15 +117,6 @@
 					<span class="lucide-plus size-4" />
 				</template>
 				{{ __('Enroll') }}
-			</Button>
-			<Button
-				v-if="tab?.key === 'settings' && user.data?.is_moderator && !isMobile"
-				:variant="course.data?.published ? 'outline' : 'solid'"
-				:theme="course.data?.published ? 'red' : 'gray'"
-				:loading="publishToggle.loading"
-				@click="togglePublishCourse"
-			>
-				{{ course.data?.published ? __('Unpublish') : __('Publish') }}
 			</Button>
 		</template>
 
@@ -174,7 +170,9 @@
 
 		<template #overlay="{ tab }">
 			<Button
-				v-if="isMobile && tab?.key === 'editor'"
+				v-if="
+					isMobile && tab?.key === 'editor' && courseEditorRef?.outlineVisible
+				"
 				variant="outline"
 				size="md"
 				class="absolute bottom-4 end-4 z-10 !h-11 !rounded-full !px-4 !shadow-lg"
@@ -187,14 +185,20 @@
 			</Button>
 
 			<div
-				v-if="tab?.key === 'editor' && course.data"
+				v-if="
+					tab?.key === 'editor' &&
+					course.data &&
+					courseEditorRef?.outlineVisible
+				"
 				class="pointer-events-none absolute inset-x-0 top-0 z-10 hidden md:flex"
 			>
 				<div class="w-[70%]" />
+				<!-- h-12 is the tab strip's height: the bar sits level with it, so
+				     the two bottom borders have to meet. -->
 				<div
-					class="pointer-events-auto flex w-[30%] items-center justify-between gap-x-2 border-s border-b bg-surface-base p-1 px-5"
+					class="pointer-events-auto flex h-12 w-[30%] items-center justify-between gap-x-2 border-s border-b bg-surface-base px-5"
 				>
-					<div class="py-2.5 text-p-base-medium text-ink-gray-9">
+					<div class="text-p-base-medium text-ink-gray-9">
 						{{ __('Chapters') }}
 					</div>
 					<Button size="sm" @click="courseEditorRef?.openAddChapter()">
@@ -225,8 +229,10 @@ import {
 	toast,
 	usePageMeta,
 } from 'frappe-ui'
+import type { FrappeResourceError } from 'frappe-ui'
 import { sessionStore } from '@/stores/session'
 import { useScreenSize } from '@/utils/composables'
+import { useTelemetry } from '@framework/ui/telemetry/index'
 import TabbedDetailPage from '@/components/Layouts/TabbedDetailPage.vue'
 import type { DetailTab } from '@/components/Layouts/TabbedDetailPage.vue'
 import CourseOverview from '@/pages/Courses/CourseOverview.vue'
@@ -238,12 +244,8 @@ import LessonHelp from '@/components/LessonHelp.vue'
 import ShortcutTooltip from '@/components/ShortcutTooltip.vue'
 import HeaderButton from '@/components/HeaderButton.vue'
 import { openFormRoute } from '@/composables/useFormRoute'
-import type {
-	CourseDetails,
-	CourseInstructorInfo,
-	Resource,
-	SessionUser,
-} from '@/types'
+import type { CourseDetails, Resource, SessionUser } from '@/types'
+import { isInstructorOf } from '@/utils/instructors'
 
 type Brand = { name?: string; logo?: string; favicon?: string }
 
@@ -262,6 +264,21 @@ interface EditorSelection {
 
 const editorSelected = ref<EditorSelection | null>(null)
 const showLessonHelp = ref(false)
+
+// A lesson just created has no position until the outline reload places it.
+const studentViewRoute = computed(() =>
+	editorSelected.value?.number
+		? {
+				name: 'Lesson',
+				params: {
+					courseName: props.courseName,
+					chapterNumber: editorSelected.value.chapterNumber,
+					lessonNumber: editorSelected.value.lessonNumber,
+				},
+				query: { studentView: 1 },
+		  }
+		: null
+)
 
 type CourseMenuItem = {
 	label: string
@@ -286,6 +303,7 @@ type CourseEditorApi = {
 	lessonHasVideo: ComputedRef<boolean>
 	openVideoStats: () => void
 	openAddChapter: () => void
+	outlineVisible: ComputedRef<boolean>
 	lessonIndex: ComputedRef<number>
 	lessonTotal: ComputedRef<number>
 	hasPrev: ComputedRef<boolean>
@@ -296,6 +314,11 @@ type CourseEditorApi = {
 }
 const courseEditorRef = ref<CourseEditorApi | null>(null)
 
+type PublishResponse = {
+	__onload?: { quizzes_without_questions?: string[] }
+}
+
+const { capture } = useTelemetry()
 const publishToggle = createResource({
 	url: 'frappe.client.set_value',
 	makeParams() {
@@ -306,17 +329,24 @@ const publishToggle = createResource({
 			value: course.data?.published ? 0 : 1,
 		}
 	},
-	onSuccess() {
-		toast.success(
-			course.data?.published ? __('Course unpublished') : __('Course published')
-		)
+	onSuccess(data: PublishResponse) {
+		const published = !course.data?.published
+		capture(published ? 'course_published' : 'course_unpublished', {
+			course: course.data?.name,
+		})
+		toast.success(published ? __('Course published') : __('Course unpublished'))
+		const emptyQuizzes = data?.__onload?.quizzes_without_questions
+		if (emptyQuizzes?.length) {
+			toast.warning(
+				__(
+					'These quizzes have no questions, so learners skip them: {0}'
+				).format(emptyQuizzes.join(', '))
+			)
+		}
 		course.reload()
 	},
-	onError(err: { messages?: string[] } | string) {
-		const msg =
-			typeof err === 'string'
-				? err
-				: err.messages?.[0] ?? __('Could not update publish status')
+	onError(err: FrappeResourceError) {
+		const msg = err.messages?.[0] ?? __('Could not update publish status')
 		toast.error(msg)
 	},
 }) as Resource<unknown>
@@ -414,22 +444,20 @@ watch(
 )
 
 watch(course, () => {
-	if (!isAdmin.value && !course.data?.published && !course.data?.upcoming) {
+	if (
+		!isAdmin.value &&
+		!course.data?.membership &&
+		!course.data?.published &&
+		!course.data?.upcoming
+	) {
 		router.push({
 			name: 'Courses',
 		})
 	}
 })
 
-const isInstructor = (): boolean => {
-	let user_is_instructor = false
-	course.data?.instructors.forEach((instructor: CourseInstructorInfo) => {
-		if (!user_is_instructor && instructor.name == user.data?.name) {
-			user_is_instructor = true
-		}
-	})
-	return user_is_instructor
-}
+const isInstructor = (): boolean =>
+	isInstructorOf(course.data?.instructors, user.data?.username)
 
 const isAdmin = computed<boolean>(() => {
 	return Boolean(user.data?.is_moderator) || isInstructor()

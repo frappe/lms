@@ -2,6 +2,7 @@
 # For license information, please see license.txt
 
 import inspect
+import os
 from functools import cache
 from typing import NamedTuple
 from urllib.parse import unquote
@@ -9,7 +10,7 @@ from urllib.parse import unquote
 import frappe
 from frappe import _
 from frappe.model.document import Document
-from frappe.query_builder.functions import Locate
+from frappe.query_builder.functions import Count, Locate
 from frappe.rate_limiter import rate_limit
 from frappe.utils import add_to_date, now_datetime
 from frappe.utils.response import send_private_file
@@ -431,7 +432,20 @@ def serve_resource(file_url: str):
 
 	# send_private_file expects a path relative to the site's private/ dir.
 	relative_path = file_url.split("/private", 1)[1] if "/private" in file_url else file_url
-	return _serve_private_file(relative_path, file_row.file_name)
+	return _serve_private_file(relative_path, _download_name(file_row.file_name, relative_path))
+
+
+def _download_name(file_name: str | None, relative_path: str) -> str:
+	"""The File's name when it ends in the stored file's own extension, else the stored name.
+
+	send_private_file takes the Content-Type from this name but decides inline or download
+	from the stored path. file_name is editable by the File's owner, so a name whose
+	extension differs from the stored file could serve its bytes as another type.
+	"""
+	stored_name = os.path.basename(relative_path)
+	if file_name and os.path.splitext(file_name)[1].lower() == os.path.splitext(stored_name)[1].lower():
+		return file_name
+	return stored_name
 
 
 @cache
@@ -671,6 +685,8 @@ def get_quiz_progress(lesson):
 		quizzes = [value for name, value in macros if name == "Quiz"]
 
 	for quiz in quizzes:
+		if not get_valid_question_count(quiz):
+			continue
 		passing_percentage = frappe.db.get_value("LMS Quiz", quiz, "passing_percentage")
 		if not frappe.db.exists(
 			"LMS Quiz Submission",
@@ -682,6 +698,20 @@ def get_quiz_progress(lesson):
 		):
 			return False
 	return True
+
+
+def get_valid_question_count(quiz: str) -> int:
+	"""Rows whose LMS Question still exists; the quiz page drops the rest, so a quiz
+	with none cannot be submitted."""
+	row = frappe.qb.DocType("LMS Quiz Question")
+	question = frappe.qb.DocType("LMS Question")
+	return (
+		frappe.qb.from_(row)
+		.join(question)
+		.on(question.name == row.question)
+		.where((row.parent == quiz) & (row.parenttype == "LMS Quiz"))
+		.select(Count("*"))
+	).run()[0][0]
 
 
 UNTITLED_LESSON_TITLE = "Untitled lesson"

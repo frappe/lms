@@ -399,6 +399,20 @@ describe('SCORMChapter.vue plays what the server says it may play', () => {
 		)
 	})
 
+	it('reads and writes through both SCORM APIs without logging', async () => {
+		const log = vi.spyOn(console, 'log').mockImplementation(() => {})
+		wrapper = await mountChapter()
+		await answerPlayback(playbackAnswer())
+		const { API, API_1484_11 } = window as any
+		API.LMSGetValue('cmi.core.lesson_status')
+		API.LMSSetValue('cmi.core.lesson_status', 'passed')
+		API_1484_11.GetValue('cmi.completion_status')
+		API_1484_11.SetValue('cmi.completion_status', 'completed')
+		await flushPromises()
+
+		expect(log).not.toHaveBeenCalled()
+	})
+
 	it('leaves for the course when the chapter does not resolve', async () => {
 		// `/learn/:chapterName` also matches a lesson URL with no lesson number, so a
 		// mistyped or tampered address lands here on a chapter that does not exist.

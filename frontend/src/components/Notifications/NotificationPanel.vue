@@ -11,7 +11,9 @@
 					: {
 							left: sidebarLeft,
 							width: '400px',
-							boxShadow: '8px 0px 8px rgba(0, 0, 0, 0.1)',
+							// A cast shadow is black alpha in either theme, the same way
+							// frappe-ui's own --elevation-* values are.
+							boxShadow: '8px 0px 8px rgba(0, 0, 0, 0.1)', // token-exempt: shadow
 					  }
 			"
 		>
@@ -22,13 +24,22 @@
 					</div>
 					<div class="flex gap-1 me-3">
 						<Tooltip v-if="hasUnread" :text="__('Mark all as read')">
-							<Button variant="ghost" @click="markAllAsRead.submit">
+							<Button
+								variant="ghost"
+								:label="__('Mark all as read')"
+								@click="markAllAsRead.submit"
+							>
 								<template #icon>
 									<span class="lucide-check-check size-4 text-ink-gray-7" />
 								</template>
 							</Button>
 						</Tooltip>
-						<Button v-if="isMobile" variant="ghost" @click="closeNotifications">
+						<Button
+							v-if="isMobile"
+							variant="ghost"
+							:label="__('Close')"
+							@click="closeNotifications"
+						>
 							<template #icon>
 								<span class="lucide-x size-4 text-ink-gray-7" />
 							</template>
@@ -38,7 +49,8 @@
 				<TabButtons
 					v-model="activeTab"
 					:options="tabs"
-					class="tab-buttons w-full px-4 py-1"
+					fluid
+					class="px-4 py-1"
 				/>
 				<div class="flex h-full overflow-hidden">
 					<div
@@ -65,7 +77,7 @@
 							<div>
 								<div v-safe-html:basic="decodeEntities(n.subject)" />
 								<div class="text-p-sm text-ink-gray-5">
-									{{ dayjs(n.creation).fromNow() }}
+									{{ serverTime(n.creation).fromNow() }}
 								</div>
 							</div>
 						</div>
@@ -85,13 +97,14 @@
 </template>
 <script setup>
 import { Avatar, Button, TabButtons, Tooltip } from 'frappe-ui'
-import { computed, inject, ref, watch } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { onClickOutside } from '@vueuse/core'
 import { decodeEntities } from '@/utils'
 import { useSidebar } from '@/stores/sidebar'
 import { useScreenSize } from '@/utils/composables'
 import EmptyStateLayout from '@/components/Layouts/EmptyStateLayout.vue'
+import { serverTime } from '@/utils/dayjs'
 import {
 	panelVisible,
 	closeNotifications,
@@ -100,14 +113,16 @@ import {
 	markAllAsRead,
 } from '@/stores/notifications'
 
-const dayjs = inject('$dayjs')
 const router = useRouter()
 const sidebarStore = useSidebar()
 const { isMobile } = useScreenSize()
 
 const panelRef = ref(null)
 const activeTab = ref('Unread')
-const tabs = [{ label: 'Unread' }, { label: 'Read' }]
+const tabs = [
+	{ label: __('Unread'), value: 'Unread' },
+	{ label: __('Read'), value: 'Read' },
+]
 
 onClickOutside(panelRef, () => closeNotifications(), {
 	ignore: ['[data-notifications-trigger]'],
@@ -133,7 +148,7 @@ const emptyDescription = computed(() =>
 )
 
 const sidebarLeft = computed(() =>
-	sidebarStore.isSidebarCollapsed ? '3.5rem' : '14rem'
+	sidebarStore.isSidebarCollapsed ? '3rem' : '14rem'
 )
 
 const hasUnread = computed(() => notifications.data?.some((n) => !n.read))
@@ -170,21 +185,3 @@ const navigateToPage = (log) => {
 	}
 }
 </script>
-<style scoped>
-/* Stretch frappe-ui TabButtons to full width with two evenly split tabs that
-   each fill (and highlight) their half. DOM: RadioGroupRoot(.tab-buttons) >
-   flex container div > button[data-slot=tab-button] > Pill.
-   Pattern from Helpdesk: desk/src/components/ticket-agent/TicketSidebar.vue */
-:deep(.tab-buttons > div) {
-	display: flex;
-	width: 100%;
-}
-:deep(.tab-buttons [data-slot='tab-button']) {
-	flex: 1 1 0%;
-}
-:deep(.tab-buttons [data-slot='tab-button'] > *) {
-	display: flex;
-	width: 100%;
-	justify-content: center;
-}
-</style>

@@ -60,15 +60,17 @@ vi.mock('frappe-ui', () => ({
 		emits: ['update:open'],
 		template: `<div v-if="open" role="dialog"><h2>{{ title }}</h2><slot /><slot name="actions" /></div>`,
 	},
-	Button: {
-		inheritAttrs: false,
-		template: `<button v-bind="$attrs"><slot name="icon" /><slot /></button>`,
-	},
 }))
 
-vi.mock('frappe-ui/frappe', () => ({
-	useOnboarding: () => ({ updateOnboardingStep: updateOnboardingStepMock }),
-}))
+vi.mock(
+	'@framework/ui/components/Onboarding/index',
+	async (importOriginal) => ({
+		...(await importOriginal<
+			typeof import('@framework/ui/components/Onboarding/index')
+		>()),
+		useOnboarding: () => ({ updateOnboardingStep: updateOnboardingStepMock }),
+	})
+)
 
 // @/utils is the barrel that pulls in plyr and the settings store; only
 // openSettings is used here.
@@ -232,7 +234,7 @@ describe('BatchStudentForm as a route', () => {
 
 		expect(wrapper.text()).toContain('BATCH')
 		expect(fields(wrapper).exists()).toBe(true)
-		expect(wrapper.html()).toContain('Enroll a Student')
+		expect(wrapper.html()).toContain('Enroll Student')
 	})
 
 	it('refuses a visitor who is neither moderator nor evaluator', async () => {
@@ -368,13 +370,10 @@ describe('BatchStudentForm as a route', () => {
 		expect(count.reload).toHaveBeenCalledTimes(1)
 	})
 
-	it('ticks the onboarding step only for a system manager', async () => {
+	it('ticks the onboarding step for a moderator', async () => {
 		const router = makeRouter()
 		await openForm(router)
-		const wrapper = await mountForm(router, {
-			...moderator,
-			is_system_manager: true,
-		})
+		const wrapper = await mountForm(router)
 		await pickStudent(wrapper)
 		succeedOnSubmit()
 
@@ -384,10 +383,13 @@ describe('BatchStudentForm as a route', () => {
 		expect(updateOnboardingStepMock).toHaveBeenCalledWith('add_batch_student')
 	})
 
-	it('leaves the onboarding step alone for a plain moderator', async () => {
+	it('leaves the onboarding step alone for a user who does not see onboarding', async () => {
 		const router = makeRouter()
 		await openForm(router)
-		const wrapper = await mountForm(router)
+		const wrapper = await mountForm(router, {
+			name: 'evaluator@example.com',
+			is_evaluator: true,
+		})
 		await pickStudent(wrapper)
 		succeedOnSubmit()
 

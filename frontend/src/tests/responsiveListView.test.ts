@@ -15,7 +15,7 @@ vi.mock('@/utils/composables', async () => {
 })
 
 // The stubs below are trimmed copies of the frappe-ui components they stand in for, kept faithful on the one thing under test: where the selection lives.
-vi.mock('frappe-ui', async () => {
+vi.mock('frappe-ui/experimental', async () => {
 	const { computed, defineComponent, inject, provide, reactive, watch } =
 		await import('vue')
 
@@ -95,17 +95,36 @@ vi.mock('frappe-ui', async () => {
 		><slot name="actions" v-bind="bannerProps" /></div>`,
 	})
 
+	const passthrough = (testid: string) => ({
+		inheritAttrs: false,
+		template: `<div data-testid="${testid}" v-bind="$attrs"><slot /></div>`,
+	})
+
+	return {
+		ListView,
+		ListSelectBanner,
+		ListHeader: passthrough('list-header'),
+		ListHeaderItem: {
+			props: ['item'],
+			template:
+				'<div><slot name="prefix" :item="item" />{{ item.label }}</div>',
+		},
+		ListRows: { template: '<div data-testid="list-rows" />' },
+		ListRowItem: { template: '<div><slot /></div>' },
+	}
+})
+
+vi.mock('frappe-ui', async () => {
+	const { defineComponent } = await import('vue')
+
 	const Checkbox = defineComponent({
 		name: 'Checkbox',
 		inheritAttrs: false,
 		props: { modelValue: Boolean, size: String },
 		emits: ['update:modelValue'],
 		setup(_props, { emit }) {
-			// frappe-ui's Checkbox writes its model and then re-emits, so one change reports the same value twice.
 			function onChange(event: Event) {
-				const next = (event.target as HTMLInputElement).checked
-				emit('update:modelValue', next)
-				emit('update:modelValue', next)
+				emit('update:modelValue', (event.target as HTMLInputElement).checked)
 			}
 			return { onChange }
 		},
@@ -118,24 +137,7 @@ vi.mock('frappe-ui', async () => {
 		/>`,
 	})
 
-	const passthrough = (testid: string) => ({
-		inheritAttrs: false,
-		template: `<div data-testid="${testid}" v-bind="$attrs"><slot /></div>`,
-	})
-
-	return {
-		Checkbox,
-		ListView,
-		ListSelectBanner,
-		ListHeader: passthrough('list-header'),
-		ListHeaderItem: {
-			props: ['item'],
-			template:
-				'<div><slot name="prefix" :item="item" />{{ item.label }}</div>',
-		},
-		ListRows: { template: '<div data-testid="list-rows" />' },
-		ListRowItem: { template: '<div><slot /></div>' },
-	}
+	return { Checkbox }
 })
 
 vi.stubGlobal('__', (text: string) => text)
@@ -226,19 +228,19 @@ describe('ResponsiveListView selection on a phone', () => {
 		expect(Array.from(banner.value!.selections)).toEqual(['a'])
 	})
 
-	it('selects exactly one row per tap, though the checkbox reports twice', async () => {
+	it('toggles one row per tap, and a second tap clears it', async () => {
 		mobile.value = true
 		const { wrapper, banner } = await mountList(routedOptions)
+		const box = () => wrapper.findAll('[data-testid="row-checkbox"]')[0]
 
 		await selectFirstRow(wrapper)
-
 		expect(Array.from(banner.value!.selections)).toEqual(['a'])
-		expect(
-			(
-				wrapper.findAll('[data-testid="row-checkbox"]')[0]
-					.element as HTMLInputElement
-			).checked
-		).toBe(true)
+		expect((box().element as HTMLInputElement).checked).toBe(true)
+
+		await box().setValue(false)
+		await nextTick()
+		expect(banner.value?.selections.size ?? 0).toBe(0)
+		expect((box().element as HTMLInputElement).checked).toBe(false)
 	})
 
 	it('hands the banner the same props a desk hands it', async () => {

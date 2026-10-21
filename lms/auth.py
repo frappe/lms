@@ -40,6 +40,9 @@ ALLOWED_PATHS = [
 	"/api/method/frappe.client.delete",
 	"/api/method/frappe.client.get_list",
 	"/api/method/frappe.client.rename_doc",
+	# Google sends evaluators back here after Calendar sign-in. lms overrides it
+	# (lms.lms.api.google_calendar_callback), which checks the calendar is theirs.
+	"/api/method/frappe.integrations.doctype.google_calendar.google_calendar.google_callback",
 	"/api/method/frappe.onboarding.get_onboarding_status",
 	"/api/method/frappe.utils.print_format.download_pdf",
 	"/api/method/frappe.desk.search.search_link",
@@ -58,7 +61,7 @@ def authenticate():
 	if frappe.form_dict.cmd:
 		path = f"/api/method/{frappe.form_dict.cmd}"
 	else:
-		path = frappe.request.path
+		path = api_v1_path(frappe.request.path)
 
 	user_type = frappe.db.get_value("User", frappe.session.user, "user_type")
 	if user_type == "System User":
@@ -79,6 +82,18 @@ def authenticate():
 	if path in ALLOWED_PATHS:
 		return
 	frappe.throw(f"Access not allowed for this URL: {path}", frappe.PermissionError)
+
+
+def api_v1_path(path):
+	"""/api/v2/method/<m> as /api/method/<m>, so v2 calls (frappectl uses them) get v1's rules.
+
+	v2 serves the same whitelisted methods, so a method allowed or refused on v1 is
+	allowed or refused on v2. v2 document routes are left as they are, refused like
+	/api/resource."""
+	for prefix in ("/api/v1/method/", "/api/v2/method/"):
+		if path.startswith(prefix):
+			return "/api/method/" + path[len(prefix) :]
+	return path
 
 
 def is_server_script_path(path):

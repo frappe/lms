@@ -5,10 +5,13 @@ from bs4 import BeautifulSoup
 from frappe import _
 from frappe.core.api.file import get_max_file_size
 from frappe.translate import get_user_lang
+from frappe.utils import get_system_timezone
 from frappe.utils.data import escape_html
 from frappe.utils.jinja_globals import is_rtl
 from frappe.utils.telemetry import capture
 
+from lms.lms.api import can_see_job
+from lms.lms.permissions import can_access_course, can_author_batch
 from lms.lms.utils import get_lms_path, get_lms_route
 
 no_cache = 1
@@ -17,7 +20,6 @@ no_cache = 1
 def get_context():
 	context = frappe._dict()
 	context.boot = get_boot()
-	frappe.db.commit()
 
 	app_path = frappe.form_dict.get("app_path")
 	favicon = frappe.db.get_single_value("Website Settings", "favicon") or "/assets/lms/frontend/favicon.png"
@@ -34,7 +36,6 @@ def get_context():
 def get_boot():
 	return frappe._dict(
 		{
-			"frappe_version": frappe.__version__,
 			"read_only_mode": frappe.flags.read_only,
 			"csrf_token": frappe.sessions.get_csrf_token(),
 			"max_file_size": get_max_file_size(),
@@ -43,6 +44,7 @@ def get_boot():
 			"lang": get_user_lang(),
 			"text_direction": "rtl" if is_rtl() else "ltr",
 			"date_format": frappe.get_system_settings("date_format"),
+			"timezone": {"system": get_system_timezone()},
 		}
 	)
 
@@ -91,6 +93,15 @@ def get_meta(app_path, title, favicon):
 	return meta
 
 
+def can_access_batch(batch):
+	"""Published, or the caller authors or is enrolled in it."""
+	if frappe.db.get_value("LMS Batch", batch, "published"):
+		return True
+	if can_author_batch(batch):
+		return True
+	return bool(frappe.db.exists("LMS Batch Enrollment", {"batch": batch, "member": frappe.session.user}))
+
+
 def get_meta_from_document(app_path):
 	if app_path == "courses":
 		return {
@@ -108,6 +119,8 @@ def get_meta_from_document(app_path):
 				"link": get_lms_route("courses/new/edit"),
 			}
 		course_name = app_path.split("/")[1]
+		if not can_access_course(course_name):
+			return frappe._dict()
 		course = frappe.db.get_value(
 			"LMS Course",
 			course_name,
@@ -138,6 +151,8 @@ def get_meta_from_document(app_path):
 		}
 	if re.match(r"^batches/details/.*$", app_path):
 		batch_name = app_path.split("/")[2]
+		if not can_access_batch(batch_name):
+			return frappe._dict()
 		batch = frappe.db.get_value(
 			"LMS Batch",
 			batch_name,
@@ -168,6 +183,8 @@ def get_meta_from_document(app_path):
 				"keywords": "New Batch, Create Batch",
 				"link": get_lms_route("batches/new/edit"),
 			}
+		if not can_access_batch(batch_name):
+			return frappe._dict()
 		batch = frappe.db.get_value(
 			"LMS Batch",
 			batch_name,
@@ -202,11 +219,11 @@ def get_meta_from_document(app_path):
 		job_opening = frappe.db.get_value(
 			"Job Opportunity",
 			job_opening_name,
-			["job_title", "company_logo", "description"],
+			["job_title", "company_logo", "description", "status", "owner"],
 			as_dict=True,
 		)
 
-		if not job_opening:
+		if not job_opening or not can_see_job(job_opening.status, job_opening.owner):
 			return frappe._dict()
 
 		if job_opening.description:

@@ -52,12 +52,24 @@ def has_permission(doc, ptype="read", user=None):
 		# same question save_evaluation_details asks: who is assigned to this
 		# course/batch? Members never create their own evaluation -- they book an
 		# LMS Certificate Request that an evaluator or Moderator converts.
-		return doc.evaluator == user and get_evaluator(doc.course, doc.batch_name) == user
+		return is_assigned_evaluator(doc, user)
 
 	if ptype in ("write", "delete"):
-		return doc.evaluator == user
+		# The write check sees the caller's in-memory values, so ask the create
+		# question of both those and the stored row: either alone lets an evaluator
+		# move an evaluation onto, or off, a course they do not evaluate.
+		stored = frappe.db.get_value(
+			"LMS Certificate Evaluation", doc.name, ["evaluator", "course", "batch_name"], as_dict=True
+		)
+		if not stored or not is_assigned_evaluator(stored, user):
+			return False
+		return ptype == "delete" or is_assigned_evaluator(doc, user)
 
 	return False
+
+
+def is_assigned_evaluator(evaluation, user):
+	return evaluation.evaluator == user and get_evaluator(evaluation.course, evaluation.batch_name) == user
 
 
 def get_permission_query_conditions(user=None):
@@ -100,11 +112,15 @@ def create_lms_certificate(source_name: str, target_doc: dict = None):
 		)
 
 	# get_mapped_doc checks create before it maps, so seed the scope that check reads.
-	target_doc = target_doc or {
-		"doctype": "LMS Certificate",
-		"course": evaluation.course,
-		"batch_name": evaluation.batch_name,
-	}
+	# A Document, not a dict: version-16's get_mapped_doc takes only a str or a Document.
+	target_doc = frappe.get_doc(
+		target_doc
+		or {
+			"doctype": "LMS Certificate",
+			"course": evaluation.course,
+			"batch_name": evaluation.batch_name,
+		}
+	)
 
 	doc = get_mapped_doc(
 		"LMS Certificate Evaluation",

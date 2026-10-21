@@ -1,7 +1,7 @@
 <template>
 	<div
 		v-if="hasPreview"
-		class="aspect-[750/422] w-full overflow-hidden rounded-t-md bg-black"
+		class="aspect-[750/422] w-full overflow-hidden rounded-t-5 bg-black-overlay-950"
 	>
 		<iframe
 			v-if="videoPreview.type === 'youtube'"

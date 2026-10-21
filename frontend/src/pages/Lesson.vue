@@ -3,17 +3,17 @@
 		<PageHeader :breadcrumbs="breadcrumbs">
 			<template #actions>
 				<CertificationLinks :courseName="courseName" />
-				<router-link
+				<HeaderButton
 					v-if="canEditLesson"
-					:to="{
+					:label="__('Editor View')"
+					icon="lucide-pencil"
+					:route="{
 						name: 'CourseDetail',
 						params: { courseName: courseName },
 						hash: '#editor',
 						query: { editLesson: `${chapterNumber}-${lessonNumber}` },
 					}"
-				>
-					<HeaderButton :label="__('Editor View')" icon="lucide-pencil" />
-				</router-link>
+				/>
 			</template>
 		</PageHeader>
 
@@ -52,7 +52,7 @@
 
 		<div class="grid md:grid-cols-[70%,30%] sm:h-[94vh]">
 			<div v-if="lesson.data.no_preview" class="sm:border-e">
-				<div class="shadow rounded-md w-3/4 mt-10 mx-auto text-center p-4">
+				<div class="shadow rounded-5 w-3/4 mt-10 mx-auto text-center p-4">
 					<div class="flex items-center justify-center mt-4 gap-x-2">
 						<span class="lucide-lock-keyhole size-4 text-ink-gray-5" />
 						<div class="text-lg-semibold text-ink-gray-7">
@@ -129,7 +129,7 @@
 									</span>
 									<span class="lucide-info size-3" />
 									<div
-										class="hidden group-hover:block rounded bg-surface-gray-10 px-2 py-1 text-xs text-ink-base shadow-xl absolute start-0 top-full mt-2"
+										class="hidden group-hover:block [@media(hover:none)]:block [@media(hover:none)]:static [@media(hover:none)]:mt-0 rounded-4 bg-surface-gray-10 px-2 py-1 text-xs text-ink-base shadow-xl absolute start-0 top-full mt-2"
 									>
 										{{ Math.ceil(lesson.data.membership.progress) }}%
 										{{ __('completed') }}
@@ -148,32 +148,12 @@
 										</template>
 									</Button>
 								</Tooltip>
-								<Button v-if="lesson.data.prev" @click="switchLesson('prev')">
-									<template #prefix>
-										<span class="lucide-chevron-left size-4" />
-									</template>
-									<span>{{ __('Previous') }}</span>
-								</Button>
-								<Button
-									v-if="lesson.data.next && canGoNext"
-									@click="switchLesson('next')"
-								>
-									<template #suffix>
-										<span class="lucide-chevron-right size-4" />
-									</template>
-									<span>{{ __('Next') }}</span>
-								</Button>
-								<router-link
-									v-else
-									:to="{
-										name: 'CourseDetail',
-										params: { courseName: courseName },
-									}"
-								>
-									<Button class="text-p-base-medium">{{
-										__('Back to Course')
-									}}</Button>
-								</router-link>
+								<LessonNavButtons
+									:hasPrev="!!lesson.data.prev"
+									:hasNext="!!(lesson.data.next && canGoNext)"
+									:courseName="courseName"
+									@switch="switchLesson"
+								/>
 							</div>
 
 							<div
@@ -188,38 +168,12 @@
 										<span class="lucide-message-circle-question size-4" />
 									</template>
 								</Button>
-								<Button v-if="lesson.data.prev" @click="switchLesson('prev')">
-									<template #prefix>
-										<span class="lucide-chevron-left size-4" />
-									</template>
-									<span>
-										{{ __('Previous') }}
-									</span>
-								</Button>
-
-								<Button
-									v-if="lesson.data.next && canGoNext"
-									@click="switchLesson('next')"
-								>
-									<template #suffix>
-										<span class="lucide-chevron-right size-4" />
-									</template>
-									<span>
-										{{ __('Next') }}
-									</span>
-								</Button>
-
-								<router-link
-									v-else
-									:to="{
-										name: 'CourseDetail',
-										params: { courseName: courseName },
-									}"
-								>
-									<Button class="text-p-base-medium">
-										{{ __('Back to Course') }}
-									</Button>
-								</router-link>
+								<LessonNavButtons
+									:hasPrev="!!lesson.data.prev"
+									:hasNext="!!(lesson.data.next && canGoNext)"
+									:courseName="courseName"
+									@switch="switchLesson"
+								/>
 							</div>
 						</div>
 
@@ -232,7 +186,7 @@
 							>
 								<UserAvatar
 									v-for="instructor in lesson.data.instructors"
-									:key="instructor.name ?? instructor"
+									:key="instructor.username"
 									:user="instructor"
 								/>
 							</span>
@@ -247,7 +201,7 @@
 								hasInstructorNotesToRender(lesson.data.instructor_content) &&
 								allowInstructorContent()
 							"
-							class="bg-surface-gray-2 p-3 rounded-md mt-6"
+							class="bg-surface-gray-2 p-3 rounded-5 mt-6"
 						>
 							<h2 class="text-ink-gray-5 font-medium">
 								{{ __('Instructor Notes') }}
@@ -268,10 +222,10 @@
 						</div>
 						<div
 							v-if="contentUnreadable"
-							class="flex items-center gap-3 rounded-lg bg-surface-amber-2 p-3 mt-8"
+							class="flex items-center gap-3 rounded-6 bg-surface-amber-2 p-3 mt-8"
 						>
 							<div
-								class="grid size-7 shrink-0 place-items-center text-ink-amber-6"
+								class="grid size-7 shrink-0 place-items-center text-ink-amber-5"
 							>
 								<span class="lucide-circle-alert size-4" aria-hidden="true" />
 							</div>
@@ -309,7 +263,7 @@
 						</div>
 					</div>
 					<div
-						v-if="lesson.data && (allowDiscussions || tabs.length > 1)"
+						v-if="lesson.data && tabs.length"
 						class="mt-10 pb-20 pt-5 border-t px-5"
 						ref="discussionsContainer"
 					>
@@ -343,6 +297,7 @@
 					:courseName="courseName"
 					:courseTitle="lesson.data.course_title"
 					:progress="lessonProgress"
+					:withProgress="Boolean(user.data)"
 					:selectedLessonNumber="`${chapterNumber}-${lessonNumber}`"
 					:completedLesson="completedLesson"
 				/>
@@ -374,6 +329,7 @@
 			<StudentLessonSidebar
 				:courseName="courseName"
 				:progress="lessonProgress"
+				:withProgress="Boolean(user.data)"
 				:selectedLessonNumber="`${chapterNumber}-${lessonNumber}`"
 				:completedLesson="completedLesson"
 				:hideHeader="true"
@@ -435,6 +391,7 @@ import Discussions from '@/components/Discussions.vue'
 import CertificationLinks from '@/components/CertificationLinks.vue'
 import CourseOutline from '@/components/CourseOutline.vue'
 import LockedLessonNotice from '@/components/LockedLessonNotice.vue'
+import LessonNavButtons from '@/components/LessonNavButtons.vue'
 import StudentLessonSidebar from '@/components/StudentLessonSidebar.vue'
 import BottomSheet from '@/components/BottomSheet.vue'
 import PageHeader from '@/components/Layouts/PageHeader.vue'
@@ -445,6 +402,7 @@ import InlineLessonMenu from '@/components/Notes/InlineLessonMenu.vue'
 import { parseStoredEditorJs } from '@/utils/lessonForm'
 import { getLmsRoute } from '@/utils/basePath'
 import { provideStudentView } from '@/composables/useStudentView'
+import { isInstructorOf } from '@/utils/instructors'
 
 const router = useRouter()
 const route = useRoute()
@@ -478,8 +436,6 @@ const settingsStore = useSettings()
 const { isMobile } = useScreenSize()
 const showChapters = ref(false)
 let timerInterval = null
-
-const tabs = ref([])
 
 const props = defineProps({
 	courseName: {
@@ -1129,8 +1085,11 @@ const checkIfDiscussionsAllowed = () => {
 }
 
 const isAdmin = computed(() => {
-	let isInstructor = lesson.data?.instructors?.includes(user.data?.name)
-	return user.data?.is_moderator || isInstructor
+	const isInstructor = isInstructorOf(
+		lesson.data?.instructors,
+		user.data?.username
+	)
+	return Boolean(user.data?.is_moderator) || isInstructor
 })
 
 // Student view is a mode, not a destination: every hop that stays on a lesson
@@ -1143,8 +1102,11 @@ const studentViewQuery = computed(() =>
 // Reads the real user, not the student-view shadow, so the way back to the
 // editor survives ?studentView=1.
 const canEditLesson = computed(() => {
-	const isInstructor = lesson.data?.instructors?.includes(realUser.data?.name)
-	return realUser.data?.is_moderator || isInstructor
+	const isInstructor = isInstructorOf(
+		lesson.data?.instructors,
+		realUser.data?.username
+	)
+	return Boolean(realUser.data?.is_moderator) || isInstructor
 })
 
 const allowInstructorContent = () => {
@@ -1243,27 +1205,28 @@ const updateNotes = () => {
 	notes.reload()
 }
 
-watch(allowDiscussions, () => {
-	if (!isAdmin.value) {
-		if (!tabs.value.find((tab) => tab.value === 'Notes')) {
-			tabs.value.push({
-				label: __('Notes'),
-				value: 'Notes',
-			})
+// Built from the current lesson, not pushed on each change: a page opened
+// straight on a quiz lesson never flips allowDiscussions, so pushed tabs never
+// appeared, and tabs pushed on an earlier lesson stayed after moving on.
+const tabs = computed(() => [
+	// Guests cannot save notes, so they get none.
+	...(user.data && !isAdmin.value
+		? [{ label: __('Notes'), value: 'Notes' }]
+		: []),
+	...(allowDiscussions.value
+		? [{ label: __('Community'), value: 'Community' }]
+		: []),
+])
+
+watch(
+	tabs,
+	(options) => {
+		if (!options.some((tab) => tab.value === currentTab.value)) {
+			currentTab.value = options[0]?.value
 		}
-		currentTab.value = 'Notes'
-	} else {
-		currentTab.value = allowDiscussions.value ? 'Community' : null
-	}
-	if (allowDiscussions.value) {
-		if (!tabs.value.find((tab) => tab.value === 'Community')) {
-			tabs.value.push({
-				label: __('Community'),
-				value: 'Community',
-			})
-		}
-	}
-})
+	},
+	{ immediate: true }
+)
 
 const redirectToLogin = () => {
 	window.location.href = `/login?redirect-to=${getLmsRoute(
@@ -1288,127 +1251,8 @@ usePageMeta(() => {
 	transition: margin 0.1s ease-in-out;
 }
 
-.lesson-content p {
-	margin-bottom: 1rem;
-	line-height: 1.7;
-}
-
-.lesson-content li {
-	line-height: 1.7;
-}
-
-.lesson-content ol {
-	list-style: auto;
-	margin: revert;
-	padding: 1rem;
-}
-
-.lesson-content ul {
-	list-style: auto;
-	padding: 1rem;
-	margin: revert;
-}
-
-.lesson-content img {
-	border: 1px solid theme('colors.gray.200');
-	border-radius: 0.5rem;
-}
-
-.lesson-content code {
-	display: block;
-	overflow-x: auto;
-	padding: 1rem 1.25rem;
-	background: #011627;
-	color: #d6deeb;
-	border-radius: 0.5rem;
-	margin: 1rem 0;
-}
-
-.lesson-content a {
-	color: theme('colors.gray.900');
-	text-decoration: underline;
-	font-weight: 500;
-}
-
-.embed-tool__caption,
-.cdx-simple-image__caption {
-	display: none;
-}
-
-.ce-block__content {
-	max-width: unset;
-}
-
 .codex-editor__redactor {
 	padding-bottom: 0px !important;
-}
-
-.codeBoxHolder {
-	display: flex;
-	flex-direction: column;
-	justify-content: flex-start;
-	align-items: flex-start;
-}
-
-.codeBoxTextArea {
-	width: 100%;
-	min-height: 30px;
-	padding: 10px;
-	border-radius: 2px 2px 2px 0;
-	border: none !important;
-	outline: none !important;
-	font: 14px monospace;
-}
-
-.codeBoxSelectDiv {
-	display: flex;
-	flex-direction: column;
-	justify-content: flex-start;
-	align-items: flex-start;
-	position: relative;
-}
-
-.codeBoxSelectInput {
-	border-radius: 0 0 20px 2px;
-	padding: 2px 26px;
-	padding-top: 0;
-	padding-inline-end: 0;
-	text-align: start;
-	cursor: pointer;
-	border: none !important;
-	outline: none !important;
-}
-
-.codeBoxSelectDropIcon {
-	position: absolute !important;
-	inset-inline-start: 10px !important;
-	bottom: 0 !important;
-	width: unset !important;
-	height: unset !important;
-	font-size: 16px !important;
-}
-
-.codeBoxSelectPreview {
-	display: none;
-	flex-direction: column;
-	justify-content: flex-start;
-	align-items: flex-start;
-	border-radius: 2px;
-	box-shadow: 0 3px 15px -3px rgba(13, 20, 33, 0.13);
-	position: absolute;
-	top: 100%;
-	margin: 5px 0;
-	max-height: 30vh;
-	overflow-x: hidden;
-	overflow-y: auto;
-	z-index: 10000;
-}
-
-.codeBoxSelectItem {
-	width: 100%;
-	padding: 5px 20px;
-	margin: 0;
-	cursor: pointer;
 }
 
 .codeBoxSelectItem:hover {
@@ -1417,49 +1261,5 @@ usePageMeta(() => {
 
 .codeBoxSelectedItem {
 	background-color: lightblue !important;
-}
-
-.codeBoxShow {
-	display: flex !important;
-}
-
-.dark {
-	color: #abb2bf;
-	background-color: #282c34;
-}
-
-.light {
-	color: #383a42;
-	background-color: #fafafa;
-}
-
-.codeBoxTextArea {
-	line-height: 1.7;
-}
-
-.tc-table {
-	border-inline-start: 1px solid #e8e8eb;
-}
-
-.plyr__control--overlaid {
-	background: radial-gradient(
-		circle,
-		rgba(0, 0, 0, 0.4) 0%,
-		rgba(0, 0, 0, 0.5) 50%
-	);
-}
-
-.plyr__control:hover {
-	background: none;
-}
-
-.plyr--video {
-	border: 1px solid theme('colors.gray.200');
-	border-radius: 8px;
-}
-
-:root {
-	--plyr-range-fill-background: white;
-	--plyr-video-control-background-hover: transparent;
 }
 </style>

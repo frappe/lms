@@ -407,10 +407,10 @@ let sharedPdfWorker = null
 
 <style scoped>
 .pdf-block {
-	border: 1px solid var(--gray-200, #e5e7eb);
+	border: 1px solid var(--outline-gray-2);
 	border-radius: 8px;
 	overflow: hidden;
-	background: var(--gray-50, #f9fafb);
+	background: var(--surface-gray-1);
 }
 .pdf-toolbar {
 	display: flex;
@@ -418,8 +418,8 @@ let sharedPdfWorker = null
 	justify-content: space-between;
 	gap: 8px;
 	padding: 6px 8px;
-	border-bottom: 1px solid var(--gray-200, #e5e7eb);
-	background: var(--white, #fff);
+	border-bottom: 1px solid var(--outline-gray-2);
+	background: var(--surface-base);
 }
 .pdf-toolbar-group {
 	display: flex;
@@ -434,13 +434,13 @@ let sharedPdfWorker = null
 	min-width: 28px;
 	padding: 0 6px;
 	border-radius: 6px;
-	color: var(--gray-700, #374151);
+	color: var(--ink-gray-7);
 	background: transparent;
 	cursor: pointer;
 	border: none;
 }
 .pdf-btn:hover:not(:disabled) {
-	background: var(--gray-100, #f3f4f6);
+	background: var(--surface-gray-2);
 }
 .pdf-btn:disabled {
 	opacity: 0.4;
@@ -450,7 +450,7 @@ let sharedPdfWorker = null
 	min-width: 56px;
 	text-align: center;
 	font-size: 13px;
-	color: var(--gray-700, #374151);
+	color: var(--ink-gray-7);
 	font-variant-numeric: tabular-nums;
 }
 .pdf-scroll {
@@ -467,8 +467,10 @@ let sharedPdfWorker = null
 	-webkit-overflow-scrolling: touch;
 }
 .pdf-page {
-	background: var(--white, #fff);
-	box-shadow: 0 1px 4px rgba(0, 0, 0, 0.12);
+	/* The page substrate is paper, white in either theme; the canvas pdf.js
+	   draws covers it entirely once the page has rendered. */
+	background: #fff; /* token-exempt: paper */
+	box-shadow: var(--elevation-sm);
 	flex: 0 0 auto;
 }
 .pdf-page canvas {
@@ -479,7 +481,7 @@ let sharedPdfWorker = null
 	align-items: center;
 	gap: 8px;
 	padding: 40px 12px;
-	color: var(--gray-600, #4b5563);
+	color: var(--ink-gray-6);
 	font-size: 14px;
 }
 .pdf-error {
@@ -487,7 +489,7 @@ let sharedPdfWorker = null
 }
 .pdf-fallback-link,
 .pdf-status a {
-	color: var(--blue-600, #2563eb);
+	color: var(--ink-blue-5);
 	text-decoration: underline;
 }
 .pdf-spin {

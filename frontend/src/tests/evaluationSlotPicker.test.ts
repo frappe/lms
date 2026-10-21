@@ -13,6 +13,7 @@
  */
 import { describe, expect, it, vi, beforeEach } from 'vitest'
 import { flushPromises, mount } from '@vue/test-utils'
+import { toast } from 'frappe-ui'
 
 const { resources, calls } = vi.hoisted(() => ({
 	resources: { value: [] as any[] },
@@ -105,7 +106,7 @@ async function mountPicker(schedule = SCHEDULE) {
 			props: {
 				modelValue: true,
 				reloadEvals: { reload: vi.fn() },
-				courses: [{ course: COURSE, title: 'A Course', evaluator: 'eva' }],
+				courses: [{ course: COURSE, title: 'A Course', has_evaluator: true }],
 				batch: 'batch-1',
 			},
 			global: {
@@ -176,6 +177,16 @@ describe('evaluation slot picker', () => {
 			day: 'Monday',
 			start_time: '09:00:00',
 			end_time: '10:00:00',
+		})
+	})
+
+	it('keeps the no-slot warning up for ten seconds', async () => {
+		const wrapper = await mountPicker()
+		await wrapper.find('.dialog-action').trigger('click')
+
+		expect(calls.value).toHaveLength(0)
+		expect(toast.warning).toHaveBeenCalledWith(expect.anything(), {
+			duration: 10000,
 		})
 	})
 

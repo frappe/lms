@@ -1,13 +1,13 @@
 <template>
 	<FileUploader
 		:file-types="image_type"
-		:uploadArgs="{ private: false }"
+		:private="false"
 		@success="(file) => emit('upload', file.file_url)"
 	>
 		<template #default="{ progress, uploading, openFileSelector }">
 			<div class="flex items-end space-x-1 rtl:space-x-reverse">
 				<Button
-					:iconLeft="uploading ? 'cloud-upload' : 'lucide-image-up'"
+					iconLeft="lucide-image-up"
 					:label="
 						uploading
 							? __('Uploading {0}%').format(progress)

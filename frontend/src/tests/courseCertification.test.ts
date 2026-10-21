@@ -7,7 +7,7 @@ import type { CertificationInfo } from '@/types'
 // title and the evaluator from the whitelisted endpoint. Reading them with
 // frappe.client.get_value throws a PermissionError for the learner the page is
 // for, `courses` stays empty, and no Schedule button is ever rendered.
-const { createResourceMock, pushMock, callMock, toastMock } = vi.hoisted(() => {
+const { createResourceMock, pushMock, toastMock } = vi.hoisted(() => {
 	window.matchMedia ??= (() => ({
 		matches: false,
 		addEventListener: () => {},
@@ -16,18 +16,19 @@ const { createResourceMock, pushMock, callMock, toastMock } = vi.hoisted(() => {
 	return {
 		createResourceMock: vi.fn(),
 		pushMock: vi.fn(),
-		callMock: vi.fn(() => Promise.resolve({})),
 		toastMock: { success: vi.fn(), error: vi.fn() },
 	}
 })
 
+const { openExternalMock } = vi.hoisted(() => ({ openExternalMock: vi.fn() }))
+
 vi.mock('@/stores/session', () => ({ sessionStore: () => ({ brand: {} }) }))
+vi.mock('@/utils/openExternal', () => ({ openExternal: openExternalMock }))
 vi.mock('vue-router', () => ({ useRouter: () => ({ push: pushMock }) }))
 vi.mock('frappe-ui', () => ({
 	createResource: createResourceMock,
 	usePageMeta: vi.fn(),
 	toast: toastMock,
-	call: callMock,
 }))
 vi.mock('@/components/Layouts/PageHeader.vue', () => ({
 	default: { template: '<div><slot /></div>' },
@@ -62,7 +63,8 @@ const COURSE = 'python-basics'
 
 const ENROLLED: CertificationInfo = {
 	title: 'Python Basics',
-	evaluator: 'eval@example.com',
+	has_evaluator: true,
+	evaluator: null,
 	membership: { purchased_certificate: 1 },
 	certificate: null,
 }
@@ -122,7 +124,8 @@ describe('CourseCertification', () => {
 
 	it('never reads the course through frappe.client', () => {
 		mountPage()
-		expect(callMock).not.toHaveBeenCalled()
+		const urls = createResourceMock.mock.calls.map(([given]) => given.url)
+		expect(urls.filter((url) => url.startsWith('frappe.client'))).toEqual([])
 	})
 
 	// Without this the suite passes against a page that fetches nothing and
@@ -161,12 +164,12 @@ describe('CourseCertification', () => {
 		expect(resource.fetch).toHaveBeenCalledTimes(1)
 	})
 
-	it('hands the evaluator it returns to the evaluation list', async () => {
+	it('tells the evaluation list the course has an evaluator', async () => {
 		const { wrapper, resource } = mountPage()
 		resource.data = ENROLLED
 		await flushPromises()
 		expect(evaluations(wrapper).props('courses')).toEqual([
-			{ course: COURSE, title: 'Python Basics', evaluator: 'eval@example.com' },
+			{ course: COURSE, title: 'Python Basics', has_evaluator: true },
 		])
 	})
 
@@ -179,10 +182,10 @@ describe('CourseCertification', () => {
 	// row is still passed down; it is that component's call what to show.
 	it('still lists a course whose evaluator is unset', async () => {
 		const { wrapper, resource } = mountPage()
-		resource.data = { ...ENROLLED, evaluator: null }
+		resource.data = { ...ENROLLED, has_evaluator: false }
 		await flushPromises()
 		expect(evaluations(wrapper).props('courses')).toEqual([
-			{ course: COURSE, title: 'Python Basics', evaluator: null },
+			{ course: COURSE, title: 'Python Basics', has_evaluator: false },
 		])
 	})
 
@@ -194,6 +197,18 @@ describe('CourseCertification', () => {
 		expect(wrapper.text()).toContain('Python Basics')
 		expect(wrapper.text()).toContain('01 Jan 2026')
 		expect(evaluations(wrapper).exists()).toBe(false)
+	})
+
+	// Regression: certificate PDF 500 under a frappe._dict() letter head (#3031, fixed in #3039).
+	it('opens the certificate PDF without the site letter head', async () => {
+		const { wrapper, resource } = mountPage()
+		resource.data = CERTIFIED
+		await flushPromises()
+
+		await wrapper.find('button').trigger('click')
+		const url = new URL(openExternalMock.mock.calls[0][0], 'http://lms.test')
+		expect(url.searchParams.get('name')).toBe('CERT-0001')
+		expect(url.searchParams.get('no_letterhead')).toBe('1')
 	})
 
 	it('sends a learner without a purchased certificate back to the course', () => {

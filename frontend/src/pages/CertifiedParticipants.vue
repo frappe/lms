@@ -12,14 +12,12 @@
 		@load-more="participants.next()"
 	>
 		<template #actions>
-			<router-link :to="{ name: 'Courses', query: { certification: true } }">
-				<Button>
-					<template #prefix>
-						<span class="lucide-graduation-cap size-4" />
-					</template>
-					{{ __('Get Certified') }}
-				</Button>
-			</router-link>
+			<Button :route="{ name: 'Courses', query: { certification: true } }">
+				<template #prefix>
+					<span class="lucide-graduation-cap size-4" />
+				</template>
+				{{ __('Get Certified') }}
+			</Button>
 		</template>
 
 		<template #name> {{ memberCount }} {{ __('Certified Members') }} </template>
@@ -30,7 +28,6 @@
 				:placeholder="__('Search')"
 				:aria-label="__('Search')"
 				type="text"
-				@input="updateParticipants()"
 			>
 				<template #prefix>
 					<span class="lucide-search size-4 text-ink-gray-5" />
@@ -59,7 +56,7 @@
 			<component
 				:is="row.username ? 'router-link' : 'div'"
 				:to="profileRoute(row.username, 'ProfileAbout')"
-				class="flex flex-col rounded-lg border p-3 text-ink-gray-9"
+				class="flex flex-col rounded-6 border p-3 text-ink-gray-9"
 				:class="
 					row.username ? 'cursor-pointer hover:border-outline-gray-3' : ''
 				"
@@ -71,7 +68,9 @@
 							{{ row.full_name }}
 						</div>
 						<div class="mb-4 line-clamp-1 text-sm leading-5">
-							{{ row.headline || 'Joined ' + dayjs(row.creation).fromNow() }}
+							{{
+								row.headline || 'Joined ' + serverTime(row.creation).fromNow()
+							}}
 						</div>
 					</div>
 				</div>
@@ -109,12 +108,13 @@ import {
 } from 'frappe-ui'
 import ClearableCombobox from '@/components/Controls/ClearableCombobox.vue'
 import ToggleFilter from '@/components/Controls/ToggleFilter.vue'
-import { computed, inject, onMounted, ref } from 'vue'
+import { computed, inject, onMounted, ref, watch } from 'vue'
 import { sessionStore } from '../stores/session'
 import { useRouter } from 'vue-router'
 import UserAvatar from '@/components/UserAvatar.vue'
 import ListPage from '@/components/Layouts/ListPage.vue'
 import { profileRoute } from '@/utils/routes'
+import { serverTime } from '@/utils/dayjs'
 
 const filters = ref({})
 const currentCategory = ref('')
@@ -134,6 +134,8 @@ onMounted(() => {
 	}
 	setFiltersFromQuery()
 	updateParticipants()
+	// TextInput emits on input and change; watched after query hydration to avoid a refetch.
+	watch(nameFilter, () => updateParticipants())
 })
 
 const participants = createListResource({

@@ -6,7 +6,6 @@
 					'rotate-90': open,
 					'rtl:rotate-180': !open,
 					hidden: chapter.is_scorm_package,
-					open: index == 1,
 					'self-start mt-0.5': inlineSelect,
 				}"
 				class="lucide-chevron-right size-4 text-ink-gray-9 transform duration-200"
@@ -39,41 +38,43 @@
 				</div>
 			</div>
 			<div class="flex ms-3 items-center gap-x-4 shrink-0">
-				<!-- Lesson count in the corner (student-view style). When the chapter
-				is editable it gives way to the delete action on hover. -->
 				<span
 					v-if="!chapter.is_scorm_package && chapter.lessons?.length"
 					class="text-sm text-ink-gray-5"
-					:class="{ 'group-hover:hidden': allowEdit }"
+					:class="{
+						'group-hover:hidden [@media(hover:none)]:hidden': allowEdit,
+					}"
 				>
 					{{ chapter.lessons.length }}
 				</span>
-				<Tooltip :text="__('Edit Chapter')" placement="bottom">
+				<Tooltip :text="__('Edit Chapter')" side="bottom">
 					<span
 						v-if="allowEdit && chapter.is_scorm_package"
 						@click.prevent="emit('edit-chapter', chapter)"
-						class="lucide-file-pen-line size-4 text-ink-gray-9 invisible group-hover:visible"
+						class="lucide-file-pen-line size-4 text-ink-gray-9 invisible group-hover:visible [@media(hover:none)]:visible"
 					/>
 				</Tooltip>
-				<Tooltip :text="__('Delete Chapter')" placement="bottom">
+				<Tooltip :text="__('Delete Chapter')" side="bottom">
 					<span
 						v-if="allowEdit"
 						@click.prevent="emit('delete-chapter', chapter.name)"
-						class="lucide-trash-2 size-4 text-ink-red-6 hidden group-hover:inline-block"
+						class="lucide-trash-2 size-4 text-ink-red-5 hidden group-hover:inline-block [@media(hover:none)]:inline-block"
 					/>
 				</Tooltip>
 			</div>
 			<template v-if="isScormChapterLocked">
-				<span
-					class="lucide-lock-keyhole size-4 text-ink-gray-4"
-					:title="__('Complete the previous lessons to unlock this one')"
-					aria-hidden="true"
-				/>
+				<Tooltip :text="lockReason">
+					<span
+						class="lucide-lock-keyhole size-4 text-ink-gray-4"
+						aria-hidden="true"
+					/>
+				</Tooltip>
 				<span class="sr-only">{{ __('Locked') }}</span>
+				<span class="sr-only">{{ lockReason }}</span>
 			</template>
 			<span
 				v-else-if="chapter.is_scorm_package && isScormChapterComplete"
-				class="lucide-check size-4 text-green-700"
+				class="lucide-check size-4 text-ink-green-8"
 			/>
 		</DisclosureButton>
 		<DisclosurePanel v-if="!chapter.is_scorm_package">
@@ -87,11 +88,10 @@
 			>
 				<template #item="{ element: lesson }">
 					<div
-						class="outline-lesson ps-8 py-2 pe-4 text-ink-gray-9"
+						class="ps-8 py-2 pe-4 text-ink-gray-9"
+						data-testid="outline-lesson"
 						:class="
-							isActiveLesson(lesson.number)
-								? 'bg-surface-gray-3 rounded-md'
-								: ''
+							isActiveLesson(lesson.number) ? 'bg-surface-gray-3 rounded-5' : ''
 						"
 					>
 						<component
@@ -138,30 +138,37 @@
 												chapter: chapter.name,
 											})
 										"
-										class="lucide-trash-2 h-4 w-4 text-ink-red-6 invisible group-hover:visible"
+										class="lucide-trash-2 h-4 w-4 text-ink-red-5 invisible group-hover:visible [@media(hover:none)]:visible"
 									/>
 								</div>
 								<template v-if="lesson.locked">
-									<span
-										class="lucide-lock-keyhole h-4 w-4 text-ink-gray-4 ms-2"
-										:title="
-											__('Complete the previous lesson to unlock this one')
-										"
-										aria-hidden="true"
-									/>
+									<Tooltip :text="lockReason">
+										<span
+											class="lucide-lock-keyhole h-4 w-4 text-ink-gray-4 ms-2"
+											aria-hidden="true"
+										/>
+									</Tooltip>
 									<span class="sr-only">{{ __('Locked') }}</span>
+									<span class="sr-only">{{ lockReason }}</span>
 								</template>
 								<span
 									v-else-if="lesson.is_complete"
-									class="lucide-check h-4 w-4 text-green-700 ms-2"
+									class="lucide-check h-4 w-4 text-ink-green-8 ms-2"
 								/>
 							</div>
 						</component>
 					</div>
 				</template>
 			</Draggable>
+			<div
+				v-if="isDraftInChapter"
+				class="ps-8 py-2 pe-4 bg-surface-gray-3 rounded-5 text-sm leading-5 text-ink-gray-6"
+				data-testid="outline-draft-lesson"
+			>
+				{{ __('New lesson') }}
+			</div>
 			<div v-if="allowEdit" class="flex mt-2 mb-4 ps-8">
-				<Button :loading="creatingLesson" @click="addLesson">
+				<Button @click="addLesson">
 					<template #prefix>
 						<span class="lucide-plus size-4" />
 					</template>
@@ -179,7 +186,9 @@ import Draggable from 'vuedraggable'
 import { Disclosure, DisclosureButton, DisclosurePanel } from '@headlessui/vue'
 import { useRoute, useRouter } from 'vue-router'
 import type { RouteLocationRaw } from 'vue-router'
+import type { InputExposed } from 'frappe-ui'
 import type { OutlineChapter, OutlineLesson, SessionUser } from '@/types'
+import { draftLessonNumber } from '@/utils/courseOutline'
 
 interface DraggableEvent {
 	item: { __draggable_context: { element: OutlineChapter | OutlineLesson } }
@@ -191,20 +200,17 @@ interface DraggableEvent {
 const props = withDefaults(
 	defineProps<{
 		chapter: OutlineChapter
-		index: number
 		courseName: string
 		allowEdit?: boolean
 		inlineSelect?: boolean
 		editorLinks?: boolean
 		selectedLessonNumber?: string
-		creatingLesson?: boolean
 	}>(),
 	{
 		allowEdit: false,
 		inlineSelect: false,
 		editorLinks: false,
 		selectedLessonNumber: '',
-		creatingLesson: false,
 	}
 )
 
@@ -225,7 +231,7 @@ const user = inject<SessionUser>('$user')!
 
 const isRenaming = ref<boolean>(false)
 const renameValue = ref<string>('')
-const renameInput = ref<{ el: HTMLInputElement } | null>(null)
+const renameInput = ref<InputExposed | null>(null)
 
 // Tell the parent outline to lock chapter dragging while a name is being edited,
 // so a stray drag can't fire mid-rename.
@@ -235,7 +241,7 @@ function startRename(): void {
 	renameValue.value = props.chapter.title
 	isRenaming.value = true
 	nextTick(() => {
-		renameInput.value?.el?.focus()
+		renameInput.value?.focus()
 	})
 }
 
@@ -276,6 +282,10 @@ const isScormChapterComplete = computed<boolean>(() =>
 	)
 )
 
+// Lessons unlock in course order: one stays locked while any earlier lesson is
+// incomplete (compute_locked_lessons).
+const lockReason = __('Complete the previous lessons to unlock this one')
+
 // A SCORM chapter has no DisclosurePanel, so it never reaches the per-lesson lock
 // affordance below: without this it looks identical to an open one and the student
 // only learns it is locked after SCORMChapter.vue bounces them back. Same rule as
@@ -286,6 +296,13 @@ const isScormChapterLocked = computed<boolean>(() =>
 			props.chapter.lessons?.length &&
 			props.chapter.lessons.every((l) => l.locked)
 	)
+)
+
+// The editor's open lesson is a draft in this chapter, not yet in its lessons.
+const isDraftInChapter = computed<boolean>(
+	() =>
+		props.inlineSelect &&
+		props.selectedLessonNumber === draftLessonNumber(props.chapter.idx)
 )
 
 function isActiveLesson(lessonNumber: string): boolean {

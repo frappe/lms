@@ -1,9 +1,11 @@
 import { mount } from '@vue/test-utils'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { nextTick } from 'vue'
 import ChapterRow from '@/components/ChapterRow.vue'
 import type { OutlineChapter } from '@/types'
 
 const pushMock = vi.hoisted(() => vi.fn())
+const focusMock = vi.hoisted(() => vi.fn())
 
 vi.mock('vue-router', () => ({
 	useRoute: () => ({ params: {}, query: {} }),
@@ -17,6 +19,8 @@ vi.mock('frappe-ui', () => ({
 	TextInput: {
 		props: ['modelValue'],
 		emits: ['update:modelValue'],
+		expose: ['focus'],
+		methods: { focus: focusMock },
 		template: `
 			<div>
 				<input
@@ -27,7 +31,8 @@ vi.mock('frappe-ui', () => ({
 		`,
 	},
 	Tooltip: {
-		template: `<span><slot /></span>`,
+		props: ['text'],
+		template: `<span :data-tooltip="text"><slot /></span>`,
 	},
 	toast: {
 		success: vi.fn(),
@@ -57,13 +62,15 @@ const chapter: OutlineChapter = {
 	lessons: [{ name: 'LESSON-1', title: 'Lesson 1', number: '2-1' }],
 }
 
-const mountRow = (chapterOverride: OutlineChapter = chapter) =>
+const mountRow = (
+	chapterOverride: OutlineChapter = chapter,
+	allowEdit = true
+) =>
 	mount(ChapterRow, {
 		props: {
 			chapter: chapterOverride,
-			index: 1,
 			courseName: 'course-1',
-			allowEdit: true,
+			allowEdit,
 		},
 		global: {
 			mocks: { __: (s: string) => s },
@@ -76,9 +83,19 @@ const mountRow = (chapterOverride: OutlineChapter = chapter) =>
 
 beforeEach(() => {
 	pushMock.mockReset()
+	focusMock.mockReset()
 })
 
 describe('ChapterRow inline rename', () => {
+	it('focuses the rename input through its exposed focus()', async () => {
+		const wrapper = mountRow()
+
+		await wrapper.get('[title="Old Chapter"]').trigger('dblclick')
+		await nextTick()
+
+		expect(focusMock).toHaveBeenCalledTimes(1)
+	})
+
 	it('commits on Enter without toggling the chapter disclosure', async () => {
 		const wrapper = mountRow()
 
@@ -93,6 +110,25 @@ describe('ChapterRow inline rename', () => {
 			{ chapter, title: 'Renamed Chapter' },
 		])
 		expect(wrapper.text()).not.toContain('Lesson 1')
+	})
+})
+
+describe('ChapterRow lesson count', () => {
+	const count = (allowEdit: boolean) =>
+		mountRow(chapter, allowEdit).get('span.text-ink-gray-5').classes()
+
+	it('gives way to the delete action on hover and on touch', () => {
+		expect(count(true)).toEqual(
+			expect.arrayContaining([
+				'group-hover:hidden',
+				'[@media(hover:none)]:hidden',
+			])
+		)
+	})
+
+	it('stays visible when the chapter is not editable', () => {
+		expect(count(false)).not.toContain('group-hover:hidden')
+		expect(count(false)).not.toContain('[@media(hover:none)]:hidden')
 	})
 })
 
@@ -200,7 +236,6 @@ describe('ChapterRow locked lesson', () => {
 						},
 					],
 				},
-				index: 1,
 				courseName: 'course-1',
 				inlineSelect: true,
 			},
@@ -213,5 +248,74 @@ describe('ChapterRow locked lesson', () => {
 		await wrapper.get('.cursor-not-allowed').trigger('click')
 
 		expect(wrapper.emitted('select-lesson')).toBeUndefined()
+	})
+})
+
+describe('ChapterRow draft lesson', () => {
+	const mountInline = (selectedLessonNumber: string) =>
+		mount(ChapterRow, {
+			props: {
+				chapter,
+				courseName: 'course-1',
+				allowEdit: true,
+				inlineSelect: true,
+				selectedLessonNumber,
+			},
+			global: {
+				mocks: { __: (s: string) => s },
+				provide: { $user: { data: { name: 'admin@example.com' } } },
+			},
+		})
+
+	it('shows the open draft as the active row of its chapter', () => {
+		const row = mountInline('2-new').find(
+			'[data-testid="outline-draft-lesson"]'
+		)
+		expect(row.exists()).toBe(true)
+		expect(row.classes()).toContain('bg-surface-gray-3')
+	})
+
+	it('shows nothing for a draft in another chapter', () => {
+		const wrapper = mountInline('1-new')
+		expect(wrapper.find('[data-testid="outline-draft-lesson"]').exists()).toBe(
+			false
+		)
+	})
+})
+
+describe('ChapterRow lock reason', () => {
+	// Guards #3015: the lock gave no reason. Lessons unlock in course order, so a
+	// lesson stays locked while any earlier one is incomplete.
+	const reason = 'Complete the previous lessons to unlock this one'
+	const lockTooltip = (wrapper: ReturnType<typeof mountRow>) =>
+		wrapper
+			.findAll('[data-tooltip]')
+			.find((el) => el.find('.lucide-lock-keyhole').exists())
+
+	it('explains a locked lesson', () => {
+		const wrapper = mountRow({
+			...chapter,
+			idx: 1,
+			lessons: [
+				{ name: 'LESSON-1', title: 'Lesson 1', number: '2-1', locked: 1 },
+			],
+		})
+
+		expect(lockTooltip(wrapper)?.attributes('data-tooltip')).toBe(reason)
+		expect(wrapper.get('.cursor-not-allowed').text()).toContain(reason)
+	})
+
+	it('explains a locked SCORM chapter', () => {
+		const wrapper = mountRow({
+			...chapter,
+			idx: 1,
+			is_scorm_package: 1 as const,
+			lessons: [
+				{ name: 'LESSON-1', title: 'SCORM Lesson', number: '1-1', locked: 1 },
+			],
+		})
+
+		expect(lockTooltip(wrapper)?.attributes('data-tooltip')).toBe(reason)
+		expect(wrapper.text()).toContain(reason)
 	})
 })

@@ -1,7 +1,12 @@
 import { test, expect } from "./fixtures";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { closeOnboardingModal, button, waitForApiCall } from "./helpers";
+import {
+	closeOnboardingModal,
+	button,
+	deleteLeftovers,
+	waitForApiCall,
+} from "./helpers";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -14,6 +19,8 @@ const courseTitle = `Test Course ${Date.now()}`;
 // Set once the create step below redirects; every later test in this file
 // reuses it, same as the course itself.
 let courseSlug: string;
+// The thumbnail is uploaded unattached, so deleting the course leaves it.
+let thumbnailFile: string;
 const description =
 	"Test Course Description. I need a very big description to test the UI. This is a very big description. It contains more than once sentence. Its meant to be this long as this is a UI test. Its unbearably long and I'm not sure why I'm typing this much. I'm just going to keep typing until I feel like its long enough. I think its long enough now. I'm going to stop typing now.";
 
@@ -26,23 +33,34 @@ const settingsTab = (page: import("@playwright/test").Page) =>
 		.filter({ hasText: "Settings" });
 
 test.describe("Course Creation", () => {
+	// Every test after the first reads the course the first one creates, and
+	// courseSlug lives only in the worker that set it. Serial retries the whole
+	// chain in one worker instead of rerunning a later test without it.
+	test.describe.configure({ mode: "serial" });
+
+	// "deletes the course" removes the course through the UI; this catches a
+	// chain that failed before it, and the thumbnail no UI flow deletes.
+	test.afterAll(async () => {
+		await deleteLeftovers([
+			{ method: "lms.lms.api.delete_course", args: { course: courseSlug } },
+			{ doctype: "File", name: thumbnailFile },
+		]);
+	});
+
 	test("creates a new course with settings", async ({ page }) => {
 		await page.goto("/lms/courses");
 		await closeOnboardingModal(page);
 
 		// Open New Course modal
-		await button(page, "Create").click();
-		await page.getByRole("menuitem", { name: "New Course" }).click();
+		await button(page, "New Course").click();
 
-		// The form is a route now (NewCourseForm.vue), and the Create dropdown
-		// that opened it is a dismissable layer that outlives the click, so
-		// scope to the form's own fields rather than to the last layer on the
-		// page.
+		// The form is a route now (NewCourseForm.vue); scope to its own fields
+		// rather than to the last layer on the page.
 		//
-		// No whole-wrapper visibility assertion: the form is taller than a
-		// typical CI viewport, and Playwright's per-locator actions already
-		// auto-wait and auto-scroll the specific element they touch — the
-		// wrapper itself never needs to be "visible" as a whole.
+		// No whole-wrapper visibility assertion: the fields scroll inside the
+		// dialog on a short CI viewport, and Playwright's per-locator actions
+		// already auto-wait and auto-scroll the specific element they touch —
+		// the wrapper itself never needs to be "visible" as a whole.
 		const fields = page.getByTestId("new-course-fields");
 		await fields
 			.locator("label")
@@ -51,32 +69,23 @@ test.describe("Course Creation", () => {
 			.locator("input")
 			.fill(courseTitle);
 
-		// Instructors: MultiSelect
-		await fields
-			.locator("label")
-			.filter({ hasText: "Instructors" })
-			.locator("xpath=..")
-			.locator("button")
-			.first()
-			.click();
-
-		await page
-			.locator('[data-slot="content-body"] [data-slot="input"]')
-			.fill("frappe");
-		// Cypress budgeted a 10s find plus its own 20s default actionability
-		// wait (~30s combined); a single Playwright `.click({timeout})` covers
-		// both the find and the actionability wait in one window, so match
-		// the combined budget rather than just the find half of it.
-		await page
-			.locator('[data-slot="content-body"] [role="option"]')
-			.first()
-			.click({ timeout: 30000 });
-		await page.keyboard.press("Escape");
+		// The form pre-fills the signed-in user as instructor; clicking their
+		// option would deselect them and the form now refuses to save.
+		await expect(
+			fields
+				.locator("label")
+				.filter({ hasText: "Instructors" })
+				.locator("xpath=..")
+				.locator("button")
+				.first()
+		).toContainText("Frappe");
 
 		// Thumbnail
+		const upload = waitForApiCall(page, "/api/method/upload_file");
 		await fields
 			.locator('input[type="file"]')
 			.setInputFiles(path.join(__dirname, "fixtures/profile.png"));
+		thumbnailFile = (await (await upload).json()).message.name;
 
 		// Short introduction
 		await fields
@@ -119,33 +128,50 @@ test.describe("Course Creation", () => {
 			.getByPlaceholder("Paste a YouTube link")
 			.fill("https://www.youtube.com/embed/-LPmw2Znl2c");
 
-		// Tags
-		await page
+		// Tags. A new tag is the `Create "<tag>"` option CourseDetailsSection
+		// adds once the query reaches it, and reka only highlights that option
+		// a tick later, so an Enter pressed straight after typing can select
+		// nothing. Click the option itself, then wait for the trigger to list
+		// the tag before typing the next one.
+		const tagsTrigger = page
 			.locator("label")
 			.filter({ hasText: "Tags" })
 			.locator("xpath=..")
 			.locator("button")
-			.first()
-			.click();
+			.first();
+		await tagsTrigger.click();
 		const tagInput = page.locator(
 			'[data-slot="content-body"] [data-slot="input"]'
 		);
+		const added: string[] = [];
 		for (const tag of ["Learning", "Frappe", "ERPNext"]) {
 			await tagInput.fill(tag);
-			await tagInput.press("Enter");
+			await page.getByRole("option", { name: `Create "${tag}"` }).click();
+			added.push(tag);
+			await expect(tagsTrigger).toHaveText(added.join(", "));
 		}
 		await page.keyboard.press("Escape");
 
 		await button(page, "Save").click();
+		// Save writes the whole doc, published flag included, and reloads it
+		// afterwards. Publishing while that is in flight lets the stale copy
+		// land last, so wait for the save and start publish from a fresh page.
+		await expect(page.getByText("Course updated successfully")).toBeVisible();
+		await page.reload();
+		await closeOnboardingModal(page);
 
 		// Publish
 		await page
 			.locator("header")
 			.getByRole("button", { name: /^Publish$/ })
 			.click();
-		await expect(page.getByText(/Course published/i)).toBeVisible({
-			timeout: 20000,
-		});
+		// Not the toast: its wording reads `published` when the request returns,
+		// and a reload already in flight can carry the new value, so a successful
+		// publish can say "Course unpublished". The button flips only once a
+		// reload has returned the course as published.
+		await expect(
+			page.locator("header").getByRole("button", { name: /^Unpublish$/ })
+		).toBeVisible({ timeout: 20000 });
 
 		// Reload and verify published state
 		await page.reload();
@@ -174,11 +200,16 @@ test.describe("Course Creation", () => {
 		await closeOnboardingModal(page);
 		await outlineResponse;
 
-		// Add a chapter via the toolbar "Add" button (CourseEditor hides
-		// CourseOutline's own header). Scope to the chapter dialog by its Title
-		// field. The onboarding "Getting started" panel is also a dismissable
-		// layer, but it has no Title input.
-		await page.getByRole("button", { name: "Add" }).click();
+		// A course without chapters shows one empty state in place of the
+		// chapters panel and its toolbar; its "Create chapter" is the only way
+		// in, and it waits on the course as well as the outline.
+		const createChapter = page.getByRole("button", { name: "Create chapter" });
+		await expect(createChapter).toBeVisible({ timeout: 20000 });
+
+		// Scope to the chapter dialog by its Title field. The onboarding
+		// "Getting started" panel is also a dismissable layer, but it has no
+		// Title input.
+		await createChapter.click();
 		const chapterDialog = page
 			.locator("[data-dismissable-layer]")
 			.filter({ has: page.locator("label", { hasText: "Title" }) });
@@ -189,10 +220,11 @@ test.describe("Course Creation", () => {
 			.locator("xpath=..")
 			.locator("input")
 			.fill("Test Chapter");
-		// ChapterForm.vue is a form route now, and every form in the shared
-		// shell submits with "Save".
+		// ChapterForm.vue is a form route now, and a new chapter submits with
+		// "Add".
 		await chapterDialog.getByTestId("chapter-save").click();
-		await expect(page.getByText("Test Chapter")).toBeVisible({
+		// exact: the editor's next empty state names the chapter in a sentence.
+		await expect(page.getByText("Test Chapter", { exact: true })).toBeVisible({
 			timeout: 15000,
 		});
 
@@ -200,28 +232,24 @@ test.describe("Course Creation", () => {
 		// Dismiss it before adding a lesson so it can't hijack the editor.
 		await closeOnboardingModal(page);
 
-		// "Add Lesson" creates an "Untitled lesson" and opens it in the editor
-		// with the title field focused (LessonForm focuses the title, not the
-		// block editor, for a new, empty lesson, so our keystrokes land in the
-		// title). Rename it inline; the debounced autosave persists via
-		// frappe.client.set_value.
+		// "Add Lesson" opens an empty draft with the title focused; nothing is
+		// created until a title is typed. The lesson is created after 3 s of
+		// idle typing (or on blur) and then shows in the outline.
 		await button(page, "Add Lesson").click({ timeout: 10000 });
 		const titleField = page.locator("textarea.lesson-title");
-		await expect(titleField).toHaveValue("Untitled lesson", {
+		await expect(page.getByTestId("outline-draft-lesson")).toBeVisible({
 			timeout: 15000,
 		});
-		const renameResponse = waitForApiCall(
+		await expect(titleField).toHaveValue("");
+		const createResponse = waitForApiCall(
 			page,
-			"/api/method/frappe.client.set_value",
+			"/api/method/lms.lms.api.create_lesson",
 			15000
 		);
-		await titleField.clear();
-		await expect(titleField).toHaveValue("");
 		await titleField.fill("Test Lesson");
-		await expect(titleField).toHaveValue("Test Lesson");
-		await renameResponse;
+		await createResponse;
 		await expect(
-			page.locator(".outline-lesson").filter({ hasText: "Test Lesson" })
+			page.getByTestId("outline-lesson").filter({ hasText: "Test Lesson" })
 		).toBeVisible({ timeout: 15000 });
 
 		// Regression: deleting the lesson open in the editor must drop back to
@@ -229,11 +257,20 @@ test.describe("Course Creation", () => {
 		// (the last row, just added), and assert the editor cleared and "Test
 		// Lesson" survived.
 		await button(page, "Add Lesson").click({ timeout: 10000 });
-		await expect(titleField).toHaveValue("Untitled lesson", {
-			timeout: 15000,
-		});
+		await expect(titleField).toHaveValue("");
+		const throwawayResponse = waitForApiCall(
+			page,
+			"/api/method/lms.lms.api.create_lesson",
+			15000
+		);
+		await titleField.fill("Throwaway lesson");
+		await titleField.blur();
+		await throwawayResponse;
+		await expect(
+			page.getByTestId("outline-lesson").filter({ hasText: "Throwaway lesson" })
+		).toBeVisible({ timeout: 15000 });
 		await page
-			.locator(".outline-lesson")
+			.getByTestId("outline-lesson")
 			.last()
 			.locator(".lucide-trash-2")
 			.click({ force: true });
@@ -243,12 +280,10 @@ test.describe("Course Creation", () => {
 			.getByRole("button", { name: "Delete" })
 			.click();
 		await expect(page.getByText("Lesson deleted successfully")).toBeVisible();
+		await expect(page.getByText("Pick a lesson to edit")).toBeVisible();
+		await expect(page.getByTestId("outline-lesson")).toHaveCount(1);
 		await expect(
-			page.getByText("Select a lesson on the right to start editing.")
-		).toBeVisible();
-		await expect(page.locator(".outline-lesson")).toHaveCount(1);
-		await expect(
-			page.locator(".outline-lesson").filter({ hasText: "Test Lesson" })
+			page.getByTestId("outline-lesson").filter({ hasText: "Test Lesson" })
 		).toBeVisible();
 	});
 

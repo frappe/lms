@@ -79,11 +79,13 @@
 						:required="true"
 					/>
 					<RichTextEditor
+						:ariaLabelledby="questionLabelId"
+						:ariaRequired="true"
 						:content="assignment.question"
 						@change="(val: string) => (assignment.question = val)"
 						:editable="canEdit"
 						:fixedMenu="true"
-						editorClass="prose-sm max-w-none border-b border-x border-outline-elevation-2 bg-surface-gray-2 rounded-b-md py-1 px-2 min-h-[10rem] max-h-[18rem] overflow-y-auto"
+						editorClass="prose-sm max-w-none border-b border-x border-outline-elevation-2 bg-surface-gray-2 rounded-b-5 py-1 px-2 min-h-[10rem] max-h-[18rem] overflow-y-auto"
 					/>
 				</div>
 			</fieldset>
@@ -93,22 +95,19 @@
 				v-if="canManageAssignments"
 				class="flex items-center justify-end gap-2"
 			>
-				<router-link
+				<HeaderButton
 					v-if="assignmentID !== 'new'"
-					:to="{
+					:route="{
 						name: 'AssignmentSubmissionList',
 						query: { assignmentID: assignmentID },
 					}"
-				>
-					<HeaderButton
-						:label="__('Check Submissions')"
-						icon="lucide-clipboard-list"
-					/>
-				</router-link>
+					:label="__('Check Submissions')"
+					icon="lucide-clipboard-list"
+				/>
 				<HeaderButton
 					v-if="canEdit"
 					data-testid="assignment-save"
-					:label="__('Save')"
+					:label="isNew ? __('Create') : __('Save')"
 					variant="solid"
 					:loading="saving"
 					@click="saveAssignment"
@@ -124,6 +123,7 @@ import {
 	createResource,
 	toast,
 } from 'frappe-ui'
+import type { FrappeResourceError } from 'frappe-ui'
 import { computed, inject, reactive, useId, watch } from 'vue'
 import { sanitizeOnWrite } from '@/utils/sanitizeOnWrite'
 import FormShell from '@/components/FormShell.vue'
@@ -132,8 +132,8 @@ import BooleanSwitch from '@/components/Controls/BooleanSwitch.vue'
 import { useFormRoute } from '@/composables/useFormRoute'
 import Link from '@/components/Controls/Link.vue'
 import RichTextEditor from '@/components/RichTextEditor.vue'
-import { InputLabel } from '@/components/Form/labeling'
-import { submitResource } from '@/utils/resource'
+import { InputLabel } from 'frappe-ui/experimental'
+import { resourceErrorMessage, submitResource } from '@/utils/resource'
 import { toDatetimeLocal, fromDatetimeLocal } from '@/utils/schedule'
 import { useCanWrite } from '@/composables/useCanWrite'
 
@@ -160,7 +160,7 @@ const canWrite = useCanWrite('LMS Assignment', () =>
 const canEdit = computed(() => canWrite.value === true)
 
 const formTitle = computed(() =>
-	isNew.value ? __('Create an Assignment') : __('Edit Assignment')
+	isNew.value ? __('New Assignment') : __('Edit Assignment')
 )
 
 // Copied off the two places Assignments.vue gates this form today: the page
@@ -211,8 +211,8 @@ const assignmentDoc = createDocumentResource({
 	// JobForm.vue:184 already relies on. Cast rather than invent a name.
 	name: editingName as string,
 	auto: Boolean(editingName),
-	onError(err: any) {
-		toast.error(err.messages?.[0] || err)
+	onError(err: FrappeResourceError) {
+		toast.error(resourceErrorMessage(err, __('Error')))
 		console.error(err)
 	},
 })
@@ -256,8 +256,8 @@ const newAssignment = createResource({
 		// rather than a stale, already-saved form.
 		saveAndReplace({ name: 'Assignments' })
 	},
-	onError(err: any) {
-		toast.error(err.messages?.[0] || err)
+	onError(err: FrappeResourceError) {
+		toast.error(resourceErrorMessage(err, __('Error')))
 		console.error(err)
 	},
 })
@@ -266,26 +266,48 @@ const saving = computed<boolean>(() =>
 	Boolean(newAssignment.loading || assignmentDoc?.setValue?.loading)
 )
 
+// An image-only question has no text but is not empty (CourseCreatorCard.vue).
+const hasContent = (html: string): boolean =>
+	html.replace(/<[^>]*>/g, '').trim().length > 0 || /<img\b/i.test(html)
+
+const missingRequiredField = (): string | undefined => {
+	const required: [string, boolean][] = [
+		[__('Title'), Boolean(assignment.title)],
+		[__('Submission Type'), Boolean(assignment.type)],
+		[__('Question'), hasContent(assignment.question)],
+	]
+	return required.find(([, filled]) => !filled)?.[0]
+}
+
+const validateSchedule = (): boolean => {
+	if (!assignment.enable_scheduling) {
+		assignment.schedule_start = null
+		assignment.schedule_end = null
+		return true
+	}
+	if (!assignment.schedule_start) {
+		toast.error(__('Schedule Start is required when scheduling is enabled.'))
+		return false
+	}
+	if (
+		assignment.schedule_end &&
+		new Date(assignment.schedule_end) <= new Date(assignment.schedule_start)
+	) {
+		toast.error(__('Schedule End must be after Schedule Start.'))
+		return false
+	}
+	return true
+}
+
 const validateFields = (): boolean => {
 	assignment.title = sanitizeOnWrite(assignment.title.trim())
 	assignment.question = sanitizeOnWrite(assignment.question)
-	if (assignment.enable_scheduling) {
-		if (!assignment.schedule_start) {
-			toast.error(__('Schedule Start is required when scheduling is enabled.'))
-			return false
-		}
-		if (
-			assignment.schedule_end &&
-			new Date(assignment.schedule_end) <= new Date(assignment.schedule_start)
-		) {
-			toast.error(__('Schedule End must be after Schedule Start.'))
-			return false
-		}
-	} else {
-		assignment.schedule_start = null
-		assignment.schedule_end = null
+	const missing = missingRequiredField()
+	if (missing) {
+		toast.error(__('Add a {0} before saving.').format(missing))
+		return false
 	}
-	return true
+	return validateSchedule()
 }
 
 const updateAssignment = (): void => {
@@ -303,8 +325,8 @@ const updateAssignment = (): void => {
 				// (documentResource.js:50). Only a create needs the signal above.
 				saveAndReplace({ name: 'Assignments' })
 			},
-			onError(err: any) {
-				toast.error(err.messages?.[0] || err)
+			onError(err: FrappeResourceError) {
+				toast.error(resourceErrorMessage(err, __('Error')))
 				console.error(err)
 			},
 		}
