@@ -2547,8 +2547,9 @@ def get_batch_student_progress(member: str, batch: str) -> dict:
 	"""`member` is the student's enrollment in this batch, a username or a User name."""
 	from lms.lms.permissions import can_author_batch
 
-	if "Batch Evaluator" not in frappe.get_roles() and not can_author_batch(batch):
-		frappe.throw(_("You are not authorized to view the students of this batch."))
+	# Staff of this batch only: a role alone says nothing about which batch.
+	if not can_author_batch(batch):
+		frappe.throw(_("You are not authorized to view the students of this batch."), frappe.PermissionError)
 	if not isinstance(member, str):
 		frappe.throw(_("Member must be a string."))
 

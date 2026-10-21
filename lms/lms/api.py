@@ -2281,10 +2281,16 @@ def mark_lesson_progress(course: str, chapter_number: int, lesson_number: int):
 
 @frappe.whitelist()
 def get_heatmap_data(member: str, base_days: int = 200):
-	if not (has_course_instructor_role() or has_moderator_role() or has_evaluator_role()):
+	"""A learner's activity by day. For the learner, a Moderator, or staff of a
+	course or batch the learner is in; a role alone reaches nobody."""
+	from lms.lms.permissions import can_view_member_activity
+
+	# The whitelist's type hints refuse a non-string member before this runs.
+	member = resolve_user(member)
+	if not can_view_member_activity(member):
 		frappe.throw(_("You do not have permission to access heatmap data."), frappe.PermissionError)
 
-	base_date, start_date, number_of_days, days = calculate_date_ranges(base_days)
+	base_date, start_date, number_of_days, days = calculate_date_ranges(cint(base_days))
 	date_count = initialize_date_count(days)
 
 	lesson_completions, quiz_submissions, assignment_submissions = fetch_activity_data(member, start_date)
