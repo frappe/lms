@@ -1,11 +1,11 @@
 <template>
 	<div
 		v-if="course.title"
-		class="flex flex-col h-full rounded-md overflow-auto text-ink-gray-9 bg-surface-elevation-1"
+		class="flex flex-col h-full rounded-5 overflow-auto text-ink-gray-9 bg-surface-elevation-1"
 		style="min-height: 350px"
 	>
 		<div
-			class="w-[100%] h-[168px] bg-cover bg-center bg-no-repeat border-t border-x rounded-t-md"
+			class="w-[100%] h-[168px] bg-cover bg-center bg-no-repeat border-t border-x rounded-t-5"
 			:style="
 				course.image
 					? { backgroundImage: `url('${encodeURI(course.image)}')` }
@@ -18,7 +18,7 @@
 			<!-- <div class="flex items-center flex-wrap relative top-4 px-2 w-fit">
 				<div
 					v-if="course.featured"
-					class="flex items-center gap-x-1 text-xs text-ink-amber-6 bg-surface-base border border-outline-amber-1 px-2 py-0.5 rounded-md me-1 mb-1"
+					class="flex items-center gap-x-1 text-xs text-ink-amber-5 bg-surface-base border border-outline-amber-1 px-2 py-0.5 rounded-5 me-1 mb-1"
 				>
 					<Star class="size-3 stroke-2" />
 					<span>
@@ -28,7 +28,7 @@
 				<div
 					v-if="course.tags"
 					v-for="tag in course.tags?.split(', ')"
-					class="text-xs border bg-surface-base text-ink-gray-9 px-2 py-0.5 rounded-md mb-1 me-1"
+					class="text-xs border bg-surface-base text-ink-gray-9 px-2 py-0.5 rounded-5 mb-1 me-1"
 				>
 					{{ tag }}
 				</div>
@@ -47,7 +47,7 @@
 				{{ course.title }}
 			</div>
 		</div>
-		<div class="flex flex-col flex-auto p-4 border-x-2 border-b-2 rounded-b-md">
+		<div class="flex flex-col flex-auto p-4 border-x-2 border-b-2 rounded-b-5">
 			<div class="flex items-center justify-between mb-2">
 				<div v-if="course.lessons">
 					<Tooltip :text="__('Lessons')">
@@ -71,7 +71,7 @@
 					<Tooltip :text="__('Average Rating')">
 						<span class="flex items-center">
 							<LucideStar
-								class="size-4 me-1 text-transparent fill-yellow-500"
+								class="size-4 me-1 text-transparent fill-ink-amber-7"
 							/>
 							{{ formatRating(course.rating) }}
 						</span>
@@ -79,7 +79,7 @@
 				</div>
 
 				<Tooltip v-if="course.featured" :text="__('Featured')">
-					<span class="lucide-award size-4 text-ink-amber-6" />
+					<span class="lucide-award size-4 text-ink-amber-5" />
 				</Tooltip>
 			</div>
 
@@ -139,7 +139,6 @@
 import { sessionStore } from '@/stores/session'
 import { Tooltip } from 'frappe-ui'
 import { formatAmount, formatRating } from '@/utils'
-import { theme } from '@/utils/theme'
 import { computed, watch } from 'vue'
 import CourseInstructors from '@/components/CourseInstructors.vue'
 import UserAvatar from '@/components/UserAvatar.vue'
@@ -156,23 +155,11 @@ const props = defineProps({
 
 const gradientColor = computed(() => {
 	let color = props.course.card_gradient?.toLowerCase() || 'blue'
+	// token-exempt: card art stays dark in both themes.
 	return `linear-gradient(to top right, black, var(--${color}-400))`
 })
 </script>
 <style>
-.course-card-pills {
-	background: #ffffff;
-	margin-left: 0;
-	margin-right: 0.5rem;
-	padding: 3.5px 8px;
-	font-size: 11px;
-	text-align: center;
-	letter-spacing: 0.011em;
-	text-transform: uppercase;
-	font-weight: 600;
-	width: fit-content;
-}
-
 .avatar-group {
 	display: inline-flex;
 	align-items: center;

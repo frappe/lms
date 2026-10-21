@@ -2,7 +2,7 @@
 	<PageHeader v-if="!fromLesson" :breadcrumbs="breadcrumbs" />
 	<div
 		v-if="falconError"
-		class="flex items-center justify-between p-3 text-sm bg-surface-amber-1 text-ink-amber-3"
+		class="flex items-center justify-between p-3 text-sm bg-surface-amber-1 text-ink-amber-2"
 	>
 		<span>
 			{{ falconError }}
@@ -69,7 +69,7 @@
 						v-if="error"
 						v-model="errorMessage"
 						:aria-label="__('Compiler Message')"
-						class="font-mono text-ink-red-6 bg-surface-gray-1 border-none text-sm h-32 leading-6"
+						class="font-mono text-ink-red-5 bg-surface-gray-1 border-none text-sm h-32 leading-6"
 						readonly
 					/>
 				</div>
@@ -93,8 +93,8 @@
 								class="font-semibold ms-2 me-1"
 								:class="
 									testCase.status === 'Passed'
-										? 'text-ink-green-3'
-										: 'text-ink-red-3'
+										? 'text-ink-green-2'
+										: 'text-ink-red-2'
 								"
 							>
 								{{ testCase.status }}
@@ -141,6 +141,7 @@ import {
 	createDocumentResource,
 	toast,
 	usePageMeta,
+	type FrappeResourceError,
 } from 'frappe-ui'
 import { computed, inject, onMounted, ref, watch } from 'vue'
 import PageHeader from '@/components/Layouts/PageHeader.vue'
@@ -216,7 +217,6 @@ const fetchSubmission = (name: string = '') => {
 const exercise = createDocumentResource({
 	doctype: 'LMS Programming Exercise',
 	name: props.exerciseID,
-	cache: ['programmingExercise', props.exerciseID],
 	auto: true,
 })
 
@@ -224,14 +224,14 @@ const submission = createDocumentResource({
 	doctype: 'LMS Programming Exercise Submission',
 	name: props.submissionID,
 	auto: false,
-	onError(error: any) {
-		if (error.messages?.[0].includes('not found')) {
+	onError(error: FrappeResourceError) {
+		if (error.messages?.[0]?.includes('not found')) {
 			router.push({
 				name: 'ProgrammingExerciseSubmission',
 				params: { exerciseID: props.exerciseID, submissionID: 'new' },
 			})
 		} else {
-			toast.error(__(error.messages?.[0] || error))
+			toast.error(__(error.messages?.[0] || error.message))
 		}
 	},
 })
@@ -444,7 +444,7 @@ usePageMeta(() => {
 </script>
 <style>
 .ProseMirror pre {
-	background: theme('colors.gray.200');
-	color: theme('colors.gray.900');
+	background: var(--surface-gray-3);
+	color: var(--ink-gray-9);
 }
 </style>

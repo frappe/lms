@@ -26,3 +26,12 @@ export const sanitizeOnWrite = (html?: string | null): string => {
 		FORBID_ATTR: ['formaction', 'formmethod', 'formenctype'],
 	})
 }
+
+export const sanitizeStringFields = (record: Record<string, unknown>) => {
+	for (const key of Object.keys(record)) {
+		const value = record[key]
+		if (typeof value === 'string') {
+			record[key] = sanitizeOnWrite(value)
+		}
+	}
+}

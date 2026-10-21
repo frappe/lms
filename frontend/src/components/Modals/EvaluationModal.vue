@@ -57,7 +57,7 @@
 									v-for="slot in row.slots"
 									:key="`${slot.date}-${slot.start_time}`"
 									type="button"
-									class="text-base text-center border rounded-md text-ink-gray-8 p-2 cursor-pointer text-ink-gray-7 hover:bg-surface-gray-2 hover:border-outline-gray-3"
+									class="text-base text-center border rounded-5 text-ink-gray-8 p-2 cursor-pointer text-ink-gray-7 hover:bg-surface-gray-2 hover:border-outline-gray-3"
 									@click="saveSlot(slot)"
 									:title="slotLabel(slot, row)"
 									:aria-label="slotLabel(slot, row)"
@@ -83,7 +83,7 @@
 				<div v-else-if="!evaluation.course" class="text-ink-gray-7">
 					{{ __('Please select a course to view available slots.') }}
 				</div>
-				<div v-else class="text-ink-red-6">
+				<div v-else class="text-ink-red-5">
 					{{ __('No slots available for the selected course.') }}
 				</div>
 			</div>
@@ -128,7 +128,7 @@ const evaluation = ref({
 function submitEvaluation(close) {
 	if (!evaluation.value.date || !evaluation.value.start_time) {
 		toast.warning(__('Please select a slot for your evaluation.'), {
-			duration: 10,
+			duration: 10000,
 		})
 		return
 	}
@@ -145,7 +145,7 @@ function submitEvaluation(close) {
 		})
 		.catch((err) => {
 			console.log(err.messages?.[0] || err)
-			toast.warning(__(err.messages?.[0] || err), { duration: 20 })
+			toast.warning(__(err.messages?.[0] || err), { duration: 20000 })
 		})
 }
 

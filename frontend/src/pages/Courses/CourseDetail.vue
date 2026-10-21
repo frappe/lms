@@ -10,7 +10,7 @@
 	>
 		<template #actions="{ tab }">
 			<template v-if="tab?.key === 'settings' && courseFormRef">
-				<Badge v-if="courseFormRef.isDirty" theme="orange">
+				<Badge v-if="courseFormRef.isDirty" theme="amber">
 					{{ __('Not Saved') }}
 				</Badge>
 				<Dropdown
@@ -23,10 +23,19 @@
 					side="bottom"
 					align="end"
 				/>
+				<Button
+					v-if="user.data?.is_moderator && !isMobile"
+					:variant="course.data?.published ? 'subtle' : 'solid'"
+					:theme="course.data?.published ? 'red' : 'gray'"
+					:loading="publishToggle.loading"
+					@click="togglePublishCourse"
+				>
+					{{ course.data?.published ? __('Unpublish') : __('Publish') }}
+				</Button>
 				<Tooltip
 					v-if="!courseFormRef.isDirty"
 					:text="__('No changes to save')"
-					:hoverDelay="0.1"
+					:hoverDelay="100"
 				>
 					<HeaderButton :label="__('Save')" variant="solid" disabled />
 				</Tooltip>
@@ -66,26 +75,32 @@
 						</template>
 					</Button>
 				</Tooltip>
-				<router-link v-if="studentViewRoute" :to="studentViewRoute">
+				<template v-if="studentViewRoute">
 					<Tooltip v-if="isMobile" :text="__('Student View')">
-						<Button variant="outline" class="!size-9">
+						<Button
+							variant="outline"
+							class="!size-9"
+							:label="__('Student View')"
+							:route="studentViewRoute"
+						>
 							<template #icon>
 								<span class="lucide-eye size-4" />
 							</template>
 						</Button>
 					</Tooltip>
-					<Button v-else variant="outline">
+					<Button v-else variant="outline" :route="studentViewRoute">
 						<template #prefix>
 							<span class="lucide-eye size-4" />
 						</template>
 						{{ __('Student View') }}
 					</Button>
-				</router-link>
+				</template>
 			</template>
 			<Button
 				v-if="tab?.key === 'dashboard' && course.data && isMobile"
 				variant="outline"
 				class="!size-9"
+				:label="__('Enroll')"
 				:tooltip="__('Enroll')"
 				@click="openEnrollForm()"
 			>
@@ -102,15 +117,6 @@
 					<span class="lucide-plus size-4" />
 				</template>
 				{{ __('Enroll') }}
-			</Button>
-			<Button
-				v-if="tab?.key === 'settings' && user.data?.is_moderator && !isMobile"
-				:variant="course.data?.published ? 'outline' : 'solid'"
-				:theme="course.data?.published ? 'red' : 'gray'"
-				:loading="publishToggle.loading"
-				@click="togglePublishCourse"
-			>
-				{{ course.data?.published ? __('Unpublish') : __('Publish') }}
 			</Button>
 		</template>
 
@@ -181,10 +187,12 @@
 				class="pointer-events-none absolute inset-x-0 top-0 z-10 hidden md:flex"
 			>
 				<div class="w-[70%]" />
+				<!-- h-12 is the tab strip's height: the bar sits level with it, so
+				     the two bottom borders have to meet. -->
 				<div
-					class="pointer-events-auto flex w-[30%] items-center justify-between gap-x-2 border-s border-b bg-surface-base p-1 px-5"
+					class="pointer-events-auto flex h-12 w-[30%] items-center justify-between gap-x-2 border-s border-b bg-surface-base px-5"
 				>
-					<div class="py-2.5 text-p-base-medium text-ink-gray-9">
+					<div class="text-p-base-medium text-ink-gray-9">
 						{{ __('Chapters') }}
 					</div>
 					<Button size="sm" @click="courseEditorRef?.openAddChapter()">
@@ -215,6 +223,7 @@ import {
 	toast,
 	usePageMeta,
 } from 'frappe-ui'
+import type { FrappeResourceError } from 'frappe-ui'
 import { sessionStore } from '@/stores/session'
 import { useScreenSize } from '@/utils/composables'
 import TabbedDetailPage from '@/components/Layouts/TabbedDetailPage.vue'
@@ -325,11 +334,8 @@ const publishToggle = createResource({
 		}
 		course.reload()
 	},
-	onError(err: { messages?: string[] } | string) {
-		const msg =
-			typeof err === 'string'
-				? err
-				: err.messages?.[0] ?? __('Could not update publish status')
+	onError(err: FrappeResourceError) {
+		const msg = err.messages?.[0] ?? __('Could not update publish status')
 		toast.error(msg)
 	},
 }) as Resource<unknown>

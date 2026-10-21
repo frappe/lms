@@ -5,11 +5,7 @@
 			:key="String(option.value)"
 			variant="outline"
 			size="sm"
-			:class="
-				value === option.value
-					? '!border-outline-gray-3 !bg-surface-gray-4'
-					: ''
-			"
+			:data-state="value === option.value ? 'active' : 'inactive'"
 			:aria-pressed="value === option.value"
 			@click="toggle(option)"
 		>

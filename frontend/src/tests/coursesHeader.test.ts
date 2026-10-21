@@ -74,7 +74,7 @@ vi.mock('@/utils', () => ({ canCreateCourse: () => state.canCreate }))
 vi.mock('@/composables/useFormRoute', () => ({
 	openFormRoute: openFormRouteMock,
 }))
-vi.mock('frappe-ui/frappe', () => ({
+vi.mock('@framework/ui/telemetry/index', () => ({
 	useTelemetry: () => ({ capture: captureMock }),
 }))
 vi.mock('@/stores/session', () => ({ sessionStore: () => ({ brand: {} }) }))

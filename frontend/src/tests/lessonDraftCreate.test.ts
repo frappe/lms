@@ -82,9 +82,11 @@ vi.mock('lucide-vue-next', () => ({
 	ChevronRight: { render: () => null },
 	NotebookPen: { render: () => null },
 }))
-vi.mock('frappe-ui/frappe', () => ({
-	useOnboarding: () => ({ updateOnboardingStep: vi.fn() }),
+vi.mock('@framework/ui/telemetry/index', () => ({
 	useTelemetry: () => ({ capture: vi.fn() }),
+}))
+vi.mock('@framework/ui/components/Onboarding/index', () => ({
+	useOnboarding: () => ({ updateOnboardingStep: vi.fn() }),
 }))
 vi.mock('@/composables/useKeyboardShortcuts', () => ({
 	useKeyboardShortcuts: () => {},

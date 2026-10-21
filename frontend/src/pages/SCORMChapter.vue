@@ -79,7 +79,6 @@ const playback = createResource({
 		return { chapter: props.chapterName }
 	},
 	auto: true,
-	cache: ['chapter', props.chapterName],
 	onSuccess(data) {
 		if (data?.locked) outline.fetch()
 		else if (data?.launch_file) progress.submit()

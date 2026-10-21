@@ -32,7 +32,7 @@
 						<FileUploader
 							v-if="!data[field.name]"
 							:fileTypes="['image/*']"
-							:uploadArgs="{ private: !field.public }"
+							:private="!field.public"
 							:validateFile="validateFile"
 							@success="(file) => (data[field.name] = file.file_url)"
 						>
@@ -57,13 +57,13 @@
 						<div v-else>
 							<div class="flex items-center text-sm gap-x-2">
 								<div
-									class="flex items-center justify-center rounded border border-outline-elevation-2 bg-surface-gray-2"
+									class="flex items-center justify-center rounded-4 border border-outline-elevation-2 bg-surface-gray-2"
 									:class="field.size == 'lg' ? 'px-5 py-5' : 'px-20 py-8'"
 								>
 									<img
 										:src="safeUrl(fileUrl(data[field.name]))"
 										alt=""
-										class="rounded"
+										class="rounded-4"
 										:class="field.size == 'lg' ? 'w-36' : 'size-6'"
 									/>
 								</div>
@@ -76,23 +76,22 @@
 									type="button"
 									:aria-label="__('Remove image')"
 									@click="data[field.name] = null"
-									class="lucide-x border text-ink-gray-7 border-outline-elevation-2 rounded-md cursor-pointer w-5 h-5 p-1 ms-4"
+									class="lucide-x border text-ink-gray-7 border-outline-elevation-2 rounded-5 cursor-pointer w-5 h-5 p-1 ms-4"
 								/>
 							</div>
 						</div>
 					</div>
 
 					<div v-else-if="field.type == 'Code'" class="py-3">
-						<CodeEditor
-							:label="__(field.label)"
-							type="HTML"
-							description="The HTML you add here will be shown on your sign up page."
+						<SettingsCodeField
 							v-model="data[field.name]"
-							height="250px"
-							class="shrink-0"
-							:showLineNumbers="true"
-						>
-						</CodeEditor>
+							:field="{
+								...field,
+								mode: 'htmlmixed',
+								description:
+									'The HTML you add here will be shown on your sign up page.',
+							}"
+						/>
 					</div>
 
 					<div v-else-if="field.type == 'textarea'" class="py-3">
@@ -145,15 +144,13 @@
 								:aria-label="__(field.label)"
 								class="w-48"
 							/>
-							<FormControl
+							<component
+								:is="controlOf(field)"
 								v-else
 								:key="field.name"
 								v-model="data[field.name]"
-								:type="field.type"
-								:rows="field.rows"
-								:options="field.options"
+								v-bind="controlProps(field)"
 								:required="field.reqd"
-								:min="field.min"
 								class="w-48"
 								:aria-label="__(field.label)"
 								:placeholder="field.placeholder || __(field.label)"
@@ -166,16 +163,16 @@
 	</div>
 </template>
 <script setup>
-import { Button, FileUploader, FormControl, Select } from 'frappe-ui'
+import { Button, FileUploader, FormControl, Password, Select } from 'frappe-ui'
+import SettingsCodeField from '@/components/Layouts/SettingsCodeField.vue'
 import BooleanSwitch from '@/components/Controls/BooleanSwitch.vue'
 import { watch } from 'vue'
 import { validateFile } from '@/utils'
 import Link from '@/components/Controls/Link.vue'
-import CodeEditor from '@/components/Controls/CodeEditor.vue'
 import { seedCheckboxDefaults } from '@/components/Settings/mobileSettings'
 import { safeUrl } from '@/utils/safeUrl'
 
-// The FileUploader above binds :uploadArgs="{ private: !field.public }", and it
+// The FileUploader above binds :private="!field.public", and it
 // is written inline deliberately. Privacy is the FIELD's decision, never this
 // component's: the backend maps every Attach / Attach Image field of a
 // third-party <Gateway> Settings doctype to type 'Upload' (api.py
@@ -184,6 +181,22 @@ import { safeUrl } from '@/utils/safeUrl'
 // `public: true` may be world-readable; everything else keeps frappe's private
 // default. Behind a helper the privacy ratchet in publicImageUploads.test.ts can
 // only see "computed" and would stop catching a flip to public.
+
+// Every `password` field is a secret, so all of them get Password's masked box
+// and reveal toggle rather than a bare type="password". Password takes no `type`
+// prop: handing it one would land on the input and override its own show/hide.
+const controlOf = (field) =>
+	field.type === 'password' ? Password : FormControl
+
+const controlProps = (field) =>
+	field.type === 'password'
+		? {}
+		: {
+				type: field.type,
+				rows: field.rows,
+				options: field.options,
+				min: field.min,
+		  }
 
 const props = defineProps({
 	sections: {

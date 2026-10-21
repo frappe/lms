@@ -8,15 +8,13 @@
 				<div class="text-ink-gray-5">
 					{{ __('You do not have permission to access this page.') }}
 				</div>
-				<router-link
-					:to="{
-						name: 'Courses',
-					}"
+				<Button
+					:route="{ name: 'Courses' }"
+					variant="solid"
+					class="mt-2 w-full"
 				>
-					<Button variant="solid" class="mt-2 w-full">
-						{{ __('Checkout Courses') }}
-					</Button>
-				</router-link>
+					{{ __('Checkout Courses') }}
+				</Button>
 			</div>
 			<div class="px-5 py-3">
 				<div class="text-ink-gray-5">
