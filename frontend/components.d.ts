@@ -110,7 +110,6 @@ declare module 'vue' {
     NotPermitted: typeof import('./src/components/NotPermitted.vue')['default']
     NumberChartGraph: typeof import('./src/components/NumberChartGraph.vue')['default']
     OptionRow: typeof import('./src/components/Assessment/OptionRow.vue')['default']
-    OutlineEmptyState: typeof import('./src/components/OutlineEmptyState.vue')['default']
     PageBody: typeof import('./src/components/Layouts/pages/PageBody.vue')['default']
     PageHeader: typeof import('./src/components/Layouts/pages/PageHeader.vue')['default']
     PaymentGatewayForm: typeof import('./src/components/Settings/PaymentGateways/PaymentGatewayForm.vue')['default']

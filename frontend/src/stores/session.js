@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia'
 import { createResource } from 'frappe-ui'
 import { usersStore } from './user'
+import { forgetContinuePanelClosed } from '@/utils/continuePanel'
 import { computed, reactive, ref } from 'vue'
 
 export const sessionStore = defineStore('lms-session', () => {
@@ -28,6 +29,8 @@ export const sessionStore = defineStore('lms-session', () => {
 		onSuccess() {
 			userResource.reset()
 			user.value = null
+			// A closed continue-your-course panel comes back on the next sign-in.
+			forgetContinuePanelClosed()
 			window.location.reload()
 		},
 	})
