@@ -129,6 +129,13 @@ const day = (wrapper: VueWrapper, name: string) =>
 const button = (wrapper: VueWrapper, label: string) =>
 	wrapper.findAll('button').find((b) => b.text() === label)
 
+const addTimeOff = async (wrapper: VueWrapper, from: string, to: string) => {
+	await button(wrapper, 'Add time off')!.trigger('click')
+	const [fromInput, toInput] = wrapper.findAll('input[data-type="date"]')
+	await fromInput.setValue(from)
+	await toInput.setValue(to)
+}
+
 const writes = () =>
 	resources.value.filter(
 		(r) =>
@@ -228,9 +235,7 @@ describe('ProfileEvaluator week', () => {
 	it('saves the whole week and the time off in one call, with one toast', async () => {
 		const wrapper = await mountPanel()
 		await day(wrapper, 'Wednesday').find('[role="switch"]').setValue(true)
-		const [from, to] = wrapper.findAll('input[data-type="date"]')
-		await from.setValue('2030-01-01')
-		await to.setValue('2030-01-05')
+		await addTimeOff(wrapper, '2030-01-01', '2030-01-05')
 
 		await button(wrapper, 'Save')!.trigger('click')
 		await flushPromises()
@@ -305,6 +310,7 @@ describe('ProfileEvaluator week', () => {
 
 	it('asks for both time-off dates only once Save is tried', async () => {
 		const wrapper = await mountPanel()
+		await button(wrapper, 'Add time off')!.trigger('click')
 		await wrapper.findAll('input[data-type="date"]')[0].setValue('2030-01-01')
 		expect(
 			wrapper.find('[data-testid="time-off"] [data-testid="error"]').exists()
@@ -473,22 +479,68 @@ describe('ProfileEvaluator weekday preset', () => {
 })
 
 describe('ProfileEvaluator time off', () => {
-	it('clears both dates with an icon button, not a text one', async () => {
-		const wrapper = await mountPanel({ timeOff: ['2030-01-01', '2030-01-05'] })
-		const section = wrapper.find('[data-testid="time-off"]')
-		const clear = section.find('button[aria-label="Clear time off"]')
+	const section = (wrapper: VueWrapper) =>
+		wrapper.find('[data-testid="time-off"]')
+	const emptyTimeOff = (wrapper: VueWrapper) =>
+		wrapper.find('[data-testid="empty-time-off"]')
 
+	it('starts as an empty state whose subtle button reveals the dates', async () => {
+		const wrapper = await mountPanel()
+
+		expect(emptyTimeOff(wrapper).text()).toContain('No time off planned')
+		expect(emptyTimeOff(wrapper).text()).toContain(
+			"Learners can't book you during time off."
+		)
+		expect(section(wrapper).findAll('input[data-type="date"]')).toHaveLength(0)
+		const add = button(wrapper, 'Add time off')!
+		expect(add.attributes('data-variant')).toBe('subtle')
+
+		await add.trigger('click')
+
+		expect(emptyTimeOff(wrapper).exists()).toBe(false)
+		expect(section(wrapper).findAll('input[data-type="date"]')).toHaveLength(2)
+	})
+
+	it('shows a set range as a readable line, staged until Save', async () => {
+		const wrapper = await mountPanel()
+		await addTimeOff(wrapper, '2030-11-04', '2030-11-08')
+
+		expect(section(wrapper).find('[data-testid="time-off-range"]').text()).toBe(
+			'Mon, 4 Nov 2030 – Fri, 8 Nov 2030'
+		)
+		expect(writes()).toEqual([])
+
+		await button(wrapper, 'Discard')!.trigger('click')
+		expect(emptyTimeOff(wrapper).exists()).toBe(true)
+	})
+
+	it('edits with the pencil and clears with the x, back to empty', async () => {
+		const wrapper = await mountPanel({ timeOff: ['2030-01-01', '2030-01-05'] })
+		const edit = section(wrapper).find('button[aria-label="Edit time off"]')
+		expect(edit.attributes('data-icon')).toBe('lucide-pencil')
+
+		await edit.trigger('click')
+		expect(section(wrapper).findAll('input[data-type="date"]')).toHaveLength(2)
+
+		const clear = section(wrapper).find('button[aria-label="Clear time off"]')
 		expect(clear.attributes('data-icon')).toBe('lucide-x')
 		expect(clear.text()).toBe('')
 		await clear.trigger('click')
 
-		const values = section
-			.findAll('input[data-type="date"]')
-			.map((i) => (i.element as HTMLInputElement).value)
-		expect(values).toEqual(['', ''])
-		expect(section.find('button[aria-label="Clear time off"]').exists()).toBe(
-			false
+		expect(emptyTimeOff(wrapper).exists()).toBe(true)
+		expect(button(wrapper, 'Save')!.attributes('disabled')).toBeUndefined()
+	})
+
+	it('has no buttons on someone else’s profile', async () => {
+		const wrapper = await mountPanel({
+			viewer: { name: 'mod@example.com', username: 'mod', is_moderator: true },
+		})
+
+		expect(emptyTimeOff(wrapper).text()).toContain('No time off planned')
+		expect(emptyTimeOff(wrapper).text()).toContain(
+			"Learners can't book this evaluator during time off."
 		)
+		expect(emptyTimeOff(wrapper).find('button').exists()).toBe(false)
 	})
 })
 
@@ -506,7 +558,7 @@ describe('ProfileEvaluator read-only', () => {
 		expect(wrapper.findAll('input')).toHaveLength(0)
 		expect(button(wrapper, 'Save')).toBeUndefined()
 		expect(wrapper.find('[data-testid="time-off"]').text()).toContain(
-			'2030-01-01 to 2030-01-05'
+			'Tue, 1 Jan 2030 – Sat, 5 Jan 2030'
 		)
 		expect(wrapper.find('[data-testid="calendar"]').exists()).toBe(false)
 	})
