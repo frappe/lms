@@ -232,14 +232,9 @@ import {
 import type { FrappeResourceError } from 'frappe-ui'
 import { sessionStore } from '@/stores/session'
 import { useScreenSize } from '@/utils/composables'
-<<<<<<< HEAD
+import { useTelemetry } from '@framework/ui/telemetry/index'
 import TabbedDetailPage from '@/components/Layouts/TabbedDetailPage.vue'
 import type { DetailTab } from '@/components/Layouts/TabbedDetailPage.vue'
-=======
-import { useTelemetry } from '@framework/ui/telemetry/index'
-import TabbedDetailPage from '@/components/Layouts/pages/TabbedDetailPage.vue'
-import type { DetailTab } from '@/components/Layouts/pages/TabbedDetailPage.vue'
->>>>>>> eaf45d0 (feat(frontend): one empty state in the course editor until the first chapter)
 import CourseOverview from '@/pages/Courses/CourseOverview.vue'
 import SkeletonLoader from '@/components/SkeletonLoader.vue'
 import CourseDashboard from '@/pages/Courses/CourseDashboard.vue'

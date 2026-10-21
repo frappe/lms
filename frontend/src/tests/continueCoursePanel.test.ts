@@ -1,5 +1,6 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { mount } from '@vue/test-utils'
+import type { VueWrapper } from '@vue/test-utils'
 import { nextTick } from 'vue'
 
 type Resource = {
@@ -67,11 +68,21 @@ const answer = (data: unknown) => {
 	state.resource.onSuccess?.(data)
 }
 
-const mountPanel = (besideHelp = false, user = 'author@example.com') =>
-	mount(ContinueCoursePanel, {
+// Unmounted after each test: a panel left mounted keeps answering route
+// changes, and would count its reloads and events into the next test.
+const mounted: VueWrapper[] = []
+const mountPanel = (besideHelp = false, user = 'author@example.com') => {
+	const wrapper = mount(ContinueCoursePanel, {
 		props: { user, besideHelp },
 		global: { mocks: { __: globalThis.__ } },
 	})
+	mounted.push(wrapper)
+	return wrapper
+}
+
+afterEach(() => {
+	for (const wrapper of mounted.splice(0)) wrapper.unmount()
+})
 
 beforeEach(() => {
 	sessionStorage.clear()

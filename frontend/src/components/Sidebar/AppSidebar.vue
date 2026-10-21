@@ -182,12 +182,7 @@
 					<Tooltip v-if="showOnboarding" :text="__('Help')">
 						<span
 							class="lucide-circle-help size-4 text-ink-gray-7 cursor-pointer"
-							@click="
-								() => {
-									showHelpModal = minimize ? true : !showHelpModal
-									minimize = !showHelpModal
-								}
-							"
+							@click="toggleHelp"
 						/>
 					</Tooltip>
 					<Tooltip :text="__('Powered by Frappe Learning')">
@@ -326,8 +321,6 @@ const openCourseForm = () => {
 	setFormSource('onboarding')
 	openFormRoute(router, { name: 'NewCourse' })
 }
-<<<<<<< HEAD
-=======
 
 // Opens the help panel, or brings it back when it was minimized.
 const toggleHelp = () => {
@@ -341,7 +334,6 @@ const toggleHelp = () => {
 		})
 	}
 }
->>>>>>> 23e2bf5 (feat: continue-your-course panel and Getting started for moderators)
 const iconProps = {
 	strokeWidth: 1.5,
 	width: 16,

@@ -34,14 +34,11 @@ declare module 'vue' {
     CollapsibleSection: typeof import('./src/components/CollapsibleSection.vue')['default']
     CommandPalette: typeof import('./src/components/CommandPalette/CommandPalette.vue')['default']
     ContactUsEmail: typeof import('./src/components/ContactUsEmail.vue')['default']
-<<<<<<< HEAD
+    ContinueCoursePanel: typeof import('./src/components/ContinueCoursePanel.vue')['default']
     CouponDetails: typeof import('./src/components/Settings/Coupons/CouponDetails.vue')['default']
+    CouponForm: typeof import('./src/components/Settings/Coupons/CouponForm.vue')['default']
     CouponItems: typeof import('./src/components/Settings/Coupons/CouponItems.vue')['default']
     CouponList: typeof import('./src/components/Settings/Coupons/CouponList.vue')['default']
-=======
-    ContinueCoursePanel: typeof import('./src/components/ContinueCoursePanel.vue')['default']
-    CouponForm: typeof import('./src/components/Settings/Coupons/CouponForm.vue')['default']
->>>>>>> eaf45d0 (feat(frontend): one empty state in the course editor until the first chapter)
     Coupons: typeof import('./src/components/Settings/Coupons/Coupons.vue')['default']
     CourseCard: typeof import('./src/components/CourseCard.vue')['default']
     CourseCardOverlay: typeof import('./src/components/CourseCardOverlay.vue')['default']
@@ -100,6 +97,7 @@ declare module 'vue' {
     LucideStar: typeof import('~icons/lucide/star')['default']
     LucideX: typeof import('~icons/lucide/x')['default']
     MassRemovalConfirmDialog: typeof import('./src/components/Settings/Raven/MassRemovalConfirmDialog.vue')['default']
+    MemberForm: typeof import('./src/components/Settings/Members/MemberForm.vue')['default']
     Members: typeof import('./src/components/Settings/Members.vue')['default']
     MobileLayout: typeof import('./src/components/Layouts/MobileLayout.vue')['default']
     MobilePageLayout: typeof import('./src/components/Layouts/MobilePageLayout.vue')['default']
@@ -111,19 +109,13 @@ declare module 'vue' {
     NotificationPanel: typeof import('./src/components/Notifications/NotificationPanel.vue')['default']
     NotPermitted: typeof import('./src/components/NotPermitted.vue')['default']
     NumberChartGraph: typeof import('./src/components/NumberChartGraph.vue')['default']
-<<<<<<< HEAD
+    OptionRow: typeof import('./src/components/Assessment/OptionRow.vue')['default']
     PageBody: typeof import('./src/components/Layouts/PageBody.vue')['default']
     PageHeader: typeof import('./src/components/Layouts/PageHeader.vue')['default']
     PageModal: typeof import('./src/components/Modals/PageModal.vue')['default']
     PaymentGatewayDetails: typeof import('./src/components/Settings/PaymentGatewayDetails.vue')['default']
-    PaymentGateways: typeof import('./src/components/Settings/PaymentGateways.vue')['default']
-=======
-    OptionRow: typeof import('./src/components/Assessment/OptionRow.vue')['default']
-    PageBody: typeof import('./src/components/Layouts/pages/PageBody.vue')['default']
-    PageHeader: typeof import('./src/components/Layouts/pages/PageHeader.vue')['default']
     PaymentGatewayForm: typeof import('./src/components/Settings/PaymentGateways/PaymentGatewayForm.vue')['default']
-    PaymentGateways: typeof import('./src/components/Settings/PaymentGateways/PaymentGateways.vue')['default']
->>>>>>> eaf45d0 (feat(frontend): one empty state in the course editor until the first chapter)
+    PaymentGateways: typeof import('./src/components/Settings/PaymentGateways.vue')['default']
     PdfBlock: typeof import('./src/components/PdfBlock.vue')['default']
     PersonaCard: typeof import('./src/components/Persona/PersonaCard.vue')['default']
     PersonaOutcomeStep: typeof import('./src/components/Persona/PersonaOutcomeStep.vue')['default']

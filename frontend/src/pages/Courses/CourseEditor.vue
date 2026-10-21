@@ -9,17 +9,6 @@
 					v-if="outline.loading && !outline.data"
 					variant="editor-content"
 				/>
-<<<<<<< HEAD
-				<div
-					v-else-if="!selected"
-					class="flex flex-col items-center justify-center h-full text-ink-gray-5"
-				>
-					<span class="lucide-book-open size-8" />
-					<div>
-						{{ __('Select a lesson on the right to start editing.') }}
-					</div>
-				</div>
-=======
 				<CourseEditorEmptyState
 					v-else-if="!selected && outline.data"
 					:courseName="props.course.data.name"
@@ -30,7 +19,6 @@
 				/>
 				<!-- Nothing while the outline is missing after a failed fetch: a
 				     lesson can't be resolved, and the empty state would lie. -->
->>>>>>> eaf45d0 (feat(frontend): one empty state in the course editor until the first chapter)
 				<LessonForm
 					v-else-if="selected"
 					ref="lessonFormRef"

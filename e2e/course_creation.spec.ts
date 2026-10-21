@@ -157,25 +157,19 @@ test.describe("Course Creation", () => {
 			.or(page.getByRole("tab"))
 			.filter({ hasText: "Course editor" })
 			.click();
-<<<<<<< HEAD
 		await closeOnboardingModal(page);
 		await outlineResponse;
 
-		// Add a chapter via the toolbar "Add" button (CourseEditor hides
-		// CourseOutline's own header). Scope to the chapter dialog by its Title
-		// field. The onboarding "Getting started" panel is also a dismissable
-		// layer, but it has no Title input.
-		await page.getByRole("button", { name: "Add" }).click();
-=======
 		// A course without chapters shows one empty state in place of the
 		// chapters panel and its toolbar; its "Create chapter" is the only way
 		// in, and it waits on the course as well as the outline.
 		const createChapter = page.getByRole("button", { name: "Create chapter" });
 		await expect(createChapter).toBeVisible({ timeout: 20000 });
 
-		// Scope to the chapter dialog by its Title field.
+		// Scope to the chapter dialog by its Title field. The onboarding
+		// "Getting started" panel is also a dismissable layer, but it has no
+		// Title input.
 		await createChapter.click();
->>>>>>> b2d657e (fix(frontend): continue panel keeps its progress when closed and returns after a sign-out)
 		const chapterDialog = page
 			.locator("[data-dismissable-layer]")
 			.filter({ has: page.locator("label", { hasText: "Title" }) });

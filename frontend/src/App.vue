@@ -32,8 +32,6 @@ import { usersStore } from '@/stores/user'
 
 const { isMobile } = useScreenSize()
 const route = useRoute()
-<<<<<<< HEAD
-=======
 const { userResource } = usersStore()
 
 // The panel lives here, not in the sidebar, so it shows on every layout: the
@@ -55,12 +53,6 @@ const helpPanelOpen = computed(
 		showHelpModal.value
 )
 
-// Settings is mounted with the sidebar at app start, so its teleport anchor is
-// always first in <body> however late it opens. Order the overlays by when they
-// were opened instead, and make the covered ones inert.
-useDialogLayering()
-const router = useRouter()
->>>>>>> 23e2bf5 (feat: continue-your-course panel and Getting started for moderators)
 const { settings } = useSettings()
 
 // Derive the layout from the current route, not a navigation guard. Flipping it
