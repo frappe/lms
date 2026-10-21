@@ -72,6 +72,22 @@ vi.mock('frappe-ui', async () => {
 		},
 		Badge: passthrough,
 		Checkbox: passthrough,
+		RadioGroup: {
+			props: ['modelValue', 'name'],
+			emits: ['update:modelValue'],
+			provide(this: any) {
+				return {
+					pickRadio: (value: unknown) => this.$emit('update:modelValue', value),
+				}
+			},
+			template: '<div><slot /></div>',
+		},
+		Radio: {
+			props: ['value'],
+			inject: ['pickRadio'],
+			template:
+				'<label><input type="radio" @change="pickRadio(value)" /><slot name="label" /></label>',
+		},
 		Dialog: { props: ['open'], template: '<div v-if="open"><slot /></div>' },
 		FormControl: passthrough,
 		LoadingIndicator: passthrough,
