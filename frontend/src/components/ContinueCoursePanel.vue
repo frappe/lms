@@ -91,6 +91,7 @@ import { useRoute, useRouter } from 'vue-router'
 import { useTelemetry } from '@framework/ui/telemetry/index'
 import { serverTime } from '@/utils/dayjs'
 import { useScreenSize } from '@/utils/composables'
+import { continuePanelClosedKey } from '@/utils/continuePanel'
 import ProgressBar from '@/components/ProgressBar.vue'
 
 type Step = { name: 'chapter' | 'lesson' | 'publish'; done: boolean }
@@ -126,8 +127,9 @@ const STEP_LABELS: Record<Step['name'], string> = {
 }
 
 // Closing hides the panel until the next sign-in: sessionStorage ends with
-// the browser session, so a draft left for days comes back on the next visit.
-const closedKey = `continueCoursePanelClosed:${props.user}`
+// the browser session, so a draft left for days comes back on the next visit,
+// and the sign-out clears the flag for a sign-in in the same tab.
+const closedKey = continuePanelClosedKey(props.user)
 const closed = ref(readClosed())
 
 function readClosed(): boolean {
@@ -194,8 +196,10 @@ const course = computed(() =>
 		: draft.value
 )
 
+// From the draft, not the visible panel: the closed event reads it after
+// the panel is already hidden.
 const doneCount = computed(
-	() => course.value?.steps.filter((step) => step.done).length ?? 0
+	() => draft.value?.steps.filter((step) => step.done).length ?? 0
 )
 
 // Once per draft per page load, and only when it is actually on screen.

@@ -47,6 +47,7 @@ vi.mock('@framework/ui/telemetry/index', () => ({
 }))
 
 import ContinueCoursePanel from '@/components/ContinueCoursePanel.vue'
+import { forgetContinuePanelClosed } from '@/utils/continuePanel'
 
 const draft = (steps: boolean[]) => ({
 	course: 'marketing-101',
@@ -143,16 +144,24 @@ describe('the continue-your-course panel', () => {
 		})
 	})
 
-	it('closing hides it for the session, for that user only', async () => {
-		state.resource.data = draft([false, false, false])
+	it('closing hides it for the session, for that user only, until a sign-out', async () => {
+		state.resource.data = draft([true, false, false])
 		const wrapper = mountPanel()
 		await wrapper.find('button[aria-label="Close"]').trigger('click')
 		expect(wrapper.find('aside').exists()).toBe(false)
+		// The event keeps the progress the panel showed.
+		expect(state.capture).toHaveBeenCalledWith('continue_course_panel_closed', {
+			course: 'marketing-101',
+			steps_done: 1,
+		})
 		expect(mountPanel().find('aside').exists()).toBe(false)
 		// A shared tab outlives a sign-out: the next person still gets theirs.
 		expect(mountPanel(false, 'other@example.com').find('aside').exists()).toBe(
 			true
 		)
+		// And a sign-out drops the flag, so the same person sees it again.
+		forgetContinuePanelClosed()
+		expect(mountPanel().find('aside').exists()).toBe(true)
 	})
 
 	it('stays hidden on the draft course itself and its form dialogs', async () => {
