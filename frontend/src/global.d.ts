@@ -14,7 +14,7 @@ declare global {
 	// Set on the page by the server; absent unless the site is in read-only mode.
 	interface Window {
 		read_only_mode?: boolean
-		// Injected for authenticated LMS pages; used by unload beacons that cannot set headers.
+		// Session CSRF token from the boot (guests too); for beacons, which cannot set headers.
 		csrf_token?: string
 	}
 }
