@@ -437,14 +437,15 @@ const violationEventLabels = {
 }
 
 // The submission carries the member's id but not their picture, and the doc
-// lands after this page mounts, so the avatar is fetched once it does.
+// lands after this page mounts, so the avatar is fetched once it does. Course
+// Creators and Batch Evaluators cannot read User, so it comes from the
+// role-gated user search rather than frappe.client.get_value.
 const memberImageResource = createResource({
-	url: 'frappe.client.get_value',
+	url: 'lms.lms.api.search_users_by_role',
 	makeParams() {
 		return {
-			doctype: 'User',
-			filters: submissionDetails.doc?.member || '',
-			fieldname: 'user_image',
+			roles: ['LMS Student', 'Course Creator', 'Batch Evaluator', 'Moderator'],
+			names: [submissionDetails.doc?.member],
 		}
 	},
 	auto: false,
@@ -458,7 +459,9 @@ watch(
 	{ immediate: true }
 )
 
-const memberImage = computed(() => memberImageResource.data?.user_image || '')
+const memberImage = computed(
+	() => memberImageResource.data?.[0]?.user_image || ''
+)
 
 const formatDate = (value) => {
 	if (!value) return ''
