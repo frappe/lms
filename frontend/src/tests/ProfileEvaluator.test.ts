@@ -347,7 +347,17 @@ describe('ProfileEvaluator with no saved hours', () => {
 		)
 		expect(wrapper.findAll('[data-testid^="day-"]')).toHaveLength(0)
 
-		await button(wrapper, 'Set hours manually')!.trigger('click')
+		expect(
+			button(wrapper, 'Use Mon–Fri, 09:00–17:00')!.attributes('data-variant')
+		).toBe('subtle')
+		expect(button(wrapper, 'Set day by day')!.attributes('data-variant')).toBe(
+			'ghost'
+		)
+		expect(
+			emptyState(wrapper).find('button[data-variant="solid"]').exists()
+		).toBe(false)
+
+		await button(wrapper, 'Set day by day')!.trigger('click')
 
 		expect(emptyState(wrapper).exists()).toBe(false)
 		expect(wrapper.findAll('[data-testid^="day-"]')).toHaveLength(7)
@@ -356,7 +366,7 @@ describe('ProfileEvaluator with no saved hours', () => {
 	it('stages 9:00–17:00 on weekdays from the empty state, unsaved', async () => {
 		const wrapper = await mountPanel({ schedule: [] })
 
-		await button(wrapper, 'Use 9:00–17:00, Mon–Fri')!.trigger('click')
+		await button(wrapper, 'Use Mon–Fri, 09:00–17:00')!.trigger('click')
 
 		for (const name of [
 			'Monday',
@@ -378,7 +388,7 @@ describe('ProfileEvaluator with no saved hours', () => {
 
 	it('saves the weekday preset as five wall-clock rows', async () => {
 		const wrapper = await mountPanel({ schedule: [] })
-		await button(wrapper, 'Use 9:00–17:00, Mon–Fri')!.trigger('click')
+		await button(wrapper, 'Use Mon–Fri, 09:00–17:00')!.trigger('click')
 
 		await button(wrapper, 'Save')!.trigger('click')
 		await flushPromises()
@@ -395,7 +405,7 @@ describe('ProfileEvaluator with no saved hours', () => {
 
 	it('goes back to the empty state on Discard', async () => {
 		const wrapper = await mountPanel({ schedule: [] })
-		await button(wrapper, 'Set hours manually')!.trigger('click')
+		await button(wrapper, 'Set day by day')!.trigger('click')
 		await day(wrapper, 'Monday').find('[role="switch"]').setValue(true)
 
 		await button(wrapper, 'Discard')!.trigger('click')
@@ -445,7 +455,7 @@ describe('ProfileEvaluator weekday preset', () => {
 		const menu = wrapper.find('[data-testid="presets"]')
 		expect(menu.attributes('aria-label')).toBe('More options')
 
-		await button(wrapper, 'Reset to 9:00–17:00, Mon–Fri')!.trigger('click')
+		await button(wrapper, 'Reset to Mon–Fri, 09:00–17:00')!.trigger('click')
 
 		expect(timesOf(wrapper, 'Monday')).toEqual(['09:00', '17:00'])
 		expect(timesOf(wrapper, 'Friday')).toEqual(['09:00', '17:00'])

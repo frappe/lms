@@ -60,12 +60,13 @@
 				>
 					<div v-if="canEdit" class="flex flex-wrap justify-center gap-2">
 						<Button
-							variant="solid"
-							:label="__('Use 9:00–17:00, Mon–Fri')"
+							variant="subtle"
+							:label="__('Use Mon–Fri, 09:00–17:00')"
 							@click="useStandardWeek"
 						/>
 						<Button
-							:label="__('Set hours manually')"
+							variant="ghost"
+							:label="__('Set day by day')"
 							@click="startingWeek = true"
 						/>
 					</div>
@@ -472,7 +473,7 @@ const useStandardWeek = () => {
 
 const weekPresets = computed(() => [
 	{
-		label: __('Reset to 9:00–17:00, Mon–Fri'),
+		label: __('Reset to Mon–Fri, 09:00–17:00'),
 		onClick: useStandardWeek,
 	},
 ])
