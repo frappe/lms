@@ -170,7 +170,9 @@
 
 		<template #overlay="{ tab }">
 			<Button
-				v-if="isMobile && tab?.key === 'editor'"
+				v-if="
+					isMobile && tab?.key === 'editor' && courseEditorRef?.outlineVisible
+				"
 				variant="outline"
 				size="md"
 				class="absolute bottom-4 end-4 z-10 !h-11 !rounded-full !px-4 !shadow-lg"
@@ -183,7 +185,11 @@
 			</Button>
 
 			<div
-				v-if="tab?.key === 'editor' && course.data"
+				v-if="
+					tab?.key === 'editor' &&
+					course.data &&
+					courseEditorRef?.outlineVisible
+				"
 				class="pointer-events-none absolute inset-x-0 top-0 z-10 hidden md:flex"
 			>
 				<div class="w-[70%]" />
@@ -226,8 +232,14 @@ import {
 import type { FrappeResourceError } from 'frappe-ui'
 import { sessionStore } from '@/stores/session'
 import { useScreenSize } from '@/utils/composables'
+<<<<<<< HEAD
 import TabbedDetailPage from '@/components/Layouts/TabbedDetailPage.vue'
 import type { DetailTab } from '@/components/Layouts/TabbedDetailPage.vue'
+=======
+import { useTelemetry } from '@framework/ui/telemetry/index'
+import TabbedDetailPage from '@/components/Layouts/pages/TabbedDetailPage.vue'
+import type { DetailTab } from '@/components/Layouts/pages/TabbedDetailPage.vue'
+>>>>>>> eaf45d0 (feat(frontend): one empty state in the course editor until the first chapter)
 import CourseOverview from '@/pages/Courses/CourseOverview.vue'
 import SkeletonLoader from '@/components/SkeletonLoader.vue'
 import CourseDashboard from '@/pages/Courses/CourseDashboard.vue'
@@ -296,6 +308,7 @@ type CourseEditorApi = {
 	lessonHasVideo: ComputedRef<boolean>
 	openVideoStats: () => void
 	openAddChapter: () => void
+	outlineVisible: ComputedRef<boolean>
 	lessonIndex: ComputedRef<number>
 	lessonTotal: ComputedRef<number>
 	hasPrev: ComputedRef<boolean>
@@ -310,6 +323,7 @@ type PublishResponse = {
 	__onload?: { quizzes_without_questions?: string[] }
 }
 
+const { capture } = useTelemetry()
 const publishToggle = createResource({
 	url: 'frappe.client.set_value',
 	makeParams() {
@@ -321,9 +335,11 @@ const publishToggle = createResource({
 		}
 	},
 	onSuccess(data: PublishResponse) {
-		toast.success(
-			course.data?.published ? __('Course unpublished') : __('Course published')
-		)
+		const published = !course.data?.published
+		capture(published ? 'course_published' : 'course_unpublished', {
+			course: course.data?.name,
+		})
+		toast.success(published ? __('Course published') : __('Course unpublished'))
 		const emptyQuizzes = data?.__onload?.quizzes_without_questions
 		if (emptyQuizzes?.length) {
 			toast.warning(

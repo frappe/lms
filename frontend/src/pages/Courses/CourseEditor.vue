@@ -1,11 +1,15 @@
 <template>
-	<div class="grid grid-cols-1 md:grid-cols-[70%,30%] flex-1 min-h-0">
+	<div
+		class="grid grid-cols-1 flex-1 min-h-0"
+		:class="{ 'md:grid-cols-[70%,30%]': outlineVisible }"
+	>
 		<div class="flex flex-col overflow-hidden">
 			<div class="overflow-y-auto h-full">
 				<SkeletonLoader
 					v-if="outline.loading && !outline.data"
 					variant="editor-content"
 				/>
+<<<<<<< HEAD
 				<div
 					v-else-if="!selected"
 					class="flex flex-col items-center justify-center h-full text-ink-gray-5"
@@ -15,8 +19,20 @@
 						{{ __('Select a lesson on the right to start editing.') }}
 					</div>
 				</div>
+=======
+				<CourseEditorEmptyState
+					v-else-if="!selected && outline.data"
+					:courseName="props.course.data.name"
+					:chapters="outline.data"
+					:isMobile="isMobile"
+					@create-chapter="openChapterForm"
+					@add-lesson="onAddLesson"
+				/>
+				<!-- Nothing while the outline is missing after a failed fetch: a
+				     lesson can't be resolved, and the empty state would lie. -->
+>>>>>>> eaf45d0 (feat(frontend): one empty state in the course editor until the first chapter)
 				<LessonForm
-					v-else
+					v-else-if="selected"
 					ref="lessonFormRef"
 					:key="`edit-${selected.formKey}`"
 					:courseName="props.course.data.name"
@@ -29,14 +45,13 @@
 			</div>
 		</div>
 
-		<aside v-if="!isMobile" class="border-s overflow-y-auto">
+		<aside v-if="!isMobile && outlineVisible" class="border-s overflow-y-auto">
 			<SkeletonLoader
 				v-if="outline.loading && !outline.data"
 				variant="editor-sidebar"
 			/>
 			<CourseOutline
 				v-else-if="props.course?.data"
-				ref="courseOutlineRef"
 				:courseName="props.course.data.name"
 				:title="__('Chapters')"
 				:allowEdit="true"
@@ -63,7 +78,6 @@
 			</template>
 			<CourseOutline
 				v-if="props.course?.data"
-				ref="courseOutlineRef"
 				:courseName="props.course.data.name"
 				:title="__('Chapters')"
 				:allowEdit="true"
@@ -92,6 +106,10 @@ import { Button, createResource } from 'frappe-ui'
 import { useSidebar } from '@/stores/sidebar'
 import { useScreenSize } from '@/utils/composables'
 import CourseOutline from '@/components/CourseOutline.vue'
+import CourseEditorEmptyState from '@/components/CourseEditorEmptyState.vue'
+import { openFormRoute } from '@/composables/useFormRoute'
+import { setFormSource } from '@/composables/formTracking'
+import { useTelemetry } from '@framework/ui/telemetry/index'
 import BottomSheet from '@/components/BottomSheet.vue'
 import SkeletonLoader from '@/components/SkeletonLoader.vue'
 import LessonForm from '@/pages/LessonForm.vue'
@@ -113,6 +131,7 @@ const selectedModel = defineModel('selected', { default: null })
 const route = useRoute()
 const router = useRouter()
 const { isMobile } = useScreenSize()
+const { capture } = useTelemetry()
 const showChapters = ref(false)
 
 // Collapse the app sidebar while the lesson editor is open to give the
@@ -176,11 +195,13 @@ const selected = computed(() =>
 
 // "Add Lesson" opens an empty form; LessonForm creates the lesson once it has a
 // title.
-function onAddLesson({ chapter }) {
+// `source` says which control asked, for the lesson_created event.
+function onAddLesson({ chapter, source = 'outline' }) {
 	target.value = {
 		kind: 'draft',
 		chapter: chapter.name,
 		token: nextDraftToken(),
+		source,
 	}
 	showChapters.value = false
 }
@@ -192,6 +213,11 @@ function onAddLesson({ chapter }) {
 function onLessonCreated({ name, chapter }) {
 	const draft = target.value
 	if (draft?.kind !== 'draft' || draft.chapter !== chapter) return
+	capture('lesson_created', {
+		course: props.course.data.name,
+		chapter,
+		source: draft.source,
+	})
 	target.value = { kind: 'lesson', name, token: draft.token, chapter }
 	outline.reload()
 }
@@ -413,10 +439,24 @@ function openVideoStats() {
 	showStats.value = true
 }
 
-const courseOutlineRef = ref(null)
-function openAddChapter() {
-	courseOutlineRef.value?.openChapterForm?.(null)
+// A course without chapters has nothing to list, so the editor is one empty
+// state full-width rather than that plus a bare chapters panel. The panel
+// stays while the outline loads, so a course with chapters doesn't flash.
+const outlineVisible = computed(() => !outline.data || outline.data.length > 0)
+
+// Opened from here rather than through the outline: on a phone the outline
+// lives in the chapters sheet, which isn't mounted while it is closed. The
+// form reports `source` with its chapter_created event.
+function openChapterForm(source = 'course_editor') {
+	setFormSource(source)
+	openFormRoute(router, {
+		name: 'ChapterForm',
+		params: { courseName: props.course.data.name, chapterName: 'new' },
+		hash: route.hash,
+		query: { ...route.query },
+	})
 }
+const openAddChapter = () => openChapterForm('course_editor')
 
 defineExpose({
 	saveSelectedLesson,
@@ -424,6 +464,7 @@ defineExpose({
 	lessonHasVideo,
 	openVideoStats,
 	openAddChapter,
+	outlineVisible,
 	lessonIndex,
 	lessonTotal,
 	hasPrev,
