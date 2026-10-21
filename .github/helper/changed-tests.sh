@@ -42,8 +42,9 @@ is_ignored() {
 	esac
 	if [ "$suite" = "server" ]; then
 		case "$1" in
-			# test_utils.py reads it to compare its list with the Python one.
-			frontend/src/utils/lessonForm.ts) return 1 ;;
+			# Read by test_utils.py and test_form_control_tag_parity.py, which
+			# compare these lists with their Python twins.
+			frontend/src/utils/lessonForm.ts | frontend/src/directives/safeHtmlLevels.ts) return 1 ;;
 			frontend/* | *.vue | *.ts | *.js | *.css) return 0 ;;
 		esac
 	fi

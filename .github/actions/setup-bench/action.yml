@@ -162,8 +162,8 @@ runs:
         key: >-
           lms-assets-${{ steps.key.outputs.key }}-${{
           hashFiles('frontend/src/**', 'frontend/public/**', 'frontend/index.html',
-          'frontend/*.config.*', 'frontend/package.json', 'frontend/yarn.lock',
-          'lms/public/**', 'lms/locale/**', 'package.json', 'yarn.lock') }}
+          'frontend/*.config.*', 'frontend/tailwind/**', 'frontend/package.json',
+          'frontend/yarn.lock', 'lms/public/**', 'lms/locale/**', 'package.json', 'yarn.lock') }}
 
     - name: Build lms assets
       if: inputs.build-assets == 'true'
