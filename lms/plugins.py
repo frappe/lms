@@ -80,101 +80,6 @@ class ProfileTab:
 		raise NotImplementedError()
 
 
-class LiveCodeExtension(PageExtension):
-	def render_header(self):
-		livecode_url = frappe.get_value("LMS Settings", None, "livecode_url")
-		context = {"livecode_url": livecode_url}
-		return frappe.render_template("templates/livecode/extension_header.html", context)
-
-	def render_footer(self):
-		livecode_url = frappe.get_value("LMS Settings", None, "livecode_url")
-		context = {"livecode_url": livecode_url}
-		return frappe.render_template("templates/livecode/extension_footer.html", context)
-
-
-def quiz_renderer(quiz_name):
-	if frappe.session.user == "Guest":
-		return " <div class='alert alert-info'>" + _(
-			"Quiz is not available to Guest users. Please login to continue."
-		)
-		+"</div>"
-
-	quiz = frappe.db.get_value(
-		"LMS Quiz",
-		quiz_name,
-		[
-			"name",
-			"title",
-			"max_attempts",
-			"show_answers",
-			"show_submission_history",
-			"passing_percentage",
-		],
-		as_dict=True,
-	)
-	from lms.lms.doctype.lms_question.lms_question import (
-		QUESTION_CORRECTNESS_FIELDS,
-		QUESTION_EXPLANATION_FIELDS,
-		QUESTION_OPTION_FIELDS,
-		QUESTION_POSSIBILITY_FIELDS,
-	)
-	from lms.lms.utils import can_view_quiz_answers
-
-	quiz.questions = []
-	fields = [
-		"name",
-		"question",
-		"type",
-		"multiple",
-		*QUESTION_OPTION_FIELDS,
-		*QUESTION_CORRECTNESS_FIELDS,
-		*QUESTION_POSSIBILITY_FIELDS,
-	]
-	if can_view_quiz_answers(quiz_name, quiz.show_answers):
-		fields += QUESTION_EXPLANATION_FIELDS
-
-	questions = frappe.get_all(
-		"LMS Quiz Question",
-		filters={"parent": quiz.name},
-		fields=["question", "marks"],
-		order_by="idx",
-	)
-
-	for question in questions:
-		details = frappe.db.get_value("LMS Question", question.question, fields, as_dict=1)
-		details["marks"] = question.marks
-		quiz.questions.append(details)
-
-	no_of_attempts = frappe.db.count("LMS Quiz Submission", {"owner": frappe.session.user, "quiz": quiz_name})
-
-	if quiz.show_submission_history:
-		all_submissions = frappe.get_all(
-			"LMS Quiz Submission",
-			{
-				"quiz": quiz.name,
-				"member": frappe.session.user,
-			},
-			["name", "score", "creation"],
-			order_by="creation desc",
-		)
-
-	return frappe.render_template(
-		"templates/quiz/quiz.html",
-		{
-			"quiz": quiz,
-			"no_of_attempts": no_of_attempts,
-			"all_submissions": all_submissions if quiz.show_submission_history else None,
-			"hide_quiz": False,
-		},
-	)
-
-
-def exercise_renderer(argument):
-	exercise = frappe.get_doc("LMS Exercise", argument)
-	context = dict(exercise=exercise)
-	return frappe.render_template("templates/exercise.html", context)
-
-
 def youtube_video_renderer(video_id):
 	return f"""
     <iframe width="100%" height="400"
@@ -240,22 +145,6 @@ def audio_renderer(src):
 
 def pdf_renderer(src):
 	return _pdf_embed(src)
-
-
-def assignment_renderer(detail):
-	supported_types = {
-		"Document": ".doc,.docx,.xml,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-		"PDF": ".pdf",
-		"Image": ".png, .jpg, .jpeg",
-		"Video": "video/*",
-	}
-	question = detail.split("-")[0]
-	file_type = detail.split("-")[1]
-	accept = supported_types[file_type] if file_type else ""
-	return frappe.render_template(
-		"templates/assignment.html",
-		{"question": question, "accept": accept, "file_type": file_type},
-	)
 
 
 def show_custom_signup():
