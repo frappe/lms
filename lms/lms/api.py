@@ -1038,7 +1038,7 @@ def update_evaluator_slot(evaluator: str, slot: str | int, fieldname: str, value
 	doc.save(ignore_permissions=True)
 
 
-@frappe.whitelist()
+@frappe.whitelist(methods=["POST"])
 def delete_evaluator_slot(evaluator: str, slot: str | int):
 	doc = get_owned_evaluator_doc(evaluator)
 	row = get_owned_slot(doc, slot)
@@ -1281,7 +1281,7 @@ def save_sidebar_items(rows: list):
 	return get_sidebar_settings()
 
 
-@frappe.whitelist()
+@frappe.whitelist(methods=["POST"])
 def delete_sidebar_item(webpage: str):
 	frappe.only_for("Moderator")
 	return frappe.db.delete(
@@ -1689,7 +1689,7 @@ def save_certificate_details(
 		return doc.name
 
 
-@frappe.whitelist()
+@frappe.whitelist(methods=["POST"])
 def delete_documents(doctype: str, documents: list):
 	frappe.only_for("Moderator")
 	meta = frappe.get_meta(doctype)
@@ -1886,7 +1886,7 @@ def _insert_batch_certificate(batch: str, member: str, values: dict) -> str | No
 		frappe.clear_messages()
 
 
-@frappe.whitelist()
+@frappe.whitelist(methods=["POST"])
 def delete_course(course: str):
 	if not can_modify_course(course):
 		frappe.throw(_("You do not have permission to delete this course."), frappe.PermissionError)
@@ -1938,7 +1938,7 @@ def delete_course(course: str):
 	frappe.delete_doc("LMS Course", course)
 
 
-@frappe.whitelist()
+@frappe.whitelist(methods=["POST"])
 def delete_batch(batch: str):
 	if not can_modify_batch(batch):
 		frappe.throw(_("You do not have permission to delete this batch."), frappe.PermissionError)
@@ -2246,7 +2246,7 @@ def add_lesson(title: str, chapter: str, course: str, idx: int):
 	return lesson.name
 
 
-@frappe.whitelist()
+@frappe.whitelist(methods=["POST"])
 def delete_chapter(chapter: str):
 	if not isinstance(chapter, str):
 		frappe.throw(_("chapter must be a string"))
@@ -2523,7 +2523,7 @@ def get_lms_settings():
 	return settings
 
 
-@frappe.whitelist()
+@frappe.whitelist(methods=["POST"])
 def cancel_evaluation(evaluation: dict):
 	evaluation = frappe._dict(evaluation)
 	if evaluation.member != frappe.session.user:
@@ -3839,7 +3839,7 @@ def get_upcoming_batches():
 	)
 
 
-@frappe.whitelist()
+@frappe.whitelist(methods=["POST"])
 def delete_programming_exercise(exercise: str):
 	frappe.only_for(["Moderator", "Course Creator", "Batch Evaluator"])
 	frappe.db.delete("LMS Programming Exercise Submission", {"exercise": exercise})
@@ -4156,7 +4156,7 @@ def export_course_as_file(course_name: str) -> str:
 	return export_course_zip(course_name, as_file=True)
 
 
-@frappe.whitelist()
+@frappe.whitelist(methods=["POST"])
 def import_course_from_zip(zip_file_path: str):
 	"""`zip_file_path` is the file_url of a ZIP the caller uploaded, or may otherwise read."""
 	frappe.only_for(["Moderator", "Course Creator"])
@@ -4164,7 +4164,7 @@ def import_course_from_zip(zip_file_path: str):
 	return import_course_zip(os.path.relpath(zip_path, frappe.get_site_path()))
 
 
-@frappe.whitelist()
+@frappe.whitelist(methods=["POST"])
 def delete_category(category: str):
 	"""Unlink a category from every course and batch, then delete it.
 
