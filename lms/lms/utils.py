@@ -2,7 +2,7 @@ import hashlib
 import json
 import re
 from datetime import date, datetime
-from urllib.parse import quote
+from urllib.parse import quote, urlsplit
 from zoneinfo import ZoneInfo
 
 import frappe
@@ -27,6 +27,7 @@ from frappe.utils import (
 	get_fullname,
 	get_system_timezone,
 	get_time,
+	get_url,
 	getdate,
 	nowtime,
 	rounded,
@@ -3892,7 +3893,7 @@ def sanitize_editorjs(raw):
 	"""
 	try:
 		data, _repaired = load_editorjs(raw)
-		return dump_editorjs(sanitize_json(data))
+		return dump_editorjs(drop_unsafe_embeds(sanitize_json(data)))
 	except (TypeError, ValueError, RecursionError):
 		return escape_markup(raw)
 
@@ -3947,6 +3948,39 @@ def sanitize_json(node, depth=0):
 	if isinstance(node, str) and ("<" in node or ">" in node):
 		return sanitize_html(node, always_sanitize=True)
 	return node
+
+
+# The embed tool writes `data.embed` into an iframe `src` as is.
+SAFE_EMBED_URL = re.compile(r"https?://[^\s\\\x00-\x1f\x7f]+", re.IGNORECASE)
+YOUTUBE_VIDEO_ID = re.compile(r"[A-Za-z0-9_-]+")
+
+
+def is_safe_embed(data):
+	url = data.get("embed")
+	if not isinstance(url, str):
+		return False
+	if data.get("service") == "youtube" and YOUTUBE_VIDEO_ID.fullmatch(url):
+		return True
+	if not SAFE_EMBED_URL.fullmatch(url):
+		return False
+	try:
+		host = urlsplit(url).hostname
+	except ValueError:
+		return False
+	return bool(host) and host not in {frappe.local.site, urlsplit(get_url()).hostname}
+
+
+def drop_unsafe_embeds(data):
+	"""Drop embed blocks whose iframe source is not an external http(s) URL."""
+	if not isinstance(data, dict) or not isinstance(data.get("blocks"), list):
+		return data
+	data["blocks"] = [
+		block
+		for block in data["blocks"]
+		if not (isinstance(block, dict) and block.get("type") == "embed")
+		or (isinstance(block.get("data"), dict) and is_safe_embed(block["data"]))
+	]
+	return data
 
 
 # Rows written before `content` carried `ignore_xss_filter` were mangled by nh3
