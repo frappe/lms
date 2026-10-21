@@ -175,3 +175,77 @@ class TestServeResourceUnderscoreFilename(BaseTestUtils):
 		"""The fix must not over-open access: an unenrolled, non-preview user is still denied."""
 		with self.assertRaises(frappe.PermissionError):
 			self._serve_as(self.outsider.email)
+
+
+class TestServeResourceExactUrl(BaseTestUtils):
+	"""A request is authorised only by File rows and lesson content naming exactly its url,
+	since the database compares file_url without case and the disk does not."""
+
+	@classmethod
+	def setUpClass(cls):
+		super().setUpClass()
+		h = frappe.generate_hash(length=6)
+		cls.instructor = cls._create_user(f"sx-i-{h}@example.com", "Ivy", "Instr", ["Course Creator"])
+		cls.student = cls._create_user(f"sx-s-{h}@example.com", "Stu", "Dent", ["LMS Student"])
+		cls.victim = cls._create_user(f"sx-v-{h}@example.com", "Vic", "Tim", ["LMS Student"])
+
+		cls.course = cls._create_course(title=f"Exact Url Course {h}", instructor=cls.instructor.email)
+		chapter = cls._create_chapter(f"Exact Url Chapter {h}", cls.course.name)
+		cls.lesson = cls._create_lesson(f"Exact Url Lesson {h}", chapter.name, cls.course.name)
+		cls._create_chapter_reference(cls.course.name, chapter.name, idx=1)
+		cls._create_lesson_reference(chapter.name, cls.lesson.name)
+		cls._create_enrollment(cls.student.email, cls.course.name)
+
+		cls.lesson_file = cls._private_file(cls.instructor.email, f"sx-notes-{h}.txt", "lesson notes")
+		cls.victim_file = cls._private_file(cls.victim.email, f"SX-Notes-{h}.txt", "victim secret")
+		assert cls.lesson_file.file_url.lower() == cls.victim_file.file_url.lower()
+		assert cls.lesson_file.file_url != cls.victim_file.file_url
+
+		frappe.db.set_value(
+			"File",
+			cls.lesson_file.name,
+			{"attached_to_doctype": "Course Lesson", "attached_to_name": cls.lesson.name},
+		)
+		cls.lesson.content = json.dumps(
+			{"blocks": [{"type": "upload", "data": {"file_url": cls.lesson_file.file_url}}]}
+		)
+		cls.lesson.save(ignore_permissions=True)
+
+	@classmethod
+	def _private_file(cls, owner, file_name, content):
+		frappe.set_user(owner)
+		try:
+			return frappe.get_doc(
+				{"doctype": "File", "file_name": file_name, "is_private": 1, "content": content}
+			).insert(ignore_permissions=True)
+		finally:
+			frappe.set_user("Administrator")
+
+	def _served_path(self, user, file_url):
+		served = {}
+		original = course_lesson._serve_private_file
+		course_lesson._serve_private_file = lambda relative_path, filename: served.update(path=relative_path)
+		frappe.set_user(user)
+		try:
+			serve_resource(file_url)
+		finally:
+			course_lesson._serve_private_file = original
+			frappe.set_user("Administrator")
+		return served["path"]
+
+	def test_the_lesson_file_is_still_served(self):
+		self.assertEqual(
+			self._served_path(self.student.email, self.lesson_file.file_url),
+			self.lesson_file.file_url.removeprefix("/private"),
+		)
+
+	def test_another_users_file_differing_only_in_case_is_refused(self):
+		with self.assertRaises(frappe.PermissionError):
+			self._served_path(self.student.email, self.victim_file.file_url)
+
+	def test_a_case_variant_matching_only_lesson_content_is_refused(self):
+		frappe.db.set_value(
+			"File", self.lesson_file.name, {"attached_to_doctype": None, "attached_to_name": None}
+		)
+		with self.assertRaises(frappe.PermissionError):
+			self._served_path(self.student.email, self.victim_file.file_url)
