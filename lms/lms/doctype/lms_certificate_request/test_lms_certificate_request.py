@@ -24,6 +24,8 @@ class TestLMSCertificateRequest(MemberOwnershipTestMixin, BaseTestUtils):
 			"frappe@example.com", "Frappe", "Admin", ["Moderator", "Course Creator"]
 		)
 		cls.course = cls._create_course()
+		# A learner's request takes the course's evaluator; naming another is refused.
+		frappe.db.set_value("LMS Course", cls.course.name, "evaluator", cls.evaluator_user.name)
 
 	def tearDown(self):
 		frappe.set_user("Administrator")

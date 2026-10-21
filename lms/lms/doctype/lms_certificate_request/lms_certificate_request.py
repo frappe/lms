@@ -32,6 +32,7 @@ from lms.lms.utils import (
 class LMSCertificateRequest(Document):
 	def validate(self):
 		self.enforce_member_ownership()
+		self.guard_server_fields()
 		self.set_evaluator()
 		self.validate_unavailability()
 		self.validate_slot()
@@ -52,10 +53,28 @@ class LMSCertificateRequest(Document):
 	def after_insert(self):
 		self.send_notification()
 
+	def guard_server_fields(self):
+		"""The evaluator, the meeting link and the status are the server's to set.
+		The form marks the last two read-only, which the API does not enforce, and a
+		request naming its own evaluator would land on anyone's list carrying any
+		link, while the scheduler skips requests that already have one."""
+		if PRIVILEGED_ROLES & set(frappe.get_roles()):
+			return
+		stored = self.get_doc_before_save()
+		# A saved request keeps the evaluator it was given, by staff or by the
+		# course at the time; the course's current default is for new requests.
+		assigned = stored.evaluator if stored else get_evaluator(self.course, self.batch_name)
+		if self.evaluator and self.evaluator != assigned:
+			frappe.throw(_("The evaluator is assigned by the course or batch."), frappe.PermissionError)
+		self.evaluator = assigned
+		self.google_meet_link = stored.google_meet_link if stored else None
+		self.status = stored.status if stored else "Upcoming"
+
 	def set_evaluator(self):
 		if not self.evaluator:
 			self.evaluator = get_evaluator(self.course, self.batch_name)
-			self.evaluator_name = get_fullname(self.evaluator)
+		# get_fullname(None) would name the caller, not nobody.
+		self.evaluator_name = get_fullname(self.evaluator) if self.evaluator else None
 
 	def validate_unavailability(self):
 		if self.evaluator:
