@@ -11,6 +11,15 @@
 					</p>
 				</div>
 				<div v-if="canEdit" class="flex items-center gap-2">
+					<Dropdown
+						v-if="!showEmptyWeek"
+						:options="weekPresets"
+						:button="{
+							icon: 'lucide-more-horizontal',
+							variant: 'ghost',
+							label: __('More options'),
+						}"
+					/>
 					<Button
 						v-if="dirty"
 						variant="ghost"
@@ -49,11 +58,17 @@
 					:title="emptyWeekTitle"
 					:description="emptyWeekDescription"
 				>
-					<Button
-						v-if="canEdit"
-						:label="__('Add weekly hours')"
-						@click="startingWeek = true"
-					/>
+					<div v-if="canEdit" class="flex flex-wrap justify-center gap-2">
+						<Button
+							variant="solid"
+							:label="__('Use 9:00–17:00, Mon–Fri')"
+							@click="useStandardWeek"
+						/>
+						<Button
+							:label="__('Set hours manually')"
+							@click="startingWeek = true"
+						/>
+					</div>
 				</EmptyStateLayout>
 			</div>
 			<ul
@@ -277,6 +292,7 @@ import {
 	Badge,
 	Button,
 	createResource,
+	Dropdown,
 	ErrorMessage,
 	FormControl,
 	Switch,
@@ -296,6 +312,7 @@ import {
 	formatRange,
 	nextRange,
 	rangeErrors,
+	standardWeek,
 	timeOffError,
 	toRows,
 	toWeek,
@@ -446,6 +463,19 @@ const addRange = (day: Weekday) => {
 const removeRange = (day: Weekday, range: TimeRange) => {
 	week.value[day] = week.value[day].filter((item) => item !== range)
 }
+
+// Staged like any other edit: Discard brings the saved week back.
+const useStandardWeek = () => {
+	week.value = standardWeek()
+	startingWeek.value = true
+}
+
+const weekPresets = computed(() => [
+	{
+		label: __('Reset to 9:00–17:00, Mon–Fri'),
+		onClick: useStandardWeek,
+	},
+])
 
 const clearTimeOff = () => {
 	timeOff.from = null

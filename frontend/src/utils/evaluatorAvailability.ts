@@ -44,6 +44,21 @@ export const toHHMM = (time: string | null | undefined): string => {
 export const emptyWeek = (): Week =>
 	Object.fromEntries(WEEKDAYS.map((day) => [day, []])) as unknown as Week
 
+const WORKDAYS: Weekday[] = [
+	'Monday',
+	'Tuesday',
+	'Wednesday',
+	'Thursday',
+	'Friday',
+]
+
+// 09:00 to 17:00, Monday to Friday, in the same wall clock as every other slot.
+export const standardWeek = (): Week => {
+	const week = emptyWeek()
+	for (const day of WORKDAYS) week[day] = [newRange('09:00', '17:00')]
+	return week
+}
+
 export const toWeek = (rows: Pick<ScheduleRow, keyof ScheduleRow>[]): Week => {
 	const week = emptyWeek()
 	for (const row of rows) {

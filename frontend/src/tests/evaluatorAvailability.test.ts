@@ -9,6 +9,7 @@ import {
 	newRange,
 	nextRange,
 	rangeErrors,
+	standardWeek,
 	timeOffError,
 	toHHMM,
 	toRows,
@@ -127,5 +128,25 @@ describe('timeOffError', () => {
 		},
 	])('from $from to $to', ({ from, to, error }) => {
 		expect(timeOffError({ from, to })).toBe(error)
+	})
+})
+
+describe('standardWeek', () => {
+	it('is 09:00 to 17:00 on weekdays, with the weekend off', () => {
+		const week = standardWeek()
+		expect(
+			Object.entries(week).map(([day, ranges]) => [
+				day,
+				ranges.map((r) => `${r.start}-${r.end}`),
+			])
+		).toEqual([
+			['Monday', ['09:00-17:00']],
+			['Tuesday', ['09:00-17:00']],
+			['Wednesday', ['09:00-17:00']],
+			['Thursday', ['09:00-17:00']],
+			['Friday', ['09:00-17:00']],
+			['Saturday', []],
+			['Sunday', []],
+		])
 	})
 })
