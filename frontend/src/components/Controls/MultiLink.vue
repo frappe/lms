@@ -1,5 +1,6 @@
 <template>
 	<MultiSelect
+		ref="selectRef"
 		v-model="value"
 		v-model:open="popoverOpen"
 		v-model:query="query"
@@ -155,6 +156,7 @@ const props = withDefaults(
 const value = defineModel<string[]>({ default: () => [] })
 
 const popoverOpen = ref<boolean>(false)
+const selectRef = ref<{ focus: () => void } | null>(null)
 // Bound rather than left to MultiSelect, because the search runs on the server:
 // the typed text has to reach `reload()`. Binding also makes the query ours to
 // reset. See onOpen(). A caller may bind `v-model:query` to read or clear it.
@@ -344,5 +346,9 @@ const optionByValue = computed<Map<string, SelectOption>>(() => {
 	return map
 })
 
-defineExpose({ reload, options, optionByValue })
+function focus() {
+	selectRef.value?.focus()
+}
+
+defineExpose({ reload, options, optionByValue, focus })
 </script>
