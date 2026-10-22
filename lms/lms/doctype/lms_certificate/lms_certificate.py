@@ -274,8 +274,18 @@ def is_course_or_batch_author(doc, ptype, user):
 
 def authors_certificate(course, batch_name, user):
 	"""A certificate belongs to the authors of its course and, when issued from a
-	batch, to that batch's authors too."""
-	return can_author_course(course, user=user) or can_author_batch(batch_name, user=user)
+	batch, to that batch's authors too, but only for the batch's own courses."""
+	if can_author_course(course, user=user):
+		return True
+	if course and not batch_offers_course(batch_name, course):
+		return False
+	return can_author_batch(batch_name, user=user)
+
+
+def batch_offers_course(batch_name, course):
+	return bool(
+		frappe.db.exists("Batch Course", {"parent": batch_name, "parenttype": "LMS Batch", "course": course})
+	)
 
 
 def is_assigned_evaluator(doc, ptype, user):
