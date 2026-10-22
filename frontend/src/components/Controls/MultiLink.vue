@@ -157,8 +157,8 @@ const value = defineModel<string[]>({ default: () => [] })
 const popoverOpen = ref<boolean>(false)
 // Bound rather than left to MultiSelect, because the search runs on the server:
 // the typed text has to reach `reload()`. Binding also makes the query ours to
-// reset. See onOpen().
-const query = ref<string>('')
+// reset. See onOpen(). A caller may bind `v-model:query` to read or clear it.
+const query = defineModel<string>('query', { default: '' })
 let loaded = false
 
 function buildParams(txt: string) {
