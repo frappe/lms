@@ -75,8 +75,8 @@ describe('discussion mentions', () => {
 		const RichTextEditor = (await import('@/components/RichTextEditor.vue')).default
 		const mentions = wrapper.findComponent(RichTextEditor as any).props('mentions')
 		expect(mentions).toEqual([
-			{ value: 'jane_doe', label: 'Jane Doe', display: 'Jane Doe (@jane_doe)' },
-			{ value: 'jane_d', label: 'Jane Doe', display: 'Jane Doe (@jane_d)' },
+			{ value: 'jane_doe', label: 'Jane Doe' },
+			{ value: 'jane_d', label: 'Jane Doe' },
 		])
 		expect(JSON.stringify(mentions)).not.toContain('@example.com')
 	})
