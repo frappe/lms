@@ -712,6 +712,10 @@
 			"report",
 			"export"
 		],
+		"Course Creator#1": [
+			"read",
+			"write"
+		],
 		"LMS Student#0": [
 			"read"
 		],
@@ -723,6 +727,10 @@
 			"share",
 			"report",
 			"export"
+		],
+		"Moderator#1": [
+			"read",
+			"write"
 		]
 	},
 	"LMS Programming Exercise": {
