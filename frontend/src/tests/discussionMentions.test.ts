@@ -3,8 +3,8 @@
  * for by context, and stores the username as the mention id. The list shows
  * the username next to the name so two people of one name can be told apart.
  */
-import { describe, expect, it, vi, beforeEach } from 'vitest'
-import { flushPromises, mount } from '@vue/test-utils'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { flushPromises, mount, type VueWrapper } from '@vue/test-utils'
 
 const { allUsers } = vi.hoisted(() => ({
 	allUsers: { reload: vi.fn() },
@@ -34,26 +34,40 @@ String.prototype.format = function (...args: unknown[]) {
 	return this.replace(/\{(\d+)\}/g, (_: string, i: number) => String(args[i]))
 }
 
-const mountReplies = async () =>
-	mount((await import('@/components/DiscussionReplies.vue')).default, {
-		props: {
-			topic: { name: 'T1', title: 'A question' },
-			doctype: 'LMS Batch',
-			docname: 'batch-1',
-		},
+const batchTopic = {
+	topic: { name: 'T1', title: 'A question' },
+	doctype: 'LMS Batch',
+	docname: 'batch-1',
+}
+const moderator = { name: 'mod', is_student: false }
+
+// main-hotfix's test setup does not unmount for us, so each test's wrapper is
+// kept and torn down after it.
+let wrapper: VueWrapper | undefined
+
+const mountReplies = async (props = batchTopic, user = moderator) => {
+	wrapper = mount((await import('@/components/DiscussionReplies.vue')).default, {
+		props,
 		global: {
 			provide: {
 				$socket: { on: vi.fn(), off: vi.fn() },
-				$user: { data: { name: 'mod', is_student: false } },
+				$user: { data: user },
 				$allUsers: allUsers,
 			},
 			mocks: { __: (s: string) => s },
 		},
 	})
+	return wrapper
+}
 
 describe('discussion mentions', () => {
 	beforeEach(() => {
 		allUsers.reload.mockReset()
+	})
+
+	afterEach(() => {
+		wrapper?.unmount()
+		wrapper = undefined
 	})
 
 	it('asks for the people of the lesson or batch', async () => {
@@ -82,17 +96,10 @@ describe('discussion mentions', () => {
 	})
 
 	it('does not ask for a list as a student', async () => {
-		mount((await import('@/components/DiscussionReplies.vue')).default, {
-			props: { topic: { name: 'T1' }, doctype: 'Course Lesson', docname: 'L1' },
-			global: {
-				provide: {
-					$socket: { on: vi.fn(), off: vi.fn() },
-					$user: { data: { name: 'stu', is_student: true } },
-					$allUsers: allUsers,
-				},
-				mocks: { __: (s: string) => s },
-			},
-		})
+		await mountReplies(
+			{ topic: { name: 'T1' }, doctype: 'Course Lesson', docname: 'L1' },
+			{ name: 'stu', is_student: true },
+		)
 		expect(allUsers.reload).not.toHaveBeenCalled()
 	})
 })
