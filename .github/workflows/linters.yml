@@ -85,3 +85,19 @@ jobs:
         # --error is required: a bare `semgrep scan` prints its findings and
         # still exits 0, so without it this step could never fail.
         run: semgrep scan --error --config ./.github/semgrep/tailwind-rtl.yml
+
+  deps-vulnerable-check:
+    name: 'Vulnerable Dependency Check'
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.14'
+
+      - name: Install and run pip-audit
+        run: |
+          pip install pip-audit
+          pip-audit --desc on .
