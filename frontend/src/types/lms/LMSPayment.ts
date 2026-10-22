@@ -26,7 +26,7 @@ export interface LMSPayment {
 	/**	PAN : Data	*/
 	pan?: string
 	/**	Address : Link - Address	*/
-	address: string
+	address?: string
 	/**	Payment Received : Check	*/
 	payment_received?: 0 | 1
 	/**	Billing Name : Data	*/

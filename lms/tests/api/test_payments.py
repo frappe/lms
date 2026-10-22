@@ -3,6 +3,7 @@ import unittest
 import frappe
 
 from lms.lms import payments as payments_module
+from lms.lms.payments import record_payment
 from lms.lms.test_helpers import BaseTestUtils
 
 
@@ -139,4 +140,72 @@ class TestPaymentsModuleShape(unittest.TestCase):
 		self.assertFalse(
 			hasattr(payments_module, "create_order"),
 			"lms.lms.payments.create_order duplicates the payments app controller",
+		)
+
+
+class TestRecordPaymentAddress(BaseTestUtils):
+	@classmethod
+	def setUpClass(cls):
+		super().setUpClass()
+		cls.hash = frappe.generate_hash(length=6).lower()
+		cls.student = cls._create_user(
+			f"pay-addr-{cls.hash}@example.com", "Pay", "Student", ["LMS Student"]
+		).name
+		cls.course = cls._create_course(f"Pay Addr Course {cls.hash}").name
+		frappe.db.set_value(
+			"LMS Course",
+			cls.course,
+			{"paid_course": 1, "course_price": 100, "currency": "INR"},
+		)
+		cls.source = (
+			frappe.get_doc({"doctype": "LMS Source", "source": f"Test Source {cls.hash}"}).insert().name
+		)
+
+	def _as(self, user):
+		frappe.set_user(user)
+		self.addCleanup(frappe.set_user, "Administrator")
+
+	def _address(self):
+		return {
+			"billing_name": "Bulk Student",
+			"address_line1": "1 Main St",
+			"city": "Pune",
+			"country": "India",
+			"phone": "9999999999",
+			"source": self.source,
+		}
+
+	def test_the_doctype_no_longer_requires_an_address(self):
+		self.assertFalse(frappe.get_meta("LMS Payment").get_field("address").reqd)
+
+	def test_an_admin_payment_saves_without_an_address(self):
+		payment = frappe.get_doc(
+			{
+				"doctype": "LMS Payment",
+				"member": self.student,
+				"billing_name": "Bulk Student",
+				"amount": 100,
+				"currency": "INR",
+				"source": self.source,
+				"payment_for_document_type": "LMS Course",
+				"payment_for_document": self.course,
+				"payment_received": 1,
+			}
+		).insert()
+		self.assertFalse(payment.address)
+
+	def test_checkout_still_saves_and_links_the_address(self):
+		self._as(self.student)
+		payment = record_payment(self._address(), "LMS Course", self.course, 100, 100, "INR")
+		self.assertTrue(payment.address)
+		self.assertEqual(frappe.db.get_value("Address", payment.address, "email_id"), self.student)
+
+	# Regression guard from the bulk-enroll PR (feat/bulk-enroll): LMS Payment.address
+	# lost reqd, so checkout must still refuse a payment without one on its own.
+	def test_checkout_refuses_a_blank_address(self):
+		self._as(self.student)
+		with self.assertRaises(frappe.MandatoryError):
+			record_payment({"billing_name": "Student"}, "LMS Course", self.course, 100, 100, "INR")
+		self.assertFalse(
+			frappe.db.exists("LMS Payment", {"member": self.student, "payment_for_document": self.course})
 		)

@@ -91,8 +91,7 @@
    "fieldname": "address",
    "fieldtype": "Link",
    "label": "Address",
-   "options": "Address",
-   "reqd": 1
+   "options": "Address"
   },
   {
    "default": "0",
@@ -203,7 +202,7 @@
    "link_fieldname": "payment"
   }
  ],
- "modified": "2026-07-28 12:30:00.000000",
+ "modified": "2026-10-22 12:00:00.000000",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Payment",
