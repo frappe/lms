@@ -6,9 +6,15 @@ on:
   push:
     branches: [ main ]
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
 jobs:
-  commit-lint:
-    name: 'Semantic Commits'
+  # One job: the commit check and the rule scans each take under a minute, and
+  # a second job mostly waits in the org-wide runner queue.
+  linters:
+    name: Linters
     runs-on: ubuntu-latest
     if: github.event_name == 'pull_request'
 
@@ -16,40 +22,26 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 200
-      - uses: actions/setup-node@v6
-        with:
-          node-version: 24
-          check-latest: true
-
-      - name: Check commit titles
-        run: |
-          npm install @commitlint/cli @commitlint/config-conventional
-          npx commitlint --verbose --from ${{ github.event.pull_request.base.sha }} --to ${{ github.event.pull_request.head.sha }}
-
-  linters:
-    name: Semgrep Rules
-    runs-on: ubuntu-latest
-    if: github.event_name == 'pull_request'
-
-    steps:
-      - uses: actions/checkout@v3
 
       - name: Set up Python
         uses: actions/setup-python@v6
         with:
           python-version: '3.14'
 
+      # Same scheme as the bench action's package cache, so the two share entries.
       - name: Cache pip
         uses: actions/cache@v4
         with:
           path: ~/.cache/pip
-          key: ${{ runner.os }}-pip-${{ hashFiles('**/*requirements.txt', '**/pyproject.toml', '**/setup.py') }}
+          key: packages-linters-${{ hashFiles('**/*requirements.txt', '**/pyproject.toml', '**/setup.py') }}
           restore-keys: |
-            ${{ runner.os }}-pip-
-            ${{ runner.os }}-
+            packages-
 
       - name: Install and Run Pre-commit
         uses: pre-commit/action@v3.0.1
+
+      - name: Test the changed-test classifier
+        run: .github/helper/test-changed-tests.sh
 
       - name: Download Semgrep rules
         run: git clone --depth 1 https://github.com/frappe/semgrep-rules.git frappe-semgrep-rules
@@ -78,3 +70,16 @@ jobs:
         # --error is required: a bare `semgrep scan` prints its findings and
         # still exits 0, so without it this step could never fail.
         run: semgrep scan --error --config ./.github/semgrep/tailwind-rtl.yml
+
+      # Last, so a bad commit subject still gets the lint findings above.
+      # --no-save and --ignore-scripts keep the tree the scans just saw clean:
+      # a plain install rewrites package.json and runs the frontend install.
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          check-latest: true
+
+      - name: Check commit titles
+        run: |
+          npm install --no-save --ignore-scripts @commitlint/cli @commitlint/config-conventional
+          npx commitlint --verbose --from ${{ github.event.pull_request.base.sha }} --to ${{ github.event.pull_request.head.sha }}
