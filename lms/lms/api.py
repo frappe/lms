@@ -38,6 +38,7 @@ from frappe.utils.response import Response
 from pypika import functions as fn
 
 from lms.lms.bulk_enrollment import (
+	can_enroll_others,
 	can_record_payments,
 	enroll_each,
 	get_paid_kind,
@@ -3459,6 +3460,92 @@ def add_students_to_batch(
 
 	outcomes, errors = enroll_each(members, enroll_one)
 	return {"added": outcomes.get("added", []), "errors": errors}
+
+
+@frappe.whitelist(methods=["POST"])
+def enroll_students_in_course(
+	course: str,
+	members: list | str,
+	purchased_certificate: bool = False,
+	payment_details: dict | str | None = None,
+	linked_payments: dict | str | None = None,
+) -> dict:
+	"""Enroll each member in the course; one who cannot be enrolled is reported in `errors`. With
+	`purchased_certificate`, members already enrolled are upgraded to the certificate instead."""
+	if not isinstance(course, str) or not frappe.db.exists("LMS Course", course):
+		frappe.throw(_("Invalid course."))
+	if not can_enroll_others("LMS Course", course):
+		frappe.throw(_("You cannot enroll students in this course."), frappe.PermissionError)
+	if not isinstance(purchased_certificate, bool | int) or purchased_certificate not in (0, 1):
+		frappe.throw(_("Purchased certificate must be true or false."))
+	if not isinstance(members, list | str):
+		frappe.throw(_("Members must be a list of users."))
+	if not all(isinstance(arg, dict | str | None) for arg in (payment_details, linked_payments)):
+		frappe.throw(_("Payment arguments must be JSON objects."))
+
+	purchased_certificate = bool(purchased_certificate)
+	kind = get_paid_kind("LMS Course", course, purchased_certificate)
+	if purchased_certificate and kind == "course":
+		frappe.throw(
+			_(
+				"The certificate cannot be bought separately on a paid course. Turn off the certificate switch and try again."
+			)
+		)
+	has_payments = payment_details is not None or linked_payments is not None
+	if has_payments:
+		if not can_record_payments("LMS Course", course):
+			frappe.throw(_("You cannot record payments for this course."), frappe.PermissionError)
+		if kind is None:
+			frappe.throw(_("Payments can only be recorded for a paid course or a purchased certificate."))
+
+	members = parse_members(members)
+	details = parse_payment_details(payment_details)
+	linked = parse_linked_payments(linked_payments)
+	for_certificate = kind == "certificate"
+
+	def enroll_one(member: str) -> str:
+		member = require_user(member)
+		# Same lock order as LMSEnrollment.validate_duplicate_enrollment: course first.
+		frappe.db.get_value("LMS Course", course, "name", for_update=True)
+		existing = frappe.db.get_value(
+			"LMS Enrollment",
+			{"course": course, "member": member},
+			["name", "purchased_certificate"],
+			as_dict=True,
+			for_update=purchased_certificate,
+		)
+		if existing and purchased_certificate and existing.purchased_certificate:
+			frappe.throw(_("Certificate already purchased by {0}.").format(member))
+
+		payment = resolve_payment(member, "LMS Course", course, for_certificate, details, linked)
+		if has_payments and not payment:
+			frappe.throw(_("No payment was given for {0}. Add a payment for this student.").format(member))
+
+		if existing and purchased_certificate:
+			enrollment = frappe.get_doc("LMS Enrollment", existing.name)
+			enrollment.purchased_certificate = 1
+			if payment:
+				enrollment.payment = payment
+			enrollment.save()
+			return "upgraded"
+
+		frappe.get_doc(
+			{
+				"doctype": "LMS Enrollment",
+				"course": course,
+				"member": member,
+				"purchased_certificate": int(purchased_certificate),
+				"payment": payment,
+			}
+		).insert()
+		return "added"
+
+	outcomes, errors = enroll_each(members, enroll_one)
+	return {
+		"added": outcomes.get("added", []),
+		"upgraded": outcomes.get("upgraded", []),
+		"errors": errors,
+	}
 
 
 @frappe.whitelist()
