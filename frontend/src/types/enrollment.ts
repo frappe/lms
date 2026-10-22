@@ -31,10 +31,46 @@ export interface EnrollPreview {
 	currency: string | null
 }
 
+export type AddressField =
+	| 'address_line1'
+	| 'address_line2'
+	| 'city'
+	| 'state'
+	| 'country'
+	| 'pincode'
+	| 'phone'
+
+export type BillingAddress = Record<AddressField, string>
+
 export interface PaymentDefaults {
 	amount: number | null
 	currency: string | null
 	source: string | null
+	address: BillingAddress
+}
+
+export type PaymentField =
+	| 'amount'
+	| 'currency'
+	| 'source'
+	| 'billing_name'
+	| AddressField
+
+/** A student's own payment values; null keeps the common value. An address replaces the common one whole. */
+export interface PaymentOverride {
+	amount: number | null
+	currency: string | null
+	source: string | null
+	billing_name: string | null
+	address: BillingAddress | null
+}
+
+/** One row of search_users_to_enroll. */
+export interface StudentOption {
+	value: string
+	label: string
+	description: string
+	image: string | null
 }
 
 export type PaymentChoice =

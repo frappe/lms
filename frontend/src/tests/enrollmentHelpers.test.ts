@@ -9,18 +9,29 @@ import {
 	normalizeResult,
 	paidKindForBatch,
 	paidKindForCourse,
+	paidSwitchDescription,
 	paidSwitchLabel,
 	parseEmailList,
-	priceHint,
+	paymentSummary,
+	paidByDefault,
+	addressSummary,
+	emptyAddress,
+	emptyOverride,
+	effectivePayment,
+	hasOverride,
+	listPaymentLabel,
+	missingPaymentDetails,
 	statusLabel,
 	summaryLine,
 } from '@/components/Enrollment/enrollment'
 import type {
+	BillingAddress,
 	EnrollPreviewRow,
 	EnrollStatus,
 	EnrollTarget,
 	PaymentChoice,
 	PaymentDefaults,
+	PaymentOverride,
 } from '@/types'
 
 vi.stubGlobal('__', (text: string, args: unknown[] = []) =>
@@ -39,7 +50,28 @@ const defaults: PaymentDefaults = {
 	amount: 100,
 	currency: 'INR',
 	source: 'Offline',
+	address: emptyAddress(),
 }
+
+const address = (fields: Partial<BillingAddress> = {}): BillingAddress => ({
+	...emptyAddress(),
+	...fields,
+})
+
+const fullAddress = address({
+	address_line1: '1 Main St',
+	city: 'Pune',
+	country: 'India',
+})
+
+const override = (
+	fields: Partial<Omit<PaymentOverride, 'address'>> = {},
+	addressFields?: Partial<BillingAddress>
+): PaymentOverride => ({
+	...emptyOverride(),
+	...fields,
+	address: addressFields ? address(addressFields) : null,
+})
 
 const courseTarget: EnrollTarget = {
 	doctype: 'LMS Course',
@@ -86,23 +118,46 @@ describe('enrollment helpers', () => {
 	test.each([
 		{
 			kind: 'course',
-			switchLabel: 'Students have paid for this course',
-			hint: 'Course price $10',
-		},
-		{
-			kind: 'certificate',
-			switchLabel: 'Students have purchased the certificate',
-			hint: 'Certificate price $10',
+			label: 'Record payments',
+			description:
+				'Course price $10. Turn off to enroll without a payment record.',
+			on: true,
 		},
 		{
 			kind: 'batch',
-			switchLabel: 'Students have paid for this batch',
-			hint: 'Batch price $10',
+			label: 'Record payments',
+			description:
+				'Batch price $10. Turn off to enroll without a payment record.',
+			on: true,
 		},
-	] as const)('labels for $kind', ({ kind, switchLabel, hint }) => {
-		expect(paidSwitchLabel(kind)).toBe(switchLabel)
-		expect(priceHint(kind, '$10')).toBe(hint)
+		{
+			kind: 'certificate',
+			label: 'Include paid certificate',
+			description:
+				'Students get the certificate and a payment is recorded for each. Certificate price $10.',
+			on: false,
+		},
+	] as const)('switch copy for $kind', ({ kind, label, description, on }) => {
+		expect(paidSwitchLabel(kind)).toBe(label)
+		expect(paidSwitchDescription(kind, '$10')).toBe(description)
+		expect(paidByDefault(kind)).toBe(on)
 	})
+
+	test.each([
+		{
+			kind: 'course',
+			description: 'Turn off to enroll without a payment record.',
+		},
+		{
+			kind: 'certificate',
+			description:
+				'Students get the certificate and a payment is recorded for each.',
+		},
+	] as const)(
+		'$kind switch drops the price sentence without a price',
+		({ kind, description }) =>
+			expect(paidSwitchDescription(kind, null)).toBe(description)
+	)
 
 	test.each([
 		{ status: 'ready', label: 'Ready', enrollable: true },
@@ -183,7 +238,7 @@ describe('enrollment helpers', () => {
 			'a@x.com': { mode: 'link', payment: 'P1' } as PaymentChoice,
 		}
 		expect(
-			buildSubmitParams(courseTarget, ['a@x.com'], false, defaults, choices)
+			buildSubmitParams(courseTarget, ['a@x.com'], false, defaults, choices, {})
 		).toEqual({
 			course: 'c1',
 			members: '["a@x.com"]',
@@ -200,7 +255,8 @@ describe('enrollment helpers', () => {
 				['a@x.com'],
 				false,
 				defaults,
-				choices
+				choices,
+				{}
 			)
 		).toEqual({ batch: 'b1', members: '["a@x.com"]' })
 	})
@@ -217,7 +273,8 @@ describe('enrollment helpers', () => {
 			members,
 			true,
 			defaults,
-			choices
+			choices,
+			{}
 		)
 		expect(params.purchased_certificate).toBe(true)
 		expect(JSON.parse(params.payment_details as string)).toEqual({
@@ -233,25 +290,26 @@ describe('enrollment helpers', () => {
 			members,
 			true,
 			defaults,
-			choices
+			choices,
+			{}
 		)
 		expect(batch.batch).toBe('b1')
 		expect('course' in batch).toBe(false)
 		expect('purchased_certificate' in batch).toBe(false)
 	})
 
-	it('buildSubmitParams sends no payment details when every student links one', () => {
+	it('buildSubmitParams omits an empty source from the common details', () => {
 		const params = buildSubmitParams(
 			courseTarget,
 			['a@x.com'],
 			true,
 			{ ...defaults, source: null },
-			{ 'a@x.com': { mode: 'link', payment: 'P1' } }
+			{},
+			{}
 		)
-		expect('payment_details' in params).toBe(false)
-		expect(JSON.parse(params.linked_payments as string)).toEqual({
-			'a@x.com': 'P1',
-		})
+		const details = JSON.parse(params.payment_details as string)
+		expect('source' in details).toBe(false)
+		expect(details.amount).toBe(100)
 	})
 
 	test.each([
@@ -274,7 +332,7 @@ describe('enrollment helpers', () => {
 			label: 'missing source',
 			d: { ...defaults, source: null },
 			c: {},
-			ok: false,
+			ok: true,
 		},
 		{
 			label: 'missing currency',
@@ -306,6 +364,222 @@ describe('enrollment helpers', () => {
 		c: Record<string, PaymentChoice>
 		ok: boolean
 	}[])('canSubmitPayments $label', ({ d, c, ok }) =>
-		expect(canSubmitPayments(d, ['a@x.com'], c)).toBe(ok)
+		expect(canSubmitPayments(d, ['a@x.com'], c, {})).toBe(ok)
 	)
+})
+
+describe('per-student payment details', () => {
+	it('effectivePayment prefers the student value over the common one', () => {
+		expect(
+			effectivePayment(
+				{ ...defaults, address: fullAddress },
+				override({ amount: 50, source: 'Referral' })
+			)
+		).toEqual({
+			amount: 50,
+			currency: 'INR',
+			source: 'Referral',
+			address: fullAddress,
+		})
+		expect(effectivePayment(defaults, null)).toEqual(defaults)
+	})
+
+	it('a student address replaces the common address entirely', () => {
+		const common = address({ ...fullAddress, pincode: '411001', phone: '9' })
+		const own = { address_line1: '10 Downing St', city: 'London' }
+		expect(
+			effectivePayment({ ...defaults, address: common }, override({}, own))
+				.address
+		).toEqual(address(own))
+	})
+
+	it('hasOverride is false for an untouched or cleared override', () => {
+		expect(hasOverride(undefined)).toBe(false)
+		expect(hasOverride(emptyOverride())).toBe(false)
+		expect(hasOverride(override({ billing_name: 'J' }))).toBe(true)
+		expect(hasOverride(override({}, {}))).toBe(true)
+	})
+
+	it('missingPaymentDetails names every field a student still needs', () => {
+		expect(missingPaymentDetails(defaults, null)).toEqual([])
+		expect(
+			missingPaymentDetails({ ...defaults, amount: null, source: null }, null)
+		).toEqual(['Amount'])
+		expect(
+			missingPaymentDetails(
+				{ ...defaults, address: address({ city: 'Pune' }) },
+				null
+			)
+		).toEqual(['Address line 1', 'Country'])
+		expect(missingPaymentDetails(defaults, override({}, {}))).toEqual([
+			'Address line 1',
+			'City',
+			'Country',
+		])
+		expect(
+			missingPaymentDetails(
+				{ ...defaults, address: address({ city: 'Pune' }) },
+				override({}, fullAddress)
+			)
+		).toEqual([])
+	})
+
+	it('listPaymentLabel shows the amount and source, or the linked payment', () => {
+		expect(
+			listPaymentLabel({ mode: 'create' }, { ...defaults, source: 'Website' })
+		).toMatch(/^.*100.* · Website$/)
+		expect(
+			listPaymentLabel({ mode: 'create' }, { ...defaults, source: null })
+		).toMatch(/^.*100[^·]*$/)
+		expect(listPaymentLabel({ mode: 'link', payment: 'P1' }, defaults)).toBe(
+			'Linked · P1'
+		)
+		expect(listPaymentLabel({ mode: 'link', payment: null }, defaults)).toBe(
+			'Linked · Not selected'
+		)
+	})
+
+	it('buildSubmitParams sends the common address and only overridden student fields', () => {
+		const params = buildSubmitParams(
+			courseTarget,
+			['a@x.com', 'b@x.com', 'c@x.com'],
+			true,
+			{ ...defaults, address: address({ ...fullAddress, state: '' }) },
+			{ 'c@x.com': { mode: 'link', payment: 'P1' } },
+			{
+				'a@x.com': override(
+					{ amount: 0, billing_name: 'Acme Ltd' },
+					{ city: 'Delhi' }
+				),
+				'b@x.com': emptyOverride(),
+				'c@x.com': override({ amount: 5 }),
+			}
+		)
+		expect(JSON.parse(params.payment_details as string)).toEqual({
+			amount: 100,
+			currency: 'INR',
+			source: 'Offline',
+			address: { address_line1: '1 Main St', city: 'Pune', country: 'India' },
+		})
+		expect(JSON.parse(params.member_payment_details as string)).toEqual({
+			'a@x.com': {
+				amount: 0,
+				billing_name: 'Acme Ltd',
+				address: { city: 'Delhi' },
+			},
+		})
+	})
+
+	it('buildSubmitParams sends no member details when nothing is overridden', () => {
+		const params = buildSubmitParams(
+			courseTarget,
+			['a@x.com'],
+			true,
+			defaults,
+			{},
+			{ 'a@x.com': emptyOverride() }
+		)
+		expect('member_payment_details' in params).toBe(false)
+		expect(JSON.parse(params.payment_details as string)).toEqual({
+			amount: 100,
+			currency: 'INR',
+			source: 'Offline',
+		})
+	})
+
+	it('buildSubmitParams sends no member details when every student links a payment', () => {
+		const params = buildSubmitParams(
+			courseTarget,
+			['a@x.com'],
+			true,
+			defaults,
+			{ 'a@x.com': { mode: 'link', payment: 'P1' } },
+			{ 'a@x.com': override({ amount: 5 }) }
+		)
+		expect('payment_details' in params).toBe(false)
+		expect('member_payment_details' in params).toBe(false)
+	})
+
+	test.each([
+		{ label: 'no address', d: defaults, o: {}, ok: true },
+		{
+			label: 'complete common address',
+			d: { ...defaults, address: fullAddress },
+			o: {},
+			ok: true,
+		},
+		{
+			label: 'partial common address',
+			d: { ...defaults, address: address({ city: 'Pune' }) },
+			o: {},
+			ok: false,
+		},
+		{
+			label: 'student completes a partial common address',
+			d: { ...defaults, address: address({ city: 'Pune' }) },
+			o: {
+				'a@x.com': override(
+					{},
+					{ address_line1: '1 Main St', country: 'India' }
+				),
+			},
+			ok: false,
+		},
+		{
+			label: 'partial student address',
+			d: defaults,
+			o: { 'a@x.com': override({}, { phone: '99' }) },
+			ok: false,
+		},
+		{
+			label: 'empty different student address',
+			d: { ...defaults, address: fullAddress },
+			o: { 'a@x.com': override({}, {}) },
+			ok: false,
+		},
+		{
+			label: 'complete different student address',
+			d: defaults,
+			o: { 'a@x.com': override({}, fullAddress) },
+			ok: true,
+		},
+		{
+			label: 'student amount fixes a missing common amount',
+			d: { ...defaults, amount: null },
+			o: { 'a@x.com': override({ amount: 10 }) },
+			ok: false,
+		},
+		{
+			label: 'negative student amount',
+			d: defaults,
+			o: { 'a@x.com': override({ amount: -1 }) },
+			ok: false,
+		},
+	] as {
+		label: string
+		d: PaymentDefaults
+		o: Record<string, PaymentOverride>
+		ok: boolean
+	}[])('canSubmitPayments with $label', ({ d, o, ok }) =>
+		expect(canSubmitPayments(d, ['a@x.com'], {}, o)).toBe(ok)
+	)
+
+	it('addressSummary is one line, or empty for no address', () => {
+		expect(addressSummary(emptyAddress())).toBe('')
+		expect(addressSummary(address({ ...fullAddress, state: 'MH' }))).toBe(
+			'1 Main St, Pune, MH, India'
+		)
+	})
+
+	it('paymentSummary names a new or a linked payment', () => {
+		expect(
+			paymentSummary({ mode: 'create' }, { ...defaults, source: 'Website' })
+		).toMatch(/^New · .*100.* · Website$/)
+		expect(
+			paymentSummary({ mode: 'create' }, { ...defaults, source: null })
+		).toMatch(/^New · [^·]*100[^·]*$/)
+		expect(paymentSummary({ mode: 'link', payment: 'P1' }, defaults)).toBe(
+			'Linked · P1'
+		)
+	})
 })
