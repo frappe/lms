@@ -3447,7 +3447,7 @@ def add_students_to_batch(
 		if get_paid_kind("LMS Batch", batch) != "batch":
 			frappe.throw(_("Payments can only be recorded for a paid batch."))
 
-	members = parse_members(members, limit=None)
+	members = parse_members(members) if has_payments else parse_members(members, limit=None)
 	details = parse_payment_details(payment_details)
 	linked = parse_linked_payments(linked_payments)
 

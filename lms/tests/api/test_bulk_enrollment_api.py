@@ -87,6 +87,24 @@ class TestBatchBulkEnrollment(BaseTestUtils):
 		result = add_students_to_batch(free, json.dumps(self.students[:2]))
 		self.assertEqual(result, {"added": self.students[:2], "errors": []})
 
+	# Regression from the bulk-enroll PR (feat/bulk-enroll): the paid batch path skipped
+	# the fifty-student cap, so one call could write a payment row per member unbounded.
+	def test_more_than_fifty_students_with_payments_are_refused(self):
+		emails = [f"bulk-many{i}-{self.hash}@example.com" for i in range(51)]
+		self._as(self.instructor)
+		with self.assertRaises(frappe.ValidationError):
+			add_students_to_batch(self.batch, json.dumps(emails), payment_details=json.dumps(self._details()))
+		self.assertEqual(frappe.db.count("LMS Payment", {"member": ["in", emails]}), 0)
+
+	def test_a_plain_list_of_more_than_fifty_is_not_capped(self):
+		free = self._create_batch(
+			self.course.name, instructor=self.instructor, title=f"Bulk Uncapped Batch {self.hash}"
+		).name
+		emails = [f"bulk-many{i}-{self.hash}@example.com" for i in range(51)]
+		self._as(self.instructor)
+		result = add_students_to_batch(free, json.dumps(emails))
+		self.assertEqual(len(result["errors"]), 51)
+
 	def test_each_student_gets_a_received_payment_and_an_enrollment(self):
 		self._as(self.instructor)
 		result = add_students_to_batch(
