@@ -105,7 +105,8 @@ class TestSignupReplies(BaseTestUtils):
 			with patch(OUTGOING, return_value=None):
 				self._sign_up(self.enabled)
 				self._sign_up(self.enabled)
-				with self.assertRaises(frappe.RateLimitExceededError):
+				# The decorator's own error, or the global limiter's, whichever trips.
+				with self.assertRaises((frappe.RateLimitExceededError, frappe.TooManyRequestsError)):
 					self._sign_up(self.enabled)
 		finally:
 			del frappe.local.request
