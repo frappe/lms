@@ -3007,6 +3007,7 @@ def make_new_exercise_submission(exercise: str, code: str, test_cases: list):
 		)
 
 	submission.status = get_exercise_status(test_cases)
+	submission.flags.graded_on_server = True
 	submission.insert()
 	return submission.name
 
