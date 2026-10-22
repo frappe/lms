@@ -24,7 +24,10 @@ class TestCertificateAuthoringScope(BaseTestUtils):
 		cls.learner = cls._create_user(f"cas-learn-{hash}@example.com", "Le", "Arner", ["LMS Student"]).name
 		evaluator = cls._create_user(f"cas-eval-{hash}@example.com", "Ev", "Al", ["Batch Evaluator"]).name
 		cls._create_evaluator(evaluator)
-		cls._require_no_moderators(cls.author, cls.other_creator)
+		cls.batch_author = cls._create_user(
+			f"cas-batch-{hash}@example.com", "Ba", "Tch", ["Course Creator"]
+		).name
+		cls._require_no_moderators(cls.author, cls.other_creator, cls.batch_author)
 
 		cls.course = cls._create_course(title=f"Cert Scope {hash}", instructor=cls.author).name
 		cls.other_course = cls._create_course(
@@ -32,9 +35,12 @@ class TestCertificateAuthoringScope(BaseTestUtils):
 		).name
 		cls._create_enrollment(cls.learner, cls.course)
 		cls._create_enrollment(cls.learner, cls.other_course)
-		cls.batch = cls._create_batch(
+		batch = cls._create_batch(
 			cls.course, instructor=cls.author, title=f"Cert Scope Batch {hash}", evaluator=evaluator
-		).name
+		)
+		batch.append("instructors", {"instructor": cls.batch_author})
+		batch.save()
+		cls.batch = batch.name
 		cls._create_batch_enrollment(cls.learner, cls.batch)
 
 	def setUp(self):
@@ -93,3 +99,10 @@ class TestCertificateAuthoringScope(BaseTestUtils):
 		doc = self._certificate(batch_name=self.batch)
 		self.assertTrue(self._can(self.author, "create", doc))
 		self.assertFalse(self._can(self.other_creator, "create", doc))
+
+	def test_a_batch_author_issues_one_for_the_batchs_own_courses_only(self):
+		in_batch = self._certificate(course=self.course, batch_name=self.batch)
+		outside = self._certificate(course=self.other_course, batch_name=self.batch)
+		self.assertTrue(self._can(self.batch_author, "create", in_batch))
+		self.assertFalse(self._can(self.batch_author, "create", outside))
+		self.assertFalse(self._can(self.author, "create", outside))
