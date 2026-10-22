@@ -11,6 +11,7 @@ config.global.mocks = { __: translate }
 
 vi.mock('frappe-ui', () => ({
 	Switch: {
+		name: 'SwitchStub',
 		props: ['modelValue', 'label', 'description'],
 		emits: ['update:modelValue'],
 		template: `<div data-testid="switch"><label>{{ label }}</label><span>{{ description }}</span><button type="button" data-testid="switch-toggle" @click="$emit('update:modelValue', !modelValue)" /></div>`,
@@ -133,6 +134,20 @@ describe('EnrollSelectStep', () => {
 		expect(
 			wrapper.get('[data-testid="picker"]').attributes('data-include-enrolled')
 		).toBe('true')
+	})
+
+	it('gives no price hint when there is no price to show', () => {
+		const wrapper = mount(EnrollSelectStep, {
+			props: {
+				target: target({ paidKind: 'batch', priceLabel: null }),
+				members: [],
+				paid: false,
+			},
+		})
+		expect(wrapper.text()).toContain('Students have paid for this batch')
+		expect(
+			wrapper.findComponent({ name: 'SwitchStub' }).props('description')
+		).toBeUndefined()
 	})
 })
 
@@ -270,6 +285,32 @@ describe('EnrollPaymentStep', () => {
 			mode: 'link',
 			payment: null,
 		})
+	})
+
+	it('names each payment-mode toggle for its student', () => {
+		const wrapper = mount(EnrollPaymentStep, {
+			props: {
+				rows: [
+					row('a@x.com', 'ready', {
+						full_name: 'Jane Doe',
+						linkable_payments: [
+							{
+								name: 'P1',
+								amount: 999,
+								currency: 'INR',
+								creation: '2026-01-02 10:00:00',
+							},
+						],
+					}),
+				],
+				defaults,
+				choices: {},
+			},
+		})
+		const group = wrapper.get(
+			'[role="group"][aria-label="Payment mode for Jane Doe"]'
+		)
+		expect(group.find('[data-testid="tabs"]').exists()).toBe(true)
 	})
 })
 

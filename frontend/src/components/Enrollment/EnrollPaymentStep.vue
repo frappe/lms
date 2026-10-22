@@ -34,11 +34,18 @@
 					v-if="row.linkable_payments.length"
 					class="flex shrink-0 items-center gap-2"
 				>
-					<TabButtons
-						:options="modeOptions"
-						:modelValue="modeOf(row.member)"
-						@update:modelValue="(value) => setMode(row.member, String(value))"
-					/>
+					<div
+						role="group"
+						:aria-label="
+							__('Payment mode for {0}', [row.full_name || row.member])
+						"
+					>
+						<TabButtons
+							:options="modeOptions"
+							:modelValue="modeOf(row.member)"
+							@update:modelValue="(value) => setMode(row.member, String(value))"
+						/>
+					</div>
 					<Select
 						v-if="modeOf(row.member) === 'link'"
 						:aria-label="__('Payment for {0}', [row.full_name || row.member])"

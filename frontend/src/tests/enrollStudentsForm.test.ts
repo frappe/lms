@@ -439,6 +439,7 @@ describe('EnrollStudentsForm', () => {
 		const content = () =>
 			wrapper.find('[data-testid="enroll-step-content"]').element
 		expect(document.activeElement).toBe(content())
+		expect(content().getAttribute('role')).toBe('group')
 		expect(content().getAttribute('aria-label')).toBe('Review')
 		;(button(wrapper, 'enroll-back').element as HTMLElement).focus()
 		await click(wrapper, 'enroll-back')
