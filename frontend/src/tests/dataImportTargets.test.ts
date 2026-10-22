@@ -1,0 +1,38 @@
+import { describe, expect, it, vi } from 'vitest'
+
+vi.stubGlobal('__', (text: string) => text)
+
+const { openSettings } = vi.hoisted(() => ({ openSettings: vi.fn() }))
+vi.mock('@/utils', () => ({ openSettings }))
+
+import { importTarget, importTitle } from '@/utils/dataImport'
+
+describe('data import targets', () => {
+	const router = { push: vi.fn() } as any
+
+	it('names LMS doctypes the way the app does, and others as they are', () => {
+		expect(importTitle('LMS Course')).toBe('Courses')
+		expect(importTitle('LMS Category')).toBe('Categories')
+		expect(importTitle('ToDo')).toBe('ToDo')
+	})
+
+	it('leads back to the course and batch pages', () => {
+		importTarget('LMS Course')!.openRecord!(router, 'intro-course')
+		expect(router.push).toHaveBeenCalledWith({
+			name: 'CourseDetail',
+			params: { courseName: 'intro-course' },
+		})
+		importTarget('LMS Batch')!.openList(router)
+		expect(router.push).toHaveBeenCalledWith({ name: 'Batches' })
+	})
+
+	it('opens categories in Settings, where they are managed', () => {
+		importTarget('LMS Category')!.openList(router)
+		expect(openSettings).toHaveBeenCalledWith('Categories')
+		expect(importTarget('LMS Category')!.openRecord).toBeUndefined()
+		// Phones have no Settings, so the wizard hides this link there.
+		expect(importTarget('LMS Category')!.listInSettings).toBe(true)
+		expect(importTarget('LMS Course')!.listInSettings).toBeFalsy()
+		expect(importTarget('ToDo')).toBeUndefined()
+	})
+})
