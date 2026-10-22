@@ -43,9 +43,8 @@ from lms.lms.bulk_enrollment import (
 	enroll_each,
 	get_paid_kind,
 	get_preview,
-	parse_linked_payments,
 	parse_members,
-	parse_payment_details,
+	parse_payment_args,
 	require_enroll_target,
 	require_user,
 	resolve_payment,
@@ -3429,15 +3428,19 @@ def add_students_to_batch(
 	members: list | str,
 	payment_details: dict | str | None = None,
 	linked_payments: dict | str | None = None,
+	member_payment_details: dict | str | None = None,
 ) -> dict:
 	"""Enroll each member in the batch; one who cannot be added is reported in `errors`. For a paid
-	batch, `payment_details` records a received payment per member and `linked_payments` attaches
-	existing ones."""
+	batch, `payment_details` records a received payment per member, `linked_payments` attaches
+	existing ones and `member_payment_details` overrides payment values for named members."""
 	if not isinstance(batch, str) or not frappe.db.exists("LMS Batch", batch):
 		frappe.throw(_("Invalid batch."))
 	if not isinstance(members, list | str):
 		frappe.throw(_("Members must be a list of users."))
-	if not all(isinstance(arg, dict | str | None) for arg in (payment_details, linked_payments)):
+	if not all(
+		isinstance(arg, dict | str | None)
+		for arg in (payment_details, linked_payments, member_payment_details)
+	):
 		frappe.throw(_("Payment arguments must be JSON objects."))
 
 	has_payments = payment_details is not None or linked_payments is not None
@@ -3448,12 +3451,14 @@ def add_students_to_batch(
 			frappe.throw(_("Payments can only be recorded for a paid batch."))
 
 	members = parse_members(members) if has_payments else parse_members(members, limit=None)
-	details = parse_payment_details(payment_details)
-	linked = parse_linked_payments(linked_payments)
+	details, linked, member_details = parse_payment_args(
+		payment_details, linked_payments, member_payment_details, members
+	)
 
 	def enroll_one(member: str) -> str:
-		member = require_user(member)
-		payment = resolve_payment(member, "LMS Batch", batch, False, details, linked)
+		user = require_user(member)
+		member = user.name
+		payment = resolve_payment(user, "LMS Batch", batch, False, details, linked, member_details)
 		if has_payments and not payment:
 			frappe.throw(_("No payment was given for {0}. Add a payment for this student.").format(member))
 		frappe.get_doc(
@@ -3472,9 +3477,11 @@ def enroll_students_in_course(
 	purchased_certificate: bool = False,
 	payment_details: dict | str | None = None,
 	linked_payments: dict | str | None = None,
+	member_payment_details: dict | str | None = None,
 ) -> dict:
 	"""Enroll each member in the course; one who cannot be enrolled is reported in `errors`. With
-	`purchased_certificate`, members already enrolled are upgraded to the certificate instead."""
+	`purchased_certificate`, members already enrolled are upgraded to the certificate instead.
+	`member_payment_details` overrides payment values and address for named members."""
 	if not isinstance(course, str) or not frappe.db.exists("LMS Course", course):
 		frappe.throw(_("Invalid course."))
 	if not can_enroll_others("LMS Course", course):
@@ -3483,7 +3490,10 @@ def enroll_students_in_course(
 		frappe.throw(_("Purchased certificate must be true or false."))
 	if not isinstance(members, list | str):
 		frappe.throw(_("Members must be a list of users."))
-	if not all(isinstance(arg, dict | str | None) for arg in (payment_details, linked_payments)):
+	if not all(
+		isinstance(arg, dict | str | None)
+		for arg in (payment_details, linked_payments, member_payment_details)
+	):
 		frappe.throw(_("Payment arguments must be JSON objects."))
 
 	purchased_certificate = bool(purchased_certificate)
@@ -3502,12 +3512,14 @@ def enroll_students_in_course(
 			frappe.throw(_("Payments can only be recorded for a paid course or a purchased certificate."))
 
 	members = parse_members(members)
-	details = parse_payment_details(payment_details)
-	linked = parse_linked_payments(linked_payments)
+	details, linked, member_details = parse_payment_args(
+		payment_details, linked_payments, member_payment_details, members
+	)
 	for_certificate = kind == "certificate"
 
 	def enroll_one(member: str) -> str:
-		member = require_user(member)
+		user = require_user(member)
+		member = user.name
 		# Same lock order as LMSEnrollment.validate_duplicate_enrollment: course first.
 		frappe.db.get_value("LMS Course", course, "name", for_update=True)
 		existing = frappe.db.get_value(
@@ -3520,7 +3532,9 @@ def enroll_students_in_course(
 		if existing and purchased_certificate and existing.purchased_certificate:
 			frappe.throw(_("Certificate already purchased by {0}.").format(member))
 
-		payment = resolve_payment(member, "LMS Course", course, for_certificate, details, linked)
+		payment = resolve_payment(
+			user, "LMS Course", course, for_certificate, details, linked, member_details
+		)
 		if has_payments and not payment:
 			frappe.throw(_("No payment was given for {0}. Add a payment for this student.").format(member))
 

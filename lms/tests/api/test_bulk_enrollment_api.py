@@ -286,6 +286,369 @@ class TestBatchBulkEnrollment(BaseTestUtils):
 					)
 				self.assertFalse(self._enrolled(self.students[0]))
 
+	def _address(self, **extra):
+		return {"address_line1": "1 Main St", "city": "Pune", "country": "India", **extra}
+
+	def _enroll_with(self, members, details=None, per_member=None):
+		self._as(self.instructor)
+		return add_students_to_batch(
+			self.batch,
+			json.dumps(members),
+			payment_details=json.dumps(details or self._details()),
+			member_payment_details=None if per_member is None else json.dumps(per_member),
+		)
+
+	def _payment_of(self, member):
+		name = frappe.db.get_value("LMS Batch Enrollment", {"batch": self.batch, "member": member}, "payment")
+		return frappe.get_doc("LMS Payment", name)
+
+	def test_a_per_student_value_beats_the_common_value_beats_the_default(self):
+		a, b = self.students[:2]
+		result = self._enroll_with(
+			[a, b],
+			per_member={a: {"amount": 250, "billing_name": "Alice Pay", "source": self.source}},
+		)
+		self.assertEqual(result["errors"], [])
+		first, second = self._payment_of(a), self._payment_of(b)
+		self.assertEqual((first.amount, first.billing_name), (250, "Alice Pay"))
+		self.assertEqual(
+			(second.amount, second.billing_name), (500, frappe.db.get_value("User", b, "full_name"))
+		)
+
+	def test_a_differently_cased_member_key_still_matches(self):
+		a = self.students[0]
+		self._enroll_with([a], per_member={a.upper(): {"amount": 125}})
+		self.assertEqual(self._payment_of(a).amount, 125)
+
+	def test_a_common_address_is_created_for_every_student(self):
+		a, b = self.students[:2]
+		details = {**self._details(), "address": self._address(pincode="411001")}
+		self._enroll_with([a, b], details=details)
+		names = set()
+		for s in (a, b):
+			pay = self._payment_of(s)
+			self.assertTrue(pay.address)
+			names.add(pay.address)
+			addr = frappe.get_doc("Address", pay.address)
+			self.assertEqual(
+				(addr.address_type, addr.email_id, addr.address_title, addr.address_line1, addr.city),
+				("Billing", s, pay.billing_name, "1 Main St", "Pune"),
+			)
+			self.assertEqual(addr.country, "India")
+			self.assertEqual([(d.link_doctype, d.link_name) for d in addr.links], [("User", s)])
+		self.assertEqual(len(names), 2)
+
+	def test_a_member_address_replaces_the_common_one_entirely(self):
+		a, b = self.students[:2]
+		common = self._address(address_line2="Andheri", state="MH", pincode="400053", phone="+91 1")
+		own = {"address_line1": "10 Downing St", "city": "London", "country": "United Kingdom"}
+		self._enroll_with(
+			[a, b], details={**self._details(), "address": common}, per_member={a: {"address": own}}
+		)
+		addr = frappe.get_doc("Address", self._payment_of(a).address)
+		self.assertEqual(
+			(addr.address_line1, addr.city, addr.country), ("10 Downing St", "London", "United Kingdom")
+		)
+		self.assertEqual(
+			[addr.get(k) for k in ("address_line2", "state", "pincode", "phone")], [None, None, None, None]
+		)
+		self.assertEqual(frappe.db.get_value("Address", self._payment_of(b).address, "pincode"), "400053")
+
+	def test_an_empty_member_address_opts_that_student_out_of_the_common_one(self):
+		a, b = self.students[:2]
+		details = {**self._details(), "address": self._address()}
+		self._enroll_with([a, b], details=details, per_member={a: {"address": {"city": " "}}})
+		self.assertFalse(self._payment_of(a).address)
+		self.assertTrue(self._payment_of(b).address)
+
+	def test_a_member_address_alone_makes_an_address_only_for_that_student(self):
+		a, b = self.students[:2]
+		self._enroll_with([a, b], per_member={a: {"address": self._address()}})
+		self.assertTrue(self._payment_of(a).address)
+		self.assertFalse(self._payment_of(b).address)
+
+	# Regression from the bulk-enroll PR (feat/bulk-enroll): a partial address was saved
+	# as is, leaving Billing addresses with no line 1, city or country.
+	def test_a_partial_address_is_refused_naming_its_missing_fields_before_any_write(self):
+		a, b = self.students[:2]
+		before = frappe.db.count("Address")
+		self._as(self.instructor)
+		for kwargs, message in (
+			(
+				{"payment_details": {**self._details(), "address": {"city": "Pune"}}},
+				"The common address is missing Address Line 1, Country",
+			),
+			(
+				{
+					"payment_details": self._details(),
+					"member_payment_details": {
+						a: {"address": self._address(city=" ")},
+						b: {"address": self._address()},
+					},
+				},
+				f"The address for {a} is missing City",
+			),
+		):
+			with self.subTest(message):
+				with self.assertRaisesRegex(frappe.ValidationError, message):
+					add_students_to_batch.__wrapped__(self.batch, json.dumps([a, b]), **kwargs)
+				self.assertEqual(self._payment_count(a) + self._payment_count(b), 0)
+				self.assertEqual(frappe.db.count("Address"), before)
+
+	def _saved_address(self, owner, title):
+		self._as(owner)
+		doc = frappe.get_doc(
+			{
+				"doctype": "Address",
+				"address_title": f"{title} {self.hash}",
+				"address_type": "Billing",
+				**self._address(),
+			}
+		).insert()
+		frappe.set_user("Administrator")
+		return doc.name
+
+	def test_a_common_address_name_links_that_address_for_every_student(self):
+		a, b = self.students[:2]
+		saved = self._saved_address(self.instructor, "Common")
+		before = frappe.db.count("Address")
+		self._enroll_with([a, b], details={**self._details(), "address": saved})
+		self.assertEqual((self._payment_of(a).address, self._payment_of(b).address), (saved, saved))
+		self.assertEqual(frappe.db.count("Address"), before)
+
+	def test_a_member_address_name_links_that_address_for_that_student(self):
+		a, b = self.students[:2]
+		saved = self._saved_address(self.instructor, "Own")
+		self._enroll_with(
+			[a, b],
+			details={**self._details(), "address": self._address()},
+			per_member={a: {"address": saved}},
+		)
+		self.assertEqual(self._payment_of(a).address, saved)
+		self.assertNotIn(self._payment_of(b).address, (None, saved))
+
+	def test_an_unknown_or_unreadable_address_name_is_refused(self):
+		a = self.students[0]
+		unreadable = self._saved_address("Administrator", "Admin")
+		self._as(self.instructor)
+		for name in (f"missing-{self.hash}", unreadable, " "):
+			for kwargs in (
+				{"payment_details": {**self._details(), "address": name}},
+				{"payment_details": self._details(), "member_payment_details": {a: {"address": name}}},
+			):
+				with self.subTest(name=name, kwargs=kwargs):
+					with self.assertRaisesRegex(frappe.ValidationError, "does not exist"):
+						add_students_to_batch.__wrapped__(self.batch, json.dumps([a]), **kwargs)
+					self.assertEqual(self._payment_count(a), 0)
+
+	def test_a_bad_member_value_fails_the_whole_call_before_any_write(self):
+		a, b = self.students[:2]
+		before = frappe.db.count("Address")
+		self._as(self.instructor)
+		bad = [
+			({a: {"address": self._address(country="Atlantis")}}, "Atlantis does not exist"),
+			({a: {"currency": "XXX"}}, "XXX does not exist"),
+			({a: {"source": "nope"}}, "nope does not exist"),
+		]
+		for per_member, message in bad:
+			with self.subTest(per_member):
+				with self.assertRaisesRegex(frappe.ValidationError, message):
+					add_students_to_batch.__wrapped__(
+						self.batch,
+						json.dumps([a, b]),
+						payment_details=self._details(),
+						member_payment_details={**per_member, b: {"address": self._address()}},
+					)
+				self.assertFalse(self._enrolled(b))
+				self.assertEqual(self._payment_count(b), 0)
+				self.assertEqual(frappe.db.count("Address"), before)
+
+	def test_a_bad_common_address_fails_once_for_the_whole_call(self):
+		a, b = self.students[:2]
+		self._as(self.instructor)
+		for address, message in (
+			(f"missing-{self.hash}", "does not exist"),
+			(self._address(country="Atlantis"), "Atlantis does not exist"),
+		):
+			with self.subTest(address):
+				with self.assertRaisesRegex(frappe.ValidationError, message):
+					add_students_to_batch.__wrapped__(
+						self.batch,
+						json.dumps([a, b]),
+						payment_details={**self._details(), "address": address},
+					)
+				self.assertEqual(self._payment_count(a) + self._payment_count(b), 0)
+
+	def test_an_override_for_a_member_with_a_linked_payment_is_refused(self):
+		a = self.students[0]
+		payment = self._make_payment(a)
+		self._as(self.instructor)
+		with self.assertRaisesRegex(frappe.ValidationError, "linked payment"):
+			add_students_to_batch.__wrapped__(
+				self.batch,
+				json.dumps([a]),
+				payment_details=self._details(),
+				linked_payments={a: payment},
+				member_payment_details={a.upper(): {"amount": 1}},
+			)
+		self.assertFalse(self._enrolled(a))
+
+	def test_member_keys_that_differ_only_by_case_are_refused(self):
+		a = self.students[0]
+		self._as(self.instructor)
+		with self.assertRaisesRegex(frappe.ValidationError, "more than once"):
+			add_students_to_batch.__wrapped__(
+				self.batch,
+				json.dumps([a]),
+				payment_details=self._details(),
+				member_payment_details={a: {"amount": 1}, a.upper(): {"amount": 2}},
+			)
+		self.assertFalse(self._enrolled(a))
+
+	def test_error_messages_name_fields_with_their_labels(self):
+		a = self.students[0]
+		self._as(self.instructor)
+		for per_member, message in (
+			({a: {"billing_name": ""}}, "Billing Name for .* cannot be empty"),
+			({a: {"source": 5}}, "Source for .* must be text"),
+		):
+			with self.subTest(per_member):
+				with self.assertRaisesRegex(frappe.ValidationError, message):
+					add_students_to_batch.__wrapped__(
+						self.batch,
+						json.dumps([a]),
+						payment_details=self._details(),
+						member_payment_details=per_member,
+					)
+
+	def test_malformed_member_payment_details_fail_the_whole_call(self):
+		a, b = self.students[:2]
+		bad = [
+			{a: {"extra": 1}},
+			{a: {"amount": -1}},
+			{a: {"amount": True}},
+			{a: {"amount": float("inf")}},
+			{a: {"billing_name": 5}},
+			{a: {"billing_name": ""}},
+			{a: {"address": {"nope": "x"}}},
+			{a: {"address": {"city": 5}}},
+			{a: {"address": "Pune"}},
+			{a: {"address": ["x"]}},
+			{a: {"address": 5}},
+			{a: "x"},
+			{f"stranger-{self.hash}@example.com": {"amount": 1}},
+			[],
+			"[]",
+			"not json",
+			5,
+		]
+		self._as(self.instructor)
+		for per_member in bad:
+			with self.subTest(per_member):
+				with self.assertRaises(frappe.ValidationError):
+					add_students_to_batch.__wrapped__(
+						self.batch,
+						json.dumps([a, b]),
+						payment_details=self._details(),
+						member_payment_details=per_member,
+					)
+				self.assertFalse(self._enrolled(a))
+				self.assertEqual(self._payment_count(a), 0)
+
+	def test_malformed_common_address_fails_the_whole_call(self):
+		a = self.students[0]
+		self._as(self.instructor)
+		for address in ({"nope": "x"}, {"city": 5}, "Pune", ["x"], 5, None):
+			with self.subTest(address):
+				with self.assertRaises(frappe.ValidationError):
+					add_students_to_batch.__wrapped__(
+						self.batch,
+						json.dumps([a]),
+						payment_details={**self._details(), "address": address},
+					)
+				self.assertEqual(self._payment_count(a), 0)
+
+	def test_member_payment_details_need_common_payment_details(self):
+		a = self.students[0]
+		self._as(self.instructor)
+		with self.assertRaises(frappe.ValidationError):
+			add_students_to_batch.__wrapped__(
+				self.batch, json.dumps([a]), member_payment_details={a: {"amount": 1}}
+			)
+
+	def test_a_failed_enrollment_leaves_no_address_behind(self):
+		a = self.students[0]
+		self._enroll_with([a])
+		before = frappe.db.count("Address")
+		result = self._enroll_with([a], per_member={a: {"address": self._address()}})
+		self.assertEqual(result["added"], [])
+		self.assertEqual(frappe.db.count("Address"), before)
+
+	def test_source_is_optional_in_common_details(self):
+		a, b, c = self.students[:3]
+		for member, details in (
+			(a, {"amount": 500, "currency": "INR"}),
+			(b, {"amount": 500, "currency": "INR", "source": None}),
+			(c, {"amount": 500, "currency": "INR", "source": ""}),
+		):
+			with self.subTest(details):
+				result = self._enroll_with([member], details)
+				self.assertEqual(result["errors"], [])
+				pay = self._payment_of(member)
+				self.assertFalse(pay.source)
+				required = [f.fieldname for f in pay.meta.fields if f.reqd and f.fieldname != "source"]
+				self.assertEqual([f for f in required if not pay.get(f)], [])
+				self.assertEqual(pay.payment_received, 1)
+
+	def test_a_member_source_may_be_null_or_empty(self):
+		a, b = self.students[:2]
+		details = {"amount": 500, "currency": "INR"}
+		self._enroll_with([a, b], details, {a: {"source": None}, b: {"source": ""}})
+		self.assertFalse(self._payment_of(a).source)
+		self.assertFalse(self._payment_of(b).source)
+
+	def test_a_member_source_beats_a_missing_common_source(self):
+		a = self.students[0]
+		self._enroll_with([a], {"amount": 500, "currency": "INR"}, {a: {"source": self.source}})
+		self.assertEqual(self._payment_of(a).source, self.source)
+
+	# Regression from the bulk-enroll PR (feat/bulk-enroll): dropping reqd on Source let
+	# any insert skip it. Only staff recording on a student's behalf may.
+	def test_a_direct_payment_without_source_is_still_refused(self):
+		with self.assertRaises(frappe.MandatoryError):
+			frappe.get_doc(
+				{
+					"doctype": "LMS Payment",
+					"member": self.students[0],
+					"billing_name": "x",
+					"amount": 1,
+					"currency": "INR",
+					"payment_for_document_type": "LMS Batch",
+					"payment_for_document": self.batch,
+				}
+			).insert()
+
+	# Regression from the bulk-enroll PR (feat/bulk-enroll): the staff flag must waive
+	# Source alone, not every mandatory field the way ignore_mandatory would.
+	def test_the_staff_flag_waives_only_the_source(self):
+		values = {
+			"doctype": "LMS Payment",
+			"member": self.students[0],
+			"billing_name": "x",
+			"amount": 1,
+			"currency": "INR",
+			"payment_for_document_type": "LMS Batch",
+			"payment_for_document": self.batch,
+		}
+		for missing in ("member", "billing_name", "amount", "payment_for_document"):
+			with self.subTest(missing), self.assertRaises(frappe.MandatoryError):
+				payment = frappe.get_doc({**values, missing: None})
+				payment.flags.recorded_by_staff = True
+				payment.insert()
+		payment = frappe.get_doc(values)
+		payment.flags.recorded_by_staff = True
+		self.assertFalse(payment.insert().source)
+
 	def test_a_moderator_skip_is_reported_per_student_for_a_missing_user(self):
 		missing = f"nobody-{self.hash}@example.com"
 		self._as(self.moderator)
@@ -388,6 +751,31 @@ class TestCourseBulkEnrollment(BaseTestUtils):
 				(pay.member, pay.payment_received, pay.payment_for_document, pay.payment_for_certificate),
 				(s, 1, self.paid_course, 0),
 			)
+
+	def test_course_payments_take_per_student_values_and_addresses(self):
+		a, b = self.students[:2]
+		self._as(self.instructor)
+		result = enroll_students_in_course(
+			self.paid_course,
+			json.dumps([a, b]),
+			payment_details=json.dumps(self._details(4999)),
+			member_payment_details=json.dumps(
+				{
+					a: {
+						"amount": 100,
+						"billing_name": "Alice Pay",
+						"address": {"address_line1": "1 Main St", "city": "Pune", "country": "India"},
+					}
+				}
+			),
+		)
+		self.assertEqual(result["added"], [a, b])
+		first = frappe.get_doc("LMS Payment", self._enrollment(self.paid_course, a).payment)
+		second = frappe.get_doc("LMS Payment", self._enrollment(self.paid_course, b).payment)
+		self.assertEqual((first.amount, first.billing_name), (100, "Alice Pay"))
+		self.assertTrue(first.address)
+		self.assertEqual(second.amount, 4999)
+		self.assertFalse(second.address)
 
 	def test_the_certificate_switch_enrolls_new_and_upgrades_enrolled(self):
 		self._create_enrollment(self.students[0], self.cert_course)
@@ -781,9 +1169,21 @@ class TestSearchUsersToEnroll(BulkEnrollmentQueryCase):
 		self._as(self.instructor)
 		row = self._search(txt=self.students[1])[0]
 		self.assertEqual(
-			row, {"value": self.students[1], "label": "Bulk QStudent1", "description": self.students[1]}
+			row,
+			{
+				"value": self.students[1],
+				"label": "Bulk QStudent1",
+				"description": self.students[1],
+				"image": None,
+			},
 		)
 		self.assertEqual(self._search(txt="QStudent1")[0]["value"], self.students[1])
+
+	def test_rows_carry_the_user_image(self):
+		frappe.db.set_value("User", self.students[2], "user_image", "/files/pic.png")
+		self._as(self.instructor)
+		self.assertEqual(self._search(txt=self.students[2])[0]["image"], "/files/pic.png")
+		self.assertEqual(self._search(names=[self.students[2]])[0]["image"], "/files/pic.png")
 
 	def test_batch_enrollments_are_excluded_for_a_batch(self):
 		self._create_batch_enrollment(self.students[0], self.batch)
@@ -791,12 +1191,35 @@ class TestSearchUsersToEnroll(BulkEnrollmentQueryCase):
 		rows = self._search(enroll_doctype="LMS Batch", enroll_docname=self.batch, txt=self.students[0])
 		self.assertEqual(rows, [])
 
-	def test_names_resolve_exact_users_for_labels(self):
+	def test_names_resolve_only_eligible_users(self):
 		self._create_enrollment(self.students[0], self.course)
 		self._as(self.instructor)
-		rows = self._search(names=json.dumps([self.students[0], self.students[1], self.disabled]))
-		self.assertEqual(self._values(rows), [self.students[0], self.students[1]])
-		self.assertEqual(rows[0]["label"], "Bulk QStudent0")
+		names = json.dumps([self.students[0], self.students[1], self.disabled])
+		rows = self._search(names=names)
+		self.assertEqual(self._values(rows), [self.students[1]])
+		self.assertEqual(rows[0]["label"], "Bulk QStudent1")
+		self.assertNotIn("enrolled", rows[0])
+		self.assertEqual(
+			self._values(self._search(names=names, include_enrolled=True)),
+			[self.students[0], self.students[1]],
+		)
+
+	def test_certificate_mode_leaves_out_users_who_bought_the_certificate(self):
+		enrolled, bought = self.students[0], self.students[1]
+		self._create_enrollment(enrolled, self.course)
+		self._create_enrollment(bought, self.course)
+		frappe.db.set_value(
+			"LMS Enrollment", {"course": self.course, "member": bought}, "purchased_certificate", 1
+		)
+		self._as(self.instructor)
+		txt = f"-{self.hash}@"
+		values = self._values(self._search(txt=txt, include_enrolled=True))
+		self.assertIn(enrolled, values)
+		self.assertNotIn(bought, values)
+		self.assertIn(self.students[2], values)
+		by_names = self._search(names=json.dumps([enrolled, bought]), include_enrolled=True)
+		self.assertEqual(self._values(by_names), [enrolled])
+		self.assertNotIn(bought, self._values(self._search(txt=txt)))
 
 	def test_page_length_is_capped_at_twenty(self):
 		for i in range(25):
