@@ -24,6 +24,11 @@ class TestPrivateFileReattach(BaseTestUtils):
 			f"pfr-s-{self.hash}@example.com", "Sam", "Student", ["LMS Student"]
 		).name
 		self.assignment = self._create_assignment(f"PFR Assignment {self.hash}").name
+		# A learner answers only an assignment a course of theirs places.
+		instructor = self._create_user(f"pfr-i-{self.hash}@example.com", "In", "Str", ["Course Creator"]).name
+		course = self._create_course(title=f"PFR Course {self.hash}", instructor=instructor).name
+		self._place_in_lesson(course, "LMS Assignment", self.assignment)
+		self._create_enrollment(self.student, course)
 
 	def _upload(self, owner, file_name):
 		frappe.set_user(owner)

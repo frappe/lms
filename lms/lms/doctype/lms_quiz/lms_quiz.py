@@ -606,6 +606,8 @@ def process_results(results: list, quiz_details: dict):
 		else:
 			is_open_ended = True
 			result["is_correct"] = 0
+			# An evaluator grades it later; whatever marks the page sent do not count.
+			result["marks"] = 0
 			answer = re.sub(
 				r'<img[^>]*src\s*=\s*["\'](?=data:)(.*?)["\']',
 				partial(_save_file, answer_files),
