@@ -15,6 +15,7 @@ class TestCertificateRequestFields(BaseTestUtils):
 	def setUpClass(cls):
 		super().setUpClass()
 		hash = frappe.generate_hash(length=6)
+		cls.hash = hash
 		cls.student = cls._create_user(f"crf-stud-{hash}@example.com", "Sam", "Stud", ["LMS Student"]).name
 		cls.moderator = cls._create_user(f"crf-mod-{hash}@example.com", "Mo", "Derator", ["Moderator"]).name
 		cls.evaluator = cls._create_user(
@@ -58,6 +59,17 @@ class TestCertificateRequestFields(BaseTestUtils):
 		self.assertEqual(doc.evaluator_name, "Eve Eval")
 		self.assertEqual(doc.status, "Upcoming")
 		self.assertFalse(doc.google_meet_link)
+
+	def test_a_learner_books_only_for_a_course_they_are_enrolled_in(self):
+		other_course = self._create_course(f"Certificate Fields Other {self.hash}", instructor=self.moderator)
+		frappe.db.set_value("LMS Course", other_course.name, "evaluator", self.evaluator)
+		frappe.set_user(self.student)
+		with self.assertRaises(frappe.PermissionError):
+			self._request(4, course=other_course.name).insert()
+		# Staff still book a slot on a learner's behalf.
+		frappe.set_user(self.moderator)
+		doc = self._request(4, course=other_course.name, member=self.student).insert()
+		self.assertEqual(doc.course, other_course.name)
 
 	def test_a_learner_cannot_pick_the_evaluator(self):
 		frappe.set_user(self.student)

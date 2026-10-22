@@ -64,12 +64,19 @@
 				v-if="currentTopic"
 				:key="currentTopic.name"
 				:topic="currentTopic"
+				:doctype="props.doctype"
+				:docname="props.docname"
 				v-model:showTopics="showTopics"
 			/>
 		</div>
 	</div>
 	<div v-else-if="singleThread && topics.data">
-		<DiscussionReplies :topic="topics.data" :singleThread="singleThread" />
+		<DiscussionReplies
+			:topic="topics.data"
+			:singleThread="singleThread"
+			:doctype="props.doctype"
+			:docname="props.docname"
+		/>
 	</div>
 	<div
 		v-else

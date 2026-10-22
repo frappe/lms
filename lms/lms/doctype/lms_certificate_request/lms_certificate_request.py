@@ -26,12 +26,14 @@ from lms.lms.utils import (
 	format_timezone,
 	get_evaluation_display_timezone,
 	get_evaluator,
+	get_membership,
 )
 
 
 class LMSCertificateRequest(Document):
 	def validate(self):
 		self.enforce_member_ownership()
+		self.enforce_course_membership()
 		self.guard_server_fields()
 		self.set_evaluator()
 		self.validate_unavailability()
@@ -49,6 +51,13 @@ class LMSCertificateRequest(Document):
 				frappe.PermissionError,
 			)
 		self.member = frappe.session.user
+
+	def enforce_course_membership(self):
+		"""A learner books an evaluation only for a course they are enrolled in."""
+		if PRIVILEGED_ROLES & set(frappe.get_roles()):
+			return
+		if not get_membership(self.course, self.member):
+			frappe.throw(_("You are not enrolled in this course."), frappe.PermissionError)
 
 	def after_insert(self):
 		self.send_notification()

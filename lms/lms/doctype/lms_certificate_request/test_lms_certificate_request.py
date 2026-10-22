@@ -26,6 +26,9 @@ class TestLMSCertificateRequest(MemberOwnershipTestMixin, BaseTestUtils):
 		cls.course = cls._create_course()
 		# A learner's request takes the course's evaluator; naming another is refused.
 		frappe.db.set_value("LMS Course", cls.course.name, "evaluator", cls.evaluator_user.name)
+		# A learner books an evaluation only for a course they are enrolled in.
+		cls._create_enrollment(cls.student_a.name, cls.course.name)
+		cls._create_enrollment(cls.student_b.name, cls.course.name)
 
 	def tearDown(self):
 		frappe.set_user("Administrator")
