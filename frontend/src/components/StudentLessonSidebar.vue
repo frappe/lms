@@ -66,7 +66,9 @@
 												? 'button'
 												: 'router-link'
 										"
-										:type="!lesson.locked && inlineSelect ? 'button' : undefined"
+										:type="
+											!lesson.locked && inlineSelect ? 'button' : undefined
+										"
 										:to="
 											lesson.locked || inlineSelect
 												? undefined

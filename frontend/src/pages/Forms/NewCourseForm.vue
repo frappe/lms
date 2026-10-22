@@ -135,6 +135,7 @@ import {
 } from 'frappe-ui'
 import type { FrappeResourceError } from 'frappe-ui'
 import { useOnboarding } from '@framework/ui/components/Onboarding/index'
+import { seesOnboarding } from '@/utils/onboarding'
 import { useTelemetry } from '@framework/ui/telemetry/index'
 import { computed, inject, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import FormShell from '@/components/FormShell.vue'
@@ -366,7 +367,7 @@ const saveCourse = () => {
 					params: { courseName: data.name },
 					hash: '#settings',
 				})
-				if (user.data?.is_system_manager) {
+				if (seesOnboarding(user.data)) {
 					updateOnboardingStep('create_first_course', true, false, () => {
 						localStorage.setItem('firstCourse', data.name)
 					})

@@ -188,7 +188,12 @@ export default defineConfig(async ({ mode }) => {
 				'@lezer/common',
 				'@lezer/highlight',
 			],
-			exclude: mode === 'production' ? [] : ['frappe-ui'],
+			// @framework/ui joins frappe-ui here: pre-bundling its Onboarding index
+			// inlines onboarding.ts, while its .vue files are served raw and import the
+			// same file from source. Two module copies: the sidebar fills one step
+			// list, the panel reads the other and shows 0/0 steps and NaN%.
+			exclude:
+				mode === 'production' ? [] : ['frappe-ui', '@framework/ui'],
 		},
 	}
 	return config

@@ -159,6 +159,7 @@ import {
 } from 'frappe-ui'
 import type { FrappeResourceError } from 'frappe-ui'
 import { useOnboarding } from '@framework/ui/components/Onboarding/index'
+import { seesOnboarding } from '@/utils/onboarding'
 import { useTelemetry } from '@framework/ui/telemetry/index'
 import { computed, inject, onMounted, onBeforeUnmount, ref } from 'vue'
 import { createLMSCategory, cleanError } from '@/utils'
@@ -287,7 +288,7 @@ const saveBatch = () => {
 					params: { batchName: data.name },
 					hash: '#settings',
 				})
-				if (user.data?.is_system_manager) {
+				if (seesOnboarding(user.data)) {
 					updateOnboardingStep('create_first_batch', true, false, () => {
 						localStorage.setItem('firstBatch', data.name)
 					})

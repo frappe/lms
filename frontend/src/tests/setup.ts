@@ -7,7 +7,8 @@ config.global.stubs = {
 	ScrollArea: {
 		inheritAttrs: false,
 		props: ['viewportClass'],
-		template: '<div data-slot="scroll-area" v-bind="$attrs"><div data-slot="scroll-area-viewport" :class="viewportClass"><slot /></div></div>',
+		template:
+			'<div data-slot="scroll-area" v-bind="$attrs"><div data-slot="scroll-area-viewport" :class="viewportClass"><slot /></div></div>',
 	},
 }
 

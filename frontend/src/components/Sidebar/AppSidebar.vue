@@ -125,6 +125,7 @@
 <script setup>
 import { getSidebarLinks } from '@/utils'
 import { usersStore } from '@/stores/user'
+import { seesOnboarding } from '@/utils/onboarding'
 import { useSidebar } from '@/stores/sidebar'
 import { useSettings } from '@/stores/settings'
 import {
@@ -210,6 +211,13 @@ const openCourseForm = () => {
 const toggleHelp = () => {
 	showHelpModal.value = minimize.value ? true : !showHelpModal.value
 	minimize.value = !showHelpModal.value
+	if (showHelpModal.value) {
+		capture('onboarding_help_opened', {
+			role: userResource.data?.is_system_manager
+				? 'system_manager'
+				: 'moderator',
+		})
+	}
 }
 const iconProps = {
 	strokeWidth: 1.5,
@@ -480,7 +488,7 @@ const articles = ref([
 ])
 
 const setUpOnboarding = () => {
-	if (userResource.data?.is_system_manager) {
+	if (seesOnboarding(userResource.data)) {
 		onboardingDetails = useOnboarding('learning')
 		onboardingDetails.setUp(steps)
 		isOnboardingStepsCompleted = onboardingDetails.isOnboardingStepsCompleted

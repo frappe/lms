@@ -326,10 +326,6 @@ extend_bootinfo = [
 ## subclass of lms.plugins.PageExtension
 # lms_lesson_page_extension = None
 
-# lms_lesson_page_extensions = [
-# 	"lms.plugins.LiveCodeExtension"
-# ]
-
 has_website_permission = {
 	"LMS Certificate Evaluation": "lms.lms.doctype.lms_certificate_evaluation.lms_certificate_evaluation.has_website_permission",
 	"LMS Certificate": "lms.lms.doctype.lms_certificate.lms_certificate.has_website_permission",
@@ -337,11 +333,8 @@ has_website_permission = {
 
 ## Markdown Macros for Lessons
 lms_markdown_macro_renderers = {
-	"Exercise": "lms.plugins.exercise_renderer",
-	"Quiz": "lms.plugins.quiz_renderer",
 	"YouTubeVideo": "lms.plugins.youtube_video_renderer",
 	"Video": "lms.plugins.video_renderer",
-	"Assignment": "lms.plugins.assignment_renderer",
 	"Embed": "lms.plugins.embed_renderer",
 	"Audio": "lms.plugins.audio_renderer",
 	"PDF": "lms.plugins.pdf_renderer",

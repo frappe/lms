@@ -32,6 +32,7 @@ from frappe.utils import (
 	get_time,
 	getdate,
 	now,
+	strip_html,
 )
 from frappe.utils.response import Response
 from pypika import functions as fn
@@ -1037,7 +1038,7 @@ def update_evaluator_slot(evaluator: str, slot: str | int, fieldname: str, value
 	doc.save(ignore_permissions=True)
 
 
-@frappe.whitelist()
+@frappe.whitelist(methods=["POST"])
 def delete_evaluator_slot(evaluator: str, slot: str | int):
 	doc = get_owned_evaluator_doc(evaluator)
 	row = get_owned_slot(doc, slot)
@@ -1280,7 +1281,7 @@ def save_sidebar_items(rows: list):
 	return get_sidebar_settings()
 
 
-@frappe.whitelist()
+@frappe.whitelist(methods=["POST"])
 def delete_sidebar_item(webpage: str):
 	frappe.only_for("Moderator")
 	return frappe.db.delete(
@@ -1688,7 +1689,7 @@ def save_certificate_details(
 		return doc.name
 
 
-@frappe.whitelist()
+@frappe.whitelist(methods=["POST"])
 def delete_documents(doctype: str, documents: list):
 	frappe.only_for("Moderator")
 	meta = frappe.get_meta(doctype)
@@ -1885,7 +1886,7 @@ def _insert_batch_certificate(batch: str, member: str, values: dict) -> str | No
 		frappe.clear_messages()
 
 
-@frappe.whitelist()
+@frappe.whitelist(methods=["POST"])
 def delete_course(course: str):
 	if not can_modify_course(course):
 		frappe.throw(_("You do not have permission to delete this course."), frappe.PermissionError)
@@ -1937,7 +1938,7 @@ def delete_course(course: str):
 	frappe.delete_doc("LMS Course", course)
 
 
-@frappe.whitelist()
+@frappe.whitelist(methods=["POST"])
 def delete_batch(batch: str):
 	if not can_modify_batch(batch):
 		frappe.throw(_("You do not have permission to delete this batch."), frappe.PermissionError)
@@ -2245,7 +2246,7 @@ def add_lesson(title: str, chapter: str, course: str, idx: int):
 	return lesson.name
 
 
-@frappe.whitelist()
+@frappe.whitelist(methods=["POST"])
 def delete_chapter(chapter: str):
 	if not isinstance(chapter, str):
 		frappe.throw(_("chapter must be a string"))
@@ -2345,10 +2346,16 @@ def mark_lesson_progress(course: str, chapter_number: int, lesson_number: int):
 
 @frappe.whitelist()
 def get_heatmap_data(member: str, base_days: int = 200):
-	if not (has_course_instructor_role() or has_moderator_role() or has_evaluator_role()):
+	"""A learner's activity by day. For the learner, a Moderator, or staff of a
+	course or batch the learner is in; a role alone reaches nobody."""
+	from lms.lms.permissions import can_view_member_activity
+
+	# The whitelist's type hints refuse a non-string member before this runs.
+	member = resolve_user(member)
+	if not can_view_member_activity(member):
 		frappe.throw(_("You do not have permission to access heatmap data."), frappe.PermissionError)
 
-	base_date, start_date, number_of_days, days = calculate_date_ranges(base_days)
+	base_date, start_date, number_of_days, days = calculate_date_ranges(cint(base_days))
 	date_count = initialize_date_count(days)
 
 	lesson_completions, quiz_submissions, assignment_submissions = fetch_activity_data(member, start_date)
@@ -2516,7 +2523,7 @@ def get_lms_settings():
 	return settings
 
 
-@frappe.whitelist()
+@frappe.whitelist(methods=["POST"])
 def cancel_evaluation(evaluation: dict):
 	evaluation = frappe._dict(evaluation)
 	if evaluation.member != frappe.session.user:
@@ -3517,6 +3524,125 @@ def get_created_courses(start: int = 0, limit_page_length: int | str = None):
 
 
 @frappe.whitelist()
+def get_course_to_continue():
+	"""The unpublished course the caller edited last, with the steps left before it can
+	be published. None once the site has a published course of its own, since the panel
+	exists to get the first course out; the demo course does not count. Only the
+	course's instructors see it, so the draft is always the caller's own work."""
+	if site_has_published_course():
+		# The panel stops asking once the site is past its first course.
+		return {"done": True}
+
+	draft = last_edited_draft(frappe.session.user)
+	if not draft:
+		return None
+
+	lesson = last_edited_lesson(draft.name)
+	return {
+		"course": draft.name,
+		"title": draft.title,
+		"last_edited": draft.last_edit,
+		"lesson": lesson.name if lesson else None,
+		"steps": continue_steps(draft.name),
+	}
+
+
+def site_has_published_course() -> bool:
+	from lms.lms.telemetry import DEMO_COURSE_TITLE
+
+	return bool(frappe.db.exists("LMS Course", {"published": 1, "title": ["!=", DEMO_COURSE_TITLE]}))
+
+
+def last_edited_draft(user: str):
+	"""The draft `user` instructs whose course, chapters or lessons changed most recently,
+	with that moment as `last_edit`.
+
+	Editing a lesson does not touch the course document, so the course's own
+	`modified` alone would point at the wrong draft."""
+	from lms.lms.telemetry import DEMO_COURSE_TITLE
+
+	drafts = frappe.get_all(
+		"LMS Course",
+		filters=[
+			["published", "=", 0],
+			["title", "!=", DEMO_COURSE_TITLE],
+			["Course Instructor", "instructor", "=", user],
+		],
+		fields=["name", "title", "modified"],
+		distinct=True,
+	)
+	if not drafts:
+		return None
+
+	by_name = {}
+	for draft in drafts:
+		draft.last_edit = draft.modified
+		by_name[draft.name] = draft
+	for doctype in ("Course Chapter", "Course Lesson"):
+		for row in latest_change_per_course(doctype, list(by_name)):
+			draft = by_name[row.course]
+			draft.last_edit = max(draft.last_edit, row.modified)
+
+	return max(drafts, key=lambda draft: draft.last_edit)
+
+
+def latest_change_per_course(doctype: str, courses: list) -> list:
+	from frappe.query_builder.functions import Max
+
+	Table = frappe.qb.DocType(doctype)
+	return (
+		frappe.qb.from_(Table)
+		.select(Table.course, Max(Table.modified).as_("modified"))
+		.where(Table.course.isin(courses))
+		.groupby(Table.course)
+	).run(as_dict=True)
+
+
+def last_edited_lesson(course: str):
+	rows = frappe.get_all(
+		"Course Lesson",
+		filters={"course": course},
+		fields=["name", "modified"],
+		order_by="modified desc",
+		limit=1,
+	)
+	return rows[0] if rows else None
+
+
+def continue_steps(course: str) -> list:
+	"""The mandatory steps between a new course and a published one. Title, description
+	and instructors are required at creation, so they are never open."""
+	has_chapter = bool(frappe.db.exists("Chapter Reference", {"parent": course}))
+	return [
+		{"name": "chapter", "done": has_chapter},
+		{"name": "lesson", "done": has_chapter and has_lesson_with_content(course)},
+		{"name": "publish", "done": False},
+	]
+
+
+def has_lesson_with_content(course: str) -> bool:
+	"""A lesson counts once it carries something a learner can open: editor blocks,
+	a video, a quiz, a SCORM package, or legacy markdown."""
+	lessons = frappe.get_all(
+		"Course Lesson",
+		filters={"course": course},
+		fields=["body", "content", "youtube", "quiz_id", "is_scorm_package"],
+	)
+	for lesson in lessons:
+		if lesson.youtube or lesson.quiz_id or lesson.is_scorm_package:
+			return True
+		if strip_html(lesson.body or "").strip():
+			return True
+		if any(block_has_data(block) for block in get_editorjs_blocks(lesson.content)):
+			return True
+	return False
+
+
+def block_has_data(block: dict) -> bool:
+	return any(value for value in (block.get("data") or {}).values())
+
+
+@frappe.whitelist()
 def get_created_batches(start: int = 0, limit_page_length: int | str = None, upcoming: bool = True):
 	"""Batches the user instructs. Upcoming ones, soonest first, unless `upcoming` is 0. Four at a
 	time unless `limit_page_length` asks for more."""
@@ -3713,7 +3839,7 @@ def get_upcoming_batches():
 	)
 
 
-@frappe.whitelist()
+@frappe.whitelist(methods=["POST"])
 def delete_programming_exercise(exercise: str):
 	frappe.only_for(["Moderator", "Course Creator", "Batch Evaluator"])
 	frappe.db.delete("LMS Programming Exercise Submission", {"exercise": exercise})
@@ -4030,7 +4156,7 @@ def export_course_as_file(course_name: str) -> str:
 	return export_course_zip(course_name, as_file=True)
 
 
-@frappe.whitelist()
+@frappe.whitelist(methods=["POST"])
 def import_course_from_zip(zip_file_path: str):
 	"""`zip_file_path` is the file_url of a ZIP the caller uploaded, or may otherwise read."""
 	frappe.only_for(["Moderator", "Course Creator"])
@@ -4038,7 +4164,7 @@ def import_course_from_zip(zip_file_path: str):
 	return import_course_zip(os.path.relpath(zip_path, frappe.get_site_path()))
 
 
-@frappe.whitelist()
+@frappe.whitelist(methods=["POST"])
 def delete_category(category: str):
 	"""Unlink a category from every course and batch, then delete it.
 

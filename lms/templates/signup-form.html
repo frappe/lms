@@ -11,8 +11,6 @@
 {%- endmacro -%}
 {% set custom_signup_content = frappe.db.get_single_value("LMS Settings", "custom_signup_content") %}
 {% set user_category = frappe.db.get_single_value("LMS Settings", "user_category") %}
-{% set login_link = '<a href="#login">' ~ _("Login") ~ '</a>' %}
-{% set already_registered_message = _("You are already registered. {0} instead.").format(login_link) %}
 <form class="form-signin signup-form flex flex-col gap-8" role="form" novalidate>
     <div class="page-card-body flex flex-col gap-4">
         {{ alert_banner("success") }}
@@ -206,13 +204,7 @@
 
     const show_signup_error = (message) => {
         const banner = $("section:visible .login-error-banner");
-        const title = banner.find(".es-alert__title");
-
-        if (message === {{ _("Already Registered") | tojson }}) {
-            title.html({{ already_registered_message | tojson }});
-        } else {
-            title.text(message);
-        }
+        banner.find(".es-alert__title").text(message);
 
         reveal_banner(banner);
     }
