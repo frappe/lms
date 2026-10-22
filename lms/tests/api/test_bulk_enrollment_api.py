@@ -5,7 +5,7 @@ import json
 
 import frappe
 
-from lms.lms.api import add_students_to_batch
+from lms.lms.api import add_students_to_batch, enroll_students_in_course
 from lms.lms.test_helpers import BaseTestUtils
 
 
@@ -280,3 +280,242 @@ class TestBatchBulkEnrollment(BaseTestUtils):
 		)
 		self.assertEqual(result["added"], [])
 		self.assertIn("is disabled", result["errors"][0]["error"])
+
+
+class TestCourseBulkEnrollment(BaseTestUtils):
+	@classmethod
+	def setUpClass(cls):
+		super().setUpClass()
+		cls.hash = frappe.generate_hash(length=6).lower()
+		cls.instructor = cls._create_user(
+			f"cbulk-ins-{cls.hash}@example.com", "Bulk", "Instructor", ["Course Creator"]
+		).name
+		cls.other_creator = cls._create_user(
+			f"cbulk-oth-{cls.hash}@example.com", "Bulk", "Other", ["Course Creator"]
+		).name
+		cls.moderator = cls._create_user(
+			f"cbulk-mod-{cls.hash}@example.com", "Bulk", "Moderator", ["Moderator"]
+		).name
+		cls.students = [
+			cls._create_user(
+				f"cbulk-stu{i}-{cls.hash}@example.com", "Bulk", f"Student{i}", ["LMS Student"]
+			).name
+			for i in range(4)
+		]
+		cls.free_course = cls._create_course(f"Bulk Free Course {cls.hash}", instructor=cls.instructor).name
+		frappe.db.set_value(
+			"LMS Course",
+			cls.free_course,
+			{"published": 1, "paid_certificate": 1, "course_price": 999, "currency": "INR"},
+		)
+		cls.cert_course = cls.free_course
+		cls.paid_course = cls._create_course(f"Bulk Paid Course {cls.hash}", instructor=cls.instructor).name
+		frappe.db.set_value(
+			"LMS Course",
+			cls.paid_course,
+			{"published": 1, "paid_course": 1, "course_price": 4999, "currency": "INR"},
+		)
+		cls.source = TestBatchBulkEnrollment._create_source.__func__(cls)
+
+	def _as(self, user):
+		frappe.set_user(user)
+		self.addCleanup(frappe.set_user, "Administrator")
+
+	def _details(self, amount):
+		return {"amount": amount, "currency": "INR", "source": self.source}
+
+	def _enrollment(self, course, member):
+		return frappe.db.get_value(
+			"LMS Enrollment",
+			{"course": course, "member": member},
+			["name", "purchased_certificate", "payment"],
+			as_dict=True,
+		)
+
+	def _counter(self, course):
+		return frappe.db.get_value("LMS Course", course, "enrollments")
+
+	def test_an_instructor_enrolls_several_students_in_a_free_course(self):
+		course = self._create_course(f"Bulk Plain Course {self.hash}", instructor=self.instructor).name
+		frappe.db.set_value("LMS Course", course, "published", 1)
+		before = self._counter(course) or 0
+		self._as(self.instructor)
+		result = enroll_students_in_course(course, json.dumps(self.students[:3]))
+		self.assertEqual(result, {"added": self.students[:3], "upgraded": [], "errors": []})
+		for s in self.students[:3]:
+			self.assertTrue(self._enrollment(course, s))
+		self.assertEqual(self._counter(course), before + 3)
+
+	def test_each_paid_course_student_gets_a_received_payment(self):
+		self._as(self.instructor)
+		result = enroll_students_in_course(
+			self.paid_course, json.dumps(self.students[:2]), payment_details=json.dumps(self._details(4999))
+		)
+		self.assertEqual(result["added"], self.students[:2])
+		for s in self.students[:2]:
+			row = self._enrollment(self.paid_course, s)
+			pay = frappe.db.get_value(
+				"LMS Payment",
+				row.payment,
+				["member", "payment_received", "payment_for_document", "payment_for_certificate"],
+				as_dict=True,
+			)
+			self.assertEqual(
+				(pay.member, pay.payment_received, pay.payment_for_document, pay.payment_for_certificate),
+				(s, 1, self.paid_course, 0),
+			)
+
+	def test_the_certificate_switch_enrolls_new_and_upgrades_enrolled(self):
+		self._create_enrollment(self.students[0], self.cert_course)
+		self._as(self.instructor)
+		result = enroll_students_in_course(
+			self.cert_course,
+			json.dumps(self.students[:2]),
+			purchased_certificate=True,
+			payment_details=json.dumps(self._details(999)),
+		)
+		self.assertEqual(result["upgraded"], [self.students[0]])
+		self.assertEqual(result["added"], [self.students[1]])
+		for s in self.students[:2]:
+			row = self._enrollment(self.cert_course, s)
+			self.assertEqual(row.purchased_certificate, 1)
+			self.assertEqual(frappe.db.get_value("LMS Payment", row.payment, "payment_for_certificate"), 1)
+
+	def test_a_student_who_already_bought_the_certificate_is_skipped(self):
+		student = self.students[0]
+		self._create_enrollment(student, self.cert_course)
+		self._as(self.instructor)
+		kwargs = {"purchased_certificate": True, "payment_details": json.dumps(self._details(999))}
+		enroll_students_in_course(self.cert_course, json.dumps([student]), **kwargs)
+		payments = frappe.db.count("LMS Payment", {"member": student})
+		result = enroll_students_in_course(self.cert_course, json.dumps([student]), **kwargs)
+		self.assertEqual((result["added"], result["upgraded"]), ([], []))
+		self.assertEqual(result["errors"][0]["member"], student)
+		self.assertIn("already purchased", result["errors"][0]["error"])
+		self.assertEqual(frappe.db.count("LMS Payment", {"member": student}), payments)
+
+	def test_an_enrolled_student_without_the_switch_is_skipped(self):
+		student = self.students[0]
+		self._create_enrollment(student, self.free_course)
+		self._as(self.instructor)
+		result = enroll_students_in_course(self.free_course, json.dumps([student]))
+		self.assertEqual(result["added"], [])
+		self.assertIn("already enrolled", result["errors"][0]["error"])
+
+	def test_more_than_fifty_students_are_refused(self):
+		emails = [f"cbulk-many{i}-{self.hash}@example.com" for i in range(51)]
+		self._as(self.instructor)
+		with self.assertRaises(frappe.ValidationError):
+			enroll_students_in_course(self.free_course, json.dumps(emails))
+		self.assertEqual(frappe.db.count("LMS Enrollment", {"member": ["in", emails]}), 0)
+
+	def test_only_course_staff_may_bulk_enroll(self):
+		for user in ("Guest", self.students[3], self.other_creator):
+			with self.subTest(user=user):
+				self._as(user)
+				with self.assertRaises(frappe.PermissionError):
+					enroll_students_in_course(self.free_course, json.dumps(self.students[:1]))
+
+	def test_the_permission_check_runs_before_member_validation(self):
+		self._as(self.students[3])
+		with self.assertRaises(frappe.PermissionError):
+			enroll_students_in_course(self.free_course, "not json")
+
+	def test_malformed_members_are_rejected(self):
+		self._as(self.instructor)
+		for members in ([1], [""], {"a": 1}):
+			with self.subTest(members=members):
+				with self.assertRaises(frappe.ValidationError):
+					enroll_students_in_course.__wrapped__(self.free_course, members)
+
+	def test_payment_arguments_are_refused_on_a_free_course_without_the_switch(self):
+		self._as(self.instructor)
+		with self.assertRaises(frappe.ValidationError):
+			enroll_students_in_course(
+				self.free_course,
+				json.dumps(self.students[:1]),
+				payment_details=json.dumps(self._details(999)),
+			)
+		self.assertFalse(self._enrollment(self.free_course, self.students[0]))
+
+	def test_a_moderator_may_bulk_enroll_and_a_differently_cased_email_is_canonicalised(self):
+		student = self.students[2]
+		self._as(self.moderator)
+		result = enroll_students_in_course(self.free_course, json.dumps([student.upper()]))
+		self.assertEqual(result["added"], [student.upper()])
+		self.assertTrue(self._enrollment(self.free_course, student))
+
+	def _make_payment(self, member, course, for_certificate, amount=999):
+		return (
+			frappe.get_doc(
+				{
+					"doctype": "LMS Payment",
+					"member": member,
+					"billing_name": member,
+					"amount": amount,
+					"currency": "INR",
+					"source": self.source,
+					"payment_for_document_type": "LMS Course",
+					"payment_for_document": course,
+					"payment_for_certificate": int(for_certificate),
+					"payment_received": 1,
+				}
+			)
+			.insert()
+			.name
+		)
+
+	def _enroll_with_payment(self, member, payment):
+		return frappe.get_doc(
+			{"doctype": "LMS Enrollment", "course": self.cert_course, "member": member, "payment": payment}
+		).insert()
+
+	def test_a_paid_course_refuses_the_certificate_switch(self):
+		self._as(self.instructor)
+		with self.assertRaises(frappe.ValidationError):
+			enroll_students_in_course(
+				self.paid_course,
+				json.dumps(self.students[:1]),
+				purchased_certificate=True,
+				payment_details=json.dumps(self._details(4999)),
+			)
+		self.assertFalse(self._enrollment(self.paid_course, self.students[0]))
+
+	def test_an_upgrade_without_payment_arguments_keeps_the_existing_payment(self):
+		student = self.students[0]
+		payment = self._make_payment(student, self.cert_course, False)
+		self._enroll_with_payment(student, payment)
+		self._as(self.instructor)
+		result = enroll_students_in_course(
+			self.cert_course, json.dumps([student]), purchased_certificate=True
+		)
+		self.assertEqual(result["upgraded"], [student])
+		row = self._enrollment(self.cert_course, student)
+		self.assertEqual((row.purchased_certificate, row.payment), (1, payment))
+
+	def test_an_upgrade_leaves_the_enrollment_counter_alone(self):
+		student = self.students[1]
+		self._create_enrollment(student, self.cert_course)
+		before = self._counter(self.cert_course)
+		self._as(self.instructor)
+		enroll_students_in_course(
+			self.cert_course,
+			json.dumps([student]),
+			purchased_certificate=True,
+			payment_details=json.dumps(self._details(999)),
+		)
+		self.assertEqual(self._counter(self.cert_course), before)
+
+	def test_a_linked_certificate_payment_is_accepted_on_upgrade(self):
+		student = self.students[2]
+		self._create_enrollment(student, self.cert_course)
+		payment = self._make_payment(student, self.cert_course, True)
+		self._as(self.instructor)
+		result = enroll_students_in_course(
+			self.cert_course,
+			json.dumps([student]),
+			purchased_certificate=True,
+			linked_payments=json.dumps({student: payment}),
+		)
+		self.assertEqual(result["upgraded"], [student])
+		self.assertEqual(self._enrollment(self.cert_course, student).payment, payment)

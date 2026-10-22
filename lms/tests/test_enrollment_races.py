@@ -4,6 +4,7 @@ from unittest.mock import patch
 import frappe
 from frappe.tests import UnitTestCase
 
+from lms.lms.api import enroll_students_in_course
 from lms.lms.doctype.lms_batch_enrollment.lms_batch_enrollment import LMSBatchEnrollment
 from lms.lms.doctype.lms_enrollment.lms_enrollment import LMSEnrollment
 from lms.lms.enrollment_constraints import (
@@ -107,6 +108,16 @@ class TestEnrollmentRaces(BaseTestUtils):
 		with self._logging_db(log):
 			self._insert_enrollment()
 		self._assert_locked_before_read(log, "LMS Course", "LMS Enrollment")
+
+	# Bulk certificate upgrades must keep the course-then-enrollment lock order from
+	# PR #2664 (45e305992), or they deadlock against a concurrent enrollment.
+	def test_the_certificate_upgrade_locks_the_course_before_the_enrollment(self):
+		self._insert_enrollment()
+		log = []
+		with self._logging_db(log):
+			enroll_students_in_course(self.course.name, [self.member.name], purchased_certificate=True)
+		self.assertIn(("lock", "LMS Enrollment"), log)
+		self.assertLess(log.index(("lock", "LMS Course")), log.index(("lock", "LMS Enrollment")))
 
 	def test_the_paid_course_callback_locks_before_its_own_check(self):
 		"""enroll_in_course pre-checks with exists() so a repeated payment callback

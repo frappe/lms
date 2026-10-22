@@ -62,7 +62,7 @@ Names come from titles. A course or batch name is a slug of its title. A chapter
 | Add a lesson | `method call lms.lms.api.create_lesson -F chapter=<chapter name> -F title=<t> -F 'content:=<Editor.js JSON>'` |
 | Reorder | `method call lms.lms.api.update_chapter_index -F chapter=<ch> -F course=<c> -F idx=<n>`, or `update_lesson_index -F lesson=<l> -F sourceChapter=<ch> -F targetChapter=<ch> -F idx=<n>` to move a lesson, also to another chapter. `idx` counts from 0. |
 | Publish a course | `doc update "LMS Course" <c> --set published=1` |
-| Enroll a learner | `doc create "LMS Enrollment" --set course=<c> --set member=<user>` |
+| Enroll a learner | `doc create "LMS Enrollment" --set course=<c> --set member=<user>` Many at once: `method call lms.lms.api.enroll_students_in_course -F course=<c> -F 'members:=[...]'` (up to 50; `purchased_certificate:=1` upgrades enrolled learners; same payment arguments as `add_students_to_batch`). |
 | Course progress | `method call lms.lms.api.get_course_progress_distribution -F course=<c>` |
 | New batch | `doc create "LMS Batch"`. See `reference/batches.md`. |
 | Add students to a batch | `method call lms.lms.api.add_students_to_batch -F batch=<b> -F 'members:=["<user>", ...]'`. It also enrolls them in each batch course, and lists the ones it could not add. Pass `payment_details` or `linked_payments` to record payments for a paid batch. |
