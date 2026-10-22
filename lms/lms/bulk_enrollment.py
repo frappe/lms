@@ -23,7 +23,11 @@ ENROLL_TARGETS = {
 }
 MAX_SEARCH_RESULTS: int = 20
 
-PAYMENT_DETAIL_KEYS = {"amount", "currency", "source"}
+REQUIRED_DETAIL_KEYS = {"amount", "currency"}
+PAYMENT_DETAIL_KEYS = REQUIRED_DETAIL_KEYS | {"source"}
+MEMBER_DETAIL_KEYS = PAYMENT_DETAIL_KEYS | {"billing_name"}
+ADDRESS_KEYS = {"address_line1", "address_line2", "city", "state", "country", "pincode", "phone"}
+REQUIRED_ADDRESS_KEYS = ("address_line1", "city", "country")
 SAVEPOINT = "bulk_enroll_member"
 
 
@@ -57,14 +61,7 @@ def parse_members(members: list | str, limit: int | None = MAX_BULK_ENROLL_MEMBE
 	return unique
 
 
-def parse_payment_details(details: dict | str | None) -> frappe._dict | None:
-	if details is None:
-		return None
-	details = _decode(details, _("Payment details"))
-	if not isinstance(details, dict) or set(details) != PAYMENT_DETAIL_KEYS:
-		frappe.throw(_("Payment details must have exactly amount, currency and source."))
-
-	amount = details["amount"]
+def _check_amount(amount) -> None:
 	if (
 		isinstance(amount, bool)
 		or not isinstance(amount, int | float)
@@ -72,11 +69,145 @@ def parse_payment_details(details: dict | str | None) -> frappe._dict | None:
 		or amount < 0
 	):
 		frappe.throw(_("Payment amount must be a number that is zero or more."))
-	for key, doctype in (("currency", "Currency"), ("source", "LMS Source")):
-		value = details[key]
-		if not isinstance(value, str) or not frappe.db.exists(doctype, value):
-			frappe.throw(_("{0} {1} does not exist. Choose an existing {0}.").format(_(doctype), value))
-	return frappe._dict(details)
+
+
+def _check_exists(doctype: str, value) -> None:
+	if not isinstance(value, str) or not frappe.db.exists(doctype, value):
+		frappe.throw(_("{0} {1} does not exist. Choose an existing {0}.").format(_(doctype), value))
+
+
+def _field_label(key: str) -> str:
+	return {
+		"currency": _("Currency"),
+		"source": _("Source"),
+		"billing_name": _("Billing Name"),
+		"address_line1": _("Address Line 1"),
+		"city": _("City"),
+		"country": _("Country"),
+	}[key]
+
+
+def _parse_address(address, owner: str) -> dict[str, str] | str:
+	"""An Address name links that address; an object creates one, and an empty object means none."""
+	if isinstance(address, str):
+		name = address.strip()
+		if (
+			not name
+			or not frappe.db.exists("Address", name)
+			or not frappe.has_permission("Address", "read", doc=name)
+		):
+			frappe.throw(
+				_("{0} names an address that does not exist. Choose an existing address.").format(owner)
+			)
+		return name
+	if not isinstance(address, dict) or not set(address) <= ADDRESS_KEYS:
+		frappe.throw(
+			_("Address must be an Address name or an object with only these keys: {0}.").format(
+				", ".join(sorted(ADDRESS_KEYS))
+			)
+		)
+	if not all(isinstance(value, str) for value in address.values()):
+		frappe.throw(_("Every address value must be text."))
+	address = {key: value.strip() for key, value in address.items() if value.strip()}
+	missing = [_field_label(key) for key in REQUIRED_ADDRESS_KEYS if address and key not in address]
+	if missing:
+		frappe.throw(
+			_("{0} is missing {1}. Fill these in, or clear the address to record none.").format(
+				owner, ", ".join(missing)
+			)
+		)
+	if "country" in address:
+		_check_exists("Country", address["country"])
+	return address
+
+
+def parse_payment_details(details: dict | str | None) -> frappe._dict | None:
+	if details is None:
+		return None
+	details = _decode(details, _("Payment details"))
+	keys = set(details) if isinstance(details, dict) else set()
+	if not isinstance(details, dict) or not REQUIRED_DETAIL_KEYS <= keys <= PAYMENT_DETAIL_KEYS | {"address"}:
+		frappe.throw(_("Payment details must have amount and currency, and may add source and address."))
+
+	_check_amount(details["amount"])
+	_check_exists("Currency", details["currency"])
+	source = details.get("source") or None
+	if source:
+		_check_exists("LMS Source", source)
+	address = _parse_address(details["address"], _("The common address")) if "address" in details else {}
+	return frappe._dict(
+		amount=details["amount"], currency=details["currency"], source=source, address=address
+	)
+
+
+def parse_member_payment_details(
+	details: dict | str | None, members: list[str], linked: dict[str, str] | None = None
+) -> dict[str, dict]:
+	if details is None:
+		return {}
+	details = _decode(details, _("Member payment details"))
+	if not isinstance(details, dict) or not all(isinstance(m, str) for m in details):
+		frappe.throw(_("Member payment details must map each user email to an object."))
+	if len(details) > MAX_BULK_ENROLL_MEMBERS:
+		frappe.throw(
+			_("Member payment details can cover at most {0} students.").format(MAX_BULK_ENROLL_MEMBERS)
+		)
+
+	known = {m.lower() for m in members}
+	linked_members = {m.lower() for m in linked or {}}
+	parsed = {}
+	for member, values in details.items():
+		if member.lower() not in known:
+			frappe.throw(_("Member payment details name {0}, who is not in the members list.").format(member))
+		if member.lower() in parsed:
+			frappe.throw(_("Member payment details name {0} more than once.").format(member))
+		if member.lower() in linked_members:
+			frappe.throw(
+				_("{0} has a linked payment, so their payment details cannot be changed.").format(member)
+			)
+		parsed[member.lower()] = _parse_member_values(member, values)
+	return parsed
+
+
+def _parse_member_values(member: str, values) -> dict:
+	if not isinstance(values, dict) or not set(values) <= MEMBER_DETAIL_KEYS | {"address"}:
+		frappe.throw(
+			_("Payment details for {0} must be an object with only these keys: {1}.").format(
+				member, ", ".join(sorted(MEMBER_DETAIL_KEYS | {"address"}))
+			)
+		)
+	clean = {key: value for key, value in values.items() if key != "address"}
+	if "amount" in clean:
+		_check_amount(clean["amount"])
+	if clean.get("source") is None:
+		clean.pop("source", None)
+	for key in ("currency", "source", "billing_name"):
+		if key not in clean:
+			continue
+		if not isinstance(clean[key], str):
+			frappe.throw(_("{0} for {1} must be text.").format(_field_label(key), member))
+		if key == "source" and not clean[key].strip():
+			del clean[key]
+			continue
+		if not clean[key].strip():
+			frappe.throw(_("{0} for {1} cannot be empty.").format(_field_label(key), member))
+	if "currency" in clean:
+		_check_exists("Currency", clean["currency"])
+	if "source" in clean:
+		_check_exists("LMS Source", clean["source"])
+	if "address" in values:
+		clean["address"] = _parse_address(values["address"], _("The address for {0}").format(member))
+	return clean
+
+
+def parse_payment_args(
+	payment_details, linked_payments, member_payment_details, members: list[str]
+) -> tuple[frappe._dict | None, dict[str, str], dict[str, dict]]:
+	details = parse_payment_details(payment_details)
+	linked = parse_linked_payments(linked_payments)
+	if member_payment_details is not None and details is None:
+		frappe.throw(_("Per-student payment details need the common payment details too."))
+	return details, linked, parse_member_payment_details(member_payment_details, members, linked)
 
 
 def parse_linked_payments(linked: dict | str | None) -> dict[str, str]:
@@ -143,23 +274,25 @@ def enroll_each(
 	return outcomes, errors
 
 
-def require_user(member: str) -> str:
-	user = frappe.db.get_value("User", member, ["name", "enabled"], as_dict=True)
+def require_user(member: str) -> frappe._dict:
+	user = frappe.db.get_value("User", member, ["name", "enabled", "full_name"], as_dict=True)
 	if not user:
 		frappe.throw(_("No user found with the email {0}.").format(member), frappe.ValidationError)
 	if not user.enabled:
 		frappe.throw(_("User {0} is disabled.").format(user.name), frappe.ValidationError)
-	return user.name
+	return user
 
 
 def resolve_payment(
-	member: str,
+	user: frappe._dict,
 	doctype: str,
 	docname: str,
 	for_certificate: bool,
 	details: frappe._dict | None,
 	linked: dict[str, str],
+	member_details: dict[str, dict] | None = None,
 ) -> str | None:
+	member = user.name
 	payment = linked.get(member)
 	if payment is None:
 		payment = next((p for m, p in linked.items() if m.lower() == member.lower()), None)
@@ -167,30 +300,60 @@ def resolve_payment(
 		validate_linked_payment(payment, member, doctype, docname, for_certificate)
 		return payment
 	if details is not None:
-		return create_payment(member, doctype, docname, for_certificate, details)
+		override = (member_details or {}).get(member.lower())
+		return create_payment(user, doctype, docname, for_certificate, details, override)
 	return None
 
 
 def create_payment(
-	member: str, doctype: str, docname: str, for_certificate: bool, details: frappe._dict
+	user: frappe._dict,
+	doctype: str,
+	docname: str,
+	for_certificate: bool,
+	details: frappe._dict,
+	override: dict | None = None,
 ) -> str:
+	member = user.name
+	override = override or {}
+	values = {key: override.get(key, details.get(key)) for key in ("amount", "currency", "source")}
+	billing_name = override.get("billing_name", "").strip() or user.full_name or member
+	address = override["address"] if "address" in override else details.get("address", {})
+	if isinstance(address, dict):
+		address = create_billing_address(member, billing_name, address) if address else None
+
 	payment = frappe.get_doc(
 		{
 			"doctype": "LMS Payment",
 			"member": member,
-			"billing_name": frappe.db.get_value("User", member, "full_name") or member,
-			"amount": details.amount,
-			"currency": details.currency,
-			"source": details.source,
+			"billing_name": billing_name,
+			**values,
 			"payment_for_document_type": doctype,
 			"payment_for_document": docname,
 			"payment_for_certificate": int(for_certificate),
 			"payment_received": 1,
+			"address": address,
 		}
 	)
+	payment.flags.recorded_by_staff = True
 	# nosemgrep: lms-unjustified-ignore-permissions - the endpoint authorised the caller with can_record_payments; LMS Payment has no DocPerm for instructors
 	payment.insert(ignore_permissions=True)
 	return payment.name
+
+
+def create_billing_address(member: str, billing_name: str, address: dict[str, str]) -> str:
+	doc = frappe.get_doc(
+		{
+			"doctype": "Address",
+			"address_type": "Billing",
+			"address_title": billing_name,
+			"email_id": member,
+			**address,
+			"links": [{"link_doctype": "User", "link_name": member}],
+		}
+	)
+	# nosemgrep: lms-unjustified-ignore-permissions - the endpoint authorised the caller with can_record_payments; instructors have no Address DocPerm
+	doc.insert(ignore_permissions=True)
+	return doc.name
 
 
 def validate_linked_payment(
@@ -360,29 +523,40 @@ def search_users(
 	User = frappe.qb.DocType("User")
 	query = (
 		frappe.qb.from_(User)
-		.select(User.name, User.full_name)
+		.select(User.name, User.full_name, User.user_image)
 		.where(User.enabled == 1)
 		.where(User.name.notin(("Administrator", "Guest")))
 	)
 	if not {"Moderator", "System Manager"} & set(frappe.get_roles()):
 		query = query.where(User.user_type != "System User")
+	query = query.where(~ExistsCriterion(_blocking_enrollment(doctype, docname, include_enrolled)))
 	if names is not None:
 		query = query.where(User.name.isin(names)).orderby(User.name)
 	else:
 		if txt:
 			query = query.where(User.full_name.like(f"%{txt}%") | User.name.like(f"%{txt}%"))
-		if not include_enrolled:
-			enrollment_doctype, link_field = ENROLL_TARGETS[doctype]
-			Enrollment = frappe.qb.DocType(enrollment_doctype)
-			enrolled = (
-				frappe.qb.from_(Enrollment)
-				.select(1)
-				.where(Enrollment[link_field] == docname)
-				.where(Enrollment.member == User.name)
-			)
-			query = query.where(~ExistsCriterion(enrolled))
 		query = query.orderby(User.full_name).orderby(User.name).limit(min(page_length, MAX_SEARCH_RESULTS))
 	return [
-		{"value": user.name, "label": user.full_name or user.name, "description": user.name}
+		{
+			"value": user.name,
+			"label": user.full_name or user.name,
+			"description": user.name,
+			"image": user.user_image,
+		}
 		for user in query.run(as_dict=True)
 	]
+
+
+def _blocking_enrollment(doctype: str, docname: str, include_enrolled: bool):
+	enrollment_doctype, link_field = ENROLL_TARGETS[doctype]
+	Enrollment = frappe.qb.DocType(enrollment_doctype)
+	User = frappe.qb.DocType("User")
+	blocking = (
+		frappe.qb.from_(Enrollment)
+		.select(1)
+		.where(Enrollment[link_field] == docname)
+		.where(Enrollment.member == User.name)
+	)
+	if include_enrolled and doctype == "LMS Course":
+		blocking = blocking.where(Enrollment.purchased_certificate == 1)
+	return blocking

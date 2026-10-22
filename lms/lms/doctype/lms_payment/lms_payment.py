@@ -12,7 +12,14 @@ from lms.lms.utils import get_lms_route
 
 
 class LMSPayment(Document):
-	pass
+	def validate(self):
+		self.validate_source()
+
+	def validate_source(self):
+		# Staff recording a payment on a student's behalf may not know where the student came from.
+		if self.source or self.flags.recorded_by_staff or self.flags.ignore_mandatory:
+			return
+		frappe.throw(_("Source is required."), frappe.MandatoryError)
 
 
 UNIQUE_PAYMENT_ID = "unique_payment_id"
