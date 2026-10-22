@@ -42,11 +42,14 @@ from lms.lms.bulk_enrollment import (
 	can_record_payments,
 	enroll_each,
 	get_paid_kind,
+	get_preview,
 	parse_linked_payments,
 	parse_members,
 	parse_payment_details,
+	require_enroll_target,
 	require_user,
 	resolve_payment,
+	search_users,
 )
 from lms.lms.code_runner import code_to_store, run_test_cases
 from lms.lms.course_import_export import (
@@ -3546,6 +3549,52 @@ def enroll_students_in_course(
 		"upgraded": outcomes.get("upgraded", []),
 		"errors": errors,
 	}
+
+
+@frappe.whitelist()
+def get_bulk_enrollment_preview(
+	doctype: str, docname: str, members: list | str, purchased_certificate: bool = False
+) -> dict:
+	"""What bulk-enrolling these members would do: a status per member, the seats left and the price."""
+	if not isinstance(doctype, str) or not isinstance(docname, str):
+		frappe.throw(_("Invalid course or batch."))
+	require_enroll_target(doctype, docname)
+	if not isinstance(members, list | str):
+		frappe.throw(_("Members must be a list of users."))
+	if not isinstance(purchased_certificate, bool | int) or purchased_certificate not in (0, 1):
+		frappe.throw(_("Purchased certificate must be true or false."))
+	return get_preview(doctype, docname, parse_members(members), bool(purchased_certificate))
+
+
+@frappe.whitelist()
+def search_users_to_enroll(
+	enroll_doctype: str,
+	enroll_docname: str,
+	txt: str = "",
+	include_enrolled: bool = False,
+	page_length: int = 10,
+	names: list | str | None = None,
+) -> list[dict]:
+	"""Enabled users matching `txt` who can be enrolled, or exactly `names` to label chips."""
+	if not isinstance(enroll_doctype, str) or not isinstance(enroll_docname, str):
+		frappe.throw(_("Invalid course or batch."))
+	require_enroll_target(enroll_doctype, enroll_docname)
+	if not isinstance(txt, str):
+		frappe.throw(_("Search text must be text."))
+	if not isinstance(include_enrolled, bool | int) or include_enrolled not in (0, 1):
+		frappe.throw(_("Include enrolled must be true or false."))
+	if isinstance(page_length, bool) or not isinstance(page_length, int | str):
+		frappe.throw(_("Page length must be a number."))
+	if not isinstance(names, list | str | None):
+		frappe.throw(_("Names must be a list of users."))
+	return search_users(
+		enroll_doctype,
+		enroll_docname,
+		txt.strip(),
+		bool(include_enrolled),
+		max(cint(page_length), 1),
+		parse_members(names, limit=None) if names is not None else None,
+	)
 
 
 @frappe.whitelist()
