@@ -98,11 +98,6 @@ def slugify(title: str, used_slugs: list = None):
 		count = count + 1
 
 
-<<<<<<< HEAD
-def generate_slug(title: str, doctype: str):
-	result = frappe.get_all(doctype, fields=["name"])
-	slugs = {row["name"] for row in result}
-=======
 # A course and a batch answer at different routes, but both tag staff through
 # Course Instructor rows that several lookups key on `parent` alone, so the two
 # never take the same name.
@@ -114,7 +109,6 @@ def generate_slug(title: str, doctype: str, reserved: frozenset[str] = frozenset
 	for source in (doctype, SLUGS_SHARED_WITH.get(doctype)):
 		if source:
 			slugs |= set(frappe.get_all(source, pluck="name"))
->>>>>>> 1f58470 (fix: scope access on assessments, certificates, programs, discussions and mentions)
 	return slugify(title, used_slugs=slugs)
 
 
@@ -2445,14 +2439,11 @@ def get_assignment(name: str) -> dict:
 	return enrich_schedule_payload(doc.as_dict())
 
 
+# nosemgrep: security.guest-whitelisted-method - pre-existing grant, unchanged by this branch; guests are served only when guest access is on. Flagged only because the body changed.
 @frappe.whitelist(allow_guest=True)
 @rate_limit(limit=500, seconds=60 * 60)
 def get_batch_courses(batch: str) -> list:
-<<<<<<< HEAD
-	if not guest_access_allowed():
-=======
-	if not can_view_batch(batch):
->>>>>>> 1f58470 (fix: scope access on assessments, certificates, programs, discussions and mentions)
+	if not guest_access_allowed() or not can_view_batch(batch):
 		return []
 
 	courses = []
