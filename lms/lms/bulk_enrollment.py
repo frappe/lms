@@ -8,12 +8,20 @@ from typing import Literal
 
 import frappe
 from frappe import _
+from frappe.utils import cint, flt
+from pypika.terms import ExistsCriterion
 
 from lms.lms.permissions import can_author_batch, can_author_course
 
 MAX_BULK_ENROLL_MEMBERS: int = 50
 
 PaidKind = Literal["course", "certificate", "batch"]
+
+ENROLL_TARGETS = {
+	"LMS Course": ("LMS Enrollment", "course"),
+	"LMS Batch": ("LMS Batch Enrollment", "batch"),
+}
+MAX_SEARCH_RESULTS: int = 20
 
 PAYMENT_DETAIL_KEYS = {"amount", "currency", "source"}
 SAVEPOINT = "bulk_enroll_member"
@@ -223,3 +231,158 @@ def validate_linked_payment(
 				).format(payment),
 				frappe.ValidationError,
 			)
+
+
+def require_enroll_target(doctype: str, docname: str) -> None:
+	if doctype not in ENROLL_TARGETS or not frappe.db.exists(doctype, docname):
+		frappe.throw(_("Invalid course or batch."))
+	if not can_enroll_others(doctype, docname):
+		frappe.throw(_("You cannot enroll students in this {0}.").format(_(doctype)), frappe.PermissionError)
+
+
+def get_preview(doctype: str, docname: str, members: list[str], purchased_certificate: bool) -> dict:
+	if not members:
+		return {"rows": [], **get_target_summary(doctype, docname)}
+
+	enrollment_doctype, link_field = ENROLL_TARGETS[doctype]
+	is_course = doctype == "LMS Course"
+
+	User = frappe.qb.DocType("User")
+	users = {
+		row.name.lower(): row
+		for row in frappe.qb.from_(User)
+		.select(User.name, User.enabled, User.full_name, User.user_image)
+		.where(User.name.isin(members))
+		.run(as_dict=True)
+	}
+
+	Enrollment = frappe.qb.DocType(enrollment_doctype)
+	enrollment_fields = [Enrollment.member] + ([Enrollment.purchased_certificate] if is_course else [])
+	enrolled = {
+		row.member.lower(): row
+		for row in frappe.qb.from_(Enrollment)
+		.select(*enrollment_fields)
+		.where(Enrollment[link_field] == docname)
+		.where(Enrollment.member.isin(members))
+		.run(as_dict=True)
+	}
+
+	rows = []
+	for member in members:
+		user = users.get(member.lower())
+		enrollment = enrolled.get(member.lower())
+		rows.append(
+			{
+				"member": member,
+				"full_name": user.full_name if user else None,
+				"user_image": user.user_image if user else None,
+				"status": _preview_status(user, enrollment, is_course and purchased_certificate),
+				"linkable_payments": [],
+			}
+		)
+
+	attach_linkable_payments(doctype, docname, purchased_certificate, rows, users)
+	return {"rows": rows, **get_target_summary(doctype, docname)}
+
+
+def _preview_status(user, enrollment, upgrading: bool) -> str:
+	if not user:
+		return "no_user"
+	if not user.enabled:
+		return "disabled"
+	if not enrollment:
+		return "ready"
+	if upgrading:
+		return "certificate_purchased" if enrollment.purchased_certificate else "upgrade"
+	return "enrolled"
+
+
+def attach_linkable_payments(
+	doctype: str, docname: str, purchased_certificate: bool, rows: list[dict], users: dict
+) -> None:
+	kind = get_paid_kind(doctype, docname, purchased_certificate)
+	if not kind or not can_record_payments(doctype, docname):
+		return
+	candidates = [r for r in rows if r["status"] in ("ready", "upgrade")]
+	if not candidates:
+		return
+
+	enrollment_doctype, link_field = ENROLL_TARGETS[doctype]
+	Payment = frappe.qb.DocType("LMS Payment")
+	Enrollment = frappe.qb.DocType(enrollment_doctype)
+	used = (
+		frappe.qb.from_(Enrollment)
+		.select(Enrollment.payment)
+		.where(Enrollment[link_field] == docname)
+		.where(Enrollment.payment != "")
+	)
+	payments = (
+		frappe.qb.from_(Payment)
+		.select(Payment.name, Payment.member, Payment.amount, Payment.currency, Payment.creation)
+		.where(Payment.member.isin([users[r["member"].lower()].name for r in candidates]))
+		.where(Payment.payment_for_document_type == doctype)
+		.where(Payment.payment_for_document == docname)
+		.where(Payment.payment_for_certificate == int(kind == "certificate"))
+		.where(Payment.payment_received == 1)
+		.where(Payment.name.notin(used))
+		.orderby(Payment.creation, order=frappe.qb.desc)
+		.run(as_dict=True)
+	)
+	by_member: dict[str, list[dict]] = {}
+	for payment in payments:
+		by_member.setdefault(payment.member.lower(), []).append(
+			{key: payment[key] for key in ("name", "amount", "currency", "creation")}
+		)
+	for row in candidates:
+		row["linkable_payments"] = by_member.get(row["member"].lower(), [])
+
+
+def get_target_summary(doctype: str, docname: str) -> dict:
+	if doctype == "LMS Course":
+		price, currency = frappe.db.get_value("LMS Course", docname, ["course_price", "currency"])
+		return {"seats_left": None, "amount": flt(price), "currency": currency}
+
+	amount, currency, seat_count = frappe.db.get_value(
+		"LMS Batch", docname, ["amount", "currency", "seat_count"]
+	)
+	seats_left = None
+	if seat_count:
+		seats_left = cint(seat_count) - frappe.db.count("LMS Batch Enrollment", {"batch": docname})
+	return {"seats_left": seats_left, "amount": flt(amount), "currency": currency}
+
+
+def search_users(
+	doctype: str, docname: str, txt: str, include_enrolled: bool, page_length: int, names: list[str] | None
+) -> list[dict]:
+	if names is not None and not names:
+		return []
+
+	User = frappe.qb.DocType("User")
+	query = (
+		frappe.qb.from_(User)
+		.select(User.name, User.full_name)
+		.where(User.enabled == 1)
+		.where(User.name.notin(("Administrator", "Guest")))
+	)
+	if not {"Moderator", "System Manager"} & set(frappe.get_roles()):
+		query = query.where(User.user_type != "System User")
+	if names is not None:
+		query = query.where(User.name.isin(names)).orderby(User.name)
+	else:
+		if txt:
+			query = query.where(User.full_name.like(f"%{txt}%") | User.name.like(f"%{txt}%"))
+		if not include_enrolled:
+			enrollment_doctype, link_field = ENROLL_TARGETS[doctype]
+			Enrollment = frappe.qb.DocType(enrollment_doctype)
+			enrolled = (
+				frappe.qb.from_(Enrollment)
+				.select(1)
+				.where(Enrollment[link_field] == docname)
+				.where(Enrollment.member == User.name)
+			)
+			query = query.where(~ExistsCriterion(enrolled))
+		query = query.orderby(User.full_name).orderby(User.name).limit(min(page_length, MAX_SEARCH_RESULTS))
+	return [
+		{"value": user.name, "label": user.full_name or user.name, "description": user.name}
+		for user in query.run(as_dict=True)
+	]

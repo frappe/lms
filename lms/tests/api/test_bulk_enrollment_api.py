@@ -2,10 +2,16 @@
 # See license.txt
 
 import json
+from unittest.mock import patch
 
 import frappe
 
-from lms.lms.api import add_students_to_batch, enroll_students_in_course
+from lms.lms.api import (
+	add_students_to_batch,
+	enroll_students_in_course,
+	get_bulk_enrollment_preview,
+	search_users_to_enroll,
+)
 from lms.lms.test_helpers import BaseTestUtils
 
 
@@ -519,3 +525,304 @@ class TestCourseBulkEnrollment(BaseTestUtils):
 		)
 		self.assertEqual(result["upgraded"], [student])
 		self.assertEqual(self._enrollment(self.cert_course, student).payment, payment)
+
+
+class BulkEnrollmentQueryCase(BaseTestUtils):
+	@classmethod
+	def setUpClass(cls):
+		super().setUpClass()
+		cls.hash = frappe.generate_hash(length=6).lower()
+		cls.instructor = cls._create_user(
+			f"bulk-qins-{cls.hash}@example.com", "Bulk", "Instructor", ["Course Creator"]
+		).name
+		cls.other_creator = cls._create_user(
+			f"bulk-qoth-{cls.hash}@example.com", "Bulk", "Other", ["Course Creator"]
+		).name
+		cls.moderator = cls._create_user(
+			f"bulk-qmod-{cls.hash}@example.com", "Bulk", "Moderator", ["Moderator"]
+		).name
+		cls.students = [
+			cls._create_user(
+				f"bulk-qstu{i}-{cls.hash}@example.com", "Bulk", f"QStudent{i}", ["LMS Student"]
+			).name
+			for i in range(12)
+		]
+		cls.disabled = cls._create_user(
+			f"bulk-qdis-{cls.hash}@example.com", "Bulk", "Disabled", ["LMS Student"]
+		).name
+		frappe.db.set_value("User", cls.disabled, "enabled", 0)
+		cls._create_evaluator(cls.instructor)
+		cls.course = cls._create_course(f"Bulk QCourse {cls.hash}", instructor=cls.instructor).name
+		frappe.db.set_value(
+			"LMS Course",
+			cls.course,
+			{
+				"published": 1,
+				"paid_course": 1,
+				"paid_certificate": 1,
+				"course_price": 4999,
+				"currency": "INR",
+			},
+		)
+		cls.cert_course = cls._create_course(f"Bulk QCert Course {cls.hash}", instructor=cls.instructor).name
+		frappe.db.set_value(
+			"LMS Course",
+			cls.cert_course,
+			{"published": 1, "paid_certificate": 1, "course_price": 999, "currency": "INR"},
+		)
+		cls.batch = cls._create_batch(
+			cls.course, instructor=cls.instructor, title=f"Bulk Batch Q {cls.hash}", evaluator=cls.instructor
+		).name
+		frappe.db.set_value(
+			"LMS Batch",
+			cls.batch,
+			{"paid_batch": 1, "amount": 500, "currency": "USD", "seat_count": 3},
+		)
+		cls.source = (
+			frappe.get_doc({"doctype": "LMS Source", "source": f"Bulk QSource {cls.hash}"}).insert().name
+		)
+
+	def _as(self, user):
+		frappe.set_user(user)
+		self.addCleanup(frappe.set_user, "Administrator")
+
+	def _make_payment(self, member, doctype="LMS Course", document=None, for_certificate=0, received=1):
+		return (
+			frappe.get_doc(
+				{
+					"doctype": "LMS Payment",
+					"member": member,
+					"billing_name": member,
+					"amount": 100,
+					"currency": "INR",
+					"source": self.source,
+					"payment_for_document_type": doctype,
+					"payment_for_document": document or self.course,
+					"payment_for_certificate": for_certificate,
+					"payment_received": received,
+				}
+			)
+			.insert()
+			.name
+		)
+
+
+class TestBulkEnrollmentPreview(BulkEnrollmentQueryCase):
+	def _preview(self, members, doctype="LMS Course", docname=None, **kwargs):
+		docname = docname or (self.course if doctype == "LMS Course" else self.batch)
+		return get_bulk_enrollment_preview(doctype, docname, json.dumps(members), **kwargs)
+
+	def _statuses(self, result):
+		return [(r["member"], r["status"]) for r in result["rows"]]
+
+	def test_rows_report_each_status_in_member_order(self):
+		missing = f"nobody-{self.hash}@example.com"
+		self._create_enrollment(self.students[0], self.course)
+		self._as(self.instructor)
+		rows = self._preview([self.students[1], self.students[0], missing, self.disabled])["rows"]
+		self.assertEqual(
+			[(r["member"], r["status"]) for r in rows],
+			[
+				(self.students[1], "ready"),
+				(self.students[0], "enrolled"),
+				(missing, "no_user"),
+				(self.disabled, "disabled"),
+			],
+		)
+		self.assertEqual(rows[0]["full_name"], "Bulk QStudent1")
+		self.assertIsNone(rows[2]["full_name"])
+		self.assertIn("user_image", rows[0])
+
+	def test_the_certificate_switch_reports_upgrade_and_already_purchased(self):
+		enrolled, bought = self.students[0], self.students[1]
+		self._create_enrollment(enrolled, self.course)
+		self._create_enrollment(bought, self.course)
+		frappe.db.set_value(
+			"LMS Enrollment",
+			{"course": self.course, "member": bought},
+			"purchased_certificate",
+			1,
+		)
+		self._as(self.instructor)
+		result = self._preview([enrolled, bought, self.students[2]], purchased_certificate=True)
+		self.assertEqual(
+			self._statuses(result),
+			[(enrolled, "upgrade"), (bought, "certificate_purchased"), (self.students[2], "ready")],
+		)
+
+	def test_linkable_payments_are_received_unused_and_matching(self):
+		student, other = self.students[1], self.students[2]
+		good = self._make_payment(student)
+		self._make_payment(student, received=0)
+		self._make_payment(student, for_certificate=1)
+		self._make_payment(student, doctype="LMS Batch", document=self.batch)
+		self._make_payment(other)
+		used = self._make_payment(student)
+		frappe.get_doc(
+			{"doctype": "LMS Enrollment", "course": self.course, "member": student, "payment": used}
+		).insert()
+		self._as(self.instructor)
+		result = self._preview([student, other])
+		self.assertEqual([r["status"] for r in result["rows"]], ["enrolled", "ready"])
+		self.assertEqual(result["rows"][0]["linkable_payments"], [])
+		self.assertEqual(len(result["rows"][1]["linkable_payments"]), 1)
+
+		frappe.db.delete("LMS Enrollment", {"course": self.course, "member": student})
+		result = self._preview([student])
+		linkable = result["rows"][0]["linkable_payments"]
+		self.assertEqual({p["name"] for p in linkable}, {good, used})
+		self.assertEqual(set(linkable[0]), {"name", "amount", "currency", "creation"})
+
+	def test_certificate_payments_are_listed_for_the_certificate_switch(self):
+		student, course = self.students[3], self.cert_course
+		self._make_payment(student, document=course)
+		cert = self._make_payment(student, document=course, for_certificate=1)
+		self._create_enrollment(student, course)
+		self._as(self.instructor)
+		row = self._preview([student], docname=course, purchased_certificate=True)["rows"][0]
+		self.assertEqual(row["status"], "upgrade")
+		self.assertEqual([p["name"] for p in row["linkable_payments"]], [cert])
+
+	def test_an_evaluator_without_payment_rights_gets_no_linkable_payments(self):
+		evaluator = self._create_user(
+			f"bulk-qeval-{self.hash}@example.com", "Bulk", "Evaluator", ["Batch Evaluator"]
+		).name
+		student = self.students[4]
+		self._make_payment(student, doctype="LMS Batch", document=self.batch)
+		self._as(evaluator)
+		rows = self._preview([student], doctype="LMS Batch")["rows"]
+		self.assertEqual((rows[0]["status"], rows[0]["linkable_payments"]), ("ready", []))
+
+	def test_a_batch_preview_reports_seats_left_and_the_batch_price(self):
+		self._create_batch_enrollment(self.students[0], self.batch)
+		self._as(self.instructor)
+		result = self._preview([self.students[1]], doctype="LMS Batch")
+		self.assertEqual((result["seats_left"], result["amount"], result["currency"]), (2, 500, "USD"))
+		course = self._preview([self.students[1]])
+		self.assertEqual((course["seats_left"], course["amount"], course["currency"]), (None, 4999, "INR"))
+
+	def test_the_query_count_does_not_grow_with_members(self):
+		self._as(self.instructor)
+		self._preview(self.students[:1])
+
+		def count(members):
+			calls = []
+			original = frappe.db.sql
+
+			def counting(*args, **kwargs):
+				calls.append(1)
+				return original(*args, **kwargs)
+
+			with patch.object(frappe.db, "sql", counting):
+				self._preview(members)
+			return len(calls)
+
+		self.assertEqual(count(self.students[:2]), count(self.students[:10]))
+
+	def test_only_people_who_can_enroll_others_get_a_preview(self):
+		for user in ("Guest", self.students[5], self.other_creator):
+			with self.subTest(user=user):
+				self._as(user)
+				with self.assertRaises(frappe.PermissionError):
+					self._preview([self.students[0]])
+		self._as(self.moderator)
+		self.assertTrue(self._preview([self.students[0]])["rows"])
+
+	def test_an_empty_member_list_previews_no_rows(self):
+		self._create_batch_enrollment(self.students[0], self.batch)
+		self._as(self.instructor)
+		result = get_bulk_enrollment_preview("LMS Batch", self.batch, "[]")
+		self.assertEqual(result, {"rows": [], "seats_left": 2, "amount": 500, "currency": "USD"})
+
+	def test_an_unknown_target_is_rejected(self):
+		self._as(self.instructor)
+		for doctype, docname in (("User", "Administrator"), ("LMS Course", "no-such-course")):
+			with self.subTest(doctype=doctype):
+				with self.assertRaises(frappe.ValidationError):
+					get_bulk_enrollment_preview.__wrapped__(doctype, docname, [])
+
+
+class TestSearchUsersToEnroll(BulkEnrollmentQueryCase):
+	def _search(self, **kwargs):
+		kwargs.setdefault("enroll_doctype", "LMS Course")
+		kwargs.setdefault("enroll_docname", self.course)
+		return search_users_to_enroll(**kwargs)
+
+	def _values(self, rows):
+		return [r["value"] for r in rows]
+
+	def test_enrolled_users_are_left_out_unless_asked_for(self):
+		self._create_enrollment(self.students[0], self.course)
+		self._as(self.instructor)
+		txt = f"-{self.hash}@"
+		self.assertNotIn(self.students[0], self._values(self._search(txt=txt)))
+		self.assertIn(self.students[1], self._values(self._search(txt=txt)))
+		self.assertIn(self.students[0], self._values(self._search(txt=txt, include_enrolled=True)))
+
+	def test_rows_match_the_link_search_shape(self):
+		self._as(self.instructor)
+		row = self._search(txt=self.students[1])[0]
+		self.assertEqual(
+			row, {"value": self.students[1], "label": "Bulk QStudent1", "description": self.students[1]}
+		)
+		self.assertEqual(self._search(txt="QStudent1")[0]["value"], self.students[1])
+
+	def test_batch_enrollments_are_excluded_for_a_batch(self):
+		self._create_batch_enrollment(self.students[0], self.batch)
+		self._as(self.instructor)
+		rows = self._search(enroll_doctype="LMS Batch", enroll_docname=self.batch, txt=self.students[0])
+		self.assertEqual(rows, [])
+
+	def test_names_resolve_exact_users_for_labels(self):
+		self._create_enrollment(self.students[0], self.course)
+		self._as(self.instructor)
+		rows = self._search(names=json.dumps([self.students[0], self.students[1], self.disabled]))
+		self.assertEqual(self._values(rows), [self.students[0], self.students[1]])
+		self.assertEqual(rows[0]["label"], "Bulk QStudent0")
+
+	def test_page_length_is_capped_at_twenty(self):
+		for i in range(25):
+			self._create_user(f"bulk-cap{i}-{self.hash}@example.com", "Cap", f"Student{i}", ["LMS Student"])
+		self._as(self.instructor)
+		rows = self._search(txt="bulk-cap", page_length=500)
+		self.assertEqual(len(rows), 20)
+		self.assertEqual(len(self._search(txt="bulk-cap", page_length=3)), 3)
+
+	def test_disabled_users_administrator_and_guest_never_appear(self):
+		self._as(self.instructor)
+		self.assertNotIn(self.disabled, self._values(self._search(txt="Disabled")))
+		for txt in ("Administrator", "Guest"):
+			with self.subTest(txt=txt):
+				self.assertEqual(self._search(txt=txt, include_enrolled=True), [])
+
+	def test_only_people_who_can_enroll_others_may_search(self):
+		for user in ("Guest", self.students[5], self.other_creator):
+			with self.subTest(user=user):
+				self._as(user)
+				with self.assertRaises(frappe.PermissionError):
+					self._search(txt="bulk")
+		self._as(self.moderator)
+		self.assertTrue(self._search(txt=self.students[1]))
+
+	def test_empty_names_return_nothing(self):
+		self._as(self.instructor)
+		self.assertEqual(self._search(names="[]"), [])
+
+	def test_system_users_are_listed_only_for_moderators_and_system_managers(self):
+		staff = self._create_user(
+			f"bulk-qsys-{self.hash}@example.com", "Bulk", "SysStaff", ["Course Creator"]
+		).name
+		frappe.db.set_value("User", staff, "user_type", "System User")
+		for kwargs in ({"txt": "SysStaff"}, {"names": json.dumps([staff])}):
+			with self.subTest(**kwargs):
+				self._as(self.instructor)
+				self.assertEqual(self._search(**kwargs), [])
+				self._as(self.moderator)
+				self.assertEqual(self._values(self._search(**kwargs)), [staff])
+
+	def test_an_unknown_enroll_doctype_is_rejected(self):
+		self._as(self.instructor)
+		with self.assertRaises(frappe.ValidationError):
+			search_users_to_enroll.__wrapped__("User", "Administrator")
+		with self.assertRaises(frappe.ValidationError):
+			search_users_to_enroll.__wrapped__("LMS Course", "no-such-course")
