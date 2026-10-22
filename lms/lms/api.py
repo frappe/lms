@@ -37,6 +37,16 @@ from frappe.utils import (
 from frappe.utils.response import Response
 from pypika import functions as fn
 
+from lms.lms.bulk_enrollment import (
+	can_record_payments,
+	enroll_each,
+	get_paid_kind,
+	parse_linked_payments,
+	parse_members,
+	parse_payment_details,
+	require_user,
+	resolve_payment,
+)
 from lms.lms.code_runner import code_to_store, run_test_cases
 from lms.lms.course_import_export import (
 	export_course_zip,
@@ -3410,32 +3420,45 @@ def get_live_class_start_url(live_class: str) -> str:
 
 
 @frappe.whitelist(methods=["POST"])
-def add_students_to_batch(batch: str, members: list | str) -> dict:
-	"""Enroll each member in the batch, as adding them one at a time would. A member who cannot
-	be added is reported in `errors` and does not stop the rest. `members` is a list of users, or
-	that list as JSON."""
+def add_students_to_batch(
+	batch: str,
+	members: list | str,
+	payment_details: dict | str | None = None,
+	linked_payments: dict | str | None = None,
+) -> dict:
+	"""Enroll each member in the batch; one who cannot be added is reported in `errors`. For a paid
+	batch, `payment_details` records a received payment per member and `linked_payments` attaches
+	existing ones."""
 	if not isinstance(batch, str) or not frappe.db.exists("LMS Batch", batch):
 		frappe.throw(_("Invalid batch."))
-	if isinstance(members, str):
-		members = frappe.parse_json(members)
-	if not isinstance(members, list) or not all(isinstance(member, str) for member in members):
+	if not isinstance(members, list | str):
 		frappe.throw(_("Members must be a list of users."))
+	if not all(isinstance(arg, dict | str | None) for arg in (payment_details, linked_payments)):
+		frappe.throw(_("Payment arguments must be JSON objects."))
 
-	added, errors = [], []
-	for member in members:
-		messages = len(frappe.local.message_log)
-		frappe.db.savepoint("add_student_to_batch")
-		try:
-			frappe.get_doc({"doctype": "LMS Batch Enrollment", "batch": batch, "member": member}).insert()
-		except Exception as e:
-			frappe.db.rollback(save_point="add_student_to_batch")
-			# The row's messages are its error below, not a message for the whole request.
-			del frappe.local.message_log[messages:]
-			errors.append({"member": member, "error": str(e)})
-		else:
-			frappe.db.release_savepoint("add_student_to_batch")
-			added.append(member)
-	return {"added": added, "errors": errors}
+	has_payments = payment_details is not None or linked_payments is not None
+	if has_payments:
+		if not can_record_payments("LMS Batch", batch):
+			frappe.throw(_("You cannot record payments for this batch."), frappe.PermissionError)
+		if get_paid_kind("LMS Batch", batch) != "batch":
+			frappe.throw(_("Payments can only be recorded for a paid batch."))
+
+	members = parse_members(members, limit=None)
+	details = parse_payment_details(payment_details)
+	linked = parse_linked_payments(linked_payments)
+
+	def enroll_one(member: str) -> str:
+		member = require_user(member)
+		payment = resolve_payment(member, "LMS Batch", batch, False, details, linked)
+		if has_payments and not payment:
+			frappe.throw(_("No payment was given for {0}. Add a payment for this student.").format(member))
+		frappe.get_doc(
+			{"doctype": "LMS Batch Enrollment", "batch": batch, "member": member, "payment": payment}
+		).insert()
+		return "added"
+
+	outcomes, errors = enroll_each(members, enroll_one)
+	return {"added": outcomes.get("added", []), "errors": errors}
 
 
 @frappe.whitelist()
