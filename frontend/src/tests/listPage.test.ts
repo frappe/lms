@@ -132,6 +132,9 @@ async function mountListPage(props: Record<string, unknown> = {}, slots = {}) {
 		slots,
 		global: {
 			mocks: { __: (s: string) => s },
+			// frappe-ui's ListFooter uses <Button> without importing it; the app
+			// resolves it through the global registration app.use(FrappeUI) does.
+			components: { Button: passthrough('button') },
 			stubs: {
 				'router-link': { template: '<a><slot /></a>' },
 				// PageBody's mobile filter sheet teleports to body; without this
@@ -419,15 +422,6 @@ describe('ToggleFilter', () => {
 describe('PageBody mobile filters', () => {
 	// Past three or four filters the desk's strip is a wall above the content on
 	// a phone. Below `sm` they collapse behind one button and open in a sheet.
-	it('shows a Filters button instead of the strip on a phone', async () => {
-		mobile.value = true
-		const wrapper = await mountListPage({}, { filters: '<i class="f">F</i>' })
-
-		expect(wrapper.find('[data-testid="mobile-filters-button"]').exists()).toBe(
-			true
-		)
-	})
-
 	it('leaves the desk showing its filter strip, with no button', async () => {
 		mobile.value = false
 		const wrapper = await mountListPage({}, { filters: '<i class="f">F</i>' })

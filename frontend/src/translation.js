@@ -6,9 +6,19 @@ export default function translationPlugin(app) {
 	if (!window.translatedMessages) fetchTranslations()
 }
 
-function translate(message) {
+function fill(message, args) {
+	return message.replace(/{(\d+)}/g, function (match, number) {
+		return typeof args[number] != 'undefined' ? args[number] : match
+	})
+}
+
+// LMS calls __('Hello {0}').format(name). Frappe's shared UI calls it the
+// Desk way, __('Hello {0}', [name]), and needs a string back.
+function translate(message, replace) {
 	let translatedMessages = window.translatedMessages || {}
 	let translatedMessage = translatedMessages[message] || message
+
+	if (Array.isArray(replace)) return fill(translatedMessage, replace)
 
 	const hasPlaceholders = /{\d+}/.test(message)
 	if (!hasPlaceholders) {
@@ -16,14 +26,7 @@ function translate(message) {
 	}
 	return {
 		format: function (...args) {
-			return translatedMessage.replace(
-				/{(\d+)}/g,
-				function (match, number) {
-					return typeof args[number] != 'undefined'
-						? args[number]
-						: match
-				}
-			)
+			return fill(translatedMessage, args)
 		},
 	}
 }

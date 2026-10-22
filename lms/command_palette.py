@@ -2,6 +2,9 @@ import frappe
 from frappe import _
 from frappe.utils import nowdate
 
+from lms.lms.permissions import authored_batch_condition, courses_authored_by, is_site_administrator
+from lms.lms.utils import has_moderator_role
+
 # The categories the palette may narrow a search to. SQLiteSearch binds filter
 # *values* but interpolates the column name, so the doctype has to come from this
 # table rather than from anything the caller sent.
@@ -48,7 +51,9 @@ RESULT_FIELDS = ("doctype", "name", "title", "modified")
 
 @frappe.whitelist()
 def search_sqlite(query: str, category: str | None = None):
-	from lms.sqlite import LearningSearch, LearningSearchIndexMissingError
+	from frappe.search.sqlite_search import SQLiteSearchIndexMissingError
+
+	from lms.sqlite import LearningSearch
 
 	if not isinstance(query, str):
 		frappe.throw(_("Search query must be text."))
@@ -69,7 +74,8 @@ def search_sqlite(query: str, category: str | None = None):
 		# nothing else, the reason for the match was invisible and the hit read as
 		# unrelated. 53 matches across 10 titles became 6 across 4 on the dev site.
 		result = search.search(query, title_only=True, filters=filters)
-	except LearningSearchIndexMissingError:
+	except SQLiteSearchIndexMissingError:
+		# The scheduler's `all` event rebuilds a missing index.
 		return []
 
 	return prepare_search_results(result)
@@ -97,12 +103,13 @@ def get_grouped_results(result):
 	roles = frappe.get_roles()
 	rows = [row for row in result["results"] if describes_its_own_doc(row)]
 	permitted = get_permitted_names(rows)
+	authored = get_authored_drafts(rows)
 
 	groups = {}
 	for r in rows:
 		doctype = r["doctype"]
 		group = DOCTYPE_GROUPS.get(doctype)
-		if not group or not is_visible(r, doctype, roles, permitted):
+		if not group or not is_visible(r, doctype, roles, permitted, authored):
 			continue
 		groups.setdefault(group, []).append(r)
 	return groups
@@ -123,11 +130,12 @@ def describes_its_own_doc(row):
 	return row.get("id") == f"{row.get('doctype')}:{row.get('name')}"
 
 
-def is_visible(row, doctype, roles, permitted):
+def is_visible(row, doctype, roles, permitted, authored=None):
+	drafts = (authored or {}).get(doctype, ())
 	if doctype == "LMS Course":
-		return can_access_course(row, roles)
+		return can_access_course(row, drafts)
 	if doctype == "LMS Batch":
-		return can_access_batch(row, roles)
+		return can_access_batch(row, roles, drafts)
 	if doctype == "Job Opportunity":
 		return can_access_job(row, roles)
 	return row.get("name") in permitted.get(doctype, ())
@@ -163,6 +171,38 @@ def get_permitted_names(rows):
 		except frappe.PermissionError:
 			permitted[doctype] = set()
 	return permitted
+
+
+def get_authored_drafts(rows):
+	"""Unpublished courses and batches the session user authors, one query per
+	doctype rather than a can_author_* read per row on every keystroke."""
+	drafts = {}
+	for row in rows:
+		if row["doctype"] in ("LMS Course", "LMS Batch") and not row.get("published"):
+			drafts.setdefault(row["doctype"], set()).add(row["name"])
+
+	user = frappe.session.user
+	authored = {}
+	if courses := drafts.get("LMS Course"):
+		authored["LMS Course"] = (
+			courses if is_site_administrator(user) else courses_authored_by(user, courses)
+		)
+	if batches := drafts.get("LMS Batch"):
+		authored["LMS Batch"] = get_authored_batches(batches, user)
+	return authored
+
+
+def get_authored_batches(names, user):
+	"""The set form of can_author_batch."""
+	if is_site_administrator(user) or has_moderator_role(user):
+		return set(names)
+	batch = frappe.qb.DocType("LMS Batch")
+	return set(
+		frappe.qb.from_(batch)
+		.select(batch.name)
+		.where(batch.name.isin(list(names)) & authored_batch_condition(batch.name, user))
+		.run(pluck=True)
+	)
 
 
 def get_authored_names(doctype, names):
@@ -208,30 +248,25 @@ def remove_duplicates(items):
 	return unique_items
 
 
-def can_access_course(course, roles):
-	if can_create_course(roles):
+def can_access_course(course, authored):
+	if course.get("published"):
 		return True
-	elif course.get("published"):
-		return True
-	return False
+	# A draft is authoring-only: holding Course Creator is not authoring this one.
+	return course.get("name") in authored
 
 
-def can_access_batch(batch, roles):
+def can_access_batch(batch, roles, authored):
+	if not batch.get("published"):
+		return batch.get("name") in authored
 	if can_create_batch(roles):
 		return True
-	elif batch.get("published") and batch.get("start_date") >= nowdate():
-		return True
-	return False
+	return batch.get("start_date") >= nowdate()
 
 
 def can_access_job(job, roles):
 	if "Moderator" in roles:
 		return True
 	return job.get("status") == "Open"
-
-
-def can_create_course(roles):
-	return "Course Creator" in roles or "Moderator" in roles
 
 
 def can_create_batch(roles):

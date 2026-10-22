@@ -21,7 +21,9 @@ UNSCOPED_ROLES = ("Moderator", "Batch Evaluator")
 class LMSBatchEnrollment(Document):
 	def after_insert(self):
 		send_confirmation_email(self)
-		self.add_member_to_live_class()
+		from lms.lms.doctype.lms_live_class.lms_live_class import add_learner_to_live_classes
+
+		add_learner_to_live_classes(self.batch)
 
 	def validate(self):
 		validate_identity_unchanged(self, ("batch", "member"))
@@ -69,14 +71,12 @@ class LMSBatchEnrollment(Document):
 		batch_details = frappe.db.get_value(
 			"LMS Batch", self.batch, ["allow_self_enrollment", "paid_batch"], as_dict=True
 		)
-		if batch_details.paid_batch:
+		if batch_details.paid_batch or batch_details.allow_self_enrollment:
 			return
-		if not batch_details.allow_self_enrollment and not self.is_admin():
-			frappe.throw(_("Enrollment in this batch is restricted. Please contact the Administrator."))
-
-	def is_admin(self):
-		roles = frappe.get_roles(frappe.session.user)
-		return "Course Creator" in roles or "Moderator" in roles or "Batch Evaluator" in roles
+		# Enrolling someone else was already authorised by validate_owner.
+		if self.owner != self.member or can_author_batch(self.batch):
+			return
+		frappe.throw(_("Enrollment in this batch is restricted. Please contact the Administrator."))
 
 	def can_skip_payment(self):
 		"""Only a site admin or Moderator enrolls themselves without paying. The
@@ -125,27 +125,11 @@ class LMSBatchEnrollment(Document):
 				enrollment.course = course.course
 				enrollment.member = self.member
 				enrollment.enrollment_from_batch = self.batch
-				enrollment.save()
-
-	def add_member_to_live_class(self):
-		live_classes = frappe.get_all("LMS Live Class", {"batch_name": self.batch}, ["name", "event"])
-
-		for live_class in live_classes:
-			if live_class.event:
-				# Scoped bypass: adds only self.member to events of this batch's own live
-				# classes. A self-enrolling student has no create permission on Event
-				# Participants; the authorization boundary is enrollment creation itself.
-				frappe.get_doc(
-					{
-						"doctype": "Event Participants",
-						"reference_doctype": "User",
-						"reference_docname": self.member,
-						"email": self.member,
-						"parent": live_class.event,
-						"parenttype": "Event",
-						"parentfield": "event_participants",
-					}
-				).save(ignore_permissions=True)
+				# Adding the learner to the batch is what was authorised and paid for;
+				# its courses come with it, whoever added them.
+				enrollment.flags.via_batch_enrollment = True
+				# nosemgrep: lms-unjustified-ignore-permissions - the batch enrolment saving this was already authorised; the course enrolment is part of it
+				enrollment.save(ignore_permissions=True)
 
 
 @frappe.whitelist()

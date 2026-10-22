@@ -29,7 +29,7 @@
 	</div>
 </template>
 <script setup>
-import { createListResource } from 'frappe-ui'
+import { createResource } from 'frappe-ui'
 import { inject, onMounted } from 'vue'
 
 const dayjs = inject('$dayjs')
@@ -41,22 +41,21 @@ const props = defineProps({
 })
 
 onMounted(() => {
-	if (props.profile.data?.name) {
+	if (props.profile.data?.username) {
 		certificates.reload()
 	}
 })
 
-const certificates = createListResource({
-	doctype: 'LMS Certificate',
-	filters: {
-		member: props.profile.data?.name,
+const certificates = createResource({
+	url: 'lms.lms.api.get_user_certificates',
+	params: {
+		username: props.profile.data?.username,
 	},
-	fields: ['name', 'course_title', 'batch_title', 'issue_date', 'template'],
-	cache: ['certificates', props.profile.data?.name],
+	cache: ['certificates', props.profile.data?.username],
 })
 
 const certificateUrl = (certificate) =>
 	`/api/method/frappe.utils.print_format.download_pdf?doctype=LMS+Certificate&name=${
 		certificate.name
-	}&format=${encodeURIComponent(certificate.template)}`
+	}&format=${encodeURIComponent(certificate.template)}&no_letterhead=1`
 </script>

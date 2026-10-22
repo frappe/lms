@@ -18,9 +18,8 @@
 					}"
 				>
 					<div class="grid grid-cols-1 gap-5 sm:grid-cols-[55%,40%]">
-						<ScrollArea
-							class="max-h-[50vh] rounded-5 border sm:max-h-[70vh]"
-							viewportClass="max-h-[50vh] space-y-5 p-2 pt-4 sm:max-h-[70vh]"
+						<div
+							class="space-y-5 border rounded-5 p-2 pt-4 max-h-[50vh] sm:max-h-[70vh] overflow-y-auto"
 						>
 							<div
 								class="grid grid-cols-[60%,40%] sm:grid-cols-[70%,30%] text-sm text-ink-gray-6"
@@ -72,7 +71,7 @@
 									</div>
 								</router-link>
 							</div>
-						</ScrollArea>
+						</div>
 						<div class="space-y-5">
 							<NumberChartGraph
 								:title="__('Average Watch Time (mins)')"
@@ -97,13 +96,7 @@
 	</Dialog>
 </template>
 <script setup lang="ts">
-import {
-	Avatar,
-	createListResource,
-	Dialog,
-	ScrollArea,
-	TabButtons,
-} from 'frappe-ui'
+import { Avatar, createListResource, Dialog, TabButtons } from 'frappe-ui'
 import { computed, ref, watch } from 'vue'
 import { enablePlyr, formatTimestamp } from '@/utils'
 import VideoBlock from '@/components/VideoBlock.vue'

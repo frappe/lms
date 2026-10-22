@@ -14,9 +14,9 @@
 			>
 				<LoadingIndicator class="size-5 text-ink-gray-5" />
 			</div>
-			<ScrollArea
+			<div
 				v-else
-				viewportClass="overflow-y-auto"
+				class="overflow-y-auto"
 				:class="bodyHeight"
 				data-testid="question-body"
 			>
@@ -31,7 +31,7 @@
 						:answersKey="`${idPrefix}-${loaded}`"
 					/>
 				</div>
-			</ScrollArea>
+			</div>
 		</template>
 
 		<template #actions>
@@ -50,7 +50,7 @@
 </template>
 
 <script setup>
-import { LoadingIndicator, ScrollArea, toast } from 'frappe-ui'
+import { LoadingIndicator, toast } from 'frappe-ui'
 import { computed, ref, watch } from 'vue'
 import FormShell from '@/components/FormShell.vue'
 import HeaderButton from '@/components/HeaderButton.vue'

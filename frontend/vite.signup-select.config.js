@@ -14,7 +14,7 @@ export default defineConfig({
 			plugins: [
 				tailwindcss({
 					config: path.resolve(
-						__dirname,
+						import.meta.dirname,
 						'tailwind.signup-select.config.js'
 					),
 				}),
@@ -27,8 +27,8 @@ export default defineConfig({
 		emptyOutDir: true,
 		assetsInlineLimit: 0,
 		cssCodeSplit: false,
-		rollupOptions: {
-			input: path.resolve(__dirname, 'src/signup-select.js'),
+		rolldownOptions: {
+			input: path.resolve(import.meta.dirname, 'src/signup-select.js'),
 			output: {
 				format: 'iife',
 				name: 'LMSSignupSelect',

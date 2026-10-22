@@ -10,6 +10,10 @@
 			</div>
 			<div v-if="!readOnlyMode">
 				<div v-if="course.data?.membership" class="space-y-2 mb-8">
+					<ProgressBar :progress="progress" :label="__('Course progress')" />
+					<div v-if="lessonCounts.total" class="text-p-sm text-ink-gray-7">
+						{{ lessonsCompletedLabel }}
+					</div>
 					<Button
 						variant="solid"
 						size="md"
@@ -31,7 +35,7 @@
 							<span class="lucide-book-text size-4" />
 						</template>
 						<span>
-							{{ __('Continue Learning') }}
+							{{ progress ? __('Continue Learning') : __('Start Learning') }}
 						</span>
 					</Button>
 					<CertificationLinks :courseName="course.data.name" class="w-full" />
@@ -145,27 +149,22 @@
 	</div>
 </template>
 <script setup lang="ts">
-import { computed, inject } from 'vue'
+import { computed, inject, watch } from 'vue'
 import { Badge, Button, call, createResource, toast } from 'frappe-ui'
 import type { FrappeResourceError } from 'frappe-ui'
 import { resourceErrorMessage } from '@/utils/resource'
 import { useRouter } from 'vue-router'
 import CertificationLinks from '@/components/CertificationLinks.vue'
+import ProgressBar from '@/components/ProgressBar.vue'
 import VideoPreview from '@/components/VideoPreview.vue'
-import { useTelemetry } from '@framework/ui/telemetry/index'
 import { openExternal } from '@/utils/openExternal'
-import type {
-	CourseDetails,
-	CourseInstructorInfo,
-	Resource,
-	SessionUser,
-} from '@/types'
+import type { CourseDetails, Resource, SessionUser } from '@/types'
+import { isInstructorOf } from '@/utils/instructors'
 
 const router = useRouter()
 const user = inject<SessionUser>('$user')!
 const readOnlyMode = (window as Window & { read_only_mode?: boolean })
 	.read_only_mode
-const { capture } = useTelemetry()
 
 const props = withDefaults(
 	defineProps<{
@@ -192,7 +191,6 @@ function enrollStudent() {
 		},
 	})
 		.then(() => {
-			capture('enrolled_in_course', { course: courseName })
 			toast.success(__('You have been enrolled in this course'))
 			setTimeout(() => {
 				router.push({
@@ -212,15 +210,8 @@ function enrollStudent() {
 		})
 }
 
-const is_instructor = (): boolean => {
-	let user_is_instructor = false
-	props.course.data?.instructors.forEach((instructor: CourseInstructorInfo) => {
-		if (!user_is_instructor && instructor.name == user.data?.name) {
-			user_is_instructor = true
-		}
-	})
-	return user_is_instructor
-}
+const is_instructor = (): boolean =>
+	isInstructorOf(props.course.data?.instructors, user.data?.username)
 
 const priceLabel = computed<string>(() => {
 	if (props.course.data?.paid_course) return props.course.data?.price || ''
@@ -245,6 +236,42 @@ const hasCourseStats = computed<boolean>(() =>
 	)
 )
 
+const progress = computed<number>(
+	() => props.course.data?.membership?.progress ?? 0
+)
+
+// The stored progress lags lesson edits, so count the outline's completed flags.
+const outline = createResource({
+	url: 'lms.lms.utils.get_course_outline',
+	cache: ['course_outline_student', props.course.data?.name, 'progress'],
+	makeParams() {
+		return { course: props.course.data?.name, progress: true }
+	},
+}) as Resource<{ lessons?: { is_complete?: boolean }[] }[] | null>
+
+watch(
+	() => props.course.data?.membership && props.course.data.name,
+	(name) => {
+		if (name) outline.reload()
+	},
+	{ immediate: true }
+)
+
+const lessonCounts = computed(() => {
+	const lessons = (outline.data || []).flatMap((c) => c.lessons || [])
+	return {
+		total: lessons.length,
+		completed: lessons.filter((l) => l.is_complete).length,
+	}
+})
+
+const lessonsCompletedLabel = computed<string>(() =>
+	__('{0} of {1} lessons completed').format(
+		lessonCounts.value.completed,
+		lessonCounts.value.total
+	)
+)
+
 const canGetCertificate = computed<boolean>(() => {
 	return Boolean(
 		props.course.data?.enable_certification &&
@@ -263,7 +290,7 @@ const certificate = createResource({
 		openExternal(
 			`/api/method/frappe.utils.print_format.download_pdf?doctype=LMS+Certificate&name=${
 				data.name
-			}&format=${encodeURIComponent(data.template)}`
+			}&format=${encodeURIComponent(data.template)}&no_letterhead=1`
 		)
 	},
 }) as Resource<{ name: string; template: string } | null>

@@ -6,7 +6,7 @@ from frappe.client import get as client_get
 
 from lms.lms.test_helpers import BaseTestUtils
 
-# Asserted live in setUp rather than trusted. LMS Student is on every actor:
+# Asserted live in setUpClass rather than trusted. LMS Student is on every actor:
 # add_lms_student_role is registered on User.before_insert and appends it
 # unconditionally. The hash suffix is what keeps _create_user from reusing a stale User.
 ACTOR_ROLES = {
@@ -28,46 +28,52 @@ PACKAGE_PATH = "/scorm/canary-course/canary-chapter"
 ABSENT = "<absent>"
 
 
+def drop_nulls(document):
+	return {key: value for key, value in document.items() if value is not None}
+
+
 class ScormChapterFixture(BaseTestUtils):
 	"""One course with an intro chapter and a SCORM chapter after it, five actors. Shared
 	by all three suites so the row the permlevel hides is the row the endpoint serves.
 	Administrator is never an actor: it skips permlevels and agrees with anything."""
 
-	def setUp(self):
-		super().setUp()
+	@classmethod
+	def setUpClass(cls):
+		super().setUpClass()
 		frappe.set_user("Administrator")
 		hash = frappe.generate_hash(length=6)
-		self.outsider = self._create_user(f"csf-o-{hash}@example.com", "Ossie", "Outsider", [])
-		self.learner = self._create_user(f"csf-l-{hash}@example.com", "Lena", "Learner", [])
-		self.creator = self._create_user(f"csf-c-{hash}@example.com", "Cara", "Creator", ["Course Creator"])
-		self.moderator = self._create_user(f"csf-m-{hash}@example.com", "Mo", "Moderator", ["Moderator"])
-		self.manager = self._create_user(
+		cls.outsider = cls._create_user(f"csf-o-{hash}@example.com", "Ossie", "Outsider", [])
+		cls.learner = cls._create_user(f"csf-l-{hash}@example.com", "Lena", "Learner", [])
+		cls.creator = cls._create_user(f"csf-c-{hash}@example.com", "Cara", "Creator", ["Course Creator"])
+		cls.moderator = cls._create_user(f"csf-m-{hash}@example.com", "Mo", "Moderator", ["Moderator"])
+		cls.manager = cls._create_user(
 			f"csf-a-{hash}@example.com", "Sam", "Manager", ["System Manager"], user_type="System User"
 		)
-		self.course = self._create_course(title=f"SCORM Field Scope {hash}", instructor=self.creator.name)
-		self.chapter = self._create_scorm_chapter(hash)
-		self._create_enrollment(self.learner.name, self.course.name)
-		self._assert_actor_roles()
+		cls.course = cls._create_course(title=f"SCORM Field Scope {hash}", instructor=cls.creator.name)
+		cls.chapter = cls._create_scorm_chapter(hash)
+		cls._create_enrollment(cls.learner.name, cls.course.name)
+		cls._assert_actor_roles()
 
 	def tearDown(self):
 		frappe.set_user("Administrator")
 		super().tearDown()
 
-	def _create_scorm_chapter(self, hash):
+	@classmethod
+	def _create_scorm_chapter(cls, hash):
 		"""All four SCORM fields, behind an ordinary chapter so the course can express a
 		locked SCORM chapter. Save order is load-bearing: saving the in-hand chapter after
 		_create_lesson_reference would delete the child row it just inserted."""
-		intro = self._create_chapter(f"Intro Chapter {hash}", self.course.name)
-		intro_lesson = self._create_lesson(f"Intro Lesson {hash}", intro.name, self.course.name)
-		self._create_lesson_reference(intro.name, intro_lesson.name)
-		self._create_chapter_reference(self.course.name, intro.name, idx=1)
+		intro = cls._create_chapter(f"Intro Chapter {hash}", cls.course.name)
+		intro_lesson = cls._create_lesson(f"Intro Lesson {hash}", intro.name, cls.course.name)
+		cls._create_lesson_reference(intro.name, intro_lesson.name)
+		cls._create_chapter_reference(cls.course.name, intro.name, idx=1)
 
-		chapter = self._create_chapter(f"SCORM Chapter {hash}", self.course.name)
-		self.package = self._create_package_file(hash).name
+		chapter = cls._create_chapter(f"SCORM Chapter {hash}", cls.course.name)
+		cls.package = cls._create_package_file(hash).name
 		chapter.update(
 			{
 				"is_scorm_package": 1,
-				"scorm_package": self.package,
+				"scorm_package": cls.package,
 				"scorm_package_path": PACKAGE_PATH,
 				"manifest_file": MANIFEST_FILE,
 				"launch_file": LAUNCH_FILE,
@@ -75,13 +81,14 @@ class ScormChapterFixture(BaseTestUtils):
 		)
 		chapter.save()
 
-		lesson = self._create_lesson(f"SCORM Lesson {hash}", chapter.name, self.course.name)
-		self._create_lesson_reference(chapter.name, lesson.name)
-		self._create_chapter_reference(self.course.name, chapter.name, idx=2)
-		self.lesson = lesson
+		lesson = cls._create_lesson(f"SCORM Lesson {hash}", chapter.name, cls.course.name)
+		cls._create_lesson_reference(chapter.name, lesson.name)
+		cls._create_chapter_reference(cls.course.name, chapter.name, idx=2)
+		cls.lesson = lesson
 		return chapter
 
-	def _create_package_file(self, hash):
+	@classmethod
+	def _create_package_file(cls, hash):
 		"""`scorm_package` is a Link to File and save() validates every non-empty Link,
 		so the fixture needs a File row that exists rather than a made-up name."""
 		return frappe.get_doc(
@@ -104,27 +111,30 @@ class ScormChapterFixture(BaseTestUtils):
 			"scorm_package": self.package,
 		}
 
-	def _assert_actor_roles(self):
+	@classmethod
+	def _assert_actor_roles(cls):
 		for label, expected in ACTOR_ROLES.items():
-			self.assertEqual(
-				set(frappe.get_roles(getattr(self, label).name)),
-				expected,
-				f"{label}: holds roles this suite's expectations were not derived against",
+			roles = set(frappe.get_roles(getattr(cls, label).name))
+			cls._require(
+				roles == expected,
+				f"{label}: holds {sorted(roles)}, not the roles this suite's expectations were derived against",
 			)
 		# Membership, not an exact set: frappe grants a desk account further roles that
 		# differ by version, so an exact set would be a version assertion in disguise.
 		# What matters is that this actor reaches the fields as an admin, not an author.
-		manager_roles = set(frappe.get_roles(self.manager.name))
-		self.assertIn("System Manager", manager_roles)
-		self.assertNotIn("Moderator", manager_roles)
-		self.assertNotIn("Course Creator", manager_roles)
+		manager_roles = set(frappe.get_roles(cls.manager.name))
+		cls._require("System Manager" in manager_roles, "manager: lacks System Manager")
+		cls._require("Moderator" not in manager_roles, "manager: holds Moderator")
+		cls._require("Course Creator" not in manager_roles, "manager: holds Course Creator")
 
 	def _single_doc_read(self, label):
 		"""The REST single-doc path. `frappe.get_doc` runs no permission check at all,
-		so the read has to go through the endpoint that applies field-level ones."""
+		so the read has to go through the endpoint that applies field-level ones.
+		Nulls are dropped as develop's `client.get` does; version-16 returns a withheld
+		field as None instead."""
 		frappe.set_user(getattr(self, label).name)
 		try:
-			return client_get("Course Chapter", self.chapter.name)
+			return drop_nulls(client_get("Course Chapter", self.chapter.name))
 		finally:
 			frappe.set_user("Administrator")
 

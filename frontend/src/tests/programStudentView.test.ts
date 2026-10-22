@@ -3,9 +3,10 @@
 // Reworked on feat/assessment-visual-redesign to check props and unmount.
 import { describe, expect, it, vi, beforeEach } from 'vitest'
 
-const { calls, mountBlock, unmount } = vi.hoisted(() => {
+const { calls, mountBlock, unmount, user } = vi.hoisted(() => {
 	const unmount = vi.fn()
 	return {
+		user: { data: { name: 'me@example.com' } as { name: string } | null },
 		calls: { value: [] as any[] },
 		unmount,
 		mountBlock: vi.fn(() => ({ unmount })),
@@ -33,7 +34,7 @@ vi.mock('frappe-ui', () => ({
 }))
 vi.mock('@/stores/settings', () => ({ useSettings: () => ({}) }))
 vi.mock('@/stores/user', () => ({
-	usersStore: () => ({ userResource: { data: { name: 'me@example.com' } } }),
+	usersStore: () => ({ userResource: user }),
 }))
 vi.mock('@/router', () => ({ default: { push: vi.fn() } }))
 vi.mock('../translation', () => ({ default: {} }))
@@ -52,8 +53,6 @@ vi.mock('@/utils/blockMount', () => ({ mountBlock }))
 vi.mock('lucide-vue-next', () => ({ Code: {} }))
 
 const { Program } = await import('@/utils/program')
-// Imported at module scope: '@/utils' pulls the whole editor toolchain.
-const { getEditorTools } = await import('@/utils')
 
 async function renderInLesson(config: Record<string, unknown> | undefined) {
 	const tool = new Program({
@@ -75,6 +74,7 @@ const mountedWith = () => {
 
 describe('the programming exercise block in a lesson', () => {
 	beforeEach(() => {
+		user.data = { name: 'me@example.com' }
 		calls.value = []
 		mountBlock.mockClear()
 		unmount.mockClear()
@@ -124,19 +124,24 @@ describe('the programming exercise block in a lesson', () => {
 	})
 })
 
-describe('getEditorTools wiring', () => {
-	it('hands the programming-exercise tool the Student View flag', () => {
-		const tools = getEditorTools(false, {}, { studentView: true }) as Record<
-			string,
-			any
-		>
-
-		expect(tools.program.config.studentView).toBe(true)
+describe('the programming exercise block for a guest', () => {
+	// Guards #3010: the lookup 403'd for guests, and with no member it dropped
+	// the member filter and could match someone else's submission.
+	beforeEach(() => {
+		user.data = null
+		calls.value = []
+		mountBlock.mockClear()
 	})
 
-	it('defaults the flag off', () => {
-		const tools = getEditorTools() as Record<string, any>
+	it('skips the submission lookup', async () => {
+		await renderInLesson({ studentView: false })
 
-		expect(tools.program.config.studentView).toBe(false)
+		expect(calls.value).toEqual([])
+	})
+
+	it('still mounts the exercise as a new submission', async () => {
+		await renderInLesson({ studentView: false })
+
+		expect(mountedWith().props.props.submissionID).toBe('new')
 	})
 })

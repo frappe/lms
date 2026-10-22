@@ -75,7 +75,7 @@
 						</template>
 					</Button>
 				</Tooltip>
-				<Tooltip v-if="isMobile" :text="__('Student View')">
+				<Tooltip v-if="studentViewRoute && isMobile" :text="__('Student View')">
 					<Button
 						variant="outline"
 						class="!size-9"
@@ -87,7 +87,11 @@
 						</template>
 					</Button>
 				</Tooltip>
-				<Button v-else variant="outline" :route="studentViewRoute">
+				<Button
+					v-else-if="studentViewRoute"
+					variant="outline"
+					:route="studentViewRoute"
+				>
 					<template #prefix>
 						<span class="lucide-eye size-4" />
 					</template>
@@ -235,12 +239,8 @@ import LessonHelp from '@/components/LessonHelp.vue'
 import ShortcutTooltip from '@/components/ShortcutTooltip.vue'
 import HeaderButton from '@/components/HeaderButton.vue'
 import { openFormRoute } from '@/composables/useFormRoute'
-import type {
-	CourseDetails,
-	CourseInstructorInfo,
-	Resource,
-	SessionUser,
-} from '@/types'
+import type { CourseDetails, Resource, SessionUser } from '@/types'
+import { isInstructorOf } from '@/utils/instructors'
 
 type Brand = { name?: string; logo?: string; favicon?: string }
 
@@ -260,15 +260,20 @@ interface EditorSelection {
 const editorSelected = ref<EditorSelection | null>(null)
 const showLessonHelp = ref(false)
 
-const studentViewRoute = computed(() => ({
-	name: 'Lesson',
-	params: {
-		courseName: props.courseName,
-		chapterNumber: editorSelected.value?.chapterNumber,
-		lessonNumber: editorSelected.value?.lessonNumber,
-	},
-	query: { studentView: 1 },
-}))
+// A lesson just created has no position until the outline reload places it.
+const studentViewRoute = computed(() =>
+	editorSelected.value?.number
+		? {
+				name: 'Lesson',
+				params: {
+					courseName: props.courseName,
+					chapterNumber: editorSelected.value.chapterNumber,
+					lessonNumber: editorSelected.value.lessonNumber,
+				},
+				query: { studentView: 1 },
+		  }
+		: null
+)
 
 type CourseMenuItem = {
 	label: string
@@ -303,6 +308,10 @@ type CourseEditorApi = {
 }
 const courseEditorRef = ref<CourseEditorApi | null>(null)
 
+type PublishResponse = {
+	__onload?: { quizzes_without_questions?: string[] }
+}
+
 const publishToggle = createResource({
 	url: 'frappe.client.set_value',
 	makeParams() {
@@ -313,10 +322,18 @@ const publishToggle = createResource({
 			value: course.data?.published ? 0 : 1,
 		}
 	},
-	onSuccess() {
+	onSuccess(data: PublishResponse) {
 		toast.success(
 			course.data?.published ? __('Course unpublished') : __('Course published')
 		)
+		const emptyQuizzes = data?.__onload?.quizzes_without_questions
+		if (emptyQuizzes?.length) {
+			toast.warning(
+				__(
+					'These quizzes have no questions, so learners skip them: {0}'
+				).format(emptyQuizzes.join(', '))
+			)
+		}
 		course.reload()
 	},
 	onError(err: FrappeResourceError) {
@@ -419,22 +436,20 @@ watch(
 )
 
 watch(course, () => {
-	if (!isAdmin.value && !course.data?.published && !course.data?.upcoming) {
+	if (
+		!isAdmin.value &&
+		!course.data?.membership &&
+		!course.data?.published &&
+		!course.data?.upcoming
+	) {
 		router.push({
 			name: 'Courses',
 		})
 	}
 })
 
-const isInstructor = (): boolean => {
-	let user_is_instructor = false
-	course.data?.instructors.forEach((instructor: CourseInstructorInfo) => {
-		if (!user_is_instructor && instructor.name == user.data?.name) {
-			user_is_instructor = true
-		}
-	})
-	return user_is_instructor
-}
+const isInstructor = (): boolean =>
+	isInstructorOf(course.data?.instructors, user.data?.username)
 
 const isAdmin = computed<boolean>(() => {
 	return Boolean(user.data?.is_moderator) || isInstructor()

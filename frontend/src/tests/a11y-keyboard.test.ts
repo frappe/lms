@@ -166,14 +166,14 @@ describe('VideoBlock', () => {
 })
 
 describe('AppSidebar', () => {
-	// Guards: Help and Powered by were clickable spans, and the collapsed
-	// read-only notice lived only in a tooltip. Introduced in #1399, #1450 and
+	// Guards: Help was a clickable span, and the collapsed read-only notice
+	// lived only in a tooltip. Introduced in #1399, #1450 and
 	// #1479; test added with the a11y audit remediation.
 	afterEach(() => {
 		delete (window as any).read_only_mode
 	})
 
-	it('renders Help as a button, Powered by as a link, and the notice as text', async () => {
+	it('renders Help as a sidebar row and the notice as text', async () => {
 		;(window as any).read_only_mode = true
 		useSidebar().isSidebarCollapsed = true
 		wrapper = mount(AppSidebar, {
@@ -192,12 +192,13 @@ describe('AppSidebar', () => {
 		})
 		await flushPromises()
 
-		expect(wrapper.get('button[aria-label="Help"]').attributes('type')).toBe(
-			'button'
+		const help = wrapper
+			.findAllComponents({ name: 'SidebarItem' })
+			.find((item) => item.attributes('label') === 'Help')
+		expect(help?.attributes('icon')).toBe('lucide-circle-help')
+		expect(wrapper.find('a[href="https://frappe.io/learning"]').exists()).toBe(
+			false
 		)
-		expect(
-			wrapper.get('a[aria-label="Powered by Frappe Learning"]').attributes()
-		).toMatchObject({ href: 'https://frappe.io/learning', target: '_blank' })
 		expect(wrapper.find('.sr-only').text()).toContain(
 			'This site is being updated'
 		)

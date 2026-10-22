@@ -11,6 +11,7 @@ from frappe.tests import IntegrationTestCase
 from frappe.utils import cint
 
 from lms.lms.docperm_shadow import get_shadowed_permlevel_rows, warn_about_shadowed_permlevels
+from lms.lms.test_helpers import delete_error_logs_on_cleanup
 from lms.patches.v2_0.reconcile_custom_docperm_permlevels import reconcile
 
 ASSIGNMENT_DOCTYPE = "LMS Assignment"
@@ -29,6 +30,7 @@ class TestReconcileCustomDocPermPermlevels(IntegrationTestCase):
 
 	def setUp(self):
 		super().setUp()
+		delete_error_logs_on_cleanup(self)
 		self.added_docperms: list[str] = []
 		self.moved_docperm_permlevels: list[tuple[str, int]] = []
 		self.moved_field_permlevels: list[tuple[str, int]] = []
@@ -219,11 +221,11 @@ class TestReconcileCustomDocPermPermlevels(IntegrationTestCase):
 		frappe.set_user(moderator.name)
 		try:
 			# Red-phase control: before the patch runs, the pre-upgrade shadow leaves
-			# the Moderator without the answer key at all.
+			# the Moderator without the answer. Develop's client.get drops the key;
+			# version-16 returns it as None.
 			before = client_get(ASSIGNMENT_DOCTYPE, assignment.name)
-			self.assertNotIn(
-				"answer",
-				before,
+			self.assertIsNone(
+				before.get("answer"),
 				"control failed: Moderator already reads the answer before the patch runs",
 			)
 		finally:

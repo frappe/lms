@@ -38,8 +38,8 @@
 				</div>
 
 				<ScrollArea
-					class="min-h-0 flex-1"
-					viewportClass="overscroll-contain px-2 pb-4"
+					class="flex min-h-0 flex-1 flex-col"
+					viewportClass="min-h-0 flex-1 overscroll-contain px-2 pb-4"
 				>
 					<slot />
 				</ScrollArea>

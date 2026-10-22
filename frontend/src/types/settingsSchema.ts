@@ -96,6 +96,8 @@ export type SettingsField =
 				 * appends `enabled = 1` unless the caller sends `include_disabled`.
 				 */
 				filters?: Record<string, unknown>
+				/** A whitelisted search_link `query`, for doctypes the user cannot read. */
+				query?: string
 				onCreate?: (value: string, close: () => void) => void
 			})
 	| (FieldBase & { type: 'checkbox'; default?: 0 | 1 })

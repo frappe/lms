@@ -1,11 +1,11 @@
 <template>
 	<Dialog
 		v-model:open="show"
-		:title="isEdit ? __('Edit Member') : __('Add New Member')"
+		:title="isEdit ? __('Edit Member') : __('New Member')"
 		size="lg"
 		:actions="[
 			{
-				label: isEdit ? __('Save') : __('Add'),
+				label: isEdit ? __('Save') : __('Create'),
 				variant: 'solid',
 				onClick: ({ close }: any) => submit(close),
 			},
@@ -152,13 +152,10 @@ const addMember = async (close?: () => void) => {
 
 	submitting.value = true
 	try {
-		const user = await call('frappe.client.insert', {
-			doc: {
-				doctype: 'User',
-				email: member.email.trim(),
-				first_name: member.first_name.trim() || undefined,
-				last_name: member.last_name.trim() || undefined,
-			},
+		const user = await call('lms.lms.api.add_member', {
+			email: member.email.trim(),
+			first_name: member.first_name.trim() || undefined,
+			last_name: member.last_name.trim() || undefined,
 		})
 
 		await assignRoles(user.name)

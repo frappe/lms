@@ -281,6 +281,7 @@ export const routes = [
 		path: '/quiz-submissions/:quizID',
 		redirect: (to) => ({
 			name: 'QuizSubmissions',
+			params: {},
 			query: { quiz: String(to.params.quizID) },
 		}),
 	},
@@ -439,10 +440,11 @@ export const routes = [
 	{
 		path: '/data-import',
 		name: 'DataImportList',
-		component: () => import('@/pages/DataImport.vue'),
+		component: () => import('@/pages/DataImports.vue'),
 	},
 	{
-		path: '/data-import/doctype/:doctype',
+		// No doctype opens a new import whose first step asks for one.
+		path: '/data-import/doctype/:doctype?',
 		name: 'NewDataImport',
 		component: () => import('@/pages/DataImport.vue'),
 		props: true,

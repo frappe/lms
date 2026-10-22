@@ -20,7 +20,6 @@ const { createResourceMock } = vi.hoisted(() => {
 
 // Deep imports: the barrel drags in exports this installed frappe-ui lacks.
 vi.mock('frappe-ui', async () => ({
-	ScrollArea: { name: 'ScrollArea', template: '<div><slot /></div>' },
 	Dialog: (
 		await import(
 			'../../node_modules/frappe-ui/src/components/Dialog/Dialog.vue'
@@ -42,7 +41,10 @@ vi.mock('@/components/HeaderButton.vue', () => ({
 	default: { inheritAttrs: false, template: `<button v-bind="$attrs" />` },
 }))
 vi.mock('@/components/Controls/BooleanSwitch.vue', () => ({
-	default: { props: ['modelValue', 'label', 'description', 'size'] },
+	default: {
+		props: ['modelValue', 'label', 'description', 'size'],
+		render: () => null,
+	},
 }))
 vi.mock('@framework/ui/telemetry/index', () => ({
 	useTelemetry: () => ({ capture: vi.fn() }),

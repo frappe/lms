@@ -1,9 +1,11 @@
 <template>
+	<NotFound v-if="(batch.fetched || batch.error) && !batch.data?.name" />
 	<TabbedDetailPage
+		v-else
 		ref="page"
 		:tabs="tabs"
 		:breadcrumbs="breadcrumbs"
-		:published="Boolean(batch.data?.published)"
+		:published="isAdmin && Boolean(batch.data?.published)"
 		:loading="!batch.data"
 		:doc="batch"
 		doc-prop="batch"
@@ -39,7 +41,7 @@
 			/>
 			<template v-if="tab?.key === 'announcements' && isAdmin && !readOnlyMode">
 				<Tooltip
-					v-if="!batch.data?.students?.length"
+					v-if="!batch.data?.student_count"
 					:text="__('Add students to the batch to make an announcement')"
 				>
 					<HeaderButton
@@ -114,6 +116,7 @@ import HeaderButton from '@/components/HeaderButton.vue'
 import ShortcutTooltip from '@/components/ShortcutTooltip.vue'
 import SkeletonLoader from '@/components/SkeletonLoader.vue'
 import TabbedDetailPage from '@/components/Layouts/pages/TabbedDetailPage.vue'
+import NotFound from '@/pages/NotFound.vue'
 import { openBatchForm } from '@/composables/useBatchForms'
 
 const router = useRouter()
@@ -140,11 +143,6 @@ const batch = createResource({
 		batch: props.batchName,
 	}),
 	auto: true,
-	onSuccess: (data) => {
-		if (!data) {
-			router.push({ name: 'Batches' })
-		}
-	},
 })
 
 // The router reuses this component when you go straight from one batch to
@@ -172,7 +170,7 @@ const isAdmin = computed(() => {
 })
 
 const isStudent = computed(() => {
-	return Boolean(batch.data?.students?.includes(user.data?.name))
+	return Boolean(batch.data?.is_student)
 })
 
 const tabs = computed(() => {

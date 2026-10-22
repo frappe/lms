@@ -1,7 +1,7 @@
 <template>
 	<div class="p-5">
 		<Alert
-			v-if="isAdmin() && !hasProviderAccount()"
+			v-if="canManageClasses() && !hasProviderAccount()"
 			theme="amber"
 			class="mb-5"
 			:title="__('No conferencing account')"
@@ -67,6 +67,22 @@
 						</span>
 					</div>
 					<div
+						v-if="canManageClasses() && cls.invite_status === 'Failed'"
+						class="flex items-center justify-between gap-2"
+					>
+						<div class="flex items-center gap-x-2 text-ink-amber-5">
+							<span class="lucide-circle-alert w-4 h-4" />
+							<span>{{ __('Invites not sent') }}</span>
+						</div>
+						<Button
+							size="sm"
+							:loading="isRetrying(cls)"
+							@click.stop="retryClassInvites(cls)"
+						>
+							{{ __('Retry') }}
+						</Button>
+					</div>
+					<div
 						v-if="canAccessClass(cls) && cls.join_url"
 						class="flex items-center gap-x-2 text-ink-gray-9 mt-auto"
 					>
@@ -76,7 +92,7 @@
 								user.data?.is_evaluator ||
 								batch.data?.can_manage
 							"
-							:href="safeUrl(cls.start_url || cls.join_url)"
+							:href="safeUrl(startUrl(cls))"
 							v-external
 							class="cursor-pointer inline-flex items-center justify-center gap-2 transition-colors text-ink-gray-8 bg-surface-gray-2 hover:bg-surface-gray-3 active:bg-surface-gray-4 h-7 text-base px-2 rounded-4"
 							:class="cls.join_url ? 'w-full' : 'w-1/2'"
@@ -124,7 +140,14 @@
 // modal — but carries nested Start/Join anchors, so it cannot become a
 // <button> without invalid nesting. Reaching it by keyboard needs a dedicated
 // action control, which is a redesign rather than an attribute.
-import { Alert, createListResource, Button, Tooltip } from 'frappe-ui'
+import {
+	Alert,
+	createListResource,
+	createResource,
+	Button,
+	Tooltip,
+	toast,
+} from 'frappe-ui'
 import { inject, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { formatTime } from '@/utils/'
@@ -158,6 +181,7 @@ const liveClasses = createListResource({
 		batch_name: props.batch.data?.name,
 	},
 	fields: [
+		'name',
 		'title',
 		'description',
 		'time',
@@ -169,10 +193,43 @@ const liveClasses = createListResource({
 		'owner',
 		'conferencing_provider',
 		'batch_name',
+		'invite_status',
 	],
 	orderBy: 'date',
 	auto: true,
 })
+
+// A class is Failed once Google Calendar has refused its learners' invites on
+// every automatic retry; the hosts get a notification pointing here.
+const retryInvites = createResource({
+	url: 'lms.lms.doctype.lms_live_class.lms_live_class.retry_invites',
+})
+
+const isRetrying = (cls) =>
+	retryInvites.loading && retryInvites.params?.live_class === cls.name
+
+const retryClassInvites = (cls) => {
+	retryInvites.submit(
+		{ live_class: cls.name },
+		{
+			onSuccess(sent) {
+				if (!sent) {
+					toast.error(
+						__(
+							"Google Calendar still isn't responding. Try again in a few minutes."
+						)
+					)
+					return
+				}
+				toast.success(__('Invites sent'))
+				liveClasses.reload()
+			},
+			onError(err) {
+				toast.error(err.messages?.[0] || err)
+			},
+		}
+	)
+}
 
 const openLiveClassForm = () => {
 	openBatchForm(router, 'NewLiveClass', props.batch.data?.name, route.hash)
@@ -189,11 +246,16 @@ const hasProviderAccount = () => {
 	return false
 }
 
+// Moderators and the batch's instructors: the only users the server lets
+// create a class or retry its invites. isAdmin also takes in every evaluator,
+// who would only get a permission error.
+const canManageClasses = () =>
+	Boolean(user.data?.is_moderator || props.batch.data?.can_schedule_classes)
+
 const canCreateClass = () => {
 	if (readOnlyMode) return false
 	if (!hasProviderAccount()) return false
-	// create_live_class accepts only an evaluator the batch tags.
-	return Boolean(user.data?.is_moderator || props.batch.data?.can_manage)
+	return canManageClasses()
 }
 
 const isAdmin = () => {
@@ -203,6 +265,13 @@ const isAdmin = () => {
 		Boolean(props.batch.data?.can_manage)
 	)
 }
+
+// The start link is not sent to every instructor, so Start goes through the
+// server, which opens the class for the batch's staff.
+const startUrl = (cls) =>
+	`/api/method/lms.lms.api.start_live_class?live_class=${encodeURIComponent(
+		cls.name
+	)}`
 
 const canAccessClass = (cls) => {
 	if (cls.date < dayjs().format('YYYY-MM-DD')) return false

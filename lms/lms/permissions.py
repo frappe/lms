@@ -40,6 +40,7 @@ COURSE_RECORD_MEMBER_FIELDS = {
 	"LMS Course Progress": "member",
 	"LMS Video Watch Duration": "member",
 	"LMS Course Review": "owner",
+	"LMS Enrollment": "member",
 }
 
 
@@ -171,24 +172,61 @@ def chapter_query_conditions(user=None) -> str:
 def can_author_batch(batch: str | None, *, user: str | None = None) -> bool:
 	"""A site administrator, a Moderator, or a user the stored batch tags as an
 	instructor or as the evaluator of one of its courses."""
+	return can_instruct_batch(batch, user=user) or evaluates_batch(batch, user=user)
+
+
+def can_instruct_batch(batch: str | None, *, user: str | None = None) -> bool:
+	"""A site administrator, a Moderator, or a user the stored batch lists as an
+	instructor. Unlike can_author_batch, a Batch Course evaluator tag is not enough."""
 	user = user or frappe.session.user
 	if is_site_administrator(user) or has_moderator_role(user):
 		return True
+	return _batch_tags(batch, "Course Instructor", "instructor", user)
+
+
+def evaluates_batch(batch: str | None, *, user: str | None = None) -> bool:
+	"""A user the stored batch tags as the evaluator of one of its courses."""
+	return _batch_tags(batch, "Batch Course", "evaluator", user or frappe.session.user)
+
+
+def _batch_tags(batch: str | None, child_doctype: str, field: str, user: str) -> bool:
 	# A deleted batch leaves its Course Instructor / Batch Course rows behind.
 	if not isinstance(batch, str) or not batch or not frappe.db.exists("LMS Batch", batch):
 		return False
-
-	tagged = {"parent": batch, "parenttype": "LMS Batch"}
-	return bool(
-		frappe.db.exists("Course Instructor", {**tagged, "instructor": user})
-		or frappe.db.exists("Batch Course", {**tagged, "evaluator": user})
-	)
+	return bool(frappe.db.exists(child_doctype, {"parent": batch, "parenttype": "LMS Batch", field: user}))
 
 
 def authored_batch_condition(field, user: str):
 	"""qb condition: `field` names a batch `user` is a tagged instructor or evaluator of.
 	Two IN subqueries rather than a UNION, which MariaDB rejects inside IN."""
 	return field.isin(_taught("LMS Batch", user)) | field.isin(_evaluator_batches(user))
+
+
+# The LMS Batch / LMS Live Class field that names each kind of conferencing account.
+CONFERENCING_ACCOUNT_FIELDS = {
+	"LMS Zoom Settings": "zoom_account",
+	"LMS Google Meet Settings": "google_meet_account",
+}
+
+
+def can_use_conferencing_account(
+	doctype: str, account: str | None, batch: str | None = None, *, user: str | None = None
+) -> bool:
+	"""An account the user can read, their own, or the one stored on a batch they
+	are an instructor of. False for a missing account too, so callers can refuse
+	both with one message and not reveal which accounts exist."""
+	user = user or frappe.session.user
+	if not isinstance(account, str) or not account or not frappe.db.exists(doctype, account):
+		return False
+	if frappe.has_permission(doctype, "read", account, user=user):
+		return True
+	if frappe.db.get_value(doctype, account, "member") == user:
+		return True
+	if not isinstance(batch, str) or not batch:
+		return False
+
+	field = CONFERENCING_ACCOUNT_FIELDS[doctype]
+	return frappe.db.get_value("LMS Batch", batch, field) == account and can_instruct_batch(batch, user=user)
 
 
 def course_record_has_permission(doc, ptype="read", user=None) -> bool:
@@ -263,6 +301,54 @@ def course_record_query_conditions(user=None, doctype=None) -> str:
 	)
 	condition = Bracket((getattr(record, member_field) == member) | record.course.isin(taught))
 	return _render(condition)
+
+
+def enrollment_has_permission(doc, ptype="read", user=None) -> bool:
+	"""An enrolment belongs to its learner, to the authors of its course, and to
+	the tagged instructors of the batch it came from: adding a learner to a batch
+	enrols them in its courses as whoever added them."""
+	user = user or frappe.session.user
+	# A saved row is judged by its stored batch: enrollment_from_batch cannot change
+	# after insert (validate_identity_unchanged).
+	batch = (
+		doc.get("enrollment_from_batch")
+		if doc.is_new()
+		else frappe.db.get_value(doc.doctype, doc.name, "enrollment_from_batch")
+	)
+	if batch and doc.get("enrollment_from_batch") == batch and can_author_batch(batch, user=user):
+		return True
+	return course_record_has_permission(doc, ptype, user)
+
+
+def enrollment_query_conditions(user=None, doctype=None) -> str:
+	"""List-read counterpart of :func:`enrollment_has_permission`, as SQL."""
+	user = user or frappe.session.user
+	course_scope = course_record_query_conditions(user, "LMS Enrollment")
+	if not course_scope:
+		return ""
+	enrollment = frappe.qb.DocType("LMS Enrollment")
+	batch_scope = _render(Bracket(authored_batch_condition(enrollment.enrollment_from_batch, user)))
+	return f"({course_scope} or {batch_scope})"
+
+
+def lesson_note_has_permission(doc, ptype="read", user=None) -> bool:
+	"""A lesson note is private to the learner who wrote it. Moderators and site
+	administrators keep access; the instructors of the course do not."""
+	user = user or frappe.session.user
+	if _course_read_condition(user) is None:
+		return True
+	# Judged by the STORED member too, or relabelling it would hand a note over.
+	stored = None if doc.is_new() else frappe.db.get_value(doc.doctype, doc.name, "member")
+	return doc.get("member") == user and (doc.is_new() or stored == user)
+
+
+def lesson_note_query_conditions(user=None, doctype=None) -> str:
+	"""List-read counterpart of :func:`lesson_note_has_permission`, as SQL."""
+	user = user or frappe.session.user
+	if _course_read_condition(user) is None:
+		return ""
+	note = frappe.qb.DocType("LMS Lesson Note")
+	return _render(note.member == LiteralValue(frappe.db.escape(user)))
 
 
 def _unrestricted_coupon_access(user: str) -> bool:

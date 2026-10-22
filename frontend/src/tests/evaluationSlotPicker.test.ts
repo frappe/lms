@@ -21,7 +21,6 @@ const { resources, calls } = vi.hoisted(() => ({
 }))
 
 vi.mock('frappe-ui', () => ({
-	ScrollArea: { name: 'ScrollArea', template: '<div><slot /></div>' },
 	createResource: (config: any) => {
 		const res: any = { loading: false, config, data: null }
 		res.reload = vi.fn()
@@ -107,7 +106,7 @@ async function mountPicker(schedule = SCHEDULE) {
 			props: {
 				modelValue: true,
 				reloadEvals: { reload: vi.fn() },
-				courses: [{ course: COURSE, title: 'A Course', evaluator: 'eva' }],
+				courses: [{ course: COURSE, title: 'A Course', has_evaluator: true }],
 				batch: 'batch-1',
 			},
 			global: {

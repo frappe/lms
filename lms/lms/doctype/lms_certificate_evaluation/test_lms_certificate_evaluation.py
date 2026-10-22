@@ -8,6 +8,7 @@ import frappe
 import frappe.client
 from frappe.utils import nowdate
 
+from lms.lms.api import save_evaluation_details
 from lms.lms.doctype.lms_certificate_evaluation.lms_certificate_evaluation import (
 	create_lms_certificate,
 )
@@ -153,6 +154,96 @@ class TestLMSCertificateEvaluation(BaseTestUtils):
 		self.assertEqual(created["evaluator"], self.evaluator_b)
 
 		self.assertEqual(create_lms_certificate(self.evaluation.name).doctype, "LMS Certificate")
+
+	def test_an_evaluator_cannot_retarget_their_evaluation_to_a_course_they_do_not_evaluate(self):
+		"""The write check reads the caller's in-memory values, so scoping it to the
+		row's own `evaluator` let the assigned evaluator move their evaluation onto any
+		course and save a Pass there."""
+		other_course = self._create_course(
+			title=f"Cert Eval Other {frappe.generate_hash(length=6)}", instructor=self.evaluator_a
+		)
+		frappe.db.set_value("LMS Course", other_course.name, "evaluator", self.evaluator_a)
+
+		frappe.set_user(self.evaluator_b)
+		with self.assertRaises(frappe.PermissionError):
+			frappe.client.set_value(
+				"LMS Certificate Evaluation", self.evaluation.name, "course", other_course.name
+			)
+
+		frappe.set_user("Administrator")
+		self.assertEqual(
+			frappe.db.get_value("LMS Certificate Evaluation", self.evaluation.name, "course"),
+			self.course.name,
+		)
+
+	def test_the_assigned_evaluator_can_still_grade_their_own_evaluation(self):
+		frappe.set_user(self.evaluator_b)
+		evaluation = frappe.get_doc("LMS Certificate Evaluation", self.evaluation.name)
+		evaluation.update({"status": "Pass", "rating": 0.8, "summary": "well done"})
+		evaluation.save()
+
+		self.assertEqual(
+			frappe.db.get_value("LMS Certificate Evaluation", self.evaluation.name, "status"),
+			"Pass",
+		)
+
+	def _create_request(self, evaluator, member, status="Upcoming"):
+		request = frappe.get_doc(
+			{
+				"doctype": "LMS Certificate Request",
+				"course": self.course.name,
+				"member": member,
+				"evaluator": evaluator,
+				"date": nowdate(),
+				"start_time": "10:00:00",
+				"end_time": "11:00:00",
+				"status": status,
+			}
+		)
+		# Slot and schedule validation are not what these tests measure.
+		request.flags.ignore_validate = True
+		# nosemgrep: lms-unjustified-ignore-permissions - seeding the request the endpoint is measured against
+		return request.insert(ignore_permissions=True)
+
+	def _save_evaluation(self, member, status="Pass"):
+		return save_evaluation_details(
+			member=member,
+			course=self.course.name,
+			date_value=nowdate(),
+			start_time="10:00:00",
+			end_time="11:00:00",
+			status=status,
+			rating=4,
+			summary="graded",
+		)
+
+	def test_the_requests_evaluator_can_save_the_evaluation(self):
+		# Regression: the request's evaluator was refused when not the course evaluator
+		# (#3021, fixed in #3038).
+		self._create_request(self.evaluator_a, self.student)
+
+		frappe.set_user(self.evaluator_a)
+		name = self._save_evaluation(self.student, status="Pending")
+		self.assertEqual(self._save_evaluation(self.student), name)
+
+		stored = frappe.db.get_value(
+			"LMS Certificate Evaluation", name, ["evaluator", "status"], as_dict=True
+		)
+		self.assertEqual(stored, {"evaluator": self.evaluator_a, "status": "Pass"})
+
+	def test_a_cancelled_request_does_not_authorise_its_evaluator(self):
+		self._create_request(self.evaluator_a, self.student, status="Cancelled")
+
+		frappe.set_user(self.evaluator_a)
+		with self.assertRaises(frappe.PermissionError):
+			self._save_evaluation(self.student)
+
+	def test_a_request_for_another_member_does_not_authorise_its_evaluator(self):
+		self._create_request(self.evaluator_a, self.member)
+
+		frappe.set_user(self.evaluator_a)
+		with self.assertRaises(frappe.PermissionError):
+			self._save_evaluation(self.student)
 
 	def test_a_moderator_is_unrestricted(self):
 		moderator = self._create_user(

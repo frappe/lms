@@ -4,6 +4,7 @@
 import json
 import os
 import re
+import warnings
 from binascii import Error as BinasciiError
 from functools import partial
 
@@ -22,7 +23,12 @@ from frappe.utils import (
 )
 from frappe.utils.file_manager import safe_b64decode
 from frappe.utils.html_utils import sanitize_html
-from fuzzywuzzy import fuzz
+
+# fuzzywuzzy warns on import unless python-Levenshtein is installed. That
+# package scores differently from difflib and would change which answers pass.
+with warnings.catch_warnings():
+	warnings.filterwarnings("ignore", message="Using slow pure-python SequenceMatcher")
+	from fuzzywuzzy import fuzz
 
 from lms.lms.doctype.course_lesson.course_lesson import get_lesson_course, save_progress
 from lms.lms.doctype.lms_content_author.lms_content_author import AuthoredDocument

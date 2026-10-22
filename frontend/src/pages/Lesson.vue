@@ -188,7 +188,7 @@
 							>
 								<UserAvatar
 									v-for="instructor in lesson.data.instructors"
-									:key="instructor.name ?? instructor"
+									:key="instructor.username"
 									:user="instructor"
 								/>
 							</span>
@@ -265,7 +265,7 @@
 						</div>
 					</div>
 					<div
-						v-if="lesson.data && (allowDiscussions || tabs.length > 1)"
+						v-if="lesson.data && tabs.length"
 						class="mt-10 pb-20 pt-5 border-t px-5"
 						ref="discussionsContainer"
 					>
@@ -299,6 +299,7 @@
 					:courseName="courseName"
 					:courseTitle="lesson.data.course_title"
 					:progress="lessonProgress"
+					:withProgress="Boolean(user.data)"
 					:selectedLessonNumber="`${chapterNumber}-${lessonNumber}`"
 					:completedLesson="completedLesson"
 				/>
@@ -330,6 +331,7 @@
 			<StudentLessonSidebar
 				:courseName="courseName"
 				:progress="lessonProgress"
+				:withProgress="Boolean(user.data)"
 				:selectedLessonNumber="`${chapterNumber}-${lessonNumber}`"
 				:completedLesson="completedLesson"
 				:hideHeader="true"
@@ -407,6 +409,7 @@ import { getLmsRoute } from '@/utils/basePath'
 import { provideStudentView } from '@/composables/useStudentView'
 import type { UserResource } from '@/composables/useStudentView'
 import type { Note, Notes as NotesResource } from '@/types'
+import { isInstructorOf } from '@/utils/instructors'
 
 interface LessonProgressEvent {
 	course: string
@@ -493,8 +496,6 @@ const settingsStore = useSettings()
 const { isMobile } = useScreenSize()
 const showChapters = ref(false)
 let timerInterval: ReturnType<typeof setInterval> | undefined
-
-const tabs = ref<LessonTab[]>([])
 
 const props = defineProps<{
 	courseName: string
@@ -1165,8 +1166,11 @@ const checkIfDiscussionsAllowed = () => {
 }
 
 const isAdmin = computed(() => {
-	let isInstructor = lesson.data?.instructors?.includes(user.data?.name)
-	return user.data?.is_moderator || isInstructor
+	const isInstructor = isInstructorOf(
+		lesson.data?.instructors,
+		user.data?.username
+	)
+	return Boolean(user.data?.is_moderator) || isInstructor
 })
 
 // Student view is a mode, not a destination: every hop that stays on a lesson
@@ -1179,8 +1183,11 @@ const studentViewQuery = computed(() =>
 // Reads the real user, not the student-view shadow, so the way back to the
 // editor survives ?studentView=1.
 const canEditLesson = computed(() => {
-	const isInstructor = lesson.data?.instructors?.includes(realUser.data?.name)
-	return realUser.data?.is_moderator || isInstructor
+	const isInstructor = isInstructorOf(
+		lesson.data?.instructors,
+		realUser.data?.username
+	)
+	return Boolean(realUser.data?.is_moderator) || isInstructor
 })
 
 const allowInstructorContent = () => {
@@ -1286,27 +1293,28 @@ const updateNotes = () => {
 	notes.reload()
 }
 
-watch(allowDiscussions, () => {
-	if (!isAdmin.value) {
-		if (!tabs.value.find((tab) => tab.value === 'Notes')) {
-			tabs.value.push({
-				label: __('Notes'),
-				value: 'Notes',
-			})
+// Built from the current lesson, not pushed on each change: a page opened
+// straight on a quiz lesson never flips allowDiscussions, so pushed tabs never
+// appeared, and tabs pushed on an earlier lesson stayed after moving on.
+const tabs = computed<LessonTab[]>(() => [
+	// Guests cannot save notes, so they get none.
+	...(user.data && !isAdmin.value
+		? [{ label: __('Notes'), value: 'Notes' }]
+		: []),
+	...(allowDiscussions.value
+		? [{ label: __('Community'), value: 'Community' }]
+		: []),
+])
+
+watch(
+	tabs,
+	(options) => {
+		if (!options.some((tab) => tab.value === currentTab.value)) {
+			currentTab.value = options[0]?.value
 		}
-		currentTab.value = 'Notes'
-	} else {
-		currentTab.value = allowDiscussions.value ? 'Community' : undefined
-	}
-	if (allowDiscussions.value) {
-		if (!tabs.value.find((tab) => tab.value === 'Community')) {
-			tabs.value.push({
-				label: __('Community'),
-				value: 'Community',
-			})
-		}
-	}
-})
+	},
+	{ immediate: true }
+)
 
 const redirectToLogin = () => {
 	window.location.href = `/login?redirect-to=${getLmsRoute(

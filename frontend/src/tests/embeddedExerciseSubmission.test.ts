@@ -78,8 +78,10 @@ vi.mock('@/router', () => ({
 }))
 vi.mock('@/components/ProgrammingExercises/ExerciseWorkspace.vue', () => ({
 	default: defineComponent({
+		// Renders a fragment, so the props it does not read have nowhere to go.
+		inheritAttrs: false,
 		props: { submissionStatus: String, results: Array },
-		emits: ['run'],
+		emits: ['run', 'reset'],
 		setup: (props, { emit, slots }) => {
 			return () => [
 				h('button', { 'data-testid': 'workspace', onClick: () => emit('run') }),

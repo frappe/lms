@@ -192,6 +192,7 @@
 								:model-value="displayValue(field)"
 								:doctype="linkDoctype(field)"
 								:filters="field.filters"
+								:query="field.query"
 								:required="field.reqd"
 								:readonly="field.disabled"
 								:onCreate="createHandler(field)"

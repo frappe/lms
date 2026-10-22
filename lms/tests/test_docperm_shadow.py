@@ -12,6 +12,7 @@ from lms.lms.docperm_shadow import (
 	get_shadowed_permlevel_rows,
 	warn_about_shadowed_permlevels,
 )
+from lms.lms.test_helpers import delete_error_logs_on_cleanup
 
 ALERT_TITLE_FRAGMENT = "Custom DocPerm"
 
@@ -24,6 +25,7 @@ class TestDocPermShadow(IntegrationTestCase):
 
 	def setUp(self):
 		super().setUp()
+		delete_error_logs_on_cleanup(self)
 		self.moved_permlevels: list[tuple[str, int]] = []
 		self.added_custom_perms: list[str] = []
 		self.touched_doctypes: set[str] = set()
@@ -73,15 +75,19 @@ class TestDocPermShadow(IntegrationTestCase):
 		self.touched_doctypes.add(doctype)
 
 	def get_alert(self) -> str:
-		log = frappe.get_all(
-			"Error Log",
-			filters={"method": ("like", f"%{ALERT_TITLE_FRAGMENT}%")},
-			fields=["method", "error"],
-			order_by="creation desc",
-			limit=1,
-		)
+		log = self.get_latest_alerts(fields=["method", "error"])
 		self.assertTrue(log, "the alert wrote no Error Log row")
 		return log[0].error
+
+	def get_latest_alerts(self, **kwargs) -> list:
+		# frappe.db.* cannot read Error Log once it is virtual; get_all reaches its controller.
+		return frappe.get_all(
+			"Error Log",
+			filters={"method": ("like", f"%{ALERT_TITLE_FRAGMENT}%")},
+			order_by="creation desc",
+			limit=1,
+			**kwargs,
+		)
 
 	def test_a_stock_site_reports_nothing(self):
 		"""The control every other test moves away from: LMS ships no permlevel > 0 row
@@ -168,11 +174,11 @@ class TestDocPermShadow(IntegrationTestCase):
 		self.assertIn("LMS Course", stdout.getvalue())
 
 	def test_the_alert_stays_quiet_when_nothing_is_shadowed(self):
-		errors_before = frappe.db.count("Error Log")
+		latest_before = self.get_latest_alerts(pluck="name")
 
 		stdout = io.StringIO()
 		with redirect_stdout(stdout):
 			warn_about_shadowed_permlevels()
 
-		self.assertEqual(frappe.db.count("Error Log"), errors_before)
+		self.assertEqual(self.get_latest_alerts(pluck="name"), latest_before)
 		self.assertEqual(stdout.getvalue(), "")

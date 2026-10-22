@@ -19,11 +19,7 @@
 					:label="__('Course')"
 					:options="getCourses()"
 				/>
-				<ScrollArea
-					v-if="slots.data?.length"
-					class="min-h-0 flex-1 mt-4"
-					viewportClass="space-y-4"
-				>
+				<div v-if="slots.data?.length" class="space-y-4 overflow-y-auto mt-4">
 					<div class="flex items-baseline justify-between gap-x-3">
 						<div class="text-ink-gray-9 font-medium">
 							{{ __('Available Slots') }}
@@ -83,7 +79,7 @@
 							</div>
 						</div>
 					</div>
-				</ScrollArea>
+				</div>
 				<div v-else-if="!evaluation.course" class="text-ink-gray-7">
 					{{ __('Please select a course to view available slots.') }}
 				</div>
@@ -95,14 +91,7 @@
 	</Dialog>
 </template>
 <script setup>
-import {
-	call,
-	createResource,
-	Dialog,
-	FormControl,
-	ScrollArea,
-	toast,
-} from 'frappe-ui'
+import { call, createResource, Dialog, FormControl, toast } from 'frappe-ui'
 import { computed, ref, watch, inject } from 'vue'
 import { formatTime } from '@/utils'
 
@@ -163,7 +152,7 @@ function submitEvaluation(close) {
 const getCourses = () => {
 	const courses = []
 	for (const course of props.courses) {
-		if (course.evaluator) {
+		if (course.has_evaluator) {
 			courses.push({
 				label: course.title,
 				value: course.course,

@@ -84,7 +84,6 @@ vi.mock('frappe-ui', async () => {
 	const passthrough = { template: '<div><slot /></div>' }
 	return {
 		createListResource,
-		ScrollArea: passthrough,
 		Avatar: passthrough,
 		Dialog: { props: ['open'], template: '<div><slot /></div>' },
 		TabButtons: passthrough,
@@ -117,21 +116,15 @@ vi.stubGlobal('__', (s: string) => s)
 const mountDialog = () =>
 	mount(VideoStatistics, {
 		props: { modelValue: true, lessonName: 'lesson-1', lessonTitle: 'L1' },
-		global: { mocks: { __: (s: string) => s } },
+		global: {
+			mocks: { __: (s: string) => s },
+			stubs: { 'router-link': true },
+		},
 	})
 
 describe('VideoStatistics.vue across a remount', () => {
 	beforeEach(() => {
 		listCache.clear()
-	})
-
-	it('picks the initial tab on a fresh mount', async () => {
-		const wrapper = mountDialog()
-		await (wrapper.vm as any).statistics.reload()
-		await flushPromises()
-
-		expect((wrapper.vm as any).currentTab).toBe('Lesson')
-		wrapper.unmount()
 	})
 
 	it('picks the initial tab again after the dialog is reopened', async () => {

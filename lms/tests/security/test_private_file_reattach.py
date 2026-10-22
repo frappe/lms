@@ -189,8 +189,11 @@ class TestPrivateFileReattach(BaseTestUtils):
 				**values,
 			}
 		)
+		# The "New job alert" email is not under test, and premailer logs CSS
+		# warnings to stderr the first time it renders one.
 		try:
-			return job.insert()
+			with patch("frappe.email.doctype.notification.notification.evaluate_alert"):
+				return job.insert()
 		finally:
 			frappe.set_user("Administrator")
 
@@ -230,14 +233,15 @@ class TestPrivateFileReattach(BaseTestUtils):
 		self.assertFalse(frappe.db.exists("LMS Job Application", {"user": self.student}))
 
 	def test_own_resume_is_emailed_with_its_own_content(self):
-		own = self._upload(self.student, f"resume-{self.hash}.txt")
+		file_name = f"resume-{self.hash}.txt"
+		own = self._upload(self.student, file_name)
 
 		self._apply(own.file_url)
 
 		attachments = self.sendmail.call_args.kwargs["attachments"]
 		self.assertEqual(
 			attachments,
-			[{"fname": own.file_name, "fcontent": frappe.get_doc("File", own.name).get_content()}],
+			[{"fname": own.file_name, "fcontent": f"{self.student} {file_name} {self.hash}".encode()}],
 		)
 
 	def test_company_logo_cannot_publish_another_users_file(self):

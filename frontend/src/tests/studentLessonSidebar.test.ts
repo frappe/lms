@@ -41,6 +41,10 @@ vi.mock('vue-router', () => ({
 vi.mock('frappe-ui', () => ({
 	ScrollArea: { name: 'ScrollArea', template: '<div><slot /></div>' },
 	createResource: () => ({ data: outline, reload: vi.fn() }),
+	Tooltip: {
+		props: ['text'],
+		template: '<span :data-tooltip="text"><slot /></span>',
+	},
 }))
 
 vi.stubGlobal('__', (s: string) => s)
@@ -103,5 +107,49 @@ describe('StudentLessonSidebar completed lesson', () => {
 
 		expect(rows[0].get('.sr-only').text()).toBe('Completed')
 		expect(rows[1].find('.sr-only').exists()).toBe(false)
+	})
+})
+
+describe('StudentLessonSidebar without progress', () => {
+	// Guards #3010: a guest saw "Completed 0%" and an empty ring per lesson.
+	const mountGuest = () =>
+		mount(StudentLessonSidebar, {
+			props: {
+				courseName: 'COURSE-1',
+				courseTitle: 'Course 1',
+				selectedLessonNumber: '1-2',
+				withProgress: false,
+			},
+			global: {
+				mocks: { __: (s: string) => s },
+				stubs: { 'router-link': { template: '<a><slot /></a>' } },
+			},
+		})
+
+	it('shows no completion summary or progress bar', () => {
+		const wrapper = mountGuest()
+
+		expect(wrapper.text()).not.toContain('Completed')
+		expect(wrapper.find('[style*="width"]').exists()).toBe(false)
+		expect(wrapper.text()).toContain('Course 1')
+	})
+
+	it('shows no completion ring on a lesson row', () => {
+		const rows = mountGuest().findAll('li li')
+
+		expect(rows[1].findAll('svg')).toHaveLength(1)
+		expect(rows[2].find('.sr-only').text()).toBe('Locked')
+	})
+})
+
+describe('StudentLessonSidebar lock reason', () => {
+	// Guards #3015: the lock gave no reason.
+	it('explains why a lesson is locked', () => {
+		const row = mountSidebar().findAll('li li')[2]
+		const reason = 'Complete the previous lessons to unlock this one'
+
+		expect(row.get('[data-tooltip]').attributes('data-tooltip')).toBe(reason)
+		expect(row.get('[data-tooltip] svg').exists()).toBe(true)
+		expect(row.text()).toContain(reason)
 	})
 })

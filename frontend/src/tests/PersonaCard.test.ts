@@ -9,7 +9,7 @@
  */
 import { describe, expect, it, vi, beforeEach } from 'vitest'
 import { flushPromises, mount } from '@vue/test-utils'
-import { h } from 'vue'
+import { h, markRaw } from 'vue'
 import PersonaCard from '@/components/Persona/PersonaCard.vue'
 
 // frappe-ui's internal module resolution doesn't work under vitest; stub the
@@ -53,7 +53,7 @@ vi.mock('frappe-ui', () => ({
 }))
 
 // A trivial icon component for the outcome fixture (avoids Lucide resolution).
-const Dot = { name: 'Dot', render: () => h('span', 'o') }
+const Dot = markRaw({ name: 'Dot', render: () => h('span', 'o') })
 
 const steps = [
 	{

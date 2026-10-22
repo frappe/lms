@@ -1,27 +1,32 @@
 <template>
 	<div class="flex flex-col h-full">
-		<div class="bg-surface-gray-1 px-5 py-5 border-b">
+		<div
+			v-if="!hideHeader || withProgress"
+			class="bg-surface-gray-1 px-5 py-5 border-b"
+		>
 			<div
 				v-if="!hideHeader"
 				class="text-lg-semibold text-ink-gray-9 leading-snug"
 			>
 				{{ courseTitle }}
 			</div>
-			<div
-				class="flex items-center gap-2 text-sm text-ink-gray-7"
-				:class="{ 'mt-4': !hideHeader }"
-			>
-				<Cloud class="size-4 stroke-1.5" />
-				<span>{{ __('Completed') }} {{ displayedProgress }}%</span>
-			</div>
-			<div
-				class="h-1 w-full rounded-full bg-surface-gray-2 overflow-hidden mt-2"
-			>
+			<template v-if="withProgress">
 				<div
-					class="h-full bg-surface-green-3 transition-all"
-					:style="{ width: `${displayedProgress}%` }"
-				/>
-			</div>
+					class="flex items-center gap-2 text-sm text-ink-gray-7"
+					:class="{ 'mt-4': !hideHeader }"
+				>
+					<Cloud class="size-4 stroke-1.5" />
+					<span>{{ __('Completed') }} {{ displayedProgress }}%</span>
+				</div>
+				<div
+					class="h-1 w-full rounded-full bg-surface-gray-2 overflow-hidden mt-2"
+				>
+					<div
+						class="h-full bg-surface-gray-10 transition-all"
+						:style="{ width: `${displayedProgress}%` }"
+					/>
+				</div>
+			</template>
 		</div>
 
 		<ScrollArea class="min-h-0 flex-1" viewportClass="px-2 py-3">
@@ -61,9 +66,7 @@
 												? 'button'
 												: 'router-link'
 										"
-										:type="
-											!lesson.locked && inlineSelect ? 'button' : undefined
-										"
+										:type="!lesson.locked && inlineSelect ? 'button' : undefined"
 										:to="
 											lesson.locked || inlineSelect
 												? undefined
@@ -96,13 +99,16 @@
 										/>
 										<span class="truncate flex-1">{{ lesson.title }}</span>
 										<template v-if="lesson.locked">
-											<LockKeyhole
-												class="size-4 stroke-1.5 shrink-0 text-ink-gray-4"
-												aria-hidden="true"
-											/>
+											<Tooltip :text="lockReason">
+												<LockKeyhole
+													class="size-4 stroke-1.5 shrink-0 text-ink-gray-4"
+													aria-hidden="true"
+												/>
+											</Tooltip>
 											<span class="sr-only">{{ __('Locked') }}</span>
+											<span class="sr-only">{{ lockReason }}</span>
 										</template>
-										<template v-else-if="lesson.is_complete">
+										<template v-else-if="withProgress && lesson.is_complete">
 											<CircleCheck
 												class="size-4 stroke-1.5 shrink-0 text-ink-green-8 fill-none"
 												aria-hidden="true"
@@ -110,7 +116,7 @@
 											<span class="sr-only">{{ __('Completed') }}</span>
 										</template>
 										<Circle
-											v-else
+											v-else-if="withProgress"
 											class="size-4 stroke-1.5 shrink-0 text-ink-gray-4"
 										/>
 									</component>
@@ -127,7 +133,7 @@
 <script setup>
 import { computed, watch, watchEffect } from 'vue'
 import { useRoute } from 'vue-router'
-import { createResource, ScrollArea } from 'frappe-ui'
+import { createResource, ScrollArea, Tooltip } from 'frappe-ui'
 import { Disclosure, DisclosureButton, DisclosurePanel } from '@headlessui/vue'
 import {
 	ChevronDown,
@@ -199,6 +205,10 @@ watchEffect(() => {
 		}
 	}
 })
+
+// Lessons unlock in course order: one stays locked while any earlier lesson is
+// incomplete (compute_locked_lessons).
+const lockReason = __('Complete the previous lessons to unlock this one')
 
 const displayedProgress = computed(() => Math.ceil(props.progress || 0))
 

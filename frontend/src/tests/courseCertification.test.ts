@@ -20,7 +20,10 @@ const { createResourceMock, pushMock, toastMock } = vi.hoisted(() => {
 	}
 })
 
+const { openExternalMock } = vi.hoisted(() => ({ openExternalMock: vi.fn() }))
+
 vi.mock('@/stores/session', () => ({ sessionStore: () => ({ brand: {} }) }))
+vi.mock('@/utils/openExternal', () => ({ openExternal: openExternalMock }))
 vi.mock('vue-router', () => ({ useRouter: () => ({ push: pushMock }) }))
 vi.mock('frappe-ui', () => ({
 	createResource: createResourceMock,
@@ -60,7 +63,8 @@ const COURSE = 'python-basics'
 
 const ENROLLED: CertificationInfo = {
 	title: 'Python Basics',
-	evaluator: 'eval@example.com',
+	has_evaluator: true,
+	evaluator: null,
 	membership: { purchased_certificate: 1 },
 	certificate: null,
 }
@@ -160,12 +164,12 @@ describe('CourseCertification', () => {
 		expect(resource.fetch).toHaveBeenCalledTimes(1)
 	})
 
-	it('hands the evaluator it returns to the evaluation list', async () => {
+	it('tells the evaluation list the course has an evaluator', async () => {
 		const { wrapper, resource } = mountPage()
 		resource.data = ENROLLED
 		await flushPromises()
 		expect(evaluations(wrapper).props('courses')).toEqual([
-			{ course: COURSE, title: 'Python Basics', evaluator: 'eval@example.com' },
+			{ course: COURSE, title: 'Python Basics', has_evaluator: true },
 		])
 	})
 
@@ -178,10 +182,10 @@ describe('CourseCertification', () => {
 	// row is still passed down; it is that component's call what to show.
 	it('still lists a course whose evaluator is unset', async () => {
 		const { wrapper, resource } = mountPage()
-		resource.data = { ...ENROLLED, evaluator: null }
+		resource.data = { ...ENROLLED, has_evaluator: false }
 		await flushPromises()
 		expect(evaluations(wrapper).props('courses')).toEqual([
-			{ course: COURSE, title: 'Python Basics', evaluator: null },
+			{ course: COURSE, title: 'Python Basics', has_evaluator: false },
 		])
 	})
 
@@ -193,6 +197,18 @@ describe('CourseCertification', () => {
 		expect(wrapper.text()).toContain('Python Basics')
 		expect(wrapper.text()).toContain('01 Jan 2026')
 		expect(evaluations(wrapper).exists()).toBe(false)
+	})
+
+	// Regression: certificate PDF 500 under a frappe._dict() letter head (#3031, fixed in #3039).
+	it('opens the certificate PDF without the site letter head', async () => {
+		const { wrapper, resource } = mountPage()
+		resource.data = CERTIFIED
+		await flushPromises()
+
+		await wrapper.find('button').trigger('click')
+		const url = new URL(openExternalMock.mock.calls[0][0], 'http://lms.test')
+		expect(url.searchParams.get('name')).toBe('CERT-0001')
+		expect(url.searchParams.get('no_letterhead')).toBe('1')
 	})
 
 	it('sends a learner without a purchased certificate back to the course', () => {

@@ -20,8 +20,13 @@
 				</SettingsNavItem>
 			</SettingsNavGroup>
 		</SettingsSidebar>
-		<SettingsContent>
-			<SettingsPanel v-for="item in items" :key="item.slug" :value="item.slug">
+		<SettingsContent class="min-w-0">
+			<SettingsPanel
+				v-for="item in items"
+				:key="item.slug"
+				:value="item.slug"
+				class="min-w-0"
+			>
 				<SettingsFieldsPanel
 					v-if="item.page.kind === 'fields'"
 					:page="item.page"

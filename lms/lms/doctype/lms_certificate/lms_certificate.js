@@ -24,7 +24,9 @@ frappe.ui.form.on("LMS Certificate", {
 			frm.add_web_link(
 				`/api/method/frappe.utils.print_format.download_pdf?doctype=LMS+Certificate&name=${
 					frm.doc.name
-				}&format=${encodeURIComponent(frm.doc.template)}`,
+				}&format=${encodeURIComponent(
+					frm.doc.template
+				)}&no_letterhead=1`,
 				"See on Website"
 			);
 	},
