@@ -51,6 +51,9 @@ export type BatchDetails = {
 	title?: string
 	published?: number
 	certification?: number
+	paid_batch?: number
+	/** Formatted by the endpoint; only set for a paid batch not yet started. */
+	price?: string
 	/** Not on a plain `LMS Batch` fetch — assembled by the endpoint. The
 	 * students themselves are never sent: their names are login emails. */
 	student_count?: number
