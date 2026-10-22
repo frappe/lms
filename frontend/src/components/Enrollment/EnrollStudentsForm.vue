@@ -22,6 +22,7 @@
 			<div
 				ref="stepContent"
 				data-testid="enroll-step-content"
+				role="group"
 				tabindex="-1"
 				:aria-label="stepLabel"
 				class="outline-none"

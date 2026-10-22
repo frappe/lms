@@ -10,7 +10,11 @@
 			v-if="target.paidKind"
 			v-model="paid"
 			:label="paidSwitchLabel(target.paidKind)"
-			:description="priceHint(target.paidKind, target.priceLabel ?? '')"
+			:description="
+				target.priceLabel
+					? priceHint(target.paidKind, target.priceLabel)
+					: undefined
+			"
 		/>
 	</div>
 </template>
