@@ -32,12 +32,22 @@ full() {
 	exit 0
 }
 
-# Same as the workflows' paths-ignore.
+# Same as the workflows' paths-ignore. The server suite also ignores the
+# frontend, as ci.yml does: a Vue change next to a Python test must not turn
+# the run into a full one.
 is_ignored() {
 	case "$1" in
 		*.md) return 0 ;;
 		lms/locale/*) return 0 ;;
 	esac
+	if [ "$suite" = "server" ]; then
+		case "$1" in
+			# Read by test_utils.py and test_form_control_tag_parity.py, which
+			# compare these lists with their Python twins.
+			frontend/src/utils/lessonForm.ts | frontend/src/directives/safeHtmlLevels.ts) return 1 ;;
+			frontend/* | *.vue | *.ts | *.js | *.css) return 0 ;;
+		esac
+	fi
 	return 1
 }
 
