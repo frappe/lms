@@ -11,88 +11,46 @@ import { defineComponent, h, reactive } from 'vue'
 
 vi.stubGlobal('__', (text: string) => text)
 
-// frappe-ui's internal module resolution doesn't work under vitest (see
-// chapterForm.test.ts), so every export the form and FormShell pull in has to be
-// stubbed by hand.
-const { createResourceMock, getCachedListResourceMock, openSettingsMock } =
-	vi.hoisted(() => {
-		window.matchMedia ??= (() => ({
-			matches: false,
-			addEventListener: () => {},
-			removeEventListener: () => {},
-		})) as unknown as typeof window.matchMedia
-		return {
-			createResourceMock: vi.fn(),
-			getCachedListResourceMock: vi.fn(),
-			openSettingsMock: vi.fn(),
-		}
+const { createResourceMock, getCachedListResourceMock, toastMock } = vi.hoisted(
+	() => ({
+		createResourceMock: vi.fn(),
+		getCachedListResourceMock: vi.fn(),
+		toastMock: { success: vi.fn(), error: vi.fn() },
 	})
-
-// HeaderButton wraps frappe-ui's Button in a Tooltip below the mobile
-// breakpoint, and the hand-written frappe-ui mock here has no Tooltip. Stub it
-// down to the bare button so the fallthrough attrs the assertions use
-// (data-testid, the click handler) still land where they did before.
-vi.mock('@/components/HeaderButton.vue', () => ({
-	default: {
-		inheritAttrs: false,
-		template: `<button v-bind="$attrs" />`,
-	},
-}))
+)
 
 vi.mock('frappe-ui', () => ({
 	createResource: createResourceMock,
 	getCachedListResource: getCachedListResourceMock,
-	toast: { success: vi.fn(), error: vi.fn() },
-	Dialog: {
-		name: 'Dialog',
-		props: ['open', 'title', 'size'],
-		emits: ['update:open'],
-		template: `<div v-if="open" role="dialog"><h2>{{ title }}</h2><slot /><slot name="actions" /></div>`,
-	},
-	FormControl: {
-		props: ['modelValue', 'label', 'type'],
-		emits: ['update:modelValue'],
-		template: `<label>{{ label }}<input type="checkbox" :checked="modelValue" @change="$emit('update:modelValue', $event.target.checked)" /></label>`,
-	},
+	toast: toastMock,
 }))
 
-// @/utils is the barrel that pulls in plyr and the settings store; only
-// openSettings is used here.
-vi.mock('@/utils', () => ({ openSettings: openSettingsMock }))
-
-// The stub calls onCreate the way the real Link does outside inlineCreate mode:
-// with exactly ONE argument (see linkOnCreate.test.ts).
-vi.mock('@/components/Controls/Link.vue', () => ({
+// The form stands in as a component that shows its props and can emit.
+vi.mock('@/components/Enrollment/EnrollStudentsForm.vue', () => ({
 	default: {
-		props: [
-			'modelValue',
-			'doctype',
-			'label',
-			'required',
-			'placeholder',
-			'onCreate',
-		],
-		emits: ['update:modelValue'],
-		template: `<label :data-testid="'link-' + doctype">{{ label }}
-			<input :value="modelValue" @input="$emit('update:modelValue', $event.target.value)" />
-			<button type="button" :data-testid="'create-' + doctype" @click="onCreate && onCreate(null)" />
-		</label>`,
+		name: 'EnrollStudentsForm',
+		props: ['target', 'refusal', 'loading'],
+		emits: ['close', 'enrolled'],
+		template: `<div data-testid="enroll-form">{{ loading ? 'Loading...' : refusal }}</div>`,
 	},
 }))
 
 import CourseEnrollmentForm from '@/pages/Forms/CourseEnrollmentForm.vue'
 
+type CourseData = {
+	name: string
+	instructors: { username: string }[]
+	paid_course?: number
+	paid_certificate?: number
+	price?: string
+}
+
 const courseResource = reactive<{
-	data: { name: string; instructors: { username: string }[] } | null
+	data: CourseData | null
 	loading: boolean
 }>({ data: null, loading: false })
-const enrollResource = reactive({ loading: false, submit: vi.fn() })
 
-createResourceMock.mockImplementation((options: { url: string }) =>
-	options.url === 'lms.lms.utils.get_course_details'
-		? courseResource
-		: enrollResource
-)
+createResourceMock.mockImplementation(() => courseResource)
 
 const optionsFor = (url: string): Record<string, unknown> =>
 	(
@@ -101,8 +59,6 @@ const optionsFor = (url: string): Record<string, unknown> =>
 		) as [Record<string, unknown>]
 	)[0]
 
-// The parent page is a route component too, so it has to render a nested
-// RouterView or the child never mounts.
 const CoursePage = defineComponent({
 	render: () => h('div', ['COURSE', h(RouterView)]),
 })
@@ -170,32 +126,23 @@ const mountForm = async (
 	return wrapper
 }
 
-const fields = (wrapper: ReturnType<typeof mount>) =>
-	wrapper.find('[data-testid="course-enrollment-fields"]')
+const form = (wrapper: ReturnType<typeof mount>) =>
+	wrapper.findComponent({ name: 'EnrollStudentsForm' })
 
-const pickStudent = async (wrapper: ReturnType<typeof mount>) => {
-	const input = wrapper.find('[data-testid="link-User"] input')
-	await input.setValue('student@example.com')
-}
+const course = (extra: Partial<CourseData> = {}): CourseData => ({
+	name: 'COURSE-1',
+	instructors: [publicInstructor],
+	...extra,
+})
 
 describe('CourseEnrollmentForm as a route', () => {
 	beforeEach(() => {
 		courseResource.data = null
 		courseResource.loading = false
-		enrollResource.submit.mockReset()
-		enrollResource.loading = false
 		createResourceMock.mockClear()
 		getCachedListResourceMock.mockReset()
 		getCachedListResourceMock.mockReturnValue(null)
-		openSettingsMock.mockReset()
-		// openSettings reports whether the dialog is actually mounted; the form
-		// only leaves for it when it is. Desktop is the default here.
-		openSettingsMock.mockReturnValue(true)
-		Object.defineProperty(window, 'innerWidth', {
-			value: 1024,
-			writable: true,
-			configurable: true,
-		})
+		toastMock.success.mockReset()
 	})
 
 	it('fetches the course itself, keyed off the route param', async () => {
@@ -214,36 +161,43 @@ describe('CourseEnrollmentForm as a route', () => {
 	})
 
 	it('refuses a visitor who is neither moderator nor an instructor of it', async () => {
-		courseResource.data = { name: 'COURSE-1', instructors: [publicInstructor] }
+		courseResource.data = course()
 		const router = makeRouter()
 		await openForm(router)
 		const wrapper = await mountForm(router, outsider)
 
-		expect(fields(wrapper).exists()).toBe(false)
-		expect(
-			wrapper.find('[data-testid="course-enrollment-save"]').exists()
-		).toBe(false)
-		expect(wrapper.html()).toContain('do not have permission')
+		expect(form(wrapper).props('refusal')).toContain('do not have permission')
+	})
+
+	it('refuses everyone on a read-only site', async () => {
+		;(window as Window & { read_only_mode?: boolean }).read_only_mode = true
+		courseResource.data = course()
+		const router = makeRouter()
+		await openForm(router)
+		const wrapper = await mountForm(router)
+		delete (window as Window & { read_only_mode?: boolean }).read_only_mode
+
+		expect(form(wrapper).props('refusal')).toContain('read-only')
 	})
 
 	// The gate CourseDetail put on the Dashboard tab was moderator OR instructor,
 	// and instructor-ness is only knowable from the fetched course.
 	it('lets an instructor of the course through once the fetch lands', async () => {
-		courseResource.data = { name: 'COURSE-1', instructors: [publicInstructor] }
+		courseResource.data = course()
 		const router = makeRouter()
 		await openForm(router)
 		const wrapper = await mountForm(router, instructor)
 
-		expect(fields(wrapper).exists()).toBe(true)
+		expect(form(wrapper).props('refusal')).toBe('')
 	})
 
 	it('never matches a visitor with no username to an instructor row', async () => {
-		courseResource.data = { name: 'COURSE-1', instructors: [{ username: '' }] }
+		courseResource.data = course({ instructors: [{ username: '' }] })
 		const router = makeRouter()
 		await openForm(router)
 		const wrapper = await mountForm(router, { name: 'someone@example.com' })
 
-		expect(fields(wrapper).exists()).toBe(false)
+		expect(form(wrapper).props('refusal')).toContain('do not have permission')
 	})
 
 	it('says so while the course it needs to judge that is still in flight', async () => {
@@ -252,94 +206,101 @@ describe('CourseEnrollmentForm as a route', () => {
 		await openForm(router)
 		const wrapper = await mountForm(router, instructor)
 
+		expect(form(wrapper).props('loading')).toBe(true)
 		expect(wrapper.html()).toContain('Loading...')
-		expect(fields(wrapper).exists()).toBe(false)
-		expect(
-			wrapper.find('[data-testid="course-enrollment-save"]').exists()
-		).toBe(false)
 	})
 
-	it('will not submit an empty student', async () => {
+	it('hands the form a course target with its paid kind and price', async () => {
+		courseResource.data = course({ paid_certificate: 1, price: '₹999' })
 		const router = makeRouter()
 		await openForm(router)
 		const wrapper = await mountForm(router)
 
-		await wrapper
-			.find('[data-testid="course-enrollment-save"]')
-			.trigger('click')
-		expect(enrollResource.submit).not.toHaveBeenCalled()
-	})
-
-	it('inserts through its own resource, against the routed course', async () => {
-		const router = makeRouter()
-		await openForm(router)
-		const wrapper = await mountForm(router)
-		await pickStudent(wrapper)
-
-		await wrapper
-			.find('[data-testid="course-enrollment-save"]')
-			.trigger('click')
-		expect(enrollResource.submit).toHaveBeenCalledTimes(1)
-		expect(
-			(
-				optionsFor('frappe.client.insert').makeParams as () => { doc: unknown }
-			)()
-		).toEqual({
-			doc: {
-				doctype: 'LMS Enrollment',
-				course: 'COURSE-1',
-				member: 'student@example.com',
-				payment: null,
-				purchased_certificate: false,
-			},
+		expect(form(wrapper).props('target')).toEqual({
+			doctype: 'LMS Course',
+			name: 'COURSE-1',
+			paidKind: 'certificate',
+			priceLabel: '₹999',
 		})
 	})
 
-	it('survives a save with no dashboard list to reload', async () => {
+	it('hands the form no paid kind for a free course', async () => {
+		courseResource.data = course()
 		const router = makeRouter()
 		await openForm(router)
 		const wrapper = await mountForm(router)
-		await pickStudent(wrapper)
 
-		enrollResource.submit.mockImplementation(
-			(_params: unknown, options: { onSuccess: () => void }) => {
-				options.onSuccess()
-			}
-		)
-		await wrapper
-			.find('[data-testid="course-enrollment-save"]')
-			.trigger('click')
+		expect(form(wrapper).props('target')).toMatchObject({
+			paidKind: null,
+			priceLabel: null,
+		})
+	})
+
+	it('survives enrolling with no dashboard list to reload', async () => {
+		courseResource.data = course()
+		const router = makeRouter()
+		await openForm(router)
+		const wrapper = await mountForm(router)
+
+		form(wrapper).vm.$emit('enrolled', {
+			added: ['a@x.com'],
+			upgraded: [],
+			errors: [],
+		})
 		await flushPromises()
 
 		expect(getCachedListResourceMock).toHaveBeenCalledWith([
 			'courseProgress',
 			'COURSE-1',
 		])
-		expect(router.currentRoute.value.name).toBe('CourseDetail')
+		expect(router.currentRoute.value.name).toBe('NewCourseEnrollment')
 	})
 
-	it('reloads the dashboard list when that tab IS mounted behind it', async () => {
+	it('reloads the dashboard list on enrolled and stays open', async () => {
 		const list = { reload: vi.fn() }
 		getCachedListResourceMock.mockReturnValue(list)
+		courseResource.data = course()
 		const router = makeRouter()
 		await openForm(router)
 		const wrapper = await mountForm(router)
-		await pickStudent(wrapper)
 
-		enrollResource.submit.mockImplementation(
-			(_params: unknown, options: { onSuccess: () => void }) => {
-				options.onSuccess()
-			}
-		)
-		await wrapper
-			.find('[data-testid="course-enrollment-save"]')
-			.trigger('click')
+		form(wrapper).vm.$emit('enrolled', {
+			added: ['a@x.com'],
+			upgraded: [],
+			errors: [],
+		})
 		await flushPromises()
 
 		expect(list.reload).toHaveBeenCalledTimes(1)
+		expect(toastMock.success).toHaveBeenCalledWith('Students enrolled')
+		expect(router.currentRoute.value.name).toBe('NewCourseEnrollment')
 	})
 
-	it('returns to the tab and lesson it was opened from', async () => {
+	it('toasts for an upgrade alone, and not when nobody was added', async () => {
+		courseResource.data = course()
+		const router = makeRouter()
+		await openForm(router)
+		const wrapper = await mountForm(router)
+
+		form(wrapper).vm.$emit('enrolled', {
+			added: [],
+			upgraded: [],
+			errors: [{ member: 'a@x.com', error: 'x' }],
+		})
+		await flushPromises()
+		expect(toastMock.success).not.toHaveBeenCalled()
+
+		form(wrapper).vm.$emit('enrolled', {
+			added: [],
+			upgraded: ['a@x.com'],
+			errors: [],
+		})
+		await flushPromises()
+		expect(toastMock.success).toHaveBeenCalledTimes(1)
+	})
+
+	it('returns to the tab and lesson it was opened from when the form closes', async () => {
+		courseResource.data = course()
 		const router = makeRouter()
 		await router.push({
 			name: 'CourseDetail',
@@ -355,64 +316,17 @@ describe('CourseEnrollmentForm as a route', () => {
 			state: { lmsFormEntry: true },
 		})
 		const wrapper = await mountForm(router)
-		await pickStudent(wrapper)
 
-		enrollResource.submit.mockImplementation(
-			(_params: unknown, options: { onSuccess: () => void }) => {
-				options.onSuccess()
-			}
-		)
-		await wrapper
-			.find('[data-testid="course-enrollment-save"]')
-			.trigger('click')
+		form(wrapper).vm.$emit('close')
 		await flushPromises()
 
 		expect(router.currentRoute.value.name).toBe('CourseDetail')
 		expect(router.currentRoute.value.hash).toBe(COURSE_TAB)
 		expect(router.currentRoute.value.query.lesson).toBe('1-2')
 
-		// One entry deep, not two: the form entry was consumed by the replace.
+		// One entry deep, not two: the form entry was consumed by the close.
 		router.back()
 		await flushPromises()
 		expect(router.currentRoute.value.name).toBe('CourseDetail')
-	})
-
-	// Link hands its onCreate exactly one argument; a handler that expected a
-	// second `close` callback threw on every click.
-	it('opens Settings from "Create New" without a second callback', async () => {
-		const router = makeRouter()
-		await router.push({
-			name: 'CourseDetail',
-			params: { courseName: 'COURSE-1' },
-			hash: COURSE_TAB,
-		})
-		await openForm(router, { lmsFormEntry: true })
-		const wrapper = await mountForm(router)
-
-		await wrapper.find('[data-testid="create-User"]').trigger('click')
-		await flushPromises()
-
-		expect(openSettingsMock).toHaveBeenCalledWith('members')
-		expect(router.currentRoute.value.name).toBe('NewCourseEnrollment')
-	})
-
-	// Settings is mounted only in the desktop sidebar, so on a phone
-	// openSettings reports nowhere to go. The form used to close itself for a
-	// dialog that never appeared, throwing away what the user typed; this pins that a refusal navigates nowhere.
-	it('stays put when Settings has nowhere to open', async () => {
-		openSettingsMock.mockReturnValue(false)
-		const router = makeRouter()
-		await router.push({
-			name: 'CourseDetail',
-			params: { courseName: 'C1' },
-		})
-		await openForm(router, { lmsFormEntry: true })
-		const wrapper = await mountForm(router)
-
-		await wrapper.find('[data-testid="create-User"]').trigger('click')
-		await flushPromises()
-
-		expect(openSettingsMock).toHaveBeenCalledWith('members')
-		expect(router.currentRoute.value.name).toBe('NewCourseEnrollment')
 	})
 })

@@ -1,70 +1,27 @@
 <template>
-	<FormShell :title="__('Enroll Student')" size="xl" @close="close">
-		<template #default>
-			<div v-if="loadingCourse" class="p-4 text-base text-ink-gray-6">
-				{{ __('Loading...') }}
-			</div>
-			<div v-else-if="refusal" class="p-4 text-base text-ink-gray-6">
-				{{ refusal }}
-			</div>
-			<div v-else data-testid="course-enrollment-fields" class="space-y-4">
-				<FormControl
-					type="checkbox"
-					:label="__('Purchased Certificate')"
-					v-model="purchasedCertificate"
-				/>
-				<Link
-					doctype="User"
-					:label="__('Student')"
-					placeholder=" "
-					v-model="student"
-					:required="true"
-					:onCreate="openMemberSettings"
-				/>
-				<Link
-					v-if="purchasedCertificate"
-					doctype="LMS Payment"
-					:label="__('Payment')"
-					placeholder=" "
-					v-model="payment"
-					:onCreate="openPaymentSettings"
-				/>
-			</div>
-		</template>
-		<template #actions>
-			<div
-				v-if="!refusal && !loadingCourse"
-				class="flex items-center justify-end"
-			>
-				<HeaderButton
-					data-testid="course-enrollment-save"
-					:label="__('Enroll')"
-					variant="solid"
-					:loading="enrollment.loading"
-					@click="enrollStudent()"
-				/>
-			</div>
-		</template>
-	</FormShell>
+	<EnrollStudentsForm
+		:target="target"
+		:refusal="refusal"
+		:loading="loadingCourse"
+		@close="close"
+		@enrolled="onEnrolled"
+	/>
 </template>
 <script setup lang="ts">
-import {
-	createResource,
-	FormControl,
-	getCachedListResource,
-	toast,
-} from 'frappe-ui'
-import type { FrappeResourceError } from 'frappe-ui'
-import { computed, inject, ref } from 'vue'
+import { createResource, getCachedListResource, toast } from 'frappe-ui'
+import { computed, inject } from 'vue'
 import { useRoute } from 'vue-router'
-import { openSettings } from '@/utils'
-import Link from '@/components/Controls/Link.vue'
-import FormShell from '@/components/FormShell.vue'
-import HeaderButton from '@/components/HeaderButton.vue'
+import EnrollStudentsForm from '@/components/Enrollment/EnrollStudentsForm.vue'
+import { paidKindForCourse } from '@/components/Enrollment/enrollment'
 import { useFormRoute } from '@/composables/useFormRoute'
-import type { CourseDetails, Resource, SessionUser } from '@/types'
+import type {
+	BulkEnrollResult,
+	CourseDetails,
+	EnrollTarget,
+	Resource,
+	SessionUser,
+} from '@/types'
 import { isInstructorOf } from '@/utils/instructors'
-import { resourceErrorMessage, submitResource } from '@/utils/resource'
 
 const props = defineProps<{
 	courseName: string
@@ -74,10 +31,6 @@ const user = inject<SessionUser>('$user')!
 const route = useRoute()
 const readOnlyMode = (window as Window & { read_only_mode?: boolean })
 	.read_only_mode
-
-const student = ref<string | null>(null)
-const payment = ref<string | null>(null)
-const purchasedCertificate = ref<boolean>(false)
 
 // The course page keeps its active tab in route.hash and CourseEditor keeps the
 // open lesson in route.query, so both have to travel back with us — closing to a
@@ -89,7 +42,7 @@ const parent = {
 	hash: route.hash,
 	query: { ...route.query },
 }
-const { close, saveAndReplace } = useFormRoute(parent)
+const { close } = useFormRoute(parent)
 
 // Parent context a URL cannot carry: the Enroll button only existed on the
 // Dashboard tab, which CourseDetail shows to moderators and to the course's own
@@ -126,75 +79,27 @@ const refusal = computed(() => {
 	return ''
 })
 
-// This form's own insert. The modal reached the dashboard's list resource
-// through `:students` and reloaded it directly; a routed page has no parent to
-// receive that from, and a deep link has no dashboard tab mounted at all.
-// A plain createResource rather than a list resource, so a save does not also
-// fire frappe-ui's unfiltered follow-up list fetch.
-const enrollment = createResource({
-	url: 'frappe.client.insert',
-	makeParams() {
-		return {
-			doc: {
-				doctype: 'LMS Enrollment',
-				course: props.courseName,
-				member: student.value,
-				payment: purchasedCertificate.value ? payment.value : null,
-				purchased_certificate: purchasedCertificate.value,
-			},
-		}
-	},
-}) as unknown as Resource<unknown>
+const target = computed<EnrollTarget | null>(() => {
+	const details = course.data
+	if (!details?.name) return null
+	return {
+		doctype: 'LMS Course',
+		name: props.courseName,
+		paidKind: paidKindForCourse(details),
+		priceLabel: details.price ?? null,
+	}
+})
 
-// The list this page inserted into lives on the tab behind it. Null on a deep
+// The list the enrollments land in lives on the tab behind this form. Null on a deep
 // link, where that tab was never mounted — correct, since it fetches on mount.
 const reloadStudents = () => {
 	getCachedListResource(['courseProgress', props.courseName])?.reload()
 }
 
-// Link calls these with one argument unless it is in `inlineCreate` mode, which
-// neither field is — it closes its own dropdown first, so there is no second
-// close callback to invoke here.
-//
-// The form stays open behind Settings, an overlay that pushes a hash entry
-// over the form's own route. Closing the form here would pop that entry and
-// Settings would never appear; staying open also keeps what the user typed.
-const openMemberSettings = () => {
-	openSettings('members')
-}
-
-const openPaymentSettings = () => {
-	openSettings('transactions')
-}
-
-const validateData = (): boolean => {
-	if (!student.value) {
-		toast.error(__('Please select a student to enroll.'))
-		return false
+const onEnrolled = (result: BulkEnrollResult) => {
+	reloadStudents()
+	if (result.added.length || result.upgraded.length) {
+		toast.success(__('Students enrolled'))
 	}
-	if (purchasedCertificate.value && !payment.value) {
-		toast.error(__('Please select a payment for the purchased certificate.'))
-		return false
-	}
-	return true
-}
-
-const enrollStudent = () => {
-	if (refusal.value) return
-	if (!validateData()) return
-	submitResource(
-		enrollment,
-		{},
-		{
-			onSuccess() {
-				reloadStudents()
-				toast.success(__('Student enrolled successfully'))
-				saveAndReplace(parent)
-			},
-			onError(err: FrappeResourceError) {
-				toast.error(resourceErrorMessage(err, __('Error')))
-			},
-		}
-	)
 }
 </script>

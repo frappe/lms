@@ -1,85 +1,44 @@
 <template>
-	<FormShell :title="__('Enroll Student')" size="lg" @close="close">
-		<template #default>
-			<div v-if="refusal" class="p-4 text-base text-ink-gray-6">
-				{{ refusal }}
-			</div>
-			<div
-				v-else
-				data-testid="batch-student-fields"
-				class="flex flex-col gap-4"
-			>
-				<Link
-					doctype="User"
-					v-model="student"
-					placeholder=" "
-					:label="__('Student')"
-					:required="true"
-					:onCreate="openMemberSettings"
-				/>
-				<Link
-					doctype="LMS Payment"
-					v-model="payment"
-					placeholder=" "
-					:label="__('Payment')"
-					:onCreate="openPaymentSettings"
-				/>
-			</div>
-		</template>
-		<template #actions>
-			<HeaderButton
-				v-if="!refusal"
-				data-testid="batch-student-save"
-				:label="__('Enroll')"
-				variant="solid"
-				:loading="enrollment.loading"
-				@click="submit"
-			/>
-		</template>
-	</FormShell>
+	<EnrollStudentsForm
+		:target="target"
+		:refusal="refusal"
+		:loading="loadingBatch"
+		@close="close"
+		@enrolled="onEnrolled"
+	/>
 </template>
 
-<script setup>
-import { computed, inject, ref } from 'vue'
-import {
-	createResource,
-	getCachedListResource,
-	getCachedResource,
-	toast,
-} from 'frappe-ui'
+<script setup lang="ts">
+import { computed, inject } from 'vue'
+import { getCachedListResource, getCachedResource, toast } from 'frappe-ui'
 import { useOnboarding } from '@framework/ui/components/Onboarding/index'
 import { seesOnboarding } from '@/utils/onboarding'
 import { useRoute } from 'vue-router'
-import { openSettings } from '@/utils'
-import Link from '@/components/Controls/Link.vue'
-import FormShell from '@/components/FormShell.vue'
-import HeaderButton from '@/components/HeaderButton.vue'
+import EnrollStudentsForm from '@/components/Enrollment/EnrollStudentsForm.vue'
+import { paidKindForBatch } from '@/components/Enrollment/enrollment'
 import {
 	batchRouteLocation,
 	useBatchDetails,
 } from '@/composables/useBatchForms'
 import { useFormRoute } from '@/composables/useFormRoute'
-import { submitResource } from '@/utils/resource'
+import type { BulkEnrollResult, EnrollTarget, SessionUser } from '@/types'
 
-const props = defineProps({
-	batchName: {
-		type: String,
-		required: true,
-	},
-})
+const props = defineProps<{
+	batchName: string
+}>()
 
-const user = inject('$user')
+const user = inject<SessionUser>('$user')!
 const route = useRoute()
-const readOnlyMode = window.read_only_mode
+const readOnlyMode = (window as Window & { read_only_mode?: boolean })
+	.read_only_mode
 const { updateOnboardingStep } = useOnboarding('learning')
 const batch = useBatchDetails(() => props.batchName)
 
-const student = ref(null)
-const payment = ref(null)
-
-const { close, saveAndReplace } = useFormRoute(
+const { close } = useFormRoute(
 	batchRouteLocation('BatchDetail', props.batchName, route.hash)
 )
+
+const loadingBatch = computed(() => !batch.data && batch.loading)
 
 // Copied from BatchDetail.vue's isAdmin() gate on the Enroll button. A URL does
 // not go through a button. Read-only was not on that button, but every other
@@ -99,23 +58,14 @@ const refusal = computed(() => {
 	return ''
 })
 
-// This form's own insert. The modal reached the dashboard's list resource
-// through `:students` and inserted into it; a routed page has no parent to
-// receive that from, and a deep link has no dashboard tab mounted at all.
-// A plain createResource rather than a list resource, so a save does not also
-// fire frappe-ui's unfiltered follow-up list fetch.
-const enrollment = createResource({
-	url: 'frappe.client.insert',
-	makeParams() {
-		return {
-			doc: {
-				doctype: 'LMS Batch Enrollment',
-				member: student.value,
-				payment: payment.value,
-				batch: props.batchName,
-			},
-		}
-	},
+const target = computed<EnrollTarget | null>(() => {
+	if (!batch.data) return null
+	return {
+		doctype: 'LMS Batch',
+		name: props.batchName,
+		paidKind: paidKindForBatch(batch.data),
+		priceLabel: batch.data.price ?? null,
+	}
 })
 
 // The Overview overlay's Seats Left comes from get_batch_details, and enrolling
@@ -123,7 +73,10 @@ const enrollment = createResource({
 // (useBatchForms.ts explains why one must never be added back), so it cannot be
 // reached by key the way the two below are — BatchDetail hosts this form in its
 // own <router-view> and hands the reload down instead.
-const reloadBatchDetails = inject('reloadBatchDetails', null)
+const reloadBatchDetails = inject<(() => void) | null>(
+	'reloadBatchDetails',
+	null
+)
 
 // Both live on the dashboard tab behind this form. Null on a deep link, where
 // that tab was never mounted — correct, since each fetches on mount.
@@ -133,43 +86,10 @@ const reloadDashboard = () => {
 	reloadBatchDetails?.()
 }
 
-// Link calls these with one argument unless it is in `inlineCreate` mode,
-// which neither field is, so there's no second close callback to invoke.
-// The form stays open behind Settings, an overlay that pushes a hash entry
-// over the form's own route; closing the form here would pop that entry and
-// Settings would never appear. Leaving it up also keeps what the user typed.
-const openMemberSettings = () => {
-	openSettings('members')
-}
-
-const openPaymentSettings = () => {
-	openSettings('transactions')
-}
-
-const submit = () => {
-	if (refusal.value) return
-	if (!student.value) {
-		toast.error(__('Please select a student to enroll.'))
-		return
-	}
-	submitResource(
-		enrollment,
-		{},
-		{
-			onSuccess() {
-				if (seesOnboarding(user.data)) {
-					updateOnboardingStep('add_batch_student')
-				}
-				reloadDashboard()
-				toast.success(__('Student enrolled successfully'))
-				saveAndReplace(
-					batchRouteLocation('BatchDetail', props.batchName, route.hash)
-				)
-			},
-			onError(err) {
-				toast.error(err.messages?.[0] || err)
-			},
-		}
-	)
+const onEnrolled = (result: BulkEnrollResult) => {
+	reloadDashboard()
+	if (!result.added.length) return
+	if (seesOnboarding(user.data)) updateOnboardingStep('add_batch_student')
+	toast.success(__('Students enrolled'))
 }
 </script>
