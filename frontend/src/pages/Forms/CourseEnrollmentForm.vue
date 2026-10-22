@@ -97,6 +97,7 @@ const reloadStudents = () => {
 }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 // Link calls these with one argument unless it is in `inlineCreate` mode, which
 // neither field is — it closes its own dropdown first, so there is no second
 // close callback to invoke here.
@@ -116,8 +117,19 @@ const validateData = (): boolean => {
 		toast.error(__('Please select a student to enroll.'))
 		return false
 =======
+=======
+// The dashboard's Enrolled stat reads CourseDetail's course resource, which has
+// no cache key (see above), so CourseDetail hands its reload down instead.
+// Null on a deep link outside CourseDetail.
+const reloadCourseDetails = inject<(() => void) | null>(
+	'reloadCourseDetails',
+	null
+)
+
+>>>>>>> eb91a9b (fix: refresh the course Enrolled stat after bulk enrolling)
 const onEnrolled = (result: BulkEnrollResult) => {
 	reloadStudents()
+	if (result.added.length) reloadCourseDetails?.()
 	if (result.added.length || result.upgraded.length) {
 		toast.success(__('Students enrolled'))
 >>>>>>> 74aad75 (feat: enroll many students from the course and batch dashboards)

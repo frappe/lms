@@ -216,7 +216,15 @@
 	<router-view />
 </template>
 <script setup lang="ts">
-import { computed, inject, markRaw, ref, useTemplateRef, watch } from 'vue'
+import {
+	computed,
+	inject,
+	markRaw,
+	provide,
+	ref,
+	useTemplateRef,
+	watch,
+} from 'vue'
 import type { ComputedRef } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import type { Router } from 'vue-router'
@@ -401,6 +409,10 @@ const course = createResource({
 	},
 	auto: true,
 }) as Resource<CourseDetails | null>
+
+// Enrolling from the form in the <router-view> below moves the dashboard's
+// Enrolled stat; with no cache key the form cannot reach this resource itself.
+provide('reloadCourseDetails', () => course.reload())
 
 const tabs = computed<DetailTab[]>(() => [
 	{
