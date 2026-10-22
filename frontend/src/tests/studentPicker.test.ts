@@ -411,6 +411,24 @@ describe('StudentPicker', () => {
 		).toBeTruthy()
 	})
 
+	it('scrolls only the selected list while the picker and slot stay fixed', async () => {
+		const wrapper = mountPicker(['jane@x.com'], {
+			beforeList: '<div data-testid="extra" />',
+		})
+		await flushPromises()
+		const root = wrapper.element as HTMLElement
+		expect(root.className).toMatch(/\bflex-col\b/)
+		expect(root.className).toMatch(/\bh-full\b/)
+		expect(root.className).not.toMatch(/overflow/)
+		const list = wrapper.get('ul[aria-label="Selected students"]')
+		expect(list.classes()).toContain('overflow-y-auto')
+		expect(list.classes()).toContain('flex-1')
+		expect(list.classes()).toContain('min-h-0')
+		expect(
+			wrapper.get('[data-testid="extra"]').element.closest('ul')
+		).toBeNull()
+	})
+
 	it('ignores a name search that contains a comma', async () => {
 		const wrapper = mountPicker()
 		await typeQuery(wrapper, 'Doe, Jane')

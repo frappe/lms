@@ -1,5 +1,5 @@
 <template>
-	<div class="space-y-3">
+	<div class="flex h-full min-h-0 flex-col gap-3">
 		<MultiSelect
 			:id="pickerId"
 			ref="selectRef"
@@ -61,7 +61,7 @@
 		<ul
 			v-if="members.length"
 			ref="selectedList"
-			class="flex flex-col"
+			class="flex min-h-0 flex-1 flex-col overflow-y-auto"
 			:aria-label="__('Selected students')"
 		>
 			<li

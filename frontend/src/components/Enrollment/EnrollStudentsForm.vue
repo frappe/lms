@@ -1,53 +1,68 @@
 <template>
 	<FormShell
 		:title="__('Enroll Students')"
-		size="2xl"
+		size="4xl"
 		position="top"
 		@close="onClose"
 	>
-		<div v-if="loading" class="text-base text-ink-gray-6">
-			{{ __('Loading...') }}
-		</div>
-		<div v-else-if="refusal" class="text-p-base text-ink-gray-6">
-			{{ refusal }}
-		</div>
-		<div v-else-if="target" class="flex flex-col gap-5">
-			<Stepper
-				:modelValue="step"
-				:steps="steps"
-				:completed="!!result"
-				:clickable="!submitting"
-				@update:modelValue="goTo"
-			/>
-			<div
-				ref="stepContent"
-				data-testid="enroll-step-content"
-				role="group"
-				tabindex="-1"
-				:aria-label="stepLabel"
-				class="outline-none"
-			>
-				<EnrollSummary v-if="result" :result="result" :skipped="skipped" />
-				<EnrollSelectStep
-					v-else-if="step === 'select'"
-					v-model:members="members"
-					v-model:paid="paid"
-					:target="target"
-				/>
-				<EnrollReviewStep
-					v-else-if="step === 'review'"
-					:rows="rows"
-					:seatsLeft="seatsLeft"
-					:loading="preview.loading"
-					@remove="remove"
-				/>
-				<EnrollPaymentStep
-					v-else
-					v-model:defaults="defaults"
-					v-model:choices="choices"
-					:rows="enrollableRows"
-				/>
+		<div
+			data-testid="enroll-body"
+			class="flex flex-col gap-5"
+			:class="isMobile ? 'h-full' : 'h-[min(32rem,calc(80dvh-17rem))]'"
+		>
+			<div v-if="loading" class="text-base text-ink-gray-6">
+				{{ __('Loading...') }}
 			</div>
+			<div v-else-if="refusal" class="text-p-base text-ink-gray-6">
+				{{ refusal }}
+			</div>
+			<template v-else-if="target">
+				<Stepper
+					v-if="paid"
+					:modelValue="step"
+					:steps="steps"
+					:completed="!!result"
+					:clickable="!submitting"
+					@update:modelValue="goTo"
+				/>
+				<div
+					ref="stepContent"
+					data-testid="enroll-step-content"
+					role="group"
+					tabindex="-1"
+					:aria-label="stepLabel"
+					class="min-h-0 flex-1 outline-none"
+					:class="
+						step === 'select' && !result ? 'overflow-hidden' : 'overflow-y-auto'
+					"
+				>
+					<EnrollSummary v-if="result" :result="result" :skipped="skipped" />
+					<EnrollSelectStep
+						v-else-if="step === 'select'"
+						v-model:members="members"
+						v-model:paid="paid"
+						:target="target"
+					/>
+					<EnrollPaymentStep
+						v-else-if="step === 'payments'"
+						v-model:defaults="defaults"
+						v-model:choices="choices"
+						v-model:overrides="overrides"
+						v-model:panelOpen="panelOpen"
+						:rows="enrollableRows"
+					/>
+					<EnrollReviewStep
+						v-else
+						:rows="enrollableRows"
+						:seatsLeft="seatsLeft"
+						:loading="preview.loading"
+						:paid="paid"
+						:certificate="target.paidKind === 'certificate'"
+						:paymentLabels="paymentLabels"
+						@remove="remove"
+					/>
+				</div>
+			</template>
 		</div>
 		<template #actions>
 			<div
@@ -69,11 +84,22 @@
 						{{ __('{0} selected', [members.length]) }}
 					</span>
 					<HeaderButton
+						v-if="paid"
 						data-testid="enroll-next"
 						:label="__('Next')"
 						variant="solid"
+						:loading="preview.loading"
 						:disabled="!members.length || preview.loading"
-						@click="toReview"
+						@click="leaveSelect"
+					/>
+					<HeaderButton
+						v-else
+						data-testid="enroll-submit"
+						:label="enrollButtonLabel(members.length)"
+						variant="solid"
+						:loading="submitting"
+						:disabled="!canEnroll || submitting"
+						@click="enroll"
 					/>
 				</template>
 				<template v-else>
@@ -84,12 +110,12 @@
 						@click="back"
 					/>
 					<HeaderButton
-						v-if="step === 'review' && paid"
+						v-if="step === 'payments'"
 						data-testid="enroll-next"
 						:label="__('Next')"
 						variant="solid"
-						:disabled="!canLeaveReview"
-						@click="step = 'payments'"
+						:disabled="!paymentsReady"
+						@click="step = 'review'"
 					/>
 					<HeaderButton
 						v-else
@@ -120,10 +146,14 @@ import EnrollSummary from '@/components/Enrollment/EnrollSummary.vue'
 import {
 	buildSubmitParams,
 	canSubmitPayments,
+	effectivePayment,
+	emptyAddress,
 	enrollButtonLabel,
 	exceedsSeats,
 	isEnrollable,
 	normalizeResult,
+	paidByDefault,
+	paymentSummary,
 	statusLabel,
 } from '@/components/Enrollment/enrollment'
 import type {
@@ -135,6 +165,7 @@ import type {
 	EnrollTarget,
 	PaymentChoice,
 	PaymentDefaults,
+	PaymentOverride,
 	Resource,
 } from '@/types'
 import { useScreenSize } from '@/utils/composables'
@@ -155,31 +186,45 @@ const emit = defineEmits<{
 
 const step = ref<EnrollStep>('select')
 const members = ref<string[]>([])
-const paid = ref(false)
+const paid = ref<boolean>(false)
 const defaults = ref<PaymentDefaults>({
 	amount: null,
 	currency: null,
 	source: null,
+	address: emptyAddress(),
 })
 const choices = ref<Record<string, PaymentChoice>>({})
+const overrides = ref<Record<string, PaymentOverride>>({})
 const rows = ref<EnrollPreviewRow[]>([])
 const seatsLeft = ref<number | null>(null)
 const result = ref<BulkEnrollResult | null>(null)
+const panelOpen = ref<boolean>(false)
 const stepContent = ref<HTMLElement | null>(null)
 const { isMobile } = useScreenSize()
 
-const steps = computed<StepItem[]>(() => {
-	const items: StepItem[] = [
-		{ value: 'select', label: __('Select') },
-		{ value: 'review', label: __('Review') },
-	]
-	if (paid.value) items.push({ value: 'payments', label: __('Payments') })
-	return items
-})
+watch(
+	() => props.target?.paidKind,
+	(kind, previous) => {
+		if (kind !== undefined && previous === undefined) {
+			paid.value = paidByDefault(kind)
+		}
+	},
+	{ immediate: true }
+)
+
+const steps = computed<StepItem[]>(() => [
+	{ value: 'select', label: __('Select') },
+	{ value: 'payments', label: __('Payments') },
+	{ value: 'review', label: __('Review') },
+])
 
 const stepLabel = computed<string>(() => {
 	if (result.value) return __('Summary')
 	return steps.value.find((item) => item.value === step.value)?.label ?? ''
+})
+
+watch(step, () => {
+	panelOpen.value = false
 })
 
 watch([step, result], async () => {
@@ -195,11 +240,12 @@ const enrollableMembers = computed<string[]>(() =>
 	enrollableRows.value.map((row) => row.member)
 )
 
-const skipped = computed<BulkEnrollError[]>(() =>
-	rows.value
+const skipped = computed<BulkEnrollError[]>(() => {
+	if (!paid.value) return []
+	return rows.value
 		.filter((row) => !isEnrollable(row.status))
 		.map((row) => ({ member: row.member, error: statusLabel(row.status) }))
-)
+})
 
 const preview = createResource({
 	url: 'lms.lms.api.get_bulk_enrollment_preview',
@@ -217,21 +263,38 @@ const submitting = computed<boolean>(
 	() => courseSubmit.loading || batchSubmit.loading
 )
 
-const canLeaveReview = computed<boolean>(
-	() =>
-		!preview.loading &&
-		enrollableRows.value.length > 0 &&
-		!exceedsSeats(rows.value, seatsLeft.value)
+const paymentsReady = computed<boolean>(() =>
+	canSubmitPayments(
+		defaults.value,
+		enrollableMembers.value,
+		choices.value,
+		overrides.value
+	)
+)
+
+const submitMembers = computed<string[]>(() =>
+	paid.value ? enrollableMembers.value : members.value
 )
 
 const canEnroll = computed<boolean>(() => {
-	if (!canLeaveReview.value) return false
-	if (!paid.value) return true
-	return canSubmitPayments(
-		defaults.value,
-		enrollableMembers.value,
-		choices.value
+	if (!paid.value) return members.value.length > 0
+	return (
+		!preview.loading &&
+		enrollableRows.value.length > 0 &&
+		!exceedsSeats(rows.value, seatsLeft.value) &&
+		paymentsReady.value
 	)
+})
+
+const paymentLabels = computed<Record<string, string>>(() => {
+	const labels: Record<string, string> = {}
+	for (const member of enrollableMembers.value) {
+		labels[member] = paymentSummary(
+			choices.value[member],
+			effectivePayment(defaults.value, overrides.value[member] ?? null)
+		)
+	}
+	return labels
 })
 
 const isStep = (value: StepValue): value is EnrollStep =>
@@ -243,10 +306,14 @@ const goTo = (value: StepValue) => {
 
 const back = () => {
 	if (submitting.value) return
-	step.value = step.value === 'payments' ? 'review' : 'select'
+	step.value = step.value === 'review' ? 'payments' : 'select'
 }
 
 const onClose = () => {
+	if (isMobile.value && panelOpen.value && step.value === 'payments') {
+		panelOpen.value = false
+		return
+	}
 	if (isMobile.value && !result.value && step.value !== 'select') {
 		back()
 		return
@@ -254,34 +321,43 @@ const onClose = () => {
 	emit('close')
 }
 
+const keepsChoice = (
+	choice: PaymentChoice | undefined,
+	row: EnrollPreviewRow
+): boolean => {
+	if (!choice) return false
+	if (choice.mode === 'create') return true
+	const offered = row.linkable_payments.map((payment) => payment.name)
+	return choice.payment ? offered.includes(choice.payment) : !!offered.length
+}
+
 const seedPayments = (data: EnrollPreview) => {
 	if (defaults.value.amount === null && defaults.value.currency === null) {
 		defaults.value = {
+			...defaults.value,
 			amount: data.amount,
 			currency: data.currency,
-			source: null,
 		}
 	}
 	const seeded = { ...choices.value }
 	for (const row of data.rows) {
-		seeded[row.member] ??= { mode: 'create' }
+		if (!keepsChoice(seeded[row.member], row)) {
+			seeded[row.member] = { mode: 'create' }
+		}
 	}
 	choices.value = seeded
 }
 
-const toReview = () => {
+const leaveSelect = () => {
 	const target = props.target
-	if (!target || !members.value.length) return
-	rows.value = []
-	seatsLeft.value = null
-	step.value = 'review'
+	if (!target || !paid.value || !members.value.length || preview.loading) return
 	submitResource(
 		preview,
 		{
 			doctype: target.doctype,
 			docname: target.name,
 			members: JSON.stringify(members.value),
-			purchased_certificate: paid.value && target.paidKind === 'certificate',
+			purchased_certificate: target.paidKind === 'certificate',
 		},
 		{
 			onSuccess(data) {
@@ -289,21 +365,27 @@ const toReview = () => {
 				rows.value = data.rows
 				seatsLeft.value = data.seats_left
 				seedPayments(data)
+				step.value = 'payments'
 			},
 			onError(err: FrappeResourceError) {
-				step.value = 'select'
 				toast.error(resourceErrorMessage(err, __('Could not load students')))
 			},
 		}
 	)
 }
 
-const remove = (member: string) => {
-	members.value = members.value.filter((item) => item !== member)
-	rows.value = rows.value.filter((row) => row.member !== member)
-	const rest = { ...choices.value }
-	delete rest[member]
-	choices.value = rest
+const remove = (removed: string[]) => {
+	const gone = new Set(removed)
+	members.value = members.value.filter((item) => !gone.has(item))
+	rows.value = rows.value.filter((row) => !gone.has(row.member))
+	const keptChoices = { ...choices.value }
+	const keptOverrides = { ...overrides.value }
+	for (const member of gone) {
+		delete keptChoices[member]
+		delete keptOverrides[member]
+	}
+	choices.value = keptChoices
+	overrides.value = keptOverrides
 }
 
 const enroll = () => {
@@ -314,10 +396,11 @@ const enroll = () => {
 		resource,
 		buildSubmitParams(
 			target,
-			enrollableMembers.value,
+			submitMembers.value,
 			paid.value,
 			defaults.value,
-			choices.value
+			choices.value,
+			overrides.value
 		),
 		{
 			onSuccess(data) {
