@@ -96,8 +96,17 @@ const reloadStudents = () => {
 	getCachedListResource(['courseProgress', props.courseName])?.reload()
 }
 
+// The dashboard's Enrolled stat reads CourseDetail's course resource, which has
+// no cache key (see above), so CourseDetail hands its reload down instead.
+// Null on a deep link outside CourseDetail.
+const reloadCourseDetails = inject<(() => void) | null>(
+	'reloadCourseDetails',
+	null
+)
+
 const onEnrolled = (result: BulkEnrollResult) => {
 	reloadStudents()
+	if (result.added.length) reloadCourseDetails?.()
 	if (result.added.length || result.upgraded.length) {
 		toast.success(__('Students enrolled'))
 	}

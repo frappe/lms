@@ -7,7 +7,7 @@ import {
 	type HistoryState,
 	type Router,
 } from 'vue-router'
-import { defineComponent, h, reactive } from 'vue'
+import { defineComponent, h, provide, reactive } from 'vue'
 
 vi.stubGlobal('__', (text: string) => text)
 
@@ -59,8 +59,15 @@ const optionsFor = (url: string): Record<string, unknown> =>
 		) as [Record<string, unknown>]
 	)[0]
 
+const reloadCourseDetails = vi.fn()
+
+// CourseDetail hands its key-less course resource's reload down to the forms
+// in its <router-view>; this stands in for it.
 const CoursePage = defineComponent({
-	render: () => h('div', ['COURSE', h(RouterView)]),
+	setup() {
+		provide('reloadCourseDetails', reloadCourseDetails)
+		return () => h('div', ['COURSE', h(RouterView)])
+	},
 })
 
 const makeRouter = (): Router =>
@@ -143,6 +150,7 @@ describe('CourseEnrollmentForm as a route', () => {
 		getCachedListResourceMock.mockReset()
 		getCachedListResourceMock.mockReturnValue(null)
 		toastMock.success.mockReset()
+		reloadCourseDetails.mockReset()
 	})
 
 	it('fetches the course itself, keyed off the route param', async () => {
@@ -274,6 +282,31 @@ describe('CourseEnrollmentForm as a route', () => {
 		expect(list.reload).toHaveBeenCalledTimes(1)
 		expect(toastMock.success).toHaveBeenCalledWith('Students enrolled')
 		expect(router.currentRoute.value.name).toBe('NewCourseEnrollment')
+	})
+
+	// Regression from the bulk-enroll PR (feat/bulk-enroll): the dashboard's
+	// Enrolled stat stayed stale after enrolling until the page was reloaded.
+	it('reloads the course details behind the Enrolled stat only when someone was added', async () => {
+		courseResource.data = course()
+		const router = makeRouter()
+		await openForm(router)
+		const wrapper = await mountForm(router)
+
+		form(wrapper).vm.$emit('enrolled', {
+			added: [],
+			upgraded: ['a@x.com'],
+			errors: [{ member: 'b@x.com', error: 'x' }],
+		})
+		await flushPromises()
+		expect(reloadCourseDetails).not.toHaveBeenCalled()
+
+		form(wrapper).vm.$emit('enrolled', {
+			added: ['c@x.com'],
+			upgraded: [],
+			errors: [],
+		})
+		await flushPromises()
+		expect(reloadCourseDetails).toHaveBeenCalledTimes(1)
 	})
 
 	it('toasts for an upgrade alone, and not when nobody was added', async () => {
