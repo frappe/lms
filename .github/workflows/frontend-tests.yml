@@ -7,8 +7,6 @@ on:
       - "package.json"
       # Read from disk by frontend/src/tests/ravenRuleModel.test.ts.
       - "lms/raven_provider.py"
-      # Read from disk by frontend/src/tests/a11y-forms.test.ts.
-      - "lms/www/new-sign-up.html"
       - ".github/workflows/frontend-tests.yml"
   push:
     branches: [main, develop, main-hotfix]
@@ -17,8 +15,6 @@ on:
       - "package.json"
       # Read from disk by frontend/src/tests/ravenRuleModel.test.ts.
       - "lms/raven_provider.py"
-      # Read from disk by frontend/src/tests/a11y-forms.test.ts.
-      - "lms/www/new-sign-up.html"
       - ".github/workflows/frontend-tests.yml"
 
 concurrency:
