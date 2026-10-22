@@ -1,6 +1,7 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { enableAutoUnmount, flushPromises, mount } from '@vue/test-utils'
-import { defineComponent, h } from 'vue'
+import { defineComponent, h, ref, shallowRef } from 'vue'
+import type { Ref } from 'vue'
 
 const translate = (text: string, args?: unknown[]) =>
 	args ? text.replace(/\{(\d+)\}/g, (_, i) => String(args[Number(i)])) : text
@@ -16,6 +17,27 @@ const labels: Record<string, string> = {
 	'john@x.com': 'John Roe',
 }
 
+interface Option {
+	value: string
+	label: string
+}
+
+const optionsFor = (entries: Record<string, string>): Map<string, Option> =>
+	new Map(
+		Object.entries(entries).map(([value, label]) => [value, { value, label }])
+	)
+
+// What MultiLink currently knows labels for: the latest search page plus
+// whatever it has resolved by name. A test swaps it to model a new search.
+const stub = vi.hoisted(() => ({
+	options: null as Ref<Map<string, { value: string; label: string }>> | null,
+}))
+
+const setOptions = async (entries: Record<string, string>) => {
+	stub.options!.value = optionsFor(entries)
+	await flushPromises()
+}
+
 vi.mock('@/components/Controls/MultiLink.vue', () => ({
 	default: defineComponent({
 		name: 'MultiLinkStub',
@@ -29,18 +51,20 @@ vi.mock('@/components/Controls/MultiLink.vue', () => ({
 			'label',
 		],
 		emits: ['update:modelValue', 'update:query'],
-		setup(_, { expose }) {
+		setup(props, { expose }) {
+			const options = shallowRef(optionsFor(labels))
+			stub.options = options
+			const trigger = ref<HTMLButtonElement | null>(null)
 			expose({
-				optionByValue: new Map(
-					Object.entries(labels).map(([value, label]) => [
-						value,
-						{ value, label },
-					])
-				),
+				optionByValue: options,
+				focus: () => trigger.value?.focus(),
 			})
-		},
-		render() {
-			return h('div', { 'data-testid': 'multilink' }, this.error as string)
+			return () =>
+				h(
+					'button',
+					{ ref: trigger, type: 'button', 'data-testid': 'multilink' },
+					props.error as string
+				)
 		},
 	}),
 }))
@@ -59,6 +83,7 @@ const mountPicker = (modelValue: string[] = []) =>
 			},
 		},
 		global: { mocks: { __: translate } },
+		attachTo: document.body,
 	})
 
 let wrapper: ReturnType<typeof mountPicker>
@@ -99,6 +124,50 @@ describe('StudentPicker', () => {
 		expect(wrapper.emitted('update:modelValue')?.at(-1)).toEqual([
 			['john@x.com'],
 		])
+	})
+
+	it('keeps a picked student named after the next search replaces the options', async () => {
+		wrapper = mountPicker()
+		link().vm.$emit('update:modelValue', ['jane@x.com'])
+		await flushPromises()
+		await setOptions({ 'lisa@x.com': 'Lisa Smith' })
+		expect(wrapper.get('[data-testid="student-chip"]').text()).toBe('Jane Doe')
+	})
+
+	it('names a pasted student once resolved, and keeps the name after a search', async () => {
+		wrapper = mountPicker()
+		await paste('zed@x.com, jane@x.com,')
+		await setOptions({ ...labels, 'zed@x.com': 'Zed Example' })
+		await setOptions({})
+		const chips = wrapper.findAll('[data-testid="student-chip"]')
+		expect(chips.map((c) => c.text())).toEqual(['Zed Example', 'Jane Doe'])
+	})
+
+	const chipNamed = (name: string) =>
+		wrapper.get(`[aria-label="Remove ${name}"]`).element
+
+	it('moves focus to the next chip after removing one', async () => {
+		wrapper = mountPicker(['jane@x.com', 'john@x.com'])
+		await flushPromises()
+		await wrapper.get('[aria-label="Remove Jane Doe"]').trigger('click')
+		await flushPromises()
+		expect(document.activeElement).toBe(chipNamed('John Roe'))
+	})
+
+	it('moves focus to the previous chip after removing the last one', async () => {
+		wrapper = mountPicker(['jane@x.com', 'john@x.com'])
+		await flushPromises()
+		await wrapper.get('[aria-label="Remove John Roe"]').trigger('click')
+		await flushPromises()
+		expect(document.activeElement).toBe(chipNamed('Jane Doe'))
+	})
+
+	it('moves focus to the picker after removing the only chip', async () => {
+		wrapper = mountPicker(['jane@x.com'])
+		await flushPromises()
+		await wrapper.get('[aria-label="Remove Jane Doe"]').trigger('click')
+		await flushPromises()
+		expect(document.activeElement).toBe(link().element)
 	})
 
 	it('adds every address in a pasted comma-separated list and clears the search', async () => {
