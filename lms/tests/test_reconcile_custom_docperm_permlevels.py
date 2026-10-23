@@ -348,3 +348,30 @@ class TestReconcileCustomDocPermPermlevels(IntegrationTestCase):
 		count_after_alert = frappe.db.count("Custom DocPerm", {"parent": ASSIGNMENT_DOCTYPE})
 
 		self.assertEqual(count_after_alert, count_before_alert)
+
+	def test_program_staff_keep_the_member_rows_on_a_customised_site(self):
+		"""LMS Program ships its member fields at permlevel 1. A site that customised the
+		doctype's permissions before that would hide the members from its own staff; the
+		patch line naming LMS Program carries the shipped read and write rows across."""
+		doctype = "LMS Program"
+		shipped = frappe.get_all(
+			"DocPerm",
+			filters={"parent": doctype, "parenttype": "DocType", "permlevel": 1},
+			fields=["role", "read", "write"],
+		)
+		self.assertTrue(shipped, f"{doctype} ships no permlevel 1 rows; run migrate on this site")
+		self.arrange_pre_upgrade_custom_docperm_shadow(doctype)
+
+		reconcile([doctype])
+		frappe.clear_cache(doctype=doctype)
+
+		for row in shipped:
+			with self.subTest(role=row.role):
+				custom = frappe.db.get_value(
+					"Custom DocPerm",
+					{"parent": doctype, "role": row.role, "permlevel": 1},
+					["read", "write"],
+					as_dict=True,
+				)
+				self.assertIsNotNone(custom)
+				self.assertEqual((custom.read, custom.write), (row.read, row.write))
