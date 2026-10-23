@@ -250,6 +250,12 @@ beforeEach(() => {
 afterEach(() => vi.useRealTimers())
 enableAutoUnmount(afterEach)
 
+const WORKDAY_HOURS = [9, 10, 11, 12, 13, 14, 15, 16].map((hour) => [
+	`${String(hour).padStart(2, '0')}:00`,
+	`${String(hour + 1).padStart(2, '0')}:00`,
+])
+const WORKDAY_TIMES = WORKDAY_HOURS.flat()
+
 describe('ProfileEvaluator week', () => {
 	it('lists all seven days, each range under its own day', async () => {
 		const wrapper = await mountPanel()
@@ -328,7 +334,7 @@ describe('ProfileEvaluator week', () => {
 		expect(total('Monday')).toBe('2h')
 		expect(total('Friday')).toBe('')
 		await addHours(wrapper, 'Friday')
-		expect(total('Friday')).toBe('8h')
+		expect(total('Friday')).toBe('1h')
 	})
 
 	it('labels the columns like the CRM schedule, with a divider only between days', async () => {
@@ -345,7 +351,7 @@ describe('ProfileEvaluator week', () => {
 		expect(day(wrapper, 'Sunday').find('hr').exists()).toBe(false)
 	})
 
-	it('Add slot on an unavailable day adds 09:00 to 17:00, then the next hour', async () => {
+	it('Add slot on an unavailable day adds 09:00 to 10:00, then the next hour', async () => {
 		const wrapper = await mountPanel()
 		expect(isOff(wrapper, 'Friday')).toBe(true)
 		await addHours(wrapper, 'Friday')
@@ -354,9 +360,9 @@ describe('ProfileEvaluator week', () => {
 
 		expect(timesOf(wrapper, 'Friday')).toEqual([
 			'09:00',
-			'17:00',
-			'17:00',
-			'18:00',
+			'10:00',
+			'10:00',
+			'11:00',
 		])
 	})
 
@@ -401,7 +407,7 @@ describe('ProfileEvaluator week', () => {
 			schedule: [
 				{ day: 'Monday', start_time: '09:00', end_time: '10:00' },
 				{ day: 'Monday', start_time: '14:00', end_time: '15:00' },
-				{ day: 'Wednesday', start_time: '09:00', end_time: '17:00' },
+				{ day: 'Wednesday', start_time: '09:00', end_time: '10:00' },
 			],
 			unavailable_from: '2030-01-01',
 			unavailable_to: '2030-01-05',
@@ -410,6 +416,35 @@ describe('ProfileEvaluator week', () => {
 		expect(details.reload).not.toHaveBeenCalled()
 		expect(toast.success).toHaveBeenCalledTimes(1)
 		expect(toast.success).toHaveBeenCalledWith('Availability saved')
+	})
+
+	it('keeps edits made while Save is in flight, still unsaved', async () => {
+		const wrapper = await mountPanel()
+		const details = find('lms.lms.api.get_evaluator_details')
+		const save = find('lms.lms.api.save_evaluator_availability')
+		let finish = (_: unknown) => {}
+		save.submit.mockReturnValueOnce(
+			new Promise((resolve) => (finish = resolve))
+		)
+		await addHours(wrapper, 'Wednesday')
+
+		await button(wrapper, 'Save')!.trigger('click')
+		await addHours(wrapper, 'Thursday')
+		finish({
+			...details.data,
+			slots: {
+				...details.data.slots,
+				schedule: [
+					...details.data.slots.schedule,
+					{ day: 'Wednesday', start_time: '9:00:00', end_time: '10:00:00' },
+				],
+			},
+		})
+		await flushPromises()
+
+		expect(timesOf(wrapper, 'Wednesday')).toEqual(['09:00', '10:00'])
+		expect(timesOf(wrapper, 'Thursday')).toEqual(['09:00', '10:00'])
+		expect(button(wrapper, 'Discard')).toBeDefined()
 	})
 
 	it('shows a server refusal inline, not as a toast', async () => {
@@ -579,7 +614,7 @@ describe('ProfileEvaluator with no saved hours', () => {
 			'Thursday',
 			'Friday',
 		]) {
-			expect(timesOf(wrapper, name)).toEqual(['09:00', '17:00'])
+			expect(timesOf(wrapper, name)).toEqual(WORKDAY_TIMES)
 		}
 		expect(isOff(wrapper, 'Saturday')).toBe(true)
 		expect(isOff(wrapper, 'Sunday')).toBe(true)
@@ -590,7 +625,7 @@ describe('ProfileEvaluator with no saved hours', () => {
 		expect(emptyState(wrapper).exists()).toBe(true)
 	})
 
-	it('saves the weekday preset as five wall-clock rows', async () => {
+	it('saves the weekday preset as hour-long wall-clock rows', async () => {
 		const wrapper = await mountPanel({ schedule: [] })
 		await button(wrapper, 'Use Mon–Fri, 09:00–17:00')!.trigger('click')
 
@@ -599,11 +634,13 @@ describe('ProfileEvaluator with no saved hours', () => {
 
 		const save = find('lms.lms.api.save_evaluator_availability')
 		expect(save.submit.mock.calls[0][0].schedule).toEqual(
-			['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'].map((d) => ({
-				day: d,
-				start_time: '09:00',
-				end_time: '17:00',
-			}))
+			['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'].flatMap((d) =>
+				WORKDAY_HOURS.map(([start_time, end_time]) => ({
+					day: d,
+					start_time,
+					end_time,
+				}))
+			)
 		)
 	})
 

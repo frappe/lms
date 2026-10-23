@@ -52,13 +52,6 @@ const WORKDAYS: Weekday[] = [
 	'Friday',
 ]
 
-// 09:00 to 17:00, Monday to Friday, in the same wall clock as every other slot.
-export const standardWeek = (): Week => {
-	const week = emptyWeek()
-	for (const day of WORKDAYS) week[day] = [newRange('09:00', '17:00')]
-	return week
-}
-
 export const toWeek = (rows: ScheduleRow[]): Week => {
 	const week = emptyWeek()
 	for (const row of rows) {
@@ -90,9 +83,22 @@ const addHour = (time: string): string => {
 // A new range starts where the day's last one ends, so it never overlaps.
 export const nextRange = (ranges: TimeRange[]): TimeRange => {
 	const last = ranges[ranges.length - 1]
-	if (!last) return newRange('09:00', '17:00')
+	if (!last) return newRange('09:00', '10:00')
 	const start = last.end || '09:00'
 	return newRange(start, addHour(start))
+}
+
+// Each range is one bookable evaluation, so 09:00 to 17:00, Monday to Friday, is
+// offered as hour-long slots, in the same wall clock as every other slot.
+export const standardWeek = (): Week => {
+	const week = emptyWeek()
+	for (const day of WORKDAYS) {
+		week[day] = Array.from({ length: 8 }, (_, hour) => {
+			const start = `${String(9 + hour).padStart(2, '0')}:00`
+			return newRange(start, addHour(start))
+		})
+	}
+	return week
 }
 
 export const formatRange = (range: TimeRange): string =>
