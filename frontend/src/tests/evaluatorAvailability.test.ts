@@ -45,8 +45,8 @@ describe('toWeek / toRows', () => {
 })
 
 describe('nextRange', () => {
-	it('starts a day at 09:00 to 17:00', () => {
-		expect(nextRange([])).toMatchObject({ start: '09:00', end: '17:00' })
+	it('starts a day with one hour-long slot at 09:00', () => {
+		expect(nextRange([])).toMatchObject({ start: '09:00', end: '10:00' })
 	})
 
 	it('starts where the last range ends, so it never overlaps', () => {
@@ -132,7 +132,17 @@ describe('toTimeOff', () => {
 })
 
 describe('standardWeek', () => {
-	it('is 09:00 to 17:00 on weekdays, with the weekend off', () => {
+	it('offers 09:00 to 17:00 on weekdays as hour-long slots', () => {
+		const hours = [
+			'09:00-10:00',
+			'10:00-11:00',
+			'11:00-12:00',
+			'12:00-13:00',
+			'13:00-14:00',
+			'14:00-15:00',
+			'15:00-16:00',
+			'16:00-17:00',
+		]
 		const week = standardWeek()
 		expect(
 			Object.entries(week).map(([day, ranges]) => [
@@ -140,11 +150,11 @@ describe('standardWeek', () => {
 				ranges.map((r) => `${r.start}-${r.end}`),
 			])
 		).toEqual([
-			['Monday', ['09:00-17:00']],
-			['Tuesday', ['09:00-17:00']],
-			['Wednesday', ['09:00-17:00']],
-			['Thursday', ['09:00-17:00']],
-			['Friday', ['09:00-17:00']],
+			['Monday', hours],
+			['Tuesday', hours],
+			['Wednesday', hours],
+			['Thursday', hours],
+			['Friday', hours],
 			['Saturday', []],
 			['Sunday', []],
 		])

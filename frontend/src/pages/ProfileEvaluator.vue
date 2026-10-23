@@ -106,7 +106,7 @@ import {
 	ErrorMessage,
 	toast,
 } from 'frappe-ui'
-import { computed, inject, onMounted, ref, watch } from 'vue'
+import { computed, inject, nextTick, onMounted, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import type { EvaluatorDetails, Resource, SessionUser } from '@/types/api'
 import ProfileEvaluatorCalendar from '@/components/Profile/ProfileEvaluatorCalendar.vue'
@@ -232,13 +232,23 @@ const save = async () => {
 	saveError.value = ''
 	// The time off row is hidden with no hours, so it saves as none.
 	const [from, to] = hasHours.value ? timeOff.value : []
+	const sent = snapshot()
 	try {
 		const saved = await saveAvailability.submit({
 			schedule: toRows(week.value),
 			unavailable_from: from ?? null,
 			unavailable_to: to ?? null,
 		})
+		// The fields stay editable while saving; setData reloads them from the
+		// save, so edits made in the meantime go back on top, still unsaved.
+		const edits =
+			snapshot() === sent ? null : { week: week.value, timeOff: timeOff.value }
 		evaluator.setData(saved)
+		if (edits) {
+			await nextTick()
+			week.value = edits.week
+			timeOff.value = edits.timeOff
+		}
 		toast.success(__('Availability saved'))
 	} catch (err) {
 		saveError.value = resourceErrorMessage(err)
