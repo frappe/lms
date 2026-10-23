@@ -6,6 +6,7 @@ from frappe.utils import add_days, nowdate
 
 from lms.lms.permissions import can_access_assessment
 from lms.lms.test_helpers import BaseTestUtils
+from lms.lms.utils import get_assessments
 
 
 class BatchFixtures(BaseTestUtils):
@@ -140,3 +141,74 @@ class TestBatchCourseEvaluatorQuizScope(BatchFixtures):
 		self.assertFalse(
 			frappe.has_permission("LMS Quiz Submission", "read", self.mine, user=self.other_evaluator.name)
 		)
+
+
+class TestBatchEvaluatorBatchScope(BatchFixtures):
+	"""Every published batch is readable by an evaluator; an unpublished one only
+	when they are tagged on it, and only tagged batches are editable."""
+
+	@classmethod
+	def setUpClass(cls):
+		super().setUpClass()
+		frappe.set_user("Administrator")
+		suffix = frappe.generate_hash(length=6)
+		cls.instructor = cls._create_user(
+			f"bbs-instr-{suffix}@example.com", "Ivo", "Instructor", ["Course Creator", "Batch Evaluator"]
+		)
+		cls.evaluator = cls._create_user(f"bbs-eval-{suffix}@example.com", "Eve", "Eval", ["Batch Evaluator"])
+		cls.other_evaluator = cls._create_user(
+			f"bbs-other-{suffix}@example.com", "Oli", "Other", ["Batch Evaluator"]
+		)
+		cls._require_no_moderators(cls.evaluator.name, cls.instructor.name)
+		cls._create_evaluator(cls.evaluator.name)
+		cls._create_evaluator(cls.other_evaluator.name)
+		cls.course = cls._create_course(title=f"BBS Course {suffix}", instructor=cls.instructor.name)
+
+		cls.published = cls._make_batch(f"BBS Published {suffix}", cls.course.name, cls.other_evaluator.name)
+		cls.hidden = cls._make_batch(
+			f"BBS Hidden {suffix}", cls.course.name, cls.other_evaluator.name, published=0
+		)
+		cls.evaluated = cls._make_batch(
+			f"BBS Evaluated {suffix}", cls.course.name, cls.evaluator.name, published=0
+		)
+		cls.instructed = cls._make_batch(
+			f"BBS Instructed {suffix}",
+			cls.course.name,
+			cls.other_evaluator.name,
+			published=0,
+			instructor=cls.instructor.name,
+		)
+
+	def _can(self, ptype, batch, user):
+		return frappe.has_permission("LMS Batch", ptype, batch, user=user)
+
+	def test_an_evaluator_reads_a_published_batch_they_are_not_tagged_on(self):
+		self.assertTrue(self._can("read", self.published, self.evaluator.name))
+		self.assertIn(self.published.name, self._listed("LMS Batch", self.evaluator.name))
+
+	def test_an_evaluator_does_not_see_an_unpublished_batch_they_are_not_tagged_on(self):
+		self.assertFalse(self._can("read", self.hidden, self.evaluator.name))
+		self.assertNotIn(self.hidden.name, self._listed("LMS Batch", self.evaluator.name))
+
+	def test_an_evaluator_sees_and_edits_an_unpublished_batch_they_evaluate(self):
+		self.assertTrue(self._can("read", self.evaluated, self.evaluator.name))
+		self.assertTrue(self._can("write", self.evaluated, self.evaluator.name))
+		self.assertIn(self.evaluated.name, self._listed("LMS Batch", self.evaluator.name))
+
+	def test_an_instructor_sees_and_edits_an_unpublished_batch_they_instruct(self):
+		self.assertTrue(self._can("read", self.instructed, self.instructor.name))
+		self.assertTrue(self._can("write", self.instructed, self.instructor.name))
+		self.assertIn(self.instructed.name, self._listed("LMS Batch", self.instructor.name))
+
+	def test_an_evaluator_cannot_edit_a_published_batch_they_are_not_tagged_on(self):
+		self.assertFalse(self._can("write", self.published, self.evaluator.name))
+		self.assertFalse(self._can("delete", self.published, self.evaluator.name))
+
+	def test_the_role_reaches_staff_views_of_published_batches_only(self):
+		frappe.set_user(self.evaluator.name)
+		try:
+			get_assessments(self.published.name)
+			get_assessments(self.evaluated.name)
+			self.assertRaises(frappe.ValidationError, get_assessments, self.hidden.name)
+		finally:
+			frappe.set_user("Administrator")

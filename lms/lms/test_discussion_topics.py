@@ -11,11 +11,9 @@ class TestDiscussionTopics(BaseTestUtils):
 	def setUp(self):
 		super().setUp()
 		hash = frappe.generate_hash(length=6)
-		# A Batch Evaluator may read any batch's discussions, so the batch itself
+		# A Moderator may read any batch's discussions, so the batch itself
 		# need not exist for this.
-		self.user = self._create_user(
-			f"topics-eval-{hash}@example.com", "Eve", "Eval", ["Batch Evaluator"]
-		).name
+		self.user = self._create_user(f"topics-mod-{hash}@example.com", "Mo", "Mod", ["Moderator"]).name
 		self.batch = f"batch-{hash}"
 
 	def tearDown(self):
