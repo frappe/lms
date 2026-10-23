@@ -1,0 +1,260 @@
+name: Set up bench
+description: >-
+  Restore a cached bench holding frappe and payments (building and caching it on
+  a miss), add this checkout as the lms app, and create a site with lms
+  installed. Expects mariadb on 127.0.0.1:3306 and redis on 127.0.0.1:6379.
+
+inputs:
+  site:
+    description: Name of the site to create.
+    required: true
+  db-root-password:
+    description: Root password of the mariadb service.
+    required: true
+  site-config:
+    description: JSON object merged into the new site's site_config.json.
+    default: "{}"
+  build-assets:
+    description: Install the lms node packages and build its assets.
+    default: "false"
+  python-version:
+    default: "3.14"
+  node-version:
+    default: "24"
+  frappe-branch:
+    description: The frappe branch the bench is built from and keyed on.
+    default: "develop"
+  payments-branch:
+    description: The payments branch, likewise.
+    default: "develop"
+
+runs:
+  using: composite
+  steps:
+    - name: Setup Python
+      id: python
+      uses: actions/setup-python@v6
+      with:
+        python-version: ${{ inputs.python-version }}
+
+    - name: Setup Node
+      uses: actions/setup-node@v6
+      with:
+        node-version: ${{ inputs.node-version }}
+        check-latest: true
+
+
+    # The bench's virtualenv links to the exact Python build, so a patch
+    # release has to miss the cache rather than restore a broken env.
+    - name: Compute bench cache key
+      id: key
+      shell: bash
+      env:
+        PYTHON_VERSION: ${{ steps.python.outputs.python-version }}
+        SETUP_HASH: ${{ hashFiles('.github/actions/setup-bench/**') }}
+        FRAPPE_BRANCH: ${{ inputs.frappe-branch }}
+        PAYMENTS_BRANCH: ${{ inputs.payments-branch }}
+      run: |
+        set -euo pipefail
+        frappe=$(git ls-remote https://github.com/frappe/frappe "refs/heads/$FRAPPE_BRANCH" | cut -f1)
+        payments=$(git ls-remote https://github.com/frappe/payments "refs/heads/$PAYMENTS_BRANCH" | cut -f1)
+        test -n "$frappe" && test -n "$payments"
+        echo "key=bench-${ImageOS:-unknown}-py$PYTHON_VERSION-$frappe-$payments-$SETUP_HASH" >> "$GITHUB_OUTPUT"
+
+    # bench installs through uv; pip installs bench itself. Keyed with the
+    # bench, so a frappe or payments dependency bump saves a fresh entry.
+    - name: Cache package downloads
+      uses: actions/cache@v4
+      with:
+        path: |
+          ~/.cache/pip
+          ~/.cache/uv
+        key: packages-${{ steps.key.outputs.key }}-${{ hashFiles('pyproject.toml') }}
+        restore-keys: |
+          packages-
+
+    - name: Install bench
+      shell: bash
+      run: pip install frappe-bench
+
+    - name: Restore bench
+      id: restore
+      uses: actions/cache/restore@v4
+      with:
+        path: ~/frappe-bench
+        key: ${{ steps.key.outputs.key }}
+
+    - name: Build bench
+      if: steps.restore.outputs.cache-hit != 'true'
+      shell: bash
+      run: |
+        set -euo pipefail
+        bench init ~/frappe-bench \
+          --frappe-branch "${{ inputs.frappe-branch }}" \
+          --skip-redis-config-generation \
+          --skip-assets \
+          --python "$(which python)"
+        cd ~/frappe-bench
+        for key in redis_cache redis_queue redis_socketio; do
+          bench set-config -g "$key" redis://127.0.0.1:6379
+        done
+        bench get-app --skip-assets --branch "${{ inputs.payments-branch }}" payments https://github.com/frappe/payments
+        bench setup requirements --dev
+        # Page rendering reads frappe's entries in sites/assets/assets.json.
+        bench build --app frappe
+
+    # Saved before lms is added, so the cache never holds the code under test.
+    - name: Save bench
+      if: steps.restore.outputs.cache-hit != 'true'
+      uses: actions/cache/save@v4
+      with:
+        path: ~/frappe-bench
+        key: ${{ steps.key.outputs.key }}
+
+    # `bench get-app` always runs `yarn install`, even with --skip-assets, so
+    # lms is installed by hand and node packages are fetched only when needed.
+    - name: Add lms app
+      shell: bash
+      working-directory: /home/runner/frappe-bench
+      run: |
+        set -euo pipefail
+        cp -a "$GITHUB_WORKSPACE" apps/lms
+        env/bin/python -m pip install --quiet -e apps/lms
+        printf '\nlms\n' >> sites/apps.txt
+        bench setup requirements --dev lms
+
+    # A fresh install's database depends on the bench and on what installing lms
+    # writes: doctypes, fixtures, hooks, patches and the install code. Only pull
+    # requests restore it; pushes always install fresh, so a change the key
+    # misses still shows up on the base branch.
+    - name: Compute site snapshot key
+      id: snapshot-key
+      shell: bash
+      env:
+        BENCH_KEY: ${{ steps.key.outputs.key }}
+        SITE: ${{ inputs.site }}
+        # lms/install.py and every module it imports. Keep the list in step
+        # with its imports.
+        INSTALL_HASH: >-
+          ${{ hashFiles('lms/**/*.json', 'lms/hooks.py', 'lms/install.py',
+          'lms/patches.txt', 'lms/lms/sidebar.py', 'lms/lms/api.py',
+          'lms/lms/enrollment_constraints.py') }}
+      run: echo "key=site-$BENCH_KEY-$SITE-${INSTALL_HASH:0:16}" >> "$GITHUB_OUTPUT"
+
+    # Outside pull requests this only looks the key up, to skip a needless dump.
+    - name: Restore site snapshot
+      id: snapshot
+      uses: actions/cache/restore@v4
+      with:
+        path: ~/site-snapshot
+        key: ${{ steps.snapshot-key.outputs.key }}
+        lookup-only: ${{ github.event_name != 'pull_request' }}
+
+    - name: Create site
+      shell: bash
+      working-directory: /home/runner/frappe-bench
+      env:
+        SITE: ${{ inputs.site }}
+        DB_ROOT_PASSWORD: ${{ inputs.db-root-password }}
+        SITE_CONFIG: ${{ inputs.site-config }}
+        SNAPSHOT_HIT: ${{ github.event_name == 'pull_request' && steps.snapshot.outputs.cache-hit }}
+      run: |
+        set -euo pipefail
+        source=()
+        if [ "$SNAPSHOT_HIT" = "true" ]; then
+          # The dump already has frappe and lms installed, so new-site skips both.
+          source=(--source-sql "$HOME/site-snapshot/site.sql.gz")
+        fi
+        bench new-site "$SITE" \
+          --db-host 127.0.0.1 \
+          --db-root-password "$DB_ROOT_PASSWORD" \
+          --admin-password admin \
+          --install-app lms \
+          "${source[@]}"
+        config="sites/$SITE/site_config.json"
+        jq --argjson extra "$SITE_CONFIG" '. * $extra' "$config" > "$config.new"
+        mv "$config.new" "$config"
+
+    # The dump runs inside the mariadb service, whose client matches the server.
+    - name: Dump site snapshot
+      id: dump
+      if: steps.snapshot.outputs.cache-hit != 'true'
+      # A failed dump only costs the next run its shortcut, never this run.
+      continue-on-error: true
+      shell: bash
+      working-directory: /home/runner/frappe-bench
+      env:
+        SITE: ${{ inputs.site }}
+        DB_ROOT_PASSWORD: ${{ inputs.db-root-password }}
+      run: |
+        set -euo pipefail
+        db=$(jq -r .db_name "sites/$SITE/site_config.json")
+        container=$(docker ps -q --filter publish=3306 | head -1)
+        test -n "$container"
+        mkdir -p ~/site-snapshot
+        docker exec -e MYSQL_PWD="$DB_ROOT_PASSWORD" "$container" sh -c \
+          'exec "$(command -v mariadb-dump || command -v mysqldump)" -uroot --single-transaction --quick "$0"' "$db" \
+          | gzip > ~/site-snapshot/site.sql.gz
+
+    - name: Save site snapshot
+      if: steps.dump.outcome == 'success'
+      uses: actions/cache/save@v4
+      with:
+        path: ~/site-snapshot
+        key: ${{ steps.snapshot-key.outputs.key }}
+
+    - name: Cache lms node packages
+      if: inputs.build-assets == 'true'
+      uses: actions/cache@v4
+      with:
+        path: |
+          ~/frappe-bench/apps/lms/node_modules
+          ~/frappe-bench/apps/lms/frontend/node_modules
+        key: >-
+          lms-node-modules-${{ runner.os }}-node${{ inputs.node-version }}-${{
+          hashFiles('yarn.lock', 'frontend/yarn.lock') }}
+
+    # The build depends on the bench (frappe's build tooling, and assets.json
+    # already holding frappe's entries) and on the lms sources, so both are in
+    # the key. A PR that leaves the frontend alone restores the last build.
+    - name: Cache built lms assets
+      if: inputs.build-assets == 'true'
+      id: assets
+      uses: actions/cache@v4
+      with:
+        path: |
+          ~/frappe-bench/apps/lms/lms/public/dist
+          ~/frappe-bench/apps/lms/lms/public/frontend
+          ~/frappe-bench/apps/lms/lms/www/_lms.html
+          ~/frappe-bench/sites/assets/assets.json
+          ~/frappe-bench/sites/assets/assets-rtl.json
+          ~/frappe-bench/sites/assets/locale
+        key: >-
+          lms-assets-${{ steps.key.outputs.key }}-${{
+          hashFiles('frontend/src/**', 'frontend/public/**', 'frontend/index.html',
+          'frontend/*.config.*', 'frontend/tailwind/**', 'frontend/package.json',
+          'frontend/yarn.lock', 'lms/public/**', 'lms/locale/**', 'package.json', 'yarn.lock') }}
+
+    - name: Build lms assets
+      if: inputs.build-assets == 'true'
+      shell: bash
+      working-directory: /home/runner/frappe-bench
+      env:
+        SITE: ${{ inputs.site }}
+        ASSETS_CACHED: ${{ steps.assets.outputs.cache-hit }}
+      run: |
+        set -euo pipefail
+        # Playwright and its config live in apps/lms, so the packages are
+        # needed whether or not the assets are built here.
+        (cd apps/lms && yarn install --frozen-lockfile)
+        if [ "$ASSETS_CACHED" = "true" ]; then
+          # The outputs are back; only the sites/assets/<app> links are missing.
+          (cd sites && ../env/bin/python -c '
+          import os, frappe, frappe.bundler as bundler
+          frappe.init(site=os.environ["SITE"])
+          bundler.setup()
+          bundler.make_asset_dirs(verbose=False)
+          ')
+        else
+          bench build --app lms
+        fi
