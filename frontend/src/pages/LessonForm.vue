@@ -11,20 +11,15 @@
 				{{ __('Lesson details') }}
 			</button>
 
-			<div v-else class="flex items-center justify-between gap-3">
-				<div class="flex items-center gap-3">
-					<Switch
-						v-model="lesson.include_in_preview"
-						:aria-labelledby="previewLabelId"
-						@update:modelValue="markDirty"
-					/>
-					<div class="flex items-center gap-1.5">
-						<span
-							:id="previewLabelId"
-							class="text-p-base font-medium text-ink-gray-8"
-						>
-							{{ __('Include in preview') }}
-						</span>
+			<SwitchRow
+				v-else
+				v-model="lesson.include_in_preview"
+				:label="__('Include in preview')"
+				@update:modelValue="markDirty"
+			>
+				<template #label>
+					<span class="flex items-center gap-1.5">
+						{{ __('Include in preview') }}
 						<Tooltip
 							:text="
 								__(
@@ -34,37 +29,25 @@
 						>
 							<span
 								class="lucide-help-circle size-4 shrink-0 text-ink-gray-5"
+								@click.prevent
 							/>
 						</Tooltip>
-					</div>
-				</div>
-			</div>
+					</span>
+				</template>
+			</SwitchRow>
 
 			<BottomSheet v-model="showLessonDetails" :title="__('Lesson details')">
-				<div class="px-3 pb-2">
-					<div class="flex items-start justify-between gap-4 py-3">
-						<div class="min-w-0">
-							<div
-								:id="previewSheetLabelId"
-								class="text-p-base font-medium text-ink-gray-8"
-							>
-								{{ __('Include in preview') }}
-							</div>
-							<p class="mt-0.5 text-p-sm text-ink-gray-6">
-								{{
-									__(
-										'When on, anyone can preview this lesson without enrolling. Otherwise it is visible only to enrolled students.'
-									)
-								}}
-							</p>
-						</div>
-						<Switch
-							v-model="lesson.include_in_preview"
-							:aria-labelledby="previewSheetLabelId"
-							class="shrink-0"
-							@update:modelValue="markDirty"
-						/>
-					</div>
+				<div class="px-3 pb-5 pt-3">
+					<SwitchRow
+						v-model="lesson.include_in_preview"
+						:label="__('Include in preview')"
+						:description="
+							__(
+								'When on, anyone can preview this lesson without enrolling. Otherwise it is visible only to enrolled students.'
+							)
+						"
+						@update:modelValue="markDirty"
+					/>
 				</div>
 			</BottomSheet>
 
@@ -127,15 +110,7 @@
 // The title textarea is `block` because a textarea is inline-block by default,
 // so it would sit on the parent's line box and carry its descender — 5px of
 // space under the title belonging to no rule and no gap.
-import {
-	Badge,
-	Button,
-	Switch,
-	call,
-	createResource,
-	toast,
-	Tooltip,
-} from 'frappe-ui'
+import { Badge, Button, call, createResource, toast, Tooltip } from 'frappe-ui'
 import {
 	reactive,
 	computed,
@@ -144,7 +119,6 @@ import {
 	ref,
 	nextTick,
 	onBeforeUnmount,
-	useId,
 } from 'vue'
 import { ChevronRight, NotebookPen } from 'lucide-vue-next'
 import { useDebounceFn, useEventListener } from '@vueuse/core'
@@ -160,6 +134,7 @@ import { resourceErrorMessage, submitResource } from '@/utils/resource'
 import { hasVideoContent } from '@/utils/video'
 import BlockEditor from '@/components/BlockEditor.vue'
 import BottomSheet from '@/components/BottomSheet.vue'
+import SwitchRow from '@/components/Controls/SwitchRow.vue'
 import { useScreenSize } from '@/utils/composables'
 import { useOnboarding } from '@framework/ui/components/Onboarding/index'
 import { seesOnboarding } from '@/utils/onboarding'
@@ -171,8 +146,6 @@ import {
 
 const { isMobile } = useScreenSize()
 const showLessonDetails = ref(false)
-const previewLabelId = useId()
-const previewSheetLabelId = useId()
 
 const editor = ref(null)
 const instructorEditor = ref(null)

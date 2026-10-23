@@ -7,35 +7,13 @@
 		:includeEnrolled="includeEnrolled"
 	>
 		<template #beforeList>
-			<div
+			<SwitchRow
 				v-if="target.paidKind"
-				data-testid="switch"
-				class="flex items-center justify-between gap-3"
-			>
-				<div class="min-w-0 space-y-0.5">
-					<div
-						:id="labelId"
-						data-testid="switch-label"
-						class="text-p-base font-medium text-ink-gray-8"
-					>
-						{{ paidSwitchLabel(target.paidKind) }}
-					</div>
-					<p
-						:id="descriptionId"
-						data-testid="switch-description"
-						class="text-p-sm text-ink-gray-6"
-					>
-						{{ paidSwitchDescription(target.paidKind, target.priceLabel) }}
-					</p>
-				</div>
-				<Switch
-					v-model="paid"
-					size="md"
-					class="shrink-0"
-					:aria-labelledby="labelId"
-					:aria-describedby="descriptionId"
-				/>
-			</div>
+				v-model="paid"
+				size="md"
+				:label="paidSwitchLabel(target.paidKind)"
+				:description="paidSwitchDescription(target.paidKind, target.priceLabel)"
+			/>
 		</template>
 		<template #list="{ students, remove }">
 			<slot name="list" :students="students" :remove="remove" />
@@ -43,8 +21,8 @@
 	</StudentPicker>
 </template>
 <script setup lang="ts">
-import { Switch } from 'frappe-ui'
-import { computed, useId } from 'vue'
+import { computed } from 'vue'
+import SwitchRow from '@/components/Controls/SwitchRow.vue'
 import StudentPicker from '@/components/Enrollment/StudentPicker.vue'
 import {
 	paidSwitchDescription,
@@ -59,9 +37,6 @@ const props = defineProps<{
 const members = defineModel<string[]>('members', { default: () => [] })
 const paid = defineModel<boolean>('paid', { default: false })
 const checking = defineModel<boolean>('checking', { default: false })
-
-const labelId = useId()
-const descriptionId = useId()
 
 const includeEnrolled = computed<boolean>(
 	() => paid.value && props.target.paidKind === 'certificate'

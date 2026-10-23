@@ -70,26 +70,15 @@
 			<template v-if="rowFields.length">
 				<div class="h-px border-t border-outline-elevation-2" />
 
-				<div
+				<SwitchRow
 					v-for="field in toggleFields"
 					:key="field.name"
-					class="flex items-center justify-between gap-8"
-				>
-					<div class="flex min-w-0 flex-col">
-						<div class="text-p-base-medium text-ink-gray-7">
-							{{ __(field.label) }}
-						</div>
-						<div v-if="field.description" class="text-p-sm text-ink-gray-6">
-							{{ __(field.description) }}
-						</div>
-					</div>
-					<Switch
-						size="sm"
-						:model-value="Boolean(doc[field.name])"
-						:aria-label="__(field.label)"
-						@update:model-value="(on: boolean) => setCheck(field, on)"
-					/>
-				</div>
+					size="sm"
+					:label="__(field.label)"
+					:description="field.description ? __(field.description) : undefined"
+					:model-value="Boolean(doc[field.name])"
+					@update:model-value="(on: boolean) => setCheck(field, on)"
+				/>
 
 				<ImageUploadField
 					v-for="field in uploadFields"
@@ -113,7 +102,6 @@ import {
 	FormControl,
 	LoadingIndicator,
 	Password,
-	Switch,
 	call,
 	createDocumentResource,
 	toast,
@@ -121,6 +109,7 @@ import {
 import type { FrappeResourceError } from 'frappe-ui'
 import { computed, reactive, ref, shallowRef, watch } from 'vue'
 import ImageUploadField from '@/components/Controls/ImageUploadField.vue'
+import SwitchRow from '@/components/Controls/SwitchRow.vue'
 import SettingsLayout from '@/components/Layouts/settings/desktop/SettingsLayout.vue'
 import {
 	DOCTYPE,

@@ -180,7 +180,7 @@ describe('EnrollSelectStep', () => {
 		const wrapper = mount(EnrollSelectStep, {
 			props: { target: target(), members: [], paid: false },
 		})
-		expect(wrapper.find('[data-testid="switch"]').exists()).toBe(false)
+		expect(wrapper.find('[data-testid="switch-row"]').exists()).toBe(false)
 		expect(wrapper.find('[data-testid="picker"]').exists()).toBe(true)
 	})
 
@@ -219,7 +219,7 @@ describe('EnrollSelectStep', () => {
 		const children = Array.from(picker.children).map(
 			(el) => el.getAttribute('data-testid') ?? ''
 		)
-		expect(children).toEqual(['picker-input', 'switch', 'picker-list'])
+		expect(children).toEqual(['picker-input', 'switch-row', 'picker-list'])
 	})
 
 	// Regression from the bulk-enroll PR (feat/bulk-enroll): with no price the
