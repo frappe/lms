@@ -11,6 +11,7 @@ core (frappe/permissions.py), CRM (crm.permissions.*), and Raven (raven.permissi
 
 import frappe
 from frappe import _
+from frappe.permissions import get_role_permissions
 from frappe.query_builder import Bracket
 from pypika import Case
 from pypika import functions as fn
@@ -1679,4 +1680,25 @@ def _evaluator_batches(user: str):
 			(batch_course.evaluator == LiteralValue(frappe.db.escape(user)))
 			& (batch_course.parenttype == "LMS Batch")
 		)
+	)
+
+
+def validate_filed_for_self(doc, fieldname: str):
+	"""Default `fieldname` to the session user. Naming another user needs role-level
+	write on the doctype, which an owner-scoped DocPerm does not give."""
+	if not doc.get(fieldname):
+		doc.set(fieldname, frappe.session.user)
+
+	if doc.get(fieldname) == frappe.session.user:
+		return
+
+	if get_role_permissions(doc.doctype).get("write"):
+		return
+
+	frappe.throw(
+		_("You can only submit a {0} for yourself, not for {1}.").format(
+			_(doc.doctype), frappe.bold(doc.get(fieldname))
+		),
+		frappe.PermissionError,
+		title=_("Cannot submit for another user"),
 	)
