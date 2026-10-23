@@ -1,39 +1,27 @@
 <template>
 	<div class="mt-7 mb-20 flex flex-col gap-12">
 		<section data-testid="availability">
-			<div class="flex flex-wrap items-start justify-between gap-4">
-				<div>
-					<h2 class="text-lg font-semibold text-ink-gray-9">
-						{{ __('Weekly availability') }}
-					</h2>
-					<p v-if="details?.timezone" class="mt-1 text-p-sm text-ink-gray-6">
-						{{ __('Times are in {0}.').format(details.timezone) }}
-					</p>
-				</div>
-				<div v-if="canEdit" class="flex items-center gap-2">
-					<Dropdown
-						v-if="!showEmptyWeek"
-						:options="weekPresets"
-						:button="{
-							icon: 'lucide-more-horizontal',
-							variant: 'ghost',
-							label: __('More options'),
-						}"
-					/>
+			<div class="flex items-center justify-between gap-4">
+				<h2 class="text-lg font-semibold text-ink-gray-9">
+					{{ __('Availability') }}
+				</h2>
+				<div v-if="canEdit && details" class="flex items-center gap-2">
 					<Button
 						v-if="dirty"
-						variant="ghost"
-						:label="__('Discard')"
+						variant="outline"
 						:disabled="saving"
 						@click="discard"
-					/>
+					>
+						<span class="text-p-base">{{ __('Discard') }}</span>
+					</Button>
 					<Button
 						variant="solid"
-						:label="__('Save')"
 						:disabled="!dirty"
 						:loading="saving"
 						@click="save"
-					/>
+					>
+						<span class="text-p-base">{{ __('Save') }}</span>
+					</Button>
 				</div>
 			</div>
 			<p
@@ -46,318 +34,93 @@
 			</p>
 			<ErrorMessage v-if="saveError" class="mt-3" :message="saveError" />
 
-			<div
-				v-if="showEmptyWeek"
-				class="mt-5 rounded-6 border border-outline-gray-2"
-				data-testid="empty-week"
-			>
-				<EmptyStateLayout
-					:name="__('Weekly hours')"
-					icon="lucide-calendar-clock"
-					width="lg"
-					:title="emptyWeekTitle"
-					:description="emptyWeekDescription"
-				>
-					<div v-if="canEdit" class="flex flex-wrap justify-center gap-2">
-						<Button
-							variant="subtle"
-							:label="__('Use Mon–Fri, 09:00–17:00')"
-							@click="useStandardWeek"
-						/>
-						<Button
-							variant="ghost"
-							:label="__('Set day by day')"
-							@click="startingWeek = true"
-						/>
-					</div>
-				</EmptyStateLayout>
-			</div>
-			<ul
-				v-else
-				class="mt-5 divide-y divide-outline-gray-2 rounded-6 border border-outline-gray-2"
-			>
-				<li
-					v-for="day in WEEKDAYS"
-					:key="day"
-					class="flex flex-wrap items-start gap-x-4 gap-y-3 px-4 py-3.5"
-					:data-testid="`day-${day}`"
-				>
-					<span
-						class="flex-1 py-1 text-base font-medium text-ink-gray-8 sm:w-28 sm:flex-none"
-					>
-						{{ __(day) }}
-					</span>
-					<Switch
-						v-if="canEdit"
-						class="py-1 sm:order-3"
-						:model-value="week[day].length > 0"
-						:aria-label="__('Available on {0}').format(__(day))"
-						@update:model-value="(on: boolean) => toggleDay(day, on)"
-					/>
-					<div class="w-full sm:order-2 sm:w-auto sm:flex-1">
-						<p v-if="!week[day].length" class="py-1 text-p-sm text-ink-gray-6">
-							{{ __('Unavailable') }}
-						</p>
-						<p v-else-if="!canEdit" class="py-1 text-p-sm text-ink-gray-8">
-							{{ week[day].map(formatRange).join(', ') }}
-						</p>
-						<ul v-else class="flex flex-col gap-2">
-							<li
-								v-for="(range, index) in week[day]"
-								:key="range.key"
-								data-testid="range"
-							>
-								<div class="flex items-center gap-2">
-									<label class="sr-only" :for="fieldId(range, 'start')">
-										{{ __('{0} start time').format(__(day)) }}
-									</label>
-									<FormControl
-										:id="fieldId(range, 'start')"
-										v-model="range.start"
-										type="time"
-										class="min-w-0 flex-1 sm:w-28 sm:flex-none"
-									/>
-									<span class="text-p-sm text-ink-gray-6">
-										{{ __('to') }}
-									</span>
-									<label class="sr-only" :for="fieldId(range, 'end')">
-										{{ __('{0} end time').format(__(day)) }}
-									</label>
-									<FormControl
-										:id="fieldId(range, 'end')"
-										v-model="range.end"
-										type="time"
-										class="min-w-0 flex-1 sm:w-28 sm:flex-none"
-									/>
-									<Button
-										variant="ghost"
-										icon="lucide-x"
-										:aria-label="
-											__('Remove {0} on {1}').format(
-												formatRange(range),
-												__(day)
-											)
-										"
-										@click="removeRange(day, range)"
-									/>
-									<Button
-										v-if="index === week[day].length - 1"
-										variant="ghost"
-										icon="lucide-plus"
-										:aria-label="__('Add a time range on {0}').format(__(day))"
-										@click="addRange(day)"
-									/>
-									<span v-else class="size-7 shrink-0" />
-								</div>
-								<ErrorMessage
-									v-if="errors[day][range.key]"
-									class="mt-1.5"
-									:message="errors[day][range.key]"
-								/>
-							</li>
-						</ul>
-					</div>
-				</li>
-			</ul>
-		</section>
+			<ProfileEvaluatorHours
+				v-model:week="week"
+				:can-edit="canEdit"
+				:timezone="details?.timezone"
+				:loading="loadingWeek"
+				:load-error="loadError"
+				:retrying="evaluator.loading"
+				:empty="showEmptyWeek"
+				:errors="errors"
+				@retry="retryLoad"
+				@start-week="startingWeek = true"
+			/>
 
-		<section data-testid="time-off">
-			<h2 class="text-lg font-semibold text-ink-gray-9">
-				{{ __('Time off') }}
-			</h2>
 			<div
-				v-if="showEmptyTimeOff"
-				class="mt-5 rounded-6 border border-outline-gray-2"
-				data-testid="empty-time-off"
+				v-if="details && hasHours"
+				class="mt-8 flex flex-wrap items-center justify-between gap-x-4 gap-y-2"
+				data-testid="time-off"
 			>
-				<EmptyStateLayout
-					:name="__('Time off')"
-					icon="lucide-calendar-off"
-					width="lg"
-					:title="__('No time off planned')"
-					:description="timeOffDescription"
-				>
-					<Button
-						v-if="canEdit"
-						variant="subtle"
-						:label="__('Add time off')"
-						@click="editingTimeOff = true"
-					/>
-				</EmptyStateLayout>
-			</div>
-			<div v-else class="mt-5 rounded-6 border border-outline-gray-2">
-				<div
-					v-if="canEdit && editingTimeOff"
-					class="flex flex-wrap items-start gap-4 px-4 py-3.5"
-				>
-					<FormControl
-						v-model="timeOff.from"
-						type="date"
-						class="w-full sm:w-44"
-						:label="__('From')"
-						:format="dateFormat"
-					/>
-					<FormControl
-						v-model="timeOff.to"
-						type="date"
-						class="w-full sm:w-44"
-						:label="__('To')"
-						:format="dateFormat"
-					/>
-					<Button
-						class="sm:self-end"
-						variant="ghost"
-						icon="lucide-x"
-						:aria-label="__('Clear time off')"
-						@click="clearTimeOff"
-					/>
+				<div class="min-w-0">
+					<h3 class="text-base font-semibold text-ink-gray-9">
+						<label for="time-off">{{ __('Time off') }}</label>
+					</h3>
+					<p class="mt-1 text-p-sm text-ink-gray-6">
+						{{ timeOffDescription }}
+					</p>
 				</div>
-				<div
-					v-else
-					class="flex items-center justify-between gap-4 px-4 py-3.5"
-					data-testid="time-off-range"
+				<DateRangePicker
+					id="time-off"
+					v-model="timeOff"
+					class="w-full sm:w-64"
+					variant="outline"
+					format="MMM D YYYY"
+					:placeholder="canEdit ? __('Select dates') : __('No time off')"
+					:disabled="!canEdit"
 				>
-					<span class="text-base text-ink-gray-8">{{ timeOffRange }}</span>
-					<div v-if="canEdit" class="flex items-center gap-1">
-						<Button
-							variant="ghost"
-							icon="lucide-pencil"
-							:aria-label="__('Edit time off')"
-							@click="editingTimeOff = true"
-						/>
-						<Button
-							variant="ghost"
-							icon="lucide-x"
+					<template #suffix="{ open, setOpen }">
+						<button
+							v-if="canEdit && timeOff.length"
+							type="button"
+							class="lucide-x size-4 cursor-pointer text-ink-gray-6 hover:text-ink-gray-8"
 							:aria-label="__('Clear time off')"
-							@click="clearTimeOff"
+							@mousedown.prevent
+							@click="timeOff = []"
 						/>
-					</div>
-				</div>
-				<ErrorMessage
-					v-if="timeOffMessage"
-					class="px-4 pb-3.5"
-					:message="timeOffMessage"
-				/>
+						<span
+							v-else
+							class="lucide-chevron-down size-4 cursor-pointer"
+							@mousedown.prevent="setOpen(!open)"
+						/>
+					</template>
+				</DateRangePicker>
 			</div>
 		</section>
 
-		<section v-if="showCalendar" data-testid="calendar">
-			<h2 class="text-lg font-semibold text-ink-gray-9">
-				{{ __('Google Calendar') }}
-			</h2>
-			<p class="mt-1 text-p-sm text-ink-gray-6">
-				{{ calendarDescription }}
-			</p>
-			<ul
-				v-if="details?.google_enabled"
-				class="mt-5 divide-y divide-outline-gray-2 rounded-6 border border-outline-gray-2"
-			>
-				<li class="flex items-center justify-between gap-4 px-4 py-3.5">
-					<span class="text-base text-ink-gray-8">
-						{{ __('Use Google Calendar') }}
-					</span>
-					<Switch
-						v-model="calendarDraft.enable"
-						:aria-label="__('Use Google Calendar')"
-					/>
-				</li>
-				<template v-if="calendarDraft.enable">
-					<li
-						class="flex flex-col gap-2 px-4 py-3.5 sm:flex-row sm:items-center sm:justify-between sm:gap-4"
-					>
-						<label for="calendar-name" class="text-base text-ink-gray-8">
-							{{ __('Calendar name') }}
-						</label>
-						<FormControl
-							id="calendar-name"
-							v-model="calendarDraft.calendar_name"
-							type="text"
-							class="sm:w-64"
-						/>
-					</li>
-					<li class="flex items-center justify-between gap-4 px-4 py-3.5">
-						<span class="text-base text-ink-gray-8">
-							{{ __('Add events to Google') }}
-						</span>
-						<Switch
-							v-model="calendarDraft.push"
-							:aria-label="__('Add events to Google')"
-						/>
-					</li>
-					<li
-						class="flex flex-wrap items-center justify-between gap-x-4 gap-y-2 px-4 py-3.5"
-					>
-						<span class="text-base text-ink-gray-8">
-							{{ __('Google account') }}
-						</span>
-						<div class="flex items-center gap-3">
-							<Badge
-								:theme="calendar?.is_authorized ? 'green' : 'gray'"
-								:label="
-									calendar?.is_authorized
-										? __('Connected')
-										: __('Not connected')
-								"
-							/>
-							<Tooltip
-								:text="dirty ? __('Save your changes first') : ''"
-								:disabled="!dirty"
-							>
-								<Button
-									:label="
-										calendar?.is_authorized ? __('Reconnect') : __('Connect')
-									"
-									:disabled="dirty"
-									:loading="authorizeCalendar.loading"
-									@click="authorizeCalendar.submit()"
-								/>
-							</Tooltip>
-						</div>
-					</li>
-				</template>
-			</ul>
-		</section>
+		<ProfileEvaluatorCalendar
+			v-if="showCalendar"
+			:details="details"
+			:dirty="dirty"
+			@changed="setCalendar"
+		/>
 	</div>
 </template>
 <script setup lang="ts">
 // Slots are bare wall-clock times read as system time everywhere downstream,
 // so the editor names the clock. Edits stay local until Save.
 import {
-	Badge,
 	Button,
 	createResource,
-	Dropdown,
+	DateRangePicker,
 	ErrorMessage,
-	FormControl,
-	Switch,
 	toast,
-	Tooltip,
 } from 'frappe-ui'
-import dayjs from 'dayjs'
-import { computed, inject, onMounted, reactive, ref, watch } from 'vue'
+import { computed, inject, onMounted, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import type { EvaluatorDetails, Resource, SessionUser } from '@/types/api'
-import EmptyStateLayout from '@/components/Layouts/EmptyStateLayout.vue'
-import { getDateFormat } from '@/utils/format'
+import ProfileEvaluatorCalendar from '@/components/Profile/ProfileEvaluatorCalendar.vue'
+import ProfileEvaluatorHours from '@/components/Profile/ProfileEvaluatorHours.vue'
 import { resourceErrorMessage } from '@/utils/resource'
-import { safeUrl } from '@/utils/safeUrl'
 import {
 	WEEKDAYS,
 	emptyWeek,
-	formatRange,
-	nextRange,
 	rangeErrors,
-	standardWeek,
-	timeOffError,
 	toRows,
+	toTimeOff,
 	toWeek,
 } from '@/utils/evaluatorAvailability'
-import type {
-	TimeOff,
-	TimeRange,
-	Week,
-	Weekday,
-} from '@/utils/evaluatorAvailability'
+import type { TimeOff, Week, Weekday } from '@/utils/evaluatorAvailability'
 
 interface ProfileData {
 	name?: string
@@ -369,7 +132,6 @@ const props = defineProps<{ profile: { data: ProfileData | null } }>()
 const user = inject<SessionUser>('$user')
 const route = useRoute()
 const router = useRouter()
-const dateFormat = getDateFormat()
 const readOnlyMode = Boolean(window.read_only_mode)
 
 const isSessionUser = computed(
@@ -390,61 +152,55 @@ const evaluator = createResource({
 }) as Resource<EvaluatorDetails | null>
 
 const details = computed(() => evaluator.data)
-const calendar = computed(() => details.value?.calendar ?? null)
 
 const week = ref<Week>(emptyWeek())
-const timeOff = reactive<TimeOff>({ from: null, to: null })
-const calendarDraft = reactive({ enable: true, calendar_name: '', push: true })
+const timeOff = ref<TimeOff>([])
 const baseline = ref('')
 const startingWeek = ref(false)
-const editingTimeOff = ref(false)
-const attempted = ref(false)
 const saving = ref(false)
 const saveError = ref('')
 
 const snapshot = (): string =>
 	JSON.stringify({
 		rows: toRows(week.value),
-		timeOff,
-		calendar: showCalendar.value ? calendarDraft : null,
+		timeOff: timeOff.value,
 	})
 
 const load = (data: EvaluatorDetails | null) => {
 	week.value = toWeek(data?.slots?.schedule ?? [])
-	timeOff.from = data?.slots?.unavailable_from || null
-	timeOff.to = data?.slots?.unavailable_to || null
-	// No calendar record yet: these are what Frappe would create it with.
-	calendarDraft.enable = Boolean(data?.calendar?.enable ?? 1)
-	calendarDraft.push = Boolean(data?.calendar?.push_to_google_calendar ?? 1)
-	calendarDraft.calendar_name =
-		data?.calendar?.calendar_name || props.profile.data?.name || ''
+	timeOff.value = toTimeOff(data?.slots)
 	baseline.value = snapshot()
-	attempted.value = false
 	startingWeek.value = false
-	// A half-set range (from older data) has nothing to summarise, so it opens.
-	editingTimeOff.value = Boolean(timeOff.from) !== Boolean(timeOff.to)
 	saveError.value = ''
 }
 
-watch(() => evaluator.data, load, { immediate: true })
+// Watches slots alone: a calendar change patches the details and must keep
+// unsaved hours.
+watch(
+	() => evaluator.data?.slots,
+	() => load(evaluator.data),
+	{
+		immediate: true,
+	}
+)
 
 const dirty = computed(() => snapshot() !== baseline.value)
 
-// Seven "Unavailable" rows read as a broken list, so a week with nothing saved
+const hasHours = computed(() =>
+	WEEKDAYS.some((day) => week.value[day].length > 0)
+)
+
+const loadingWeek = computed(() => !details.value && !evaluator.error)
+// Without the saved week, editing would start from seven empty days and
+// Save would replace the real one with it.
+const loadError = computed(() => !details.value && Boolean(evaluator.error))
+// onError has already shown the failure.
+const retryLoad = () => evaluator.reload().catch(() => {})
+
+// Seven empty rows read as a broken list, so a week with nothing saved
 // starts as an empty state until the evaluator chooses to add hours.
-const emptyWeekTitle = computed(() =>
-	canEdit.value ? __('No weekly hours yet') : __('No weekly hours set')
-)
-const emptyWeekDescription = computed(() =>
-	canEdit.value
-		? __("Students can't book an evaluation with you until you add hours.")
-		: __("Students can't book an evaluation with this evaluator yet.")
-)
 const showEmptyWeek = computed(
-	() =>
-		Boolean(details.value) &&
-		!(details.value?.slots?.schedule ?? []).length &&
-		!startingWeek.value
+	() => Boolean(details.value) && !hasHours.value && !startingWeek.value
 )
 
 const errors = computed(
@@ -454,19 +210,8 @@ const errors = computed(
 		) as Record<Weekday, Record<number, string>>
 )
 
-const timeOffMessage = computed(() => {
-	const complete = Boolean(timeOff.from && timeOff.to)
-	return complete || attempted.value ? timeOffError(timeOff) : ''
-})
-
-const hasErrors = computed(
-	() =>
-		WEEKDAYS.some((day) => Object.keys(errors.value[day]).length > 0) ||
-		Boolean(timeOffError(timeOff))
-)
-
-const showEmptyTimeOff = computed(
-	() => !timeOff.from && !timeOff.to && !editingTimeOff.value
+const hasErrors = computed(() =>
+	WEEKDAYS.some((day) => Object.keys(errors.value[day]).length > 0)
 )
 
 const timeOffDescription = computed(() =>
@@ -475,125 +220,25 @@ const timeOffDescription = computed(() =>
 		: __("Learners can't book this evaluator during time off.")
 )
 
-const readableDate = (date: string): string => {
-	const parsed = dayjs(date)
-	const sameYear = parsed.year() === dayjs().year()
-	return parsed.format(sameYear ? 'ddd, D MMM' : 'ddd, D MMM YYYY')
-}
-
-const timeOffRange = computed(() =>
-	timeOff.from && timeOff.to
-		? `${readableDate(timeOff.from)} – ${readableDate(timeOff.to)}`
-		: ''
-)
-
-// Picking the end date of a valid range is the natural end of an edit.
-watch(
-	() => timeOff.to,
-	() => {
-		if (editingTimeOff.value && timeOff.from && !timeOffError(timeOff)) {
-			editingTimeOff.value = false
-		}
-	}
-)
-
-const calendarDescription = computed(() => {
-	if (!details.value?.google_enabled) {
-		return __(
-			"Google Calendar isn't set up on this site, so evaluations are booked without a calendar event or meeting link."
-		)
-	}
-	if (!details.value.evaluation_invites) {
-		return __(
-			"Evaluation invites are off on this site, so bookings don't reach your calendar. Live classes you schedule still use it."
-		)
-	}
-	return __(
-		'Each booked evaluation is added to it with a Google Meet link. Without it, evaluations are still booked, with no meeting link.'
-	)
-})
-
-const fieldId = (range: TimeRange, edge: 'start' | 'end'): string =>
-	`availability-${range.key}-${edge}`
-
-const toggleDay = (day: Weekday, on: boolean) => {
-	week.value[day] = on ? [nextRange([])] : []
-}
-
-const addRange = (day: Weekday) => {
-	week.value[day].push(nextRange(week.value[day]))
-}
-
-const removeRange = (day: Weekday, range: TimeRange) => {
-	week.value[day] = week.value[day].filter((item) => item !== range)
-}
-
-// Staged like any other edit: Discard brings the saved week back.
-const useStandardWeek = () => {
-	week.value = standardWeek()
-	startingWeek.value = true
-}
-
-const weekPresets = computed(() => [
-	{
-		label: __('Reset to Mon–Fri, 09:00–17:00'),
-		onClick: useStandardWeek,
-	},
-])
-
-const clearTimeOff = () => {
-	timeOff.from = null
-	timeOff.to = null
-	editingTimeOff.value = false
-}
-
 const discard = () => load(evaluator.data)
 
 const saveAvailability = createResource({
 	url: 'lms.lms.api.save_evaluator_availability',
 }) as Resource<EvaluatorDetails>
 
-// Evaluators have no write permission on Google Calendar, so their own is
-// changed through lms.lms.api, one field per call.
-const calendarUpdate = createResource({
-	url: 'lms.lms.api.update_evaluator_calendar',
-}) as Resource<EvaluatorDetails['calendar']>
-
-const calendarChanges = (): { fieldname: string; value: string | number }[] => {
-	if (!showCalendar.value || !details.value?.google_enabled) return []
-	const saved = calendar.value
-	const changes: { fieldname: string; value: string | number }[] = []
-	if (calendarDraft.enable !== Boolean(saved?.enable ?? 1)) {
-		changes.push({ fieldname: 'enable', value: calendarDraft.enable ? 1 : 0 })
-	}
-	if (calendarDraft.push !== Boolean(saved?.push_to_google_calendar ?? 1)) {
-		changes.push({
-			fieldname: 'push_to_google_calendar',
-			value: calendarDraft.push ? 1 : 0,
-		})
-	}
-	const name = calendarDraft.calendar_name.trim()
-	if (name !== (saved?.calendar_name || props.profile.data?.name || '')) {
-		changes.push({ fieldname: 'calendar_name', value: name })
-	}
-	return changes
-}
-
 const save = async () => {
-	attempted.value = true
-	if (hasErrors.value) return
+	if (hasErrors.value || !details.value) return
 	saving.value = true
 	saveError.value = ''
+	// The time off row is hidden with no hours, so it saves as none.
+	const [from, to] = hasHours.value ? timeOff.value : []
 	try {
-		await saveAvailability.submit({
+		const saved = await saveAvailability.submit({
 			schedule: toRows(week.value),
-			unavailable_from: timeOff.from,
-			unavailable_to: timeOff.to,
+			unavailable_from: from ?? null,
+			unavailable_to: to ?? null,
 		})
-		for (const change of calendarChanges()) {
-			await calendarUpdate.submit(change)
-		}
-		await evaluator.reload()
+		evaluator.setData(saved)
 		toast.success(__('Availability saved'))
 	} catch (err) {
 		saveError.value = resourceErrorMessage(err)
@@ -602,17 +247,9 @@ const save = async () => {
 	}
 }
 
-// Sign-in happens in this tab: Google returns to this page when it is done.
-const authorizeCalendar = createResource({
-	url: 'lms.lms.api.authorize_evaluator_calendar',
-	onSuccess(data: { url?: string } | null) {
-		const href = safeUrl(data?.url)
-		if (href) window.location.href = href
-	},
-	onError(err: unknown) {
-		toast.error(resourceErrorMessage(err))
-	},
-}) as Resource<{ url?: string } | null>
+const setCalendar = (calendar: EvaluatorDetails['calendar']) => {
+	if (evaluator.data) evaluator.setData({ ...evaluator.data, calendar })
+}
 
 onMounted(() => {
 	// Google sends the evaluator back here; a failed sign-in says so in the URL.
