@@ -982,7 +982,7 @@ def revoke_google_token(token: str) -> None:
 		frappe.log_error(title="Could not revoke Google Calendar access", message=response.text)
 
 
-@frappe.whitelist()
+@frappe.whitelist(methods=["POST"])
 def ensure_evaluator_calendar():
 	"""Create the caller's own Google Calendar record, on demand.
 
@@ -3001,6 +3001,7 @@ def save_evaluator_role(user: str, value: int):
 			doc.evaluator = user
 			frappe.db.savepoint("save_evaluator")
 			try:
+				# nosemgrep: lms-unjustified-ignore-permissions - Moderator-only (only_for above), and Moderators may create Course Evaluator
 				doc.save(ignore_permissions=True)
 			except frappe.DuplicateEntryError:
 				# A concurrent request already created this evaluator; the primary key (autoname field:evaluator) guarantees uniqueness, so the row exists. Nothing more to do.
