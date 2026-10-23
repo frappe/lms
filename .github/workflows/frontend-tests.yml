@@ -29,6 +29,7 @@ jobs:
   vitest:
     name: Vitest
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
       # The bench layout, because frontend/package.json declares
       # `@framework/ui: link:../../frappe/ui` the way helpdesk and crm do. A
