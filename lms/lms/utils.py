@@ -98,9 +98,17 @@ def slugify(title: str, used_slugs: list = None):
 		count = count + 1
 
 
-def generate_slug(title: str, doctype: str):
-	result = frappe.get_all(doctype, fields=["name"])
-	slugs = {row["name"] for row in result}
+# A course and a batch answer at different routes, but both tag staff through
+# Course Instructor rows that several lookups key on `parent` alone, so the two
+# never take the same name.
+SLUGS_SHARED_WITH = {"LMS Course": "LMS Batch", "LMS Batch": "LMS Course"}
+
+
+def generate_slug(title: str, doctype: str, reserved: frozenset[str] = frozenset()):
+	slugs = set(reserved)
+	for source in (doctype, SLUGS_SHARED_WITH.get(doctype)):
+		if source:
+			slugs |= set(frappe.get_all(source, pluck="name"))
 	return slugify(title, used_slugs=slugs)
 
 
@@ -684,8 +692,19 @@ def create_notification_log(doc: Document, topic: dict):
 	make_notification_logs(notification, users)
 
 
+def mentioned_users(html: str) -> list[str]:
+	"""The Users behind a reply's mentions. The editor stores usernames; replies
+	written before it did hold login emails, which resolve_user takes as well."""
+	users = []
+	for mention in extract_mentions(html):
+		user = resolve_user(mention)
+		if user and user not in users:
+			users.append(user)
+	return users
+
+
 def notify_mentions_on_portal(doc: Document, topic: dict):
-	mentions = extract_mentions(doc.reply)
+	mentions = mentioned_users(doc.reply)
 	if not mentions:
 		return
 
@@ -727,7 +746,7 @@ def notify_mentions_via_email(doc: Document, topic: dict):
 	if not outgoing_email_account or not frappe.conf.get("mail_login"):
 		return
 
-	mentions = extract_mentions(doc.reply)
+	mentions = mentioned_users(doc.reply)
 	if not mentions:
 		return
 
@@ -1529,7 +1548,9 @@ def update_course_filters(filters: dict) -> tuple:
 
 	if filters.get("created"):
 		created_courses = frappe.get_all(
-			"Course Instructor", {"instructor": frappe.session.user}, pluck="parent"
+			"Course Instructor",
+			{"instructor": frappe.session.user, "parenttype": "LMS Course"},
+			pluck="parent",
 		)
 		filters.update({"name": ["in", created_courses]})
 		del filters["created"]
@@ -2149,6 +2170,17 @@ def get_neighbour_lesson(course: str, chapter: int, lesson: int) -> dict:
 	}
 
 
+def can_view_batch(batch: str) -> bool:
+	"""Who reads a batch: anyone once it is published, its students, and its staff."""
+	from lms.lms.permissions import can_author_batch
+
+	if frappe.db.get_value("LMS Batch", batch, "published"):
+		return True
+	if frappe.db.exists("LMS Batch Enrollment", {"batch": batch, "member": frappe.session.user}):
+		return True
+	return can_author_batch(batch)
+
+
 @frappe.whitelist(allow_guest=True)  # nosemgrep: frappe-semgrep-rules.rules.security.guest-whitelisted-method
 @rate_limit(limit=500, seconds=60 * 60)
 def get_batch_details(batch: str):
@@ -2157,17 +2189,16 @@ def get_batch_details(batch: str):
 
 	from lms.lms.permissions import can_instruct_batch, evaluates_batch
 
+	if not can_view_batch(batch):
+		return {}
+
 	batch_students = frappe.get_all("LMS Batch Enrollment", {"batch": batch}, pluck="member")
 	# can_modify_batch only recognises the Course Instructor tag; can_manage, like
 	# can_author_batch, also recognises a Batch Course evaluator tag, which a Course
 	# Creator may hold instead. Only instructors schedule live classes.
 	instructs = can_instruct_batch(batch)
 	can_manage = instructs or evaluates_batch(batch)
-	is_batch_published = frappe.db.get_value("LMS Batch", batch, "published")
 	is_student_enrolled = frappe.session.user in batch_students
-
-	if not (is_batch_published or can_manage or is_student_enrolled):
-		return {}
 
 	batch_details = frappe.db.get_value(
 		"LMS Batch",
@@ -2408,10 +2439,11 @@ def get_assignment(name: str) -> dict:
 	return enrich_schedule_payload(doc.as_dict())
 
 
+# nosemgrep: security.guest-whitelisted-method - pre-existing grant, unchanged by this branch; guests are served only when guest access is on. Flagged only because the body changed.
 @frappe.whitelist(allow_guest=True)
 @rate_limit(limit=500, seconds=60 * 60)
 def get_batch_courses(batch: str) -> list:
-	if not guest_access_allowed():
+	if not guest_access_allowed() or not can_view_batch(batch):
 		return []
 
 	courses = []
@@ -2814,6 +2846,9 @@ def can_access_topic(doctype: str, docname: str) -> bool:
 		is_admin = "Batch Evaluator" in frappe.get_roles() or can_author_batch(docname)
 		if not is_student and not is_admin:
 			return False
+	else:
+		# Only lessons and batches carry discussions.
+		return False
 	return True
 
 
@@ -3039,7 +3074,8 @@ def calculate_discount_amount(base_amount: float, coupon: dict) -> float:
 
 @frappe.whitelist()
 def get_lesson_creation_details(course: str, chapter: int, lesson: int) -> dict:
-	frappe.only_for(["Moderator", "Course Creator"])
+	if not can_modify_course(course):
+		frappe.throw(_("You do not have permission to edit this course."), frappe.PermissionError)
 	chapter_name = frappe.db.get_value("Chapter Reference", {"parent": course, "idx": chapter}, "chapter")
 	lesson_name = frappe.db.get_value("Lesson Reference", {"parent": chapter_name, "idx": lesson}, "lesson")
 
@@ -3701,6 +3737,9 @@ def validate_discussion_reply(doc: Document, method: str):
 
 	elif topic.reference_doctype == "LMS Batch":
 		validate_batch_access(topic.reference_docname)
+
+	else:
+		frappe.throw(_("Replies can only be posted under a lesson or a batch."), frappe.PermissionError)
 
 
 def validate_course_access(lesson: str):

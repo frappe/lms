@@ -19,6 +19,12 @@ class TestLMSAssignmentSubmission(MemberOwnershipTestMixin, BaseTestUtils):
 		cls.student_b = cls._create_user("rtv.student.b@example.com", "Student", "Bravo", ["LMS Student"])
 		cls.moderator = cls._create_user("rtv.moderator@example.com", "Mod", "Erator", ["Moderator"])
 		cls.assignment = cls._create_assignment()
+		# A learner answers only an assignment a course of theirs places.
+		instructor = cls._create_user("rtv.instructor@example.com", "In", "Structor", ["Course Creator"])
+		course = cls._create_course(title="Assignment Submission Course", instructor=instructor.name)
+		cls._place_in_lesson(course.name, "LMS Assignment", cls.assignment.name)
+		cls._create_enrollment(cls.student_a.name, course.name)
+		cls._create_enrollment(cls.student_b.name, course.name)
 
 	def tearDown(self):
 		frappe.set_user("Administrator")

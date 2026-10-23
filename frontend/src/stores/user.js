@@ -11,9 +11,10 @@ export const usersStore = defineStore('lms-users', () => {
 		},
 	})
 
+	// The people a discussion may mention; reloaded per lesson or batch, so no
+	// shared cache key.
 	const allUsers = createResource({
 		url: 'lms.lms.api.get_all_users',
-		cache: ['allUsers'],
 	})
 
 	return {
