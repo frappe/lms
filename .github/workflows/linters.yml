@@ -16,6 +16,7 @@ jobs:
   linters:
     name: Linters
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     if: github.event_name == 'pull_request'
 
     steps:

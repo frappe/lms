@@ -40,6 +40,7 @@ jobs:
   tests:
     name: Server Tests
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     services:
       redis:
         image: redis:alpine
