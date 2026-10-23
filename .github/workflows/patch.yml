@@ -132,6 +132,11 @@ jobs:
             exit 1
           fi
 
+          # payments version-15 pins setuptools 83, which has no pkg_resources,
+          # but the razorpay 1.4 that LMS v2.0.0 pins still imports it. The hops
+          # rebuild the env, so this only holds for the seed.
+          bench pip install "setuptools<82"
+
           bench set-config -g db_host 127.0.0.1
           bench new-site "$SITE" \
             --mariadb-root-password 123 \
