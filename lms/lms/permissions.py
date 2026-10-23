@@ -189,6 +189,15 @@ def evaluates_batch(batch: str | None, *, user: str | None = None) -> bool:
 	return _batch_tags(batch, "Batch Course", "evaluator", user or frappe.session.user)
 
 
+def evaluator_role_reads_batch(batch: str | None, *, user: str | None = None) -> bool:
+	"""The Batch Evaluator role alone reaches a published batch's staff views; an
+	unpublished one needs a tag (:func:`can_author_batch`)."""
+	user = user or frappe.session.user
+	if "Batch Evaluator" not in frappe.get_roles(user):
+		return False
+	return bool(frappe.db.get_value("LMS Batch", batch, "published"))
+
+
 def _batch_tags(batch: str | None, child_doctype: str, field: str, user: str) -> bool:
 	# A deleted batch leaves its Course Instructor / Batch Course rows behind.
 	if not isinstance(batch, str) or not batch or not frappe.db.exists("LMS Batch", batch):

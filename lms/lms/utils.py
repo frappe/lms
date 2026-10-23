@@ -2491,11 +2491,11 @@ def get_batch_courses(batch: str) -> list:
 
 @frappe.whitelist()
 def get_assessments(batch: str) -> list:
-	from lms.lms.permissions import can_author_batch
+	from lms.lms.permissions import can_author_batch, evaluator_role_reads_batch
 
 	member = frappe.session.user
 	is_enrolled = frappe.db.exists("LMS Batch Enrollment", {"batch": batch, "member": member})
-	is_admin = "Batch Evaluator" in frappe.get_roles(member) or can_author_batch(batch, user=member)
+	is_admin = evaluator_role_reads_batch(batch, user=member) or can_author_batch(batch, user=member)
 	if not is_enrolled and not is_admin:
 		frappe.throw(_("You are not authorized to view the assessments of this batch."))
 
@@ -2714,9 +2714,9 @@ def get_quiz_pass_stats(batch: str) -> list:
 @frappe.whitelist()
 def get_batch_chart_data(batch: str) -> list:
 	"""Get completion counts per course and assessment"""
-	from lms.lms.permissions import can_author_batch
+	from lms.lms.permissions import can_author_batch, evaluator_role_reads_batch
 
-	if "Batch Evaluator" not in frappe.get_roles() and not can_author_batch(batch):
+	if not evaluator_role_reads_batch(batch) and not can_author_batch(batch):
 		frappe.throw(_("You are not authorized to view the chart data of this batch."))
 	if not frappe.db.exists("LMS Batch", batch):
 		frappe.throw(_("The specified batch does not exist."))
@@ -2869,12 +2869,12 @@ def can_access_topic(doctype: str, docname: str) -> bool:
 		if not is_student and not can_modify_course(course):
 			return False
 	elif doctype == "LMS Batch":
-		from lms.lms.permissions import can_author_batch
+		from lms.lms.permissions import can_author_batch, evaluator_role_reads_batch
 
 		is_student = frappe.db.exists(
 			"LMS Batch Enrollment", {"batch": docname, "member": frappe.session.user}
 		)
-		is_admin = "Batch Evaluator" in frappe.get_roles() or can_author_batch(docname)
+		is_admin = evaluator_role_reads_batch(docname) or can_author_batch(docname)
 		if not is_student and not is_admin:
 			return False
 	else:
