@@ -1,26 +1,32 @@
 from unittest.mock import MagicMock, patch
 
 import frappe
+from frappe.utils import add_days
 
 from lms.lms.api import (
 	EVALUATOR_CALENDAR_CACHE,
+	GOOGLE_REVOKE_URL,
+	GOOGLE_TOKEN_CHECK_CACHE,
 	add_evaluator_slot,
 	authorize_evaluator_calendar,
 	delete_evaluator_slot,
+	disconnect_evaluator_calendar,
 	ensure_evaluator_calendar,
 	get_evaluator_details,
 	google_calendar_callback,
+	save_evaluator_availability,
 	set_evaluator_unavailability,
 	update_evaluator_calendar,
 	update_evaluator_slot,
 )
+from lms.lms.doctype.lms_certificate_request.lms_certificate_request import setup_calendar_event
 from lms.lms.test_helpers import BaseTestUtils
 
 
 class TestEvaluatorAvailability(BaseTestUtils):
 	"""`ProfileEvaluator.vue` writes availability through `lms.lms.api`, not raw
 	`frappe.client.*` (would fall back to `Course Evaluator`'s role perms; see
-	`test_evaluator_self_grant.py`). Rule: edit your own, a Moderator edits anyone's.
+	`test_evaluator_self_grant.py`). Rule: edit only your own; a Moderator reads anyone's.
 	"""
 
 	# Users are made once for the class: frappe throttles User creation, and
@@ -30,8 +36,8 @@ class TestEvaluatorAvailability(BaseTestUtils):
 		"other_evaluator": ("availability-eval2@example.com", ["Batch Evaluator", "LMS Student"]),
 		"course_creator": ("availability-cc@example.com", ["Course Creator"]),
 		"moderator": ("availability-mod@example.com", ["Moderator"]),
-		# A Moderator with no Batch Evaluator role: the Slots tab renders for
-		# them, so they are the reachable target of a read-that-writes.
+		# A Moderator with no Batch Evaluator role: not bookable, so they have
+		# no availability for anyone to read or write.
 		"plain_moderator": ("availability-mod2@example.com", ["Moderator"]),
 		"student": ("availability-stu@example.com", ["LMS Student"]),
 		# Holds the role but has never saved a slot, so no Course Evaluator row.
@@ -173,12 +179,29 @@ class TestEvaluatorAvailability(BaseTestUtils):
 				finally:
 					frappe.session.user = self.original_user
 
-	def test_moderator_may_edit_anyones_availability(self):
-		frappe.session.user = self.moderator.email
-		add_evaluator_slot(self.evaluator.email, "Saturday", "09:00:00", "10:00:00")
+	def test_moderator_cannot_edit_another_evaluators_availability(self):
+		"""Regression: since #2613 the legacy per-field endpoints let a Moderator write anyone's
+		availability, around save_evaluator_availability's owner-only rule. Added on
+		feat/evaluator-availability-redesign (no PR yet) when they became caller-only."""
+		slot = self._slot_of(self.schedule)
+		cases = [
+			("add", lambda: add_evaluator_slot(self.evaluator.email, "Saturday", "09:00:00", "10:00:00")),
+			("update", lambda: update_evaluator_slot(self.evaluator.email, slot, "day", "Sunday")),
+			("delete", lambda: delete_evaluator_slot(self.evaluator.email, slot)),
+			(
+				"unavailability",
+				lambda: set_evaluator_unavailability(self.evaluator.email, "unavailable_from", "2026-08-01"),
+			),
+		]
+		for case, action in cases:
+			with self.subTest(case=case):
+				frappe.session.user = self.moderator.email
+				with self.assertRaises(frappe.PermissionError):
+					action()
 
-		days = [row.day for row in frappe.get_doc("Course Evaluator", self.evaluator.email).schedule]
-		self.assertIn("Saturday", days)
+		doc = frappe.get_doc("Course Evaluator", self.evaluator.email)
+		self.assertEqual([(row.name, row.day) for row in doc.schedule], [(slot, "Monday")])
+		self.assertIsNone(doc.unavailable_from)
 
 	# --- redirected writes ------------------------------------------------
 
@@ -250,29 +273,28 @@ class TestEvaluatorAvailability(BaseTestUtils):
 	# --- reading must not write ------------------------------------------
 
 	def _reset_target(self, evaluator, drop_role=True):
-		"""A pre-fix run leaves the record (and the granted role) behind.
-
-		`drop_role` stays off for a fixture that is *meant* to hold Batch
-		Evaluator: stripping it would make the caller fail `only_for`.
-		"""
+		"""A pre-fix run leaves the record (and the granted role) behind. With `drop_role` off,
+		the role that deleting the record strips (`on_trash`) is put back. Runs as the
+		test's own user, since a subtest leaves the last caller set."""
+		frappe.session.user = self.original_user
 		if frappe.db.exists("Course Evaluator", evaluator):
 			frappe.delete_doc("Course Evaluator", evaluator, force=True, ignore_permissions=True)
 		if drop_role:
 			frappe.db.delete("Has Role", {"parent": evaluator, "role": "Batch Evaluator"})
+		else:
+			frappe.get_doc("User", evaluator).add_roles("Batch Evaluator")
 		frappe.clear_cache(user=evaluator)
 
 	def test_reading_details_does_not_create_a_record_for_the_target(self):
 		"""`get_evaluator_details` used to insert a Course Evaluator for whoever
-		it was asked about. The Slots tab renders for any profile holding
-		Moderator, and the resource fires on mount (before the client-side
-		redirect), so opening another moderator's profile wrote to their name."""
-		self._reset_target(self.plain_moderator.email)
+		it was asked about, and the resource fires on the Slots tab's mount."""
+		self._reset_target(self.fresh_evaluator.email, drop_role=False)
 		frappe.session.user = self.moderator.email
 
-		get_evaluator_details(self.plain_moderator.email)
+		get_evaluator_details(self.fresh_evaluator.email)
 
 		self.assertFalse(
-			frappe.db.exists("Course Evaluator", self.plain_moderator.email),
+			frappe.db.exists("Course Evaluator", self.fresh_evaluator.email),
 			"reading availability created a Course Evaluator",
 		)
 
@@ -284,7 +306,8 @@ class TestEvaluatorAvailability(BaseTestUtils):
 		self._reset_target(self.plain_moderator.email)
 		frappe.session.user = "Administrator"
 
-		get_evaluator_details(self.plain_moderator.email)
+		with self.assertRaises(frappe.PermissionError):
+			get_evaluator_details(self.plain_moderator.email)
 
 		frappe.clear_cache(user=self.plain_moderator.email)
 		self.assertFalse(
@@ -295,10 +318,10 @@ class TestEvaluatorAvailability(BaseTestUtils):
 	def test_reading_details_of_a_new_evaluator_returns_an_empty_schedule(self):
 		"""The UI iterates `slots.schedule` unguarded, so the empty case still
 		has to come back shaped like a Course Evaluator."""
-		self._reset_target(self.plain_moderator.email)
+		self._reset_target(self.fresh_evaluator.email, drop_role=False)
 		frappe.session.user = self.moderator.email
 
-		details = get_evaluator_details(self.plain_moderator.email)
+		details = get_evaluator_details(self.fresh_evaluator.email)
 
 		self.assertEqual(details["slots"]["schedule"], [])
 		self.assertIsNone(details["slots"]["unavailable_from"])
@@ -327,28 +350,65 @@ class TestEvaluatorAvailability(BaseTestUtils):
 
 	def test_adding_a_slot_creates_the_evaluator_record_on_demand(self):
 		"""Creation moves to the write path, so an evaluator with no record yet
-		can still be given slots. It just takes a deliberate write."""
-		self._reset_target(self.plain_moderator.email)
-		frappe.session.user = self.moderator.email
+		can still add slots. It just takes a deliberate write."""
+		self._reset_target(self.fresh_evaluator.email, drop_role=False)
+		frappe.session.user = self.fresh_evaluator.email
 
-		add_evaluator_slot(self.plain_moderator.email, "Monday", "09:00:00", "10:00:00")
+		add_evaluator_slot(self.fresh_evaluator.email, "Monday", "09:00:00", "10:00:00")
 
-		doc = frappe.get_doc("Course Evaluator", self.plain_moderator.email)
+		doc = frappe.get_doc("Course Evaluator", self.fresh_evaluator.email)
 		self.assertEqual([row.day for row in doc.schedule], ["Monday"])
 
-	def test_creating_the_record_actually_grants_the_role(self):
-		"""`User.add_roles` saves the whole User doc, which a portal Moderator
-		may not write. The grant silently never landed and the evaluator
-		could not open their own schedule."""
+	# --- the target must be able to evaluate -------------------------------
+
+	def test_a_moderator_cannot_make_someone_an_evaluator_by_adding_a_slot(self):
+		"""Only a Batch Evaluator is bookable, so a slot for anyone else is a role grant
+		through the back door, allowed since #2613. Added on
+		feat/evaluator-availability-redesign (no PR yet) with the role check."""
 		self._reset_target(self.plain_moderator.email)
 		frappe.session.user = self.moderator.email
 
-		add_evaluator_slot(self.plain_moderator.email, "Monday", "09:00:00", "10:00:00")
+		with self.assertRaises(frappe.PermissionError):
+			add_evaluator_slot(self.plain_moderator.email, "Monday", "09:00:00", "10:00:00")
 
-		self.assertTrue(
-			frappe.db.exists("Has Role", {"parent": self.plain_moderator.email, "role": "Batch Evaluator"}),
-			"the Course Evaluator was created without granting Batch Evaluator",
+		self.assertFalse(frappe.db.exists("Course Evaluator", self.plain_moderator.email))
+		self.assertFalse(
+			frappe.db.exists("Has Role", {"parent": self.plain_moderator.email, "role": "Batch Evaluator"})
 		)
+
+	def test_a_non_evaluator_target_is_refused_on_every_endpoint(self):
+		"""Being a Moderator lets you review evaluators, not be one. Allowed since #2613;
+		added on feat/evaluator-availability-redesign (no PR yet) with the role check."""
+		cases = [
+			("read", lambda: get_evaluator_details(self.plain_moderator.email)),
+			("add", lambda: add_evaluator_slot(self.plain_moderator.email, "Monday", "09:00:00", "10:00:00")),
+			("update", lambda: update_evaluator_slot(self.plain_moderator.email, 1, "day", "Monday")),
+			("delete", lambda: delete_evaluator_slot(self.plain_moderator.email, 1)),
+			(
+				"unavailability",
+				lambda: set_evaluator_unavailability(self.plain_moderator.email, "unavailable_from", None),
+			),
+		]
+		for caller in (self.moderator.email, self.plain_moderator.email):
+			for case, action in cases:
+				with self.subTest(caller=caller, case=case):
+					self._reset_target(self.plain_moderator.email)
+					frappe.session.user = caller
+
+					with self.assertRaises(frappe.PermissionError):
+						action()
+
+	def test_a_moderator_who_cannot_evaluate_gets_no_evaluator_calendar(self):
+		"""Regression from #2613: EVALUATOR_ROLES let a plain Moderator provision one. Added on
+		feat/evaluator-availability-redesign (no PR yet) with the Batch Evaluator gate."""
+		frappe.db.delete("Google Calendar", {"user": self.plain_moderator.email})
+		self._reset_target(self.plain_moderator.email)
+		frappe.session.user = self.plain_moderator.email
+
+		with self.assertRaises(frappe.PermissionError):
+			ensure_evaluator_calendar()
+
+		self.assertFalse(frappe.db.exists("Google Calendar", {"user": self.plain_moderator.email}))
 
 	# --- the caller must be an evaluator in the first place ---------------
 
@@ -392,24 +452,24 @@ class TestEvaluatorAvailability(BaseTestUtils):
 	# --- no record means no write ------------------------------------------
 
 	def test_a_write_to_a_missing_record_is_refused_not_created(self):
-		"""A no-op write used to create the record (and grant the role) for
-		someone who had never been an evaluator."""
+		"""A no-op write used to create the record for an evaluator who had
+		never set any availability."""
 		cases = [
 			(
 				"unavailability",
-				lambda: set_evaluator_unavailability(self.plain_moderator.email, "unavailable_from", None),
+				lambda: set_evaluator_unavailability(self.fresh_evaluator.email, "unavailable_from", None),
 			),
-			("delete_slot", lambda: delete_evaluator_slot(self.plain_moderator.email, 1)),
+			("delete_slot", lambda: delete_evaluator_slot(self.fresh_evaluator.email, 1)),
 		]
 		for case, action in cases:
 			with self.subTest(case=case):
-				self._reset_target(self.plain_moderator.email)
-				frappe.session.user = self.moderator.email
+				self._reset_target(self.fresh_evaluator.email, drop_role=False)
+				frappe.session.user = self.fresh_evaluator.email
 
 				with self.assertRaises(frappe.DoesNotExistError):
 					action()
 
-				self.assertFalse(frappe.db.exists("Course Evaluator", self.plain_moderator.email))
+				self.assertFalse(frappe.db.exists("Course Evaluator", self.fresh_evaluator.email))
 
 	# --- value validation ---------------------------------------------------
 
@@ -449,8 +509,214 @@ class TestEvaluatorAvailability(BaseTestUtils):
 	def test_a_write_for_an_unknown_user_is_still_refused(self):
 		frappe.session.user = self.moderator.email
 
-		with self.assertRaises(frappe.DoesNotExistError):
+		with self.assertRaises(frappe.PermissionError):
 			add_evaluator_slot("no-such-user@example.com", "Monday", "09:00:00", "10:00:00")
+
+	WEEK = [
+		{"day": "Monday", "start_time": "09:00", "end_time": "12:00"},
+		{"day": "Monday", "start_time": "14:00", "end_time": "17:00"},
+		{"day": "Wednesday", "start_time": "10:00", "end_time": "11:00"},
+	]
+
+	def _time_off_of(self, evaluator):
+		time_off = frappe.db.get_value(
+			"Course Evaluator", evaluator, ["unavailable_from", "unavailable_to"], as_dict=1
+		)
+		if not time_off.unavailable_from:
+			return None
+		return (str(time_off.unavailable_from), str(time_off.unavailable_to))
+
+	def _schedule_of(self, evaluator):
+		doc = frappe.get_doc("Course Evaluator", evaluator)
+		return [(row.day, str(row.start_time), str(row.end_time)) for row in doc.schedule]
+
+	def _set_time_off(self, evaluator, from_date, to_date):
+		frappe.db.set_value(
+			"Course Evaluator", evaluator, {"unavailable_from": from_date, "unavailable_to": to_date}
+		)
+
+	def _booking(self, evaluator, date):
+		return frappe.get_doc({"doctype": "LMS Certificate Request", "evaluator": evaluator, "date": date})
+
+	# --- time off -------------------------------------------------------------
+
+	def test_a_single_day_of_time_off_is_allowed_and_blocks_that_day(self):
+		"""Regression: from == to was refused since #852. Added on
+		feat/evaluator-availability-redesign (no PR yet), which allows one-day time off."""
+		frappe.session.user = self.evaluator.email
+
+		save_evaluator_availability([], "2030-03-04", "2030-03-04")
+
+		self.assertEqual(self._time_off_of(self.evaluator.email), ("2030-03-04", "2030-03-04"))
+		frappe.session.user = self.original_user
+		with self.assertRaises(frappe.ValidationError):
+			self._booking(self.evaluator.email, "2030-03-04").validate_unavailability()
+		self._booking(self.evaluator.email, "2030-03-05").validate_unavailability()
+
+	def test_time_off_days_include_both_ends(self):
+		from lms.lms.doctype.course_evaluator.course_evaluator import get_unavailable_dates
+
+		self._set_time_off(self.evaluator.email, "2030-05-01", "2030-05-03")
+
+		days = [str(day) for day in get_unavailable_dates(self.evaluator.email)]
+		self.assertEqual(days, ["2030-05-01", "2030-05-02", "2030-05-03"])
+
+	# --- daily clear of past time off -------------------------------------------
+
+	def test_time_off_that_ended_before_today_is_cleared(self):
+		from lms.lms.doctype.course_evaluator.course_evaluator import clear_expired_time_off
+
+		today = frappe.utils.getdate()
+		self._reset_evaluator_doc(self.other_evaluator.email)
+		self._set_time_off(self.evaluator.email, add_days(today, -5), add_days(today, -1))
+		self._set_time_off(self.other_evaluator.email, add_days(today, -5), today)
+
+		clear_expired_time_off()
+
+		self.assertIsNone(self._time_off_of(self.evaluator.email))
+		self.assertEqual(
+			self._time_off_of(self.other_evaluator.email),
+			(str(add_days(today, -5)), str(today)),
+		)
+
+	def test_future_and_unset_time_off_are_left_alone(self):
+		from lms.lms.doctype.course_evaluator.course_evaluator import clear_expired_time_off
+
+		today = frappe.utils.getdate()
+		self._reset_evaluator_doc(self.other_evaluator.email)
+		self._set_time_off(self.evaluator.email, add_days(today, 3), add_days(today, 7))
+
+		clear_expired_time_off()
+
+		self.assertEqual(
+			self._time_off_of(self.evaluator.email),
+			(str(add_days(today, 3)), str(add_days(today, 7))),
+		)
+		self.assertIsNone(self._time_off_of(self.other_evaluator.email))
+
+	# --- one save for the whole week -----------------------------------------
+
+	def test_replaces_the_week_and_the_time_off(self):
+		frappe.session.user = self.evaluator.email
+
+		details = save_evaluator_availability(self.WEEK, "2030-01-01", "2030-01-05")
+
+		self.assertEqual(
+			self._schedule_of(self.evaluator.email),
+			[
+				("Monday", "9:00:00", "12:00:00"),
+				("Monday", "14:00:00", "17:00:00"),
+				("Wednesday", "10:00:00", "11:00:00"),
+			],
+		)
+		self.assertEqual(self._time_off_of(self.evaluator.email), ("2030-01-01", "2030-01-05"))
+		self.assertEqual(len(details["slots"]["schedule"]), 3)
+		self.assertEqual(str(details["slots"]["unavailable_to"]), "2030-01-05")
+
+	def test_an_empty_week_and_no_time_off_clear_everything(self):
+		self._set_time_off(self.evaluator.email, "2030-01-01", "2030-01-05")
+		frappe.session.user = self.evaluator.email
+
+		save_evaluator_availability([], None, None)
+
+		self.assertEqual(self._schedule_of(self.evaluator.email), [])
+		self.assertIsNone(self._time_off_of(self.evaluator.email))
+
+	def test_a_new_evaluator_gets_their_record_on_first_save(self):
+		self._reset_target(self.fresh_evaluator.email, drop_role=False)
+		frappe.session.user = self.fresh_evaluator.email
+
+		save_evaluator_availability(self.WEEK[:1])
+
+		self.assertEqual(self._schedule_of(self.fresh_evaluator.email), [("Monday", "9:00:00", "12:00:00")])
+
+	def test_overlapping_ranges_on_one_day_are_refused(self):
+		"""The controller still validates a whole-week save, not just the client."""
+		frappe.session.user = self.evaluator.email
+		overlapping = [
+			{"day": "Friday", "start_time": "09:00", "end_time": "12:00"},
+			{"day": "Friday", "start_time": "11:00", "end_time": "13:00"},
+		]
+
+		with self.assertRaises(frappe.ValidationError):
+			save_evaluator_availability(overlapping)
+
+		self.assertEqual(self._schedule_of(self.evaluator.email), [("Monday", "9:00:00", "10:00:00")])
+
+	def test_the_same_times_on_different_days_do_not_overlap(self):
+		frappe.session.user = self.evaluator.email
+		week = [{"day": day, "start_time": "09:00", "end_time": "10:00"} for day in ("Monday", "Tuesday")]
+
+		save_evaluator_availability(week)
+
+		self.assertEqual(len(self._schedule_of(self.evaluator.email)), 2)
+
+	def test_invalid_values_are_refused_and_nothing_changes(self):
+		frappe.session.user = self.evaluator.email
+		cases = [
+			("schedule_not_a_list", "Monday", None, None),
+			("schedule_a_dict", {"day": "Monday"}, None, None),
+			("row_not_a_dict", ["Monday"], None, None),
+			("bad_day", [{"day": "Noonday", "start_time": "09:00", "end_time": "10:00"}], None, None),
+			("bad_time", [{"day": "Monday", "start_time": "25:99", "end_time": "10:00"}], None, None),
+			("missing_time", [{"day": "Monday", "start_time": "09:00"}], None, None),
+			("end_before_start", [{"day": "Monday", "start_time": "11:00", "end_time": "10:00"}], None, None),
+			(
+				"too_many_rows",
+				[{"day": "Monday", "start_time": "09:00", "end_time": "10:00"}] * 101,
+				None,
+				None,
+			),
+			("only_a_start", [], "2030-01-01", None),
+			("only_an_end", [], None, "2030-01-01"),
+			("time_off_out_of_order", [], "2030-01-05", "2030-01-01"),
+			("bad_date", [], "garbage", "2030-01-01"),
+			("date_not_a_string", [], ["2030-01-01"], "2030-01-02"),
+		]
+		for case, schedule, unavailable_from, unavailable_to in cases:
+			with self.subTest(case=case):
+				with self.assertRaises((frappe.ValidationError, frappe.exceptions.FrappeTypeError)):
+					save_evaluator_availability(schedule, unavailable_from, unavailable_to)
+				self.assertEqual(self._schedule_of(self.evaluator.email), [("Monday", "9:00:00", "10:00:00")])
+
+	def test_callers_who_cannot_evaluate_are_refused(self):
+		cases = [
+			("guest", "Guest"),
+			("student", self.student.email),
+			("course_creator", self.course_creator.email),
+			("moderator_without_the_role", self.plain_moderator.email),
+		]
+		for case, caller in cases:
+			with self.subTest(case=case):
+				if caller != "Guest":
+					self._reset_target(caller)
+				frappe.session.user = caller
+
+				with self.assertRaises(frappe.PermissionError):
+					save_evaluator_availability(self.WEEK)
+
+				frappe.session.user = self.original_user
+				self.assertFalse(frappe.db.exists("Course Evaluator", caller))
+
+	def test_it_only_ever_writes_the_callers_own_record(self):
+		"""There is no evaluator parameter, so a peer's record is out of reach."""
+		self._reset_evaluator_doc(self.other_evaluator.email)
+		frappe.session.user = self.evaluator.email
+
+		save_evaluator_availability(self.WEEK)
+
+		self.assertEqual(self._schedule_of(self.other_evaluator.email), [("Monday", "9:00:00", "10:00:00")])
+
+	def test_details_say_whether_evaluation_invites_are_on(self):
+		setting = ("LMS Settings", "send_calendar_invite_for_evaluations")
+		original = frappe.db.get_single_value(*setting)
+		self.addCleanup(frappe.db.set_single_value, *setting, original)
+		frappe.session.user = self.evaluator.email
+		for value in (0, 1):
+			with self.subTest(value=value):
+				frappe.db.set_single_value(*setting, value)
+				details = get_evaluator_details(self.evaluator.email)
+				self.assertIs(details["evaluation_invites"], bool(value))
 
 
 class TestEvaluatorCalendarSettings(BaseTestUtils):
@@ -502,6 +768,9 @@ class TestEvaluatorCalendarSettings(BaseTestUtils):
 		super().setUp()
 		frappe.db.delete("Google Calendar", {"user": ("in", [self.EVALUATOR, self.OTHER])})
 		frappe.cache.delete_value(f"{EVALUATOR_CALENDAR_CACHE}:{self.EVALUATOR}")
+		# Calendars are named after their user, and redis outlives the rollback.
+		for user in (self.EVALUATOR, self.OTHER):
+			frappe.cache.delete_value(f"{GOOGLE_TOKEN_CHECK_CACHE}:{user}")
 		self.original_user = frappe.session.user
 		self.addCleanup(setattr, frappe.session, "user", self.original_user)
 		frappe.local.response = frappe._dict()
@@ -520,11 +789,11 @@ class TestEvaluatorCalendarSettings(BaseTestUtils):
 
 	def test_details_show_the_calendar_settings(self):
 		frappe.session.user = self.EVALUATOR
-		update_evaluator_calendar("calendar_name", "Eva's classes")
+		update_evaluator_calendar("enable", 1)
 
 		calendar = get_evaluator_details(self.EVALUATOR)["calendar"]
 
-		self.assertEqual(calendar.calendar_name, "Eva's classes")
+		self.assertEqual(calendar.calendar_name, self.EVALUATOR)
 		self.assertEqual(calendar.enable, 1)
 		self.assertEqual(calendar.push_to_google_calendar, 1)
 		self.assertFalse(calendar.is_authorized)
@@ -554,14 +823,12 @@ class TestEvaluatorCalendarSettings(BaseTestUtils):
 
 	def test_a_change_never_reaches_another_users_calendar(self):
 		frappe.session.user = self.OTHER
-		update_evaluator_calendar("calendar_name", "Other's classes")
+		update_evaluator_calendar("enable", 1)
 
 		frappe.session.user = self.EVALUATOR
-		update_evaluator_calendar("calendar_name", "Mine")
+		update_evaluator_calendar("enable", 0)
 
-		self.assertEqual(
-			frappe.db.get_value("Google Calendar", {"user": self.OTHER}, "calendar_name"), "Other's classes"
-		)
+		self.assertEqual(frappe.db.get_value("Google Calendar", {"user": self.OTHER}, "enable"), 1)
 
 	def test_only_the_shown_fields_can_change(self):
 		frappe.session.user = self.EVALUATOR
@@ -666,8 +933,10 @@ class TestEvaluatorCalendarSettings(BaseTestUtils):
 
 		with self.assertRaises(frappe.PermissionError):
 			google_calendar_callback(code="code", state="s")
-		update_evaluator_calendar("calendar_name", "Renamed after deploy")
-		self.assertEqual(self._calendar_of(self.EVALUATOR), "Renamed after deploy")
+		update_evaluator_calendar("enable", 0)
+		self.assertEqual(
+			frappe.db.get_value("Google Calendar", self._calendar_of(self.EVALUATOR), "enable"), 0
+		)
 
 	def test_a_desk_sign_in_keeps_frappes_own_callback(self):
 		frappe.session.user = "Administrator"
@@ -733,6 +1002,18 @@ class TestEvaluatorCalendarSettings(BaseTestUtils):
 
 		self.assertEqual(frappe.cache.get_value(key), {"calendar": "Renamed mid sign-in", "state": "s"})
 
+	def test_a_rename_keeps_the_token_check(self):
+		name = self._connected_calendar()
+		frappe.cache.set_value(f"{GOOGLE_TOKEN_CHECK_CACHE}:{name}", 1, expires_in_sec=600)
+		with patch(
+			"frappe.integrations.doctype.google_calendar.google_calendar.get_google_calendar_object",
+			return_value=(MagicMock(), MagicMock()),
+		):
+			update_evaluator_calendar("calendar_name", "Evaluations")
+
+		self.assertIsNone(frappe.cache.get_value(f"{GOOGLE_TOKEN_CHECK_CACHE}:{name}"))
+		self.assertEqual(frappe.cache.get_value(f"{GOOGLE_TOKEN_CHECK_CACHE}:Evaluations"), 1)
+
 	def test_callback_refuses_a_calendar_that_is_not_the_callers(self):
 		frappe.session.user = self.OTHER
 		other_calendar = ensure_evaluator_calendar()
@@ -743,3 +1024,182 @@ class TestEvaluatorCalendarSettings(BaseTestUtils):
 
 		with self.assertRaises(frappe.PermissionError):
 			google_calendar_callback(code="code", state="s")
+
+	def _google_says(self, body):
+		response = MagicMock()
+		response.json.return_value = body
+		response.status_code = 200
+		return patch("requests.post", return_value=response)
+
+	def _details_calendar(self):
+		return get_evaluator_details(self.EVALUATOR)["calendar"]
+
+	def test_details_say_who_can_set_google_up(self):
+		frappe.session.user = self.EVALUATOR
+		details = get_evaluator_details(self.EVALUATOR)
+		self.assertTrue(details["google_enabled"])
+		self.assertFalse(details["can_configure_google"])
+
+		frappe.session.user = "Administrator"
+		self.assertTrue(get_evaluator_details(self.EVALUATOR)["can_configure_google"])
+
+	def test_details_say_who_can_turn_invites_on(self):
+		frappe.session.user = self.EVALUATOR
+		self.assertFalse(get_evaluator_details(self.EVALUATOR)["can_configure_invites"])
+
+		frappe.session.user = "Administrator"
+		self.assertTrue(get_evaluator_details(self.EVALUATOR)["can_configure_invites"])
+
+	def test_google_without_a_client_secret_is_not_set_up(self):
+		"""Regression from #2928: Connect showed, then GoogleCalendar.validate refused.
+		Added on feat/evaluator-availability-redesign (no PR yet)."""
+		frappe.session.user = self.EVALUATOR
+		settings = frappe._dict(enable=1, client_id="id", client_secret=None)
+		with patch("lms.lms.api.frappe.get_cached_doc", return_value=settings):
+			self.assertFalse(get_evaluator_details(self.EVALUATOR)["google_enabled"])
+
+	def test_connecting_turns_the_calendar_on(self):
+		"""The switches are gone from the Slots tab, so connecting sets them."""
+		frappe.session.user = self.EVALUATOR
+		update_evaluator_calendar("enable", 0)
+		update_evaluator_calendar("push_to_google_calendar", 0)
+		authorize_evaluator_calendar()
+
+		with self._google_says({"refresh_token": "fresh", "access_token": "a"}):
+			google_calendar_callback(code="one-time-code", state=self._state())
+			calendar = self._details_calendar()
+
+		self.assertEqual((calendar.enable, calendar.push_to_google_calendar), (1, 1))
+		self.assertTrue(calendar.connected)
+
+	def test_a_revoked_token_shows_as_not_connected(self):
+		"""Regression from #2928: a token revoked in Google still showed as authorised.
+		Added on feat/evaluator-availability-redesign (no PR yet)."""
+		self._connected_calendar()
+		with self._google_says({"error": "invalid_grant"}) as google:
+			calendar = self._details_calendar()
+			self.assertFalse(self._details_calendar().connected)
+
+		self.assertTrue(calendar.is_authorized)
+		self.assertFalse(calendar.connected)
+		# Asked once, then cached.
+		google.assert_called_once()
+
+	def test_google_out_of_reach_still_counts_as_connected(self):
+		self._connected_calendar()
+		with patch("requests.post", side_effect=Exception("offline")) as google:
+			self.assertTrue(self._details_calendar().connected)
+			self.assertTrue(self._details_calendar().connected)
+
+		# Not asked again on the next load, but only for a minute.
+		google.assert_called_once()
+		ttl = frappe.cache.ttl(frappe.cache.make_key(f"{GOOGLE_TOKEN_CHECK_CACHE}:{self.EVALUATOR}"))
+		self.assertTrue(0 < ttl <= 60, ttl)
+
+	def test_a_calendar_turned_off_is_not_connected(self):
+		name = self._connected_calendar()
+		frappe.db.set_value("Google Calendar", name, "push_to_google_calendar", 0)
+		with self._google_says({"access_token": "a"}):
+			self.assertFalse(self._details_calendar().connected)
+
+	def test_a_disabled_calendar_keeps_its_sign_in(self):
+		name = self._connected_calendar()
+		with self._google_says({"access_token": "a"}) as google:
+			disabled = update_evaluator_calendar("enable", 0)
+			google.assert_not_called()
+			enabled = update_evaluator_calendar("enable", 1)
+
+		self.assertTrue(disabled.is_authorized)
+		self.assertFalse(disabled.connected)
+		self.assertEqual(frappe.get_doc("Google Calendar", name).get_password("refresh_token"), "token")
+		self.assertTrue(enabled.connected)
+
+	def test_a_disabled_calendar_gets_no_evaluation_event(self):
+		"""Signed in but turned off: the booking stands, with no event on Google."""
+		name = self._connected_calendar()
+		update_evaluator_calendar("enable", 0)
+		booking = frappe.get_doc(
+			{
+				"doctype": "LMS Certificate Request",
+				"member": self.STUDENT,
+				"evaluator": self.EVALUATOR,
+				"date": add_days(frappe.utils.today(), 1),
+				"start_time": "10:00:00",
+				"end_time": "11:00:00",
+			}
+		)
+		booking.name = frappe.generate_hash(length=10)
+		booking.db_insert()
+
+		module = "lms.lms.doctype.lms_certificate_request.lms_certificate_request"
+		with patch(f"{module}.create_event") as create_event:
+			setup_calendar_event(booking.name)
+		create_event.assert_not_called()
+
+		frappe.db.set_value("Google Calendar", name, "enable", 1)
+		with (
+			patch(f"{module}.create_event") as create_event,
+			patch(f"{module}.add_participants"),
+			patch(f"{module}.update_meeting_details"),
+		):
+			setup_calendar_event(booking.name)
+		create_event.assert_called_once()
+
+	def test_disconnect_revokes_and_forgets_the_token(self):
+		name = self._connected_calendar()
+		with self._google_says({}) as google:
+			calendar = disconnect_evaluator_calendar()
+
+		google.assert_called_once_with(GOOGLE_REVOKE_URL, data={"token": "token"}, timeout=10)
+		self.assertFalse(calendar.is_authorized)
+		self.assertFalse(calendar.connected)
+		doc = frappe.get_doc("Google Calendar", name)
+		self.assertIsNone(doc.get_password("refresh_token", raise_exception=False))
+		self.assertEqual(doc.enable, 0)
+		self.assertIsNone(doc.google_calendar_id)
+
+	def test_disconnect_goes_through_when_google_refuses(self):
+		name = self._connected_calendar()
+		with patch("requests.post", side_effect=Exception("Google is down")):
+			disconnect_evaluator_calendar()
+
+		self.assertFalse(frappe.db.get_value("Google Calendar", name, "refresh_token"))
+
+	def test_disconnect_works_with_google_settings_off(self):
+		name = self._connected_calendar()
+		frappe.db.set_single_value("Google Settings", "enable", 0)
+		frappe.clear_document_cache("Google Settings", "Google Settings")
+		self.addCleanup(frappe.clear_document_cache, "Google Settings", "Google Settings")
+		self.addCleanup(frappe.db.set_single_value, "Google Settings", "enable", 1)
+
+		with self._google_says({}):
+			disconnect_evaluator_calendar()
+
+		self.assertEqual(frappe.db.get_value("Google Calendar", name, "enable"), 0)
+
+	def test_disconnect_never_reaches_another_users_calendar(self):
+		frappe.session.user = self.OTHER
+		other = frappe.get_doc("Google Calendar", ensure_evaluator_calendar())
+		other.refresh_token = "others"
+		# nosemgrep: lms-unjustified-ignore-permissions - test fixture setup
+		other.save(ignore_permissions=True)
+
+		self._connected_calendar()
+		with self._google_says({}):
+			disconnect_evaluator_calendar()
+
+		self.assertEqual(other.get_password("refresh_token"), "others")
+
+	def test_disconnect_with_no_calendar_is_refused(self):
+		for user in (self.EVALUATOR, self.STUDENT):
+			frappe.session.user = user
+			with patch("requests.post") as google, self.assertRaises(frappe.DoesNotExistError):
+				disconnect_evaluator_calendar()
+			google.assert_not_called()
+
+	def test_a_former_evaluator_can_still_disconnect(self):
+		name = self._connected_calendar()
+		with patch("frappe.get_roles", return_value=["All", "Guest"]), self._google_says({}):
+			disconnect_evaluator_calendar()
+
+		self.assertEqual(frappe.db.get_value("Google Calendar", name, "enable"), 0)

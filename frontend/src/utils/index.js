@@ -886,7 +886,7 @@ export const createLMSCategory = (name) => {
 // Takes the tab's slug, not its label, since renaming a label must not break
 // callers. Returns whether Settings actually opened, so a caller that closes
 // itself separately can stay put when it did not.
-export const openSettings = (slug, close = null) => {
+export const openSettings = (slug, close = null, field = null) => {
 	const settingsStore = useSettings()
 	if (!settingsStore.isSettingsMounted) {
 		toast.error(__('Settings is only available on a larger screen.'))
@@ -895,6 +895,7 @@ export const openSettings = (slug, close = null) => {
 	if (close) {
 		close()
 	}
+	settingsStore.focusField = field
 	pushSettingsHash(router, slug)
 	return true
 }

@@ -6,6 +6,9 @@ export const useSettings = defineStore('settings', () => {
 	const isSettingsOpen = ref(false)
 	const isCommandPaletteOpen = ref(false)
 	const activeTab = ref(null)
+	// The field a caller opened settings for. The tab it lives on takes it,
+	// clears it, and has SettingsFields scroll to it and flash it.
+	const focusField = ref(null)
 
 	// Settings is the desktop dialog and has no route of its own, so it is
 	// mounted only inside the desktop sidebar's UserDropdown. On a phone nothing
@@ -39,6 +42,7 @@ export const useSettings = defineStore('settings', () => {
 
 	return {
 		activeTab,
+		focusField,
 		isSettingsOpen,
 		isSettingsMounted,
 		isCommandPaletteOpen,

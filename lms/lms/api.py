@@ -35,6 +35,7 @@ from frappe.utils import (
 	now,
 	strip_html,
 )
+from frappe.utils.password import get_decrypted_password, remove_encrypted_password
 from frappe.utils.response import Response
 from pypika import functions as fn
 
@@ -620,9 +621,16 @@ def get_evaluator_details(evaluator: str):
 		"slots": doc.as_dict(),
 		"calendar": get_evaluator_calendar(evaluator),
 		"google_enabled": is_google_calendar_enabled(),
+		# Says whether the empty state links to Google Settings or asks for an admin.
+		"can_configure_google": bool(frappe.has_permission("Google Settings", "write")),
 		# Evaluator Schedule holds bare wall-clock times and the whole booking
 		# pipeline reads them as system time, so the editor has to say so.
 		"timezone": format_timezone(get_system_timezone()),
+		# schedule_evals only puts bookings on the evaluator's calendar when this is on.
+		"evaluation_invites": bool(
+			frappe.db.get_single_value("LMS Settings", "send_calendar_invite_for_evaluations")
+		),
+		"can_configure_invites": bool(frappe.has_permission("LMS Settings", "write")),
 	}
 
 
@@ -642,12 +650,65 @@ def get_evaluator_calendar(evaluator: str):
 	# Authorised means Google gave a refresh token. An authorization code alone
 	# is left behind when the token exchange fails, and sends nothing.
 	calendar.is_authorized = bool(calendar.pop("refresh_token"))
+	# Connected means bookings reach Google. Only the owner's page asks Google
+	# whether the token still works; nobody else is shown the calendar section.
+	calendar.connected = bool(
+		calendar.is_authorized
+		and calendar.enable
+		and calendar.push_to_google_calendar
+		and (evaluator != frappe.session.user or google_still_authorizes(calendar.name))
+	)
 	return calendar
+
+
+GOOGLE_TOKEN_CHECK_CACHE = "lms_google_calendar_token_ok"
+
+
+def google_still_authorizes(calendar: str) -> bool:
+	"""A token revoked from the Google account, or expired, stays stored here.
+	Asking Google for an access token is the only way to tell, so the answer is
+	cached rather than asked on every page load."""
+	key = f"{GOOGLE_TOKEN_CHECK_CACHE}:{calendar}"
+	cached = frappe.cache.get_value(key)
+	if cached is not None:
+		return bool(cached)
+
+	settings = frappe.get_cached_doc("Google Settings")
+	try:
+		response = request_google_access_token(settings, calendar)
+	except Exception:
+		# Google out of reach is not Google saying no. Ask again in a minute,
+		# not on every load while each try waits out the timeout.
+		frappe.cache.set_value(key, 1, expires_in_sec=60)
+		return True
+
+	valid = response.get("error") != "invalid_grant"
+	frappe.cache.set_value(key, int(valid), expires_in_sec=600)
+	return valid
+
+
+def request_google_access_token(settings, calendar: str) -> dict:
+	import requests
+	from frappe.integrations.google_oauth import GoogleOAuth
+
+	return requests.post(
+		GoogleOAuth.OAUTH_URL,
+		data={
+			"client_id": settings.client_id,
+			"client_secret": settings.get_password(fieldname="client_secret", raise_exception=False),
+			"refresh_token": get_decrypted_password(
+				"Google Calendar", calendar, "refresh_token", raise_exception=False
+			),
+			"grant_type": "refresh_token",
+		},
+		timeout=5,
+	).json()
 
 
 def is_google_calendar_enabled() -> bool:
 	settings = frappe.get_cached_doc("Google Settings")
-	return bool(settings.enable and settings.client_id)
+	# The same three GoogleCalendar.validate needs before it lets a calendar save.
+	return bool(settings.enable and settings.client_id and settings.client_secret)
 
 
 def get_own_calendar_doc():
@@ -700,6 +761,10 @@ def rename_own_calendar(current: str, value) -> None:
 	# Read first: renaming clears the cache.
 	pending = get_pending_sign_in(frappe.session.user)
 	signing_in = bool(pending) and pending["calendar"] == current
+	# The token check is cached by name too; without it the next load asks Google.
+	token_key = f"{GOOGLE_TOKEN_CHECK_CACHE}:{current}"
+	token_ok = frappe.cache.get_value(token_key)
+	token_ttl = frappe.cache.ttl(frappe.cache.make_key(token_key))
 
 	from frappe.model.rename_doc import rename_doc
 
@@ -708,6 +773,9 @@ def rename_own_calendar(current: str, value) -> None:
 
 	if signing_in:
 		set_pending_sign_in(frappe.session.user, value, pending["state"])
+	frappe.cache.delete_value(token_key)
+	if token_ok is not None and token_ttl > 0:
+		frappe.cache.set_value(f"{GOOGLE_TOKEN_CHECK_CACHE}:{value}", token_ok, expires_in_sec=token_ttl)
 
 
 def rename_on_google(current: str, value: str) -> None:
@@ -855,12 +923,66 @@ def save_calendar_tokens(calendar, code: str) -> bool:
 
 	calendar.authorization_code = code
 	calendar.refresh_token = response["refresh_token"]
+	# Connect is the only switch the Slots tab offers, and bookings need both on.
+	calendar.enable = 1
+	calendar.push_to_google_calendar = 1
+	frappe.cache.delete_value(f"{GOOGLE_TOKEN_CHECK_CACHE}:{calendar.name}")
 	# nosemgrep: lms-unjustified-ignore-permissions - the caller's own calendar, checked in google_calendar_callback
 	calendar.save(ignore_permissions=True)
 	return True
 
 
-@frappe.whitelist()
+@frappe.whitelist(methods=["POST"])
+def disconnect_evaluator_calendar():
+	"""Revoke and forget the caller's Google token, so a later Connect may use another
+	account. `enable` goes off too: bookings check only it and would fail with no token.
+	No role gate, so a former evaluator can still revoke."""
+	name = frappe.db.get_value("Google Calendar", {"user": frappe.session.user}, "name")
+	if not name:
+		frappe.throw(_("You have no Google Calendar to disconnect."), frappe.DoesNotExistError)
+
+	token = get_decrypted_password("Google Calendar", name, "refresh_token", raise_exception=False)
+	if token:
+		revoke_google_token(token)
+
+	for fieldname in ("refresh_token", "authorization_code", "next_sync_token"):
+		remove_encrypted_password("Google Calendar", name, fieldname)
+	# Not doc.save(): GoogleCalendar.validate refuses while Google Settings is
+	# off, and disconnecting has to work then too.
+	frappe.db.set_value(
+		"Google Calendar",
+		name,
+		{
+			"enable": 0,
+			"refresh_token": None,
+			"authorization_code": None,
+			"next_sync_token": None,
+			"google_calendar_id": None,
+		},
+	)
+	frappe.cache.delete_value(f"{GOOGLE_TOKEN_CHECK_CACHE}:{name}")
+	return get_evaluator_calendar(frappe.session.user)
+
+
+GOOGLE_REVOKE_URL = "https://oauth2.googleapis.com/revoke"
+
+
+def revoke_google_token(token: str) -> None:
+	"""Best effort: the token is forgotten here whatever Google says, and the
+	user can still remove access from their Google account."""
+	import requests
+
+	try:
+		response = requests.post(GOOGLE_REVOKE_URL, data={"token": token}, timeout=10)
+	except Exception:
+		frappe.log_error(title="Could not revoke Google Calendar access")
+		return
+	# 400 invalid_token: Google had already revoked it.
+	if response.status_code not in (200, 400):
+		frappe.log_error(title="Could not revoke Google Calendar access", message=response.text)
+
+
+@frappe.whitelist(methods=["POST"])
 def ensure_evaluator_calendar():
 	"""Create the caller's own Google Calendar record, on demand.
 
@@ -869,7 +991,7 @@ def ensure_evaluator_calendar():
 	their behalf, but only for themselves, and only when they ask for it by
 	starting the authorisation flow.
 	"""
-	frappe.only_for(EVALUATOR_ROLES)
+	frappe.only_for("Batch Evaluator")
 	user = frappe.session.user
 
 	existing = frappe.db.get_value("Google Calendar", {"user": user}, "name")
@@ -909,45 +1031,50 @@ def validate_evaluator_name(evaluator: str) -> str:
 
 
 def enforce_evaluator_access(evaluator: str) -> str:
-	"""View or edit your own availability; a Moderator may do either for anyone.
-
-	Two gates, not one. The role check is what keeps non-evaluators out: with
-	the ownership check alone, any authenticated user could name *themselves*
-	and reach the write path, which provisions a Course Evaluator (and with it
-	the Batch Evaluator role) with ignore_permissions.
-	"""
+	"""View your own availability, or anyone's as a Moderator; writes are owner-only
+	(get_owned_evaluator_doc). The role gate matters too: without it anyone could name
+	themselves and reach the write path, which provisions a Course Evaluator and its role."""
 	frappe.only_for(EVALUATOR_ROLES)
-	evaluator = validate_evaluator_name(evaluator)
+	return check_evaluator_access(validate_evaluator_name(evaluator))
 
-	if evaluator == frappe.session.user:
-		return evaluator
 
-	if "Moderator" in frappe.get_roles():
-		return evaluator
+def check_evaluator_access(evaluator: str) -> str:
+	if evaluator != frappe.session.user and "Moderator" not in frappe.get_roles():
+		frappe.throw(_("You can only see or change your own availability."), frappe.PermissionError)
 
-	frappe.throw(_("You can only see or change your own availability."), frappe.PermissionError)
+	if not frappe.db.exists("User", evaluator):
+		frappe.throw(_("Evaluator {0} not found").format(evaluator), frappe.DoesNotExistError)
+
+	# Only a Batch Evaluator can be picked as a course or batch evaluator (that
+	# role and the Course Evaluator record move together), so nobody else has
+	# availability to keep. A Moderator gives the role from the Roles tab.
+	if "Batch Evaluator" not in frappe.get_roles(evaluator):
+		frappe.throw(
+			_("{0} doesn't have the Batch Evaluator role, so they have no availability to set.").format(
+				evaluator
+			),
+			frappe.PermissionError,
+			title=_("Not an evaluator"),
+		)
+
+	return evaluator
 
 
 def get_owned_evaluator_doc(evaluator: str, create: bool = False):
-	"""Resolve the caller's (or, for a Moderator, the target's) availability.
-
-	`create` is only ever set by the one endpoint that means "this person is an
-	evaluator now" (adding a slot), and only after that call's own arguments
-	have been validated. Editing, deleting or setting unavailability on a record
-	that does not exist is a mistake, not a reason to conjure one: saving a
-	Course Evaluator grants the Batch Evaluator role, so creating on those paths
-	handed out a role for a write that was then rejected.
-	"""
-	evaluator = enforce_evaluator_access(evaluator)
+	"""Resolve the caller's own availability for a write; naming anyone else,
+	a Moderator included, is refused. `create` only on add/save, after their
+	arguments are validated: saving a Course Evaluator grants Batch Evaluator."""
+	evaluator = validate_evaluator_name(evaluator)
+	if evaluator != frappe.session.user:
+		frappe.throw(_("You can only change your own availability."), frappe.PermissionError)
+	frappe.only_for(EVALUATOR_ROLES)
+	evaluator = check_evaluator_access(evaluator)
 
 	if frappe.db.exists("Course Evaluator", evaluator):
 		return frappe.get_doc("Course Evaluator", evaluator)
 
 	if not create:
 		frappe.throw(_("{0} has no availability set up yet.").format(evaluator), frappe.DoesNotExistError)
-
-	if not frappe.db.exists("User", evaluator):
-		frappe.throw(_("Evaluator {0} not found").format(evaluator), frappe.DoesNotExistError)
 
 	doc = frappe.new_doc("Course Evaluator")
 	doc.evaluator = evaluator
@@ -1065,6 +1192,53 @@ def set_evaluator_unavailability(evaluator: str, fieldname: str, value: str | No
 
 	doc.set(fieldname, validate_unavailability_date(value))
 	doc.save(ignore_permissions=True)
+
+
+EVALUATOR_MAX_SLOTS = 100
+
+
+def validate_schedule_row(row, position: int) -> dict:
+	if not isinstance(row, dict):
+		frappe.throw(_("Row {0} of the schedule is not a time range.").format(position))
+
+	day = row.get("day")
+	if day not in EVALUATOR_SLOT_DAYS:
+		frappe.throw(_("Row {0}: {1} is not a valid day.").format(position, day))
+
+	return {
+		"day": day,
+		"start_time": validate_slot_time(row.get("start_time")),
+		"end_time": validate_slot_time(row.get("end_time")),
+	}
+
+
+@frappe.whitelist(methods=["POST"])
+def save_evaluator_availability(
+	schedule: list, unavailable_from: str | None = None, unavailable_to: str | None = None
+):
+	"""Replace the caller's weekly schedule and time off in one save. Always the
+	caller's own: a Moderator reviews other evaluators' availability, never edits
+	it here."""
+	if not isinstance(schedule, list):
+		frappe.throw(_("Schedule must be a list of time ranges."))
+	if len(schedule) > EVALUATOR_MAX_SLOTS:
+		frappe.throw(_("Keep the schedule under {0} time ranges.").format(EVALUATOR_MAX_SLOTS))
+
+	rows = [validate_schedule_row(row, position) for position, row in enumerate(schedule, start=1)]
+	unavailable_from = validate_unavailability_date(unavailable_from)
+	unavailable_to = validate_unavailability_date(unavailable_to)
+	if bool(unavailable_from) != bool(unavailable_to):
+		frappe.throw(_("Set both dates of the time off, or clear it."), title=_("Time off incomplete"))
+
+	doc = get_owned_evaluator_doc(frappe.session.user, create=True)
+	doc.schedule = []
+	for row in rows:
+		doc.append("schedule", row)
+	doc.unavailable_from = unavailable_from
+	doc.unavailable_to = unavailable_to
+	# nosemgrep: lms-unjustified-ignore-permissions - caller's own record only (get_owned_evaluator_doc on session user); evaluators have no Course Evaluator write permission
+	doc.save(ignore_permissions=True)
+	return get_evaluator_details(frappe.session.user)
 
 
 @frappe.whitelist()
@@ -2827,6 +3001,7 @@ def save_evaluator_role(user: str, value: int):
 			doc.evaluator = user
 			frappe.db.savepoint("save_evaluator")
 			try:
+				# nosemgrep: lms-unjustified-ignore-permissions - Moderator-only (only_for above), and Moderators may create Course Evaluator
 				doc.save(ignore_permissions=True)
 			except frappe.DuplicateEntryError:
 				# A concurrent request already created this evaluator; the primary key (autoname field:evaluator) guarantees uniqueness, so the row exists. Nothing more to do.

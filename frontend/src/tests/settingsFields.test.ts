@@ -19,7 +19,7 @@
  * through SettingsFields, not just Email Accounts.
  */
 import { describe, expect, it, vi } from 'vitest'
-import { mount } from '@vue/test-utils'
+import { flushPromises, mount } from '@vue/test-utils'
 import { EditorView } from '@codemirror/view'
 import type { SettingsField } from '@/types/settingsSchema'
 
@@ -268,7 +268,9 @@ describe('SettingsFields renders a password field as Password', () => {
 		const input = w.get('input')
 		expect(input.attributes('type')).toBe('password')
 		// A stored secret says so rather than showing itself.
-		expect(input.attributes('placeholder')).toBe('Saved, leave blank to keep it')
+		expect(input.attributes('placeholder')).toBe(
+			'Saved, leave blank to keep it'
+		)
 		expect(w.text()).not.toContain('*****')
 
 		await input.setValue('typed-secret')
@@ -343,5 +345,73 @@ describe('SettingsFields marks a required field', () => {
 
 		expect(w.find('.text-ink-red-5').exists()).toBe(false)
 		expect(w.text()).toContain('Enabled')
+	})
+})
+
+describe('SettingsFields focuses the field it is asked for', () => {
+	it('scrolls to the row and highlights it for a second', async () => {
+		vi.useFakeTimers()
+		const scrollIntoView = vi.fn()
+		Element.prototype.scrollIntoView = scrollIntoView
+		const SettingsFields = (
+			await import('@/components/Layouts/settings/desktop/SettingsFields.vue')
+		).default
+		const w = mount(SettingsFields, {
+			props: {
+				sections: [
+					{
+						fields: [
+							{ name: 'allow_guest_access', label: 'Guests', type: 'checkbox' },
+							{ name: 'send_invites', label: 'Invites', type: 'checkbox' },
+						],
+					},
+				],
+				data: {},
+				focus: 'send_invites',
+			},
+			global: { mocks: { __: (s: string) => s } },
+		})
+		await vi.dynamicImportSettled()
+		await w.vm.$nextTick()
+		const tint = (name: string) =>
+			w.find(`[data-setting-field="${name}"] [data-testid="setting-highlight"]`)
+
+		expect(scrollIntoView).toHaveBeenCalledTimes(1)
+		expect(tint('send_invites').classes()).toContain('opacity-100')
+		expect(tint('allow_guest_access').classes()).toContain('opacity-0')
+
+		vi.advanceTimersByTime(1000)
+		await w.vm.$nextTick()
+		expect(tint('send_invites').classes()).toContain('opacity-0')
+		vi.useRealTimers()
+	})
+
+	// Regression on this branch only, no upstream PR: a selector built from the name
+	// threw on a quote. Added on feat/evaluator-availability-redesign (no PR yet).
+	it('treats a name that is not a valid selector as no match', async () => {
+		const scrollIntoView = vi.fn()
+		Element.prototype.scrollIntoView = scrollIntoView
+		const SettingsFields = (
+			await import('@/components/Layouts/settings/desktop/SettingsFields.vue')
+		).default
+		const w = mount(SettingsFields, {
+			props: {
+				sections: [
+					{
+						fields: [
+							{ name: 'send_invites', label: 'Invites', type: 'checkbox' },
+						],
+					},
+				],
+				data: {},
+				focus: 'send"]invites',
+			},
+			global: { mocks: { __: (s: string) => s } },
+		})
+		await vi.dynamicImportSettled()
+		await flushPromises()
+
+		expect(scrollIntoView).not.toHaveBeenCalled()
+		expect(w.find('[data-setting-field="send_invites"]').exists()).toBe(true)
 	})
 })
