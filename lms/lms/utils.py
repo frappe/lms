@@ -2362,9 +2362,12 @@ def categorize_batches(batches: list) -> dict:
 
 def get_country_code():
 	ip = frappe.local.request_ip
-	res = requests.get(f"http://ip-api.com/json/{ip}")
 
 	try:
+		res = requests.get(
+			f"http://ip-api.com/json/{ip}",
+			 timeout=3,
+		)
 		data = res.json()
 		if data.get("status") != "fail":
 			return frappe.db.get_value("Country", {"code": data.get("countryCode")}, "name")
