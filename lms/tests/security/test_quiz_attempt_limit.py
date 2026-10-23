@@ -36,7 +36,7 @@ class _QuizAttemptFixtures:
 class TestQuizAttemptLimit(_QuizAttemptFixtures, BaseTestUtils):
 	"""max_attempts is a count of the member's submissions. Under REPEATABLE READ a plain
 	count is read from the request's snapshot, so parallel submits all see the same
-	number. The member's User row serialises them and the count must be a locking read."""
+	number. The member's User row serialises them and the count is a locking read."""
 
 	@classmethod
 	def setUpClass(cls):
@@ -81,21 +81,22 @@ class TestQuizAttemptLimitConcurrency(_QuizAttemptFixtures, BaseTestUtils):
 		super(BaseTestUtils, self).tearDown()
 
 	def test_parallel_submits_at_the_limit_admit_one(self):
-		"""Without the lock both workers count zero attempts before either inserts."""
+		"""Without the User lock both workers insert and then each counts the other's
+		uncommitted row."""
 		outcomes = self._in_parallel([self.member, self.member])
 
 		self.assertEqual(sorted(outcomes), ["exceeded", "submitted"])
 
 	def test_different_learners_submitting_together_both_get_in(self):
-		"""Their counts lock the same empty stretch of the member index, so their inserts
-		deadlock and the database rolls one back. That one is retried."""
+		"""Their counts lock the same empty stretch of the member index. Each counts after
+		inserting, so one insert waits for the other's commit instead of deadlocking."""
 		outcomes = self._in_parallel([self.member, self.other])
 
 		self.assertEqual(outcomes, ["submitted", "submitted"])
 
 	def _in_parallel(self, members) -> list:
 		"""Submit once per member, each on its own connection. A worker that has counted
-		waits for the rest to count before it inserts."""
+		waits for the rest to count before it commits."""
 		workers = len(members)
 		site = frappe.local.site
 		# The workers run on their own connections, so the fixtures have to be
@@ -111,7 +112,7 @@ class TestQuizAttemptLimitConcurrency(_QuizAttemptFixtures, BaseTestUtils):
 			try:
 				counted.wait(timeout=COUNTED_TIMEOUT)
 			except threading.BrokenBarrierError:
-				pass  # the others are queued on the member's lock
+				pass  # the others are queued on a lock this worker holds
 
 		def run(member):
 			try:
