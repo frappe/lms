@@ -125,9 +125,12 @@ runs:
       env:
         BENCH_KEY: ${{ steps.key.outputs.key }}
         SITE: ${{ inputs.site }}
+        # lms/install.py and every module it imports. Keep the list in step
+        # with its imports.
         INSTALL_HASH: >-
           ${{ hashFiles('lms/**/*.json', 'lms/hooks.py', 'lms/install.py',
-          'lms/patches.txt', 'lms/lms/sidebar.py') }}
+          'lms/patches.txt', 'lms/lms/sidebar.py', 'lms/lms/api.py',
+          'lms/lms/enrollment_constraints.py') }}
       run: echo "key=site-$BENCH_KEY-$SITE-${INSTALL_HASH:0:16}" >> "$GITHUB_OUTPUT"
 
     # Outside pull requests this only looks the key up, to skip a needless dump.
