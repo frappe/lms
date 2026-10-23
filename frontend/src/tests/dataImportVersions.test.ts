@@ -11,10 +11,16 @@ const stub = (name: string) => defineComponent({ name, render: () => h('div', na
 
 vi.mock('@/pages/DataImport/Wizard.vue', () => ({ default: stub('WizardFlow') }))
 vi.mock('@/pages/DataImport/Legacy.vue', () => ({ default: stub('LegacyFlow') }))
+vi.mock('@/pages/DataImport/List.vue', () => ({ default: stub('ImportList') }))
+
+const route = vi.hoisted(() => ({ name: 'DataImport' as string }))
+vi.mock('vue-router', () => ({ useRoute: () => route }))
+const WIZARD_KIT = () => ({ DataImportWizard: stub('DataImportWizard'), useDataImport: () => ({}) })
 
 let wrapper: VueWrapper | undefined
 
 afterEach(() => {
+	route.name = 'DataImport'
 	wrapper?.unmount()
 	wrapper = undefined
 	vi.resetModules()
@@ -30,8 +36,17 @@ async function render(kit: Record<string, unknown>) {
 
 describe('data import page', () => {
 	it('shows the wizard when frappe ships it', async () => {
-		const text = await render({ DataImportWizard: stub('DataImportWizard'), useDataImport: () => ({}) })
-		expect(text).toBe('WizardFlow')
+		expect(await render(WIZARD_KIT())).toBe('WizardFlow')
+	})
+
+	it('lists saved imports on the list route, which the wizard has no view for', async () => {
+		route.name = 'DataImportList'
+		expect(await render(WIZARD_KIT())).toBe('ImportList')
+	})
+
+	it('leaves the list to the one-page import, which lists imports itself', async () => {
+		route.name = 'DataImportList'
+		expect(await render({ DataImport: stub('DataImport') })).toBe('LegacyFlow')
 	})
 
 	it('shows the one-page import on frappe that has only that', async () => {
