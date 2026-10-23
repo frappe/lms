@@ -140,13 +140,23 @@ vi.mock('frappe-ui', () => ({
 
 import StudentPicker from '@/components/Enrollment/StudentPicker.vue'
 
+const LIST_SLOT = `<template #list="{ students, remove }">
+	<div v-for="s in students" :key="s.value" data-testid="selected-student">
+		<span data-testid="avatar" :data-image="s.image ?? ''" />
+		<span data-testid="student-name">{{ s.label }}</span>
+		<span>{{ s.value }}</span>
+		<button type="button" :aria-label="'Remove ' + s.label" @click="remove([s.value])" />
+	</div>
+	<button type="button" data-testid="remove-first-two" @click="remove(students.slice(0, 2).map((s) => s.value.toUpperCase()))" />
+</template>`
+
 const mountPicker = (
 	modelValue: string[] = [],
 	slots: Record<string, string> = {},
 	includeEnrolled = false
 ) => {
 	const wrapper = mount(StudentPicker, {
-		slots,
+		slots: { list: LIST_SLOT, ...slots },
 		props: {
 			enrollDoctype: 'LMS Course',
 			enrollDocname: 'course-1',
@@ -411,7 +421,7 @@ describe('StudentPicker', () => {
 		).toBeTruthy()
 	})
 
-	it('scrolls only the selected list while the picker and slot stay fixed', async () => {
+	it('hands the selected students to the list slot in a box that fills the rest', async () => {
 		const wrapper = mountPicker(['jane@x.com'], {
 			beforeList: '<div data-testid="extra" />',
 		})
@@ -420,13 +430,20 @@ describe('StudentPicker', () => {
 		expect(root.className).toMatch(/\bflex-col\b/)
 		expect(root.className).toMatch(/\bh-full\b/)
 		expect(root.className).not.toMatch(/overflow/)
-		const list = wrapper.get('ul[aria-label="Selected students"]')
-		expect(list.classes()).toContain('overflow-y-auto')
-		expect(list.classes()).toContain('flex-1')
-		expect(list.classes()).toContain('min-h-0')
-		expect(
-			wrapper.get('[data-testid="extra"]').element.closest('ul')
-		).toBeNull()
+		const box = wrapper.get('[data-testid="selected-student"]').element
+			.parentElement as HTMLElement
+		expect(box.className).toMatch(/\bflex-1\b/)
+		expect(box.className).toMatch(/\bmin-h-0\b/)
+		expect(box.contains(wrapper.get('[data-testid="extra"]').element)).toBe(
+			false
+		)
+	})
+
+	it('reports checking while pasted emails are looked up', async () => {
+		const wrapper = mountPicker()
+		await typeQuery(wrapper, 'zed@x.com, new@x.com;')
+		const states = (wrapper.emitted('update:checking') ?? []).map((e) => e[0])
+		expect(states).toEqual([true, false])
 	})
 
 	it('ignores a name search that contains a comma', async () => {
@@ -469,38 +486,20 @@ describe('StudentPicker', () => {
 		expect(optionValues(wrapper)).toContain('new@x.com')
 	})
 
-	const removeButton = (wrapper: Wrapper, name: string) =>
-		wrapper.get(`[aria-label="Remove ${name}"]`).element
-
-	// Regression from the bulk-enroll PR (feat/bulk-enroll): removing a student
+	// Regression from the bulk-enroll PR (feat/bulk-enroll): removing students
 	// dropped focus to the page, so keyboard users lost their place.
-	it('removes a student by their named button and focuses the next one', async () => {
+	it('removes the given students and focuses the picker', async () => {
 		const wrapper = mountPicker()
 		await open(wrapper)
-		await pick(wrapper, ['jane@x.com', 'john@x.com'])
+		await pick(wrapper, ['jane@x.com', 'john@x.com', 'zed@x.com'])
 		await wrapper.get('[aria-label="Remove Jane Doe"]').trigger('click')
 		await flushPromises()
-		expect(lastModel(wrapper)).toEqual(['john@x.com'])
-		expect(document.activeElement).toBe(removeButton(wrapper, 'John Roe'))
-	})
-
-	it('moves focus to the previous student after removing the last one', async () => {
-		const wrapper = mountPicker()
-		await open(wrapper)
-		await pick(wrapper, ['jane@x.com', 'john@x.com'])
-		await wrapper.get('[aria-label="Remove John Roe"]').trigger('click')
-		await flushPromises()
-		expect(document.activeElement).toBe(removeButton(wrapper, 'Jane Doe'))
-	})
-
-	it('moves focus to the picker after removing the only student', async () => {
-		const wrapper = mountPicker()
-		await open(wrapper)
-		await pick(wrapper, ['jane@x.com'])
-		await wrapper.get('[aria-label="Remove Jane Doe"]').trigger('click')
-		await flushPromises()
+		expect(lastModel(wrapper)).toEqual(['john@x.com', 'zed@x.com'])
 		expect(document.activeElement).toBe(
 			wrapper.get('[data-testid="trigger"]').element
 		)
+		await wrapper.get('[data-testid="remove-first-two"]').trigger('click')
+		await flushPromises()
+		expect(lastModel(wrapper)).toEqual([])
 	})
 })

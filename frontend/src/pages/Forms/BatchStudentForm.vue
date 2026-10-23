@@ -10,7 +10,7 @@
 
 <script setup lang="ts">
 import { computed, inject } from 'vue'
-import { getCachedListResource, getCachedResource, toast } from 'frappe-ui'
+import { getCachedListResource, getCachedResource } from 'frappe-ui'
 import { useOnboarding } from '@framework/ui/components/Onboarding/index'
 import { seesOnboarding } from '@/utils/onboarding'
 import { useRoute } from 'vue-router'
@@ -90,6 +90,5 @@ const onEnrolled = (result: BulkEnrollResult) => {
 	reloadDashboard()
 	if (!result.added.length) return
 	if (seesOnboarding(user.data)) updateOnboardingStep('add_batch_student')
-	toast.success(__('Students enrolled'))
 }
 </script>

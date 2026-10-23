@@ -281,7 +281,17 @@ describe('BatchStudentForm as a route', () => {
 		await enrolled(wrapper)
 
 		expect(updateOnboardingStepMock).toHaveBeenCalledWith('add_batch_student')
-		expect(toastMock.success).toHaveBeenCalledWith('Students enrolled')
+	})
+
+	// Regression from the bulk-enroll PR (feat/bulk-enroll): the page toasted on
+	// top of the dialog's own outcome toast, so one enroll showed two.
+	it('leaves the success toast to the dialog', async () => {
+		const router = makeRouter()
+		await openForm(router)
+		const wrapper = await mountForm(router)
+		await enrolled(wrapper)
+
+		expect(toastMock.success).not.toHaveBeenCalled()
 	})
 
 	it('ticks the onboarding step only when someone was added', async () => {
@@ -291,7 +301,6 @@ describe('BatchStudentForm as a route', () => {
 		await enrolled(wrapper, [])
 
 		expect(updateOnboardingStepMock).not.toHaveBeenCalled()
-		expect(toastMock.success).not.toHaveBeenCalled()
 	})
 
 	it('leaves the onboarding step alone for a user who does not see onboarding', async () => {

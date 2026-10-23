@@ -8,7 +8,7 @@
 	/>
 </template>
 <script setup lang="ts">
-import { createResource, getCachedListResource, toast } from 'frappe-ui'
+import { createResource, getCachedListResource } from 'frappe-ui'
 import { computed, inject } from 'vue'
 import { useRoute } from 'vue-router'
 import EnrollStudentsForm from '@/components/Enrollment/EnrollStudentsForm.vue'
@@ -107,8 +107,5 @@ const reloadCourseDetails = inject<(() => void) | null>(
 const onEnrolled = (result: BulkEnrollResult) => {
 	reloadStudents()
 	if (result.added.length) reloadCourseDetails?.()
-	if (result.added.length || result.upgraded.length) {
-		toast.success(__('Students enrolled'))
-	}
 }
 </script>

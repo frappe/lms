@@ -58,42 +58,9 @@
 			</template>
 		</MultiSelect>
 		<slot name="beforeList" />
-		<ul
-			v-if="members.length"
-			ref="selectedList"
-			class="flex min-h-0 flex-1 flex-col overflow-y-auto"
-			:aria-label="__('Selected students')"
-		>
-			<li
-				v-for="student in selectedStudents"
-				:key="student.value"
-				data-testid="selected-student"
-				class="flex items-center gap-2 border-b border-outline-gray-1 py-1.5 last:border-b-0"
-			>
-				<Avatar
-					size="md"
-					:image="student.image ?? undefined"
-					:label="student.label"
-				/>
-				<div class="min-w-0 flex-1">
-					<div
-						data-testid="student-name"
-						class="truncate text-base text-ink-gray-8"
-					>
-						{{ student.label }}
-					</div>
-					<div class="truncate text-sm text-ink-gray-6">
-						{{ student.value }}
-					</div>
-				</div>
-				<Button
-					variant="ghost"
-					icon="lucide-x"
-					:aria-label="__('Remove {0}', [student.label])"
-					@click="remove(student.value)"
-				/>
-			</li>
-		</ul>
+		<div v-if="members.length" class="flex min-h-0 flex-1 flex-col">
+			<slot name="list" :students="selectedStudents" :remove="remove" />
+		</div>
 		<EmptyStateLayout
 			v-else
 			data-testid="selected-empty"
@@ -106,7 +73,7 @@
 	</div>
 </template>
 <script setup lang="ts">
-import { Avatar, Button, MultiSelect, createResource } from 'frappe-ui'
+import { Avatar, MultiSelect, createResource } from 'frappe-ui'
 import { useDebounceFn, useEventListener } from '@vueuse/core'
 import { computed, nextTick, reactive, ref, useId, watch } from 'vue'
 import {
@@ -124,6 +91,7 @@ const props = defineProps<{
 }>()
 
 const members = defineModel<string[]>({ default: () => [] })
+const checking = defineModel<boolean>('checking', { default: false })
 
 const PAGE_LENGTH = 20
 const MAX_AVATARS = 3
@@ -134,7 +102,6 @@ const loading = ref<boolean>(false)
 const results = ref<StudentOption[]>([])
 const known = reactive(new Map<string, StudentOption>())
 const selectRef = ref<{ focus: () => void } | null>(null)
-const selectedList = ref<HTMLElement | null>(null)
 const pickerId = useId()
 
 const search = createResource({
@@ -280,8 +247,13 @@ const addEmails = (text: string): boolean => {
 	return true
 }
 
+let checks = 0
+
 const addEligible = async (emails: readonly string[]) => {
+	checking.value = true
+	checks++
 	const eligible = (await eligibleAmong(emails)) ?? []
+	checking.value = --checks > 0
 	if (!eligible.length) return
 	const { members: next, overflow } = mergeMembers(
 		members.value,
@@ -309,19 +281,11 @@ useEventListener(
 	{ capture: true }
 )
 
-const focusAfterRemoval = (index: number) => {
-	const buttons =
-		selectedList.value?.querySelectorAll<HTMLElement>('button') ?? []
-	const target = buttons[index] ?? buttons[index - 1]
-	if (target) target.focus()
-	else selectRef.value?.focus()
-}
-
-const remove = async (member: string) => {
-	const index = members.value.findIndex((m) => keyOf(m) === keyOf(member))
-	members.value = members.value.filter((m) => keyOf(m) !== keyOf(member))
+const remove = async (removed: readonly string[]) => {
+	const gone = new Set(removed.map(keyOf))
+	members.value = members.value.filter((member) => !gone.has(keyOf(member)))
 	capMessage.value = ''
 	await nextTick()
-	focusAfterRemoval(index)
+	selectRef.value?.focus()
 }
 </script>

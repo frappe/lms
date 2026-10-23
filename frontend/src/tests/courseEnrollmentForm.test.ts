@@ -280,8 +280,25 @@ describe('CourseEnrollmentForm as a route', () => {
 		await flushPromises()
 
 		expect(list.reload).toHaveBeenCalledTimes(1)
-		expect(toastMock.success).toHaveBeenCalledWith('Students enrolled')
 		expect(router.currentRoute.value.name).toBe('NewCourseEnrollment')
+	})
+
+	// Regression from the bulk-enroll PR (feat/bulk-enroll): the page toasted on
+	// top of the dialog's own outcome toast, so one enroll showed two.
+	it('leaves the success toast to the dialog', async () => {
+		courseResource.data = course()
+		const router = makeRouter()
+		await openForm(router)
+		const wrapper = await mountForm(router)
+
+		form(wrapper).vm.$emit('enrolled', {
+			added: ['a@x.com'],
+			upgraded: ['b@x.com'],
+			errors: [],
+		})
+		await flushPromises()
+
+		expect(toastMock.success).not.toHaveBeenCalled()
 	})
 
 	// Regression from the bulk-enroll PR (feat/bulk-enroll): the dashboard's
@@ -307,29 +324,6 @@ describe('CourseEnrollmentForm as a route', () => {
 		})
 		await flushPromises()
 		expect(reloadCourseDetails).toHaveBeenCalledTimes(1)
-	})
-
-	it('toasts for an upgrade alone, and not when nobody was added', async () => {
-		courseResource.data = course()
-		const router = makeRouter()
-		await openForm(router)
-		const wrapper = await mountForm(router)
-
-		form(wrapper).vm.$emit('enrolled', {
-			added: [],
-			upgraded: [],
-			errors: [{ member: 'a@x.com', error: 'x' }],
-		})
-		await flushPromises()
-		expect(toastMock.success).not.toHaveBeenCalled()
-
-		form(wrapper).vm.$emit('enrolled', {
-			added: [],
-			upgraded: ['a@x.com'],
-			errors: [],
-		})
-		await flushPromises()
-		expect(toastMock.success).toHaveBeenCalledTimes(1)
 	})
 
 	it('returns to the tab and lesson it was opened from when the form closes', async () => {
