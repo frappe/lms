@@ -489,6 +489,19 @@ class TestLessonContentSurvivesSave(BaseTestUtils):
 		stored = frappe.db.get_value("Course Lesson", lesson.name, "content")
 		self.assertEqual(json.loads(stored), json.loads(content))
 
+	def test_an_embed_with_a_script_url_is_dropped_on_save(self):
+		bad = {**_embed_block("drive", EMBED_SERVICE_URLS["drive"])}
+		bad["data"] = {**bad["data"], "embed": "javascript:alert(document.domain)//x"}
+		good = _embed_block("drive", EMBED_SERVICE_URLS["drive"])
+		content = _content(bad, good)
+		lesson = self._create_lesson("Lesson script embed", self.chapter.name, self.course.name, content)
+		lesson.instructor_content = content
+		lesson.save()
+		for field in ("content", "instructor_content"):
+			with self.subTest(field=field):
+				stored = json.loads(frappe.db.get_value("Course Lesson", lesson.name, field))
+				self.assertEqual(stored["blocks"], [good])
+
 	def test_a_row_the_old_sanitiser_mangled_stays_readable_after_a_title_only_save(self):
 		lesson = self._create_lesson("Lesson mangled", self.chapter.name, self.course.name)
 		mangled = (
