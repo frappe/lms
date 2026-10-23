@@ -189,6 +189,15 @@ def evaluates_batch(batch: str | None, *, user: str | None = None) -> bool:
 	return _batch_tags(batch, "Batch Course", "evaluator", user or frappe.session.user)
 
 
+def evaluator_role_reads_batch(batch: str | None, *, user: str | None = None) -> bool:
+	"""The Batch Evaluator role alone reaches a published batch's staff views; an
+	unpublished one needs a tag (:func:`can_author_batch`)."""
+	user = user or frappe.session.user
+	if "Batch Evaluator" not in frappe.get_roles(user):
+		return False
+	return bool(frappe.db.get_value("LMS Batch", batch, "published"))
+
+
 def _batch_tags(batch: str | None, child_doctype: str, field: str, user: str) -> bool:
 	# A deleted batch leaves its Course Instructor / Batch Course rows behind.
 	if not isinstance(batch, str) or not batch or not frappe.db.exists("LMS Batch", batch):
@@ -958,6 +967,9 @@ def _reaches_through_a_course(doctype: str, name: str, user: str, *, include_mem
 		return True
 	if not include_members:
 		return False
+	batch_course = frappe.qb.DocType("Batch Course")
+	if placements and _evaluated_courses(user).where(batch_course.course.isin(set(placements))).run():
+		return True
 
 	enrolled = _enrolled_in(set(placements), user)
 	return any(
@@ -977,6 +989,22 @@ def _enrolled_in(courses: set, user: str) -> set:
 			"LMS Enrollment",
 			filters={"member": user, "course": ("in", list(courses))},
 			pluck="course",
+		)
+	)
+
+
+def _evaluated_courses(user: str):
+	"""Courses `user` is the Batch Course evaluator of in an existing batch, as a subquery."""
+	batch_course = frappe.qb.DocType("Batch Course")
+	batch = frappe.qb.DocType("LMS Batch")
+	return (
+		frappe.qb.from_(batch_course)
+		.join(batch)
+		.on(batch.name == batch_course.parent)
+		.select(batch_course.course)
+		.where(
+			(batch_course.evaluator == LiteralValue(frappe.db.escape(user)))
+			& (batch_course.parenttype == "LMS Batch")
 		)
 	)
 
@@ -1197,6 +1225,14 @@ def _reviewable_submissions(doctype: str, assessment_doctype: str, field: str, u
 	if assessment_doctype in LEGACY_STAMP_DOCTYPES:
 		queries.append(_through_a_legacy_stamp(doctype, assessment_doctype, field, user))
 	queries.append(_through_a_batch(doctype, assessment_doctype, field, user))
+	evaluated = _evaluated_batch_course_submissions
+	queries.append(
+		_through_a_lesson_placement(
+			doctype, assessment_doctype, field, user, staff=evaluated, student_visible_only=True
+		)
+	)
+	if assessment_doctype == "LMS Quiz":
+		queries.append(_through_a_quiz_id_placement(doctype, user, staff=evaluated))
 	return queries
 
 
@@ -1213,15 +1249,47 @@ def _taught_course_submissions(doctype: str, user: str):
 		.select(reviewed.name)
 		.where(enrollment.course.isin(_taught("LMS Course", user)))
 	)
-	return query, reviewed, enrollment
+	return query, reviewed, enrollment.course
 
 
-def _through_a_lesson_placement(doctype: str, assessment_doctype: str, field: str, user: str):
-	query, reviewed, enrollment = _taught_course_submissions(doctype, user)
+def _evaluated_batch_course_submissions(doctype: str, user: str):
+	"""The submissions whose member is enrolled in a batch where `user` is the
+	Batch Course evaluator, with that row's course for the placement joins."""
+	reviewed = frappe.qb.DocType(doctype).as_("reviewed")
+	enrollment = frappe.qb.DocType("LMS Batch Enrollment")
+	batch_course = frappe.qb.DocType("Batch Course")
+	batch = frappe.qb.DocType("LMS Batch")
+	query = (
+		frappe.qb.from_(reviewed)
+		.join(enrollment)
+		.on(enrollment.member == reviewed.member)
+		.join(batch_course)
+		.on(
+			(batch_course.parent == enrollment.batch)
+			& (batch_course.parenttype == "LMS Batch")
+			& (batch_course.evaluator == LiteralValue(frappe.db.escape(user)))
+		)
+		.join(batch)
+		.on(batch.name == batch_course.parent)
+		.select(reviewed.name)
+	)
+	return query, reviewed, batch_course.course
+
+
+def _through_a_lesson_placement(
+	doctype: str,
+	assessment_doctype: str,
+	field: str,
+	user: str,
+	*,
+	staff=_taught_course_submissions,
+	student_visible_only: bool = False,
+):
+	query, reviewed, course = staff(doctype, user)
 	la = frappe.qb.DocType("LMS Lesson Assessment")
 	cl = frappe.qb.DocType("Course Lesson")
 	cc = frappe.qb.DocType("Course Chapter")
-	return (
+	query = (
 		query.join(la)
 		.on(
 			(la.assessment_name == getattr(reviewed, field))
@@ -1231,30 +1299,31 @@ def _through_a_lesson_placement(doctype: str, assessment_doctype: str, field: st
 		.join(cl)
 		.on(cl.name == la.parent)
 		.join(cc)
-		.on((cc.name == cl.chapter) & (cc.course == enrollment.course))
+		.on((cc.name == cl.chapter) & (cc.course == course))
 	)
+	return query.where(la.instructor_only == 0) if student_visible_only else query
 
 
-def _through_a_quiz_id_placement(doctype: str, user: str):
-	query, reviewed, enrollment = _taught_course_submissions(doctype, user)
+def _through_a_quiz_id_placement(doctype: str, user: str, *, staff=_taught_course_submissions):
+	query, reviewed, course = staff(doctype, user)
 	cl = frappe.qb.DocType("Course Lesson")
 	cc = frappe.qb.DocType("Course Chapter")
 	return (
 		query.join(cl)
 		.on(cl.quiz_id == reviewed.quiz)
 		.join(cc)
-		.on((cc.name == cl.chapter) & (cc.course == enrollment.course))
+		.on((cc.name == cl.chapter) & (cc.course == course))
 	)
 
 
 def _through_a_legacy_stamp(doctype: str, assessment_doctype: str, field: str, user: str):
 	"""Mirrors :func:`_add_legacy_stamp_course`: the stamped lesson's course wins
 	whenever it resolves, the stamped course is the fallback."""
-	query, reviewed, enrollment = _taught_course_submissions(doctype, user)
+	query, reviewed, course = _taught_course_submissions(doctype, user)
 	assessment = frappe.qb.DocType(assessment_doctype)
 	query = query.join(assessment).on(assessment.name == getattr(reviewed, field))
 	if assessment_doctype != "LMS Quiz":
-		return query.where(assessment.course == enrollment.course)
+		return query.where(assessment.course == course)
 	cl = frappe.qb.DocType("Course Lesson")
 	cc = frappe.qb.DocType("Course Chapter")
 	return (
@@ -1262,7 +1331,7 @@ def _through_a_legacy_stamp(doctype: str, assessment_doctype: str, field: str, u
 		.on(cl.name == assessment.lesson)
 		.left_join(cc)
 		.on(cc.name == cl.chapter)
-		.where(fn.Coalesce(cc.course, assessment.course) == enrollment.course)
+		.where(fn.Coalesce(cc.course, assessment.course) == course)
 	)
 
 
@@ -1393,7 +1462,11 @@ def can_review_submission(doctype: str, name: str, member: str, *, user: str | N
 	user = user or frappe.session.user
 	if _is_unrestricted(user) or is_content_author(doctype, name, user):
 		return True
-	return _course_staff_reach(doctype, name, member, user) or _batch_staff_reach(doctype, name, member, user)
+	return (
+		_course_staff_reach(doctype, name, member, user)
+		or _batch_staff_reach(doctype, name, member, user)
+		or _batch_course_evaluator_reach(doctype, name, member, user)
+	)
 
 
 def _course_staff_reach(doctype: str, name: str, member: str, user: str) -> bool:
@@ -1407,6 +1480,26 @@ def _course_staff_reach(doctype: str, name: str, member: str, user: str) -> bool
 
 def _batch_staff_reach(doctype: str, name: str, member: str, user: str) -> bool:
 	return _member_in_a_staffed_batch(member, user, _running_batches(doctype, name))
+
+
+def _batch_course_evaluator_reach(doctype: str, name: str, member: str, user: str) -> bool:
+	"""`user` evaluates, on some batch `member` is enrolled in, a course whose
+	student-visible lesson places this assessment."""
+	courses = set(_course_placements(doctype, name))
+	if not courses:
+		return False
+	batch_course = frappe.qb.DocType("Batch Course")
+	enrollment = frappe.qb.DocType("LMS Batch Enrollment")
+	return bool(
+		_evaluated_courses(user)
+		.join(enrollment)
+		.on(enrollment.batch == batch_course.parent)
+		.where(
+			batch_course.course.isin(courses) & (enrollment.member == LiteralValue(frappe.db.escape(member)))
+		)
+		.limit(1)
+		.run()
+	)
 
 
 def _assessment_reach_condition(doctype: str, assessment, user: str, *, include_members: bool) -> Bracket:
@@ -1467,6 +1560,11 @@ def _course_conditions(doctype: str, assessment, user: str, *, include_members: 
 		)
 		if doctype == "LMS Quiz":
 			conditions.append(_placed_by_quiz_id(assessment, _enrolled_courses(user)))
+		conditions.append(
+			_placed_in_a_lesson(doctype, assessment, _evaluated_courses(user), student_visible_only=True)
+		)
+		if doctype == "LMS Quiz":
+			conditions.append(_placed_by_quiz_id(assessment, _evaluated_courses(user)))
 	return conditions
 
 
