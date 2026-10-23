@@ -1,5 +1,5 @@
 <template>
-	<div class="space-y-4">
+	<div ref="root" class="flex h-full min-h-0 flex-col gap-3">
 		<div class="flex items-center justify-between gap-2">
 			<div class="flex min-w-0 items-center gap-1">
 				<Button
@@ -10,114 +10,230 @@
 					:aria-label="__('Back')"
 					@click="emit('back')"
 				/>
-				<h3 class="truncate text-base font-semibold text-ink-gray-9">
+				<h3
+					data-testid="panel-title"
+					class="truncate text-base font-semibold text-ink-gray-9"
+				>
 					{{ title }}
 				</h3>
 			</div>
 			<Button
-				v-if="row"
-				data-testid="common-details-link"
-				variant="outline"
-				size="sm"
-				:label="__('Common details')"
-				@click="emit('common')"
+				v-if="!showBack"
+				data-testid="payment-panel-close"
+				variant="ghost"
+				icon="lucide-x"
+				:aria-label="__('Close details')"
+				@click="emit('close')"
 			/>
 		</div>
-		<template v-if="row && row.linkable_payments.length">
-			<div
-				role="group"
-				:aria-label="__('Payment mode for {0}', [studentName(row)])"
-			>
-				<TabButtons
-					:options="modeOptions"
-					:modelValue="choice.mode"
-					@update:modelValue="(value) => setMode(row!.member, String(value))"
+		<p
+			v-if="helper"
+			data-testid="panel-helper"
+			class="text-p-sm text-ink-gray-6"
+		>
+			{{ helper }}
+		</p>
+		<div class="-mx-1 min-h-0 flex-1 space-y-4 overflow-y-auto px-1">
+			<template v-if="single && single.linkable_payments.length">
+				<div
+					role="group"
+					:aria-label="__('Payment mode for {0}', [studentName(single)])"
+				>
+					<TabButtons
+						:options="modeOptions"
+						:modelValue="choice.mode"
+						@update:modelValue="(value) => setMode(single!.member, String(value))"
+					/>
+				</div>
+				<Select
+					v-if="choice.mode === 'link'"
+					:aria-label="__('Payment for {0}', [studentName(single)])"
+					:placeholder="__('Select payment')"
+					:options="paymentOptions(single)"
+					:modelValue="choice.mode === 'link' ? choice.payment ?? '' : ''"
+					@update:modelValue="(value: string) => setPayment(single!.member, value)"
 				/>
-			</div>
-			<Select
-				v-if="choice.mode === 'link'"
-				:aria-label="__('Payment for {0}', [studentName(row)])"
-				:placeholder="__('Select payment')"
-				:options="paymentOptions(row)"
-				:modelValue="choice.mode === 'link' ? choice.payment ?? '' : ''"
-				@update:modelValue="(value: string) => setPayment(row!.member, value)"
-			/>
-		</template>
-		<template v-if="choice.mode === 'create'">
-			<ErrorMessage
-				v-if="missing.length"
-				data-testid="missing-details"
-				:message="__('Missing: {0}', [missing.join(', ')])"
-			/>
-			<section v-for="section in sections" :key="section.key" class="space-y-3">
-				<template v-if="section.key === 'address'">
+			</template>
+			<template v-if="editsPayment">
+				<ErrorMessage
+					v-if="missing.length"
+					data-testid="missing-details"
+					:message="__('Missing: {0}', [missing.join(', ')])"
+				/>
+				<section class="space-y-3">
+					<template v-for="field in paymentFields" :key="field.key">
+						<div class="space-y-1">
+							<Link
+								v-if="field.doctype"
+								:doctype="field.doctype"
+								:label="field.label"
+								:required="field.required"
+								:error="field.error"
+								:placeholder="field.placeholder"
+								:modelValue="String(field.value)"
+								@update:modelValue="(value: string) => setField(field.key, value)"
+							/>
+							<FormControl
+								v-else
+								:type="field.key === 'amount' ? 'number' : 'text'"
+								:label="field.label"
+								:required="field.required"
+								:error="field.error"
+								:placeholder="field.placeholder"
+								:modelValue="field.value"
+								@update:modelValue="(value: unknown) => setField(field.key, value)"
+							/>
+						</div>
+						<FormControl
+							v-if="
+								field.key === 'source' && !savedAddress && !addressCollapsed
+							"
+							type="text"
+							:label="__('Phone')"
+							:modelValue="typedAddress?.phone ?? ''"
+							@update:modelValue="(value: unknown) => setField('phone', value)"
+						/>
+					</template>
+				</section>
+				<section
+					role="group"
+					class="space-y-3"
+					:aria-labelledby="addressHeadingId"
+				>
 					<h4
 						:id="addressHeadingId"
 						class="text-sm font-medium text-ink-gray-7"
 					>
 						{{ __('Billing address') }}
 					</h4>
-					<div
-						v-if="row"
-						role="group"
-						:aria-label="__('Billing address for {0}', [studentName(row)])"
-					>
-						<TabButtons
-							:options="addressOptions"
-							:modelValue="ownAddress ? 'own' : 'common'"
-							@update:modelValue="(value) => setAddressMode(String(value))"
-						/>
-					</div>
-					<p
-						v-if="row && !ownAddress"
-						data-testid="common-address-summary"
-						class="text-p-sm text-ink-gray-7"
-					>
-						{{ addressSummary(defaults.address) || __('No address') }}
-					</p>
-					<ErrorMessage
-						v-else-if="addressError"
-						:id="addressErrorId"
-						:message="addressError"
-					/>
-				</template>
-				<div
-					v-if="section.fields.length"
-					role="group"
-					class="space-y-3"
-					:aria-labelledby="
-						section.key === 'address' ? addressHeadingId : undefined
-					"
-					:aria-describedby="section.describedBy"
-				>
-					<div
-						v-for="field in section.fields"
-						:key="field.key"
-						class="space-y-1"
-					>
+					<div v-if="picking" class="space-y-2">
 						<Link
-							v-if="field.doctype"
-							:doctype="field.doctype"
-							:label="field.label"
-							:required="field.required"
-							:placeholder="field.placeholder"
-							:modelValue="String(field.value)"
-							@update:modelValue="(value: string) => setField(field.key, value)"
+							doctype="Address"
+							query="frappe.contacts.doctype.address.address.address_query"
+							:filters="addressFilters"
+							:label="__('Existing address')"
+							:modelValue="savedAddress?.name ?? ''"
+							@update:modelValue="pickAddress"
 						/>
-						<FormControl
-							v-else
-							:type="field.key === 'amount' ? 'number' : 'text'"
-							:label="field.label"
-							:required="field.required"
-							:placeholder="field.placeholder"
-							:aria-describedby="section.describedBy"
-							:modelValue="field.value"
-							@update:modelValue="(value: unknown) => setField(field.key, value)"
+						<div class="flex items-center gap-1">
+							<Button
+								data-testid="address-add-new"
+								variant="ghost"
+								:label="__('Add new address')"
+								@click="addNewAddress"
+							/>
+							<Button
+								v-if="overwriting"
+								data-testid="address-cancel"
+								variant="ghost"
+								:label="__('Cancel')"
+								@click="cancelOverwrite"
+							/>
+						</div>
+					</div>
+					<div
+						v-else-if="savedAddress"
+						data-testid="saved-address"
+						class="flex items-center justify-between gap-2"
+					>
+						<p class="min-w-0 truncate text-p-sm text-ink-gray-8">
+							{{ addressSummary(savedAddress) }}
+						</p>
+						<div class="flex shrink-0 items-center gap-1">
+							<Button
+								data-testid="address-change"
+								variant="ghost"
+								:label="__('Change')"
+								@click="picking = true"
+							/>
+							<Button
+								data-testid="address-add-new"
+								variant="ghost"
+								:label="__('Add new address')"
+								@click="addNewAddress"
+							/>
+							<Button
+								v-if="overwriting"
+								data-testid="address-cancel"
+								variant="ghost"
+								:label="__('Cancel')"
+								@click="cancelOverwrite"
+							/>
+						</div>
+					</div>
+					<div
+						v-else-if="addressCollapsed"
+						data-testid="address-differs"
+						class="flex items-center justify-between gap-2"
+					>
+						<p class="min-w-0 text-p-sm text-ink-gray-6">
+							{{
+								__('Different addresses for these {0} students', [
+									members.length,
+								])
+							}}
+						</p>
+						<Button
+							ref="overwriteRef"
+							data-testid="address-overwrite"
+							class="shrink-0"
+							variant="ghost"
+							:label="__('Overwrite')"
+							@click="overwrite"
 						/>
 					</div>
-				</div>
-			</section>
-		</template>
+					<template v-else>
+						<div
+							ref="addressFieldsRef"
+							data-testid="address-fields"
+							class="grid grid-cols-2 gap-2"
+						>
+							<div
+								v-for="field in addressFields"
+								:key="field.key"
+								:class="HALF_WIDTH.includes(field.key) ? '' : 'col-span-2'"
+							>
+								<Link
+									v-if="field.doctype"
+									:doctype="field.doctype"
+									:aria-label="field.label"
+									:placeholder="field.placeholder"
+									:required="field.required"
+									:error="field.error"
+									:modelValue="String(field.value)"
+									@update:modelValue="(value: string) => setField(field.key, value)"
+								/>
+								<FormControl
+									v-else
+									type="text"
+									:aria-label="field.label"
+									:placeholder="field.placeholder"
+									:required="field.required"
+									:error="field.error"
+									:modelValue="field.value"
+									@update:modelValue="(value: unknown) => setField(field.key, value)"
+								/>
+							</div>
+						</div>
+						<div class="flex items-center gap-1">
+							<Button
+								data-testid="address-use-existing"
+								variant="subtle"
+								:label="__('Use existing address')"
+								@click="picking = true"
+							/>
+							<Button
+								v-if="overwriting"
+								data-testid="address-cancel"
+								variant="ghost"
+								:label="__('Cancel')"
+								@click="cancelOverwrite"
+							/>
+						</div>
+					</template>
+				</section>
+			</template>
+		</div>
 	</div>
 </template>
 <script setup lang="ts">
@@ -127,20 +243,28 @@ import {
 	FormControl,
 	Select,
 	TabButtons,
+	call,
 } from 'frappe-ui'
-import { computed, useId } from 'vue'
+import { computed, nextTick, ref, useId, watch } from 'vue'
 import Link from '@/components/Controls/Link.vue'
 import {
 	ADDRESS_FIELDS,
 	addressSummary,
 	emptyAddress,
 	emptyOverride,
-	missingAddressFields,
-	missingPaymentDetails,
+	formatMoney,
+	isSavedAddress,
+	missingKeyLabel,
+	missingPaymentKeys,
 	paymentFieldLabel,
+	REQUIRED_ADDRESS_FIELDS,
+	sharedAddress,
+	sharedValue,
 } from '@/components/Enrollment/enrollment'
+import type { MissingKey } from '@/components/Enrollment/enrollment'
 import dayjs from '@/utils/dayjs'
 import type {
+	AddressChoice,
 	AddressField,
 	BillingAddress,
 	EnrollPreviewRow,
@@ -148,6 +272,7 @@ import type {
 	PaymentDefaults,
 	PaymentField,
 	PaymentOverride,
+	SavedAddress,
 } from '@/types'
 
 interface PanelField {
@@ -155,23 +280,39 @@ interface PanelField {
 	label: string
 	doctype: string | null
 	required: boolean
+	error: string | undefined
 	value: string | number
 	placeholder: string
 }
 
-interface PanelSection {
-	key: 'payment' | 'address'
-	fields: PanelField[]
-	describedBy: string | undefined
-}
+type OwnKey = 'amount' | 'currency' | 'source' | 'billing_name'
 
-const props = defineProps<{
-	row: EnrollPreviewRow | null
-	showBack: boolean
-}>()
+const OWN_KEYS: readonly string[] = [
+	'amount',
+	'currency',
+	'source',
+	'billing_name',
+]
+
+const isOwnKey = (key: string): key is OwnKey => OWN_KEYS.includes(key)
+
+const props = withDefaults(
+	defineProps<{
+		rows: EnrollPreviewRow[]
+		total: number
+		showBack: boolean
+		/** Marks every compulsory field that is still empty. */
+		flagMissing?: boolean
+		/** The rows are everyone, so the details for all are edited. */
+		common?: boolean
+		/** Some student falls back on the common address, so it is required. */
+		commonAddressUsed?: boolean
+	}>(),
+	{ commonAddressUsed: true }
+)
 
 const emit = defineEmits<{
-	common: []
+	close: []
 	back: []
 }>()
 
@@ -189,120 +330,259 @@ const DOCTYPES: Partial<Record<PaymentField, string>> = {
 	country: 'Country',
 }
 
-const REQUIRED_IN_ADDRESS: readonly PaymentField[] = [
+const ADDRESS_LAYOUT: readonly AddressField[] = [
 	'address_line1',
 	'city',
 	'country',
+	'address_line2',
+	'state',
+	'pincode',
+]
+
+const HALF_WIDTH: readonly PaymentField[] = [
+	'city',
+	'country',
+	'state',
+	'pincode',
 ]
 
 const addressHeadingId = useId()
-const addressErrorId = useId()
+const picking = ref<boolean>(false)
 
 const modeOptions = [
-	{ value: 'create', label: __('Create new') },
+	{ value: 'create', label: __('New payment') },
 	{ value: 'link', label: __('Link existing') },
-]
-
-const addressOptions = [
-	{ value: 'common', label: __('Same as common address') },
-	{ value: 'own', label: __('Different address') },
 ]
 
 const studentName = (row: EnrollPreviewRow): string =>
 	row.full_name || row.member
 
-const title = computed<string>(() =>
-	props.row ? studentName(props.row) : __('Common details')
+const mode = computed<'all' | 'one' | 'some'>(() => {
+	if (props.common || !props.rows.length) return 'all'
+	return props.rows.length === 1 ? 'one' : 'some'
+})
+
+const single = computed<EnrollPreviewRow | null>(() =>
+	props.rows.length === 1 ? props.rows[0] : null
 )
 
+/** The ticked students edited as a group; a linked payment needs no details. */
+const members = computed<string[]>(() =>
+	mode.value === 'all'
+		? []
+		: props.rows
+				.map((row) => row.member)
+				.filter((member) => choices.value[member]?.mode !== 'link')
+)
+
+const title = computed<string>(() => {
+	if (single.value) return studentName(single.value)
+	if (mode.value === 'some')
+		return __('Details for {0} students', [props.rows.length])
+	return __('Details for all {0} students', [props.total])
+})
+
+const helper = computed<string>(() => {
+	if (mode.value === 'one') return __('Empty fields use the details for all.')
+	if (mode.value === 'some')
+		return __(
+			'What you enter applies to these {0}. Empty fields use the details for all.',
+			[props.rows.length]
+		)
+	return ''
+})
+
 const choice = computed<PaymentChoice>(() =>
-	props.row
-		? choices.value[props.row.member] ?? { mode: 'create' }
+	single.value
+		? choices.value[single.value.member] ?? { mode: 'create' }
 		: { mode: 'create' }
 )
 
-const override = computed<PaymentOverride | null>(() =>
-	props.row ? overrides.value[props.row.member] ?? emptyOverride() : null
+const editsPayment = computed<boolean>(
+	() =>
+		choice.value.mode === 'create' &&
+		(mode.value === 'all' || members.value.length > 0)
 )
 
-const ownAddress = computed<BillingAddress | null>(
-	() => override.value?.address ?? null
+const ownOf = (member: string): PaymentOverride =>
+	overrides.value[member] ?? emptyOverride()
+
+/** Each ticked student's own address, else the common one. */
+const effectiveAddresses = computed<(AddressChoice | null)[]>(() =>
+	members.value.map((member) => ownOf(member).address ?? defaults.value.address)
 )
 
-const missing = computed<string[]>(() =>
-	missingPaymentDetails(defaults.value, override.value)
+const groupAddress = computed(() => sharedAddress(effectiveAddresses.value))
+
+const ownAddress = computed<AddressChoice | null>(
+	() => groupAddress.value.address
 )
 
-const commonValue = (key: PaymentField): string => {
-	if (key === 'billing_name') return props.row ? studentName(props.row) : ''
-	if (key === 'amount') return defaults.value.amount?.toString() ?? ''
-	if (key === 'currency' || key === 'source') return defaults.value[key] ?? ''
-	return defaults.value.address[key]
+/** The ticked students have addresses, and not all the same one. */
+const addressesDiffer = computed<boolean>(() => groupAddress.value.differs)
+
+const overwriting = ref<boolean>(false)
+const addressFieldsRef = ref<HTMLElement | null>(null)
+const overwriteRef = ref<{ $el: HTMLElement } | null>(null)
+
+/** The ticked students' own overrides from before Overwrite. */
+let beforeOverwrite: Record<string, PaymentOverride | undefined> = {}
+
+const addressCollapsed = computed<boolean>(
+	() => addressesDiffer.value && !overwriting.value
+)
+
+/** Fields the user emptied, so an inherited value doesn't refill them. */
+const cleared = ref<Set<OwnKey>>(new Set())
+
+watch(
+	() => [mode.value, ...props.rows.map((row) => row.member)].join(),
+	() => {
+		overwriting.value = false
+		picking.value = false
+		cleared.value = new Set()
+	}
+)
+
+const overwrite = async () => {
+	beforeOverwrite = Object.fromEntries(
+		members.value.map((member) => [member, overrides.value[member]])
+	)
+	overwriting.value = true
+	await nextTick()
+	addressFieldsRef.value?.querySelector<HTMLElement>('input')?.focus()
 }
 
-const ownValue = (
-	key: 'amount' | 'currency' | 'source' | 'billing_name'
-): string | number | null => override.value?.[key] ?? null
+const cancelOverwrite = async () => {
+	const next = { ...overrides.value }
+	for (const [member, before] of Object.entries(beforeOverwrite)) {
+		const restored = { ...ownOf(member), address: before?.address ?? null }
+		const empty = Object.values(restored).every((value) => value === null)
+		if (!before && empty) delete next[member]
+		else next[member] = restored
+	}
+	overrides.value = next
+	overwriting.value = false
+	picking.value = false
+	await nextTick()
+	overwriteRef.value?.$el?.focus()
+}
+
+const missingKeys = computed<MissingKey[]>(() => {
+	if (mode.value === 'all') {
+		return missingPaymentKeys(defaults.value, null, props.commonAddressUsed)
+	}
+	const keys = new Set<MissingKey>()
+	for (const member of members.value) {
+		const own = overrides.value[member] ?? null
+		for (const key of missingPaymentKeys(defaults.value, own)) keys.add(key)
+	}
+	return Array.from(keys)
+})
+
+const missing = computed<string[]>(() => missingKeys.value.map(missingKeyLabel))
+
+const errorFor = (key: PaymentField): string | undefined => {
+	if (!props.flagMissing) return undefined
+	const keys = missingKeys.value
+	const empty =
+		keys.includes(key) ||
+		(keys.includes('address') && REQUIRED_ADDRESS_FIELDS.includes(key))
+	return empty ? __('Required') : undefined
+}
+
+const commonValue = (key: OwnKey): string | number => {
+	if (key === 'billing_name') {
+		return single.value ? studentName(single.value) : __("Each student's name")
+	}
+	if (key === 'amount') return defaults.value.amount ?? ''
+	return defaults.value[key] ?? ''
+}
+
+/**
+ * What a field shows: the common value, or the value the ticked students
+ * share once their own values are applied. The billing name has no common
+ * value, so only an own one shows.
+ */
+const fieldState = (key: OwnKey) => {
+	if (key === 'billing_name') {
+		const solo = single.value ? [single.value.member] : []
+		const owners = mode.value === 'all' ? solo : members.value
+		return sharedValue(owners.map((member) => ownOf(member).billing_name))
+	}
+	if (mode.value === 'all') return { value: defaults.value[key], varies: false }
+	return sharedValue(
+		members.value.map((member) => ownOf(member)[key] ?? defaults.value[key])
+	)
+}
 
 const paymentFields = computed<PanelField[]>(() => {
-	const keys = props.row
-		? (['billing_name', 'amount', 'currency', 'source'] as const)
-		: (['amount', 'currency', 'source'] as const)
+	const keys: readonly OwnKey[] =
+		mode.value === 'all' && !single.value
+			? ['amount', 'currency', 'source']
+			: ['amount', 'currency', 'source', 'billing_name']
 	return keys.map((key) => {
-		const own = ownValue(key)
-		const common = commonValue(key)
+		const state = fieldState(key)
 		return {
 			key,
 			label: paymentFieldLabel(key),
 			doctype: DOCTYPES[key] ?? null,
-			required: !props.row && (key === 'amount' || key === 'currency'),
-			value: props.row
-				? own ?? ''
-				: key === 'amount'
-				? defaults.value.amount ?? ''
-				: common,
-			placeholder: props.row ? common : '',
+			required:
+				mode.value === 'all' && (key === 'amount' || key === 'currency'),
+			error: errorFor(key),
+			value: state.varies || cleared.value.has(key) ? '' : state.value ?? '',
+			placeholder: state.varies ? __('Varies') : String(commonValue(key)),
 		}
 	})
 })
 
-const editedAddress = computed<BillingAddress>(
-	() => ownAddress.value ?? defaults.value.address
+const editedAddress = computed<AddressChoice | null>(() =>
+	mode.value === 'all' ? defaults.value.address : ownAddress.value
 )
 
-const addressMissing = computed<AddressField[]>(() =>
-	missingAddressFields(editedAddress.value, !!ownAddress.value)
-)
+const typedAddress = computed<BillingAddress | null>(() => {
+	const address = editedAddress.value
+	return address && !isSavedAddress(address) ? address : null
+})
 
-const addressError = computed<string>(() =>
-	addressMissing.value.length
-		? __('An address needs address line 1, city and country.')
-		: ''
-)
+const savedAddress = computed<SavedAddress | null>(() => {
+	const address = editedAddress.value
+	return isSavedAddress(address) ? address : null
+})
 
-const addressFields = computed<PanelField[]>(() => {
-	if (props.row && !ownAddress.value) return []
-	const filled =
-		!!ownAddress.value ||
-		ADDRESS_FIELDS.some((key) => editedAddress.value[key].trim())
-	return ADDRESS_FIELDS.map((key) => ({
+const addressFields = computed<PanelField[]>(() =>
+	ADDRESS_LAYOUT.map((key) => ({
 		key,
 		label: paymentFieldLabel(key),
 		doctype: DOCTYPES[key] ?? null,
-		required: filled && REQUIRED_IN_ADDRESS.includes(key),
-		value: editedAddress.value[key],
-		placeholder: '',
+		required: REQUIRED_ADDRESS_FIELDS.includes(key),
+		error: errorFor(key),
+		value: typedAddress.value?.[key] ?? '',
+		placeholder: REQUIRED_ADDRESS_FIELDS.includes(key)
+			? `${paymentFieldLabel(key)} *`
+			: paymentFieldLabel(key),
 	}))
-})
+)
 
-const sections = computed<PanelSection[]>(() => [
-	{ key: 'payment', fields: paymentFields.value, describedBy: undefined },
-	{
-		key: 'address',
-		fields: addressFields.value,
-		describedBy: addressError.value ? addressErrorId : undefined,
-	},
-])
+const root = ref<HTMLElement | null>(null)
+
+const focusFirst = () => {
+	const el = root.value
+	const target =
+		el?.querySelector<HTMLElement>('[aria-invalid="true"]') ??
+		el?.querySelector<HTMLElement>('input') ??
+		el?.querySelector<HTMLElement>('button')
+	target?.scrollIntoView?.({ block: 'nearest' })
+	target?.focus()
+}
+
+defineExpose({ focusFirst })
+
+const addressFilters = computed<Record<string, string>>(() =>
+	single.value
+		? { link_doctype: 'User', link_name: single.value.member }
+		: { address_type: 'Billing' }
+)
 
 const toAmount = (value: unknown): number | null => {
 	if (value === null || value === '' || value === undefined) return null
@@ -313,11 +593,31 @@ const toAmount = (value: unknown): number | null => {
 const toText = (value: unknown): string =>
 	typeof value === 'string' ? value : ''
 
+const typedOrEmpty = (address: AddressChoice | null): BillingAddress =>
+	address && !isSavedAddress(address) ? address : emptyAddress()
+
+const withAddressField = (
+	address: AddressChoice | null | undefined,
+	key: AddressField,
+	value: unknown
+): BillingAddress | null => {
+	const base = address ?? (mode.value === 'all' ? null : defaults.value.address)
+	const next = { ...typedOrEmpty(base), [key]: toText(value) }
+	if (ADDRESS_FIELDS.some((field) => next[field])) return next
+	// Emptied for ticked students, it stays their own blank address rather than
+	// falling back on, and refilling with, the common one.
+	return mode.value !== 'all' && defaults.value.address ? emptyAddress() : null
+}
+
 const isAddressField = (key: PaymentField): key is AddressField =>
 	(ADDRESS_FIELDS as readonly string[]).includes(key)
 
 const setCommon = (key: PaymentField, value: unknown) => {
-	if (key === 'billing_name') return
+	if (key === 'billing_name') {
+		const member = single.value?.member
+		if (member) setOwnBillingName(value, [member])
+		return
+	}
 	if (key === 'amount') {
 		defaults.value = { ...defaults.value, amount: toAmount(value) }
 	} else if (key === 'currency' || key === 'source') {
@@ -325,45 +625,95 @@ const setCommon = (key: PaymentField, value: unknown) => {
 	} else {
 		defaults.value = {
 			...defaults.value,
-			address: { ...defaults.value.address, [key]: toText(value) },
+			address: withAddressField(defaults.value.address, key, value),
 		}
 	}
 }
 
 const updateOwn = (
-	member: string,
-	change: (current: PaymentOverride) => PaymentOverride
+	change: (current: PaymentOverride) => PaymentOverride,
+	targets: readonly string[] = members.value
 ) => {
-	const current = overrides.value[member] ?? emptyOverride()
-	overrides.value = { ...overrides.value, [member]: change(current) }
+	const next = { ...overrides.value }
+	for (const member of targets) next[member] = change(ownOf(member))
+	overrides.value = next
 }
 
-const setOwn = (member: string, key: PaymentField, value: unknown) => {
-	updateOwn(member, (current) => {
-		if (key === 'amount') return { ...current, amount: toAmount(value) }
+const setOwnBillingName = (value: unknown, targets: readonly string[]) =>
+	updateOwn(
+		(current) => ({ ...current, billing_name: toText(value) || null }),
+		targets
+	)
+
+const setOwn = (key: PaymentField, value: unknown) => {
+	const fresh = addressesDiffer.value ? emptyAddress() : null
+	updateOwn((current) => {
+		if (key === 'amount') {
+			const amount = toAmount(value)
+			return {
+				...current,
+				amount: amount === defaults.value.amount ? null : amount,
+			}
+		}
+		if (key === 'currency' || key === 'source') {
+			const text = toText(value) || null
+			return { ...current, [key]: text === defaults.value[key] ? null : text }
+		}
 		if (!isAddressField(key))
 			return { ...current, [key]: toText(value) || null }
-		const address = current.address ?? emptyAddress()
-		return { ...current, address: { ...address, [key]: toText(value) } }
+		return {
+			...current,
+			address: withAddressField(fresh ?? current.address, key, value),
+		}
 	})
 }
 
 const setField = (key: PaymentField, value: unknown) => {
-	if (props.row) setOwn(props.row.member, key, value)
-	else setCommon(key, value)
+	if (isOwnKey(key)) {
+		const next = new Set(cleared.value)
+		if (value === '' || value === null || value === undefined) next.add(key)
+		else next.delete(key)
+		cleared.value = next
+	}
+	if (mode.value === 'all') setCommon(key, value)
+	else setOwn(key, value)
 }
 
-const setAddressMode = (mode: string) => {
-	if (!props.row) return
-	updateOwn(props.row.member, (current) => ({
-		...current,
-		address: mode === 'own' ? current.address ?? emptyAddress() : null,
-	}))
+const addressSetter = () => {
+	const targets = mode.value === 'all' ? null : [...members.value]
+	return (address: AddressChoice | null) => {
+		picking.value = false
+		if (!targets) defaults.value = { ...defaults.value, address }
+		else updateOwn((current) => ({ ...current, address }), targets)
+	}
 }
 
-const setMode = (member: string, mode: string) => {
+const setAddress = (address: AddressChoice | null) => addressSetter()(address)
+
+/** Blank fields; for ticked students, also not the common address. */
+const addNewAddress = () =>
+	setAddress(mode.value === 'all' ? null : emptyAddress())
+
+const pickAddress = async (name: string) => {
+	if (!name) {
+		picking.value = false
+		return
+	}
+	const apply = addressSetter()
+	const fields: Partial<Record<AddressField, string | null>> | null =
+		await call('frappe.client.get_value', {
+			doctype: 'Address',
+			filters: name,
+			fieldname: ADDRESS_FIELDS,
+		}).catch(() => null)
+	const address = emptyAddress()
+	for (const key of ADDRESS_FIELDS) address[key] = fields?.[key] ?? ''
+	apply({ name, summary: addressSummary(address) })
+}
+
+const setMode = (member: string, value: string) => {
 	const next: PaymentChoice =
-		mode === 'link' ? { mode: 'link', payment: null } : { mode: 'create' }
+		value === 'link' ? { mode: 'link', payment: null } : { mode: 'create' }
 	choices.value = { ...choices.value, [member]: next }
 }
 
@@ -377,7 +727,7 @@ const setPayment = (member: string, payment: string) => {
 const paymentOptions = (row: EnrollPreviewRow) =>
 	row.linkable_payments.map((payment) => ({
 		value: payment.name,
-		label: `${payment.amount} ${payment.currency} · ${dayjs(
+		label: `${formatMoney(payment.amount, payment.currency)} · ${dayjs(
 			payment.creation
 		).format('DD MMM YYYY')}`,
 	}))

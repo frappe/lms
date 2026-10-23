@@ -1,4 +1,5 @@
 import type {
+	AddressChoice,
 	AddressField,
 	BillingAddress,
 	BulkEnrollError,
@@ -11,6 +12,7 @@ import type {
 	PaymentDefaults,
 	PaymentField,
 	PaymentOverride,
+	SavedAddress,
 } from '@/types'
 
 export const MAX_STUDENTS = 50
@@ -92,23 +94,6 @@ export const paidSwitchDescription = (
 export const paidByDefault = (kind: PaidKind | null): boolean =>
 	kind === 'course' || kind === 'batch'
 
-export const statusLabel = (status: EnrollStatus): string => {
-	switch (status) {
-		case 'ready':
-			return __('Ready')
-		case 'enrolled':
-			return __('Already enrolled (will be skipped)')
-		case 'no_user':
-			return __('No user with this email (will be skipped)')
-		case 'disabled':
-			return __('User is disabled (will be skipped)')
-		case 'upgrade':
-			return __('Enrolled, will get certificate')
-		case 'certificate_purchased':
-			return __('Certificate already purchased (will be skipped)')
-	}
-}
-
 export const isEnrollable = (status: EnrollStatus): boolean =>
 	status === 'ready' || status === 'upgrade'
 
@@ -131,19 +116,43 @@ export const normalizeResult = (raw: {
 	errors: raw.errors,
 })
 
-export const summaryLine = (
-	result: BulkEnrollResult,
-	skippedBeforeSubmit: number
-): string => {
-	const skipped = result.errors.length + skippedBeforeSubmit
-	if (result.upgraded.length) {
-		return __('{0} enrolled, {1} upgraded to certificate, {2} skipped', [
-			result.added.length,
-			result.upgraded.length,
-			skipped,
-		])
+export interface EnrollOutcome {
+	type: 'success' | 'warning' | 'error'
+	message: string
+	description: string
+}
+
+const enrolledLabel = (n: number): string =>
+	n === 1 ? __('1 student enrolled') : __('{0} students enrolled', [n])
+
+const upgradedLabel = (n: number): string =>
+	n === 1
+		? __('1 student upgraded to certificate')
+		: __('{0} students upgraded to certificate', [n])
+
+const failedLabel = (n: number): string =>
+	n === 1
+		? __('1 student could not be enrolled')
+		: __('{0} students could not be enrolled', [n])
+
+export const enrollOutcome = (result: BulkEnrollResult): EnrollOutcome => {
+	const done = [
+		result.added.length ? enrolledLabel(result.added.length) : '',
+		result.upgraded.length ? upgradedLabel(result.upgraded.length) : '',
+	].filter(Boolean)
+	const [first, ...rest] = result.errors
+	if (!first) {
+		return { type: 'success', message: done.join(', '), description: '' }
 	}
-	return __('{0} enrolled, {1} skipped', [result.added.length, skipped])
+	const failed = failedLabel(result.errors.length)
+	const reason = rest.length
+		? __('{0}: {1}, and {2} more', [first.member, first.error, rest.length])
+		: __('{0}: {1}', [first.member, first.error])
+	return {
+		type: done.length ? 'warning' : 'error',
+		message: [...done, failed].join(', '),
+		description: reason,
+	}
 }
 
 export const enrollButtonLabel = (count: number): string =>
@@ -157,12 +166,6 @@ export const ADDRESS_FIELDS: readonly AddressField[] = [
 	'country',
 	'pincode',
 	'phone',
-]
-
-const REQUIRED_ADDRESS_FIELDS: readonly AddressField[] = [
-	'address_line1',
-	'city',
-	'country',
 ]
 
 export const emptyAddress = (): BillingAddress => ({
@@ -210,13 +213,68 @@ export const emptyOverride = (): PaymentOverride => ({
 	address: null,
 })
 
-export const hasOverride = (override: PaymentOverride | undefined): boolean =>
-	!!override &&
-	(override.amount !== null ||
-		override.currency !== null ||
-		override.source !== null ||
-		override.billing_name !== null ||
-		override.address !== null)
+/** Back to the details for all and a new payment for each of `members`. */
+export const resetPaymentDetails = (
+	members: readonly string[],
+	choices: Record<string, PaymentChoice>,
+	overrides: Record<string, PaymentOverride>
+): {
+	choices: Record<string, PaymentChoice>
+	overrides: Record<string, PaymentOverride>
+} => {
+	const nextChoices = { ...choices }
+	const nextOverrides = { ...overrides }
+	for (const member of members) {
+		delete nextOverrides[member]
+		nextChoices[member] = { mode: 'create' }
+	}
+	return { choices: nextChoices, overrides: nextOverrides }
+}
+
+/** Whether a student has any value of their own, the billing name included. */
+export const hasOwnDetails = (override: PaymentOverride | undefined): boolean =>
+	!!override && Object.values(override).some((value) => value !== null)
+
+/** The value every one of `values` shares, or that they vary. */
+export const sharedValue = <T>(
+	values: readonly T[]
+): { value: T | null; varies: boolean } => {
+	const first = values.length ? values[0] : null
+	return values.every((value) => value === first)
+		? { value: first, varies: false }
+		: { value: null, varies: true }
+}
+
+/**
+ * The address a group of students shares, or that theirs differ. No address
+ * counts as one with every field empty; a linked Address is shared only by name.
+ */
+export const sharedAddress = (
+	addresses: readonly (AddressChoice | null)[]
+): { address: AddressChoice | null; differs: boolean } => {
+	if (addresses.every((address) => !address)) {
+		return { address: null, differs: false }
+	}
+	const [first] = addresses
+	if (addresses.some(isSavedAddress)) {
+		const same =
+			isSavedAddress(first) &&
+			addresses.every(
+				(address) => isSavedAddress(address) && address.name === first.name
+			)
+		return same
+			? { address: first, differs: false }
+			: { address: null, differs: true }
+	}
+	const typed = addresses.map((address) => address ?? emptyAddress())
+	const address = emptyAddress()
+	for (const key of ADDRESS_FIELDS) {
+		const field = sharedValue(typed.map((item) => item[key]))
+		if (field.varies) return { address: null, differs: true }
+		address[key] = field.value ?? ''
+	}
+	return { address, differs: false }
+}
 
 export const effectivePayment = (
 	defaults: PaymentDefaults,
@@ -233,9 +291,14 @@ export const effectivePayment = (
 
 const isFilled = (value: string | null): value is string => !!value?.trim()
 
+export const isSavedAddress = (
+	address: AddressChoice | null
+): address is SavedAddress => !!address && 'name' in address
+
 const addressPayload = (
-	address: Readonly<BillingAddress>
-): Partial<BillingAddress> | null => {
+	address: Readonly<AddressChoice>
+): Partial<BillingAddress> | string | null => {
+	if (isSavedAddress(address)) return address.name
 	const payload: Partial<BillingAddress> = {}
 	for (const field of ADDRESS_FIELDS) {
 		const value = address[field]
@@ -244,21 +307,34 @@ const addressPayload = (
 	return Object.keys(payload).length ? payload : null
 }
 
-export const missingAddressFields = (
-	address: BillingAddress,
-	required: boolean
-): AddressField[] =>
-	required || addressPayload(address)
-		? REQUIRED_ADDRESS_FIELDS.filter((field) => !isFilled(address[field]))
-		: []
+export const REQUIRED_ADDRESS_FIELDS: readonly AddressField[] = [
+	'address_line1',
+	'city',
+	'country',
+]
 
-export const addressSummary = (address: BillingAddress): string =>
-	(['address_line1', 'address_line2', 'city', 'state', 'country'] as const)
+export const hasAddress = (address: AddressChoice | null): boolean =>
+	!!address && (isSavedAddress(address) || addressPayload(address) !== null)
+
+const missingAddressFields = (
+	address: AddressChoice | null
+): AddressField[] => {
+	if (!address || isSavedAddress(address) || !hasAddress(address)) return []
+	return REQUIRED_ADDRESS_FIELDS.filter((field) => !isFilled(address[field]))
+}
+
+export const addressSummary = (address: AddressChoice | null): string => {
+	if (!address) return ''
+	if (isSavedAddress(address)) return address.summary || address.name
+	return (
+		['address_line1', 'address_line2', 'city', 'state', 'country'] as const
+	)
 		.map((field) => address[field].trim())
 		.filter(Boolean)
 		.join(', ')
+}
 
-export const isValidAmount = (amount: number | null): amount is number =>
+const isValidAmount = (amount: number | null): amount is number =>
 	typeof amount === 'number' && Number.isFinite(amount) && amount >= 0
 
 export const formatMoney = (
@@ -277,22 +353,6 @@ export const formatMoney = (
 	}
 }
 
-export const paymentSummary = (
-	choice: PaymentChoice | undefined,
-	payment: PaymentDefaults
-): string => {
-	if (choice?.mode === 'link') {
-		return [__('Linked'), choice.payment ?? ''].filter(Boolean).join(' · ')
-	}
-	return [
-		__('New'),
-		formatMoney(payment.amount, payment.currency),
-		payment.source ?? '',
-	]
-		.filter(Boolean)
-		.join(' · ')
-}
-
 export const listPaymentLabel = (
 	choice: PaymentChoice | undefined,
 	payment: PaymentDefaults
@@ -300,9 +360,26 @@ export const listPaymentLabel = (
 	if (choice?.mode === 'link') {
 		return [__('Linked'), choice.payment ?? __('Not selected')].join(' · ')
 	}
-	return [formatMoney(payment.amount, payment.currency), payment.source ?? '']
+	return [formatMoney(payment.amount, payment.currency), payment.source]
 		.filter(Boolean)
 		.join(' · ')
+}
+
+export const studentCountLabel = (count: number): string =>
+	count === 1 ? __('1 student') : __('{0} students', [count])
+
+export const paymentTotal = (
+	payments: readonly { amount: number | null; currency: string | null }[]
+): string => {
+	const totals = new Map<string, number>()
+	for (const { amount, currency } of payments) {
+		if (!isValidAmount(amount)) continue
+		const key = currency ?? ''
+		totals.set(key, (totals.get(key) ?? 0) + amount)
+	}
+	return Array.from(totals, ([currency, amount]) =>
+		formatMoney(amount, currency || null)
+	).join(' + ')
 }
 
 const createsPayments = (
@@ -329,7 +406,7 @@ const commonPayload = (defaults: PaymentDefaults): Record<string, unknown> => {
 		currency: defaults.currency,
 	}
 	if (isFilled(defaults.source)) payload.source = defaults.source.trim()
-	const address = addressPayload(defaults.address)
+	const address = defaults.address ? addressPayload(defaults.address) : null
 	if (address) payload.address = address
 	return payload
 }
@@ -391,22 +468,38 @@ export const buildSubmitParams = (
 	return params
 }
 
-export const missingPaymentDetails = (
+/** A payment field, or `address` when there is no address at all. */
+export type MissingKey = PaymentField | 'address'
+
+export const missingPaymentKeys = (
 	defaults: PaymentDefaults,
-	override: PaymentOverride | null
-): string[] => {
+	override: PaymentOverride | null,
+	requireAddress = true
+): MissingKey[] => {
 	const payment = effectivePayment(defaults, override)
-	const missing: PaymentField[] = []
+	const missing: MissingKey[] = []
 	if (!isValidAmount(payment.amount)) missing.push('amount')
 	if (!payment.currency) missing.push('currency')
-	missing.push(...missingAddressFields(payment.address, !!override?.address))
-	return missing.map(paymentFieldLabel)
+	missing.push(...missingAddressFields(payment.address))
+	if (requireAddress && !hasAddress(payment.address)) missing.push('address')
+	return missing
 }
+
+export const missingKeyLabel = (key: MissingKey): string =>
+	key === 'address' ? __('Billing address') : paymentFieldLabel(key)
+
+export const missingPaymentDetails = (
+	defaults: PaymentDefaults,
+	override: PaymentOverride | null,
+	requireAddress = true
+): string[] =>
+	missingPaymentKeys(defaults, override, requireAddress).map(missingKeyLabel)
 
 const isPaymentReady = (
 	defaults: PaymentDefaults,
-	override: PaymentOverride | null = null
-): boolean => !missingPaymentDetails(defaults, override).length
+	override: PaymentOverride | null = null,
+	requireAddress = true
+): boolean => !missingPaymentDetails(defaults, override, requireAddress).length
 
 export const canSubmitPayments = (
 	defaults: PaymentDefaults,
@@ -420,7 +513,7 @@ export const canSubmitPayments = (
 	})
 	if (!linksReady) return false
 	if (!createsPayments(members, choices)) return true
-	if (!isPaymentReady(defaults)) return false
+	if (!isPaymentReady(defaults, null, false)) return false
 	return members.every(
 		(member) =>
 			choices[member]?.mode === 'link' ||

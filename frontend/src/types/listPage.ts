@@ -39,8 +39,6 @@ export type ListPageLayout = 'grid' | 'list'
 export interface ListViewOptions {
 	selectable?: boolean
 	showTooltip?: boolean
-	/** Highlights the last clicked row; ListView matches it on `row.name`. */
-	enableActive?: boolean
 	onRowClick?: (row: ListRow) => void
 	getRowRoute?: (row: ListRow) => RouteLocationRaw
 	/* Names the selection in the banner, at both widths. Left unset,

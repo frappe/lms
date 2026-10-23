@@ -8,7 +8,7 @@
 	/>
 </template>
 <script setup lang="ts">
-import { createResource, getCachedListResource, toast } from 'frappe-ui'
+import { createResource, getCachedListResource } from 'frappe-ui'
 import { computed, inject } from 'vue'
 import { useRoute } from 'vue-router'
 import EnrollStudentsForm from '@/components/Enrollment/EnrollStudentsForm.vue'
@@ -96,28 +96,6 @@ const reloadStudents = () => {
 	getCachedListResource(['courseProgress', props.courseName])?.reload()
 }
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-// Link calls these with one argument unless it is in `inlineCreate` mode, which
-// neither field is — it closes its own dropdown first, so there is no second
-// close callback to invoke here.
-//
-// Leaving the form to open Settings is the modal's behaviour kept intact: the
-// settings drawer would otherwise sit under a full-screen form on a phone.
-const openMemberSettings = () => {
-	if (openSettings('Members')) close()
-}
-
-const openPaymentSettings = () => {
-	if (openSettings('Transactions')) close()
-}
-
-const validateData = (): boolean => {
-	if (!student.value) {
-		toast.error(__('Please select a student to enroll.'))
-		return false
-=======
-=======
 // The dashboard's Enrolled stat reads CourseDetail's course resource, which has
 // no cache key (see above), so CourseDetail hands its reload down instead.
 // Null on a deep link outside CourseDetail.
@@ -126,13 +104,8 @@ const reloadCourseDetails = inject<(() => void) | null>(
 	null
 )
 
->>>>>>> eb91a9b (fix: refresh the course Enrolled stat after bulk enrolling)
 const onEnrolled = (result: BulkEnrollResult) => {
 	reloadStudents()
 	if (result.added.length) reloadCourseDetails?.()
-	if (result.added.length || result.upgraded.length) {
-		toast.success(__('Students enrolled'))
->>>>>>> 74aad75 (feat: enroll many students from the course and batch dashboards)
-	}
 }
 </script>

@@ -169,8 +169,8 @@ describe('BatchStudentForm as a route', () => {
 		const wrapper = await mountForm(router)
 
 		expect(wrapper.text()).toContain('BATCH')
-		expect(fields(wrapper).exists()).toBe(true)
-		expect(wrapper.html()).toContain('Enroll Student')
+		expect(form(wrapper).exists()).toBe(true)
+		expect(form(wrapper).props('refusal')).toBe('')
 	})
 
 	it('refuses a visitor who is neither moderator nor evaluator', async () => {
@@ -293,7 +293,17 @@ describe('BatchStudentForm as a route', () => {
 		await enrolled(wrapper)
 
 		expect(updateOnboardingStepMock).toHaveBeenCalledWith('add_batch_student')
-		expect(toastMock.success).toHaveBeenCalledWith('Students enrolled')
+	})
+
+	// Regression from the bulk-enroll PR (feat/bulk-enroll): the page toasted on
+	// top of the dialog's own outcome toast, so one enroll showed two.
+	it('leaves the success toast to the dialog', async () => {
+		const router = makeRouter()
+		await openForm(router)
+		const wrapper = await mountForm(router)
+		await enrolled(wrapper)
+
+		expect(toastMock.success).not.toHaveBeenCalled()
 	})
 
 	it('ticks the onboarding step only when someone was added', async () => {
@@ -303,7 +313,6 @@ describe('BatchStudentForm as a route', () => {
 		await enrolled(wrapper, [])
 
 		expect(updateOnboardingStepMock).not.toHaveBeenCalled()
-		expect(toastMock.success).not.toHaveBeenCalled()
 	})
 
 	it('leaves the onboarding step alone for a user who does not see onboarding', async () => {
@@ -336,70 +345,4 @@ describe('BatchStudentForm as a route', () => {
 		await flushPromises()
 		expect(router.currentRoute.value.name).toBe('BatchDetail')
 	})
-<<<<<<< HEAD
-
-	// Link hands its onCreate exactly one argument; a handler that expected a
-	// second `close` callback threw on every click.
-	it.each([
-		['User', 'Members'],
-		['LMS Payment', 'Transactions'],
-	])('opens Settings from "Create New" on %s', async (doctype, tab) => {
-		const router = makeRouter()
-		await router.push({
-			name: 'BatchDetail',
-			params: { batchName: 'B1' },
-			hash: BATCH_TAB,
-		})
-		await openForm(router, { lmsFormEntry: true })
-		const wrapper = await mountForm(router)
-
-		await wrapper.find(`[data-testid="create-${doctype}"]`).trigger('click')
-		await flushPromises()
-
-		expect(openSettingsMock).toHaveBeenCalledWith(tab)
-		expect(router.currentRoute.value.name).toBe('BatchDetail')
-	})
-
-	// Settings is mounted only in the desktop sidebar. Closing the form for a
-	// dialog that never appears threw away whatever the user had typed and left
-	// them with no way to add the member they came for.
-	it('stays put when Settings has nowhere to open', async () => {
-		openSettingsMock.mockReturnValue(false)
-		const router = makeRouter()
-		await router.push({
-			name: 'BatchDetail',
-			params: { batchName: 'B1' },
-			hash: BATCH_TAB,
-		})
-		await openForm(router, { lmsFormEntry: true })
-		const wrapper = await mountForm(router)
-
-		await wrapper.find('[data-testid="create-User"]').trigger('click')
-		await flushPromises()
-
-		expect(openSettingsMock).toHaveBeenCalledWith('Members')
-		expect(router.currentRoute.value.name).toBe('NewBatchStudent')
-	})
-
-	it('mobile: the back control pops the router back to the batch', async () => {
-		const router = makeRouter()
-		await router.push({
-			name: 'BatchDetail',
-			params: { batchName: 'B1' },
-			hash: BATCH_TAB,
-		})
-		await openForm(router, { lmsFormEntry: true })
-		Object.defineProperty(window, 'innerWidth', {
-			value: 390,
-			writable: true,
-			configurable: true,
-		})
-		const wrapper = await mountForm(router)
-
-		await wrapper.find('[data-testid="form-shell-back"]').trigger('click')
-		await flushPromises()
-		expect(router.currentRoute.value.name).toBe('BatchDetail')
-	})
-=======
->>>>>>> 74aad75 (feat: enroll many students from the course and batch dashboards)
 })

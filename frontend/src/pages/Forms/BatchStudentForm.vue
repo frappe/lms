@@ -10,7 +10,7 @@
 
 <script setup lang="ts">
 import { computed, inject } from 'vue'
-import { getCachedListResource, getCachedResource, toast } from 'frappe-ui'
+import { getCachedListResource, getCachedResource } from 'frappe-ui'
 import { useOnboarding } from '@framework/ui/components/Onboarding/index'
 import { seesOnboarding } from '@/utils/onboarding'
 import { useRoute } from 'vue-router'
@@ -86,52 +86,9 @@ const reloadDashboard = () => {
 	reloadBatchDetails?.()
 }
 
-<<<<<<< HEAD
-// Link calls these with one argument unless it is in `inlineCreate` mode, which
-// neither field is — it closes its own dropdown first, so there is no second
-// close callback to invoke here.
-//
-// Leaving the form to open Settings is the modal's behaviour kept intact: the
-// settings drawer would otherwise sit under a full-screen form on a phone.
-const openMemberSettings = () => {
-	if (openSettings('Members')) close()
-}
-
-const openPaymentSettings = () => {
-	if (openSettings('Transactions')) close()
-}
-
-const submit = () => {
-	if (refusal.value) return
-	if (!student.value) {
-		toast.error(__('Please select a student to enroll.'))
-		return
-	}
-	submitResource(
-		enrollment,
-		{},
-		{
-			onSuccess() {
-				if (seesOnboarding(user.data)) {
-					updateOnboardingStep('add_batch_student')
-				}
-				reloadDashboard()
-				toast.success(__('Student enrolled successfully'))
-				saveAndReplace(
-					batchRouteLocation('BatchDetail', props.batchName, route.hash)
-				)
-			},
-			onError(err) {
-				toast.error(err.messages?.[0] || err)
-			},
-		}
-	)
-=======
 const onEnrolled = (result: BulkEnrollResult) => {
 	reloadDashboard()
 	if (!result.added.length) return
 	if (seesOnboarding(user.data)) updateOnboardingStep('add_batch_student')
-	toast.success(__('Students enrolled'))
->>>>>>> 74aad75 (feat: enroll many students from the course and batch dashboards)
 }
 </script>

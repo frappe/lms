@@ -8,6 +8,8 @@ import type {
 	EnrollPreviewRow,
 	EnrollStatus,
 	EnrollTarget,
+	PaymentDefaults,
+	StudentRow,
 } from '@/types'
 
 const translate = (text: string, args?: unknown[]) =>
@@ -15,18 +17,32 @@ const translate = (text: string, args?: unknown[]) =>
 vi.stubGlobal('__', translate)
 enableAutoUnmount(afterEach)
 
-const { createResourceMock, toastErrorMock } = vi.hoisted(() => {
+const focusFirstMock = vi.hoisted(() => vi.fn())
+const { createResourceMock, toastErrorMock, toastMock } = vi.hoisted(() => {
 	window.matchMedia ??= (() => ({
 		matches: false,
 		addEventListener: () => {},
 		removeEventListener: () => {},
 	})) as unknown as typeof window.matchMedia
-	return { createResourceMock: vi.fn(), toastErrorMock: vi.fn() }
+	return {
+		createResourceMock: vi.fn(),
+		toastErrorMock: vi.fn(),
+		toastMock: { success: vi.fn(), warning: vi.fn() },
+	}
 })
 
 vi.mock('frappe-ui', () => ({
 	createResource: createResourceMock,
-	toast: { success: vi.fn(), error: toastErrorMock },
+	toast: { ...toastMock, error: toastErrorMock },
+	ErrorMessage: {
+		props: ['message'],
+		template: `<div data-testid="error">{{ message }}</div>`,
+	},
+	Tooltip: {
+		name: 'Tooltip',
+		props: ['text'],
+		template: `<slot />`,
+	},
 	Dialog: {
 		name: 'Dialog',
 		props: ['open', 'title', 'size', 'position'],
@@ -44,59 +60,51 @@ vi.mock('@/components/HeaderButton.vue', () => ({
 	},
 }))
 
-vi.mock('@/components/Stepper', () => ({
-	Stepper: {
-		name: 'Stepper',
-		props: ['steps', 'modelValue', 'completed', 'clickable'],
-		emits: ['update:modelValue'],
-		template: `<ol data-testid="stepper" />`,
-	},
-}))
-
 vi.mock('@/components/Enrollment/EnrollSelectStep.vue', () => ({
 	default: {
 		name: 'EnrollSelectStep',
-		props: ['target', 'members', 'paid'],
-		emits: ['update:members', 'update:paid'],
-		template: `<div data-testid="select-step" />`,
+		props: ['target', 'members', 'paid', 'checking'],
+		emits: ['update:members', 'update:paid', 'update:checking'],
+		template: `<div data-testid="select-step"><slot name="list" :students="members.map((m) => ({ value: m, label: 'Picked ' + m, description: m, image: null }))" :remove="(gone) => $emit('update:members', members.filter((x) => !gone.includes(x)))" /></div>`,
 	},
 }))
 
-vi.mock('@/components/Enrollment/EnrollReviewStep.vue', () => ({
+vi.mock('@/components/Enrollment/EnrollStudentTable.vue', () => ({
 	default: {
-		name: 'EnrollReviewStep',
+		name: 'EnrollStudentTable',
+		props: ['rows', 'paid', 'compact', 'ticked'],
+		emits: ['update:ticked', 'remove', 'reset'],
+		template: `<div data-testid="student-table" />`,
+	},
+}))
+
+vi.mock('@/components/Enrollment/EnrollPaymentPanel.vue', () => ({
+	default: {
+		name: 'EnrollPaymentPanel',
 		props: [
 			'rows',
-			'seatsLeft',
-			'loading',
-			'paid',
-			'certificate',
-			'paymentLabels',
+			'common',
+			'commonAddressUsed',
+			'total',
+			'showBack',
+			'flagMissing',
+			'defaults',
+			'choices',
+			'overrides',
 		],
-		emits: ['remove'],
-		template: `<div data-testid="review-step" />`,
-	},
-}))
-
-vi.mock('@/components/Enrollment/EnrollPaymentStep.vue', () => ({
-	default: {
-		name: 'EnrollPaymentStep',
-		props: ['rows', 'defaults', 'choices', 'overrides', 'panelOpen'],
+		methods: {
+			focusFirst() {
+				focusFirstMock()
+			},
+		},
 		emits: [
 			'update:defaults',
 			'update:choices',
 			'update:overrides',
-			'update:panelOpen',
+			'close',
+			'back',
 		],
-		template: `<div data-testid="payment-step" />`,
-	},
-}))
-
-vi.mock('@/components/Enrollment/EnrollSummary.vue', () => ({
-	default: {
-		name: 'EnrollSummary',
-		props: ['result', 'skipped'],
-		template: `<div data-testid="summary" />`,
+		template: `<div data-testid="panel-stub" />`,
 	},
 }))
 
@@ -140,31 +148,53 @@ const courseTarget: EnrollTarget = {
 	priceLabel: null,
 }
 
-const row = (member: string, status: EnrollStatus): EnrollPreviewRow => ({
+const paidCourse: EnrollTarget = {
+	...courseTarget,
+	paidKind: 'course',
+	priceLabel: '₹100',
+}
+
+const paidBatch: EnrollTarget = {
+	doctype: 'LMS Batch',
+	name: 'B1',
+	paidKind: 'batch',
+	priceLabel: '₹100',
+}
+
+const row = (
+	member: string,
+	status: EnrollStatus = 'ready',
+	extra: Partial<EnrollPreviewRow> = {}
+): EnrollPreviewRow => ({
 	member,
-	full_name: member,
+	full_name: `Name ${member}`,
 	user_image: null,
 	status,
 	linkable_payments: [],
+	...extra,
 })
 
 const preview = (
 	rows: EnrollPreviewRow[],
-	seats_left: number | null = null
-): EnrollPreview => ({ rows, seats_left, amount: 100, currency: 'INR' })
+	extra: Partial<EnrollPreview> = {}
+): EnrollPreview => ({
+	rows,
+	seats_left: null,
+	amount: 100,
+	currency: 'INR',
+	...extra,
+})
 
 const mountForm = (
 	props: Partial<{
 		target: EnrollTarget | null
 		refusal: string
 		loading: boolean
-	}> = {},
-	attach = false
+	}> = {}
 ) =>
 	mount(EnrollStudentsForm, {
 		props: { target: courseTarget, refusal: '', loading: false, ...props },
 		global: { stubs: { teleport: true }, mocks: { __: translate } },
-		...(attach ? { attachTo: document.body } : {}),
 	})
 
 const setWidth = (value: number) => {
@@ -177,66 +207,79 @@ const setWidth = (value: number) => {
 
 type Wrapper = VueWrapper<InstanceType<typeof EnrollStudentsForm>>
 
-const button = (wrapper: Wrapper, id: string) =>
+const byId = (wrapper: Wrapper, id: string) =>
 	wrapper.find(`[data-testid="${id}"]`)
 
 const click = async (wrapper: Wrapper, id: string) => {
-	await button(wrapper, id).trigger('click')
+	await byId(wrapper, id).trigger('click')
 	await flushPromises()
 }
 
-const step = (wrapper: Wrapper, name: string) => wrapper.findComponent({ name })
+const part = (wrapper: Wrapper, name: string) => wrapper.findComponent({ name })
 
 const select = async (wrapper: Wrapper, members: string[]) => {
-	step(wrapper, 'EnrollSelectStep').vm.$emit('update:members', members)
+	part(wrapper, 'EnrollSelectStep').vm.$emit('update:members', members)
 	await flushPromises()
 }
 
-const toNext = async (
+const selectPaid = async (
 	wrapper: Wrapper,
 	members: string[],
 	data: EnrollPreview
 ) => {
 	respond(PREVIEW, data)
 	await select(wrapper, members)
-	await click(wrapper, 'enroll-next')
 }
 
-const paidCourse: EnrollTarget = {
-	...courseTarget,
-	paidKind: 'course',
-	priceLabel: '₹100',
-}
-
-const setSource = async (wrapper: Wrapper, source: string) => {
-	step(wrapper, 'EnrollPaymentStep').vm.$emit('update:defaults', {
-		amount: 100,
-		currency: 'INR',
-		source,
-		address: emptyAddress(),
-	})
+const tick = async (wrapper: Wrapper, members: string[]) => {
+	part(wrapper, 'EnrollStudentTable').vm.$emit('update:ticked', members)
 	await flushPromises()
 }
 
-const toReview = async (
-	wrapper: Wrapper,
-	members: string[],
-	data: EnrollPreview
-) => {
-	await toNext(wrapper, members, data)
-	await setSource(wrapper, 'Web')
-	await click(wrapper, 'enroll-next')
+const panelEmit = async (wrapper: Wrapper, event: string, value: unknown) => {
+	part(wrapper, 'EnrollPaymentPanel').vm.$emit(event, value)
+	await flushPromises()
 }
 
-const stepper = (wrapper: Wrapper) => wrapper.find('[data-testid="stepper"]')
+const tableRows = (wrapper: Wrapper) =>
+	part(wrapper, 'EnrollStudentTable').props('rows') as StudentRow[]
+
+const panelMembers = (wrapper: Wrapper) =>
+	(part(wrapper, 'EnrollPaymentPanel').props('rows') as EnrollPreviewRow[]).map(
+		(item) => item.member
+	)
+
+const editsCommon = (wrapper: Wrapper) =>
+	part(wrapper, 'EnrollPaymentPanel').props('common') as boolean
+
+const status = (wrapper: Wrapper) =>
+	wrapper.get('[data-testid="enroll-status"]').text()
 
 const bodyClass = (wrapper: Wrapper) =>
 	wrapper.get('[data-testid="enroll-body"]').attributes('class')
 
-const stepValues = (wrapper: Wrapper) =>
-	(step(wrapper, 'Stepper').props('steps') as { value: string }[]).map(
-		(item) => item.value
-	)
+const submitParams = async (wrapper: Wrapper) => {
+	respond(COURSE, { added: [], errors: [] })
+	await click(wrapper, 'enroll-submit')
+	return paramsOf(COURSE)
+}
+
+const openForAll = (wrapper: Wrapper) => click(wrapper, 'enroll-details')
+
+const SAVED = { name: 'ADDR-1', summary: 'Pune' }
+
+const addressForAll = async (wrapper: Wrapper) => {
+	await openForAll(wrapper)
+	const current = part(wrapper, 'EnrollPaymentPanel').props(
+		'defaults'
+	) as PaymentDefaults
+	await panelEmit(wrapper, 'update:defaults', { ...current, address: SAVED })
+	await panelEmit(wrapper, 'close', undefined)
+	await tick(wrapper, [])
+}
+
+const AB = ['a@x.com', 'b@x.com']
+const ABPreview = () => preview(AB.map((member) => row(member)))
 
 describe('EnrollStudentsForm', () => {
 	beforeEach(() => {
@@ -246,77 +289,690 @@ describe('EnrollStudentsForm', () => {
 		}
 		createResourceMock.mockClear()
 		toastErrorMock.mockReset()
+		toastMock.success.mockReset()
+		toastMock.warning.mockReset()
 		setWidth(1024)
 	})
 
-	it('shows the refusal instead of the steps', () => {
+	it('shows the refusal instead of the form', () => {
 		const wrapper = mountForm({ refusal: 'You may not enroll students.' })
 
 		expect(wrapper.text()).toContain('You may not enroll students.')
-		expect(wrapper.find('[data-testid="stepper"]').exists()).toBe(false)
-		expect(wrapper.find('[data-testid="select-step"]').exists()).toBe(false)
-		expect(button(wrapper, 'enroll-next').exists()).toBe(false)
+		expect(byId(wrapper, 'select-step').exists()).toBe(false)
+		expect(byId(wrapper, 'enroll-submit').exists()).toBe(false)
 	})
 
-	it('fetches the preview for the selected members on Next', async () => {
-		const wrapper = mountForm({ target: paidCourse })
-		await toNext(
-			wrapper,
-			['a@x.com', 'b@x.com'],
-			preview([row('a@x.com', 'ready'), row('b@x.com', 'ready')])
-		)
+	it('free flow lists students without a panel and enrolls directly', async () => {
+		const wrapper = mountForm()
+		expect(byId(wrapper, 'enroll-submit').attributes('disabled')).toBeDefined()
+		await select(wrapper, AB)
 
-		expect(resources[PREVIEW].submit).toHaveBeenCalledTimes(1)
+		expect(part(wrapper, 'EnrollStudentTable').props('paid')).toBe(false)
+		expect(tableRows(wrapper).map((item) => item.name)).toEqual([
+			'Picked a@x.com',
+			'Picked b@x.com',
+		])
+		expect(status(wrapper)).toBe('2 students')
+		expect(byId(wrapper, 'enroll-details').exists()).toBe(false)
+		expect(byId(wrapper, 'enroll-submit').text()).toBe('Enroll 2 students')
+		await tick(wrapper, ['a@x.com'])
+		expect(byId(wrapper, 'enroll-details').exists()).toBe(false)
+		expect(byId(wrapper, 'payment-panel').exists()).toBe(false)
+
+		respond(COURSE, { added: AB, errors: [] })
+		await click(wrapper, 'enroll-submit')
+		expect(resources[PREVIEW].submit).not.toHaveBeenCalled()
+		expect(paramsOf(COURSE)).toEqual({
+			course: 'C1',
+			members: JSON.stringify(AB),
+			purchased_certificate: false,
+		})
+		expect(wrapper.emitted('close')).toHaveLength(1)
+	})
+
+	it('turns payments on for a paid course and previews each new selection', async () => {
+		const wrapper = mountForm({ target: paidCourse })
+		expect(part(wrapper, 'EnrollSelectStep').props('paid')).toBe(true)
+		await selectPaid(wrapper, AB, ABPreview())
+
 		expect(paramsOf(PREVIEW)).toEqual({
 			doctype: 'LMS Course',
 			docname: 'C1',
-			members: JSON.stringify(['a@x.com', 'b@x.com']),
+			members: JSON.stringify(AB),
 			purchased_certificate: false,
 		})
-		expect(step(wrapper, 'EnrollPaymentStep').props('rows')).toHaveLength(2)
+		expect(part(wrapper, 'EnrollStudentTable').props('paid')).toBe(true)
+		const [first] = tableRows(wrapper)
+		expect(first.name).toBe('Name a@x.com')
+		expect(first.payment).toMatch(/100[^·]*$/)
+		expect(first.billing).toBe('—')
+		expect(first.needsAddress).toBe(true)
+
+		await select(wrapper, ['a@x.com'])
+		expect(resources[PREVIEW].submit).toHaveBeenCalledTimes(1)
+		respond(PREVIEW, preview([row('a@x.com'), row('c@x.com')]))
+		await select(wrapper, ['a@x.com', 'c@x.com'])
+		expect(resources[PREVIEW].submit).toHaveBeenCalledTimes(2)
 	})
 
-	it('submits only enrollable rows to the course endpoint', async () => {
+	it('turns payments on for a paid batch and off for a paid certificate', async () => {
+		expect(
+			part(mountForm({ target: paidBatch }), 'EnrollSelectStep').props('paid')
+		).toBe(true)
+		const certificate = mountForm({
+			target: { ...courseTarget, paidKind: 'certificate', priceLabel: '₹9' },
+		})
+		expect(part(certificate, 'EnrollSelectStep').props('paid')).toBe(false)
+		const late = mountForm({ target: null, loading: true })
+		await late.setProps({ target: paidCourse, loading: false })
+		expect(part(late, 'EnrollSelectStep').props('paid')).toBe(true)
+	})
+
+	it('until every student has an address, Enter details for all replaces Enroll', async () => {
 		const wrapper = mountForm({ target: paidCourse })
-		await toReview(
+		await selectPaid(
 			wrapper,
-			['a@x.com', 'b@x.com', 'c@x.com'],
-			preview([
-				row('a@x.com', 'ready'),
-				row('b@x.com', 'enrolled'),
-				row('c@x.com', 'no_user'),
-			])
+			AB,
+			preview(
+				AB.map((m) => row(m)),
+				{ currency: null }
+			)
 		)
 
-		const review = step(wrapper, 'EnrollReviewStep')
-		expect(
-			(review.props('rows') as EnrollPreviewRow[]).map((item) => item.member)
-		).toEqual(['a@x.com'])
-		expect(review.props('certificate')).toBe(false)
-		expect(button(wrapper, 'enroll-submit').text()).toBe('Enroll 1 student')
-		await click(wrapper, 'enroll-submit')
+		expect(status(wrapper)).toBe('2 students · 200')
+		const footer = byId(wrapper, 'enroll-footer')
+		expect(footer.findAll('button').map((el) => el.text())).toEqual([
+			'Enter details for all',
+		])
+		const details = byId(wrapper, 'enroll-details')
+		expect(details.attributes('data-variant')).toBe('solid')
+		expect(details.attributes('disabled')).toBeUndefined()
+		expect(byId(wrapper, 'enroll-submit').exists()).toBe(false)
+		await click(wrapper, 'enroll-details')
 
-		expect(resources[COURSE].submit).toHaveBeenCalledTimes(1)
-		expect(paramsOf(COURSE)).toMatchObject({
-			course: 'C1',
-			members: JSON.stringify(['a@x.com']),
-			purchased_certificate: false,
+		expect(part(wrapper, 'EnrollStudentTable').props('ticked')).toEqual(AB)
+		expect(part(wrapper, 'EnrollStudentTable').props('compact')).toBe(true)
+		expect(editsCommon(wrapper)).toBe(true)
+		expect(part(wrapper, 'EnrollPaymentPanel').props('total')).toBe(2)
+		expect(status(wrapper)).toMatch(/^2 students/)
+		expect(byId(wrapper, 'enroll-submit').text()).toBe('Enroll 2 students')
+		expect(byId(wrapper, 'enroll-submit').attributes('disabled')).toBeDefined()
+
+		await panelEmit(wrapper, 'update:defaults', {
+			amount: 100,
+			currency: 'INR',
+			source: null,
+			address: emptyAddress(),
 		})
+		expect(byId(wrapper, 'enroll-submit').attributes('disabled')).toBeDefined()
+		await panelEmit(wrapper, 'update:defaults', {
+			amount: 100,
+			currency: 'INR',
+			source: null,
+			address: SAVED,
+		})
+		expect(
+			byId(wrapper, 'enroll-submit').attributes('disabled')
+		).toBeUndefined()
+	})
+
+	it('keeps focus on the footer button when it turns from details into Enroll', async () => {
+		const wrapper = mountForm({ target: paidCourse })
+		await selectPaid(wrapper, AB, ABPreview())
+		const button = byId(wrapper, 'enroll-details').element
+		await addressForAll(wrapper)
+		expect(byId(wrapper, 'enroll-submit').element).toBe(button)
+		expect(byId(wrapper, 'enroll-submit').text()).toBe('Enroll 2 students')
+	})
+
+	it('Enter details flags the missing fields and focuses the first one', async () => {
+		const wrapper = mountForm({ target: paidCourse })
+		await selectPaid(wrapper, AB, ABPreview())
+		focusFirstMock.mockClear()
+		await click(wrapper, 'enroll-details')
+		expect(part(wrapper, 'EnrollPaymentPanel').props('flagMissing')).toBe(true)
+		expect(focusFirstMock).toHaveBeenCalledTimes(1)
+	})
+
+	it('says why Enroll is disabled, on hover, on focus and to screen readers', async () => {
+		const wrapper = mountForm({ target: paidCourse })
+		const reason = () => byId(wrapper, 'enroll-reason').text()
+		const primary = () => byId(wrapper, 'enroll-primary')
+		await selectPaid(wrapper, AB, ABPreview())
+		expect(byId(wrapper, 'enroll-reason').exists()).toBe(false)
+		await click(wrapper, 'enroll-details')
+		expect(byId(wrapper, 'enroll-submit').attributes('disabled')).toBeDefined()
+		expect(reason()).toBe('Add a billing address for 2 students')
+		expect(part(wrapper, 'Tooltip').props('text')).toBe(reason())
+		expect(primary().attributes('tabindex')).toBe('0')
+		expect(primary().attributes('aria-describedby')).toBe(
+			byId(wrapper, 'enroll-reason').attributes('id')
+		)
+
+		await panelEmit(wrapper, 'update:overrides', {
+			'a@x.com': { ...emptyOverride(), address: SAVED },
+		})
+		expect(reason()).toBe('Add a billing address for Name b@x.com')
+		await panelEmit(wrapper, 'update:overrides', {
+			'a@x.com': { ...emptyOverride(), address: SAVED },
+			'b@x.com': {
+				...emptyOverride(),
+				address: { ...emptyAddress(), state: 'MH' },
+			},
+		})
+		expect(reason()).toBe(
+			'Fill in Address line 1, City and Country for Name b@x.com'
+		)
+		await panelEmit(wrapper, 'update:overrides', {
+			'a@x.com': { ...emptyOverride(), address: SAVED, amount: -1 },
+			'b@x.com': { ...emptyOverride(), address: SAVED },
+		})
+		expect(reason()).toBe('Fill in Amount for Name a@x.com')
+		await panelEmit(wrapper, 'update:overrides', {
+			'a@x.com': { ...emptyOverride(), amount: -1 },
+		})
+		expect(reason()).toBe('Fill in the missing details for 2 students')
+		await panelEmit(wrapper, 'update:overrides', {})
+		await panelEmit(wrapper, 'update:defaults', {
+			amount: null,
+			currency: null,
+			source: null,
+			address: SAVED,
+		})
+		expect(reason()).toBe('Fill in Amount and Currency in the details for all')
+		await panelEmit(wrapper, 'update:defaults', {
+			amount: 100,
+			currency: 'INR',
+			source: null,
+			address: SAVED,
+		})
+		expect(byId(wrapper, 'enroll-reason').exists()).toBe(false)
+		expect(primary().attributes('tabindex')).toBeUndefined()
+	})
+
+	it('names a link without a payment as the reason', async () => {
+		const linkable = row('a@x.com', 'ready', {
+			linkable_payments: [
+				{ name: 'P1', amount: 100, currency: 'INR', creation: '2026-01-01' },
+			],
+		})
+		const wrapper = mountForm({ target: paidCourse })
+		await selectPaid(wrapper, ['a@x.com'], preview([linkable]))
+		await click(wrapper, 'enroll-details')
+		await panelEmit(wrapper, 'update:choices', {
+			'a@x.com': { mode: 'link', payment: null },
+		})
+		expect(byId(wrapper, 'enroll-reason').text()).toBe(
+			'Choose a payment to link for Name a@x.com'
+		)
+	})
+
+	it('with details complete, puts an outline Enter details for all just before Enroll', async () => {
+		const wrapper = mountForm({ target: paidCourse })
+		await selectPaid(wrapper, AB, ABPreview())
+		await addressForAll(wrapper)
+
+		expect(status(wrapper)).toMatch(/^2 students · .*200/)
+		const submit = byId(wrapper, 'enroll-submit')
+		expect(submit.text()).toBe('Enroll 2 students')
+		expect(submit.attributes('disabled')).toBeUndefined()
+		expect(submit.attributes('data-variant')).toBe('solid')
+		const all = byId(wrapper, 'enroll-details')
+		expect(all.text()).toBe('Enter details for all')
+		expect(all.attributes('data-variant')).toBe('outline')
+		expect(all.element.nextElementSibling).toBe(
+			byId(wrapper, 'enroll-primary').element
+		)
+		expect(
+			byId(wrapper, 'enroll-primary').element.contains(submit.element)
+		).toBe(true)
+		expect(byId(wrapper, 'enroll-reason').exists()).toBe(false)
+		expect(
+			byId(wrapper, 'enroll-primary').attributes('tabindex')
+		).toBeUndefined()
+		expect(byId(wrapper, 'enroll-status').element.contains(all.element)).toBe(
+			false
+		)
+		await click(wrapper, 'enroll-details')
+		expect(part(wrapper, 'EnrollStudentTable').props('ticked')).toEqual(AB)
+		expect(byId(wrapper, 'payment-panel').exists()).toBe(true)
+		expect(byId(wrapper, 'enroll-details').exists()).toBe(false)
+	})
+
+	it('puts the panel beside the list only, below the picker and switch', async () => {
+		const wrapper = mountForm({ target: paidCourse })
+		await selectPaid(wrapper, AB, ABPreview())
+		await click(wrapper, 'enroll-details')
+		const row = byId(wrapper, 'enroll-list-row')
+		const panel = row.get('[data-testid="payment-panel"]')
+		expect(
+			row.get('[data-testid="enroll-list"]').element.nextElementSibling
+		).toBe(panel.element)
+		expect(panel.classes()).toContain('border-s')
+		expect(byId(wrapper, 'select-step').element.contains(row.element)).toBe(
+			true
+		)
+	})
+
+	// Regression (bulk-enroll PR, feat/bulk-enroll): with everyone ticked the
+	// panel edited the common details, hiding one student's different address.
+	it('ticking everyone edits them as a group once one has their own details', async () => {
+		const wrapper = mountForm({ target: paidCourse })
+		const ABC = [...AB, 'c@x.com']
+		await selectPaid(wrapper, ABC, preview(ABC.map((m) => row(m))))
+		await addressForAll(wrapper)
+		await click(wrapper, 'enroll-details')
+		await tick(wrapper, ABC)
+		expect(editsCommon(wrapper)).toBe(true)
+
+		await panelEmit(wrapper, 'update:overrides', {
+			'c@x.com': {
+				...emptyOverride(),
+				address: { ...emptyAddress(), address_line1: 'dd' },
+			},
+		})
+		expect(editsCommon(wrapper)).toBe(true)
+		await tick(wrapper, AB)
+		await tick(wrapper, ABC)
+		expect(editsCommon(wrapper)).toBe(false)
+		expect(panelMembers(wrapper)).toEqual(ABC)
+	})
+
+	it('names the ticked rows on the details button, and the panel edits just them', async () => {
+		const wrapper = mountForm({ target: paidCourse })
+		const ABC = [...AB, 'c@x.com']
+		await selectPaid(wrapper, ABC, preview(ABC.map((m) => row(m))))
+		await addressForAll(wrapper)
+
+		await tick(wrapper, ['b@x.com'])
+		expect(byId(wrapper, 'enroll-details').text()).toBe(
+			'Enter details for Name b@x.com'
+		)
+		expect(byId(wrapper, 'enroll-details').attributes('data-variant')).toBe(
+			'outline'
+		)
+		expect(byId(wrapper, 'enroll-submit').exists()).toBe(true)
+		await tick(wrapper, ['a@x.com', 'c@x.com'])
+		expect(byId(wrapper, 'enroll-details').text()).toBe(
+			'Enter details for 2 students'
+		)
+		await click(wrapper, 'enroll-details')
+		expect(panelMembers(wrapper)).toEqual(['a@x.com', 'c@x.com'])
+		expect(editsCommon(wrapper)).toBe(false)
+
+		await tick(wrapper, ['b@x.com'])
+		expect(panelMembers(wrapper)).toEqual(['b@x.com'])
+		await tick(wrapper, [])
+		expect(panelMembers(wrapper)).toEqual([])
+		expect(editsCommon(wrapper)).toBe(true)
+		await tick(wrapper, ABC)
+		expect(editsCommon(wrapper)).toBe(true)
+		expect(byId(wrapper, 'enroll-details').exists()).toBe(false)
+
+		await panelEmit(wrapper, 'close', undefined)
+		expect(byId(wrapper, 'payment-panel').exists()).toBe(false)
+		expect(part(wrapper, 'EnrollStudentTable').props('compact')).toBe(false)
+	})
+
+	it('a single student ticked on their own gets their own panel', async () => {
+		const wrapper = mountForm({ target: paidCourse })
+		await selectPaid(wrapper, ['a@x.com'], preview([row('a@x.com')]))
+		await tick(wrapper, ['a@x.com'])
+		await click(wrapper, 'enroll-details')
+		expect(panelMembers(wrapper)).toEqual(['a@x.com'])
+	})
+
+	it('shows the disabled Enroll button while pasted emails are checked', async () => {
+		const wrapper = mountForm({ target: paidCourse })
+		await selectPaid(wrapper, AB, ABPreview())
+		await tick(wrapper, ['a@x.com'])
+		part(wrapper, 'EnrollSelectStep').vm.$emit('update:checking', true)
+		await flushPromises()
+		expect(byId(wrapper, 'enroll-details').exists()).toBe(false)
+		expect(byId(wrapper, 'enroll-submit').attributes('disabled')).toBeDefined()
+
+		const free = mountForm()
+		await select(free, AB)
+		part(free, 'EnrollSelectStep').vm.$emit('update:checking', true)
+		await flushPromises()
+		expect(byId(free, 'enroll-submit').attributes('disabled')).toBeDefined()
+	})
+
+	it('keeps Enroll disabled while a preview is loading or after it fails', async () => {
+		const wrapper = mountForm({ target: paidCourse })
+		resources[PREVIEW].submit.mockImplementation(() => new Promise(() => {}))
+		await select(wrapper, AB)
+		expect(byId(wrapper, 'enroll-submit').attributes('disabled')).toBeDefined()
+
+		resources[PREVIEW].submit.mockImplementation(
+			async (_params: unknown, options: Handlers) => {
+				options.onError?.({ messages: ['Nope.'] })
+				throw new Error('failed')
+			}
+		)
+		await select(wrapper, [...AB, 'c@x.com'])
+		expect(toastErrorMock).toHaveBeenCalledWith('Nope.')
+		expect(byId(wrapper, 'enroll-submit').attributes('disabled')).toBeDefined()
+	})
+
+	it('ignores a preview that answers after a newer one', async () => {
+		const wrapper = mountForm({ target: paidCourse })
+		let late: Handlers = {}
+		resources[PREVIEW].submit.mockImplementationOnce(
+			(_params: unknown, options: Handlers) => {
+				late = options
+				return new Promise(() => {})
+			}
+		)
+		await select(wrapper, ['a@x.com'])
+		respond(PREVIEW, ABPreview())
+		await select(wrapper, AB)
+		late.onSuccess?.(preview([row('a@x.com', 'enrolled')]))
+		await flushPromises()
+		expect(tableRows(wrapper).map((item) => item.member)).toEqual(AB)
+	})
+
+	it('the selection banner removes and resets the ticked students', async () => {
+		const wrapper = mountForm({ target: paidCourse })
+		const ABC = [...AB, 'c@x.com']
+		await selectPaid(wrapper, ABC, preview(ABC.map((m) => row(m))))
+		await addressForAll(wrapper)
+		await openForAll(wrapper)
+		await panelEmit(wrapper, 'update:overrides', {
+			'a@x.com': { ...emptyOverride(), amount: 1 },
+			'b@x.com': { ...emptyOverride(), amount: 2 },
+			'c@x.com': { ...emptyOverride(), amount: 3 },
+		})
+		await panelEmit(wrapper, 'update:choices', {
+			'a@x.com': { mode: 'link', payment: 'P1' },
+			'b@x.com': { mode: 'create' },
+			'c@x.com': { mode: 'create' },
+		})
+
+		part(wrapper, 'EnrollStudentTable').vm.$emit('reset', AB)
+		await flushPromises()
+		expect(part(wrapper, 'EnrollPaymentPanel').props('overrides')).toEqual({
+			'c@x.com': { ...emptyOverride(), amount: 3 },
+		})
+		expect(part(wrapper, 'EnrollPaymentPanel').props('choices')).toEqual({
+			'a@x.com': { mode: 'create' },
+			'b@x.com': { mode: 'create' },
+			'c@x.com': { mode: 'create' },
+		})
+
+		part(wrapper, 'EnrollStudentTable').vm.$emit('remove', ['c@x.com'])
+		await flushPromises()
+		expect(part(wrapper, 'EnrollSelectStep').props('members')).toEqual(AB)
+		expect(part(wrapper, 'EnrollStudentTable').props('ticked')).toEqual(AB)
+		expect(part(wrapper, 'EnrollPaymentPanel').props('overrides')).toEqual({})
+		expect(resources[PREVIEW].submit).toHaveBeenCalledTimes(1)
+		const params = await submitParams(wrapper)
+		expect(params.members).toBe(JSON.stringify(AB))
+		expect(params).not.toHaveProperty('member_payment_details')
+	})
+
+	it('removing the ticked students with payments off clears the selection', async () => {
+		const wrapper = mountForm()
+		await select(wrapper, AB)
+		await tick(wrapper, ['a@x.com'])
+		part(wrapper, 'EnrollStudentTable').vm.$emit('remove', ['a@x.com'])
+		await flushPromises()
+		expect(part(wrapper, 'EnrollSelectStep').props('members')).toEqual([
+			'b@x.com',
+		])
+		expect(part(wrapper, 'EnrollStudentTable').props('ticked')).toEqual([])
+		expect(byId(wrapper, 'payment-panel').exists()).toBe(false)
+	})
+
+	it('Enter details names the students still missing details, not the ticked ones', async () => {
+		const wrapper = mountForm({ target: paidCourse })
+		const ABC = [...AB, 'c@x.com']
+		await selectPaid(wrapper, ABC, preview(ABC.map((m) => row(m))))
+		await addressForAll(wrapper)
+		const partial = { ...emptyAddress(), state: 'MH' }
+		await tick(wrapper, ['c@x.com'])
+		await click(wrapper, 'enroll-details')
+		await panelEmit(wrapper, 'update:overrides', {
+			'c@x.com': { ...emptyOverride(), address: partial },
+		})
+		await panelEmit(wrapper, 'close', undefined)
+
+		await tick(wrapper, AB)
+		const details = byId(wrapper, 'enroll-details')
+		expect(details.text()).toBe('Enter details for Name c@x.com')
+		expect(details.attributes('data-variant')).toBe('solid')
+		focusFirstMock.mockClear()
+		await click(wrapper, 'enroll-details')
+		expect(part(wrapper, 'EnrollStudentTable').props('ticked')).toEqual([
+			'c@x.com',
+		])
+		expect(panelMembers(wrapper)).toEqual(['c@x.com'])
+		expect(part(wrapper, 'EnrollPaymentPanel').props('flagMissing')).toBe(true)
+		expect(focusFirstMock).toHaveBeenCalledTimes(1)
+
+		await panelEmit(wrapper, 'update:overrides', {
+			'b@x.com': { ...emptyOverride(), address: partial },
+			'c@x.com': { ...emptyOverride(), address: partial },
+		})
+		await panelEmit(wrapper, 'close', undefined)
+		await tick(wrapper, ['a@x.com'])
+		expect(byId(wrapper, 'enroll-details').text()).toBe(
+			'Enter details for 2 students'
+		)
+		await click(wrapper, 'enroll-details')
+		expect(panelMembers(wrapper)).toEqual(['b@x.com', 'c@x.com'])
+	})
+
+	it('closing the details panel unticks every student', async () => {
+		const wrapper = mountForm({ target: paidCourse })
+		await selectPaid(wrapper, AB, ABPreview())
+		await tick(wrapper, ['a@x.com'])
+		await click(wrapper, 'enroll-details')
+		expect(part(wrapper, 'EnrollStudentTable').props('ticked')).toEqual([
+			'a@x.com',
+		])
+		await panelEmit(wrapper, 'close', undefined)
+		expect(byId(wrapper, 'payment-panel').exists()).toBe(false)
+		expect(part(wrapper, 'EnrollStudentTable').props('ticked')).toEqual([])
+
+		await tick(wrapper, ['b@x.com'])
+		await click(wrapper, 'enroll-details')
+		await panelEmit(wrapper, 'back', undefined)
+		expect(part(wrapper, 'EnrollStudentTable').props('ticked')).toEqual([])
+	})
+
+	it('submits the common details', async () => {
+		const wrapper = mountForm({ target: paidCourse })
+		await selectPaid(wrapper, AB, ABPreview())
+		await click(wrapper, 'enroll-details')
+		await panelEmit(wrapper, 'update:defaults', {
+			amount: 100,
+			currency: 'INR',
+			source: 'Web',
+			address: SAVED,
+		})
+		const params = await submitParams(wrapper)
+		expect(params).toMatchObject({
+			course: 'C1',
+			members: JSON.stringify(AB),
+			purchased_certificate: false,
+			linked_payments: '{}',
+		})
+		expect(JSON.parse(params.payment_details as string)).toEqual({
+			amount: 100,
+			currency: 'INR',
+			source: 'Web',
+			address: 'ADDR-1',
+		})
+		expect(params).not.toHaveProperty('member_payment_details')
+	})
+
+	it('submits a group override for every ticked student beside the common details', async () => {
+		const wrapper = mountForm({ target: paidCourse })
+		const ABC = [...AB, 'c@x.com']
+		await selectPaid(wrapper, ABC, preview(ABC.map((m) => row(m))))
+		await addressForAll(wrapper)
+		await tick(wrapper, AB)
+		await click(wrapper, 'enroll-details')
+		const group = { ...emptyOverride(), amount: 40, source: 'Referral' }
+		await panelEmit(wrapper, 'update:overrides', {
+			'a@x.com': group,
+			'b@x.com': group,
+		})
+		const params = await submitParams(wrapper)
+		expect(JSON.parse(params.payment_details as string)).toEqual({
+			amount: 100,
+			currency: 'INR',
+			address: 'ADDR-1',
+		})
+		expect(JSON.parse(params.member_payment_details as string)).toEqual({
+			'a@x.com': { amount: 40, source: 'Referral' },
+			'b@x.com': { amount: 40, source: 'Referral' },
+		})
+	})
+
+	it('submits the common address and a student address that replaces it', async () => {
+		const wrapper = mountForm({ target: paidCourse })
+		await selectPaid(wrapper, AB, ABPreview())
+		await click(wrapper, 'enroll-details')
+		const common = {
+			...emptyAddress(),
+			address_line1: 'Andheri',
+			city: 'Mumbai',
+			country: 'India',
+		}
+		await panelEmit(wrapper, 'update:defaults', {
+			amount: 100,
+			currency: 'INR',
+			source: null,
+			address: common,
+		})
+		await panelEmit(wrapper, 'update:overrides', {
+			'b@x.com': {
+				...emptyOverride(),
+				address: {
+					...emptyAddress(),
+					address_line1: '1 Main St',
+					city: 'London',
+					country: 'UK',
+				},
+			},
+		})
+		expect(tableRows(wrapper)[0].billing).toBe('Andheri, Mumbai, India')
+		expect(tableRows(wrapper)[0].needsAddress).toBe(false)
+		const params = await submitParams(wrapper)
+		expect(JSON.parse(params.payment_details as string)).toEqual({
+			amount: 100,
+			currency: 'INR',
+			address: { address_line1: 'Andheri', city: 'Mumbai', country: 'India' },
+		})
+		expect(JSON.parse(params.member_payment_details as string)).toEqual({
+			'b@x.com': {
+				address: { address_line1: '1 Main St', city: 'London', country: 'UK' },
+			},
+		})
+	})
+
+	it('submits a picked existing address by name and lists its summary', async () => {
+		const wrapper = mountForm({ target: paidCourse })
+		await selectPaid(wrapper, AB, ABPreview())
+		await openForAll(wrapper)
+		await panelEmit(wrapper, 'update:defaults', {
+			amount: 100,
+			currency: 'INR',
+			source: null,
+			address: { name: 'ADDR-1', summary: 'Andheri, Mumbai' },
+		})
+		await panelEmit(wrapper, 'update:overrides', {
+			'b@x.com': {
+				...emptyOverride(),
+				address: { name: 'ADDR-2', summary: '' },
+			},
+		})
+		expect(tableRows(wrapper).map((item) => item.billing)).toEqual([
+			'Andheri, Mumbai',
+			'ADDR-2',
+		])
+		const params = await submitParams(wrapper)
+		expect(JSON.parse(params.payment_details as string).address).toBe('ADDR-1')
+		expect(JSON.parse(params.member_payment_details as string)).toEqual({
+			'b@x.com': { address: 'ADDR-2' },
+		})
+	})
+
+	it('submits a linked payment and falls back to a new one when it is no longer offered', async () => {
+		const linkable = (name: string) =>
+			row('a@x.com', 'ready', {
+				linkable_payments: [
+					{ name, amount: 100, currency: 'INR', creation: '2026-01-01' },
+				],
+			})
+		const wrapper = mountForm({ target: paidCourse })
+		await selectPaid(wrapper, AB, preview([linkable('P1'), row('b@x.com')]))
+		await openForAll(wrapper)
+		await panelEmit(wrapper, 'update:choices', {
+			'a@x.com': { mode: 'link', payment: 'P1' },
+			'b@x.com': { mode: 'create' },
+		})
+		expect(tableRows(wrapper)[0].payment).toBe('Linked · P1')
+		expect(tableRows(wrapper).map((item) => item.needsAddress)).toEqual([
+			false,
+			true,
+		])
+		respond(PREVIEW, preview([linkable('P1'), row('b@x.com'), row('c@x.com')]))
+		await select(wrapper, [...AB, 'c@x.com'])
+		expect(part(wrapper, 'EnrollPaymentPanel').props('choices')).toMatchObject({
+			'a@x.com': { mode: 'link', payment: 'P1' },
+		})
+		await select(wrapper, AB)
+		expect(byId(wrapper, 'enroll-submit').attributes('disabled')).toBeDefined()
+		await panelEmit(wrapper, 'update:overrides', {
+			'b@x.com': { ...emptyOverride(), address: SAVED },
+		})
+		const params = await submitParams(wrapper)
+		expect(JSON.parse(params.linked_payments as string)).toEqual({
+			'a@x.com': 'P1',
+		})
+		expect(JSON.parse(params.payment_details as string)).toEqual({
+			amount: 100,
+			currency: 'INR',
+		})
+
+		const again = mountForm({ target: paidCourse })
+		await selectPaid(again, ['a@x.com'], preview([linkable('P1')]))
+		await openForAll(again)
+		await panelEmit(again, 'update:choices', {
+			'a@x.com': { mode: 'link', payment: 'P1' },
+		})
+		respond(PREVIEW, preview([linkable('P2'), row('b@x.com')]))
+		await select(again, AB)
+		expect(part(again, 'EnrollPaymentPanel').props('choices')).toMatchObject({
+			'a@x.com': { mode: 'create' },
+		})
+	})
+
+	it('turning the paid switch off sends no payment arguments', async () => {
+		const wrapper = mountForm({ target: paidCourse })
+		await selectPaid(wrapper, ['a@x.com'], preview([row('a@x.com')]))
+		expect(byId(wrapper, 'enroll-submit').exists()).toBe(false)
+		part(wrapper, 'EnrollSelectStep').vm.$emit('update:paid', false)
+		await flushPromises()
+		expect(byId(wrapper, 'enroll-details').exists()).toBe(false)
+		expect(byId(wrapper, 'enroll-submit').text()).toBe('Enroll 1 student')
+		const params = await submitParams(wrapper)
+		expect(params).not.toHaveProperty('payment_details')
+		expect(params).not.toHaveProperty('member_payment_details')
+		expect(params).not.toHaveProperty('linked_payments')
+		expect(params.members).toBe(JSON.stringify(['a@x.com']))
 	})
 
 	it('posts to add_students_to_batch for a batch target', async () => {
-		const wrapper = mountForm({
-			target: {
-				...courseTarget,
-				doctype: 'LMS Batch',
-				name: 'B1',
-				paidKind: 'batch',
-				priceLabel: '₹100',
-			},
-		})
-		await toReview(wrapper, ['a@x.com'], preview([row('a@x.com', 'ready')], 5))
+		const wrapper = mountForm({ target: paidBatch })
+		respond(PREVIEW, preview([row('a@x.com')], { seats_left: 5 }))
+		await select(wrapper, ['a@x.com'])
+		await addressForAll(wrapper)
+		respond(BATCH, { added: ['a@x.com'], errors: [] })
 		await click(wrapper, 'enroll-submit')
-
 		expect(resources[COURSE].submit).not.toHaveBeenCalled()
 		expect(paramsOf(BATCH)).toMatchObject({
 			batch: 'B1',
@@ -324,325 +980,118 @@ describe('EnrollStudentsForm', () => {
 		})
 	})
 
-	it('removing a row in review drops it from the picker and the submit', async () => {
-		const wrapper = mountForm({ target: paidCourse })
-		await toReview(
+	it('says when there are not enough seats and gives it as the reason', async () => {
+		const wrapper = mountForm({ target: paidBatch })
+		await selectPaid(
 			wrapper,
-			['a@x.com', 'b@x.com'],
-			preview([row('a@x.com', 'ready'), row('b@x.com', 'ready')])
+			AB,
+			preview(
+				AB.map((m) => row(m)),
+				{ seats_left: 1 }
+			)
 		)
+		await addressForAll(wrapper)
+		expect(wrapper.get('[data-testid="error"]').text()).toBe(
+			'1 seats left, 2 selected'
+		)
+		expect(byId(wrapper, 'enroll-submit').attributes('disabled')).toBeDefined()
+		expect(byId(wrapper, 'enroll-reason').text()).toBe(
+			'1 seats left, 2 selected'
+		)
+	})
 
-		step(wrapper, 'EnrollReviewStep').vm.$emit('remove', ['b@x.com'])
+	it('badges certificate rows New or Upgrade while the certificate is on', async () => {
+		const wrapper = mountForm({
+			target: { ...courseTarget, paidKind: 'certificate', priceLabel: '₹9' },
+		})
+		part(wrapper, 'EnrollSelectStep').vm.$emit('update:paid', true)
 		await flushPromises()
-		expect(
-			(
-				step(wrapper, 'EnrollReviewStep').props('rows') as EnrollPreviewRow[]
-			).map((item) => item.member)
-		).toEqual(['a@x.com'])
-		expect(resources[PREVIEW].submit).toHaveBeenCalledTimes(1)
-
-		await click(wrapper, 'enroll-back')
-		await click(wrapper, 'enroll-back')
-		expect(step(wrapper, 'EnrollSelectStep').props('members')).toEqual([
-			'a@x.com',
+		await selectPaid(
+			wrapper,
+			AB,
+			preview([row('a@x.com'), row('b@x.com', 'upgrade')])
+		)
+		expect(paramsOf(PREVIEW).purchased_certificate).toBe(true)
+		expect(tableRows(wrapper).map((item) => item.badge)).toEqual([
+			'New',
+			'Upgrade',
 		])
+	})
 
-		respond(PREVIEW, preview([row('a@x.com', 'ready')]))
-		await click(wrapper, 'enroll-next')
-		expect(paramsOf(PREVIEW).members).toBe(JSON.stringify(['a@x.com']))
-
-		await click(wrapper, 'enroll-next')
+	it('leaves skipped preview rows out of the list and the submit', async () => {
+		const wrapper = mountForm({ target: paidCourse })
+		await selectPaid(
+			wrapper,
+			AB,
+			preview([row('a@x.com'), row('b@x.com', 'enrolled')])
+		)
+		expect(tableRows(wrapper).map((item) => item.member)).toEqual(['a@x.com'])
+		await addressForAll(wrapper)
+		expect(byId(wrapper, 'enroll-submit').text()).toBe('Enroll 1 student')
+		respond(COURSE, { added: ['a@x.com'], errors: [] })
 		await click(wrapper, 'enroll-submit')
 		expect(paramsOf(COURSE).members).toBe(JSON.stringify(['a@x.com']))
 	})
 
-	it('orders the steps Select, Payments, Review with payments on by default', async () => {
+	it('keeps one dialog size with the panel closed and open', async () => {
 		const wrapper = mountForm({ target: paidCourse })
-		expect(step(wrapper, 'EnrollSelectStep').props('paid')).toBe(true)
-		expect(stepValues(wrapper)).toEqual(['select', 'payments', 'review'])
-
-		step(wrapper, 'EnrollSelectStep').vm.$emit('update:paid', false)
-		await flushPromises()
-		expect(stepper(wrapper).exists()).toBe(false)
-
-		step(wrapper, 'EnrollSelectStep').vm.$emit('update:paid', true)
-		await flushPromises()
-		expect(stepValues(wrapper)).toEqual(['select', 'payments', 'review'])
-	})
-
-	it('renders no stepper and enrolls straight from Select when unpaid', async () => {
-		const wrapper = mountForm()
-		expect(stepper(wrapper).exists()).toBe(false)
-		expect(button(wrapper, 'enroll-next').exists()).toBe(false)
-		expect(
-			button(wrapper, 'enroll-submit').attributes('disabled')
-		).toBeDefined()
-
-		await select(wrapper, ['a@x.com', 'b@x.com'])
-		expect(button(wrapper, 'enroll-submit').text()).toBe('Enroll 2 students')
-		respond(COURSE, { added: ['a@x.com', 'b@x.com'], errors: [] })
-		await click(wrapper, 'enroll-submit')
-
-		expect(resources[PREVIEW].submit).not.toHaveBeenCalled()
-		expect(paramsOf(COURSE)).toEqual({
-			course: 'C1',
-			members: JSON.stringify(['a@x.com', 'b@x.com']),
-			purchased_certificate: false,
-		})
-		expect(wrapper.find('[data-testid="summary"]').exists()).toBe(true)
-		expect(stepper(wrapper).exists()).toBe(false)
-	})
-
-	it('shows the stepper while paid and drops it when the switch goes off', async () => {
-		const wrapper = mountForm({ target: paidCourse })
-		expect(stepper(wrapper).exists()).toBe(true)
-		expect(button(wrapper, 'enroll-next').exists()).toBe(true)
-		expect(button(wrapper, 'enroll-submit').exists()).toBe(false)
-
-		step(wrapper, 'EnrollSelectStep').vm.$emit('update:paid', false)
-		await flushPromises()
-		expect(stepper(wrapper).exists()).toBe(false)
-		expect(button(wrapper, 'enroll-next').exists()).toBe(false)
-		expect(button(wrapper, 'enroll-submit').exists()).toBe(true)
-	})
-
-	it('keeps the dialog body class with and without the stepper', async () => {
-		const wrapper = mountForm({ target: paidCourse })
-		const paidClass = bodyClass(wrapper)
-		step(wrapper, 'EnrollSelectStep').vm.$emit('update:paid', false)
-		await flushPromises()
-		expect(bodyClass(wrapper)).toBe(paidClass)
-		expect(step(wrapper, 'Dialog').props('size')).toBe('4xl')
-	})
-
-	it('does not scroll the step container on Select, so only the list scrolls', async () => {
-		const wrapper = mountForm()
-		const content = wrapper.get('[data-testid="enroll-step-content"]')
-		expect(content.classes()).toContain('overflow-hidden')
-		expect(content.classes()).not.toContain('overflow-y-auto')
-
-		await select(wrapper, ['a@x.com'])
-		respond(COURSE, { added: ['a@x.com'], errors: [] })
-		await click(wrapper, 'enroll-submit')
-		const after = wrapper.get('[data-testid="enroll-step-content"]')
-		expect(after.classes()).toContain('overflow-y-auto')
-	})
-
-	it('turns payments on by default for a paid batch', () => {
-		const wrapper = mountForm({
-			target: {
-				doctype: 'LMS Batch',
-				name: 'B1',
-				paidKind: 'batch',
-				priceLabel: null,
-			},
-		})
-		expect(step(wrapper, 'EnrollSelectStep').props('paid')).toBe(true)
-	})
-
-	it('leaves the paid certificate off by default', () => {
-		const wrapper = mountForm({
-			target: { ...courseTarget, paidKind: 'certificate', priceLabel: '₹9' },
-		})
-		expect(step(wrapper, 'EnrollSelectStep').props('paid')).toBe(false)
-		expect(stepper(wrapper).exists()).toBe(false)
-	})
-
-	it('turns payments on once a target that loads late turns out paid', async () => {
-		const wrapper = mountForm({ target: null, loading: true })
-		await wrapper.setProps({ target: paidCourse, loading: false })
-		expect(step(wrapper, 'EnrollSelectStep').props('paid')).toBe(true)
-	})
-
-	it('fetches the preview when leaving Select, then shows Payments before Review', async () => {
-		const wrapper = mountForm({ target: paidCourse })
-		await toNext(wrapper, ['a@x.com'], preview([row('a@x.com', 'ready')]))
-		expect(resources[PREVIEW].submit).toHaveBeenCalledTimes(1)
-		const payments = step(wrapper, 'EnrollPaymentStep')
-		expect(payments.props('rows')).toHaveLength(1)
-		expect(payments.props('defaults')).toEqual({
-			amount: 100,
-			currency: 'INR',
-			source: null,
-			address: emptyAddress(),
-		})
-		expect(payments.props('choices')).toEqual({ 'a@x.com': { mode: 'create' } })
-		expect(
-			button(wrapper, 'enroll-next').attributes('disabled')
-		).toBeUndefined()
-
-		await setSource(wrapper, 'Web')
-		await click(wrapper, 'enroll-next')
-		const review = step(wrapper, 'EnrollReviewStep')
-		expect(review.props('paid')).toBe(true)
-		expect(review.props('paymentLabels')['a@x.com']).toMatch(
-			/^New · .*100.* · Web$/
-		)
-		expect(button(wrapper, 'enroll-submit').attributes('disabled')).toBe(
-			undefined
-		)
-		await click(wrapper, 'enroll-back')
-		expect(wrapper.find('[data-testid="payment-step"]').exists()).toBe(true)
-	})
-
-	it('lists only ready or upgrade rows on Payments and Review', async () => {
-		const wrapper = mountForm({ target: paidCourse })
-		await toNext(
-			wrapper,
-			['a@x.com', 'b@x.com'],
-			preview([row('a@x.com', 'ready'), row('b@x.com', 'enrolled')])
-		)
-		expect(
-			(
-				step(wrapper, 'EnrollPaymentStep').props('rows') as EnrollPreviewRow[]
-			).map((item) => item.member)
-		).toEqual(['a@x.com'])
-	})
-
-	it('stays on Select while the preview loads and when it fails', async () => {
-		const wrapper = mountForm({ target: paidCourse })
-		await select(wrapper, ['a@x.com'])
-		resources[PREVIEW].submit.mockImplementation(
-			async (_params: unknown, options: Handlers) => {
-				options.onError?.({ messages: ['Nope.'] })
-				throw new Error('failed')
-			}
-		)
-		await click(wrapper, 'enroll-next')
-		expect(toastErrorMock).toHaveBeenCalledWith('Nope.')
-		expect(wrapper.find('[data-testid="select-step"]').exists()).toBe(true)
-
-		resources[PREVIEW].submit.mockImplementation(() => {
-			resources[PREVIEW].loading = true
-			return new Promise(() => {})
-		})
-		await click(wrapper, 'enroll-next')
-		expect(wrapper.find('[data-testid="select-step"]').exists()).toBe(true)
-		expect(button(wrapper, 'enroll-next').attributes('disabled')).toBeDefined()
-	})
-
-	it('sends per-student overrides with the common payment details', async () => {
-		const wrapper = mountForm({ target: paidCourse })
-		await toNext(
-			wrapper,
-			['a@x.com', 'b@x.com'],
-			preview([row('a@x.com', 'ready'), row('b@x.com', 'ready')])
-		)
-		await setSource(wrapper, 'Web')
-		step(wrapper, 'EnrollPaymentStep').vm.$emit('update:overrides', {
-			'b@x.com': { ...emptyOverride(), amount: 40 },
-		})
-		await flushPromises()
-		await click(wrapper, 'enroll-next')
-		await click(wrapper, 'enroll-submit')
-		const params = paramsOf(COURSE)
-		expect(JSON.parse(params.payment_details as string)).toEqual({
-			amount: 100,
-			currency: 'INR',
-			source: 'Web',
-		})
-		expect(JSON.parse(params.member_payment_details as string)).toEqual({
-			'b@x.com': { amount: 40 },
-		})
-	})
-
-	it('turning the paid switch off sends no payment arguments', async () => {
-		const wrapper = mountForm({ target: paidCourse })
-		await toNext(wrapper, ['a@x.com'], preview([row('a@x.com', 'ready')]))
-		await setSource(wrapper, 'Web')
-		await click(wrapper, 'enroll-back')
-		step(wrapper, 'EnrollSelectStep').vm.$emit('update:paid', false)
-		await flushPromises()
-		resources[PREVIEW].submit.mockClear()
-		await click(wrapper, 'enroll-submit')
-
-		expect(resources[PREVIEW].submit).not.toHaveBeenCalled()
-		const params = paramsOf(COURSE)
-		expect(params).not.toHaveProperty('payment_details')
-		expect(params).not.toHaveProperty('member_payment_details')
-		expect(params).not.toHaveProperty('linked_payments')
-		expect(params.members).toBe(JSON.stringify(['a@x.com']))
-	})
-
-	it('disables Enroll in review while seats are exceeded', async () => {
-		const wrapper = mountForm({
-			target: {
-				doctype: 'LMS Batch',
-				name: 'B1',
-				paidKind: 'batch',
-				priceLabel: '₹100',
-			},
-		})
-		await toNext(
-			wrapper,
-			['a@x.com', 'b@x.com'],
-			preview([row('a@x.com', 'ready'), row('b@x.com', 'ready')], 1)
-		)
-		await setSource(wrapper, 'Web')
-		await click(wrapper, 'enroll-next')
-
-		expect(
-			button(wrapper, 'enroll-submit').attributes('disabled')
-		).toBeDefined()
-		expect(step(wrapper, 'EnrollReviewStep').props('seatsLeft')).toBe(1)
-	})
-
-	it('keeps one dialog size on every step and the summary', async () => {
-		const wrapper = mountForm({ target: paidCourse })
-		expect(step(wrapper, 'Dialog').props('size')).toBe('4xl')
+		expect(part(wrapper, 'Dialog').props('size')).toBe('4xl')
 		const sizes = [bodyClass(wrapper)]
-		await toNext(wrapper, ['a@x.com'], preview([row('a@x.com', 'ready')]))
-		expect(wrapper.find('[data-testid="payment-step"]').exists()).toBe(true)
+		await selectPaid(wrapper, ['a@x.com'], preview([row('a@x.com')]))
 		sizes.push(bodyClass(wrapper))
-		await setSource(wrapper, 'Web')
-		await click(wrapper, 'enroll-next')
-		expect(wrapper.find('[data-testid="review-step"]').exists()).toBe(true)
+		await click(wrapper, 'enroll-details')
+		expect(byId(wrapper, 'payment-panel').exists()).toBe(true)
 		sizes.push(bodyClass(wrapper))
-		respond(COURSE, { added: ['a@x.com'], errors: [] })
-		await click(wrapper, 'enroll-submit')
-		expect(wrapper.find('[data-testid="summary"]').exists()).toBe(true)
-		sizes.push(bodyClass(wrapper))
-
 		expect(sizes[0]).toMatch(/(^| )h-\[/)
 		expect(new Set(sizes).size).toBe(1)
 	})
 
-	it('shows the summary and emits enrolled once, then Done closes', async () => {
+	// Regression from the bulk-enroll PR (feat/bulk-enroll): the content had an
+	// aria-label but no role, so screen readers announced no name for it.
+	it('names the content as a group', async () => {
 		const wrapper = mountForm()
-		await select(wrapper, ['a@x.com', 'b@x.com'])
+		await select(wrapper, ['a@x.com'])
+		const content = byId(wrapper, 'enroll-content')
+		expect(content.attributes('role')).toBe('group')
+		expect(content.attributes('aria-label')).toBe('Enroll Students')
+	})
+
+	it('does not scroll the form itself, so only the list scrolls', async () => {
+		const wrapper = mountForm()
+		await select(wrapper, ['a@x.com'])
+		const content = byId(wrapper, 'enroll-content')
+		expect(content.classes()).toContain('overflow-hidden')
+		expect(content.classes()).not.toContain('overflow-y-auto')
+	})
+
+	it('toasts success, emits enrolled once and closes', async () => {
+		const wrapper = mountForm()
+		await select(wrapper, AB)
+		respond(COURSE, { added: AB, errors: [] })
+		await click(wrapper, 'enroll-submit')
+		const result = { added: AB, upgraded: [], errors: [] }
+		expect(wrapper.emitted('enrolled')).toEqual([[result]])
+		expect(toastMock.success).toHaveBeenCalledWith('2 students enrolled', {
+			description: undefined,
+		})
+		expect(wrapper.emitted('close')).toHaveLength(1)
+	})
+
+	it('on partial failure warns, stays open and keeps only the failed students', async () => {
+		const wrapper = mountForm()
+		await select(wrapper, AB)
 		const errors = [{ member: 'b@x.com', error: 'Already enrolled' }]
 		respond(COURSE, { added: ['a@x.com'], errors })
 		await click(wrapper, 'enroll-submit')
-
-		const result = { added: ['a@x.com'], upgraded: [], errors }
-		expect(wrapper.emitted('enrolled')).toEqual([[result]])
-		const summary = step(wrapper, 'EnrollSummary')
-		expect(summary.props('result')).toEqual(result)
-		expect(summary.props('skipped')).toEqual([])
-		expect(stepper(wrapper).exists()).toBe(false)
-
-		await click(wrapper, 'enroll-done')
-		expect(wrapper.emitted('close')).toHaveLength(1)
-		expect(wrapper.emitted('enrolled')).toHaveLength(1)
-	})
-
-	it('lists preview-skipped rows in the paid summary', async () => {
-		const wrapper = mountForm({ target: paidCourse })
-		await toReview(
-			wrapper,
-			['a@x.com', 'b@x.com'],
-			preview([row('a@x.com', 'ready'), row('b@x.com', 'enrolled')])
+		expect(toastMock.warning).toHaveBeenCalledWith(
+			'1 student enrolled, 1 student could not be enrolled',
+			{ description: 'b@x.com: Already enrolled' }
 		)
-		respond(COURSE, { added: ['a@x.com'], errors: [] })
-		await click(wrapper, 'enroll-submit')
-
-		expect(step(wrapper, 'EnrollSummary').props('skipped')).toEqual([
-			{ member: 'b@x.com', error: 'Already enrolled (will be skipped)' },
-		])
-		expect(step(wrapper, 'Stepper').props('completed')).toBe(true)
+		expect(wrapper.emitted('close')).toBeUndefined()
+		expect(byId(wrapper, 'enroll-submit').text()).toBe('Enroll 1 student')
 	})
 
-	it('stays on Select and toasts the server message when submit fails', async () => {
+	it('stays put and toasts the server message when submit fails', async () => {
 		const wrapper = mountForm()
 		await select(wrapper, ['a@x.com'])
 		resources[COURSE].submit.mockImplementation(
@@ -652,171 +1101,46 @@ describe('EnrollStudentsForm', () => {
 			}
 		)
 		await click(wrapper, 'enroll-submit')
-
 		expect(toastErrorMock).toHaveBeenCalledWith('Course is closed.')
-		expect(wrapper.find('[data-testid="summary"]').exists()).toBe(false)
-		expect(wrapper.find('[data-testid="select-step"]').exists()).toBe(true)
+		expect(byId(wrapper, 'select-step').exists()).toBe(true)
 		expect(wrapper.emitted('enrolled')).toBeUndefined()
 	})
 
-	it('shows N selected on the start side of the first step footer', async () => {
-		const wrapper = mountForm({ target: paidCourse })
-		expect(button(wrapper, 'enroll-next').attributes('disabled')).toBeDefined()
-
-		await select(wrapper, ['a@x.com', 'b@x.com', 'c@x.com'])
-
-		const footer = wrapper.find('[data-testid="enroll-footer"]')
-		expect(footer.element.firstElementChild?.textContent?.trim()).toBe(
-			'3 selected'
-		)
-		expect(button(wrapper, 'enroll-next').attributes('disabled')).toBe(
-			undefined
-		)
-	})
-
-	it('moves focus into the new step after Next and after Back', async () => {
-		const wrapper = mountForm({ target: paidCourse }, true)
+	it('submits once while enrolling', async () => {
+		const wrapper = mountForm()
 		await select(wrapper, ['a@x.com'])
-		respond(PREVIEW, preview([row('a@x.com', 'ready')]))
-		;(button(wrapper, 'enroll-next').element as HTMLElement).focus()
-		await click(wrapper, 'enroll-next')
-		const content = () =>
-			wrapper.find('[data-testid="enroll-step-content"]').element
-		expect(document.activeElement).toBe(content())
-		expect(content().getAttribute('role')).toBe('group')
-		expect(content().getAttribute('aria-label')).toBe('Payments')
-		;(button(wrapper, 'enroll-back').element as HTMLElement).focus()
-		await click(wrapper, 'enroll-back')
-		expect(document.activeElement).toBe(content())
-		expect(content().getAttribute('aria-label')).toBe('Select')
+		resources[COURSE].submit.mockImplementation(() => {
+			resources[COURSE].loading = true
+			return new Promise(() => {})
+		})
+		await click(wrapper, 'enroll-submit')
+		await click(wrapper, 'enroll-submit')
+		expect(resources[COURSE].submit).toHaveBeenCalledTimes(1)
 	})
 
-	it('on mobile, closing from Review goes back a step', async () => {
+	it('on mobile, the panel replaces the list and back returns to it first', async () => {
 		setWidth(375)
 		const wrapper = mountForm({ target: paidCourse })
-		await toReview(wrapper, ['a@x.com'], preview([row('a@x.com', 'ready')]))
+		await selectPaid(wrapper, ['a@x.com'], preview([row('a@x.com')]))
+		expect(part(wrapper, 'EnrollStudentTable').props('compact')).toBe(true)
+		await click(wrapper, 'enroll-details')
+		expect(byId(wrapper, 'student-table').exists()).toBe(false)
+		expect(part(wrapper, 'EnrollPaymentPanel').props('showBack')).toBe(true)
 
 		await click(wrapper, 'form-shell-back')
-		expect(wrapper.find('[data-testid="payment-step"]').exists()).toBe(true)
-		await click(wrapper, 'form-shell-back')
-
+		expect(byId(wrapper, 'student-table').exists()).toBe(true)
 		expect(wrapper.emitted('close')).toBeUndefined()
-		expect(step(wrapper, 'EnrollSelectStep').props('members')).toEqual([
-			'a@x.com',
-		])
-	})
-
-	it('on mobile, back from a student panel returns to the Payments list first', async () => {
-		setWidth(375)
-		const wrapper = mountForm({ target: paidCourse })
-		await toNext(wrapper, ['a@x.com'], preview([row('a@x.com', 'ready')]))
-		step(wrapper, 'EnrollPaymentStep').vm.$emit('update:panelOpen', true)
-		await flushPromises()
-
 		await click(wrapper, 'form-shell-back')
-		const payments = step(wrapper, 'EnrollPaymentStep')
-		expect(payments.exists()).toBe(true)
-		expect(payments.props('panelOpen')).toBe(false)
-
-		await click(wrapper, 'form-shell-back')
-		expect(wrapper.find('[data-testid="select-step"]').exists()).toBe(true)
-		expect(wrapper.emitted('close')).toBeUndefined()
-	})
-
-	it('falls back to Create new when a linked payment is no longer offered', async () => {
-		const linkable = (name: string) => ({
-			...row('a@x.com', 'ready'),
-			linkable_payments: [
-				{ name, amount: 100, currency: 'INR', creation: '2026-01-01' },
-			],
-		})
-		const wrapper = mountForm({ target: paidCourse })
-		await toNext(wrapper, ['a@x.com', 'b@x.com'], {
-			...preview([linkable('P1'), row('b@x.com', 'ready')]),
-		})
-		step(wrapper, 'EnrollPaymentStep').vm.$emit('update:choices', {
-			'a@x.com': { mode: 'link', payment: 'P1' },
-			'b@x.com': { mode: 'link', payment: null },
-		})
-		await flushPromises()
-		await click(wrapper, 'enroll-back')
-		respond(PREVIEW, preview([linkable('P2'), row('b@x.com', 'ready')]))
-		await click(wrapper, 'enroll-next')
-		expect(step(wrapper, 'EnrollPaymentStep').props('choices')).toEqual({
-			'a@x.com': { mode: 'create' },
-			'b@x.com': { mode: 'create' },
-		})
-	})
-
-	it('keeps a link choice whose payment is still offered', async () => {
-		const linked = {
-			...row('a@x.com', 'ready'),
-			linkable_payments: [
-				{ name: 'P1', amount: 100, currency: 'INR', creation: '2026-01-01' },
-			],
-		}
-		const wrapper = mountForm({ target: paidCourse })
-		await toNext(wrapper, ['a@x.com'], preview([linked]))
-		step(wrapper, 'EnrollPaymentStep').vm.$emit('update:choices', {
-			'a@x.com': { mode: 'link', payment: 'P1' },
-		})
-		await flushPromises()
-		await click(wrapper, 'enroll-back')
-		await click(wrapper, 'enroll-next')
-		expect(step(wrapper, 'EnrollPaymentStep').props('choices')).toEqual({
-			'a@x.com': { mode: 'link', payment: 'P1' },
-		})
+		expect(wrapper.emitted('close')).toHaveLength(1)
 	})
 
 	it('on mobile, the header action reads Enroll N students when unpaid', async () => {
 		setWidth(375)
 		const wrapper = mountForm()
-		await select(wrapper, ['a@x.com', 'b@x.com'])
-
+		await select(wrapper, AB)
 		const header = wrapper.get('[data-testid="form-shell-header-actions"]')
 		expect(header.get('[data-testid="enroll-submit"]').text()).toBe(
 			'Enroll 2 students'
 		)
-		expect(stepper(wrapper).exists()).toBe(false)
-	})
-
-	it('on mobile, closing from Select closes', async () => {
-		setWidth(375)
-		const wrapper = mountForm()
-		await select(wrapper, ['a@x.com'])
-
-		await click(wrapper, 'form-shell-back')
-
-		expect(wrapper.emitted('close')).toHaveLength(1)
-	})
-
-	it('on desktop, closing from Review closes', async () => {
-		const wrapper = mountForm({ target: paidCourse })
-		await toNext(wrapper, ['a@x.com'], preview([row('a@x.com', 'ready')]))
-
-		step(wrapper, 'Dialog').vm.$emit('update:open', false)
-		await flushPromises()
-
-		expect(wrapper.emitted('close')).toHaveLength(1)
-	})
-
-	it('locks Back, the Stepper and a second submit while enrolling', async () => {
-		const wrapper = mountForm({ target: paidCourse })
-		await toReview(wrapper, ['a@x.com'], preview([row('a@x.com', 'ready')]))
-		resources[COURSE].submit.mockImplementation(() => {
-			resources[COURSE].loading = true
-			return new Promise(() => {})
-		})
-
-		await click(wrapper, 'enroll-submit')
-		await click(wrapper, 'enroll-submit')
-
-		expect(resources[COURSE].submit).toHaveBeenCalledTimes(1)
-		expect(button(wrapper, 'enroll-back').attributes('disabled')).toBeDefined()
-		const stepper = step(wrapper, 'Stepper')
-		expect(stepper.props('clickable')).toBe(false)
-		stepper.vm.$emit('update:modelValue', 'select')
-		await flushPromises()
-		expect(wrapper.find('[data-testid="review-step"]').exists()).toBe(true)
 	})
 })

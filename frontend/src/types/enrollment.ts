@@ -7,7 +7,6 @@ export type EnrollStatus =
 	| 'disabled'
 	| 'upgrade'
 	| 'certificate_purchased'
-export type EnrollStep = 'select' | 'review' | 'payments'
 
 export interface LinkablePayment {
 	name: string
@@ -42,11 +41,20 @@ export type AddressField =
 
 export type BillingAddress = Record<AddressField, string>
 
+/** An existing Address the payment links to instead of a new one. */
+export interface SavedAddress {
+	name: string
+	summary: string
+}
+
+export type AddressChoice = BillingAddress | SavedAddress
+
 export interface PaymentDefaults {
 	amount: number | null
 	currency: string | null
 	source: string | null
-	address: BillingAddress
+	/** null records no address. */
+	address: AddressChoice | null
 }
 
 export type PaymentField =
@@ -62,7 +70,7 @@ export interface PaymentOverride {
 	currency: string | null
 	source: string | null
 	billing_name: string | null
-	address: BillingAddress | null
+	address: AddressChoice | null
 }
 
 /** One row of search_users_to_enroll. */
@@ -71,6 +79,17 @@ export interface StudentOption {
 	label: string
 	description: string
 	image: string | null
+}
+
+export interface StudentRow {
+	member: string
+	name: string
+	image: string | null
+	payment: string
+	billing: string
+	needsAddress: boolean
+	incomplete: boolean
+	badge: string | null
 }
 
 export type PaymentChoice =
