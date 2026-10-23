@@ -54,9 +54,9 @@ const doctypeMap = {
 		title: 'Batches',
 		listRoute: '/batches',
 	},
+	// Categories live in Settings, which has no route, so no list link.
 	'LMS Category': {
 		title: 'Categories',
-		listRoute: '/lms',
 	},
 }
 
