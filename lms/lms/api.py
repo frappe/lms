@@ -3087,6 +3087,7 @@ def make_new_exercise_submission(exercise: str, code: str):
 		submission.append("test_cases", row)
 
 	submission.status = get_exercise_status(rows)
+	submission.flags.graded_on_server = True
 	submission.insert()
 	return submission.name
 
