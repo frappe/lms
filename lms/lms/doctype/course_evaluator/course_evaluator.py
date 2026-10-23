@@ -56,7 +56,7 @@ class CourseEvaluator(Document):
 		if (
 			self.unavailable_from
 			and self.unavailable_to
-			and getdate(self.unavailable_from) >= getdate(self.unavailable_to)
+			and getdate(self.unavailable_to) < getdate(self.unavailable_from)
 		):
 			frappe.throw(_("Unavailable From Date cannot be greater than Unavailable To Date"))
 
@@ -246,6 +246,17 @@ def get_unavailable_dates(evaluator):
 			unavailable_dates.append(current_date)
 			current_date = add_days(current_date, 1)
 	return unavailable_dates
+
+
+def clear_expired_time_off():
+	"""Daily: time off that ended before today no longer blocks anything."""
+	evaluator = frappe.qb.DocType("Course Evaluator")
+	(
+		frappe.qb.update(evaluator)
+		.set(evaluator.unavailable_from, None)
+		.set(evaluator.unavailable_to, None)
+		.where(evaluator.unavailable_to < getdate())
+	).run()
 
 
 def get_schedule_range_end_date(start_date, batch=None):

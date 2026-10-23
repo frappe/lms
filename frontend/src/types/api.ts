@@ -17,6 +17,7 @@ export interface Resource<T = unknown> {
 	// see utils/resource.ts.
 	submit(params?: unknown, opts?: unknown): Promise<T>
 	update(opts: unknown): void
+	setData(data: T): void
 	setValue: { submit(values: unknown, opts?: unknown): Promise<T> }
 }
 
@@ -156,6 +157,7 @@ export interface EvaluatorCalendar {
 	calendar_name: string
 	push_to_google_calendar: 0 | 1
 	is_authorized: boolean
+	connected: boolean
 }
 
 // lms.lms.api.get_evaluator_details, also returned by save_evaluator_availability.
@@ -166,6 +168,8 @@ export interface EvaluatorDetails {
 	>
 	calendar: EvaluatorCalendar | null
 	google_enabled: boolean
+	can_configure_google: boolean
 	timezone: string
 	evaluation_invites: boolean
+	can_configure_invites: boolean
 }

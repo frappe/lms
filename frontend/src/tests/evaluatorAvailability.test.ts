@@ -6,11 +6,12 @@ String.prototype.format = function (...args: unknown[]) {
 }
 
 import {
+	dayTotal,
 	newRange,
 	nextRange,
 	rangeErrors,
 	standardWeek,
-	timeOffError,
+	toTimeOff,
 	toHHMM,
 	toRows,
 	toWeek,
@@ -110,24 +111,23 @@ describe('rangeErrors', () => {
 	})
 })
 
-describe('timeOffError', () => {
+describe('toTimeOff', () => {
+	it('reads the saved pair as one range', () => {
+		expect(
+			toTimeOff({
+				unavailable_from: '2030-05-01',
+				unavailable_to: '2030-05-03',
+			})
+		).toEqual(['2030-05-01', '2030-05-03'])
+	})
+
 	it.each([
-		{ from: null, to: null, error: '' },
-		{ from: '2030-01-01', to: '2030-01-05', error: '' },
-		{ from: '2030-01-01', to: null, error: 'Set both dates, or clear them.' },
-		{ from: null, to: '2030-01-05', error: 'Set both dates, or clear them.' },
-		{
-			from: '2030-01-05',
-			to: '2030-01-01',
-			error: 'The end date must be after the start date.',
-		},
-		{
-			from: '2030-01-05',
-			to: '2030-01-05',
-			error: 'The end date must be after the start date.',
-		},
-	])('from $from to $to', ({ from, to, error }) => {
-		expect(timeOffError({ from, to })).toBe(error)
+		{ unavailable_from: null, unavailable_to: null },
+		{ unavailable_from: '2030-05-01', unavailable_to: null },
+		{},
+		null,
+	])('is empty when a date is missing: %o', (source) => {
+		expect(toTimeOff(source)).toEqual([])
 	})
 })
 
@@ -148,5 +148,32 @@ describe('standardWeek', () => {
 			['Saturday', []],
 			['Sunday', []],
 		])
+	})
+})
+
+describe('dayTotal', () => {
+	it.each([
+		{ ranges: [], total: '' },
+		{ ranges: [['09:00', '17:00']], total: '8h' },
+		{ ranges: [['09:00', '09:45']], total: '45m' },
+		{
+			ranges: [
+				['09:00', '10:00'],
+				['14:00', '15:30'],
+			],
+			total: '2h 30m',
+		},
+		{
+			ranges: [
+				['10:00', '09:00'],
+				['', '12:00'],
+				['13:00', '14:00'],
+			],
+			total: '1h',
+		},
+	])('totals $ranges as "$total"', ({ ranges, total }) => {
+		expect(dayTotal(ranges.map(([start, end]) => newRange(start, end)))).toBe(
+			total
+		)
 	})
 })

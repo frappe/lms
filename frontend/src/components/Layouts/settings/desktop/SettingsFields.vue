@@ -1,5 +1,5 @@
 <template>
-	<div>
+	<div ref="root">
 		<template v-for="(section, index) in sections" :key="index">
 			<div
 				v-if="section.label"
@@ -163,7 +163,17 @@
 						/>
 					</div>
 
-					<div v-else class="flex items-center justify-between gap-4 py-3">
+					<div
+						v-else
+						:data-setting-field="field.name"
+						class="relative isolate flex items-center justify-between gap-4 py-3"
+					>
+						<span
+							aria-hidden="true"
+							data-testid="setting-highlight"
+							class="pointer-events-none absolute -inset-x-3 inset-y-1 -z-10 rounded-5 bg-surface-gray-2 transition-opacity duration-500"
+							:class="flashed === field.name ? 'opacity-100' : 'opacity-0'"
+						/>
 						<div class="flex flex-col">
 							<div class="text-p-base-medium text-ink-gray-7">
 								{{ __(field.label) }}
@@ -245,7 +255,7 @@
 import { FormControl, Password, Select } from 'frappe-ui'
 import { InputDescription, InputLabel } from 'frappe-ui/experimental'
 import BooleanSwitch from '@/components/Controls/BooleanSwitch.vue'
-import { reactive, useId, watch } from 'vue'
+import { nextTick, onBeforeUnmount, reactive, ref, useId, watch } from 'vue'
 import Link from '@/components/Controls/Link.vue'
 import ImageUploadField from '@/components/Controls/ImageUploadField.vue'
 import RichTextEditor from '@/components/RichTextEditor.vue'
@@ -274,6 +284,11 @@ const props = defineProps({
 	flush: {
 		type: Boolean,
 		default: false,
+	},
+	// A field name to scroll to and briefly highlight.
+	focus: {
+		type: String,
+		default: null,
 	},
 })
 
@@ -312,6 +327,32 @@ const PICKER_TYPES = ['date', 'daterange', 'datetime', 'time']
 const isPicker = (field) => PICKER_TYPES.includes(field.type)
 
 const uid = useId()
+
+// Same as CRM's scrollToMessage: scroll the asked-for row into view and tint
+// it for a second, so the reader lands on it rather than hunting the page.
+const root = ref(null)
+const flashed = ref(null)
+let unflash = null
+
+watch(
+	() => props.focus,
+	async (name) => {
+		if (!name) return
+		await nextTick()
+		// Compared, not interpolated into a selector: no escaping (jsdom lacks CSS.escape).
+		const row = [
+			...(root.value?.querySelectorAll('[data-setting-field]') ?? []),
+		].find((el) => el.dataset.settingField === name)
+		if (!row) return
+		row.scrollIntoView({ behavior: 'smooth', block: 'center' })
+		flashed.value = name
+		clearTimeout(unflash)
+		unflash = setTimeout(() => (flashed.value = null), 1000)
+	},
+	{ immediate: true }
+)
+
+onBeforeUnmount(() => clearTimeout(unflash))
 
 const controlId = (field) => `${uid}-${field.name}`
 

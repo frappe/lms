@@ -59,7 +59,7 @@ export const standardWeek = (): Week => {
 	return week
 }
 
-export const toWeek = (rows: Pick<ScheduleRow, keyof ScheduleRow>[]): Week => {
+export const toWeek = (rows: ScheduleRow[]): Week => {
 	const week = emptyWeek()
 	for (const row of rows) {
 		if (!week[row.day]) continue
@@ -81,9 +81,10 @@ export const toRows = (week: Week): ScheduleRow[] =>
 	)
 
 const addHour = (time: string): string => {
-	const hour = Number(time.split(':')[0]) + 1
-	if (hour > 23) return '23:59'
-	return `${String(hour).padStart(2, '0')}:${time.split(':')[1] ?? '00'}`
+	const [hour, minute = '00'] = time.split(':')
+	const next = Number(hour) + 1
+	if (next > 23) return '23:59'
+	return `${String(next).padStart(2, '0')}:${minute}`
 }
 
 // A new range starts where the day's last one ends, so it never overlaps.
@@ -96,6 +97,27 @@ export const nextRange = (ranges: TimeRange[]): TimeRange => {
 
 export const formatRange = (range: TimeRange): string =>
 	`${range.start} – ${range.end}`
+
+const minutesOf = (time: string): number => {
+	const [hours, minutes] = time.split(':').map(Number)
+	return hours * 60 + (minutes || 0)
+}
+
+// Counts only ranges that make sense, so a half-typed slot doesn't skew it.
+export const dayTotal = (ranges: TimeRange[]): string => {
+	let total = 0
+	for (const range of ranges) {
+		if (range.start && range.end && range.end > range.start) {
+			total += minutesOf(range.end) - minutesOf(range.start)
+		}
+	}
+	if (!total) return ''
+	const hours = Math.floor(total / 60)
+	const minutes = total % 60
+	if (!minutes) return __('{0}h').format(hours)
+	if (!hours) return __('{0}m').format(minutes)
+	return __('{0}h {1}m').format(hours, minutes)
+}
 
 // Keyed by range, so each message renders under the row it belongs to.
 export const rangeErrors = (ranges: TimeRange[]): Record<number, string> => {
@@ -120,19 +142,14 @@ export const rangeErrors = (ranges: TimeRange[]): Record<number, string> => {
 	return errors
 }
 
-export interface TimeOff {
-	from: string | null
-	to: string | null
+export type TimeOff = [string, string] | []
+
+interface TimeOffSource {
+	unavailable_from?: string | null
+	unavailable_to?: string | null
 }
 
-// The server refuses a range whose end is not after its start, so this does too.
-export const timeOffError = (timeOff: TimeOff): string => {
-	if (!timeOff.from && !timeOff.to) return ''
-	if (!timeOff.from || !timeOff.to) {
-		return __('Set both dates, or clear them.')
-	}
-	if (timeOff.to <= timeOff.from) {
-		return __('The end date must be after the start date.')
-	}
-	return ''
-}
+export const toTimeOff = (source: TimeOffSource | null | undefined): TimeOff =>
+	source?.unavailable_from && source?.unavailable_to
+		? [source.unavailable_from, source.unavailable_to]
+		: []

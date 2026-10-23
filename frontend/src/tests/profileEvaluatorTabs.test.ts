@@ -1,7 +1,7 @@
 /**
- * Slots and Schedule belong to profiles that can be booked for evaluations,
- * which is the Batch Evaluator role. A Moderator role on the profile is not
- * enough, and a deep link to either tab falls back to About.
+ * Slots and Schedule show only on Batch Evaluator profiles; a deep link falls back to About.
+ * Regression from #1823, which showed them on any Moderator profile. Added on
+ * feat/evaluator-availability-redesign (no PR yet) with the Profile.vue fix.
  */
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { enableAutoUnmount, flushPromises, mount } from '@vue/test-utils'
