@@ -249,11 +249,12 @@ runs:
         (cd apps/lms && yarn install --frozen-lockfile)
         if [ "$ASSETS_CACHED" = "true" ]; then
           # The outputs are back; only the sites/assets/<app> links are missing.
+          # No verbose= here: version-16's make_asset_dirs does not take it.
           (cd sites && ../env/bin/python -c '
           import os, frappe, frappe.bundler as bundler
           frappe.init(site=os.environ["SITE"])
           bundler.setup()
-          bundler.make_asset_dirs(verbose=False)
+          bundler.make_asset_dirs()
           ')
         else
           bench build --app lms
