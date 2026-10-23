@@ -115,6 +115,30 @@ runs:
         printf '\nlms\n' >> sites/apps.txt
         bench setup requirements --dev lms
 
+    # A fresh install's database depends on the bench and on what installing lms
+    # writes: doctypes, fixtures, hooks, patches and the install code. Only pull
+    # requests restore it; pushes always install fresh, so a change the key
+    # misses still shows up on the base branch.
+    - name: Compute site snapshot key
+      id: snapshot-key
+      shell: bash
+      env:
+        BENCH_KEY: ${{ steps.key.outputs.key }}
+        SITE: ${{ inputs.site }}
+        INSTALL_HASH: >-
+          ${{ hashFiles('lms/**/*.json', 'lms/hooks.py', 'lms/install.py',
+          'lms/patches.txt', 'lms/lms/sidebar.py') }}
+      run: echo "key=site-$BENCH_KEY-$SITE-${INSTALL_HASH:0:16}" >> "$GITHUB_OUTPUT"
+
+    # Outside pull requests this only looks the key up, to skip a needless dump.
+    - name: Restore site snapshot
+      id: snapshot
+      uses: actions/cache/restore@v4
+      with:
+        path: ~/site-snapshot
+        key: ${{ steps.snapshot-key.outputs.key }}
+        lookup-only: ${{ github.event_name != 'pull_request' }}
+
     - name: Create site
       shell: bash
       working-directory: /home/runner/frappe-bench
@@ -122,16 +146,51 @@ runs:
         SITE: ${{ inputs.site }}
         DB_ROOT_PASSWORD: ${{ inputs.db-root-password }}
         SITE_CONFIG: ${{ inputs.site-config }}
+        SNAPSHOT_HIT: ${{ github.event_name == 'pull_request' && steps.snapshot.outputs.cache-hit }}
       run: |
         set -euo pipefail
+        source=()
+        if [ "$SNAPSHOT_HIT" = "true" ]; then
+          # The dump already has frappe and lms installed, so new-site skips both.
+          source=(--source-sql "$HOME/site-snapshot/site.sql.gz")
+        fi
         bench new-site "$SITE" \
           --db-host 127.0.0.1 \
           --db-root-password "$DB_ROOT_PASSWORD" \
           --admin-password admin \
-          --install-app lms
+          --install-app lms \
+          "${source[@]}"
         config="sites/$SITE/site_config.json"
         jq --argjson extra "$SITE_CONFIG" '. * $extra' "$config" > "$config.new"
         mv "$config.new" "$config"
+
+    # The dump runs inside the mariadb service, whose client matches the server.
+    - name: Dump site snapshot
+      id: dump
+      if: steps.snapshot.outputs.cache-hit != 'true'
+      # A failed dump only costs the next run its shortcut, never this run.
+      continue-on-error: true
+      shell: bash
+      working-directory: /home/runner/frappe-bench
+      env:
+        SITE: ${{ inputs.site }}
+        DB_ROOT_PASSWORD: ${{ inputs.db-root-password }}
+      run: |
+        set -euo pipefail
+        db=$(jq -r .db_name "sites/$SITE/site_config.json")
+        container=$(docker ps -q --filter publish=3306 | head -1)
+        test -n "$container"
+        mkdir -p ~/site-snapshot
+        docker exec -e MYSQL_PWD="$DB_ROOT_PASSWORD" "$container" sh -c \
+          'exec "$(command -v mariadb-dump || command -v mysqldump)" -uroot --single-transaction --quick "$0"' "$db" \
+          | gzip > ~/site-snapshot/site.sql.gz
+
+    - name: Save site snapshot
+      if: steps.dump.outcome == 'success'
+      uses: actions/cache/save@v4
+      with:
+        path: ~/site-snapshot
+        key: ${{ steps.snapshot-key.outputs.key }}
 
     - name: Cache lms node packages
       if: inputs.build-assets == 'true'
