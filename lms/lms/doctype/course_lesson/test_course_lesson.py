@@ -11,6 +11,7 @@ from frappe.www.printview import get_html_and_style
 
 from lms.lms.doctype.course_lesson.course_lesson import (
 	UNTITLED_LESSON_TITLE,
+	get_quiz_progress,
 	rename_settled_untitled_lessons,
 )
 from lms.lms.test_helpers import BaseTestUtils
@@ -1406,3 +1407,43 @@ class TestServeResourceOwnerLookupIsBatched(BaseTestUtils):
 			msg=f"owner lookups must be batched: {few_queries} query(s) for 2 owners, "
 			f"{many_queries} for 6",
 		)
+
+
+# Regression from #2426: quiz enforcement ignored the legacy quiz_id field.
+# Added on fix/course-progress-enforcement (no PR yet).
+class TestLegacyQuizIdGatesCompletion(BaseTestUtils):
+	"""Lesson.vue renders `quiz_id` under a legacy markdown `body`, so quiz enforcement
+	must count it there, and only there."""
+
+	@classmethod
+	def setUpClass(cls):
+		super().setUpClass()
+		cls.instructor = cls._create_user(
+			"qid-instructor@example.com", "Qid", "Instructor", ["Course Creator"]
+		)
+		cls.student = cls._create_user("qid-student@example.com", "Qid", "Student", ["LMS Student"])
+		cls.course = cls._create_course("Quiz Id Course", instructor=cls.instructor.email)
+		cls.chapter = cls._create_chapter("Quiz Id Chapter", cls.course.name)
+		cls.quiz = cls._create_quiz(cls._create_quiz_questions()[:1], title="Quiz Id Quiz")
+
+	def tearDown(self):
+		frappe.set_user("Administrator")
+		super().tearDown()
+
+	def _quiz_done_for(self, title, body, content):
+		lesson = self._create_lesson(title, self.chapter.name, self.course.name)
+		frappe.db.set_value(
+			"Course Lesson", lesson.name, {"body": body, "content": content, "quiz_id": self.quiz.name}
+		)
+		frappe.set_user(self.student.email)
+		return get_quiz_progress(lesson.name)
+
+	def test_unpassed_quiz_id_blocks_a_markdown_lesson(self):
+		self.assertFalse(self._quiz_done_for("Quiz Id Markdown", "Read this first.", None))
+
+	def test_quiz_id_is_ignored_when_block_content_is_rendered_instead(self):
+		content = frappe.as_json({"blocks": [{"type": "paragraph", "data": {"text": "Hi"}}]})
+		self.assertTrue(self._quiz_done_for("Quiz Id Blocks", "Read this first.", content))
+
+	def test_quiz_id_is_ignored_when_the_lesson_has_no_body(self):
+		self.assertTrue(self._quiz_done_for("Quiz Id Empty", None, None))

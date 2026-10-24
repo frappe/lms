@@ -671,7 +671,7 @@ def get_next_lesson(course: str, lesson: str):
 
 
 def get_quiz_progress(lesson):
-	lesson_details = frappe.db.get_value("Course Lesson", lesson, ["body", "content"], as_dict=1)
+	lesson_details = frappe.db.get_value("Course Lesson", lesson, ["body", "content", "quiz_id"], as_dict=1)
 	quizzes = []
 
 	if lesson_details.content:
@@ -689,6 +689,9 @@ def get_quiz_progress(lesson):
 	elif lesson_details.body:
 		macros = find_macros(lesson_details.body)
 		quizzes = [value for name, value in macros if name == "Quiz"]
+		# The lesson page renders the legacy quiz_id field only beside a markdown body.
+		if lesson_details.quiz_id:
+			quizzes.append(lesson_details.quiz_id)
 
 	for quiz in quizzes:
 		if not get_valid_question_count(quiz):
