@@ -35,6 +35,8 @@ export interface UserInfo {
 	open_to?: 'Work' | 'Hiring' | string
 }
 
+export type DoctypePermissionType = 'read' | 'write' | 'create' | 'delete'
+
 export interface SessionUser {
 	data?: UserInfo & {
 		is_moderator?: boolean
@@ -42,6 +44,9 @@ export interface SessionUser {
 		is_evaluator?: boolean
 		is_student?: boolean
 		is_system_manager?: boolean
+		roles?: string[]
+		has_lms_role?: boolean
+		permissions?: Record<string, Record<DoctypePermissionType, 0 | 1>>
 	}
 }
 
