@@ -192,7 +192,7 @@ def is_certified(course, *, for_update=False):
 	return certificate.name if certificate else None
 
 
-@frappe.whitelist()
+@frappe.whitelist(methods=["POST"])
 def create_certificate(course: str):
 	# Serialize requests for the same course before checking for an existing certificate.
 	frappe.db.get_value("LMS Course", course, "name", for_update=True)

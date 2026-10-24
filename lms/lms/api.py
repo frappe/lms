@@ -1173,7 +1173,7 @@ def get_owned_slot(doc, slot: str | int):
 	frappe.throw(_("That slot does not belong to this evaluator."), frappe.PermissionError)
 
 
-@frappe.whitelist()
+@frappe.whitelist(methods=["POST"])
 def add_evaluator_slot(evaluator: str, day: str, start_time: str, end_time: str):
 	if day not in EVALUATOR_SLOT_DAYS:
 		frappe.throw(_("{0} is not a valid day.").format(day))
@@ -1190,7 +1190,7 @@ def add_evaluator_slot(evaluator: str, day: str, start_time: str, end_time: str)
 	return doc.schedule[-1].name
 
 
-@frappe.whitelist()
+@frappe.whitelist(methods=["POST"])
 def update_evaluator_slot(evaluator: str, slot: str | int, fieldname: str, value: str):
 	doc = get_owned_evaluator_doc(evaluator)
 	row = get_owned_slot(doc, slot)
@@ -1217,7 +1217,7 @@ def delete_evaluator_slot(evaluator: str, slot: str | int):
 	doc.save(ignore_permissions=True)
 
 
-@frappe.whitelist()
+@frappe.whitelist(methods=["POST"])
 def set_evaluator_unavailability(evaluator: str, fieldname: str, value: str | None = None):
 	doc = get_owned_evaluator_doc(evaluator)
 
@@ -1467,7 +1467,7 @@ def get_sidebar_settings():
 	return sidebar_items
 
 
-@frappe.whitelist()
+@frappe.whitelist(methods=["POST"])
 def update_sidebar_item(webpage: str, icon: str):
 	frappe.only_for("Moderator")
 	filters = {
@@ -1534,7 +1534,7 @@ def delete_lesson(lesson: str, chapter: str):
 	frappe.delete_doc("Course Lesson", lesson)
 
 
-@frappe.whitelist()
+@frappe.whitelist(methods=["POST"])
 def create_lesson(chapter: str, title: str | None = None, content: str | dict | None = None) -> str:
 	"""Append a lesson to the chapter, titled `title` or "Untitled lesson", atomically via add_lesson() (inserts the Course Lesson + its Lesson Reference in one request that rolls back together; returns the new docname).
 
@@ -1581,7 +1581,7 @@ def _new_lesson_title_max_length() -> int:
 	return 140 - len(f"{next_number:04d} ")
 
 
-@frappe.whitelist()
+@frappe.whitelist(methods=["POST"])
 def update_lesson_index(lesson: str, sourceChapter: str, targetChapter: str, idx: int):
 	source_course = frappe.db.get_value("Course Chapter", sourceChapter, "course")
 	if not can_modify_course(source_course):
@@ -1659,7 +1659,7 @@ def update_index(lessons: list, chapter: str):
 		)
 
 
-@frappe.whitelist()
+@frappe.whitelist(methods=["POST"])
 def update_chapter_index(chapter: str, course: str, idx: int):
 	"""Update the index of a chapter within a course"""
 
@@ -2573,7 +2573,7 @@ def _scorm_package_dir(root: str, course: str, stored: str) -> str | None:
 	return package_dir
 
 
-@frappe.whitelist()
+@frappe.whitelist(methods=["POST"])
 def mark_lesson_progress(course: str, chapter_number: int, lesson_number: int):
 	chapter_name = frappe.get_value("Chapter Reference", {"parent": course, "idx": chapter_number}, "chapter")
 	lesson_name = frappe.get_value(
@@ -2991,7 +2991,7 @@ def check_can_manage_member(member: str):
 		frappe.throw(_("Only a System Manager can change this account."), frappe.PermissionError)
 
 
-@frappe.whitelist()
+@frappe.whitelist(methods=["POST"])
 def save_role(user: str, role: str, value: int):
 	frappe.only_for("Moderator")
 	if role not in LMS_ROLES:
@@ -3057,7 +3057,7 @@ def delete_member(user: str):
 	return True
 
 
-@frappe.whitelist()
+@frappe.whitelist(methods=["POST"])
 def capture_user_persona(responses: str):
 	frappe.only_for("System Manager")
 	data = frappe.parse_json(responses)
@@ -3087,7 +3087,7 @@ def get_meta_info(type: str, route: str):
 	return []
 
 
-@frappe.whitelist()
+@frappe.whitelist(methods=["POST"])
 def update_meta_info(meta_type: str, route: str, meta_tags: list):
 	frappe.only_for(["Course Creator", "Batch Evaluator", "Moderator"])
 	if not isinstance(meta_type, str) or not isinstance(route, str):
@@ -3312,7 +3312,7 @@ def update_test_cases(test_cases: list, submission: str):
 		test_case.insert()
 
 
-@frappe.whitelist()
+@frappe.whitelist(methods=["POST"])
 def track_video_watch_duration(lesson: str, videos: list):
 	"""
 	Track the watch duration of videos in a lesson.
@@ -4531,7 +4531,7 @@ def get_user_certificates(username: str) -> list:
 	)
 
 
-@frappe.whitelist()
+@frappe.whitelist(methods=["POST"])
 def clear_demo_data():
 	frappe.only_for("Moderator")
 	quiz_title = "Do you know Frappe Learning?"
@@ -4619,7 +4619,7 @@ def search_users_by_role(
 	]
 
 
-@frappe.whitelist()
+@frappe.whitelist(methods=["POST"])
 def export_course_as_zip(course_name: str):
 	if not can_modify_course(course_name):
 		frappe.throw(_("You do not have permission to export this course."), frappe.PermissionError)
@@ -4684,7 +4684,7 @@ def get_system_preferences():
 	}
 
 
-@frappe.whitelist()
+@frappe.whitelist(methods=["POST"])
 def set_system_preferences(language: str = None, time_zone: str = None):
 	from frappe.core.doctype.user.user import get_timezones
 

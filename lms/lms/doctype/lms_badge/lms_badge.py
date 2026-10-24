@@ -67,7 +67,7 @@ def eval_condition(doc, condition):
 	return condition and frappe.safe_eval(condition, None, {"doc": doc.as_dict()})
 
 
-@frappe.whitelist()
+@frappe.whitelist(methods=["POST"])
 def assign_badge(badge_name: str):
 	frappe.only_for(["Moderator", "Course Creator", "Batch Evaluator"])
 	assignments = []

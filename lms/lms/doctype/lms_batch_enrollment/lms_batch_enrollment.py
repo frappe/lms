@@ -132,7 +132,7 @@ class LMSBatchEnrollment(Document):
 				enrollment.save(ignore_permissions=True)
 
 
-@frappe.whitelist()
+@frappe.whitelist(methods=["POST"])
 def send_confirmation_email(doc: Document | str):
 	if isinstance(doc, str):
 		name = frappe.parse_json(doc).get("name")
