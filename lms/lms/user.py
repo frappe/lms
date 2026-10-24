@@ -27,7 +27,8 @@ def add_lms_student_role(doc, method):
 	doc.append_roles("LMS Student")
 
 
-@frappe.whitelist(allow_guest=True)  # nosemgrep: frappe-semgrep-rules.rules.security.guest-whitelisted-method
+# nosemgrep: frappe-semgrep-rules.rules.security.guest-whitelisted-method
+@frappe.whitelist(allow_guest=True, methods=["POST"])
 @rate_limit(limit=get_signup_limit, seconds=60)
 def sign_up(email: str, full_name: str, verify_terms: bool, user_category: str):
 	"""Answers the same for every address: an account's existence, and whether it

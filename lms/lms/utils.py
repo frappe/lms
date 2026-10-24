@@ -2926,7 +2926,7 @@ def can_access_topic(doctype: str, docname: str) -> bool:
 	return True
 
 
-@frappe.whitelist()
+@frappe.whitelist(methods=["POST"])
 def get_discussion_topics(doctype: str, docname: str, single_thread: bool = False):
 	frappe.has_permission("Discussion Topic", "read", throw=True)
 	if not can_access_topic(doctype, docname):

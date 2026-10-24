@@ -537,7 +537,7 @@ def submission_meets_rule(doctype: str, filters: dict, rule: str) -> bool:
 	return bool(frappe.db.exists(doctype, filters))
 
 
-@frappe.whitelist()
+@frappe.whitelist(methods=["POST"])
 def save_progress(lesson: str, course: str | None = None, scorm_details: dict = None):
 	"""
 	Note: Pass the argument scorm_details as a dict if it is SCORM related save_progress
