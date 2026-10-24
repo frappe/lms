@@ -410,6 +410,7 @@ import { provideStudentView } from '@/composables/useStudentView'
 import type { UserResource } from '@/composables/useStudentView'
 import type { Note, Notes as NotesResource } from '@/types'
 import { isInstructorOf } from '@/utils/instructors'
+import { allowSkipUpTo } from '@/utils/videoSkipGuard'
 
 interface LessonProgressEvent {
 	course: string
@@ -1057,6 +1058,7 @@ const updatePlyrVideoTime = (video: WatchedVideo): void => {
 
 		plyrSource.on('ready', () => {
 			if (plyrSource.source === video.source) {
+				allowSkipUpTo(plyrSource, video.watch_time)
 				plyrSource.embed.seekTo(video.watch_time, true)
 				plyrSource.play()
 				plyrSource.pause()
@@ -1071,6 +1073,7 @@ const updateVideoTime = (video: WatchedVideo): void => {
 		videos.forEach((vid) => {
 			if (vid.src === video.source) {
 				let watch_time = video.watch_time < vid.duration ? video.watch_time : 0
+				allowSkipUpTo(vid, video.watch_time)
 				if (vid.readyState >= 1) {
 					vid.currentTime = watch_time
 				} else {
