@@ -7,6 +7,7 @@ import shutil
 import stat
 import xml.etree.ElementTree as ET
 import zipfile
+from collections import Counter, defaultdict
 from datetime import timedelta
 from xml.dom.minidom import parseString
 
@@ -4020,6 +4021,7 @@ def get_popular_courses():
 def get_my_batches():
 	my_batches = []
 	batches = get_my_latest_batches()
+	progress = get_batch_progress(batches)
 
 	if not len(batches):
 		batches = get_upcoming_batches()
@@ -4027,9 +4029,53 @@ def get_my_batches():
 	for batch in batches:
 		batch_details = get_batch_details(batch)
 		if batch_details:
+			batch_details.progress = progress.get(batch)
 			my_batches.append(batch_details)
 
 	return my_batches
+
+
+def get_batch_progress(batches: list) -> dict:
+	"""Share of the outline lessons across each batch's courses that the session user completed."""
+	if not batches:
+		return {}
+
+	batch_courses = frappe.get_all(
+		"Batch Course",
+		{"parent": ("in", batches), "parenttype": "LMS Batch"},
+		["parent", "course"],
+	)
+	courses = list({row.course for row in batch_courses})
+	if not courses:
+		return {}
+
+	chapter = frappe.qb.DocType("Chapter Reference")
+	lesson = frappe.qb.DocType("Lesson Reference")
+	outline = (
+		frappe.qb.from_(chapter)
+		.join(lesson)
+		.on(lesson.parent == chapter.chapter)
+		.where(chapter.parent.isin(courses))
+		.select(chapter.parent, lesson.lesson)
+	).run()
+	completed = frappe.get_all(
+		"LMS Course Progress",
+		{"member": frappe.session.user, "status": "Complete", "course": ("in", courses)},
+		["course", "lesson"],
+		as_list=True,
+	)
+
+	lessons, done = defaultdict(set), defaultdict(set)
+	for course, name in outline:
+		lessons[course].add(name)
+	for course, name in completed:
+		done[course].add(name)
+
+	total, finished = Counter(), Counter()
+	for row in batch_courses:
+		total[row.parent] += len(lessons[row.course])
+		finished[row.parent] += len(lessons[row.course] & done[row.course])
+	return {batch: flt(finished[batch] / total[batch] * 100, 2) for batch in total if total[batch]}
 
 
 def get_my_latest_batches():

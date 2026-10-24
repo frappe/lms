@@ -60,6 +60,12 @@
 				</span>
 			</div>
 		</div>
+		<ProgressBar
+			v-if="batch.progress != null"
+			class="mt-4"
+			:progress="batch.progress"
+			:label="__('Batch progress')"
+		/>
 		<div
 			v-if="batch.instructors?.length"
 			class="flex avatar-group overlap mt-4"
@@ -85,6 +91,7 @@ import { formatTimezone, nextOccurrence } from '@/utils/timezone'
 import CardLink from '@/components/CardLink.vue'
 import CourseInstructors from '@/components/CourseInstructors.vue'
 import UserAvatar from '@/components/UserAvatar.vue'
+import ProgressBar from '@/components/ProgressBar.vue'
 
 const props = defineProps({
 	batch: {
