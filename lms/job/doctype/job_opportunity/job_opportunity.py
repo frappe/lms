@@ -35,7 +35,7 @@ def update_job_openings():
 		frappe.db.set_value("Job Opportunity", job, "status", "Closed")
 
 
-@frappe.whitelist()
+@frappe.whitelist(methods=["POST"])
 def report(job: str, reason: str):
 	system_managers = get_system_managers(only_name=True)
 	user = frappe.db.get_value("User", frappe.session.user, "full_name")
