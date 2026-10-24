@@ -116,6 +116,8 @@ def get_user_info():
 	user.is_student = not user.is_instructor and not user.is_moderator and not user.is_evaluator
 	user.is_fc_site = is_fc_site()
 	user.is_system_manager = "System Manager" in user.roles
+	# Someone signed in without an LMS role is treated as a guest.
+	user.has_lms_role = has_lms_role() or user.is_system_manager
 	user.sitename = frappe.local.site
 	user.developer_mode = frappe.conf.developer_mode
 	if user.is_fc_site and user.is_system_manager:
