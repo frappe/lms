@@ -411,6 +411,10 @@ import type { UserResource } from '@/composables/useStudentView'
 import type { Note, Notes as NotesResource } from '@/types'
 import { isInstructorOf } from '@/utils/instructors'
 import { allowSkipUpTo } from '@/utils/videoSkipGuard'
+import {
+	holdLessonCompletion,
+	releaseLessonCompletion,
+} from '@/utils/markLessonProgress'
 
 interface LessonProgressEvent {
 	course: string
@@ -549,6 +553,7 @@ onBeforeUnmount(() => {
 	// one — so a single progress event fires one outline reload per past visit.
 	socket.off('update_lesson_progress', onLessonProgress)
 	if (collapsedByLesson) sidebarStore.isSidebarCollapsed = false
+	releaseLessonCompletion()
 	trackVideoWatchDuration()
 })
 
@@ -661,6 +666,7 @@ const renderEditor = (holder: string, content: string): EditorJS | null => {
 // and the second one fails with TimestampMismatchError on LMS Enrollment.
 let progressSubmitting = false
 const markProgress = () => {
+	releaseLessonCompletion()
 	if (progressSubmitting) return
 	// Only enrolled students record progress; a moderator previewing has no
 	// membership row so save_progress would no-op server-side but still
@@ -879,6 +885,7 @@ const resetLessonState = (
 		lesson: newLessonNumber,
 	})
 	videoFallbackArmed = false
+	releaseLessonCompletion()
 	fallbackGeneration++
 	clearInterval(timerInterval)
 	timer.value = 0
@@ -955,8 +962,13 @@ watch(
 		// runs for every lesson type (including YouTube/Plyr), so admins can
 		// set a short dwell to mark video lessons complete without a full
 		// playthrough.
+		// A quiz or assignment submit would otherwise complete the lesson before
+		// the enforced video is watched; markProgress releases the hold.
 		if (!shouldStartDwellTimer({ hasVideo: hasVideoListener, enforceVideo })) {
 			clearInterval(timerInterval)
+			holdLessonCompletion()
+		} else {
+			releaseLessonCompletion()
 		}
 		if (
 			shouldAttachVideoFallback({ hasVideo: hasVideoListener, enforceVideo })
@@ -1095,6 +1107,7 @@ const fallbackToDwellTimer = (reason: string): void => {
 	if (isStudentView.value || !lesson.data?.membership) return
 	if (videoFallbackArmed) return
 	videoFallbackArmed = true
+	releaseLessonCompletion()
 	console.warn('[Lesson] video fallback engaged:', reason)
 	toast.warning(
 		__(
