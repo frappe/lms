@@ -410,6 +410,10 @@ import type { Note, Notes as NotesResource } from '@/types'
 import { isInstructorOf } from '@/utils/instructors'
 import { allowSkipUpTo } from '@/utils/videoSkipGuard'
 import {
+	enableBunnyPlayers,
+	isBunnyStreamSource,
+} from '@/utils/bunnyStreamPlayer'
+import {
 	holdLessonCompletion,
 	releaseLessonCompletion,
 } from '@/utils/markLessonProgress'
@@ -442,7 +446,8 @@ interface PlayerEvent {
 	detail?: { code?: number; message?: string }
 }
 
-// The subset of Plyr (and its YouTube/Vimeo `embed`) this page drives.
+// The subset of Plyr (and its YouTube/Vimeo `embed`) this page drives. The
+// Bunny Stream adapter has the same shape.
 interface LessonPlayer {
 	source: string
 	currentTime: number
@@ -988,7 +993,7 @@ watch(
 const getPlyrSource = async () => {
 	await nextTick()
 	if (plyrSources.value.length == 0) {
-		plyrSources.value = await enablePlyr()
+		plyrSources.value = [...(await enablePlyr()), ...enableBunnyPlayers()]
 		const enforceVideo = Boolean(
 			Number(settingsStore.settings?.data?.enforce_video_completion ?? 0)
 		)
@@ -1024,7 +1029,11 @@ const getPlyrSource = async () => {
 const updateVideoWatchDuration = () => {
 	if (lesson.data.videos && lesson.data.videos.length > 0) {
 		lesson.data.videos.forEach((video: WatchedVideo) => {
-			if (video.source.includes('youtube') || video.source.includes('vimeo')) {
+			if (
+				video.source.includes('youtube') ||
+				video.source.includes('vimeo') ||
+				isBunnyStreamSource(video.source)
+			) {
 				updatePlyrVideoTime(video)
 			} else {
 				updateVideoTime(video)

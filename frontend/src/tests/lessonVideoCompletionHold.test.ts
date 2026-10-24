@@ -269,3 +269,39 @@ describe('a quiz or assignment submit on an enforced-video lesson', () => {
 		expect(markCalls()).toHaveLength(1)
 	})
 })
+
+describe('a Bunny Stream lesson', () => {
+	const BUNNY = 'https://player.mediadelivery.net/embed/123/abc-def'
+
+	const openBunnyLesson = async (): Promise<HTMLIFrameElement> => {
+		const iframe = document.createElement('iframe')
+		iframe.src = BUNNY
+		document.body.appendChild(iframe)
+		settings.data = { enforce_video_completion: 1 }
+		players.list = []
+		wrapper = await mountLesson()
+		findResource('lms.lms.utils.get_lesson').data = { ...enrolledLesson }
+		await flushPromises()
+		return iframe
+	}
+
+	afterEach(() => (document.body.innerHTML = ''))
+
+	it('is tracked as the lesson video', async () => {
+		await openBunnyLesson()
+		markLessonProgress()
+		expect(markCalls()).toHaveLength(0)
+	})
+
+	it('completes the lesson when the player reports ended', async () => {
+		const iframe = await openBunnyLesson()
+		window.dispatchEvent(
+			new MessageEvent('message', {
+				data: JSON.stringify({ context: 'player.js', event: 'ended' }),
+				origin: 'https://player.mediadelivery.net',
+				source: iframe.contentWindow,
+			})
+		)
+		expect(findResource(SAVE_PROGRESS).submit).toHaveBeenCalled()
+	})
+})
