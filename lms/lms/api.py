@@ -130,6 +130,10 @@ PERMISSION_DOCTYPES = (
 	"LMS Assignment",
 	"LMS Program",
 	"Job Opportunity",
+	"LMS Course Review",
+	"LMS Lesson Note",
+	"Discussion Topic",
+	"Discussion Reply",
 )
 
 
