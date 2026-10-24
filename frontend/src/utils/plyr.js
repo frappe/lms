@@ -1,6 +1,6 @@
 import Plyr from 'plyr'
 import 'plyr/dist/plyr.css'
-import { useSettings } from '@/stores/settings'
+import { guardPlayerSkips } from '@/utils/videoSkipGuard'
 
 const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms))
 
@@ -54,26 +54,18 @@ const setupPlyrForVideo = (video, players) => {
 		controls: controls,
 		settings: ['speed'],
 		speed: { selected: 1, options: [0.5, 0.75, 1, 1.25, 1.5, 1.75, 2] },
-		listeners: {
-			seek: function customSeekBehavior(e) {
-				const current_time = player.currentTime
-				const newTime = getTargetTime(player, e)
-				if (
-					useSettings().settings.data?.prevent_skipping_videos &&
-					parseFloat(newTime) > current_time
-				) {
-					e.preventDefault()
-					player.currentTime = current_time
-					return false
-				}
-			},
-		},
 	})
 
+<<<<<<< HEAD
+=======
+	guardPlayerSkips(player)
+	keepFocusInPlayer(player)
+>>>>>>> 8488e51 (fix: block keyboard skips past the furthest watched point)
 	video.plyrInstance = player
 	players.push(player)
 }
 
+<<<<<<< HEAD
 const getTargetTime = (plyr, input) => {
 	if (
 		typeof input === 'object' &&
@@ -83,6 +75,18 @@ const getTargetTime = (plyr, input) => {
 	} else {
 		return Number(input)
 	}
+=======
+// Plyr's Space/K shortcuts only fire while focus is inside the player, but a
+// click on the video (or on a control, in Safari) leaves focus on <body>.
+const keepFocusInPlayer = (player) => {
+	const { container } = player.elements
+	if (!container) return
+	container.setAttribute('tabindex', '-1')
+	container.addEventListener('click', () => {
+		if (container.contains(document.activeElement)) return
+		container.focus({ preventScroll: true })
+	})
+>>>>>>> 8488e51 (fix: block keyboard skips past the furthest watched point)
 }
 
 const extractYouTubeId = (url) => {

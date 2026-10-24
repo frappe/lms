@@ -161,11 +161,11 @@
 import { ref, onMounted, computed, watch, onBeforeUnmount } from 'vue'
 import { Button, Dialog, Dropdown } from 'frappe-ui'
 import { formatSeconds, formatTimestamp } from '@/utils/format'
-import { useSettings } from '@/stores/settings'
 import Play from '@/components/Icons/Play.vue'
 import Quiz from '@/components/Quiz.vue'
 import QuizInVideo from '@/components/Modals/QuizInVideo.vue'
 import { safeUrl } from '@/utils/safeUrl'
+import { clampSkipTarget, guardVideoElementSkips } from '@/utils/videoSkipGuard'
 
 // token-exempt: on the video scrim, which stays dark in either theme
 const scrimInk = 'text-white'
@@ -188,7 +188,6 @@ const showQuizLoader = ref(false)
 const quizLoadTimer = ref(0)
 const currentQuiz = ref(null)
 const nextQuiz = ref({})
-const { settings } = useSettings()
 
 // Speed control states
 const playbackSpeed = ref(1)
@@ -228,6 +227,7 @@ onMounted(() => {
 	updateNextQuiz()
 	if (videoRef.value) {
 		videoRef.value.playbackRate = 1
+		if (props.readOnly) guardVideoElementSkips(videoRef.value)
 	}
 })
 
@@ -328,11 +328,7 @@ const toggleMute = () => {
 }
 
 const changeCurrentTime = () => {
-	if (
-		settings.data?.prevent_skipping_videos &&
-		currentTime.value > videoRef.value.currentTime
-	)
-		return
+	currentTime.value = clampSkipTarget(videoRef.value, currentTime.value)
 	videoRef.value.currentTime = currentTime.value
 	updateNextQuiz()
 }
