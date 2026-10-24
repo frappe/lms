@@ -36,12 +36,24 @@ class LMSCertificate(Document):
 		template = "certification"
 		custom_template = frappe.db.get_single_value("LMS Settings", "certification_template")
 
+		batch_title = (
+			self.batch_title
+			or (frappe.db.get_value("LMS Batch", self.batch_name, "title") if self.batch_name else "")
+			or ""
+		)
+		course_title = (
+			frappe.db.get_value("LMS Course", self.course, "title") if self.course else ""
+		)
+
 		args = {
 			"member_name": self.member_name,
 			"course_name": self.course,
-			"course_title": frappe.db.get_value("LMS Course", self.course, "title"),
+			"course_title": course_title or batch_title,
+			"batch_name": self.batch_name,
+			"batch_title": batch_title,
 			"name": self.name,
 			"template": self.template,
+			"doc": self,
 		}
 
 		if custom_template:
