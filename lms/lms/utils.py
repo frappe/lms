@@ -2928,6 +2928,7 @@ def can_access_topic(doctype: str, docname: str) -> bool:
 
 @frappe.whitelist()
 def get_discussion_topics(doctype: str, docname: str, single_thread: bool = False):
+	frappe.has_permission("Discussion Topic", "read", throw=True)
 	if not can_access_topic(doctype, docname):
 		frappe.throw(_("You are not authorized to view the discussion topics for this item."))
 
@@ -2990,6 +2991,7 @@ def create_discussion_topic(doctype: str, docname: str) -> str:
 
 @frappe.whitelist()
 def get_discussion_replies(topic: str):
+	frappe.has_permission("Discussion Reply", "read", throw=True)
 	topic_details = frappe.db.get_value(
 		"Discussion Topic", topic, ["reference_doctype", "reference_docname"], as_dict=True
 	)
