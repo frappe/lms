@@ -13,6 +13,7 @@ applying, so nothing raises and nothing is logged. This has to be looked for.
 import click
 import frappe
 from frappe.modules.utils import get_module_list
+from frappe.permissions import rights
 
 ALERT_TITLE = "Custom DocPerm rows are shadowing the permlevel permissions LMS ships"
 
@@ -26,32 +27,43 @@ LMS_MANAGED_CUSTOM_DOCPERM_DOCTYPES = ("User", "Event", "Discussion Topic", "Dis
 
 
 def get_shadowed_permlevel_rows() -> dict[str, list[tuple[str, int]]]:
-	"""Return each LMS doctype whose Custom DocPerm rows have replaced its shipped
-	permissions, mapped to the (role, permlevel) rows that stopped applying."""
+	"""Return shipped (role, permlevel) grants missing from or narrowed by a custom set."""
 	candidates = _get_lms_doctypes()
 	if not candidates:
 		return {}
 
-	shadowed_doctypes = set(
-		frappe.get_all("Custom DocPerm", filters={"parent": ("in", candidates)}, pluck="parent")
+	custom_rows = frappe.get_all(
+		"Custom DocPerm",
+		filters={"parent": ("in", candidates)},
+		fields=["parent", "role", "permlevel", "if_owner", *rights],
+		limit_page_length=0,
 	)
-	if not shadowed_doctypes:
+	if not custom_rows:
 		return {}
+	custom_permissions = {}
+	for row in custom_rows:
+		custom_permissions.setdefault((row.parent, row.role, row.permlevel), []).append(row)
 
 	inert_rows = frappe.get_all(
 		"DocPerm",
 		filters={
-			"parent": ("in", shadowed_doctypes),
+			"parent": ("in", {row.parent for row in custom_rows}),
 			"parenttype": "DocType",
 			"permlevel": (">", 0),
 		},
-		fields=["parent", "role", "permlevel"],
+		fields=["parent", "role", "permlevel", "if_owner", *rights],
 		order_by="parent asc, permlevel asc, role asc",
+		limit_page_length=0,
 	)
 
 	shadowed: dict[str, list[tuple[str, int]]] = {}
 	for row in inert_rows:
-		shadowed.setdefault(row.parent, []).append((row.role, row.permlevel))
+		custom = custom_permissions.get((row.parent, row.role, row.permlevel), [])
+		if _custom_rows_cover(row, custom):
+			continue
+		pair = (row.role, row.permlevel)
+		if pair not in shadowed.setdefault(row.parent, []):
+			shadowed[row.parent].append(pair)
 	return shadowed
 
 
@@ -65,6 +77,16 @@ def warn_about_shadowed_permlevels() -> None:
 	click.secho(
 		f"{ALERT_TITLE}: {', '.join(shadowed)}. See Error Log for the rows and the fix.",
 		fg="yellow",
+	)
+
+
+def _custom_rows_cover(shipped, custom_rows: list) -> bool:
+	"""Whether the Custom DocPerm rows replacing a shipped row still carry every grant it
+	made. Owner-only access cannot stand in for an unrestricted shipped grant."""
+	return all(
+		any(perm.get(ptype) and (shipped.if_owner or not perm.if_owner) for perm in custom_rows)
+		for ptype in rights
+		if shipped.get(ptype)
 	)
 
 
@@ -82,9 +104,9 @@ def _get_lms_doctypes() -> set[str]:
 
 def _describe_shadow(shadowed: dict[str, list[tuple[str, int]]]) -> str:
 	lines = [
-		"These LMS doctypes carry Custom DocPerm rows, so the permissions LMS ships for them",
-		"are replaced at runtime and the field-level rows below no longer apply. Fields at those",
-		"permlevels become unreadable, and any value saved into them is silently reset.",
+		"These LMS doctypes carry Custom DocPerm rows that omit or narrow some shipped grants.",
+		"The role and permlevel pairs below have reduced access. Missing field-level read or",
+		"write grants can hide fields or reset submitted values; review the custom permission set.",
 		"",
 	]
 	for doctype, rows in shadowed.items():
