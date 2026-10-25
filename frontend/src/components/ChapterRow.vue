@@ -108,6 +108,7 @@
 				:disabled="!allowEdit"
 				item-key="name"
 				group="items"
+				v-bind="outlineDragOptions"
 				@end="(e: DraggableEvent) => emit('move-lesson', e)"
 				:data-chapter="chapter.name"
 			>
@@ -227,7 +228,7 @@ import { useRoute } from 'vue-router'
 import type { RouteLocationRaw } from 'vue-router'
 import type { InputExposed } from 'frappe-ui'
 import type { OutlineChapter, OutlineLesson, SessionUser } from '@/types'
-import { draftLessonNumber } from '@/utils/courseOutline'
+import { draftLessonNumber, outlineDragOptions } from '@/utils/courseOutline'
 
 interface DraggableEvent {
 	item: { __draggable_context: { element: OutlineChapter | OutlineLesson } }
