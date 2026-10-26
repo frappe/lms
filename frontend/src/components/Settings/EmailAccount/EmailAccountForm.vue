@@ -27,7 +27,11 @@
 							:alt="__('{0} icon').format(selected.name)"
 							class="size-4"
 						/>
-						<LucideMail v-else class="size-4 text-ink-gray-7" />
+						<span
+							v-else
+							class="lucide-mail size-4 text-ink-gray-7"
+							aria-hidden="true"
+						/>
 					</div>
 					<div class="flex min-w-0 flex-col">
 						<span class="text-p-base-medium text-ink-gray-8">{{
@@ -50,7 +54,10 @@
 					v-if="isNew && selected"
 					class="flex items-center gap-2 rounded-5 p-2 text-ink-gray-6 ring-1 ring-outline-gray-3"
 				>
-					<CircleAlert class="size-5 shrink-0" />
+					<span
+						class="lucide-circle-alert size-5 shrink-0"
+						aria-hidden="true"
+					/>
 					<div class="text-wrap text-p-xs">
 						{{ selected.info }}
 						<a :href="safeUrl(selected.link)" v-external class="underline">{{
@@ -77,7 +84,6 @@
 import { computed, onMounted, reactive, ref } from 'vue'
 import { Button, ErrorMessage, call, toast } from 'frappe-ui'
 import { useTelemetry } from '@framework/ui/telemetry/index'
-import { CircleAlert, Mail as LucideMail } from 'lucide-vue-next'
 import SettingsFields from '@/components/Layouts/settings/desktop/SettingsFields.vue'
 import SettingsLayout from '@/components/Layouts/settings/desktop/SettingsLayout.vue'
 import EmailProviderPicker from './EmailProviderPicker.vue'
