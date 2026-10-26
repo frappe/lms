@@ -29,113 +29,109 @@
 			</template>
 		</div>
 
-		<ScrollArea class="min-h-0 flex-1" viewportClass="px-2 py-3">
-			<ul class="list-none">
-				<li v-for="chapter in outline.data || []" :key="chapter.name">
-					<Disclosure
-						v-slot="{ open }"
-						:defaultOpen="chapterDefaultOpen(chapter)"
+		<ul class="flex-1 overflow-y-auto px-2 py-3 list-none">
+			<li v-for="chapter in outline.data || []" :key="chapter.name">
+				<Disclosure
+					v-slot="{ open }"
+					:defaultOpen="chapterDefaultOpen(chapter)"
+				>
+					<DisclosureButton
+						class="w-full flex items-center justify-between rounded-4 px-3 py-2 hover:bg-surface-gray-2 text-start"
 					>
-						<DisclosureButton
-							class="w-full flex items-center justify-between rounded-4 px-3 py-2 hover:bg-surface-gray-2 text-start"
+						<div
+							class="flex items-center gap-2 text-base-medium leading-5 text-ink-gray-9 min-w-0"
 						>
-							<div
-								class="flex items-center gap-2 text-base-medium leading-5 text-ink-gray-9 min-w-0"
-							>
-								<ChevronDown
-									class="size-4 stroke-1.5 shrink-0 transition-transform"
-									:class="{ '-rotate-90': !open }"
-								/>
-								<span class="truncate">{{ chapter.title }}</span>
-							</div>
-							<span
-								v-if="chapter.lessons?.length"
-								class="text-sm text-ink-gray-6 shrink-0"
-							>
-								{{ chapter.lessons.length }}
-							</span>
-						</DisclosureButton>
-						<DisclosurePanel>
-							<ul class="list-none">
-								<li v-for="lesson in chapter.lessons || []" :key="lesson.name">
+							<ChevronDown
+								class="size-4 stroke-1.5 shrink-0 transition-transform"
+								:class="{ '-rotate-90': !open }"
+							/>
+							<span class="truncate">{{ chapter.title }}</span>
+						</div>
+						<span
+							v-if="chapter.lessons?.length"
+							class="text-sm text-ink-gray-6 shrink-0"
+						>
+							{{ chapter.lessons.length }}
+						</span>
+					</DisclosureButton>
+					<DisclosurePanel>
+						<ul class="list-none">
+							<li v-for="lesson in chapter.lessons || []" :key="lesson.name">
+								<component
+									:is="
+										lesson.locked
+											? 'div'
+											: inlineSelect
+											? 'button'
+											: 'router-link'
+									"
+									:type="!lesson.locked && inlineSelect ? 'button' : undefined"
+									:to="
+										lesson.locked || inlineSelect
+											? undefined
+											: {
+													name: 'Lesson',
+													params: {
+														courseName,
+														chapterNumber: lesson.number.split('-')[0],
+														lessonNumber: lesson.number.split('-')[1],
+													},
+													query: studentViewQuery,
+											  }
+									"
+									class="flex w-full items-center gap-3 rounded-4 ps-9 pe-3 py-2 text-start text-sm leading-5 text-ink-gray-8 hover:bg-surface-gray-2"
+									:class="[
+										lesson.locked
+											? 'cursor-not-allowed opacity-60'
+											: inlineSelect
+											? 'cursor-pointer'
+											: '',
+										isActive(lesson.number)
+											? 'bg-surface-gray-2 text-ink-gray-9'
+											: '',
+									]"
+									@click="onLessonClick(lesson)"
+								>
 									<component
-										:is="
-											lesson.locked
-												? 'div'
-												: inlineSelect
-												? 'button'
-												: 'router-link'
-										"
-										:type="
-											!lesson.locked && inlineSelect ? 'button' : undefined
-										"
-										:to="
-											lesson.locked || inlineSelect
-												? undefined
-												: {
-														name: 'Lesson',
-														params: {
-															courseName,
-															chapterNumber: lesson.number.split('-')[0],
-															lessonNumber: lesson.number.split('-')[1],
-														},
-														query: studentViewQuery,
-												  }
-										"
-										class="flex w-full items-center gap-3 rounded-4 ps-9 pe-3 py-2 text-start text-sm leading-5 text-ink-gray-8 hover:bg-surface-gray-2"
-										:class="[
-											lesson.locked
-												? 'cursor-not-allowed opacity-60'
-												: inlineSelect
-												? 'cursor-pointer'
-												: '',
-											isActive(lesson.number)
-												? 'bg-surface-gray-2 text-ink-gray-9'
-												: '',
-										]"
-										@click="onLessonClick(lesson)"
-									>
-										<component
-											:is="iconFor(lesson.icon)"
-											class="size-4 stroke-1.5 shrink-0 text-ink-gray-7"
-										/>
-										<span class="truncate flex-1">{{ lesson.title }}</span>
-										<template v-if="lesson.locked">
-											<Tooltip :text="lockReason">
-												<LockKeyhole
-													class="size-4 stroke-1.5 shrink-0 text-ink-gray-4"
-													aria-hidden="true"
-												/>
-											</Tooltip>
-											<span class="sr-only">{{ __('Locked') }}</span>
-											<span class="sr-only">{{ lockReason }}</span>
-										</template>
-										<template v-else-if="withProgress && lesson.is_complete">
-											<CircleCheck
-												class="size-4 stroke-1.5 shrink-0 text-ink-green-8 fill-none"
+										:is="iconFor(lesson.icon)"
+										class="size-4 stroke-1.5 shrink-0 text-ink-gray-7"
+									/>
+									<span class="truncate flex-1">{{ lesson.title }}</span>
+									<template v-if="lesson.locked">
+										<Tooltip :text="lockReason">
+											<LockKeyhole
+												class="size-4 stroke-1.5 shrink-0 text-ink-gray-4"
 												aria-hidden="true"
 											/>
-											<span class="sr-only">{{ __('Completed') }}</span>
-										</template>
-										<Circle
-											v-else-if="withProgress"
-											class="size-4 stroke-1.5 shrink-0 text-ink-gray-4"
+										</Tooltip>
+										<span class="sr-only">{{ __('Locked') }}</span>
+										<span class="sr-only">{{ lockReason }}</span>
+									</template>
+									<template v-else-if="withProgress && lesson.is_complete">
+										<CircleCheck
+											class="size-4 stroke-1.5 shrink-0 text-ink-green-8 fill-none"
+											aria-hidden="true"
 										/>
-									</component>
-								</li>
-							</ul>
-						</DisclosurePanel>
-					</Disclosure>
-				</li>
-			</ul>
-		</ScrollArea>
+										<span class="sr-only">{{ __('Completed') }}</span>
+									</template>
+									<Circle
+										v-else-if="withProgress"
+										class="size-4 stroke-1.5 shrink-0 text-ink-gray-4"
+									/>
+								</component>
+							</li>
+						</ul>
+					</DisclosurePanel>
+				</Disclosure>
+			</li>
+		</ul>
 	</div>
 </template>
 
 <script setup>
 import { computed, watch, watchEffect } from 'vue'
 import { useRoute } from 'vue-router'
-import { createResource, ScrollArea, Tooltip } from 'frappe-ui'
+import { createResource, Tooltip } from 'frappe-ui'
 import { Disclosure, DisclosureButton, DisclosurePanel } from '@headlessui/vue'
 import {
 	ChevronDown,

@@ -32,7 +32,6 @@ const passthrough = (tag: string, testid?: string) => ({
 })
 
 vi.mock('frappe-ui', () => ({
-	ScrollArea: passthrough('div'),
 	Breadcrumbs: { template: '<nav data-testid="breadcrumbs" />' },
 	Button: passthrough('button'),
 	// Faithful to frappe-ui's Checkbox in the one structural respect the

@@ -39,7 +39,6 @@ vi.mock('vue-router', () => ({
 }))
 
 vi.mock('frappe-ui', () => ({
-	ScrollArea: { name: 'ScrollArea', template: '<div><slot /></div>' },
 	createResource: () => ({ data: outline, reload: vi.fn() }),
 	Tooltip: {
 		props: ['text'],
