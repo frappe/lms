@@ -71,6 +71,7 @@ import router from '@/router'
 import { openSettings } from '@/utils'
 import { useSettings } from '@/stores/settings'
 import { getLmsRoute } from '@/utils/basePath'
+import { markLessonProgress } from '@/utils/markLessonProgress'
 import { provideStudentView } from '@/composables/useStudentView'
 import type { UserResource } from '@/composables/useStudentView'
 import { useExerciseDraft } from '@/composables/useExerciseDraft'
@@ -574,6 +575,8 @@ const createSubmission = async () => {
 			}
 			const ran = results.value
 			await fetchSubmission(name)
+			if (props.embedded && submissionDoc.value?.status === 'Passed')
+				markLessonProgress()
 			if (showSavedResults(ran)) {
 				toast.warning(
 					__(
