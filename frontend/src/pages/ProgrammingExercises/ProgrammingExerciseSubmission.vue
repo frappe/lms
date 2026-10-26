@@ -75,6 +75,7 @@ import router from '@/router'
 import { openSettings } from '@/utils'
 import { useSettings } from '@/stores/settings'
 import { getLmsRoute } from '@/utils/basePath'
+import { markLessonProgress } from '@/utils/markLessonProgress'
 import { provideStudentView } from '@/composables/useStudentView'
 import type { UserResource } from '@/composables/useStudentView'
 import { useExerciseDraft } from '@/composables/useExerciseDraft'
@@ -556,8 +557,24 @@ const createSubmission = async () => {
 					params: { exerciseID: props.exerciseID, submissionID: name },
 				})
 			}
+<<<<<<< HEAD
 			fetchSubmission(name)
 			toast.success(__('Submission saved!'))
+=======
+			const ran = results.value
+			await fetchSubmission(name)
+			if (props.embedded && submissionDoc.value?.status === 'Passed')
+				markLessonProgress()
+			if (showSavedResults(ran)) {
+				toast.warning(
+					__(
+						'Saved, but the result differs from this run. The saved result is shown.'
+					)
+				)
+			} else {
+				toast.success(__('Submission saved!'))
+			}
+>>>>>>> ef1ea17 (feat: mark the lesson complete when its exercise passes)
 		})
 		.catch((error: any) => {
 			console.error('Error creating submission:', error)

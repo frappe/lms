@@ -5,6 +5,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { flushPromises, mount, type VueWrapper } from '@vue/test-utils'
 import { defineComponent, h, reactive } from 'vue'
 
+<<<<<<< HEAD
 const { call, routerPush, pageMeta, collectOutputs, runner, documentCache } =
 	vi.hoisted(() => ({
 		documentCache: new Map<string, { reload: () => void }>(),
@@ -14,6 +15,33 @@ const { call, routerPush, pageMeta, collectOutputs, runner, documentCache } =
 		pageMeta: vi.fn(),
 		collectOutputs: vi.fn(async () => ({ outputs: ['5'], elapsed: [0.1] })),
 	}))
+=======
+const {
+	call,
+	routerPush,
+	pageMeta,
+	collectOutputs,
+	runner,
+	documentCache,
+	saved,
+	toast,
+	markLessonProgress,
+} = vi.hoisted(() => ({
+	markLessonProgress: vi.fn(),
+	documentCache: new Map<string, { reload: () => void }>(),
+	// The rows the server's own run stored, which reload() hands back.
+	saved: {
+		rows: [] as Record<string, unknown>[],
+		doc: {} as Record<string, unknown>,
+	},
+	toast: { error: vi.fn(), success: vi.fn(), warning: vi.fn() },
+	runner: { url: '' },
+	call: vi.fn(),
+	routerPush: vi.fn(),
+	pageMeta: vi.fn(),
+	collectOutputs: vi.fn(async () => ({ outputs: ['5'], elapsed: [0.1] })),
+}))
+>>>>>>> ef1ea17 (feat: mark the lesson complete when its exercise passes)
 
 vi.mock('frappe-ui', () => ({
 	Badge: defineComponent({
@@ -102,6 +130,7 @@ vi.mock('@/utils/dialogs', () => ({
 	isDialogOpen: () => false,
 }))
 vi.mock('@/utils/basePath', () => ({ getLmsRoute: (p: string) => `/lms/${p}` }))
+vi.mock('@/utils/markLessonProgress', () => ({ markLessonProgress }))
 vi.mock(
 	'@/pages/ProgrammingExercises/exerciseRunFlow',
 	async (importOriginal) => ({
@@ -169,6 +198,7 @@ beforeEach(() => {
 		return Promise.resolve()
 	})
 	routerPush.mockReset()
+	markLessonProgress.mockReset()
 	pageMeta.mockReset()
 	collectOutputs.mockClear()
 	localStorage.clear()
@@ -238,6 +268,31 @@ describe('the programming exercise mounted inline in a lesson', () => {
 		await flushPromises()
 
 		expect(wrapper.get('[data-testid="code"]').text()).toBe('print(1)')
+	})
+
+	it('marks the lesson once the saved submission passes', async () => {
+		const wrapper = await mountEmbedded()
+
+		await runCode(wrapper)
+
+		expect(markLessonProgress).toHaveBeenCalledTimes(1)
+	})
+
+	it('leaves the lesson unmarked when the saved submission fails', async () => {
+		saved.doc = { status: 'Failed' }
+		const wrapper = await mountEmbedded()
+
+		await runCode(wrapper)
+
+		expect(markLessonProgress).not.toHaveBeenCalled()
+	})
+
+	it('marks no lesson from the standalone page', async () => {
+		const wrapper = await mountEmbedded(undefined, false)
+
+		await runCode(wrapper)
+
+		expect(markLessonProgress).not.toHaveBeenCalled()
 	})
 
 	it('never moves the lesson to another route', async () => {
