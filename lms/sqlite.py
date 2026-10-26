@@ -136,12 +136,6 @@ class LearningSearch(SQLiteSearch):
 		"Job Opportunity": JOB_FIELDS,
 	}
 
-	def build_index(self):
-		try:
-			super().build_index()
-		except Exception as e:
-			frappe.throw(e)
-
 	def get_search_filters(self):
 		return {}
 
@@ -189,19 +183,3 @@ class LearningSearch(SQLiteSearch):
 
 class LearningSearchIndexMissingError(SQLiteSearchIndexMissingError):
 	pass
-
-
-def build_index():
-	search = LearningSearch()
-	search.build_index()
-
-
-def build_index_in_background():
-	if not frappe.cache().get_value("learning_search_indexing_in_progress"):
-		frappe.enqueue(build_index, queue="long")
-
-
-def build_index_if_not_exists():
-	search = LearningSearch()
-	if not search.index_exists():
-		build_index()
