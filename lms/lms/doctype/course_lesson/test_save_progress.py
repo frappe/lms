@@ -325,7 +325,8 @@ class TestSaveProgressProgrammingExerciseGate(BaseTestUtils):
 	def setUp(self):
 		super().setUp()
 		previous = frappe.db.get_single_value("LMS Settings", self.SETTING)
-		self.addCleanup(self._set_enforcement, previous)
+		previous_passing = frappe.db.get_single_value("LMS Settings", "enforce_programming_exercise_passing")
+		self.addCleanup(self._set_enforcement, previous, previous_passing)
 		frappe.db.delete("LMS Course Progress", {"member": self.student.email, "lesson": self.lesson.name})
 		frappe.db.delete(
 			"LMS Programming Exercise Submission",
@@ -336,8 +337,9 @@ class TestSaveProgressProgrammingExerciseGate(BaseTestUtils):
 		frappe.set_user("Administrator")
 		super().tearDown()
 
-	def _set_enforcement(self, value):
+	def _set_enforcement(self, value, passing=0):
 		frappe.db.set_single_value("LMS Settings", self.SETTING, value)
+		frappe.db.set_single_value("LMS Settings", "enforce_programming_exercise_passing", passing)
 		frappe.clear_document_cache("LMS Settings", "LMS Settings")
 
 	def _submit(self, status):
@@ -373,12 +375,17 @@ class TestSaveProgressProgrammingExerciseGate(BaseTestUtils):
 		self._set_enforcement(1)
 		self.assertFalse(self._completes_lesson())
 
-	def test_lesson_stays_incomplete_after_a_failed_submission(self):
+	def test_a_failed_submission_completes_the_lesson_by_default(self):
 		self._set_enforcement(1)
+		self._submit("Failed")
+		self.assertTrue(self._completes_lesson())
+
+	def test_lesson_stays_incomplete_after_a_failed_submission_when_it_must_pass(self):
+		self._set_enforcement(1, passing=1)
 		self._submit("Failed")
 		self.assertFalse(self._completes_lesson())
 
-	def test_lesson_completes_after_a_passed_submission(self):
-		self._set_enforcement(1)
+	def test_lesson_completes_after_a_passed_submission_when_it_must_pass(self):
+		self._set_enforcement(1, passing=1)
 		self._submit("Passed")
 		self.assertTrue(self._completes_lesson())

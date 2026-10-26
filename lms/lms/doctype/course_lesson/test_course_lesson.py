@@ -9,6 +9,7 @@ import frappe
 from frappe.utils import add_to_date, escape_html, now_datetime
 from frappe.www.printview import get_html_and_style
 
+from lms.lms.doctype.course_lesson import course_lesson
 from lms.lms.doctype.course_lesson.course_lesson import (
 	UNTITLED_LESSON_TITLE,
 	get_quiz_progress,
@@ -77,87 +78,85 @@ def _content(*blocks):
 	return json.dumps({"time": 0, "version": "2.30.0", "blocks": list(blocks)})
 
 
-class TestApplyEnforcementFlags(unittest.TestCase):
-	def _call(self, *, quiz_done, assignment_done, enforce_quiz, enforce_assignment):
-		from lms.lms.doctype.course_lesson.course_lesson import (
-			apply_enforcement_flags,
+ALL_ENFORCED = {
+	"enforce_quiz_completion": 1,
+	"enforce_assignment_completion": 1,
+	"enforce_programming_exercise_completion": 1,
+}
+
+
+# Guards each item's rule, and that a field missing before migrate keeps the old gate.
+# Added on fix/course-progress-enforcement (no PR yet).
+class TestCompletionRules(unittest.TestCase):
+	def _rules(self, stored):
+		"""get_cached_value returns every field asked for, None where meta lacks it."""
+
+		def get_cached_value(doctype, name, fields, as_dict):
+			return frappe._dict({field: stored.get(field) for field in fields})
+
+		with patch.object(course_lesson.frappe, "get_cached_value", side_effect=get_cached_value):
+			return course_lesson.get_completion_rules()
+
+	def test_missing_passing_toggles_keep_what_each_item_required_before(self):
+		self.assertEqual(
+			self._rules(ALL_ENFORCED),
+			{
+				"quiz": "Passed",
+				"open_ended_quiz": "Passed",
+				"assignment": "Attempted",
+				"programming_exercise": "Attempted",
+			},
 		)
 
-		settings = {
-			"enforce_quiz_completion": enforce_quiz,
-			"enforce_assignment_completion": enforce_assignment,
+	def test_passing_toggles_choose_between_a_pass_and_an_attempt(self):
+		stored = {
+			**ALL_ENFORCED,
+			"enforce_quiz_passing": 0,
+			"enforce_open_ended_quiz_passing": 1,
+			"enforce_assignment_passing": 1,
+			"enforce_programming_exercise_passing": 1,
 		}
-		return apply_enforcement_flags(
-			quiz_done=quiz_done,
-			assignment_done=assignment_done,
-			settings=settings,
-		)
-
-	def test_both_enforced_passes_through(self):
 		self.assertEqual(
-			self._call(quiz_done=True, assignment_done=True, enforce_quiz=1, enforce_assignment=1),
-			(True, True),
+			self._rules(stored),
+			{
+				"quiz": "Attempted",
+				"open_ended_quiz": "Passed",
+				"assignment": "Passed",
+				"programming_exercise": "Passed",
+			},
 		)
+
+	def test_the_quiz_toggle_gates_open_ended_quizzes_too(self):
+		stored = {
+			"enforce_quiz_completion": 0,
+			"enforce_quiz_passing": 1,
+			"enforce_open_ended_quiz_passing": 1,
+		}
+		rules = self._rules(stored)
+		self.assertEqual((rules["quiz"], rules["open_ended_quiz"]), (None, None))
+
+	def test_an_item_switched_off_has_no_rule(self):
+		stored = {
+			"enforce_quiz_completion": 0,
+			"enforce_assignment_completion": 0,
+			"enforce_programming_exercise_completion": "0",
+			"enforce_assignment_passing": 1,
+		}
 		self.assertEqual(
-			self._call(quiz_done=False, assignment_done=True, enforce_quiz=1, enforce_assignment=1),
-			(False, True),
+			self._rules(stored),
+			{"quiz": None, "open_ended_quiz": None, "assignment": None, "programming_exercise": None},
 		)
+
+	def test_a_site_without_the_fields_gates_what_it_always_did(self):
 		self.assertEqual(
-			self._call(quiz_done=True, assignment_done=False, enforce_quiz=1, enforce_assignment=1),
-			(True, False),
+			self._rules({}),
+			{
+				"quiz": "Passed",
+				"open_ended_quiz": "Passed",
+				"assignment": "Attempted",
+				"programming_exercise": None,
+			},
 		)
-
-
-class _DictSubclass(dict):
-	"""A frappe._dict-like subclass: the helper must duck-type, not isinstance-check."""
-
-
-class TestApplyEnforcementFlagsEdgeCases(unittest.TestCase):
-	QUIZ_OFF = {"enforce_quiz_completion": 0, "enforce_assignment_completion": 1}
-	ASSIGNMENT_OFF = {"enforce_quiz_completion": 1, "enforce_assignment_completion": 0}
-	BOTH_OFF = {"enforce_quiz_completion": 0, "enforce_assignment_completion": 0}
-	STRING_ZERO = {"enforce_quiz_completion": "0", "enforce_assignment_completion": "0"}
-	STRING_ONE = {"enforce_quiz_completion": "1", "enforce_assignment_completion": "1"}
-	NONE_QUIZ = {"enforce_quiz_completion": None, "enforce_assignment_completion": 1}
-
-	def setUp(self):
-		from lms.lms.doctype.course_lesson.course_lesson import (
-			apply_enforcement_flags,
-		)
-
-		self.fn = apply_enforcement_flags
-
-	def test_a_flag_is_enforced_unless_it_is_explicitly_falsy(self):
-		"""Enforcement is the default: only a genuinely falsy flag turns it off, and a
-		missing key is not falsy because dict.get supplies 1."""
-		cases = [
-			# case, quiz_done, assignment_done, settings, expected
-			("quiz_off", False, False, self.QUIZ_OFF, (True, False)),
-			("assignment_off", False, False, self.ASSIGNMENT_OFF, (False, True)),
-			("missing_keys_stay_enforced", False, True, {}, (False, True)),
-			("both_off_and_both_done", True, True, self.BOTH_OFF, (True, True)),
-			("both_off_and_quiz_done", True, False, self.BOTH_OFF, (True, True)),
-			("both_off_and_assignment_done", False, True, self.BOTH_OFF, (True, True)),
-			("both_off_and_neither_done", False, False, self.BOTH_OFF, (True, True)),
-			# "0" is a non-empty string, so it is truthy and still reads as enforced.
-			# Callers that hit this should pass int(value) explicitly.
-			("string_zero_is_truthy", False, False, self.STRING_ZERO, (False, False)),
-			("string_one_both_done", True, True, self.STRING_ONE, (True, True)),
-			("string_one_quiz_undone", False, True, self.STRING_ONE, (False, True)),
-			# Present-but-None is falsy, unlike a missing key.
-			("none_disables", False, False, self.NONE_QUIZ, (True, False)),
-			("dict_subclass_is_duck_typed", False, False, _DictSubclass(self.QUIZ_OFF), (True, False)),
-		]
-		for case, quiz_done, assignment_done, settings, expected in cases:
-			with self.subTest(case=case):
-				got = self.fn(quiz_done=quiz_done, assignment_done=assignment_done, settings=settings)
-				self.assertEqual(got, expected)
-
-	def test_does_not_mutate_settings(self):
-		settings = {"enforce_quiz_completion": 1, "enforce_assignment_completion": 0}
-		snapshot = dict(settings)
-		self.fn(quiz_done=True, assignment_done=False, settings=settings)
-		self.assertEqual(settings, snapshot)
 
 
 class TestServePrivateFileVersionSafe(unittest.TestCase):

@@ -455,8 +455,25 @@ describe('SettingsFields draws a checkbox group', () => {
 			{ name: 'enforce_quiz_completion', label: 'Quizzes' },
 		],
 	}
+	const passing: SettingsField = {
+		name: 'enforce_passing',
+		label: 'Enforce passing',
+		type: 'checkboxGroup',
+		options: [
+			{
+				name: 'enforce_quiz_passing',
+				label: 'Quizzes',
+				requires: 'enforce_quiz_completion',
+			},
+		],
+	}
 
-	it('labels each checkbox from its own field', async () => {
+	type Wrapper = Awaited<ReturnType<typeof mountFields>>
+	const switches = (w: Wrapper) => w.findAll('button[role="switch"]')
+	const states = (w: Wrapper) =>
+		switches(w).map((toggle) => toggle.attributes('aria-checked'))
+
+	it('names each switch from its own field', async () => {
 		const w = await mountFields([group], {
 			enforce_video_completion: 1,
 			enforce_quiz_completion: 0,
@@ -464,13 +481,9 @@ describe('SettingsFields draws a checkbox group', () => {
 		const groupEl = w.get('[role="group"]')
 		const labelledBy = groupEl.attributes('aria-labelledby')
 		expect(w.get(`[id="${labelledBy}"]`).text()).toBe('Enforce completion')
-		const boxes = w.findAll('input[type="checkbox"]')
-		expect(
-			boxes.map((box) => (box.element as HTMLInputElement).checked)
-		).toEqual([true, false])
-		expect(w.get('label[for="' + boxes[1].attributes('id') + '"]').text()).toBe(
-			'Quizzes'
-		)
+		expect(states(w)).toEqual(['true', 'false'])
+		const quizName = switches(w)[1].attributes('aria-labelledby')
+		expect(w.get(`[id="${quizName}"]`).text()).toBe('Quizzes')
 		expect(
 			w.find('button[aria-label="Embedded links cannot be tracked."]').exists()
 		).toBe(true)
@@ -479,11 +492,32 @@ describe('SettingsFields draws a checkbox group', () => {
 	it('writes only the toggled field and reports it', async () => {
 		const data = { enforce_video_completion: 1, enforce_quiz_completion: 0 }
 		const w = await mountFields([group], data)
-		await w.findAll('input[type="checkbox"]')[1].setValue(true)
+		await switches(w)[1].trigger('click')
 		expect(data).toEqual({
 			enforce_video_completion: 1,
 			enforce_quiz_completion: 1,
 		})
 		expect(w.emitted('commit')?.at(-1)).toEqual(['now'])
+	})
+
+	// Regression on this branch only, no upstream PR: passing could be stored
+	// on with its completion off. Added on fix/course-progress-enforcement (no PR yet).
+	it('shows a switch only while the one it requires is on', async () => {
+		const data: Record<string, unknown> = { enforce_quiz_completion: 0 }
+		const w = await mountFields([group, passing], data)
+		expect(switches(w)).toHaveLength(2)
+		expect(w.text()).not.toContain('Enforce passing')
+		await switches(w)[1].trigger('click')
+		expect(switches(w)).toHaveLength(3)
+	})
+
+	it('turns a dependent switch off with the one it requires', async () => {
+		const data: Record<string, unknown> = {
+			enforce_quiz_completion: 1,
+			enforce_quiz_passing: 1,
+		}
+		const w = await mountFields([group, passing], data)
+		await switches(w)[1].trigger('click')
+		expect(data.enforce_quiz_passing).toBe(0)
 	})
 })

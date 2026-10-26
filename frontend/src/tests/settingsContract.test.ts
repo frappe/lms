@@ -151,13 +151,14 @@ describe('the course progress descriptions', () => {
 	const fieldOf = (name: string) =>
 		writtenOf(progressItem).find((field) => field.name === name)
 
-	it('groups the four enforce fields, with Prevent Skipping Videos after', () => {
+	it('groups the enforce fields, with Prevent Skipping Videos after', () => {
 		const page = progressItem.page as FieldsPage
 		expect(page.sections.map((section) => section.label)).toEqual([
 			'Lesson Completion',
 		])
 		expect(fieldsOfItem(progressItem).map((field) => field.type)).toEqual([
 			'number',
+			'checkboxGroup',
 			'checkboxGroup',
 			'checkbox',
 		])
@@ -167,16 +168,31 @@ describe('the course progress descriptions', () => {
 			'enforce_quiz_completion',
 			'enforce_assignment_completion',
 			'enforce_programming_exercise_completion',
+			'enforce_quiz_passing',
+			'enforce_open_ended_quiz_passing',
+			'enforce_assignment_passing',
+			'enforce_programming_exercise_passing',
 			'prevent_skipping_videos',
 		])
 	})
 
-	// Regression from #2426: the copy said a quiz had to be submitted, but the
-	// server checks it was passed. Added on fix/course-progress-enforcement (no PR yet).
-	it('say a quiz has to be passed, which is what the server checks', () => {
-		expect(fieldOf('enforce_quiz_completion')?.description).toContain(
-			'is passed'
+	// Regression on this branch only, no upstream PR: a pass only counts for a gated item.
+	// Added on fix/course-progress-enforcement (no PR yet).
+	it('ties each passing switch to its completion switch', () => {
+		const passing = writtenOf(progressItem).flatMap((field) =>
+			'requires' in field && field.requires
+				? [[field.name, field.requires]]
+				: []
 		)
+		expect(passing).toEqual([
+			['enforce_quiz_passing', 'enforce_quiz_completion'],
+			['enforce_open_ended_quiz_passing', 'enforce_quiz_completion'],
+			['enforce_assignment_passing', 'enforce_assignment_completion'],
+			[
+				'enforce_programming_exercise_passing',
+				'enforce_programming_exercise_completion',
+			],
+		])
 	})
 
 	// Regression from #2426: the copy claimed every video is enforced, but

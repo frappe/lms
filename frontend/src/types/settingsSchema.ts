@@ -14,13 +14,15 @@ export interface SelectOption {
 
 export type FieldOptions = string[] | SelectOption[]
 
-/** One Check field drawn as a checkbox inside a `checkboxGroup`. */
+/** One Check field drawn as a switch inside a `checkboxGroup`. */
 export interface CheckboxOption {
 	/** Fieldname on the page's source document. */
 	name: string
 	label: string
 	description?: string
 	caution?: string
+	/** Another Check field on the page; this switch shows only while that one is on. */
+	requires?: string
 }
 
 interface FieldBase {

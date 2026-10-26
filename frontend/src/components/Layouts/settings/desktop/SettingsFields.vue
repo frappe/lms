@@ -189,34 +189,46 @@
 						>
 							{{ __(field.description) }}
 						</div>
-						<div class="mt-3 grid grid-cols-2 gap-4">
+						<div class="mt-1 grid grid-cols-1 gap-x-8 sm:grid-cols-2">
 							<div
 								v-for="option in visibleOptions(field)"
 								:key="option.name"
 								:data-setting-field="option.name"
+								class="flex items-center justify-between gap-4 py-2"
 							>
-								<div class="flex h-7 items-center gap-1">
-									<Checkbox
-										:label="__(option.label)"
-										:model-value="Boolean(data[option.name])"
-										:disabled="field.disabled"
-										:aria-describedby="
-											option.description ? optionHintId(option) : undefined
-										"
-										@update:model-value="
-											(value) => onOption(field, option, value)
-										"
-									/>
-									<SettingsCaution
-										v-if="option.caution"
-										:text="__(option.caution)"
-									/>
+								<div class="flex min-w-0 flex-col">
+									<div class="flex items-center gap-1.5">
+										<span
+											:id="optionLabelId(option)"
+											class="text-p-base text-ink-gray-7"
+										>
+											{{ __(option.label) }}
+										</span>
+										<SettingsCaution
+											v-if="option.caution"
+											:text="__(option.caution)"
+										/>
+									</div>
+									<div
+										v-if="option.description"
+										:id="optionHintId(option)"
+										class="text-p-sm text-ink-gray-6"
+									>
+										{{ __(option.description) }}
+									</div>
 								</div>
-								<InputDescription
-									v-if="option.description"
-									:id="optionHintId(option)"
-									:description="__(option.description)"
-									class="ps-[1.35rem]"
+								<BooleanSwitch
+									size="sm"
+									class="shrink-0"
+									:model-value="data[option.name]"
+									:disabled="field.disabled"
+									:aria-labelledby="optionLabelId(option)"
+									:aria-describedby="
+										option.description ? optionHintId(option) : undefined
+									"
+									@update:model-value="
+										(value) => onOption(field, option, value)
+									"
 								/>
 							</div>
 						</div>
@@ -319,7 +331,7 @@
 	</div>
 </template>
 <script setup>
-import { Checkbox, FormControl, Password, Select } from 'frappe-ui'
+import { FormControl, Password, Select } from 'frappe-ui'
 import { InputDescription, InputLabel } from 'frappe-ui/experimental'
 import BooleanSwitch from '@/components/Controls/BooleanSwitch.vue'
 import { nextTick, onBeforeUnmount, reactive, ref, useId, watch } from 'vue'
@@ -452,10 +464,14 @@ const INSTANT_TYPES = [
 	'upload',
 ]
 
-// A field the document has hidden is not rendered, so it is neither written nor
-// validated. Only Transactions' coupon block uses this.
+// A field the document has hidden, or a group with no option showing, is not
+// rendered, so it is neither written nor validated.
 const visibleFields = (section) =>
-	section.fields.filter((field) => !field.showIf || field.showIf(props.data))
+	section.fields.filter(
+		(field) =>
+			(!field.showIf || field.showIf(props.data)) &&
+			(field.type != 'checkboxGroup' || visibleOptions(field).length)
+	)
 
 const CONTENT_TYPES = ['textarea', 'richtext']
 
@@ -549,7 +565,21 @@ const onOption = (field, option, value) => {
 	emit('commit', 'now')
 }
 
+const optionLabelId = (option) => `${uid}-${option.name}-label`
+
 const optionHintId = (option) => `${uid}-${option.name}-description`
+
+// An option that asks for another one shows only while that one is on.
+const visibleOptions = (field) =>
+	field.options.filter(
+		(option) => !option.requires || props.data[option.requires]
+	)
+
+const dependentOptions = (name) =>
+	props.sections
+		.flatMap((section) => section.fields)
+		.flatMap((field) => field.options || [])
+		.filter((option) => option.requires === name)
 
 const isFlashed = (field) =>
 	field.options.some((option) => option.name === flashed.value)

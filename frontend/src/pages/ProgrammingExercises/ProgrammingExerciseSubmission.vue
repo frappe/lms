@@ -539,8 +539,16 @@ const createSubmission = async () => {
 	// preview would otherwise write a real submission under the author's name.
 	if (props.preview) return
 	if (!results.value.length) return
+<<<<<<< HEAD
 	const codeToSave = code.value.replace(storedPrefix.value, '')
 
+=======
+	// markLessonProgress reads the URL, which may be another lesson by the time
+	// the save lands.
+	const lessonPath = window.location.pathname
+	// Sent whole: the server runs the code the run here used and scores it itself
+	// rather than taking these results on trust, then strips the boilerplate to store.
+>>>>>>> 71ec26e (feat: enforce passing or an attempt per completion item)
 	return call<string>('lms.lms.api.create_programming_exercise_submission', {
 		exercise: props.exerciseID,
 		submission: submissionID.value,
@@ -563,7 +571,7 @@ const createSubmission = async () => {
 =======
 			const ran = results.value
 			await fetchSubmission(name)
-			if (props.embedded && submissionDoc.value?.status === 'Passed')
+			if (props.embedded && window.location.pathname === lessonPath)
 				markLessonProgress()
 			if (showSavedResults(ran)) {
 				toast.warning(
