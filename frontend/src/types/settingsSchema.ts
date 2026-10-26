@@ -19,6 +19,8 @@ interface FieldBase {
 	name: string
 	label: string
 	description?: string
+	/** A limitation of the setting, shown behind an alert icon beside the label. */
+	caution?: string
 	placeholder?: string
 	reqd?: boolean
 	/**

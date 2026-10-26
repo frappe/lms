@@ -175,14 +175,37 @@
 							:class="flashed === field.name ? 'opacity-100' : 'opacity-0'"
 						/>
 						<div class="flex flex-col">
-							<div class="text-p-base-medium text-ink-gray-7">
-								{{ __(field.label) }}
-								<span
-									v-if="field.reqd"
-									class="text-ink-red-5"
-									aria-hidden="true"
-									>*</span
-								>
+							<div
+								class="flex items-center gap-1.5 text-p-base-medium text-ink-gray-7"
+							>
+								<span>
+									{{ __(field.label) }}
+									<span
+										v-if="field.reqd"
+										class="text-ink-red-5"
+										aria-hidden="true"
+										>*</span
+									>
+								</span>
+								<Tooltip v-if="field.caution">
+									<Button
+										variant="ghost"
+										size="sm"
+										:aria-label="__(field.caution)"
+									>
+										<template #icon>
+											<span
+												class="lucide-circle-alert size-3.5 text-ink-gray-6"
+												aria-hidden="true"
+											/>
+										</template>
+									</Button>
+									<template #content>
+										<div class="max-w-xs text-p-xs">
+											{{ __(field.caution) }}
+										</div>
+									</template>
+								</Tooltip>
 							</div>
 							<div v-if="field.description" class="text-p-sm text-ink-gray-6">
 								{{ __(field.description) }}
@@ -252,7 +275,7 @@
 	</div>
 </template>
 <script setup>
-import { FormControl, Password, Select } from 'frappe-ui'
+import { Button, FormControl, Password, Select, Tooltip } from 'frappe-ui'
 import { InputDescription, InputLabel } from 'frappe-ui/experimental'
 import BooleanSwitch from '@/components/Controls/BooleanSwitch.vue'
 import { nextTick, onBeforeUnmount, reactive, ref, useId, watch } from 'vue'

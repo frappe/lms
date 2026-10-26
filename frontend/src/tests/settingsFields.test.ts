@@ -415,3 +415,28 @@ describe('SettingsFields focuses the field it is asked for', () => {
 		expect(w.find('[data-setting-field="send_invites"]').exists()).toBe(true)
 	})
 })
+
+describe('SettingsFields shows a caution behind an alert icon', () => {
+	it('names the caution on a focusable icon beside the label', async () => {
+		const w = await mountFields([
+			{
+				name: 'prevent_skipping_videos',
+				label: 'Prevent Skipping Videos',
+				type: 'checkbox',
+				description: 'Learners cannot skip ahead.',
+				caution: 'Not enforced for embedded links.',
+			},
+		])
+		const icon = w.find('button[aria-label="Not enforced for embedded links."]')
+		expect(icon.exists()).toBe(true)
+		expect(icon.find('.lucide-circle-alert').exists()).toBe(true)
+		expect(w.text()).toContain('Learners cannot skip ahead.')
+	})
+
+	it('draws no icon for a field without one', async () => {
+		const w = await mountFields([
+			{ name: 'send_invites', label: 'Invites', type: 'checkbox' },
+		])
+		expect(w.find('.lucide-circle-alert').exists()).toBe(false)
+	})
+})
