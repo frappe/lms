@@ -46,6 +46,11 @@ class TestBatchBulkEnrollment(BaseTestUtils):
 		frappe.db.set_value("LMS Batch", cls.batch, {"paid_batch": 1, "amount": 500, "currency": "INR"})
 		cls.source = cls._create_source()
 
+	def _create_free_batch(self, title):
+		return self._create_batch(
+			self.course.name, instructor=self.instructor, title=title, evaluator=self.instructor
+		).name
+
 	@classmethod
 	def _create_source(cls):
 		return frappe.get_doc({"doctype": "LMS Source", "source": f"Bulk Source {cls.hash}"}).insert().name
@@ -80,9 +85,7 @@ class TestBatchBulkEnrollment(BaseTestUtils):
 		return frappe.db.exists("LMS Batch Enrollment", {"batch": self.batch, "member": member})
 
 	def test_plain_members_still_enroll_as_before(self):
-		free = self._create_batch(
-			self.course.name, instructor=self.instructor, title=f"Bulk Free Batch {self.hash}"
-		).name
+		free = self._create_free_batch(f"Bulk Free Batch {self.hash}")
 		self._as(self.instructor)
 		result = add_students_to_batch(free, json.dumps(self.students[:2]))
 		self.assertEqual(result, {"added": self.students[:2], "errors": []})
@@ -97,9 +100,7 @@ class TestBatchBulkEnrollment(BaseTestUtils):
 		self.assertEqual(frappe.db.count("LMS Payment", {"member": ["in", emails]}), 0)
 
 	def test_a_plain_list_of_more_than_fifty_is_not_capped(self):
-		free = self._create_batch(
-			self.course.name, instructor=self.instructor, title=f"Bulk Uncapped Batch {self.hash}"
-		).name
+		free = self._create_free_batch(f"Bulk Uncapped Batch {self.hash}")
 		emails = [f"bulk-many{i}-{self.hash}@example.com" for i in range(51)]
 		self._as(self.instructor)
 		result = add_students_to_batch(free, json.dumps(emails))
@@ -194,9 +195,7 @@ class TestBatchBulkEnrollment(BaseTestUtils):
 		student = self.students[0]
 		unreceived = self._make_payment(student, received=0)
 		used = self._make_payment(student)
-		other_batch = self._create_batch(
-			self.course.name, instructor=self.instructor, title=f"Bulk Used Batch {self.hash}"
-		).name
+		other_batch = self._create_free_batch(f"Bulk Used Batch {self.hash}")
 		frappe.get_doc(
 			{"doctype": "LMS Batch Enrollment", "batch": other_batch, "member": student, "payment": used}
 		).insert()
@@ -228,9 +227,7 @@ class TestBatchBulkEnrollment(BaseTestUtils):
 		self.assertEqual(self._payment_count(student), before)
 
 	def test_payment_arguments_are_refused_on_a_free_batch(self):
-		free = self._create_batch(
-			self.course.name, instructor=self.instructor, title=f"Bulk Free Batch {self.hash}"
-		).name
+		free = self._create_free_batch(f"Bulk Free Batch {self.hash}")
 		self._as(self.instructor)
 		with self.assertRaises(frappe.ValidationError):
 			add_students_to_batch(
@@ -238,9 +235,7 @@ class TestBatchBulkEnrollment(BaseTestUtils):
 			)
 
 	def test_an_unauthorised_caller_gets_permission_error_on_a_free_batch(self):
-		free = self._create_batch(
-			self.course.name, instructor=self.instructor, title=f"Bulk Free Batch {self.hash}"
-		).name
+		free = self._create_free_batch(f"Bulk Free Batch {self.hash}")
 		self._as(self.students[2])
 		with self.assertRaises(frappe.PermissionError):
 			add_students_to_batch(

@@ -151,7 +151,10 @@ class TestRecordPaymentAddress(BaseTestUtils):
 		cls.student = cls._create_user(
 			f"pay-addr-{cls.hash}@example.com", "Pay", "Student", ["LMS Student"]
 		).name
-		cls.course = cls._create_course(f"Pay Addr Course {cls.hash}").name
+		instructor = cls._create_user(
+			f"pay-addr-ins-{cls.hash}@example.com", "Pay", "Instructor", ["Course Creator"]
+		).name
+		cls.course = cls._create_course(f"Pay Addr Course {cls.hash}", instructor=instructor).name
 		frappe.db.set_value(
 			"LMS Course",
 			cls.course,
