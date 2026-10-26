@@ -270,6 +270,79 @@ describe('a quiz or assignment submit on an enforced-video lesson', () => {
 	})
 })
 
+// Regression on this branch only, no upstream PR: a revisit had to re-watch the video.
+// Added on fix/course-progress-enforcement (no PR yet).
+describe('an enforced video resumed at its end', () => {
+	const resumeAt = async (watchTime: number, duration = 100) => {
+		const player = await openLesson(1)
+		player.duration = duration
+		findResource('lms.lms.utils.get_lesson').data = {
+			...enrolledLesson,
+			name: 'L1-revisit',
+			videos: [{ source: player.source, watch_time: watchTime }],
+		}
+		await flushPromises()
+		player.emit('ready')
+		return findResource(SAVE_PROGRESS).submit
+	}
+
+	it('completes the lesson without a re-watch', async () => {
+		expect(await resumeAt(100)).toHaveBeenCalled()
+	})
+
+	it('does not complete a lesson resumed part-way through', async () => {
+		expect(await resumeAt(40)).not.toHaveBeenCalled()
+	})
+
+	// Bunny reports its duration only with timeupdate, so it is 0 at ready.
+	it('completes once a player with no duration at ready reports one', async () => {
+		const submit = await resumeAt(100, 0)
+		expect(submit).not.toHaveBeenCalled()
+		const player = players.list[0]
+		player.duration = 100
+		player.emit('timeupdate')
+		player.emit('timeupdate')
+		expect(submit).toHaveBeenCalledTimes(1)
+	})
+})
+
+// Regression on this branch only, no upstream PR: an uploaded video resumed at its
+// end re-held completion, so a later quiz or assignment submit did nothing.
+// Added on fix/course-progress-enforcement (no PR yet).
+describe('an uploaded video already loaded when resumed', () => {
+	const SRC = 'https://example.com/files/intro.mp4'
+
+	const resumeUploadedAt = async (watchTime: number) => {
+		const video = document.createElement('video')
+		video.src = SRC
+		Object.defineProperty(video, 'readyState', { value: 1 })
+		Object.defineProperty(video, 'duration', { value: 100 })
+		document.body.appendChild(video)
+		settings.data = { enforce_video_completion: 1 }
+		players.list = []
+		wrapper = await mountLesson()
+		findResource('lms.lms.utils.get_lesson').data = {
+			...enrolledLesson,
+			videos: [{ source: SRC, watch_time: watchTime }],
+		}
+		await flushPromises()
+	}
+
+	afterEach(() => (document.body.innerHTML = ''))
+
+	it('lets a later submit complete the lesson once watched to the end', async () => {
+		await resumeUploadedAt(100)
+		markLessonProgress()
+		expect(markCalls()).toHaveLength(1)
+	})
+
+	it('still holds completion when resumed part-way through', async () => {
+		await resumeUploadedAt(40)
+		markLessonProgress()
+		expect(markCalls()).toHaveLength(0)
+	})
+})
+
 describe('a Bunny Stream lesson', () => {
 	const BUNNY = 'https://player.mediadelivery.net/embed/123/abc-def'
 
