@@ -975,6 +975,8 @@ watch(
 		} else {
 			releaseLessonCompletion()
 		}
+		// After the hold, so a video resumed at its end can release it.
+		updateVideoWatchDuration()
 		if (
 			shouldAttachVideoFallback({ hasVideo: hasVideoListener, enforceVideo })
 		) {
@@ -1028,7 +1030,6 @@ const getPlyrSource = async () => {
 			})
 		}
 	}
-	updateVideoWatchDuration()
 }
 
 const updateVideoWatchDuration = () => {
@@ -1083,8 +1084,29 @@ const updatePlyrVideoTime = (video: WatchedVideo): void => {
 				plyrSource.embed.seekTo(video.watch_time, true)
 				plyrSource.play()
 				plyrSource.pause()
+				completePlayerIfWatched(plyrSource, video.watch_time)
 			}
 		})
+	})
+}
+
+// A video watched to the end on an earlier visit has nothing left to end, so
+// resuming there counts as the ended event the enforced-video hold waits for.
+const completeIfWatched = (watchTime: number, duration: number): void => {
+	if (isVideoComplete(watchTime, duration)) markProgress()
+}
+
+// Bunny reports its duration only with timeupdate, so at ready it is still 0.
+const completePlayerIfWatched = (
+	player: LessonPlayer,
+	watchTime: number
+): void => {
+	if (player.duration > 0) return completeIfWatched(watchTime, player.duration)
+	let checked = false
+	player.on('timeupdate', () => {
+		if (checked || !(player.duration > 0)) return
+		checked = true
+		completeIfWatched(watchTime, player.duration)
 	})
 }
 
@@ -1097,9 +1119,11 @@ const updateVideoTime = (video: WatchedVideo): void => {
 				allowSkipUpTo(vid, video.watch_time)
 				if (vid.readyState >= 1) {
 					vid.currentTime = watch_time
+					completeIfWatched(video.watch_time, vid.duration)
 				} else {
 					vid.addEventListener('loadedmetadata', () => {
 						vid.currentTime = watch_time
+						completeIfWatched(video.watch_time, vid.duration)
 					})
 				}
 			}

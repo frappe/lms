@@ -35,6 +35,19 @@ class LMSQuizSubmission(Document):
 
 	def on_update(self):
 		self.notify_member()
+		self.complete_lessons_on_pass()
+
+	def complete_lessons_on_pass(self):
+		"""A grade that lifts a saved attempt to passing. The learner's own submit records
+		its progress itself, through save_progress_after_quiz."""
+		if not self.get_doc_before_save() or not self.has_value_changed("percentage"):
+			return
+		passing_percentage = frappe.db.get_value("LMS Quiz", self.quiz, "passing_percentage")
+		if (self.percentage or 0) < (passing_percentage or 0):
+			return
+		from lms.lms.doctype.course_lesson.course_lesson import complete_lessons_after_grading
+
+		complete_lessons_after_grading(self.member, "LMS Quiz", self.quiz)
 
 	def lock_member_attempts(self):
 		"""One member's attempts queue on their User row, so the count after an insert

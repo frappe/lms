@@ -30,7 +30,11 @@ with warnings.catch_warnings():
 	warnings.filterwarnings("ignore", message="Using slow pure-python SequenceMatcher")
 	from fuzzywuzzy import fuzz
 
-from lms.lms.doctype.course_lesson.course_lesson import get_lesson_course, save_progress
+from lms.lms.doctype.course_lesson.course_lesson import (
+	get_lesson_course,
+	save_progress,
+	video_holds_completion,
+)
 from lms.lms.doctype.lms_content_author.lms_content_author import AuthoredDocument
 from lms.lms.doctype.lms_question.lms_question import (
 	QUESTION_CORRECTNESS_FIELDS,
@@ -746,6 +750,9 @@ def save_progress_after_quiz(quiz_details: dict):
 
 	course = get_lesson_course(quiz_details.lesson)
 	if not course or quiz_details.lesson in get_locked_lessons(course):
+		return
+	# The lesson page completes it once the video ends.
+	if video_holds_completion(quiz_details.lesson):
 		return
 
 	save_progress(quiz_details.lesson, course)

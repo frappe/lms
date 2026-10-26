@@ -30,8 +30,11 @@ from lms.lms.permissions import (
 	unplaceable_assessments,
 )
 from lms.lms.utils import (
+	PRIVILEGED_ROLES,
+	compute_locked_lessons,
 	get_course_progress,
 	get_editorjs_blocks,
+	get_ordered_lesson_rows,
 	guest_access_allowed,
 	is_demo_course,
 	moderators_among,
@@ -653,6 +656,122 @@ def _save_progress(lesson: str, course: str, scorm_details: dict = None):
 	)
 
 	return progress
+
+
+def complete_lessons_after_grading(member: str, assessment_type: str, assessment_name: str):
+	"""Complete each lesson a new grade was the last thing holding back, since the learner
+	is not on the page to ask. A lesson with an enforced video waits for their next visit:
+	only the browser sees the video."""
+	# Progress is recorded for the session user unless a privileged role writes it.
+	if not PRIVILEGED_ROLES & set(frappe.get_roles()):
+		return
+	rules = get_completion_rules()
+	for lesson in _student_placements(assessment_type, assessment_name):
+		if video_holds_completion(lesson):
+			continue
+		course = get_lesson_course(lesson)
+		if course and _can_complete_for(course, lesson, member, rules):
+			_record_graded_completion(course, lesson, member)
+
+
+def _student_placements(assessment_type: str, assessment_name: str) -> list[str]:
+	lessons = frappe.get_all(
+		"LMS Lesson Assessment",
+		filters={
+			"parenttype": "Course Lesson",
+			"assessment_type": assessment_type,
+			"assessment_name": assessment_name,
+			"instructor_only": 0,
+		},
+		pluck="parent",
+		distinct=True,
+	)
+	if assessment_type == "LMS Quiz":
+		# The legacy quiz_id field has no placement row; get_lesson_quizzes counts it
+		# only on a lesson without block content.
+		legacy = frappe.get_all(
+			"Course Lesson",
+			filters={"quiz_id": assessment_name, "content": ["is", "not set"]},
+			pluck="name",
+		)
+		lessons = list(dict.fromkeys(lessons + legacy))
+	return lessons
+
+
+def _can_complete_for(course: str, lesson: str, member: str, rules: dict) -> bool:
+	if not frappe.db.exists("LMS Enrollment", {"course": course, "member": member}):
+		return False
+	if frappe.db.exists("LMS Course Progress", {"lesson": lesson, "member": member}):
+		return False
+	return not is_lesson_locked_for(course, lesson, member) and lesson_requirements_met(lesson, member, rules)
+
+
+def _record_graded_completion(course: str, lesson: str, member: str):
+	enrollment = frappe.db.get_value(
+		"LMS Enrollment", {"course": course, "member": member}, ["name", "current_lesson"], as_dict=True
+	)
+	with batched_enrollment_updates():
+		try:
+			# nosemgrep: lms-unjustified-ignore-permissions - the grader records the learner's own progress; a privileged role is checked above
+			frappe.get_doc(
+				{"doctype": "LMS Course Progress", "lesson": lesson, "status": "Complete", "member": member}
+			).insert(ignore_permissions=True)
+		except frappe.UniqueValidationError:
+			return
+		# Only a learner still parked on this lesson is moved; one who went on stays put.
+		if enrollment.current_lesson == lesson:
+			update_enrollment(enrollment.name, {"current_lesson": get_next_lesson(course, lesson) or lesson})
+	frappe.publish_realtime(
+		event="update_lesson_progress",
+		user=member,
+		message={"course": course, "lesson": lesson, "progress": get_course_progress(course, member)},
+		after_commit=True,
+	)
+
+
+def video_holds_completion(lesson: str) -> bool:
+	"""Only the browser sees an enforced video end, so a server-side write leaves the
+	lesson for the learner's own visit to complete."""
+	return bool(
+		cint(frappe.get_cached_value("LMS Settings", None, "enforce_video_completion"))
+		and lesson_has_video(lesson)
+	)
+
+
+VIDEO_FILE_TYPES = {"mp4", "webm", "ogg", "mov"}
+VIDEO_EMBED_SERVICES = {"youtube", "vimeo", "cloudflareStream", "bunnyStream"}
+
+
+def lesson_has_video(lesson: str) -> bool:
+	"""The videos get_lesson_icon recognises, plus the legacy YouTube field."""
+	details = frappe.db.get_value("Course Lesson", lesson, ["body", "content", "youtube"], as_dict=True)
+	if details.youtube:
+		return True
+	if details.content:
+		return any(_is_video_block(block) for block in get_editorjs_blocks(details.content))
+	return any(name in ("YouTubeVideo", "Video") for name, _value in find_macros(details.body or ""))
+
+
+def _is_video_block(block: dict) -> bool:
+	data = block.get("data") or {}
+	if block.get("type") == "upload":
+		return (data.get("file_type") or "").lower() in VIDEO_FILE_TYPES
+	return block.get("type") == "embed" and data.get("service") in VIDEO_EMBED_SERVICES
+
+
+def is_lesson_locked_for(course: str, lesson: str, member: str) -> bool:
+	"""get_locked_lessons for a member other than the session user."""
+	if not frappe.db.get_value("LMS Course", course, "enforce_lesson_completion"):
+		return False
+	completed = set(
+		frappe.get_all(
+			"LMS Course Progress",
+			filters={"course": course, "member": member, "status": "Complete"},
+			pluck="lesson",
+		)
+	)
+	names = [row.name for row in get_ordered_lesson_rows(course)]
+	return lesson in compute_locked_lessons(names, completed)
 
 
 def get_lesson_course(lesson: str) -> str | None:
