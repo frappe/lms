@@ -90,6 +90,8 @@ export interface LMSSettings {
 	certified_members?: 0 | 1
 	/**	Prevent Skipping Videos : Check	*/
 	prevent_skipping_videos?: 0 | 1
+	/**	Enforce Programming Exercise Completion : Check	*/
+	enforce_programming_exercise_completion?: 0 | 1
 	/**	Programming Exercises : Check	*/
 	programming_exercises?: 0 | 1
 	/**	Contact Us Email : Data	*/

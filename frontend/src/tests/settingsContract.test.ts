@@ -152,6 +152,8 @@ describe('the course progress descriptions', () => {
 		)
 	})
 
+	// Regression from #2426: the copy claimed every video is enforced, but
+	// embedded providers cannot be tracked. Added on fix/course-progress-enforcement (no PR yet).
 	it.each(['enforce_video_completion', 'prevent_skipping_videos'])(
 		'%s names the providers it cannot enforce in its caution',
 		(name) => {

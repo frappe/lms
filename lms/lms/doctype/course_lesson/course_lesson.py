@@ -12,7 +12,7 @@ from frappe import _
 from frappe.model.document import Document
 from frappe.query_builder.functions import Count, Locate
 from frappe.rate_limiter import rate_limit
-from frappe.utils import add_to_date, now_datetime
+from frappe.utils import add_to_date, cint, now_datetime
 from frappe.utils.response import send_private_file
 from frappe.utils.telemetry import capture
 
@@ -550,7 +550,11 @@ def _save_progress(lesson: str, course: str, scorm_details: dict = None):
 			frappe.get_cached_value(
 				"LMS Settings",
 				None,
-				["enforce_quiz_completion", "enforce_assignment_completion"],
+				[
+					"enforce_quiz_completion",
+					"enforce_assignment_completion",
+					"enforce_programming_exercise_completion",
+				],
 				as_dict=True,
 			)
 			or {}
@@ -564,11 +568,21 @@ def _save_progress(lesson: str, course: str, scorm_details: dict = None):
 		assignment_done=get_assignment_progress(lesson),
 		settings=settings,
 	)
+	# Off unless set, unlike the two above: this one arrived after sites had exercises.
+	exercise_completed = True
+	if cint(settings.get("enforce_programming_exercise_completion")):
+		exercise_completed = get_programming_exercise_progress(lesson)
 
 	if scorm_details:
 		scorm_details = frappe._dict(**scorm_details)
 
-	if not progress_already_exists and quiz_completed and assignment_completed and not scorm_details:
+	if (
+		not progress_already_exists
+		and quiz_completed
+		and assignment_completed
+		and exercise_completed
+		and not scorm_details
+	):
 		try:
 			frappe.get_doc(
 				{
@@ -784,6 +798,24 @@ def rename_settled_untitled_lessons():
 		frappe.logger("lms").info(
 			"rename_settled_untitled_lessons hit the per-run cap; remaining lessons handled next run"
 		)
+
+
+def get_programming_exercise_progress(lesson):
+	"""Only block content renders an exercise; no legacy body macro does."""
+	content = frappe.db.get_value("Course Lesson", lesson, "content")
+	exercises = {
+		(block.get("data") or {}).get("exercise")
+		for block in get_editorjs_blocks(content)
+		if block.get("type") == "program"
+	}
+	return all(
+		frappe.db.exists(
+			"LMS Programming Exercise Submission",
+			{"exercise": exercise, "member": frappe.session.user, "status": "Passed"},
+		)
+		for exercise in exercises
+		if exercise
+	)
 
 
 def get_assignment_progress(lesson):
