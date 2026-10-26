@@ -146,3 +146,4 @@ lms.patches.v2_0.limit_moderator_user_access
 lms.patches.v2_0.clean_lesson_content
 execute:from lms.patches.v2_0.reconcile_custom_docperm_permlevels import reconcile; reconcile(["LMS Live Class"])
 execute:from lms.patches.v2_0.reconcile_custom_docperm_permlevels import reconcile; reconcile(["LMS Program"])
+lms.patches.v2_0.keep_quiz_completion_on_passing
