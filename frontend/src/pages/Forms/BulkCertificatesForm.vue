@@ -12,24 +12,28 @@
 					v-model="details.evaluator"
 					:label="__('Evaluator')"
 					doctype="Course Evaluator"
+					variant="outline"
 				/>
 				<FormControl
 					type="date"
 					:format="dateFormat"
 					v-model="details.issue_date"
 					:label="__('Issue Date')"
+					variant="outline"
 				/>
 				<FormControl
 					type="date"
 					:format="dateFormat"
 					v-model="details.expiry_date"
 					:label="__('Expiry Date')"
+					variant="outline"
 				/>
 				<FormControl
 					type="select"
 					v-model="details.course"
 					:label="__('Course')"
 					:options="courseOptions"
+					variant="outline"
 				/>
 				<Link
 					v-model="details.template"
@@ -38,6 +42,7 @@
 					:filters="{
 						doc_type: 'LMS Certificate',
 					}"
+					variant="outline"
 				/>
 				<BooleanSwitch
 					size="sm"

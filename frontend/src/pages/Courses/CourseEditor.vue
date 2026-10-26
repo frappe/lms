@@ -185,13 +185,20 @@ const selected = computed(() =>
 // title.
 // `source` says which control asked, for the lesson_created event.
 function onAddLesson({ chapter, source = 'outline' }) {
-	target.value = {
-		kind: 'draft',
-		chapter: chapter.name,
-		token: nextDraftToken(),
-		source,
-	}
-	showChapters.value = false
+	leaveLessonThen(() => {
+		target.value = {
+			kind: 'draft',
+			chapter: chapter.name,
+			token: nextDraftToken(),
+			source,
+		}
+		showChapters.value = false
+	})
+}
+
+// The open lesson may need the author to agree to discard it first.
+function leaveLessonThen(go) {
+	if (lessonFormRef.value?.guardLeave?.(go) ?? true) go()
 }
 
 // The created lesson keeps the draft's token as its form key, so the form
@@ -255,9 +262,14 @@ function onChapterDeleted({ chapter }) {
 }
 
 function onSelectLesson({ chapterNumber, lessonNumber }) {
-	target.value = { kind: 'number', number: `${chapterNumber}-${lessonNumber}` }
-	// On mobile the outline lives in a sheet; dismiss it once a lesson is picked.
-	showChapters.value = false
+	leaveLessonThen(() => {
+		target.value = {
+			kind: 'number',
+			number: `${chapterNumber}-${lessonNumber}`,
+		}
+		// On mobile the outline lives in a sheet; dismiss it once a lesson is picked.
+		showChapters.value = false
+	})
 }
 
 const outline = createResource({

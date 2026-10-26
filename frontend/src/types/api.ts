@@ -19,6 +19,8 @@ export interface Resource<T = unknown> {
 	update(opts: unknown): void
 	setData(data: T): void
 	setValue: { submit(values: unknown, opts?: unknown): Promise<T> }
+	/** createDocumentResource's fetch of `doc`. */
+	get?: { loading: boolean }
 }
 
 export interface UserInfo {
@@ -149,6 +151,8 @@ export interface CourseFormContext {
 	relatedCourses: Ref<string[]>
 	meta: CourseFormMeta
 	markDirty: () => void
+	/** Shows Not Saved without arming autosave. */
+	markUnsaved: () => void
 }
 
 export interface EvaluatorCalendar {

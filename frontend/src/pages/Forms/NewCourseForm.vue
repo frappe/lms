@@ -134,8 +134,7 @@ import {
 	toast,
 } from 'frappe-ui'
 import type { FrappeResourceError } from 'frappe-ui'
-import { useOnboarding } from '@framework/ui/components/Onboarding/index'
-import { seesOnboarding } from '@/utils/onboarding'
+import { useLearningOnboarding } from '@/onboarding/useLearningOnboarding'
 import { useTelemetry } from '@framework/ui/telemetry/index'
 import { computed, inject, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import FormShell from '@/components/FormShell.vue'
@@ -169,7 +168,7 @@ interface RawUserHit {
 }
 
 const { capture } = useTelemetry()
-const { updateOnboardingStep } = useOnboarding('learning')
+const { completeStep } = useLearningOnboarding()
 const user = inject<any>('$user')
 const courseCreated = ref(false)
 const showMemberModal = ref<boolean>(false)
@@ -217,13 +216,7 @@ const course = ref<Course>({
 	title: '',
 	short_introduction: '',
 	description: '',
-	// Whoever creates the course usually teaches it, and on a new site they
-	// are the only person who can. Administrator is a system account, never
-	// an instructor, and the instructor search leaves it out too.
-	instructors:
-		canCreate.value && user.data?.name && user.data.name !== 'Administrator'
-			? [user.data.name]
-			: [],
+	instructors: [],
 	category: undefined,
 	image: null,
 })
@@ -282,6 +275,28 @@ watch(
 	(vals) => {
 		const missing = (vals || []).filter((v) => !resolvedDetails.value.has(v))
 		if (missing.length) selectedDetails.reload()
+	},
+	{ immediate: true }
+)
+
+// The creator starts as an instructor, once per open, and only on an empty
+// field. Their option comes from the session user because the role search
+// leaves out creators without an instructor role. Administrator is a system
+// account, never an instructor, and the instructor search leaves it out too.
+let creatorPrefilled = false
+watch(
+	() => (canCreate.value ? user.data?.name : undefined),
+	(name: string | undefined) => {
+		if (!name || name === 'Administrator' || creatorPrefilled) return
+		creatorPrefilled = true
+		if (course.value.instructors.length) return
+		resolvedDetails.value = new Map(resolvedDetails.value).set(name, {
+			label: user.data.full_name || name,
+			value: name,
+			image: user.data.user_image || '',
+			description: name,
+		})
+		course.value.instructors = [name]
 	},
 	{ immediate: true }
 )
@@ -367,11 +382,7 @@ const saveCourse = () => {
 					params: { courseName: data.name },
 					hash: '#settings',
 				})
-				if (seesOnboarding(user.data)) {
-					updateOnboardingStep('create_first_course', true, false, () => {
-						localStorage.setItem('firstCourse', data.name)
-					})
-				}
+				completeStep('create_first_course', { first_course: data.name })
 			},
 			onError(err: FrappeResourceError) {
 				toast.error(cleanError(err.messages?.[0]))

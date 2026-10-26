@@ -122,7 +122,7 @@ const autosave =
 	props.page.save === 'auto'
 		? useAutosave({
 				isDirty: () => source.isDirty,
-				write: () => source.save(),
+				write: () => source.save().then(() => props.page.onAutosaved?.()),
 		  })
 		: null
 

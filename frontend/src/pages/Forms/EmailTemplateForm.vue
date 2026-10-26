@@ -11,6 +11,7 @@
 					:label="__('Name')"
 					:required="true"
 					:placeholder="__('Batch Enrollment Confirmation')"
+					variant="outline"
 				/>
 				<FormControl
 					v-model="template.subject"
@@ -18,6 +19,7 @@
 					:label="__('Subject')"
 					:required="true"
 					:placeholder="__('Your enrollment in {{ batch_name }} is confirmed')"
+					variant="outline"
 				/>
 				<BooleanSwitch
 					v-model="template.use_html"
@@ -32,6 +34,7 @@
 					:label="__('Content')"
 					:required="true"
 					:placeholder="htmlPlaceholder"
+					variant="outline"
 				/>
 				<div
 					v-else

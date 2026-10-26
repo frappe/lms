@@ -35,7 +35,8 @@ import {
 import { useDebounceFn } from '@vueuse/core'
 import { useRouter } from 'vue-router'
 import { getMetaInfo, updateMetaInfo } from '@/utils'
-import { validateCourse } from '@/utils/courseForm'
+import { isPricedCourse, validateCourse } from '@/utils/courseForm'
+import { useLearningOnboarding } from '@/onboarding/useLearningOnboarding'
 import {
 	useKeyboardShortcuts,
 	saveShortcut,
@@ -81,6 +82,7 @@ const props = defineProps<{
 
 const user = inject<SessionUser>('$user')!
 const router = useRouter()
+const { completeStep } = useLearningOnboarding()
 const app = getCurrentInstance()!
 const { $dialog } = app.appContext.config.globalProperties as {
 	$dialog: DialogFn
@@ -135,12 +137,17 @@ const markDirty = (): void => {
 	autoSave()
 }
 
+const markUnsaved = (): void => {
+	isDirty.value = true
+}
+
 const courseFormContext: CourseFormContext = {
 	resource: courseResource,
 	instructors,
 	relatedCourses: related_courses,
 	meta,
 	markDirty,
+	markUnsaved,
 }
 provide<CourseFormContext>('courseForm', courseFormContext)
 
@@ -228,6 +235,9 @@ const updateCourse = (opts: { silent?: boolean } = {}): void => {
 				updateMetaInfo('courses', courseResource.doc?.name, meta)
 				if (!opts.silent) toast.success(__('Course updated successfully'))
 				isDirty.value = false
+				if (isPricedCourse(courseResource.doc))
+					completeStep('set_course_pricing')
+				if (courseResource.doc?.published) completeStep('publish_course')
 				courseResource.reload()
 				// Refresh the shared course resource so sibling tabs (Overview,
 				// Dashboard) reflect the saved changes without a page reload.

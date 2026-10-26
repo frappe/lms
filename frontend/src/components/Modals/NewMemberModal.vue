@@ -21,6 +21,7 @@
 					:required="!isEdit"
 					:disabled="isEdit"
 					@keyup.enter="submit()"
+					variant="outline"
 				/>
 				<div v-if="!isEdit" class="flex items-center gap-3">
 					<FormControl
@@ -29,6 +30,7 @@
 						placeholder="Jane"
 						type="text"
 						class="w-full"
+						variant="outline"
 					/>
 					<FormControl
 						v-model="member.last_name"
@@ -36,6 +38,7 @@
 						placeholder="Doe"
 						type="text"
 						class="w-full"
+						variant="outline"
 					/>
 				</div>
 				<div class="flex flex-col gap-2">

@@ -158,8 +158,7 @@ import {
 	toast,
 } from 'frappe-ui'
 import type { FrappeResourceError } from 'frappe-ui'
-import { useOnboarding } from '@framework/ui/components/Onboarding/index'
-import { seesOnboarding } from '@/utils/onboarding'
+import { useLearningOnboarding } from '@/onboarding/useLearningOnboarding'
 import { useTelemetry } from '@framework/ui/telemetry/index'
 import { computed, inject, onMounted, onBeforeUnmount, ref } from 'vue'
 import { createLMSCategory, cleanError } from '@/utils'
@@ -181,7 +180,7 @@ import { filledFields, takeFormSource } from '@/composables/formTracking'
 
 const { capture } = useTelemetry()
 const batchCreated = ref(false)
-const { updateOnboardingStep } = useOnboarding('learning')
+const { completeStep } = useLearningOnboarding()
 const dateFormat = getDateFormat()
 const user = inject<any>('$user')
 const showMemberModal = ref(false)
@@ -288,11 +287,7 @@ const saveBatch = () => {
 					params: { batchName: data.name },
 					hash: '#settings',
 				})
-				if (seesOnboarding(user.data)) {
-					updateOnboardingStep('create_first_batch', true, false, () => {
-						localStorage.setItem('firstBatch', data.name)
-					})
-				}
+				completeStep('create_first_batch', { first_batch: data.name })
 			},
 			onError(err: FrappeResourceError) {
 				const message = err.messages?.[0]

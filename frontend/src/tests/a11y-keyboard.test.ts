@@ -70,14 +70,24 @@ vi.mock('@framework/ui/components/TrialBanner/index', () => ({
 	TrialBanner: { template: '<div />' },
 }))
 
-vi.mock('@framework/ui/components/Onboarding/index', () => ({
-	HelpModal: { template: '<div />' },
-	GettingStartedBanner: { template: '<div />' },
-	IntermediateStepModal: { template: '<div />' },
-	useOnboarding: () => ({ setUp: vi.fn(), isOnboardingStepsCompleted: true }),
-	showHelpModal: { value: false },
-	minimize: { value: false },
-}))
+vi.mock('@framework/ui/components/Onboarding/index', async () => {
+	// Refs, as the onboarding composable watches them.
+	const { ref } = await import('vue')
+	return {
+		HelpModal: { template: '<div />' },
+		GettingStartedBanner: { template: '<div />' },
+		IntermediateStepModal: { template: '<div />' },
+		useOnboarding: () => ({
+			steps: [],
+			setUp: vi.fn(),
+			syncStatus: vi.fn(),
+			updateOnboardingStep: vi.fn(),
+			isOnboardingStepsCompleted: { value: true },
+		}),
+		showHelpModal: ref(false),
+		minimize: ref(false),
+	}
+})
 
 vi.mock('@framework/ui/telemetry/index', () => ({
 	useTelemetry: () => ({ capture: vi.fn() }),

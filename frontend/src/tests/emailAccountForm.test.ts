@@ -51,6 +51,10 @@ vi.mock('@/components/Layouts/settings/desktop/SettingsFields.vue', () => ({
 	},
 }))
 vi.mock('@/utils/safeUrl', () => ({ safeUrl: (url: string) => url }))
+const { completeStepMock } = vi.hoisted(() => ({ completeStepMock: vi.fn() }))
+vi.mock('@/onboarding/useLearningOnboarding', () => ({
+	useLearningOnboarding: () => ({ completeStep: completeStepMock }),
+}))
 
 vi.stubGlobal('__', (text: string) => text)
 ;(String.prototype as any).format ??= function (...args: string[]) {
@@ -120,5 +124,29 @@ describe('the isNew provider picker', () => {
 
 		expect(w.find('[data-testid="provider-GMail"]').exists()).toBe(true)
 		expect(w.find('[data-testid="settings-fields"]').exists()).toBe(false)
+	})
+})
+
+describe('onboarding', () => {
+	// Guards: Set up email not ticking after an outgoing account is made.
+	// Introduced in this branch (feat/onboarding-flows, PR pending); test added
+	// there to cover the tick.
+	it('creating an account that sends mail completes the email step', async () => {
+		completeStepMock.mockReset()
+		const wrapper = mountForm() as any
+		wrapper.vm.state.enable_outgoing = true
+		await wrapper.vm.createAccount()
+		expect(completeStepMock).toHaveBeenCalledWith('setup_email')
+	})
+
+	// Guards: an incoming-only account ticking Set up email. Introduced in this
+	// branch (feat/onboarding-flows, PR pending); test added there to cover the
+	// no-tick.
+	it('an incoming-only account leaves the step alone', async () => {
+		completeStepMock.mockReset()
+		const wrapper = mountForm() as any
+		wrapper.vm.state.enable_outgoing = false
+		await wrapper.vm.createAccount()
+		expect(completeStepMock).not.toHaveBeenCalled()
 	})
 })

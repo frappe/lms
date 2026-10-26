@@ -23,12 +23,21 @@ vi.mock('@/stores/settings', () => ({ useSettings: () => ({}) }))
 vi.mock('@/stores/user', () => ({ usersStore: () => ({ userResource: {} }) }))
 vi.mock('@/stores/session', () => ({ sessionStore: () => ({ brand: {} }) }))
 
+type ResourceOptions = { url?: string; onSuccess?: () => void }
+
+const { createResourceMock } = vi.hoisted(() => ({
+	createResourceMock: vi.fn((_options?: ResourceOptions) => ({
+		data: null,
+		loading: false,
+		reload: vi.fn(),
+	})),
+}))
 vi.mock('frappe-ui', async () => {
 	// Reactive like the real resource, which CourseDetail watches.
 	const { reactive } = await import('vue')
 	return {
-		createResource: () =>
-			reactive({ data: null, loading: false, reload: vi.fn() }),
+		createResource: (options?: ResourceOptions) =>
+			reactive(createResourceMock(options)),
 		usePageMeta: vi.fn(),
 		toast: { success: vi.fn(), error: vi.fn() },
 		Badge: passthrough,
@@ -44,8 +53,9 @@ vi.mock('frappe-ui', async () => {
 vi.mock('@framework/ui/telemetry/index', () => ({
 	useTelemetry: () => ({ capture: vi.fn() }),
 }))
-vi.mock('@framework/ui/components/Onboarding/index', () => ({
-	useOnboarding: () => ({ updateOnboardingStep: vi.fn() }),
+const { completeStepMock } = vi.hoisted(() => ({ completeStepMock: vi.fn() }))
+vi.mock('@/onboarding/useLearningOnboarding', () => ({
+	useLearningOnboarding: () => ({ completeStep: completeStepMock }),
 }))
 
 // `shallow` stubs these at RENDER time, but their modules are still imported at
@@ -100,5 +110,41 @@ describe('the course page as a form parent', () => {
 		await flushPromises()
 
 		expect(wrapper.findComponent(RouterView).exists()).toBe(true)
+	})
+})
+
+describe('the course publish toggle', () => {
+	// Guards: publishing a course not ticking Publish the course. Introduced in
+	// this branch (feat/onboarding-flows, PR pending); test added there to
+	// cover the tick.
+	it('completes the publish step when it publishes the course', async () => {
+		const router = createRouter({
+			history: createMemoryHistory(),
+			routes: [
+				{
+					path: '/courses/:courseName',
+					name: 'CourseDetail',
+					component: CourseDetail,
+					props: true,
+				},
+			],
+		})
+		await router.push('/courses/COURSE-1')
+		mount(CourseDetail, {
+			props: { courseName: 'COURSE-1' },
+			shallow: true,
+			global: {
+				plugins: [router],
+				provide: { $user: { data: { name: 'mod@example.com' } } },
+				mocks: { __: (text: string) => text },
+			},
+		})
+		await flushPromises()
+
+		const call = createResourceMock.mock.calls.find(
+			([options]) => options?.url === 'frappe.client.set_value'
+		)
+		call?.[0]?.onSuccess?.()
+		expect(completeStepMock).toHaveBeenCalledWith('publish_course')
 	})
 })

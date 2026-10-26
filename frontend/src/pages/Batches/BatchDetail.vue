@@ -27,6 +27,7 @@
 			/>
 			<Button
 				v-if="tab?.key === 'settings' && isAdmin && !isMobile"
+				ref="publishButton"
 				:variant="batch.data?.published ? 'subtle' : 'solid'"
 				:theme="batch.data?.published ? 'red' : 'gray'"
 				@click="togglePublishBatch"
@@ -93,6 +94,7 @@
 </template>
 <script setup>
 import { computed, inject, markRaw, provide, useTemplateRef, watch } from 'vue'
+import { useLearningOnboarding } from '@/onboarding/useLearningOnboarding'
 import { useRoute, useRouter } from 'vue-router'
 import {
 	Badge,
@@ -118,6 +120,7 @@ import SkeletonLoader from '@/components/SkeletonLoader.vue'
 import TabbedDetailPage from '@/components/Layouts/pages/TabbedDetailPage.vue'
 import NotFound from '@/pages/NotFound.vue'
 import { openBatchForm } from '@/composables/useBatchForms'
+import { useRouteIntent } from '@/composables/useRouteIntent'
 
 const router = useRouter()
 // Read by every form opener below. TabbedDetailPage still keeps the active tab
@@ -127,7 +130,9 @@ const route = useRoute()
 const { brand } = sessionStore()
 const { isMobile } = useScreenSize()
 const user = inject('$user')
+const { completeStep } = useLearningOnboarding()
 const page = useTemplateRef('page')
+const publishButton = useTemplateRef('publishButton')
 const readOnlyMode = window.read_only_mode
 
 const props = defineProps({
@@ -135,6 +140,16 @@ const props = defineProps({
 		type: String,
 		required: true,
 	},
+})
+
+// Onboarding's Publish the batch step lands on the settings tab with
+// ?publish=1: focus the header's Publish button, without pressing it.
+useRouteIntent({
+	param: 'publish',
+	value: '1',
+	ready: publishButton,
+	run: () => publishButton.value?.$el.focus(),
+	flush: 'post',
 })
 
 const batch = createResource({
@@ -253,6 +268,7 @@ const publishToggle = createResource({
 		toast.success(
 			batch.data?.published ? __('Batch unpublished') : __('Batch published')
 		)
+		if (!batch.data?.published) completeStep('publish_batch')
 		batch.reload()
 	},
 	onError(err) {
