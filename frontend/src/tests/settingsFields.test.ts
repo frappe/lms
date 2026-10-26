@@ -521,3 +521,74 @@ describe('SettingsFields draws a checkbox group', () => {
 		expect(data.enforce_quiz_passing).toBe(0)
 	})
 })
+
+// Regression on this branch only, no upstream PR: only the small switch itself toggled.
+// Added on fix/course-progress-enforcement (no PR yet).
+describe('SettingsFields toggles a switch from its label', () => {
+	const toggle: SettingsField = {
+		name: 'send_invites',
+		label: 'Invites',
+		type: 'checkbox',
+		description: 'Email each learner.',
+		caution: 'Needs an email account.',
+	}
+
+	const mountSwitch = (data: Record<string, unknown>, disabled = false) =>
+		mountFields([{ ...toggle, disabled } as SettingsField], data)
+
+	it('toggles from a click on the label or the description', async () => {
+		const data: Record<string, unknown> = { send_invites: 0 }
+		const w = await mountSwitch(data)
+		await w.get('label:not([data-slot])').trigger('click')
+		expect(data.send_invites).toBe(1)
+		await w.findAll('label').at(-1)!.trigger('click')
+		expect(data.send_invites).toBe(0)
+	})
+
+	it('names the switch by its label and description, once each', async () => {
+		const w = await mountSwitch({ send_invites: 0 })
+		const control = w.get('button[role="switch"]')
+		expect(
+			w.get(`[id="${control.attributes('aria-labelledby')}"]`).text()
+		).toBe('Invites')
+		expect(
+			w.get(`[id="${control.attributes('aria-describedby')}"]`).text()
+		).toBe('Email each learner.')
+		expect(control.attributes('aria-label')).toBeUndefined()
+	})
+
+	it('keeps the caution button out of the label', async () => {
+		const data: Record<string, unknown> = { send_invites: 0 }
+		const w = await mountSwitch(data)
+		const caution = w.get('button[aria-label="Needs an email account."]')
+		expect(caution.element.closest('label')).toBeNull()
+		await caution.trigger('click')
+		expect(data.send_invites).toBe(0)
+	})
+
+	it('does not toggle a disabled switch from its label', async () => {
+		const data: Record<string, unknown> = { send_invites: 0 }
+		const w = await mountSwitch(data, true)
+		const label = w.findAll('label')[0]
+		expect(label.classes()).toContain('cursor-not-allowed')
+		await label.trigger('click')
+		expect(data.send_invites).toBe(0)
+	})
+
+	it('toggles a group option from its label', async () => {
+		const data: Record<string, unknown> = { enforce_quiz_completion: 0 }
+		const w = await mountFields(
+			[
+				{
+					name: 'enforce_completion',
+					label: 'Enforce completion',
+					type: 'checkboxGroup',
+					options: [{ name: 'enforce_quiz_completion', label: 'Quizzes' }],
+				},
+			],
+			data
+		)
+		await w.get('label').trigger('click')
+		expect(data.enforce_quiz_completion).toBe(1)
+	})
+})
