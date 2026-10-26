@@ -198,28 +198,33 @@
 							>
 								<div class="flex min-w-0 flex-col">
 									<div class="flex items-center gap-1.5">
-										<span
+										<label
 											:id="optionLabelId(option)"
-											class="text-p-base text-ink-gray-7"
+											:for="optionControlId(option)"
+											class="select-none text-p-base text-ink-gray-7"
+											:class="cursorOf(field.disabled)"
 										>
 											{{ __(option.label) }}
-										</span>
+										</label>
 										<SettingsCaution
 											v-if="option.caution"
 											:text="__(option.caution)"
 										/>
 									</div>
-									<div
+									<label
 										v-if="option.description"
 										:id="optionHintId(option)"
-										class="text-p-sm text-ink-gray-6"
+										:for="optionControlId(option)"
+										class="select-none text-p-sm text-ink-gray-6"
+										:class="cursorOf(field.disabled)"
 									>
 										{{ __(option.description) }}
-									</div>
+									</label>
 								</div>
 								<BooleanSwitch
 									size="sm"
 									class="shrink-0"
+									:id="optionControlId(option)"
 									:model-value="data[option.name]"
 									:disabled="field.disabled"
 									:aria-labelledby="optionLabelId(option)"
@@ -249,7 +254,10 @@
 							<div
 								class="flex items-center gap-1.5 text-p-base-medium text-ink-gray-7"
 							>
-								<span>
+								<component
+									:is="field.type == 'checkbox' ? 'label' : 'span'"
+									v-bind="switchLabelAttrs(field, labelId(field))"
+								>
 									{{ __(field.label) }}
 									<span
 										v-if="field.reqd"
@@ -257,23 +265,30 @@
 										aria-hidden="true"
 										>*</span
 									>
-								</span>
+								</component>
 								<SettingsCaution
 									v-if="field.caution"
 									:text="__(field.caution)"
 								/>
 							</div>
-							<div v-if="field.description" class="text-p-sm text-ink-gray-6">
+							<component
+								:is="field.type == 'checkbox' ? 'label' : 'div'"
+								v-if="field.description"
+								class="text-p-sm text-ink-gray-6"
+								v-bind="switchLabelAttrs(field, descriptionId(field))"
+							>
 								{{ __(field.description) }}
-							</div>
+							</component>
 						</div>
 						<div class="shrink-0">
 							<BooleanSwitch
 								v-if="field.type == 'checkbox'"
 								size="sm"
+								:id="controlId(field)"
 								:model-value="data[field.name]"
 								:disabled="field.disabled"
-								:aria-label="__(field.label)"
+								:aria-labelledby="labelId(field)"
+								:aria-describedby="describedBy(field)"
 								@update:model-value="(value) => onPick(field, value)"
 							/>
 							<Link
@@ -565,9 +580,25 @@ const onOption = (field, option, value) => {
 	emit('commit', 'now')
 }
 
-const optionLabelId = (option) => `${uid}-${option.name}-label`
+const optionControlId = (option) => `${uid}-${option.name}`
 
-const optionHintId = (option) => `${uid}-${option.name}-description`
+const optionLabelId = (option) => `${optionControlId(option)}-label`
+
+const optionHintId = (option) => `${optionControlId(option)}-description`
+
+const cursorOf = (disabled) =>
+	disabled ? 'cursor-not-allowed' : 'cursor-pointer'
+
+// A switch's label and description are real <label>s, so a click on either
+// toggles it. The caution button sits outside them: a click there must not.
+const switchLabelAttrs = (field, id) =>
+	field.type == 'checkbox'
+		? {
+				id,
+				for: controlId(field),
+				class: ['select-none', cursorOf(field.disabled)],
+		  }
+		: {}
 
 // An option that asks for another one shows only while that one is on.
 const visibleOptions = (field) =>
