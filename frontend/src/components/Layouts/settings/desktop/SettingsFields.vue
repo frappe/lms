@@ -194,49 +194,43 @@
 								v-for="option in visibleOptions(field)"
 								:key="option.name"
 								:data-setting-field="option.name"
-								class="flex items-center justify-between gap-4 py-2"
+								class="py-2"
 							>
-								<div class="flex min-w-0 flex-col">
-									<div class="flex items-center gap-1.5">
-										<label
-											:id="optionLabelId(option)"
-											:for="optionControlId(option)"
-											class="select-none text-p-base text-ink-gray-7"
-											:class="cursorOf(field.disabled)"
-										>
-											{{ __(option.label) }}
-										</label>
-										<SettingsCaution
-											v-if="option.caution"
-											:text="__(option.caution)"
-										/>
-									</div>
-									<label
-										v-if="option.description"
-										:id="optionHintId(option)"
-										:for="optionControlId(option)"
-										class="select-none text-p-sm text-ink-gray-6"
-										:class="cursorOf(field.disabled)"
-									>
-										{{ __(option.description) }}
-									</label>
-								</div>
 								<BooleanSwitch
 									size="sm"
-									class="shrink-0"
-									:id="optionControlId(option)"
+									:label="__(option.label)"
+									:description="translated(option.description)"
+									:caution="translated(option.caution)"
 									:model-value="data[option.name]"
 									:disabled="field.disabled"
-									:aria-labelledby="optionLabelId(option)"
-									:aria-describedby="
-										option.description ? optionHintId(option) : undefined
-									"
 									@update:model-value="
 										(value) => onOption(field, option, value)
 									"
 								/>
 							</div>
 						</div>
+					</div>
+
+					<div
+						v-else-if="field.type == 'checkbox'"
+						:data-setting-field="field.name"
+						class="relative isolate py-3"
+					>
+						<span
+							aria-hidden="true"
+							data-testid="setting-highlight"
+							class="pointer-events-none absolute -inset-x-3 inset-y-1 -z-10 rounded-5 bg-surface-gray-2 transition-opacity duration-500"
+							:class="flashed === field.name ? 'opacity-100' : 'opacity-0'"
+						/>
+						<BooleanSwitch
+							size="sm"
+							:label="__(field.label)"
+							:description="translated(field.description)"
+							:caution="translated(field.caution)"
+							:model-value="data[field.name]"
+							:disabled="field.disabled"
+							@update:model-value="(value) => onPick(field, value)"
+						/>
 					</div>
 
 					<div
@@ -254,10 +248,7 @@
 							<div
 								class="flex items-center gap-1.5 text-p-base-medium text-ink-gray-7"
 							>
-								<component
-									:is="field.type == 'checkbox' ? 'label' : 'span'"
-									v-bind="switchLabelAttrs(field, labelId(field))"
-								>
+								<span>
 									{{ __(field.label) }}
 									<span
 										v-if="field.reqd"
@@ -265,34 +256,16 @@
 										aria-hidden="true"
 										>*</span
 									>
-								</component>
-								<SettingsCaution
-									v-if="field.caution"
-									:text="__(field.caution)"
-								/>
+								</span>
+								<CautionIcon v-if="field.caution" :text="__(field.caution)" />
 							</div>
-							<component
-								:is="field.type == 'checkbox' ? 'label' : 'div'"
-								v-if="field.description"
-								class="text-p-sm text-ink-gray-6"
-								v-bind="switchLabelAttrs(field, descriptionId(field))"
-							>
+							<div v-if="field.description" class="text-p-sm text-ink-gray-6">
 								{{ __(field.description) }}
-							</component>
+							</div>
 						</div>
 						<div class="shrink-0">
-							<BooleanSwitch
-								v-if="field.type == 'checkbox'"
-								size="sm"
-								:id="controlId(field)"
-								:model-value="data[field.name]"
-								:disabled="field.disabled"
-								:aria-labelledby="labelId(field)"
-								:aria-describedby="describedBy(field)"
-								@update:model-value="(value) => onPick(field, value)"
-							/>
 							<Link
-								v-else-if="field.type == 'link'"
+								v-if="field.type == 'link'"
 								:model-value="displayValue(field)"
 								:doctype="linkDoctype(field)"
 								:filters="field.filters"
@@ -353,7 +326,7 @@ import { nextTick, onBeforeUnmount, reactive, ref, useId, watch } from 'vue'
 import Link from '@/components/Controls/Link.vue'
 import ImageUploadField from '@/components/Controls/ImageUploadField.vue'
 import RichTextEditor from '@/components/RichTextEditor.vue'
-import SettingsCaution from './SettingsCaution.vue'
+import CautionIcon from '@/components/Controls/CautionIcon.vue'
 import SettingsCodeField from './SettingsCodeField.vue'
 import { seedCheckboxDefaults } from '@/components/Settings/Mobile/mobileRows'
 
@@ -580,25 +553,7 @@ const onOption = (field, option, value) => {
 	emit('commit', 'now')
 }
 
-const optionControlId = (option) => `${uid}-${option.name}`
-
-const optionLabelId = (option) => `${optionControlId(option)}-label`
-
-const optionHintId = (option) => `${optionControlId(option)}-description`
-
-const cursorOf = (disabled) =>
-	disabled ? 'cursor-not-allowed' : 'cursor-pointer'
-
-// A switch's label and description are real <label>s, so a click on either
-// toggles it. The caution button sits outside them: a click there must not.
-const switchLabelAttrs = (field, id) =>
-	field.type == 'checkbox'
-		? {
-				id,
-				for: controlId(field),
-				class: ['select-none', cursorOf(field.disabled)],
-		  }
-		: {}
+const translated = (text) => (text ? __(text) : undefined)
 
 // An option that asks for another one shows only while that one is on.
 const visibleOptions = (field) =>

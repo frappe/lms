@@ -1,6 +1,6 @@
 <template>
 	<Tooltip>
-		<Button variant="ghost" size="sm" :aria-label="text">
+		<Button variant="ghost" size="sm" class="-my-1" :aria-label="text">
 			<template #icon>
 				<span
 					class="lucide-circle-alert size-3.5 text-ink-gray-6"
