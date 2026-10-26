@@ -125,7 +125,18 @@ export const settingsTree: SettingsGroup[] = [
 									name: 'enforce_video_completion',
 									type: 'checkbox',
 									description:
-										'When enabled, lessons that contain a video can only be marked complete by playing the video to the end, and a quiz or assignment in the lesson completes it only after that. If the video fails to load, the dwell timer is used as a fallback. (!) Videos from Cloudflare Stream, Google Drive, Aparat or other embedded links cannot be tracked, so those lessons complete on the dwell timer instead.',
+										'When enabled, lessons that contain a video can only be marked complete by playing the video to the end, and a quiz or assignment in the lesson completes it only after that. If the video fails to load, the dwell timer is used as a fallback.',
+									caution:
+										'Videos from Cloudflare Stream, Google Drive, Aparat or other embedded links cannot be tracked, so those lessons complete on the dwell timer instead.',
+								},
+								{
+									label: 'Prevent Skipping Videos',
+									name: 'prevent_skipping_videos',
+									type: 'checkbox',
+									description:
+										'When enabled, learners cannot skip ahead of the furthest point they have watched in a video.',
+									caution:
+										'This is not enforced for videos from Cloudflare Stream, Google Drive, Aparat or other embedded links.',
 								},
 								{
 									label: 'Enforce assignment completion',
@@ -140,13 +151,6 @@ export const settingsTree: SettingsGroup[] = [
 									type: 'checkbox',
 									description:
 										'When enabled, lessons with a quiz cannot be marked complete until the quiz is passed.',
-								},
-								{
-									label: 'Prevent Skipping Videos',
-									name: 'prevent_skipping_videos',
-									type: 'checkbox',
-									description:
-										'When enabled, learners cannot skip ahead of the furthest point they have watched in a video. (!) This is not enforced for videos from Cloudflare Stream, Google Drive, Aparat or other embedded links.',
 								},
 							],
 						},

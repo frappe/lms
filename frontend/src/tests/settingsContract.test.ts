@@ -141,25 +141,23 @@ describe('a draft opened on defaults', () => {
 
 describe('the course progress descriptions', () => {
 	const progressItem = items.find((item) => item.slug === 'course-progress')!
-	const descriptionOf = (name: string): string =>
-		String(
-			fieldsOfItem(progressItem).find((field) => field.name === name)
-				?.description
-		)
+	const fieldOf = (name: string) =>
+		fieldsOfItem(progressItem).find((field) => field.name === name)
 
 	// Regression from #2426: the copy said a quiz had to be submitted, but the
 	// server checks it was passed. Added on fix/course-progress-enforcement (no PR yet).
 	it('say a quiz has to be passed, which is what the server checks', () => {
-		expect(descriptionOf('enforce_quiz_completion')).toContain('is passed')
+		expect(fieldOf('enforce_quiz_completion')?.description).toContain(
+			'is passed'
+		)
 	})
 
 	it.each(['enforce_video_completion', 'prevent_skipping_videos'])(
-		'%s names the providers it cannot enforce',
+		'%s names the providers it cannot enforce in its caution',
 		(name) => {
-			const text = descriptionOf(name)
-			expect(text).toContain('(!)')
+			const field = fieldOf(name)
 			for (const provider of ['Cloudflare Stream', 'Google Drive', 'Aparat'])
-				expect(text).toContain(provider)
+				expect(field?.caution).toContain(provider)
 		}
 	)
 })
