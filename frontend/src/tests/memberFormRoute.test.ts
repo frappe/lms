@@ -393,6 +393,79 @@ describe('the member form route', () => {
 		})
 	})
 
+<<<<<<< HEAD
+=======
+	// Now renders through the shared RoleSwitches component, reversing an
+	// earlier fix for this phone route. What's still tested: each row pairs
+	// one label with its own switch, whatever the column count.
+	describe('the roles block', () => {
+		const mountAdd = async () => {
+			const router = makeRouter()
+			await router.push('/settings/users/new')
+			return mountForm(router)
+		}
+
+		it('gives each role a row of its own, the name beside its switch', async () => {
+			const wrapper = await mountAdd()
+			const rows = wrapper.findAll('[data-testid="role-row"]')
+
+			expect(
+				rows.map((row) => row.get('[data-testid="switch-label"]').text())
+			).toEqual(['Student', 'Course Creator', 'Evaluator', 'Moderator'])
+			for (const row of rows) {
+				expect(row.findAll('[data-testid="switch-label"]')).toHaveLength(1)
+				expect(row.findAll('[role="switch"]')).toHaveLength(1)
+			}
+		})
+
+		it('names every switch by the role it sits next to', async () => {
+			const wrapper = await mountAdd()
+			for (const role of [
+				'Student',
+				'Course Creator',
+				'Evaluator',
+				'Moderator',
+			])
+				expect(switchNamed(wrapper, role).attributes('role')).toBe('switch')
+		})
+
+		// The grid goes two-up from md now, like the other two surfaces. A
+		// switch still can't end up adjacent to a label that isn't its own.
+		it('keeps each switch paired with its own row at a phone width', async () => {
+			Object.defineProperty(window, 'innerWidth', {
+				value: 320,
+				writable: true,
+				configurable: true,
+			})
+			const wrapper = await mountAdd()
+			const rows = wrapper.findAll('[data-testid="role-row"]')
+
+			expect(rows).toHaveLength(4)
+			for (const row of rows) {
+				expect(row.findAll('[data-testid="switch-label"]')).toHaveLength(1)
+				expect(row.findAll('[role="switch"]')).toHaveLength(1)
+			}
+		})
+
+		it('toggles the role its row names, not the one beside it', async () => {
+			const wrapper = await mountAdd()
+			callMock.mockResolvedValue({ name: MEMBER })
+
+			await wrapper.find('[data-testid="field-Email"] input').setValue(MEMBER)
+			await switchNamed(wrapper, 'Evaluator').trigger('click')
+			await save(wrapper).trigger('click')
+			await flushPromises()
+
+			expect(callMock.mock.calls.slice(1)).toEqual([
+				[
+					'lms.lms.api.save_role',
+					{ user: MEMBER, role: 'Batch Evaluator', value: 1 },
+				],
+			])
+		})
+	})
+
+>>>>>>> c37a51f (refactor(settings): render settings switches through SwitchRow)
 	// Opened from Members.vue instead. On desktop the settings dialog is still
 	// floating above whatever page the URL points at, so closing has to pop back
 	// to that page rather than replace it with the phone settings screen.
