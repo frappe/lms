@@ -152,6 +152,13 @@ export const settingsTree: SettingsGroup[] = [
 									description:
 										'When enabled, lessons with a quiz cannot be marked complete until the quiz is passed.',
 								},
+								{
+									label: 'Enforce programming exercise completion',
+									name: 'enforce_programming_exercise_completion',
+									type: 'checkbox',
+									description:
+										'When enabled, lessons with a programming exercise cannot be marked complete until the exercise passes all its test cases.',
+								},
 							],
 						},
 					],

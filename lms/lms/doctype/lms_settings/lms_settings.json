@@ -36,6 +36,7 @@
 		"enforce_video_completion",
 		"enforce_quiz_completion",
 		"enforce_assignment_completion",
+		"enforce_programming_exercise_completion",
 		"column_break_cprg",
 		"lesson_dwell_time",
 		"signup_settings_tab",
@@ -561,13 +562,19 @@
 			"fieldname": "enforce_assignment_completion",
 			"fieldtype": "Check",
 			"label": "Enforce Assignment Completion"
+		},
+		{
+			"default": "0",
+			"fieldname": "enforce_programming_exercise_completion",
+			"fieldtype": "Check",
+			"label": "Enforce Programming Exercise Completion"
 		}
 	],
 	"grid_page_length": 50,
 	"index_web_pages_for_search": 1,
 	"issingle": 1,
 	"links": [],
-	"modified": "2026-06-05 20:49:15.000000",
+	"modified": "2026-10-26 14:30:00.000000",
 	"modified_by": "Administrator",
 	"module": "LMS",
 	"name": "LMS Settings",
