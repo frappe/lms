@@ -27,6 +27,27 @@ BILLING_ADDRESS = {
 }
 
 
+def _delete_committed(doctype, name):
+	"""Delete without the Deleted Document copy and the timeline comment, which a
+	committed fixture would otherwise leave on the site."""
+	in_import = frappe.flags.in_import
+	frappe.flags.in_import = True
+	try:
+		frappe.delete_doc(doctype, name, force=True, ignore_permissions=True, delete_permanently=True)
+	finally:
+		frappe.flags.in_import = in_import
+
+
+def _delete_committed_user(user):
+	"""What deleting a User leaves behind: its own Notification Settings delete is
+	not permanent, and its defaults, share comment and role audit trail stay."""
+	_delete_committed("Notification Settings", user)
+	_delete_committed("User", user)
+	frappe.db.delete("DefaultValue", {"parent": user})
+	frappe.db.delete("Comment", {"reference_doctype": "User", "reference_name": user})
+	frappe.db.delete("Permission Log", {"for_doctype": "User", "for_document": user})
+
+
 class _CouponRedemptionFixtures:
 	"""Shared fixture helpers for both coupon-redemption test classes below.
 	Not a TestCase itself: mixed into one savepoint-isolated class and one
