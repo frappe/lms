@@ -37,6 +37,10 @@
 		"enforce_quiz_completion",
 		"enforce_assignment_completion",
 		"enforce_programming_exercise_completion",
+		"enforce_quiz_passing",
+		"enforce_open_ended_quiz_passing",
+		"enforce_assignment_passing",
+		"enforce_programming_exercise_passing",
 		"column_break_cprg",
 		"lesson_dwell_time",
 		"signup_settings_tab",
@@ -568,13 +572,37 @@
 			"fieldname": "enforce_programming_exercise_completion",
 			"fieldtype": "Check",
 			"label": "Enforce Programming Exercise Completion"
+		},
+		{
+			"default": "1",
+			"fieldname": "enforce_quiz_passing",
+			"fieldtype": "Check",
+			"label": "Enforce Quiz Passing"
+		},
+		{
+			"default": "1",
+			"fieldname": "enforce_open_ended_quiz_passing",
+			"fieldtype": "Check",
+			"label": "Enforce Open-ended Quiz Passing"
+		},
+		{
+			"default": "0",
+			"fieldname": "enforce_assignment_passing",
+			"fieldtype": "Check",
+			"label": "Enforce Assignment Passing"
+		},
+		{
+			"default": "0",
+			"fieldname": "enforce_programming_exercise_passing",
+			"fieldtype": "Check",
+			"label": "Enforce Programming Exercise Passing"
 		}
 	],
 	"grid_page_length": 50,
 	"index_web_pages_for_search": 1,
 	"issingle": 1,
 	"links": [],
-	"modified": "2026-10-26 14:30:00.000000",
+	"modified": "2026-10-26 16:30:00.000000",
 	"modified_by": "Administrator",
 	"module": "LMS",
 	"name": "LMS Settings",

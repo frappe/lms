@@ -237,7 +237,7 @@ def submit_quiz(
 		submission_reason=proctoring["submission_reason"],
 	)
 	percentage = submission.percentage or 0
-	save_progress_after_quiz(quiz_details, percentage)
+	save_progress_after_quiz(quiz_details)
 
 	_save_violation_events(submission.name, proctoring["events"])
 	_attach_answer_files(data["answer_files"], submission.name)
@@ -731,11 +731,9 @@ def create_submission(
 	return submission
 
 
-def save_progress_after_quiz(quiz_details: dict, percentage: float):
+def save_progress_after_quiz(quiz_details: dict):
+	"""save_progress decides whether this attempt is enough to complete the lesson."""
 	if not quiz_details.lesson or not quiz_details.course:
-		return
-
-	if quiz_details.passing_percentage and percentage < quiz_details.passing_percentage:
 		return
 
 	# save_progress refuses a locked lesson by raising, which would roll back the

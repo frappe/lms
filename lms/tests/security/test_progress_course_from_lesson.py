@@ -152,7 +152,7 @@ class TestProgressCourseFromLesson(BaseTestUtils):
 		)
 		frappe.set_user(self.student.email)
 		try:
-			save_progress_after_quiz(quiz_details, 100)
+			save_progress_after_quiz(quiz_details)
 		finally:
 			frappe.set_user("Administrator")
 

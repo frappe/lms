@@ -131,17 +131,47 @@ export const settingsTree: SettingsGroup[] = [
 										{
 											label: 'Quizzes',
 											name: 'enforce_quiz_completion',
-											description: 'The quiz is passed.',
 										},
 										{
 											label: 'Assignments',
 											name: 'enforce_assignment_completion',
-											description: 'The assignment is submitted.',
 										},
 										{
 											label: 'Programming exercises',
 											name: 'enforce_programming_exercise_completion',
-											description: 'The exercise passes all its test cases.',
+										},
+									],
+								},
+								{
+									label: 'Enforce passing',
+									name: 'enforce_passing',
+									type: 'checkboxGroup',
+									description:
+										'The selected items must be passed, not just attempted.',
+									options: [
+										{
+											label: 'Quizzes',
+											name: 'enforce_quiz_passing',
+											requires: 'enforce_quiz_completion',
+										},
+										{
+											label: 'Open-ended quizzes',
+											name: 'enforce_open_ended_quiz_passing',
+											requires: 'enforce_quiz_completion',
+											caution:
+												'The lesson completes only after an instructor grades it.',
+										},
+										{
+											label: 'Assignments',
+											name: 'enforce_assignment_passing',
+											requires: 'enforce_assignment_completion',
+											caution:
+												'The lesson completes only after an instructor grades it.',
+										},
+										{
+											label: 'Programming exercises',
+											name: 'enforce_programming_exercise_passing',
+											requires: 'enforce_programming_exercise_completion',
 										},
 									],
 								},

@@ -34,6 +34,10 @@ class TestOpenEndedMarks(BaseTestUtils):
 		# The stamp is what save_progress_after_quiz reads to find the lesson.
 		cls._stamp_legacy_quiz_placement(cls.quiz, cls.course, cls.lesson)
 		cls._create_enrollment(cls.learner, cls.course)
+		# The lesson stays open only while open-ended quizzes must be passed.
+		for field in ("enforce_quiz_completion", "enforce_open_ended_quiz_passing"):
+			frappe.db.set_single_value("LMS Settings", field, 1)
+		frappe.clear_document_cache("LMS Settings", "LMS Settings")
 
 	def test_marks_sent_with_an_open_ended_answer_do_not_count(self):
 		frappe.set_user(self.learner)

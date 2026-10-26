@@ -374,9 +374,24 @@ describe('the programming exercise mounted inline in a lesson', () => {
 		expect(markLessonProgress).toHaveBeenCalledTimes(1)
 	})
 
-	it('leaves the lesson unmarked when the saved submission fails', async () => {
+	// Regression on this branch only, no upstream PR: the server applies the rule now.
+	// Added on fix/course-progress-enforcement (no PR yet).
+	it('marks the lesson when the saved submission fails too', async () => {
 		saved.doc = { status: 'Failed' }
 		const wrapper = await mountEmbedded()
+
+		await runCode(wrapper)
+
+		expect(markLessonProgress).toHaveBeenCalledTimes(1)
+	})
+
+	it('marks no lesson once the learner has moved to another one', async () => {
+		const wrapper = await mountEmbedded()
+		call.mockImplementation((method: string) => {
+			if (method !== CREATE) return Promise.resolve(scoredRun)
+			window.history.pushState({}, '', '/lms/courses/c/learn/1-2')
+			return Promise.resolve('SUB-1')
+		})
 
 		await runCode(wrapper)
 

@@ -484,18 +484,54 @@ def _deny(file_url, reason):
 	)
 
 
-def apply_enforcement_flags(quiz_done: bool, assignment_done: bool, settings: dict) -> tuple[bool, bool]:
-	"""Return (quiz_completed, assignment_completed) accounting for enforcement toggles.
+# Item -> (the toggle that gates it, the toggle that asks for a pass, what a site without
+# the pass toggle requires). Every quiz, open-ended or not, is gated by the one quiz toggle.
+COMPLETION_ITEMS = {
+	"quiz": ("enforce_quiz_completion", "enforce_quiz_passing", 1),
+	"open_ended_quiz": ("enforce_quiz_completion", "enforce_open_ended_quiz_passing", 1),
+	"assignment": ("enforce_assignment_completion", "enforce_assignment_passing", 0),
+	"programming_exercise": (
+		"enforce_programming_exercise_completion",
+		"enforce_programming_exercise_passing",
+		0,
+	),
+}
+# A pre-migrate site, which has none of the fields, still gates what it always gated.
+ENFORCED_BEFORE_MIGRATE = {"enforce_quiz_completion", "enforce_assignment_completion"}
+PASSED_STATUS = {"LMS Assignment Submission": "Pass", "LMS Programming Exercise Submission": "Passed"}
 
-	If an enforcement flag is missing from `settings`, treat it as enabled (1) so the
-	legacy always-on gating remains the safe default.
-	"""
-	enforce_quiz = settings.get("enforce_quiz_completion", 1)
-	enforce_assignment = settings.get("enforce_assignment_completion", 1)
+
+def get_completion_rules() -> dict[str, str | None]:
+	"""What each completion item must reach, "Attempted" or "Passed", or None where the
+	item does not gate completion."""
+	fields = list(dict.fromkeys(field for item in COMPLETION_ITEMS.values() for field in item[:2]))
+	# A field the meta lacks comes back None; one it has reads 0 even when never stored.
+	stored = frappe.get_cached_value("LMS Settings", None, fields, as_dict=True) or {}
+	rules = {}
+	for item, (toggle, passing_toggle, passing_default) in COMPLETION_ITEMS.items():
+		enforced = _stored_or(stored, toggle, int(toggle in ENFORCED_BEFORE_MIGRATE))
+		passing = _stored_or(stored, passing_toggle, passing_default)
+		rules[item] = ("Passed" if passing else "Attempted") if enforced else None
+	return rules
+
+
+def _stored_or(stored: dict, field: str, default: int) -> int:
+	value = stored.get(field)
+	return default if value is None else cint(value)
+
+
+def lesson_requirements_met(lesson: str, member: str, rules: dict) -> bool:
 	return (
-		True if not enforce_quiz else quiz_done,
-		True if not enforce_assignment else assignment_done,
+		get_quiz_progress(lesson, member, rules["quiz"], rules["open_ended_quiz"])
+		and get_assignment_progress(lesson, member, rules["assignment"])
+		and get_programming_exercise_progress(lesson, member, rules["programming_exercise"])
 	)
+
+
+def submission_meets_rule(doctype: str, filters: dict, rule: str) -> bool:
+	if rule == "Passed":
+		filters = {**filters, "status": PASSED_STATUS[doctype]}
+	return bool(frappe.db.exists(doctype, filters))
 
 
 @frappe.whitelist()
@@ -545,44 +581,12 @@ def _save_progress(lesson: str, course: str, scorm_details: dict = None):
 		{"lesson": lesson, "member": frappe.session.user, "status": "Complete"},
 	)
 
-	try:
-		settings = (
-			frappe.get_cached_value(
-				"LMS Settings",
-				None,
-				[
-					"enforce_quiz_completion",
-					"enforce_assignment_completion",
-					"enforce_programming_exercise_completion",
-				],
-				as_dict=True,
-			)
-			or {}
-		)
-	except Exception:
-		# Pre-migrate sites won't have these columns yet. Fall back to {} so
-		# apply_enforcement_flags treats both as enforced (legacy behavior).
-		settings = {}
-	quiz_completed, assignment_completed = apply_enforcement_flags(
-		quiz_done=get_quiz_progress(lesson),
-		assignment_done=get_assignment_progress(lesson),
-		settings=settings,
-	)
-	# Off unless set, unlike the two above: this one arrived after sites had exercises.
-	exercise_completed = True
-	if cint(settings.get("enforce_programming_exercise_completion")):
-		exercise_completed = get_programming_exercise_progress(lesson)
+	requirements_met = lesson_requirements_met(lesson, frappe.session.user, get_completion_rules())
 
 	if scorm_details:
 		scorm_details = frappe._dict(**scorm_details)
 
-	if (
-		not progress_already_exists
-		and quiz_completed
-		and assignment_completed
-		and exercise_completed
-		and not scorm_details
-	):
+	if not progress_already_exists and requirements_met and not scorm_details:
 		try:
 			frappe.get_doc(
 				{
@@ -622,7 +626,7 @@ def _save_progress(lesson: str, course: str, scorm_details: dict = None):
 			},
 		)
 	next_lesson = None
-	if (not progress_already_exists and quiz_completed and assignment_completed and not scorm_details) or (
+	if (not progress_already_exists and requirements_met and not scorm_details) or (
 		scorm_details and scorm_details.is_complete and not lesson_already_completed
 	):
 		next_lesson = get_next_lesson(course, lesson)
@@ -684,7 +688,26 @@ def get_next_lesson(course: str, lesson: str):
 	return frappe.db.get_value("Lesson Reference", {"parent": next_chapter, "idx": 1}, "lesson")
 
 
-def get_quiz_progress(lesson):
+def get_quiz_progress(
+	lesson: str,
+	member: str | None = None,
+	rule: str | None = "Passed",
+	open_ended_rule: str | None = "Passed",
+) -> bool:
+	"""A quiz with an open-ended question is held to `open_ended_rule`, any other to `rule`."""
+	if not rule and not open_ended_rule:
+		return True
+	member = member or frappe.session.user
+	for quiz in get_lesson_quizzes(lesson):
+		if not get_valid_question_count(quiz):
+			continue
+		quiz_rule = open_ended_rule if is_open_ended_quiz(quiz) else rule
+		if quiz_rule and not quiz_meets_rule(quiz, member, quiz_rule):
+			return False
+	return True
+
+
+def get_lesson_quizzes(lesson: str) -> list:
 	lesson_details = frappe.db.get_value("Course Lesson", lesson, ["body", "content", "quiz_id"], as_dict=1)
 	quizzes = []
 
@@ -707,20 +730,30 @@ def get_quiz_progress(lesson):
 		if lesson_details.quiz_id:
 			quizzes.append(lesson_details.quiz_id)
 
-	for quiz in quizzes:
-		if not get_valid_question_count(quiz):
-			continue
+	return quizzes
+
+
+def is_open_ended_quiz(quiz: str) -> bool:
+	row = frappe.qb.DocType("LMS Quiz Question")
+	question = frappe.qb.DocType("LMS Question")
+	return bool(
+		(
+			frappe.qb.from_(row)
+			.join(question)
+			.on(question.name == row.question)
+			.where((row.parent == quiz) & (row.parenttype == "LMS Quiz") & (question.type == "Open Ended"))
+			.select(row.name)
+			.limit(1)
+		).run()
+	)
+
+
+def quiz_meets_rule(quiz: str, member: str, rule: str) -> bool:
+	filters = {"quiz": quiz, "member": member}
+	if rule == "Passed":
 		passing_percentage = frappe.db.get_value("LMS Quiz", quiz, "passing_percentage")
-		if not frappe.db.exists(
-			"LMS Quiz Submission",
-			{
-				"quiz": quiz,
-				"member": frappe.session.user,
-				"percentage": [">=", passing_percentage],
-			},
-		):
-			return False
-	return True
+		filters["percentage"] = [">=", passing_percentage]
+	return bool(frappe.db.exists("LMS Quiz Submission", filters))
 
 
 def get_valid_question_count(quiz: str) -> int:
@@ -800,8 +833,13 @@ def rename_settled_untitled_lessons():
 		)
 
 
-def get_programming_exercise_progress(lesson):
+def get_programming_exercise_progress(
+	lesson: str, member: str | None = None, rule: str | None = "Attempted"
+) -> bool:
 	"""Only block content renders an exercise; no legacy body macro does."""
+	if not rule:
+		return True
+	member = member or frappe.session.user
 	content = frappe.db.get_value("Course Lesson", lesson, "content")
 	exercises = {
 		(block.get("data") or {}).get("exercise")
@@ -809,16 +847,18 @@ def get_programming_exercise_progress(lesson):
 		if block.get("type") == "program"
 	}
 	return all(
-		frappe.db.exists(
-			"LMS Programming Exercise Submission",
-			{"exercise": exercise, "member": frappe.session.user, "status": "Passed"},
+		submission_meets_rule(
+			"LMS Programming Exercise Submission", {"exercise": exercise, "member": member}, rule
 		)
 		for exercise in exercises
 		if exercise
 	)
 
 
-def get_assignment_progress(lesson):
+def get_assignment_progress(lesson: str, member: str | None = None, rule: str | None = "Attempted") -> bool:
+	if not rule:
+		return True
+	member = member or frappe.session.user
 	lesson_details = frappe.db.get_value("Course Lesson", lesson, ["body", "content"], as_dict=1)
 	assignments = []
 
@@ -832,9 +872,8 @@ def get_assignment_progress(lesson):
 		assignments = [value for name, value in macros if name == "Assignment"]
 
 	for assignment in assignments:
-		if not frappe.db.exists(
-			"LMS Assignment Submission",
-			{"assignment": assignment, "member": frappe.session.user},
+		if not submission_meets_rule(
+			"LMS Assignment Submission", {"assignment": assignment, "member": member}, rule
 		):
 			return False
 	return True
