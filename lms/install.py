@@ -1,5 +1,6 @@
 import frappe
 from frappe.permissions import add_permission, update_permission_property
+from frappe.search.sqlite_search import build_index_in_background
 
 from lms.lms.api import give_discussions_permission
 from lms.lms.enrollment_constraints import ensure_enrollment_unique_constraints
@@ -13,6 +14,13 @@ def after_install():
 	give_event_permission()
 	ensure_batch_enrollment_index()
 	ensure_enrollment_unique_constraints()
+	build_search_index()
+
+
+def build_search_index():
+	"""Queue the first search index build. Frappe builds it on migrate and every three hours,
+	and an install is neither, so a new site would wait up to three hours for search."""
+	build_index_in_background()
 
 
 def ensure_batch_enrollment_index():
