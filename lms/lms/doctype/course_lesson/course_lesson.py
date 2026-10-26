@@ -271,6 +271,7 @@ def _resolve_lesson_references(file_url: str) -> list[_LessonReference]:
 		"File",
 		filters={"file_url": file_url, "is_private": 1},
 		fields=[
+			"file_url",
 			"owner",
 			"creation",
 			"modified",
@@ -280,6 +281,9 @@ def _resolve_lesson_references(file_url: str) -> list[_LessonReference]:
 		],
 		order_by="creation asc, name asc",
 	)
+	# The database compares without case (and, per collation, accents); the file on disk
+	# does not, so only a row naming exactly this url speaks for these bytes.
+	file_rows = [r for r in file_rows if r.file_url == file_url]
 	# The earliest row is the upload. Every later row only *names* the same url: frappe
 	# hands a duplicate upload the existing file's url, and a File row naming any url at
 	# all is cheap for any account to insert.
@@ -307,14 +311,15 @@ def _resolve_lesson_references(file_url: str) -> list[_LessonReference]:
 	lesson = frappe.qb.DocType("Course Lesson")
 	fields = [(f, False) for f in STUDENT_CONTENT_FIELDS] + [(f, True) for f in INSTRUCTOR_FIELDS]
 	for field, instructor_only in fields:
-		names = (
+		rows = (
 			frappe.qb.from_(lesson)
-			.select(lesson.name)
+			.select(lesson.name, lesson[field])
 			.where(Locate(file_url, lesson[field]) > 0)
-			.run(pluck=True)
+			.run()
 		)
-		for name in names:
-			refs.append(_LessonReference(name, instructor_only, False, canonical_owner, True, True))
+		for name, value in rows:
+			if file_url in value:
+				refs.append(_LessonReference(name, instructor_only, False, canonical_owner, True, True))
 
 	return refs
 
@@ -406,9 +411,10 @@ def serve_resource(file_url: str):
 
 	# Just for existence + the filename to serve; ownership is resolved per-reference
 	# inside _resolve_lesson_references, not from whichever row this happens to pick.
-	file_row = frappe.db.get_value(
-		"File", {"file_url": file_url, "is_private": 1}, ["file_name"], as_dict=True
+	file_rows = frappe.db.get_all(
+		"File", filters={"file_url": file_url, "is_private": 1}, fields=["file_name", "file_url"]
 	)
+	file_row = next((row for row in file_rows if row.file_url == file_url), None)
 	if not file_row:
 		_deny(file_url, "no matching private file")
 		raise frappe.PermissionError

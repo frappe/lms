@@ -117,7 +117,13 @@ class TestLessonLockingIntegration(BaseTestUtils):
 		chapter = self._create_chapter(title, self.course.name)
 		self._create_chapter_reference(self.course.name, chapter.name, idx=2)
 		frappe.db.set_value(
-			"Course Chapter", chapter.name, {"is_scorm_package": 1, "launch_file": "index.html"}
+			"Course Chapter",
+			chapter.name,
+			{
+				"is_scorm_package": 1,
+				"launch_file": "index.html",
+				"scorm_package_path": f"/scorm/{self.course.name}/{chapter.name}",
+			},
 		)
 		lesson = self._create_lesson("SCORM Lesson", chapter.name, self.course.name)
 		self._create_lesson_reference(chapter.name, lesson.name)
@@ -368,10 +374,10 @@ class TestLessonLockingIntegration(BaseTestUtils):
 
 		from lms.page_renderers import SCORMRenderer
 
-		renderer = SCORMRenderer(path=f"scorm/{self.course.name}/{chapter.title}/index.html")
+		renderer = SCORMRenderer(path=f"scorm/{self.course.name}/{chapter.name}/index.html")
 
 		with self.assertRaises(frappe.PermissionError):
-			renderer._check_permission()
+			renderer._check_permission(self.course.name, chapter.name)
 
 	def test_scorm_renderer_serves_bytes_once_the_chapter_is_unlocked(self):
 		self._enable()
@@ -381,9 +387,9 @@ class TestLessonLockingIntegration(BaseTestUtils):
 
 		from lms.page_renderers import SCORMRenderer
 
-		renderer = SCORMRenderer(path=f"scorm/{self.course.name}/{chapter.title}/index.html")
+		renderer = SCORMRenderer(path=f"scorm/{self.course.name}/{chapter.name}/index.html")
 
-		self.assertIsNone(renderer._check_permission())
+		self.assertIsNone(renderer._check_permission(self.course.name, chapter.name))
 
 	def test_outline_withholds_the_package_of_a_locked_scorm_chapter(self):
 		"""The chapter row still carries launch_file in the database — _add_scorm_chapter

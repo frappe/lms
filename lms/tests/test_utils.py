@@ -816,3 +816,59 @@ class TestEditorJsSanitisation(unittest.TestCase):
 			'rel="noopener noreferrer">here</a>"}}]}'
 		)
 		self.assertEqual(self._text(raw), '<a href="https://frappe.io/" rel="noopener noreferrer">here</a>')
+
+
+class TestEditorJsEmbedSources(unittest.TestCase):
+	"""An embed block's `data.embed` becomes an iframe `src`, so only external http(s) URLs are kept."""
+
+	def _kept(self, embed, service="drive"):
+		block = {"type": "embed", "data": {"service": service, "source": "x", "embed": embed}}
+		raw = json.dumps({"blocks": [{"type": "paragraph", "data": {"text": "a"}}, block]})
+		return [b["type"] for b in json.loads(sanitize_editorjs(raw))["blocks"]] == ["paragraph", "embed"]
+
+	def test_drops_non_http_schemes(self):
+		for embed in (
+			"javascript:alert(document.domain)//x",
+			"JaVaScRiPt:alert(1)",
+			" javascript:alert(1)",
+			"java\tscript:alert(1)",
+			"javascript&colon;alert(1)",
+			"data:text/html,%3Cscript%3Ealert(1)%3C/script%3E",
+			"vbscript:msgbox(1)",
+			"https&#58;//evil.example",
+			"https:\t//evil.example",
+			"/files/page.html",
+			"//evil.example/x",
+			"https://[broken",
+			"",
+			None,
+		):
+			with self.subTest(embed=embed):
+				self.assertFalse(self._kept(embed))
+
+	def test_drops_a_frame_of_the_site_itself(self):
+		site = frappe.local.site
+		for embed in (
+			f"https://{site}/files/page.html",
+			f"http://{site.upper()}:8000/x",
+			f"https://u@{site}/x",
+		):
+			with self.subTest(embed=embed):
+				self.assertFalse(self._kept(embed))
+
+	def test_drops_a_backslash_that_hides_the_host(self):
+		self.assertFalse(self._kept(f"https://{frappe.local.site}\\@evil.example/x"))
+
+	def test_keeps_external_http_urls(self):
+		for embed in (
+			"https://drive.google.com/file/d/1A2B/preview",
+			"HTTPS://player.vimeo.com/video/1?h=ab",
+			"http://codepen.io/a/embed/b?height=300&theme-id=0",
+		):
+			with self.subTest(embed=embed):
+				self.assertTrue(self._kept(embed))
+
+	def test_keeps_a_bare_youtube_video_id(self):
+		self.assertTrue(self._kept("QhA4h6qD4wY", service="youtube"))
+		self.assertFalse(self._kept("QhA4h6qD4wY"))
+		self.assertFalse(self._kept("javascript:alert(1)", service="youtube"))

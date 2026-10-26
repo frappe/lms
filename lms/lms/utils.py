@@ -2,7 +2,7 @@ import hashlib
 import json
 import re
 from datetime import date, datetime
-from urllib.parse import quote
+from urllib.parse import quote, urlsplit
 from zoneinfo import ZoneInfo
 
 import frappe
@@ -27,6 +27,7 @@ from frappe.utils import (
 	get_fullname,
 	get_system_timezone,
 	get_time,
+	get_url,
 	getdate,
 	nowtime,
 	rounded,
@@ -621,6 +622,9 @@ def validate_attachable_file(doc: Document, fieldname: str) -> None:
 		)
 
 
+MAX_MENTIONS_PER_REPLY = 10
+
+
 def handle_notifications(doc: Document, method: str):
 	topic = frappe.db.get_value(
 		"Discussion Topic",
@@ -704,7 +708,7 @@ def mentioned_users(html: str) -> list[str]:
 
 
 def notify_mentions_on_portal(doc: Document, topic: dict):
-	mentions = mentioned_users(doc.reply)
+	mentions = get_mention_recipients(doc, topic)
 	if not mentions:
 		return
 
@@ -746,7 +750,7 @@ def notify_mentions_via_email(doc: Document, topic: dict):
 	if not outgoing_email_account or not frappe.conf.get("mail_login"):
 		return
 
-	mentions = mentioned_users(doc.reply)
+	mentions = get_mention_recipients(doc, topic)
 	if not mentions:
 		return
 
@@ -784,6 +788,33 @@ def notify_mentions_via_email(doc: Document, topic: dict):
 			header=[subject, "green"],
 			retry=3,
 		)
+
+
+def get_mention_recipients(doc: Document, topic: dict) -> list[str]:
+	mentions = mentioned_users(doc.reply)[:MAX_MENTIONS_PER_REPLY]
+	if not mentions:
+		return []
+	users = frappe.get_all(
+		"User", {"name": ("in", mentions), "enabled": 1, "allowed_in_mentions": 1}, pluck="name"
+	)
+	return [user for user in users if is_topic_participant(user, topic)]
+
+
+def is_topic_participant(user: str, topic: dict) -> bool:
+	from lms.lms.permissions import can_author_batch, can_author_course
+
+	if topic.reference_doctype == "Course Lesson":
+		course = frappe.db.get_value("Course Lesson", topic.reference_docname, "course")
+		return bool(
+			frappe.db.exists("LMS Enrollment", {"course": course, "member": user})
+			or can_author_course(course, user=user)
+		)
+	batch = topic.reference_docname
+	return bool(
+		frappe.db.exists("LMS Batch Enrollment", {"batch": batch, "member": user})
+		or has_evaluator_role(user)
+		or can_author_batch(batch, user=user)
+	)
 
 
 def get_lesson_count(course: str) -> int:
@@ -3862,7 +3893,7 @@ def sanitize_editorjs(raw):
 	"""
 	try:
 		data, _repaired = load_editorjs(raw)
-		return dump_editorjs(sanitize_json(data))
+		return dump_editorjs(drop_unsafe_embeds(sanitize_json(data)))
 	except (TypeError, ValueError, RecursionError):
 		return escape_markup(raw)
 
@@ -3917,6 +3948,39 @@ def sanitize_json(node, depth=0):
 	if isinstance(node, str) and ("<" in node or ">" in node):
 		return sanitize_html(node, always_sanitize=True)
 	return node
+
+
+# The embed tool writes `data.embed` into an iframe `src` as is.
+SAFE_EMBED_URL = re.compile(r"https?://[^\s\\\x00-\x1f\x7f]+", re.IGNORECASE)
+YOUTUBE_VIDEO_ID = re.compile(r"[A-Za-z0-9_-]+")
+
+
+def is_safe_embed(data):
+	url = data.get("embed")
+	if not isinstance(url, str):
+		return False
+	if data.get("service") == "youtube" and YOUTUBE_VIDEO_ID.fullmatch(url):
+		return True
+	if not SAFE_EMBED_URL.fullmatch(url):
+		return False
+	try:
+		host = urlsplit(url).hostname
+	except ValueError:
+		return False
+	return bool(host) and host not in {frappe.local.site, urlsplit(get_url()).hostname}
+
+
+def drop_unsafe_embeds(data):
+	"""Drop embed blocks whose iframe source is not an external http(s) URL."""
+	if not isinstance(data, dict) or not isinstance(data.get("blocks"), list):
+		return data
+	data["blocks"] = [
+		block
+		for block in data["blocks"]
+		if not (isinstance(block, dict) and block.get("type") == "embed")
+		or (isinstance(block.get("data"), dict) and is_safe_embed(block["data"]))
+	]
+	return data
 
 
 # Rows written before `content` carried `ignore_xss_filter` were mangled by nh3

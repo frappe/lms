@@ -20,7 +20,7 @@ import {
 	clipboardTuneNames,
 } from '@/utils/blockTunes/clipboardTunes'
 import dayjs from '@/utils/dayjs'
-import Embed from '@editorjs/embed'
+import { SafeEmbed } from '@/utils/safeEmbed'
 import SimpleImage from '@editorjs/simple-image'
 import Table from '@editorjs/table'
 import DOMPurify from 'dompurify'
@@ -213,7 +213,7 @@ export function getEditorTools(
 		cutBlock: clipboardTunes.cutBlock,
 		pasteBlock: clipboardTunes.pasteBlock,
 		embed: {
-			class: Embed,
+			class: SafeEmbed,
 			inlineToolbar: false,
 			config: {
 				services: {
