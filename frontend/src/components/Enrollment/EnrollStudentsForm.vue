@@ -636,6 +636,8 @@ const without = <T>(record: Record<string, T>, kept: Set<string>) =>
 	)
 
 watch(members, (next) => {
+	previewId++
+	previewLoading.value = false
 	const kept = new Set(next.map(keyOf))
 	ticked.value = ticked.value.filter((member) => kept.has(keyOf(member)))
 	rows.value = rows.value.filter((row) => kept.has(keyOf(row.member)))

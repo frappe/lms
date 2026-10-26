@@ -672,6 +672,36 @@ describe('EnrollStudentsForm', () => {
 		expect(tableRows(wrapper).map((item) => item.member)).toEqual(AB)
 	})
 
+	// Regression from the bulk-enroll PR (feat/bulk-enroll): a preview still in
+	// flight when its student was removed restored that student's row, and the
+	// stale count disabled Enroll for the students who fit the seats.
+	it('ignores a preview that answers after its student was removed', async () => {
+		const wrapper = mountForm({ target: paidBatch })
+		const ABC = [...AB, 'c@x.com']
+		const twoSeats = (members: string[]) =>
+			preview(
+				members.map((m) => row(m)),
+				{ seats_left: 2 }
+			)
+		await selectPaid(wrapper, AB, twoSeats(AB))
+		let late: Handlers = {}
+		resources[PREVIEW].submit.mockImplementationOnce(
+			(_params: unknown, options: Handlers) => {
+				late = options
+				return new Promise(() => {})
+			}
+		)
+		await select(wrapper, ABC)
+		await select(wrapper, AB)
+		late.onSuccess?.(twoSeats(ABC))
+		await flushPromises()
+		expect(wrapper.find('[data-testid="error"]').exists()).toBe(false)
+		await addressForAll(wrapper)
+		expect(
+			byId(wrapper, 'enroll-submit').attributes('disabled')
+		).toBeUndefined()
+	})
+
 	it('the selection banner removes and resets the ticked students', async () => {
 		const wrapper = mountForm({ target: paidCourse })
 		const ABC = [...AB, 'c@x.com']
