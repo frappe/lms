@@ -164,6 +164,65 @@
 					</div>
 
 					<div
+						v-else-if="field.type == 'checkboxGroup'"
+						role="group"
+						:aria-labelledby="labelId(field)"
+						:aria-describedby="describedBy(field)"
+						class="relative isolate py-3"
+					>
+						<span
+							aria-hidden="true"
+							data-testid="setting-highlight"
+							class="pointer-events-none absolute -inset-x-3 inset-y-1 -z-10 rounded-5 bg-surface-gray-2 transition-opacity duration-500"
+							:class="isFlashed(field) ? 'opacity-100' : 'opacity-0'"
+						/>
+						<div
+							:id="labelId(field)"
+							class="text-p-base-medium text-ink-gray-7"
+						>
+							{{ __(field.label) }}
+						</div>
+						<div
+							v-if="field.description"
+							:id="descriptionId(field)"
+							class="text-p-sm text-ink-gray-6"
+						>
+							{{ __(field.description) }}
+						</div>
+						<div class="mt-3 grid grid-cols-2 gap-4">
+							<div
+								v-for="option in visibleOptions(field)"
+								:key="option.name"
+								:data-setting-field="option.name"
+							>
+								<div class="flex h-7 items-center gap-1">
+									<Checkbox
+										:label="__(option.label)"
+										:model-value="Boolean(data[option.name])"
+										:disabled="field.disabled"
+										:aria-describedby="
+											option.description ? optionHintId(option) : undefined
+										"
+										@update:model-value="
+											(value) => onOption(field, option, value)
+										"
+									/>
+									<SettingsCaution
+										v-if="option.caution"
+										:text="__(option.caution)"
+									/>
+								</div>
+								<InputDescription
+									v-if="option.description"
+									:id="optionHintId(option)"
+									:description="__(option.description)"
+									class="ps-[1.35rem]"
+								/>
+							</div>
+						</div>
+					</div>
+
+					<div
 						v-else
 						:data-setting-field="field.name"
 						class="relative isolate flex items-center justify-between gap-4 py-3"
@@ -187,25 +246,10 @@
 										>*</span
 									>
 								</span>
-								<Tooltip v-if="field.caution">
-									<Button
-										variant="ghost"
-										size="sm"
-										:aria-label="__(field.caution)"
-									>
-										<template #icon>
-											<span
-												class="lucide-circle-alert size-3.5 text-ink-gray-6"
-												aria-hidden="true"
-											/>
-										</template>
-									</Button>
-									<template #content>
-										<div class="max-w-xs text-p-xs">
-											{{ __(field.caution) }}
-										</div>
-									</template>
-								</Tooltip>
+								<SettingsCaution
+									v-if="field.caution"
+									:text="__(field.caution)"
+								/>
 							</div>
 							<div v-if="field.description" class="text-p-sm text-ink-gray-6">
 								{{ __(field.description) }}
@@ -275,13 +319,14 @@
 	</div>
 </template>
 <script setup>
-import { Button, FormControl, Password, Select, Tooltip } from 'frappe-ui'
+import { Checkbox, FormControl, Password, Select } from 'frappe-ui'
 import { InputDescription, InputLabel } from 'frappe-ui/experimental'
 import BooleanSwitch from '@/components/Controls/BooleanSwitch.vue'
 import { nextTick, onBeforeUnmount, reactive, ref, useId, watch } from 'vue'
 import Link from '@/components/Controls/Link.vue'
 import ImageUploadField from '@/components/Controls/ImageUploadField.vue'
 import RichTextEditor from '@/components/RichTextEditor.vue'
+import SettingsCaution from './SettingsCaution.vue'
 import SettingsCodeField from './SettingsCodeField.vue'
 import { seedCheckboxDefaults } from '@/components/Settings/Mobile/mobileRows'
 
@@ -491,6 +536,23 @@ const displayValue = (field) =>
 // The user picked it, so it is written like any other value — including when
 // what they picked is the fallback they were already being shown.
 const onPick = (field, value) => setValue(field, value)
+
+// A group's own `name` keys the row; each option writes its own Check field.
+const onOption = (field, option, value) => {
+	if (field.disabled) return
+	props.data[option.name] = value ? 1 : 0
+	if (!value) {
+		for (const dependent of dependentOptions(option.name)) {
+			props.data[dependent.name] = 0
+		}
+	}
+	emit('commit', 'now')
+}
+
+const optionHintId = (option) => `${uid}-${option.name}-description`
+
+const isFlashed = (field) =>
+	field.options.some((option) => option.name === flashed.value)
 
 // Link shows its "Create New" footer whenever this handler exists, so a
 // field with none must get none, or the button does nothing. The value

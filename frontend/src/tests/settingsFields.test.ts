@@ -440,3 +440,50 @@ describe('SettingsFields shows a caution behind an alert icon', () => {
 		expect(w.find('.lucide-circle-alert').exists()).toBe(false)
 	})
 })
+
+describe('SettingsFields draws a checkbox group', () => {
+	const group: SettingsField = {
+		name: 'enforce_completion',
+		label: 'Enforce completion',
+		type: 'checkboxGroup',
+		options: [
+			{
+				name: 'enforce_video_completion',
+				label: 'Videos',
+				caution: 'Embedded links cannot be tracked.',
+			},
+			{ name: 'enforce_quiz_completion', label: 'Quizzes' },
+		],
+	}
+
+	it('labels each checkbox from its own field', async () => {
+		const w = await mountFields([group], {
+			enforce_video_completion: 1,
+			enforce_quiz_completion: 0,
+		})
+		const groupEl = w.get('[role="group"]')
+		const labelledBy = groupEl.attributes('aria-labelledby')
+		expect(w.get(`[id="${labelledBy}"]`).text()).toBe('Enforce completion')
+		const boxes = w.findAll('input[type="checkbox"]')
+		expect(
+			boxes.map((box) => (box.element as HTMLInputElement).checked)
+		).toEqual([true, false])
+		expect(w.get('label[for="' + boxes[1].attributes('id') + '"]').text()).toBe(
+			'Quizzes'
+		)
+		expect(
+			w.find('button[aria-label="Embedded links cannot be tracked."]').exists()
+		).toBe(true)
+	})
+
+	it('writes only the toggled field and reports it', async () => {
+		const data = { enforce_video_completion: 1, enforce_quiz_completion: 0 }
+		const w = await mountFields([group], data)
+		await w.findAll('input[type="checkbox"]')[1].setValue(true)
+		expect(data).toEqual({
+			enforce_video_completion: 1,
+			enforce_quiz_completion: 1,
+		})
+		expect(w.emitted('commit')?.at(-1)).toEqual(['now'])
+	})
+})
