@@ -14,6 +14,15 @@ export interface SelectOption {
 
 export type FieldOptions = string[] | SelectOption[]
 
+/** One Check field drawn as a checkbox inside a `checkboxGroup`. */
+export interface CheckboxOption {
+	/** Fieldname on the page's source document. */
+	name: string
+	label: string
+	description?: string
+	caution?: string
+}
+
 interface FieldBase {
 	/** Fieldname on the page's source document. */
 	name: string
@@ -103,6 +112,11 @@ export type SettingsField =
 				onCreate?: (value: string, close: () => void) => void
 			})
 	| (FieldBase & { type: 'checkbox'; default?: 0 | 1 })
+	/**
+	 * Several Check fields under one label. `name` only keys the row; each
+	 * option writes its own fieldname.
+	 */
+	| (FieldBase & { type: 'checkboxGroup'; options: CheckboxOption[] })
 	| (FieldBase & { type: 'date' })
 	| (FieldBase & {
 			type: 'code'

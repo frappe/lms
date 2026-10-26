@@ -105,7 +105,7 @@ export const settingsTree: SettingsGroup[] = [
 					save: 'auto',
 					sections: [
 						{
-							label: 'Completion Time',
+							label: 'Lesson Completion',
 							fields: [
 								{
 									label: 'Lesson Completion Time (seconds)',
@@ -113,51 +113,46 @@ export const settingsTree: SettingsGroup[] = [
 									type: 'number',
 									min: 1,
 									description:
-										'Seconds a learner must stay on a lesson before it auto-marks complete.',
+										'Seconds a learner must stay on a lesson before it is marked complete.',
 								},
-							],
-						},
-						{
-							label: 'Enforcement',
-							fields: [
 								{
-									label: 'Enforce video completion',
-									name: 'enforce_video_completion',
-									type: 'checkbox',
+									label: 'Enforce completion',
+									name: 'enforce_completion',
+									type: 'checkboxGroup',
 									description:
-										'When enabled, lessons that contain a video can only be marked complete by playing the video to the end, and a quiz or assignment in the lesson completes it only after that. If the video fails to load, the dwell timer is used as a fallback.',
-									caution:
-										'Videos from Cloudflare Stream, Google Drive, Aparat or other embedded links cannot be tracked, so those lessons complete on the dwell timer instead.',
+										'A lesson is marked complete only once the selected items are done.',
+									options: [
+										{
+											label: 'Videos',
+											name: 'enforce_video_completion',
+											caution:
+												'A video that fails to load, or comes from Cloudflare Stream, Google Drive, Aparat or another embedded link, cannot be tracked, so its lesson completes on the completion time instead.',
+										},
+										{
+											label: 'Quizzes',
+											name: 'enforce_quiz_completion',
+											description: 'The quiz is passed.',
+										},
+										{
+											label: 'Assignments',
+											name: 'enforce_assignment_completion',
+											description: 'The assignment is submitted.',
+										},
+										{
+											label: 'Programming exercises',
+											name: 'enforce_programming_exercise_completion',
+											description: 'The exercise passes all its test cases.',
+										},
+									],
 								},
 								{
 									label: 'Prevent Skipping Videos',
 									name: 'prevent_skipping_videos',
 									type: 'checkbox',
 									description:
-										'When enabled, learners cannot skip ahead of the furthest point they have watched in a video.',
+										"Learners can't jump ahead of the furthest point they've watched. Turn on with Videos above to require watching the whole video.",
 									caution:
 										'This is not enforced for videos from Cloudflare Stream, Google Drive, Aparat or other embedded links.',
-								},
-								{
-									label: 'Enforce assignment completion',
-									name: 'enforce_assignment_completion',
-									type: 'checkbox',
-									description:
-										'When enabled, lessons with an assignment cannot be marked complete until the assignment is submitted.',
-								},
-								{
-									label: 'Enforce quiz completion',
-									name: 'enforce_quiz_completion',
-									type: 'checkbox',
-									description:
-										'When enabled, lessons with a quiz cannot be marked complete until the quiz is passed.',
-								},
-								{
-									label: 'Enforce programming exercise completion',
-									name: 'enforce_programming_exercise_completion',
-									type: 'checkbox',
-									description:
-										'When enabled, lessons with a programming exercise cannot be marked complete until the exercise passes all its test cases.',
 								},
 							],
 						},

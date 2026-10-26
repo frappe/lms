@@ -27,6 +27,7 @@ vi.mock('@framework/ui/components/Onboarding/index', () => ({}))
 import { settingsTree } from '@/components/Settings/settings'
 import { NEW_RECORD, useSettingsSource } from '@/composables/useSettingsSource'
 import type {
+	CheckboxOption,
 	FieldsPage,
 	SettingsField,
 	SettingsItem,
@@ -43,6 +44,12 @@ const fieldsOfItem = (item: SettingsItem): SettingsField[] =>
 		? item.page.sections.flatMap((section) => section.fields)
 		: []
 
+// The fields a page writes: a checkbox group writes its options, not itself.
+const writtenOf = (item: SettingsItem): (SettingsField | CheckboxOption)[] =>
+	fieldsOfItem(item).flatMap((field) =>
+		field.type === 'checkboxGroup' ? field.options : [field]
+	)
+
 describe('the settings tree', () => {
 	it('gives every item a unique, URL-safe slug', () => {
 		const slugs = items.map((item) => item.slug)
@@ -56,7 +63,7 @@ describe('the settings tree', () => {
 
 	it('never shows the same field on two pages', () => {
 		const names = items.flatMap((item) =>
-			fieldsOfItem(item).map((field) => field.name)
+			writtenOf(item).map((field) => field.name)
 		)
 
 		expect(new Set(names).size).toBe(names.length)
@@ -142,7 +149,27 @@ describe('a draft opened on defaults', () => {
 describe('the course progress descriptions', () => {
 	const progressItem = items.find((item) => item.slug === 'course-progress')!
 	const fieldOf = (name: string) =>
-		fieldsOfItem(progressItem).find((field) => field.name === name)
+		writtenOf(progressItem).find((field) => field.name === name)
+
+	it('groups the four enforce fields, with Prevent Skipping Videos after', () => {
+		const page = progressItem.page as FieldsPage
+		expect(page.sections.map((section) => section.label)).toEqual([
+			'Lesson Completion',
+		])
+		expect(fieldsOfItem(progressItem).map((field) => field.type)).toEqual([
+			'number',
+			'checkboxGroup',
+			'checkbox',
+		])
+		expect(writtenOf(progressItem).map((field) => field.name)).toEqual([
+			'lesson_dwell_time',
+			'enforce_video_completion',
+			'enforce_quiz_completion',
+			'enforce_assignment_completion',
+			'enforce_programming_exercise_completion',
+			'prevent_skipping_videos',
+		])
+	})
 
 	// Regression from #2426: the copy said a quiz had to be submitted, but the
 	// server checks it was passed. Added on fix/course-progress-enforcement (no PR yet).
