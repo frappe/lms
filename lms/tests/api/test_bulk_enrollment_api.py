@@ -644,6 +644,35 @@ class TestBatchBulkEnrollment(BaseTestUtils):
 		payment.flags.recorded_by_staff = True
 		self.assertFalse(payment.insert().source)
 
+	# Regression from the bulk-enroll PR (feat/bulk-enroll): the staff flag lived only for
+	# the insert, so correcting a staff-recorded payment later failed on "Source is required".
+	def test_a_staff_recorded_payment_without_source_can_be_edited_later(self):
+		payment = frappe.get_doc(self._payment_values())
+		payment.flags.recorded_by_staff = True
+		payment.insert()
+		reloaded = frappe.get_doc("LMS Payment", payment.name)
+		reloaded.amount = 2
+		reloaded.save()
+		self.assertEqual(frappe.db.get_value("LMS Payment", payment.name, "amount"), 2)
+
+	def test_a_payment_stored_with_a_source_cannot_drop_it(self):
+		payment = frappe.get_doc({**self._payment_values(), "source": self.source}).insert()
+		reloaded = frappe.get_doc("LMS Payment", payment.name)
+		reloaded.source = None
+		with self.assertRaises(frappe.MandatoryError):
+			reloaded.save()
+
+	def _payment_values(self):
+		return {
+			"doctype": "LMS Payment",
+			"member": self.students[0],
+			"billing_name": "x",
+			"amount": 1,
+			"currency": "INR",
+			"payment_for_document_type": "LMS Batch",
+			"payment_for_document": self.batch,
+		}
+
 	def test_a_moderator_skip_is_reported_per_student_for_a_missing_user(self):
 		missing = f"nobody-{self.hash}@example.com"
 		self._as(self.moderator)
