@@ -11,7 +11,7 @@
 		</template>
 
 		<template #header-actions>
-			<Switch
+			<SwitchRow
 				v-if="!isNew && rules.detail.value"
 				size="sm"
 				:label="__('Enabled')"
@@ -120,13 +120,13 @@ import {
 	Button,
 	FormControl,
 	LoadingIndicator,
-	Switch,
 	createResource,
 	toast,
 } from 'frappe-ui'
 import type { FrappeResourceError } from 'frappe-ui'
 import { computed, ref, watch } from 'vue'
 import SettingsLayout from '@/components/Layouts/settings/desktop/SettingsLayout.vue'
+import SwitchRow from '@/components/Controls/SwitchRow.vue'
 import RuleConditions from './RuleConditions.vue'
 import MassRemovalConfirmDialog from './MassRemovalConfirmDialog.vue'
 import UnsavedChangesDialog from './UnsavedChangesDialog.vue'

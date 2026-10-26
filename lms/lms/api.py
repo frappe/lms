@@ -39,6 +39,19 @@ from frappe.utils.password import get_decrypted_password, remove_encrypted_passw
 from frappe.utils.response import Response
 from pypika import functions as fn
 
+from lms.lms.bulk_enrollment import (
+	can_enroll_others,
+	can_record_payments,
+	enroll_each,
+	get_paid_kind,
+	get_preview,
+	parse_members,
+	parse_payment_args,
+	require_enroll_target,
+	require_user,
+	resolve_payment,
+	search_users,
+)
 from lms.lms.code_runner import code_to_store, run_test_cases
 from lms.lms.course_import_export import (
 	export_course_zip,
@@ -3628,32 +3641,192 @@ def get_live_class_start_url(live_class: str) -> str:
 
 
 @frappe.whitelist(methods=["POST"])
-def add_students_to_batch(batch: str, members: list | str) -> dict:
-	"""Enroll each member in the batch, as adding them one at a time would. A member who cannot
-	be added is reported in `errors` and does not stop the rest. `members` is a list of users, or
-	that list as JSON."""
+def add_students_to_batch(
+	batch: str,
+	members: list | str,
+	payment_details: dict | str | None = None,
+	linked_payments: dict | str | None = None,
+	member_payment_details: dict | str | None = None,
+) -> dict:
+	"""Enroll each member in the batch; one who cannot be added is reported in `errors`. For a paid
+	batch, `payment_details` records a received payment per member, `linked_payments` attaches
+	existing ones and `member_payment_details` overrides payment values for named members."""
 	if not isinstance(batch, str) or not frappe.db.exists("LMS Batch", batch):
 		frappe.throw(_("Invalid batch."))
-	if isinstance(members, str):
-		members = frappe.parse_json(members)
-	if not isinstance(members, list) or not all(isinstance(member, str) for member in members):
+	if not isinstance(members, list | str):
 		frappe.throw(_("Members must be a list of users."))
+	if not all(
+		isinstance(arg, dict | str | None)
+		for arg in (payment_details, linked_payments, member_payment_details)
+	):
+		frappe.throw(_("Payment arguments must be JSON objects."))
 
-	added, errors = [], []
-	for member in members:
-		messages = len(frappe.local.message_log)
-		frappe.db.savepoint("add_student_to_batch")
-		try:
-			frappe.get_doc({"doctype": "LMS Batch Enrollment", "batch": batch, "member": member}).insert()
-		except Exception as e:
-			frappe.db.rollback(save_point="add_student_to_batch")
-			# The row's messages are its error below, not a message for the whole request.
-			del frappe.local.message_log[messages:]
-			errors.append({"member": member, "error": str(e)})
-		else:
-			frappe.db.release_savepoint("add_student_to_batch")
-			added.append(member)
-	return {"added": added, "errors": errors}
+	has_payments = payment_details is not None or linked_payments is not None
+	if has_payments:
+		if not can_record_payments("LMS Batch", batch):
+			frappe.throw(_("You cannot record payments for this batch."), frappe.PermissionError)
+		if get_paid_kind("LMS Batch", batch) != "batch":
+			frappe.throw(_("Payments can only be recorded for a paid batch."))
+
+	members = parse_members(members) if has_payments else parse_members(members, limit=None)
+	details, linked, member_details = parse_payment_args(
+		payment_details, linked_payments, member_payment_details, members
+	)
+
+	def enroll_one(member: str) -> str:
+		user = require_user(member)
+		member = user.name
+		payment = resolve_payment(user, "LMS Batch", batch, False, details, linked, member_details)
+		if has_payments and not payment:
+			frappe.throw(_("No payment was given for {0}. Add a payment for this student.").format(member))
+		frappe.get_doc(
+			{"doctype": "LMS Batch Enrollment", "batch": batch, "member": member, "payment": payment}
+		).insert()
+		return "added"
+
+	outcomes, errors = enroll_each(members, enroll_one)
+	return {"added": outcomes.get("added", []), "errors": errors}
+
+
+@frappe.whitelist(methods=["POST"])
+def enroll_students_in_course(
+	course: str,
+	members: list | str,
+	purchased_certificate: bool = False,
+	payment_details: dict | str | None = None,
+	linked_payments: dict | str | None = None,
+	member_payment_details: dict | str | None = None,
+) -> dict:
+	"""Enroll each member in the course; one who cannot be enrolled is reported in `errors`. With
+	`purchased_certificate`, members already enrolled are upgraded to the certificate instead.
+	`member_payment_details` overrides payment values and address for named members."""
+	if not isinstance(course, str) or not frappe.db.exists("LMS Course", course):
+		frappe.throw(_("Invalid course."))
+	if not can_enroll_others("LMS Course", course):
+		frappe.throw(_("You cannot enroll students in this course."), frappe.PermissionError)
+	if not isinstance(purchased_certificate, bool | int) or purchased_certificate not in (0, 1):
+		frappe.throw(_("Purchased certificate must be true or false."))
+	if not isinstance(members, list | str):
+		frappe.throw(_("Members must be a list of users."))
+	if not all(
+		isinstance(arg, dict | str | None)
+		for arg in (payment_details, linked_payments, member_payment_details)
+	):
+		frappe.throw(_("Payment arguments must be JSON objects."))
+
+	purchased_certificate = bool(purchased_certificate)
+	kind = get_paid_kind("LMS Course", course, purchased_certificate)
+	if purchased_certificate and kind == "course":
+		frappe.throw(
+			_(
+				"The certificate cannot be bought separately on a paid course. Turn off the certificate switch and try again."
+			)
+		)
+	has_payments = payment_details is not None or linked_payments is not None
+	if has_payments:
+		if not can_record_payments("LMS Course", course):
+			frappe.throw(_("You cannot record payments for this course."), frappe.PermissionError)
+		if kind is None:
+			frappe.throw(_("Payments can only be recorded for a paid course or a purchased certificate."))
+
+	members = parse_members(members)
+	details, linked, member_details = parse_payment_args(
+		payment_details, linked_payments, member_payment_details, members
+	)
+	for_certificate = kind == "certificate"
+
+	def enroll_one(member: str) -> str:
+		user = require_user(member)
+		member = user.name
+		# Same lock order as LMSEnrollment.validate_duplicate_enrollment: course first.
+		frappe.db.get_value("LMS Course", course, "name", for_update=True)
+		existing = frappe.db.get_value(
+			"LMS Enrollment",
+			{"course": course, "member": member},
+			["name", "purchased_certificate"],
+			as_dict=True,
+			for_update=purchased_certificate,
+		)
+		if existing and purchased_certificate and existing.purchased_certificate:
+			frappe.throw(_("Certificate already purchased by {0}.").format(member))
+
+		payment = resolve_payment(
+			user, "LMS Course", course, for_certificate, details, linked, member_details
+		)
+		if has_payments and not payment:
+			frappe.throw(_("No payment was given for {0}. Add a payment for this student.").format(member))
+
+		if existing and purchased_certificate:
+			enrollment = frappe.get_doc("LMS Enrollment", existing.name)
+			enrollment.purchased_certificate = 1
+			if payment:
+				enrollment.payment = payment
+			enrollment.save()
+			return "upgraded"
+
+		frappe.get_doc(
+			{
+				"doctype": "LMS Enrollment",
+				"course": course,
+				"member": member,
+				"purchased_certificate": int(purchased_certificate),
+				"payment": payment,
+			}
+		).insert()
+		return "added"
+
+	outcomes, errors = enroll_each(members, enroll_one)
+	return {
+		"added": outcomes.get("added", []),
+		"upgraded": outcomes.get("upgraded", []),
+		"errors": errors,
+	}
+
+
+@frappe.whitelist()
+def get_bulk_enrollment_preview(
+	doctype: str, docname: str, members: list | str, purchased_certificate: bool = False
+) -> dict:
+	"""What bulk-enrolling these members would do: a status per member, the seats left and the price."""
+	if not isinstance(doctype, str) or not isinstance(docname, str):
+		frappe.throw(_("Invalid course or batch."))
+	require_enroll_target(doctype, docname)
+	if not isinstance(members, list | str):
+		frappe.throw(_("Members must be a list of users."))
+	if not isinstance(purchased_certificate, bool | int) or purchased_certificate not in (0, 1):
+		frappe.throw(_("Purchased certificate must be true or false."))
+	return get_preview(doctype, docname, parse_members(members), bool(purchased_certificate))
+
+
+@frappe.whitelist()
+def search_users_to_enroll(
+	enroll_doctype: str,
+	enroll_docname: str,
+	txt: str = "",
+	include_enrolled: bool = False,
+	page_length: int = 10,
+	names: list | str | None = None,
+) -> list[dict]:
+	"""Enabled users matching `txt` who can be enrolled, or exactly `names` to label chips."""
+	if not isinstance(enroll_doctype, str) or not isinstance(enroll_docname, str):
+		frappe.throw(_("Invalid course or batch."))
+	require_enroll_target(enroll_doctype, enroll_docname)
+	if not isinstance(txt, str):
+		frappe.throw(_("Search text must be text."))
+	if not isinstance(include_enrolled, bool | int) or include_enrolled not in (0, 1):
+		frappe.throw(_("Include enrolled must be true or false."))
+	if isinstance(page_length, bool) or not isinstance(page_length, int | str):
+		frappe.throw(_("Page length must be a number."))
+	if not isinstance(names, list | str | None):
+		frappe.throw(_("Names must be a list of users."))
+	return search_users(
+		enroll_doctype,
+		enroll_docname,
+		txt.strip(),
+		bool(include_enrolled),
+		max(cint(page_length), 1),
+		parse_members(names, limit=None) if names is not None else None,
+	)
 
 
 @frappe.whitelist()

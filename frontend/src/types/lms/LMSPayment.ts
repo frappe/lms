@@ -26,7 +26,7 @@ export interface LMSPayment {
 	/**	PAN : Data	*/
 	pan?: string
 	/**	Address : Link - Address	*/
-	address: string
+	address?: string
 	/**	Payment Received : Check	*/
 	payment_received?: 0 | 1
 	/**	Billing Name : Data	*/
@@ -38,7 +38,7 @@ export interface LMSPayment {
 	/**	Payment for Document : Dynamic Link - payment_for_document_type	*/
 	payment_for_document: string
 	/**	Source : Link - LMS Source	*/
-	source: string
+	source?: string
 	/**	Payment for Certificate : Check	*/
 	payment_for_certificate?: 0 | 1
 	/**	Coupon Code : Data	*/

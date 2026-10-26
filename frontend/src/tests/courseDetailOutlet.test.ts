@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from 'vitest'
 import { flushPromises, mount } from '@vue/test-utils'
 import { createMemoryHistory, createRouter, RouterView } from 'vue-router'
-import { defineComponent, h } from 'vue'
+import { defineComponent, h, inject } from 'vue'
 
 vi.stubGlobal('__', (text: string) => text)
 
@@ -10,13 +10,16 @@ vi.stubGlobal('__', (text: string) => text)
 // and re-applying the branch on top of that rewrite is a hand edit that raises
 // no conflict marker if it is skipped. Without the outlet the chapter route
 // resolves and renders nothing at all.
-const { passthrough } = vi.hoisted(() => {
+const { passthrough, resources } = vi.hoisted(() => {
 	window.matchMedia ??= (() => ({
 		matches: false,
 		addEventListener: () => {},
 		removeEventListener: () => {},
 	})) as unknown as typeof window.matchMedia
-	return { passthrough: { template: `<div><slot /></div>` } }
+	return {
+		passthrough: { template: `<div><slot /></div>` },
+		resources: [] as { reload: () => void }[],
+	}
 })
 
 vi.mock('@/stores/settings', () => ({ useSettings: () => ({}) }))
@@ -27,8 +30,11 @@ vi.mock('frappe-ui', async () => {
 	// Reactive like the real resource, which CourseDetail watches.
 	const { reactive } = await import('vue')
 	return {
-		createResource: () =>
-			reactive({ data: null, loading: false, reload: vi.fn() }),
+		createResource: () => {
+			const resource = reactive({ data: null, loading: false, reload: vi.fn() })
+			resources.push(resource)
+			return resource
+		},
 		usePageMeta: vi.fn(),
 		toast: { success: vi.fn(), error: vi.fn() },
 		Badge: passthrough,
@@ -100,5 +106,45 @@ describe('the course page as a form parent', () => {
 		await flushPromises()
 
 		expect(wrapper.findComponent(RouterView).exists()).toBe(true)
+	})
+
+	// Regression from the bulk-enroll PR (feat/bulk-enroll): the Enrolled stat
+	// reads this page's course resource, which has no cache key, so the enroll
+	// form in the outlet needs the reload handed down to refresh it.
+	it('hands its course reload to the forms in its outlet', async () => {
+		const Child = defineComponent({
+			setup() {
+				inject<() => void>('reloadCourseDetails')?.()
+				return () => h('div')
+			},
+		})
+		const router = createRouter({
+			history: createMemoryHistory(),
+			routes: [
+				{
+					path: '/courses/:courseName',
+					name: 'CourseDetail',
+					component: CourseDetail,
+					props: true,
+					children: [{ path: 'enroll', name: 'Child', component: Child }],
+				},
+			],
+		})
+		await router.push('/courses/COURSE-1/enroll')
+		resources.length = 0
+
+		mount(CourseDetail, {
+			props: { courseName: 'COURSE-1' },
+			global: {
+				plugins: [router],
+				provide: { $user: { data: { name: 'mod@example.com' } } },
+				mocks: { __: (text: string) => text },
+			},
+		})
+		await flushPromises()
+
+		expect(resources.some((r) => vi.mocked(r.reload).mock.calls.length)).toBe(
+			true
+		)
 	})
 })

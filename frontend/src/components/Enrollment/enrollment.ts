@@ -1,0 +1,522 @@
+import type {
+	AddressChoice,
+	AddressField,
+	BillingAddress,
+	BulkEnrollError,
+	BulkEnrollResult,
+	EnrollPreviewRow,
+	EnrollStatus,
+	EnrollTarget,
+	PaidKind,
+	PaymentChoice,
+	PaymentDefaults,
+	PaymentField,
+	PaymentOverride,
+	SavedAddress,
+} from '@/types'
+
+export const MAX_STUDENTS = 50
+
+type Flag = number | boolean | undefined
+
+export const parseEmailList = (text: string): string[] => {
+	const seen = new Set<string>()
+	const emails: string[] = []
+	for (const part of text.split(/[\s,;]+/)) {
+		const email = part.trim()
+		const key = email.toLowerCase()
+		if (!email || seen.has(key)) continue
+		seen.add(key)
+		emails.push(email)
+	}
+	return emails
+}
+
+export const mergeMembers = (
+	current: readonly string[],
+	added: readonly string[],
+	max: number
+): { members: string[]; overflow: number } => {
+	const members = [...current]
+	const seen = new Set(members.map((m) => m.toLowerCase()))
+	let overflow = 0
+	for (const member of added) {
+		const key = member.toLowerCase()
+		if (seen.has(key)) continue
+		seen.add(key)
+		if (members.length >= max) {
+			overflow++
+			continue
+		}
+		members.push(member)
+	}
+	return { members, overflow }
+}
+
+export const paidKindForCourse = (course: {
+	paid_course?: Flag
+	paid_certificate?: Flag
+}): PaidKind | null => {
+	if (course.paid_course) return 'course'
+	if (course.paid_certificate) return 'certificate'
+	return null
+}
+
+export const paidKindForBatch = (batch: {
+	paid_batch?: Flag
+	can_manage?: boolean
+}): PaidKind | null => (batch.paid_batch && batch.can_manage ? 'batch' : null)
+
+export const paidSwitchLabel = (kind: PaidKind): string =>
+	kind === 'certificate'
+		? __('Include paid certificate')
+		: __('Record payments')
+
+export const paidSwitchDescription = (
+	kind: PaidKind,
+	price: string | null
+): string => {
+	if (kind === 'certificate') {
+		const what = __(
+			'Students get the certificate and a payment is recorded for each.'
+		)
+		return price ? `${what} ${__('Certificate price {0}.', [price])}` : what
+	}
+	const off = __('Turn off to enroll without a payment record.')
+	if (!price) return off
+	const priced =
+		kind === 'course'
+			? __('Course price {0}.', [price])
+			: __('Batch price {0}.', [price])
+	return `${priced} ${off}`
+}
+
+export const paidByDefault = (kind: PaidKind | null): boolean =>
+	kind === 'course' || kind === 'batch'
+
+export const isEnrollable = (status: EnrollStatus): boolean =>
+	status === 'ready' || status === 'upgrade'
+
+export const exceedsSeats = (
+	rows: readonly EnrollPreviewRow[],
+	seatsLeft: number | null
+): boolean => {
+	if (seatsLeft === null) return false
+	const ready = rows.filter((row) => row.status === 'ready').length
+	return ready > Math.max(seatsLeft, 0)
+}
+
+export const normalizeResult = (raw: {
+	added: string[]
+	upgraded?: string[]
+	errors: BulkEnrollError[]
+}): BulkEnrollResult => ({
+	added: raw.added,
+	upgraded: raw.upgraded ?? [],
+	errors: raw.errors,
+})
+
+export interface EnrollOutcome {
+	type: 'success' | 'warning' | 'error'
+	message: string
+	description: string
+}
+
+const enrolledLabel = (n: number): string =>
+	n === 1 ? __('1 student enrolled') : __('{0} students enrolled', [n])
+
+const upgradedLabel = (n: number): string =>
+	n === 1
+		? __('1 student upgraded to certificate')
+		: __('{0} students upgraded to certificate', [n])
+
+const failedLabel = (n: number): string =>
+	n === 1
+		? __('1 student could not be enrolled')
+		: __('{0} students could not be enrolled', [n])
+
+export const enrollOutcome = (result: BulkEnrollResult): EnrollOutcome => {
+	const done = [
+		result.added.length ? enrolledLabel(result.added.length) : '',
+		result.upgraded.length ? upgradedLabel(result.upgraded.length) : '',
+	].filter(Boolean)
+	const [first, ...rest] = result.errors
+	if (!first) {
+		return { type: 'success', message: done.join(', '), description: '' }
+	}
+	const failed = failedLabel(result.errors.length)
+	const reason = rest.length
+		? __('{0}: {1}, and {2} more', [first.member, first.error, rest.length])
+		: __('{0}: {1}', [first.member, first.error])
+	return {
+		type: done.length ? 'warning' : 'error',
+		message: [...done, failed].join(', '),
+		description: reason,
+	}
+}
+
+export const enrollButtonLabel = (count: number): string =>
+	count === 1 ? __('Enroll 1 student') : __('Enroll {0} students', [count])
+
+export const ADDRESS_FIELDS: readonly AddressField[] = [
+	'address_line1',
+	'address_line2',
+	'city',
+	'state',
+	'country',
+	'pincode',
+	'phone',
+]
+
+export const emptyAddress = (): BillingAddress => ({
+	address_line1: '',
+	address_line2: '',
+	city: '',
+	state: '',
+	country: '',
+	pincode: '',
+	phone: '',
+})
+
+export const paymentFieldLabel = (field: PaymentField): string => {
+	switch (field) {
+		case 'billing_name':
+			return __('Billing name')
+		case 'amount':
+			return __('Amount')
+		case 'currency':
+			return __('Currency')
+		case 'source':
+			return __('Source')
+		case 'address_line1':
+			return __('Address line 1')
+		case 'address_line2':
+			return __('Address line 2')
+		case 'city':
+			return __('City')
+		case 'state':
+			return __('State')
+		case 'country':
+			return __('Country')
+		case 'pincode':
+			return __('Postal code')
+		case 'phone':
+			return __('Phone')
+	}
+}
+
+export const emptyOverride = (): PaymentOverride => ({
+	amount: null,
+	currency: null,
+	source: null,
+	billing_name: null,
+	address: null,
+})
+
+/** Back to the details for all and a new payment for each of `members`. */
+export const resetPaymentDetails = (
+	members: readonly string[],
+	choices: Record<string, PaymentChoice>,
+	overrides: Record<string, PaymentOverride>
+): {
+	choices: Record<string, PaymentChoice>
+	overrides: Record<string, PaymentOverride>
+} => {
+	const nextChoices = { ...choices }
+	const nextOverrides = { ...overrides }
+	for (const member of members) {
+		delete nextOverrides[member]
+		nextChoices[member] = { mode: 'create' }
+	}
+	return { choices: nextChoices, overrides: nextOverrides }
+}
+
+/** Whether a student has any value of their own, the billing name included. */
+export const hasOwnDetails = (override: PaymentOverride | undefined): boolean =>
+	!!override && Object.values(override).some((value) => value !== null)
+
+/** The value every one of `values` shares, or that they vary. */
+export const sharedValue = <T>(
+	values: readonly T[]
+): { value: T | null; varies: boolean } => {
+	const first = values.length ? values[0] : null
+	return values.every((value) => value === first)
+		? { value: first, varies: false }
+		: { value: null, varies: true }
+}
+
+/**
+ * The address a group of students shares, or that theirs differ. No address
+ * counts as one with every field empty; a linked Address is shared only by name.
+ */
+export const sharedAddress = (
+	addresses: readonly (AddressChoice | null)[]
+): { address: AddressChoice | null; differs: boolean } => {
+	if (addresses.every((address) => !address)) {
+		return { address: null, differs: false }
+	}
+	const [first] = addresses
+	if (addresses.some(isSavedAddress)) {
+		const same =
+			isSavedAddress(first) &&
+			addresses.every(
+				(address) => isSavedAddress(address) && address.name === first.name
+			)
+		return same
+			? { address: first, differs: false }
+			: { address: null, differs: true }
+	}
+	const typed = addresses.map((address) => address ?? emptyAddress())
+	const address = emptyAddress()
+	for (const key of ADDRESS_FIELDS) {
+		const field = sharedValue(typed.map((item) => item[key]))
+		if (field.varies) return { address: null, differs: true }
+		address[key] = field.value ?? ''
+	}
+	return { address, differs: false }
+}
+
+export const effectivePayment = (
+	defaults: PaymentDefaults,
+	override: PaymentOverride | null
+): PaymentDefaults => {
+	if (!override) return defaults
+	return {
+		amount: override.amount ?? defaults.amount,
+		currency: override.currency ?? defaults.currency,
+		source: override.source ?? defaults.source,
+		address: override.address ?? defaults.address,
+	}
+}
+
+const isFilled = (value: string | null): value is string => !!value?.trim()
+
+export const isSavedAddress = (
+	address: AddressChoice | null
+): address is SavedAddress => !!address && 'name' in address
+
+const addressPayload = (
+	address: Readonly<AddressChoice>
+): Partial<BillingAddress> | string | null => {
+	if (isSavedAddress(address)) return address.name
+	const payload: Partial<BillingAddress> = {}
+	for (const field of ADDRESS_FIELDS) {
+		const value = address[field]
+		if (isFilled(value)) payload[field] = value.trim()
+	}
+	return Object.keys(payload).length ? payload : null
+}
+
+export const REQUIRED_ADDRESS_FIELDS: readonly AddressField[] = [
+	'address_line1',
+	'city',
+	'country',
+]
+
+export const hasAddress = (address: AddressChoice | null): boolean =>
+	!!address && (isSavedAddress(address) || addressPayload(address) !== null)
+
+const missingAddressFields = (
+	address: AddressChoice | null
+): AddressField[] => {
+	if (!address || isSavedAddress(address) || !hasAddress(address)) return []
+	return REQUIRED_ADDRESS_FIELDS.filter((field) => !isFilled(address[field]))
+}
+
+export const addressSummary = (address: AddressChoice | null): string => {
+	if (!address) return ''
+	if (isSavedAddress(address)) return address.summary || address.name
+	return (
+		['address_line1', 'address_line2', 'city', 'state', 'country'] as const
+	)
+		.map((field) => address[field].trim())
+		.filter(Boolean)
+		.join(', ')
+}
+
+const isValidAmount = (amount: number | null): amount is number =>
+	typeof amount === 'number' && Number.isFinite(amount) && amount >= 0
+
+export const formatMoney = (
+	amount: number | null,
+	currency: string | null
+): string => {
+	if (amount === null) return ''
+	if (!currency) return String(amount)
+	try {
+		return new Intl.NumberFormat(undefined, {
+			style: 'currency',
+			currency,
+		}).format(amount)
+	} catch {
+		return `${amount} ${currency}`
+	}
+}
+
+export const listPaymentLabel = (
+	choice: PaymentChoice | undefined,
+	payment: PaymentDefaults
+): string => {
+	if (choice?.mode === 'link') {
+		return [__('Linked'), choice.payment ?? __('Not selected')].join(' · ')
+	}
+	return [formatMoney(payment.amount, payment.currency), payment.source]
+		.filter(Boolean)
+		.join(' · ')
+}
+
+export const studentCountLabel = (count: number): string =>
+	count === 1 ? __('1 student') : __('{0} students', [count])
+
+export const paymentTotal = (
+	payments: readonly { amount: number | null; currency: string | null }[]
+): string => {
+	const totals = new Map<string, number>()
+	for (const { amount, currency } of payments) {
+		if (!isValidAmount(amount)) continue
+		const key = currency ?? ''
+		totals.set(key, (totals.get(key) ?? 0) + amount)
+	}
+	return Array.from(totals, ([currency, amount]) =>
+		formatMoney(amount, currency || null)
+	).join(' + ')
+}
+
+const createsPayments = (
+	members: readonly string[],
+	choices: Readonly<Record<string, PaymentChoice>>
+): boolean => members.some((member) => choices[member]?.mode !== 'link')
+
+const overridePayload = (
+	override: PaymentOverride
+): Record<string, unknown> | null => {
+	const payload: Record<string, unknown> = {}
+	if (override.amount !== null) payload.amount = override.amount
+	for (const key of ['currency', 'source', 'billing_name'] as const) {
+		const value = override[key]
+		if (isFilled(value)) payload[key] = value.trim()
+	}
+	if (override.address) payload.address = addressPayload(override.address) ?? {}
+	return Object.keys(payload).length ? payload : null
+}
+
+const commonPayload = (defaults: PaymentDefaults): Record<string, unknown> => {
+	const payload: Record<string, unknown> = {
+		amount: defaults.amount,
+		currency: defaults.currency,
+	}
+	if (isFilled(defaults.source)) payload.source = defaults.source.trim()
+	const address = defaults.address ? addressPayload(defaults.address) : null
+	if (address) payload.address = address
+	return payload
+}
+
+const targetParams = (
+	target: EnrollTarget,
+	members: readonly string[],
+	paid: boolean
+): Record<string, string | boolean> => {
+	if (target.doctype === 'LMS Batch') {
+		return { batch: target.name, members: JSON.stringify(members) }
+	}
+	return {
+		course: target.name,
+		members: JSON.stringify(members),
+		purchased_certificate: paid && target.paidKind === 'certificate',
+	}
+}
+
+const memberPayments = (
+	members: readonly string[],
+	choices: Readonly<Record<string, PaymentChoice>>,
+	overrides: Readonly<Record<string, PaymentOverride>>
+) => {
+	const linked: Record<string, string> = {}
+	const perMember: Record<string, Record<string, unknown>> = {}
+	for (const member of members) {
+		const choice = choices[member]
+		if (choice?.mode === 'link') {
+			if (choice.payment) linked[member] = choice.payment
+			continue
+		}
+		const override = overrides[member]
+		const payload = override ? overridePayload(override) : null
+		if (payload) perMember[member] = payload
+	}
+	return { linked, perMember }
+}
+
+export const buildSubmitParams = (
+	target: EnrollTarget,
+	members: readonly string[],
+	paid: boolean,
+	defaults: PaymentDefaults,
+	choices: Readonly<Record<string, PaymentChoice>>,
+	overrides: Readonly<Record<string, PaymentOverride>>
+): Record<string, string | boolean> => {
+	const params = targetParams(target, members, paid)
+	if (!paid) return params
+
+	const { linked, perMember } = memberPayments(members, choices, overrides)
+	if (createsPayments(members, choices)) {
+		params.payment_details = JSON.stringify(commonPayload(defaults))
+		if (Object.keys(perMember).length) {
+			params.member_payment_details = JSON.stringify(perMember)
+		}
+	}
+	params.linked_payments = JSON.stringify(linked)
+	return params
+}
+
+/** A payment field, or `address` when there is no address at all. */
+export type MissingKey = PaymentField | 'address'
+
+export const missingPaymentKeys = (
+	defaults: PaymentDefaults,
+	override: PaymentOverride | null,
+	requireAddress = true
+): MissingKey[] => {
+	const payment = effectivePayment(defaults, override)
+	const missing: MissingKey[] = []
+	if (!isValidAmount(payment.amount)) missing.push('amount')
+	if (!payment.currency) missing.push('currency')
+	missing.push(...missingAddressFields(payment.address))
+	if (requireAddress && !hasAddress(payment.address)) missing.push('address')
+	return missing
+}
+
+export const missingKeyLabel = (key: MissingKey): string =>
+	key === 'address' ? __('Billing address') : paymentFieldLabel(key)
+
+export const missingPaymentDetails = (
+	defaults: PaymentDefaults,
+	override: PaymentOverride | null,
+	requireAddress = true
+): string[] =>
+	missingPaymentKeys(defaults, override, requireAddress).map(missingKeyLabel)
+
+const isPaymentReady = (
+	defaults: PaymentDefaults,
+	override: PaymentOverride | null = null,
+	requireAddress = true
+): boolean => !missingPaymentDetails(defaults, override, requireAddress).length
+
+export const canSubmitPayments = (
+	defaults: PaymentDefaults,
+	members: readonly string[],
+	choices: Readonly<Record<string, PaymentChoice>>,
+	overrides: Readonly<Record<string, PaymentOverride>>
+): boolean => {
+	const linksReady = members.every((member) => {
+		const choice = choices[member]
+		return choice?.mode !== 'link' || !!choice.payment
+	})
+	if (!linksReady) return false
+	if (!createsPayments(members, choices)) return true
+	if (!isPaymentReady(defaults, null, false)) return false
+	return members.every(
+		(member) =>
+			choices[member]?.mode === 'link' ||
+			isPaymentReady(defaults, overrides[member] ?? null)
+	)
+}
