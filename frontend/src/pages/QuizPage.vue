@@ -1,7 +1,11 @@
 <template>
 	<PageHeader v-if="!fromLesson" :breadcrumbs="breadcrumbs" />
 	<div
+<<<<<<< HEAD
 		class="md:w-7/12 md:mx-auto mx-4 py-10"
+=======
+		class="md:w-7/12 md:mx-auto mx-4 py-6 flex grow flex-col"
+>>>>>>> 7c7863f (fix(quiz): tell students without access why the quiz does not open)
 		:class="{ 'pt-4 md:w-full': fromLesson }"
 	>
 		<Quiz :quizName="quizID" />

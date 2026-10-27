@@ -10,6 +10,8 @@ const resourceState = vi.hoisted(() => ({
 	// Every resource submit, by url. `request` only records reads.
 	submits: [] as string[],
 	response: null as any,
+	// When set, the quiz request fails with this error instead of answering.
+	quizError: null as any,
 	// Per-option verdict check_answer returns: 1 correct, 2 partial, 0 wrong.
 	checkAnswer: [] as unknown[],
 }))
@@ -36,6 +38,12 @@ vi.mock('frappe-ui', async () => {
 				// Match a real network response: let the remounted component finish setup before the cached resource's original callbacks run.
 				await Promise.resolve()
 
+				if (resourceState.quizError) {
+					resource.error = resourceState.quizError
+					resource.loading = false
+					return null
+				}
+
 				const raw = structuredClone(resourceState.response)
 				const transformed = options.transform?.(raw)
 				resource.data = transformed == null ? raw : transformed
@@ -53,6 +61,7 @@ vi.mock('frappe-ui', async () => {
 		resource = reactive({
 			auto: options.auto,
 			data: null,
+			error: null,
 			loading: false,
 			reload,
 			fetch: reload,
@@ -180,9 +189,67 @@ beforeEach(() => {
 	resourceState.submits.length = 0
 	resourceState.response = quizResponse()
 	resourceState.checkAnswer = []
+	resourceState.quizError = null
 	localStorage.clear()
 })
 
+<<<<<<< HEAD
+=======
+// Guards an empty quiz, or one whose questions no longer resolve, offering Start
+// beside "no questions" and opening on nothing. Came with Start moving below the
+// rules, out of the branch that excluded it. Added on quiz-share-link.
+describe('Quiz with no questions', () => {
+	it('offers no Start button and cannot be started', async () => {
+		const response = quizResponse()
+		response.quiz.questions = [{ question: 'DELETED', marks: 1 }]
+		resourceState.response = response
+		const wrapper = mountQuiz()
+		await flushPromises()
+
+		expect(wrapper.text()).toContain(
+			'This quiz has no questions available yet.'
+		)
+		expect(
+			wrapper.findAll('button').some((b) => b.text() === 'Start Quiz')
+		).toBe(false)
+		;(wrapper.vm as any).startQuiz()
+		expect((wrapper.vm as any).activeQuestion).toBe(0)
+	})
+})
+
+// Guards a shared quiz link rendering a blank page for a student the server
+// refuses. Added on quiz-no-access-message.
+describe('Quiz that fails to load', () => {
+	it('tells a student without access to ask their instructor', async () => {
+		resourceState.quizError = { exc_type: 'PermissionError' }
+		const wrapper = mountQuiz()
+		await flushPromises()
+
+		expect(wrapper.find('[data-testid="quiz-unavailable"]').exists()).toBe(true)
+		expect(wrapper.text()).toContain("You don't have access to this quiz")
+		expect(wrapper.text()).toContain('Ask your instructor to add you.')
+		expect(wrapper.findAll('button').some((b) => b.text() === 'Try again')).toBe(
+			false
+		)
+	})
+
+	it('offers a retry when the quiz fails for another reason', async () => {
+		resourceState.quizError = { exc_type: 'ValidationError' }
+		const wrapper = mountQuiz()
+		await flushPromises()
+
+		expect(wrapper.text()).toContain("This quiz couldn't load")
+		const retry = wrapper.findAll('button').find((b) => b.text() === 'Try again')
+		expect(retry).toBeTruthy()
+
+		resourceState.quizError = null
+		await retry!.trigger('click')
+		await flushPromises()
+		expect(resourceState.request).toHaveBeenCalledTimes(2)
+	})
+})
+
+>>>>>>> 7c7863f (fix(quiz): tell students without access why the quiz does not open)
 describe('Quiz remount', () => {
 	it('restores valid questions without extra requests after remounting the same quiz', async () => {
 		const first = mountQuiz()
