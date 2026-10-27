@@ -58,7 +58,7 @@ vi.mock('@/components/Controls/ToggleFilter.vue', () => ({
 vi.mock('@/pages/Batches/components/BatchCard.vue', () => ({
 	default: { template: '<div />' },
 }))
-vi.mock('@/components/Layouts/pages/ListPage.vue', () => ({
+vi.mock('@/components/Layouts/ListPage.vue', () => ({
 	default: {
 		template: '<div><slot name="filters" /></div>',
 	},
