@@ -872,6 +872,29 @@
 			/>
 		</div>
 	</div>
+	<EmptyStateLayout
+		v-else-if="quiz.error"
+		data-testid="quiz-unavailable"
+		name="quiz"
+		:icon="noQuizAccess ? 'lucide-lock' : 'lucide-circle-alert'"
+		width="lg"
+		:title="
+			noQuizAccess
+				? __('You don\'t have access to this quiz')
+				: __('This quiz couldn\'t load')
+		"
+		:description="
+			noQuizAccess
+				? __(
+						'Only students in a course or batch that uses this quiz can take it. Ask your instructor to add you.'
+				  )
+				: __('Check your connection and try again.')
+		"
+	>
+		<Button v-if="!noQuizAccess" :loading="quiz.loading" @click="quiz.reload()">
+			{{ __('Try again') }}
+		</Button>
+	</EmptyStateLayout>
 	<Dialog
 		v-model:open="showSubmissionConfirmation"
 		:title="__('Are you sure you want to submit the quiz?')"
@@ -974,6 +997,7 @@ import ProgressBar from '@/components/ProgressBar.vue'
 import ResponsiveListView from '@/components/ResponsiveListView.vue'
 import RichTextEditor from '@/components/RichTextEditor.vue'
 import ProctoringMonitor from '@/components/ProctoringMonitor.vue'
+import EmptyStateLayout from '@/components/Layouts/EmptyStateLayout.vue'
 
 const user = inject('$user')
 const activeQuestion = ref(0)
@@ -1118,6 +1142,10 @@ const quiz = createResource({
 		setupTimer()
 	},
 })
+
+// A shared link reaches students who are not in a course or batch that uses the
+// quiz. The server refuses them, and without this the page rendered nothing.
+const noQuizAccess = computed(() => quiz.error?.exc_type === 'PermissionError')
 
 const populateQuestions = () => {
 	const data = quiz.data

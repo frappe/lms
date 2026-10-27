@@ -10,6 +10,10 @@ vi.mock('frappe-ui', () => ({
 		props: ['label'],
 		template: `<span class="badge">{{ label }}</span>`,
 	},
+	Alert: {
+		props: ['title', 'description'],
+		template: `<div class="alert">{{ title }} {{ description }}</div>`,
+	},
 	Button: {
 		inheritAttrs: false,
 		props: ['route'],

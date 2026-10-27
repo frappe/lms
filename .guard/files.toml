@@ -1,0 +1,4 @@
+[[files]]
+path = "lms/lms/permissions.py"
+description = "Who may read, change or enrol in courses, batches, lessons and assessments; whitelisted methods should call these helpers instead of checking roles inline."
+scope = ["lms/**/*.py"]
