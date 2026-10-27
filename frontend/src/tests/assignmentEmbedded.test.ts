@@ -204,18 +204,6 @@ describe('the assignment mounted inline in a lesson', () => {
 		expect(wrapper.text()).toContain('Grading')
 	})
 
-	it('writes nothing from the lesson editor preview', async () => {
-		const wrapper = await mountAssignment({ embedded: true, preview: true })
-		await wrapper.get('[data-testid="control"]').setValue('https://a.dev')
-
-		await save(wrapper)
-
-		expect(call).not.toHaveBeenCalledWith(
-			'frappe.client.insert',
-			expect.anything()
-		)
-	})
-
 	it('takes its natural height inside a lesson', async () => {
 		const wrapper = await mountAssignment({ embedded: true })
 

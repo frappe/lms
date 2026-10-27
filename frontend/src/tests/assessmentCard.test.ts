@@ -88,4 +88,34 @@ describe('AssessmentCardHeader', () => {
 				.exists()
 		).toBe(true)
 	})
+
+	// Guards the header's actions overlapping the title on a phone.
+	// Came with this branch's shared AssessmentCardHeader change.
+	// Added on feat/assessment-visual-redesign; jsdom has no layout, so classes.
+	it('truncates the heading and wraps the actions instead of overlapping', () => {
+		const wrapper = mountHeader({
+			icon: 'lucide-file',
+			title: 'Programming Exercise',
+			subtitle: 'A long exercise title',
+			preview: true,
+		})
+		const root = wrapper.get('[data-testid="assessment-card-header"]')
+		expect(root.classes()).toEqual(
+			expect.arrayContaining(['flex-wrap', 'min-h-11'])
+		)
+		const heading = wrapper.get('[data-testid="header-heading"]')
+		expect(heading.classes()).toEqual(
+			expect.arrayContaining(['min-w-0', 'grow', 'basis-48'])
+		)
+		expect(heading.get('h2').classes()).toContain('truncate')
+		expect(heading.findAll('span').at(-1)!.classes()).toEqual(
+			expect.arrayContaining(['min-w-0', 'truncate'])
+		)
+		const actions = wrapper.get('[data-testid="header-actions"]')
+		expect(actions.classes()).toEqual(
+			expect.arrayContaining(['ms-auto', 'shrink-0'])
+		)
+		expect(actions.text()).toContain('Preview only')
+		expect(actions.find('.whitespace-nowrap').exists()).toBe(true)
+	})
 })

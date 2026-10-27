@@ -2,10 +2,9 @@ import frappe
 
 
 def execute():
-	"""`hidden` defaults to 1 for new cases. The column is added by the model sync of
-	the same migrate, so every row flagged here predates it and is pinned to 0 to keep
-	live exercises' feedback. One statement in the migrate's transaction: a few rows
-	per exercise, and a partial commit would leave some exercises half-hidden."""
+	"""New cases default to hidden. Rows existing when this post-sync patch runs predate
+	the field, so pin them visible to keep live feedback. One statement, no partial
+	commits."""
 	if not frappe.db.table_exists("LMS Test Case"):
 		return
 

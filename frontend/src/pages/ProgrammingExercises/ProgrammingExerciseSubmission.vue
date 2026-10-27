@@ -37,7 +37,6 @@
 				:running="running"
 				:canRun="canRun"
 				:saved="saved"
-				:preview="preview"
 				@run="submitCode"
 				@reset="resetCode"
 			>
@@ -212,7 +211,7 @@ watch(
 
 const rootClass = computed<string>(() => {
 	if (props.embedded) return 'h-[900px]'
-	if (props.preview) return 'h-full p-4'
+	if (props.preview) return 'h-full'
 	return 'h-[calc(100vh_-_3rem)] p-4'
 })
 

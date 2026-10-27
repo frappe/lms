@@ -97,7 +97,6 @@ describe('the assignment block in a lesson', () => {
 			assignmentID: 'ASSIGN-1',
 			submissionName: 'SUB-0001',
 			showTitle: false,
-			preview: false,
 		})
 	})
 

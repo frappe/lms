@@ -100,7 +100,6 @@ describe('the programming exercise block in a lesson', () => {
 			exerciseID: 'EX-1',
 			submissionID: 'SUB-0001',
 			studentView: false,
-			preview: false,
 		})
 	})
 
