@@ -320,7 +320,7 @@ class TestProgrammingExerciseFieldPermissions(BaseTestUtils):
 		# Visible as well as hidden: the field is withheld wholesale here, and
 		# the endpoint is the only place a visible answer is handed back.
 		for case in doc["test_cases"]:
-			self.assertNotIn("expected_output", case)
+			self.assertIsNone(case.get("expected_output"))
 		self.assertEqual([case["input"] for case in doc["test_cases"]], ["2 3", "0 0"])
 
 	def test_the_child_list_path_strips_it_too(self):
