@@ -1,7 +1,7 @@
 # Frappe Learning review guidance
 
-This file says how to review a pull request to `frappe/lms`. The Python app is in
-`lms/`, the Vue frontend in `frontend/src/`.
+`AGENTS.md` describes the project, its layout, its conventions and its commit
+style. This file says how to review a pull request to `frappe/lms`.
 
 ## Review
 
@@ -57,4 +57,4 @@ unrelated actions.
 - A suggestion block when the fix is a one-liner.
 - The review body holds only asks with no line: tests, title, screenshots,
   rebase. Do not repeat inline points there.
-- Back the ask with the issue or the docs.
+- Back the ask with the issue, the docs or `AGENTS.md`.
