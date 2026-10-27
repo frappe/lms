@@ -7,7 +7,8 @@
  "field_order": [
   "input",
   "column_break_zkvg",
-  "expected_output"
+  "expected_output",
+  "hidden"
  ],
  "fields": [
   {
@@ -21,11 +22,21 @@
    "fieldtype": "Column Break"
   },
   {
+   "description": "Readable only at permlevel 1, so a learner is scored against it server-side and never receives it.",
    "fieldname": "expected_output",
    "fieldtype": "Data",
    "in_list_view": 1,
    "label": "Expected Output",
+   "permlevel": 1,
    "reqd": 1
+  },
+  {
+   "default": "1",
+   "description": "Hidden cases count toward the score but are not shown to the learner.",
+   "fieldname": "hidden",
+   "fieldtype": "Check",
+   "in_list_view": 1,
+   "label": "Hidden"
   }
  ],
  "grid_page_length": 50,

@@ -108,6 +108,11 @@ const makeRouter = () =>
 				],
 			},
 			{ path: '/courses', name: 'Courses', component: FormStub },
+			{
+				path: '/assignments/submissions',
+				name: 'AssignmentSubmissions',
+				component: FormStub,
+			},
 		],
 	})
 
