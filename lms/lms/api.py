@@ -1758,13 +1758,10 @@ def get_new_gateway_fields(doctype: str):
 def get_announcements(batch: str):
 	from lms.lms.permissions import can_author_batch
 
-	roles = frappe.get_roles()
 	is_batch_student = frappe.db.exists(
 		"LMS Batch Enrollment", {"batch": batch, "member": frappe.session.user}
 	)
-	is_admin = "Moderator" in roles or "Batch Evaluator" in roles or can_author_batch(batch)
-
-	if not (is_batch_student or is_admin):
+	if not (is_batch_student or can_author_batch(batch)):
 		frappe.throw(
 			_("You do not have permission to access announcements for this batch."), frappe.PermissionError
 		)
@@ -1774,6 +1771,9 @@ def get_announcements(batch: str):
 		filters={
 			"reference_doctype": "LMS Batch",
 			"reference_name": batch,
+			"communication_type": "Communication",
+			"communication_medium": "Email",
+			"sent_or_received": "Sent",
 		},
 		fields=[
 			"subject",
@@ -1783,11 +1783,17 @@ def get_announcements(batch: str):
 			"communication_date",
 			"sender",
 			"sender_full_name",
+			"user",
 		],
 		order_by="communication_date desc",
 	)
+	# Only mail the batch's own staff sent is an announcement.
+	senders = {row.user for row in communications if row.user}
+	staff = {user for user in senders if can_author_batch(batch, user=user)}
+	communications = [row for row in communications if row.user in staff]
 
 	for communication in communications:
+		del communication["user"]
 		communication.image = frappe.get_cached_value("User", communication.sender, "user_image")
 
 	return hide_user_emails(communications, "sender", "recipients", "cc")
