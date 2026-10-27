@@ -27,13 +27,7 @@
 			data-testid="header-actions"
 			class="ms-auto flex shrink-0 items-center gap-x-2"
 		>
-			<Badge
-				v-if="preview"
-				class="whitespace-nowrap"
-				theme="gray"
-				variant="solid"
-				size="sm"
-			>
+			<Badge v-if="preview" class="whitespace-nowrap" theme="gray" size="sm">
 				{{ __('Preview only') }}
 			</Badge>
 			<slot />

@@ -1,15 +1,17 @@
-/**
- * The programming-exercise submission renders in an iframe (its own Vue app),
- * so the preview's provide/inject can't reach it. Student View has to travel in
- * the iframe URL, exactly as it does for assignments; without this the preview
- * kept showing the moderator-only settings button.
- */
+// Guards Student View reaching the lesson's exercise. Came in #2613 via the
+// iframe URL; this branch's inline exercise mounts it through AssessmentBlock.
+// Reworked on feat/assessment-visual-redesign to check props and unmount.
 import { describe, expect, it, vi, beforeEach } from 'vitest'
 
-const { calls, user } = vi.hoisted(() => ({
-	user: { data: { name: 'me@example.com' } as { name: string } | null },
-	calls: { value: [] as any[] },
-}))
+const { calls, mountBlock, unmount, user } = vi.hoisted(() => {
+	const unmount = vi.fn()
+	return {
+		user: { data: { name: 'me@example.com' } as { name: string } | null },
+		calls: { value: [] as any[] },
+		unmount,
+		mountBlock: vi.fn(() => ({ unmount })),
+	}
+})
 
 declare global {
 	interface Window {
@@ -40,49 +42,58 @@ vi.mock('@/translation', () => ({ default: {} }))
 vi.mock('@/components/Modals/ProgrammingExerciseModal.vue', () => ({
 	default: {},
 }))
-vi.mock('@/utils/basePath', () => ({
-	getLmsRoute: (path: string) => `/lms/${path}`,
+vi.mock('@/components/Assessment/AssessmentBlock.vue', () => ({
+	default: { name: 'AssessmentBlock' },
 }))
+vi.mock(
+	'@/pages/ProgrammingExercises/ProgrammingExerciseSubmission.vue',
+	() => ({ default: { name: 'ProgrammingExerciseSubmission' } })
+)
+vi.mock('@/utils/blockMount', () => ({ mountBlock }))
 vi.mock('lucide-vue-next', () => ({ Code: {} }))
 
 const { Program } = await import('@/utils/program')
 // Imported at module scope: '@/utils' pulls the whole editor toolchain.
 const { getEditorTools } = await import('@/utils')
 
-async function iframeSrc(config: Record<string, unknown> | undefined) {
+async function renderInLesson(config: Record<string, unknown> | undefined) {
 	const tool = new Program({
 		data: { exercise: 'EX-1' },
 		api: {},
 		readOnly: true,
 		config,
 	} as any) as any
-	tool.wrapper = document.createElement('div')
-	tool.renderExercise('EX-1')
-	// let the get_value promise settle
+	const wrapper = tool.render()
+	// let the submission lookup settle
 	await new Promise((resolve) => setTimeout(resolve, 0))
-	return tool.wrapper.querySelector('iframe')?.getAttribute('src') ?? ''
+	return { tool, wrapper }
 }
 
-describe('programming-exercise iframe URL', () => {
+const mountedWith = () => {
+	const [el, component, props] = mountBlock.mock.calls.at(-1) as any
+	return { el, component, props }
+}
+
+describe('the programming exercise block in a lesson', () => {
 	beforeEach(() => {
 		user.data = { name: 'me@example.com' }
 		calls.value = []
+		mountBlock.mockClear()
+		unmount.mockClear()
 	})
 
-	it('marks the iframe as Student View when the tool config says so', async () => {
-		const src = await iframeSrc({ studentView: true })
+	it('mounts inline, with no iframe', async () => {
+		const { wrapper } = await renderInLesson({ studentView: false })
 
-		expect(src).toContain('fromLesson=1')
-		expect(src).toContain('studentView=1')
+		expect(wrapper.querySelector('iframe')).toBeNull()
+		const { el, component } = mountedWith()
+		expect(el).toBe(wrapper)
+		expect(component.name).toBe('AssessmentBlock')
 	})
 
-	it('omits the flag for a normal lesson view', async () => {
-		const src = await iframeSrc({ studentView: false })
+	it("hands the exercise the learner's own submission", async () => {
+		await renderInLesson({ studentView: false })
 
-<<<<<<< HEAD
-		expect(src).toContain('fromLesson=1')
-		expect(src).not.toContain('studentView')
-=======
 		const { props } = mountedWith()
 		expect(props.is.name).toBe('ProgrammingExerciseSubmission')
 		expect(props.props).toEqual({
@@ -90,11 +101,28 @@ describe('programming-exercise iframe URL', () => {
 			submissionID: 'SUB-0001',
 			studentView: false,
 		})
->>>>>>> 02ab813 (feat(lesson): preview assessment blocks as summary cards in the editor)
 	})
 
-	it('omits the flag when no config is passed at all', async () => {
-		expect(await iframeSrc(undefined)).not.toContain('studentView')
+	it('passes Student View through when the tool config says so', async () => {
+		await renderInLesson({ studentView: true })
+
+		const { props } = mountedWith()
+		expect(props.studentView).toBe(true)
+		expect(props.props.studentView).toBe(true)
+	})
+
+	it('defaults Student View off when no config is passed at all', async () => {
+		await renderInLesson(undefined)
+
+		expect(mountedWith().props.studentView).toBe(false)
+	})
+
+	it('unmounts the exercise when EditorJS destroys the block', async () => {
+		const { tool } = await renderInLesson({ studentView: false })
+
+		tool.destroy()
+
+		expect(unmount).toHaveBeenCalledTimes(1)
 	})
 })
 
@@ -121,17 +149,18 @@ describe('the programming exercise block for a guest', () => {
 	beforeEach(() => {
 		user.data = null
 		calls.value = []
+		mountBlock.mockClear()
 	})
 
 	it('skips the submission lookup', async () => {
-		await iframeSrc({ studentView: false })
+		await renderInLesson({ studentView: false })
 
 		expect(calls.value).toEqual([])
 	})
 
 	it('still mounts the exercise as a new submission', async () => {
-		expect(await iframeSrc({ studentView: false })).toContain(
-			'/submission/new?'
-		)
+		await renderInLesson({ studentView: false })
+
+		expect(mountedWith().props.props.submissionID).toBe('new')
 	})
 })

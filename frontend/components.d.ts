@@ -13,13 +13,10 @@ declare module 'vue' {
   export interface GlobalComponents {
     AddressModal: typeof import('./src/components/Settings/Transactions/AddressModal.vue')['default']
     AppSidebar: typeof import('./src/components/Sidebar/AppSidebar.vue')['default']
-<<<<<<< HEAD
-=======
     AssessmentBlock: typeof import('./src/components/Assessment/AssessmentBlock.vue')['default']
     AssessmentBlockPreview: typeof import('./src/components/Assessment/AssessmentBlockPreview.vue')['default']
     AssessmentCard: typeof import('./src/components/Assessment/AssessmentCard.vue')['default']
     AssessmentCardHeader: typeof import('./src/components/Assessment/AssessmentCardHeader.vue')['default']
->>>>>>> 02ab813 (feat(lesson): preview assessment blocks as summary cards in the editor)
     AssessmentPlugin: typeof import('./src/components/AssessmentPlugin.vue')['default']
     Assignment: typeof import('./src/components/Assignment.vue')['default']
     AssignmentUploadPrompt: typeof import('./src/components/Assessment/AssignmentUploadPrompt.vue')['default']
@@ -78,6 +75,12 @@ declare module 'vue' {
     EmptyStateLayout: typeof import('./src/components/Layouts/EmptyStateLayout.vue')['default']
     EvaluationModal: typeof import('./src/components/Modals/EvaluationModal.vue')['default']
     Event: typeof import('./src/components/Modals/Event.vue')['default']
+    ExerciseCodeEditor: typeof import('./src/components/ProgrammingExercises/ExerciseCodeEditor.vue')['default']
+    ExerciseConsole: typeof import('./src/components/ProgrammingExercises/ExerciseConsole.vue')['default']
+    ExerciseTestCases: typeof import('./src/components/ProgrammingExercises/ExerciseTestCases.vue')['default']
+    ExerciseWorkspace: typeof import('./src/components/ProgrammingExercises/ExerciseWorkspace.vue')['default']
+    ExerciseWorkspaceSkeleton: typeof import('./src/components/ProgrammingExercises/ExerciseWorkspaceSkeleton.vue')['default']
+    FeedbackBanner: typeof import('./src/components/Assessment/FeedbackBanner.vue')['default']
     FeedbackModal: typeof import('./src/components/Modals/FeedbackModal.vue')['default']
     FormShell: typeof import('./src/components/FormShell.vue')['default']
     FrappeCloudIcon: typeof import('./src/components/Icons/FrappeCloudIcon.vue')['default']
@@ -174,6 +177,7 @@ declare module 'vue' {
     SidebarLink: typeof import('./src/components/Sidebar/SidebarLink.vue')['default']
     SkeletonLoader: typeof import('./src/components/SkeletonLoader.vue')['default']
     StudentLessonSidebar: typeof import('./src/components/StudentLessonSidebar.vue')['default']
+    SubmissionsPage: typeof import('./src/components/Submissions/SubmissionsPage.vue')['default']
     TabbedDetailPage: typeof import('./src/components/Layouts/TabbedDetailPage.vue')['default']
     ToggleFilter: typeof import('./src/components/Controls/ToggleFilter.vue')['default']
     TransactionDetails: typeof import('./src/components/Settings/Transactions/TransactionDetails.vue')['default']

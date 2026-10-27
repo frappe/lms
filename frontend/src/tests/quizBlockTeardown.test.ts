@@ -72,22 +72,6 @@ vi.mock('frappe-ui', async () => {
 		},
 		Badge: passthrough,
 		Checkbox: passthrough,
-		RadioGroup: {
-			props: ['modelValue', 'name'],
-			emits: ['update:modelValue'],
-			provide(this: any) {
-				return {
-					pickRadio: (value: unknown) => this.$emit('update:modelValue', value),
-				}
-			},
-			template: '<div><slot /></div>',
-		},
-		Radio: {
-			props: ['value'],
-			inject: ['pickRadio'],
-			template:
-				'<label><input type="radio" @change="pickRadio(value)" /><slot name="label" /></label>',
-		},
 		Dialog: { props: ['open'], template: '<div v-if="open"><slot /></div>' },
 		FormControl: passthrough,
 		LoadingIndicator: passthrough,
@@ -101,10 +85,7 @@ vi.mock('@/stores/user', () => ({
 		userResource: { data: { name: 'student@example.com' } },
 	}),
 }))
-// Quiz.vue guards navigation away from a proctored attempt on the app router.
-vi.mock('@/router', () => ({
-	default: { push: vi.fn(), beforeEach: () => () => {} },
-}))
+vi.mock('@/router', () => ({ default: { push: vi.fn() } }))
 vi.mock('@/components/AssessmentPlugin.vue', () => ({ default: {} }))
 vi.mock('@/components/ProgressBar.vue', () => ({
 	default: { template: '<div />' },
@@ -223,7 +204,7 @@ describe('tearing down an inline quiz keeps the completion gate shut', () => {
 		const second = await renderQuizBlock()
 
 		expect(startButton(second)).toBeDefined()
-		expect(second.wrapper.textContent).not.toContain('Quiz result')
+		expect(second.wrapper.textContent).not.toContain('Quiz Summary')
 		expect(submitted).not.toContain(SUBMIT_URL)
 	})
 })

@@ -1,6 +1,7 @@
 <template>
 	<dl
-		class="grid grid-cols-2 gap-px overflow-hidden rounded-6 border border-outline-gray-2 bg-surface-gray-3 sm:grid-cols-4"
+		class="grid grid-cols-2 gap-px overflow-hidden rounded-6 border border-outline-gray-2 bg-surface-gray-3"
+		:class="questions ? 'sm:grid-cols-4' : 'sm:grid-cols-3'"
 	>
 		<div class="space-y-0.5 bg-surface-base px-3 py-2">
 			<dt class="text-xs text-ink-gray-5">{{ __('Questions') }}</dt>
@@ -14,7 +15,7 @@
 				{{ duration ? `${duration} ${__('min')}` : __('None') }}
 			</dd>
 		</div>
-		<div class="space-y-0.5 bg-surface-base px-3 py-2">
+		<div v-if="questions" class="space-y-0.5 bg-surface-base px-3 py-2">
 			<dt class="text-xs text-ink-gray-5">{{ __('Pass mark') }}</dt>
 			<dd class="text-base font-medium text-ink-gray-9">
 				{{ passingPercentage || 0 }}%

@@ -6,9 +6,15 @@ from frappe import _
 from frappe.model.document import Document
 
 from lms.lms.doctype.lms_content_author.lms_content_author import AuthoredDocument
+from lms.lms.utils import generate_slug
 
 
 class LMSProgrammingExercise(AuthoredDocument, Document):
+	def autoname(self):
+		# See LMSAssignment.autoname. Older exercises keep their hash names.
+		if not self.name:
+			self.name = generate_slug(self.title, "LMS Programming Exercise", reserved=frozenset({"new"}))
+
 	def validate(self):
 		self.validate_test_cases()
 

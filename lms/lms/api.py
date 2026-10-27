@@ -1758,13 +1758,10 @@ def get_new_gateway_fields(doctype: str):
 def get_announcements(batch: str):
 	from lms.lms.permissions import can_author_batch
 
-	roles = frappe.get_roles()
 	is_batch_student = frappe.db.exists(
 		"LMS Batch Enrollment", {"batch": batch, "member": frappe.session.user}
 	)
-	is_admin = "Moderator" in roles or "Batch Evaluator" in roles or can_author_batch(batch)
-
-	if not (is_batch_student or is_admin):
+	if not (is_batch_student or can_author_batch(batch)):
 		frappe.throw(
 			_("You do not have permission to access announcements for this batch."), frappe.PermissionError
 		)
@@ -1774,6 +1771,9 @@ def get_announcements(batch: str):
 		filters={
 			"reference_doctype": "LMS Batch",
 			"reference_name": batch,
+			"communication_type": "Communication",
+			"communication_medium": "Email",
+			"sent_or_received": "Sent",
 		},
 		fields=[
 			"subject",
@@ -1783,11 +1783,17 @@ def get_announcements(batch: str):
 			"communication_date",
 			"sender",
 			"sender_full_name",
+			"user",
 		],
 		order_by="communication_date desc",
 	)
+	# Only mail the batch's own staff sent is an announcement.
+	senders = {row.user for row in communications if row.user}
+	staff = {user for user in senders if can_author_batch(batch, user=user)}
+	communications = [row for row in communications if row.user in staff]
 
 	for communication in communications:
+		del communication["user"]
 		communication.image = frappe.get_cached_value("User", communication.sender, "user_image")
 
 	return hide_user_emails(communications, "sender", "recipients", "cc")
@@ -2896,6 +2902,82 @@ def validate_meta_data_permissions(meta_type: str, route: str):
 
 	if not allowed:
 		frappe.throw(_("You do not have permission to update meta tags."))
+
+
+def can_read_expected_output(doc) -> bool:
+	return 1 in doc.get_permlevel_access("read")
+
+
+def _redact_expected(case, author: bool) -> str | None:
+	"""Withhold a hidden case's answer from a learner. Shared by both endpoints below."""
+	if case.hidden and not author:
+		return None
+	return case.expected_output
+
+
+@frappe.whitelist()
+def get_programming_exercise(exercise: str) -> dict:
+	"""Return an exercise with hidden cases' expected output blanked (not dropped, as
+	`frappe.client.get` would), so the frontend can tell withheld from absent."""
+	if not isinstance(exercise, str):
+		frappe.throw(_("exercise must be a string"))
+
+	doc = frappe.get_doc("LMS Programming Exercise", exercise)
+	doc.check_permission("read")
+	return _exercise_for_viewer(doc, can_read_expected_output(doc))
+
+
+def _exercise_for_viewer(doc, author: bool) -> dict:
+	return {
+		"name": doc.name,
+		"title": doc.title,
+		"language": doc.language,
+		"problem_statement": doc.problem_statement,
+		"starter_code": doc.starter_code,
+		"test_cases": [
+			{
+				"idx": case.idx,
+				"input": case.input,
+				"hidden": case.hidden,
+				"expected_output": _redact_expected(case, author),
+			}
+			for case in doc.test_cases
+		],
+	}
+
+
+@frappe.whitelist()
+def evaluate_programming_exercise(exercise: str, outputs: list) -> list[dict]:
+	"""Score a run server-side. The browser runs the code, so it holds each input,
+	but it must never hold a hidden case's expected output."""
+	if not isinstance(exercise, str):
+		frappe.throw(_("exercise must be a string"))
+	if not isinstance(outputs, list):
+		frappe.throw(_("outputs must be a list"))
+
+	doc = frappe.get_doc("LMS Programming Exercise", exercise)
+	doc.check_permission("read")
+
+	if len(outputs) != len(doc.test_cases):
+		frappe.throw(_("Expected {0} outputs, got {1}").format(len(doc.test_cases), len(outputs)))
+
+	author = can_read_expected_output(doc)
+	return [
+		_score_test_case(case, produced, author)
+		for case, produced in zip(doc.test_cases, outputs, strict=True)
+	]
+
+
+def _score_test_case(case, produced, author: bool) -> dict:
+	output = cstr(produced).strip()
+	expected = cstr(case.expected_output).strip()
+	return {
+		"idx": case.idx,
+		"status": "Passed" if output == expected else "Failed",
+		"hidden": case.hidden,
+		"output": output,
+		"expected_output": _redact_expected(case, author),
+	}
 
 
 @frappe.whitelist(methods=["POST"])

@@ -38,50 +38,6 @@
 					class="col-span-full grid grid-cols-subgrid items-center p-2"
 				>
 					<template v-for="key in Object.keys(row)" :key="key">
-<<<<<<< HEAD
-						<input
-							v-if="showKey(key)"
-							v-model="row[key]"
-							:aria-label="columnLabel(key)"
-							class="py-1.5 px-2 w-full border-none bg-transparent text-ink-gray-8 focus:ring-0 focus:border focus:border-outline-gray-3 focus:bg-surface-gray-2 rounded-5 text-sm focus:outline-none"
-						/>
-					</template>
-
-					<div class="relative">
-						<Button
-							variant="ghost"
-							:label="__('Row actions')"
-							@click="(event: MouseEvent) => toggleMenu(rowIndex, event)"
-						>
-							<template #icon>
-								<span
-									class="lucide-ellipsis size-4 text-ink-gray-7 cursor-pointer"
-								/>
-							</template>
-						</Button>
-
-						<div
-							v-if="menuOpenIndex === rowIndex"
-							ref="menuRef"
-							class="absolute end-0 w-32 z-50 bg-surface-elevation-2 border border-outline-elevation-2 rounded-5 shadow-sm"
-							:class="
-								rowIndex == (rows?.length ?? 0) - 1
-									? 'bottom-full mb-1'
-									: 'top-full mt-1'
-							"
-						>
-							<button
-								type="button"
-								@click="deleteRow(rowIndex)"
-								class="flex items-center gap-x-2 w-full text-start px-3 py-2 text-sm text-ink-red-5"
-							>
-								<span class="lucide-trash-2 size-4" />
-								<span>
-									{{ __('Delete') }}
-								</span>
-							</button>
-						</div>
-=======
 						<div
 							v-if="showKey(key) && (checkboxKeys ?? []).includes(key)"
 							role="cell"
@@ -117,7 +73,6 @@
 								</template>
 							</Button>
 						</Tooltip>
->>>>>>> bbe7dd1 (fix(assessments): tidy the quiz and exercise authoring pages)
 					</div>
 				</div>
 			</div>
@@ -142,12 +97,7 @@
 
 <script setup lang="ts">
 import { nextTick, ref, watch } from 'vue'
-<<<<<<< HEAD
-import { Button } from 'frappe-ui'
-import { onClickOutside } from '@vueuse/core'
-=======
 import { Button, Checkbox, Tooltip } from 'frappe-ui'
->>>>>>> bbe7dd1 (fix(assessments): tidy the quiz and exercise authoring pages)
 import {
 	InputDescription,
 	InputError,
@@ -155,20 +105,17 @@ import {
 	useInputLabeling,
 } from 'frappe-ui/experimental'
 
-const rows = defineModel<Record<string, string>[]>()
-const menuRef = ref(null)
-const menuOpenIndex = ref<number | null>(null)
-const menuTopPosition = ref<string>('')
-const menuLeftPosition = ref('0px')
+const rows = defineModel<Record<string, string | boolean>[]>()
 
 const emit = defineEmits<{
-	(e: 'update:modelValue', value: Record<string, string>[]): void
+	(e: 'update:modelValue', value: Record<string, string | boolean>[]): void
 }>()
 
 const props = withDefaults(
 	defineProps<{
-		modelValue?: Record<string, string>[]
+		modelValue?: Record<string, string | boolean>[]
 		columns?: string[]
+		checkboxKeys?: string[]
 		label?: string
 		description?: string
 		error?: string
@@ -201,9 +148,10 @@ const addRow = () => {
 	if (!rows.value) {
 		rows.value = []
 	}
-	let newRow: { [key: string]: string } = {}
+	let newRow: { [key: string]: string | boolean } = {}
 	columns.value.forEach((column: any) => {
-		newRow[keyFor(column)] = ''
+		const key = keyFor(column)
+		newRow[key] = (props.checkboxKeys ?? []).includes(key) ? true : ''
 	})
 	rows.value.push(newRow)
 	focusNewRowInput()
@@ -227,19 +175,6 @@ const deleteRow = (index: number) => {
 	emit('update:modelValue', rows.value ?? [])
 }
 
-<<<<<<< HEAD
-const getGridTemplateColumns = () => {
-	return [...Array(columns.value.length).fill('1fr'), '0.25fr'].join(' ')
-}
-
-const toggleMenu = (index: number, event: MouseEvent) => {
-	menuOpenIndex.value = menuOpenIndex.value === index ? null : index
-}
-
-onClickOutside(menuRef, () => {
-	menuOpenIndex.value = null
-})
-=======
 // A fixed actions track: a fraction took ~120px for a 28px button, and each row
 // computes its own grid, so a fixed width keeps the header aligned.
 const ACTIONS_COLUMN_WIDTH = '2.25rem'
@@ -256,7 +191,6 @@ const getGridTemplateColumns = () => {
 
 const isCheckboxColumn = (column: string) =>
 	(props.checkboxKeys ?? []).includes(keyFor(column))
->>>>>>> bbe7dd1 (fix(assessments): tidy the quiz and exercise authoring pages)
 
 const keyFor = (column: string) => column.toLowerCase().split(' ').join('_')
 
