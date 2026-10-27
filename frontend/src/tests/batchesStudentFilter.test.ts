@@ -1,6 +1,6 @@
-// Students and guests see one "All" tab. It must hold what the admin Active tab
-// holds, published batches that have not ended, so a batch stays listed after
-// its start date instead of vanishing the day it begins.
+// Students and guests see one "Upcoming" tab: published batches they can still
+// join. The start_date filter makes get_batches treat the list as upcoming, so
+// a batch dated today drops off once its start time passes.
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { reactive } from 'vue'
 import { flushPromises, mount } from '@vue/test-utils'
@@ -97,7 +97,7 @@ async function mountAs(userData: Record<string, unknown> | null) {
 	return wrapper
 }
 
-const ACTIVE = { end_date: ['>=', TODAY], published: 1 }
+const UPCOMING = { start_date: ['>=', TODAY], published: 1 }
 
 beforeEach(() => {
 	sent.filters = null
@@ -105,14 +105,19 @@ beforeEach(() => {
 })
 
 describe('batch list filters for students and guests', () => {
-	it('a student on All gets the active filter, with no start_date', async () => {
+	it('a student on Upcoming gets the upcoming filter, with no end_date', async () => {
 		await mountAs({ name: 'student@test.com', is_student: true })
-		expect(sent.filters).toEqual(ACTIVE)
+		expect(sent.filters).toEqual(UPCOMING)
 	})
 
-	it('a guest gets the active filter, with no start_date', async () => {
+	it('a guest gets the upcoming filter, with no end_date', async () => {
 		await mountAs(null)
-		expect(sent.filters).toEqual(ACTIVE)
+		expect(sent.filters).toEqual(UPCOMING)
+	})
+
+	it('a learner without the student flag also gets the upcoming filter', async () => {
+		await mountAs({ name: 'member@test.com' })
+		expect(sent.filters).toEqual(UPCOMING)
 	})
 
 	it('a student moving to Enrolled drops the date filter', async () => {
@@ -125,15 +130,15 @@ describe('batch list filters for students and guests', () => {
 		expect(sent.filters).toEqual({ enrolled: 1 })
 	})
 
-	it('a student back on All gets the active filter again', async () => {
+	it('a student back on Upcoming gets the upcoming filter again', async () => {
 		const wrapper = await mountAs({
 			name: 'student@test.com',
 			is_student: true,
 		})
 		await wrapper.find('[data-tab="enrolled"]').trigger('click')
 		await flushPromises()
-		await wrapper.find('[data-tab="all"]').trigger('click')
+		await wrapper.find('[data-tab="upcoming"]').trigger('click')
 		await flushPromises()
-		expect(sent.filters).toEqual(ACTIVE)
+		expect(sent.filters).toEqual(UPCOMING)
 	})
 })

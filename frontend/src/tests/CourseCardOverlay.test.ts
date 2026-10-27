@@ -8,7 +8,10 @@ const { passthrough, outline } = vi.hoisted(() => ({
 }))
 
 vi.mock('frappe-ui', () => ({
-	Badge: passthrough,
+	Alert: {
+		props: ['title', 'description'],
+		template: `<div class="alert">{{ title }} {{ description }}</div>`,
+	},
 	Button: { template: `<button><slot name="prefix" /><slot /></button>` },
 	Tooltip: passthrough,
 	call: vi.fn(),
@@ -75,5 +78,18 @@ describe('the learner progress in the course side card', () => {
 		])
 
 		expect(wrapper.text()).toContain('4 of 15 lessons completed')
+	})
+})
+
+// Guards the self-learning-off message overflowing the side card as a one-line
+// badge. Added on quiz-no-access-message.
+describe('a course without self-enrollment', () => {
+	it('tells the learner to ask the administrator', () => {
+		const wrapper = mountWith({ disable_self_learning: 1 }, [])
+
+		expect(wrapper.find('.alert').exists()).toBe(true)
+		expect(wrapper.text()).toContain(
+			'Contact the Administrator to enroll for this course'
+		)
 	})
 })
