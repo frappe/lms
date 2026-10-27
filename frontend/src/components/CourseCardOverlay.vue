@@ -62,10 +62,11 @@
 				</Button>
 				<Alert
 					v-else-if="course.data?.disable_self_learning && !isAdmin"
-					theme="blue"
 					class="mb-4"
-					:title="__('Contact the Administrator')"
-					:description="__('Ask them to enroll you in this course.')"
+					:icon="false"
+					:description="
+						__('Contact the Administrator to enroll for this course')
+					"
 				/>
 				<Button
 					v-else-if="!isAdmin"

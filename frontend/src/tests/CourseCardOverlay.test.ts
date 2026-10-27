@@ -89,7 +89,8 @@ describe('a course without self-enrollment', () => {
 		const wrapper = mountWith({ disable_self_learning: 1 }, [])
 
 		expect(wrapper.find('.alert').exists()).toBe(true)
-		expect(wrapper.text()).toContain('Contact the Administrator')
-		expect(wrapper.text()).toContain('Ask them to enroll you in this course.')
+		expect(wrapper.text()).toContain(
+			'Contact the Administrator to enroll for this course'
+		)
 	})
 })
