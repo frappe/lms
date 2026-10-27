@@ -60,14 +60,13 @@
 						{{ __('Buy this course') }}
 					</span>
 				</Button>
-				<Badge
+				<Alert
 					v-else-if="course.data?.disable_self_learning && !isAdmin"
 					theme="blue"
-					size="lg"
 					class="mb-4"
-				>
-					{{ __('Contact the Administrator to enroll for this course') }}
-				</Badge>
+					:title="__('Contact the Administrator')"
+					:description="__('Ask them to enroll you in this course.')"
+				/>
 				<Button
 					v-else-if="!isAdmin"
 					@click="enrollStudent()"
@@ -150,7 +149,7 @@
 </template>
 <script setup lang="ts">
 import { computed, inject, watch } from 'vue'
-import { Badge, Button, call, createResource, toast } from 'frappe-ui'
+import { Alert, Button, call, createResource, toast } from 'frappe-ui'
 import type { FrappeResourceError } from 'frappe-ui'
 import { resourceErrorMessage } from '@/utils/resource'
 import { useRouter } from 'vue-router'

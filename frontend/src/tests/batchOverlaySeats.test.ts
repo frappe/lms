@@ -10,6 +10,10 @@ vi.mock('frappe-ui', () => ({
 		props: ['label'],
 		template: `<span class="badge">{{ label }}</span>`,
 	},
+	Alert: {
+		props: ['title', 'description'],
+		template: `<div class="alert">{{ title }} {{ description }}</div>`,
+	},
 	Button: {
 		inheritAttrs: false,
 		props: ['route'],
@@ -92,9 +96,8 @@ describe('BatchOverlay when the viewer cannot join', () => {
 
 	it('points to the administrator when self-enrollment is off', () => {
 		const w = mountOverlay({ seat_count: 0 })
-		expect(w.text()).toContain(
-			'Contact the Administrator to enroll for this batch'
-		)
+		expect(w.text()).toContain('Contact the Administrator')
+		expect(w.text()).toContain('Ask them to enroll you in this batch.')
 	})
 
 	it('leaves a full batch to its Sold Out badge', () => {
