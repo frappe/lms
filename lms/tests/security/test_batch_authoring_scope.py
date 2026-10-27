@@ -152,9 +152,11 @@ class TestBatchAuthoringScope(BaseTestUtils):
 				with self.subTest(user=user, ptype=ptype):
 					self.assertTrue(self._can(user, "LMS Batch", self.batch, ptype))
 
-	def test_an_untagged_evaluator_keeps_read(self):
-		frappe.db.set_value("LMS Batch", self.batch, "published", 0)
+	def test_an_untagged_evaluator_reads_the_batch_only_while_published(self):
+		frappe.db.set_value("LMS Batch", self.batch, "published", 1)
 		self.assertTrue(self._can(self.outsider.name, "LMS Batch", self.batch, "read"))
+		frappe.db.set_value("LMS Batch", self.batch, "published", 0)
+		self.assertFalse(self._can(self.outsider.name, "LMS Batch", self.batch, "read"))
 		self.assertTrue(self._can(self.outsider.name, "LMS Live Class", self.live_class, "read"))
 
 	def test_students_and_guests_cannot_author_a_batch(self):
