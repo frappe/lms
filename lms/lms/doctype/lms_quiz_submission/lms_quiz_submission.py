@@ -5,14 +5,17 @@ import frappe
 from frappe import _
 from frappe.desk.doctype.notification_log.notification_log import make_notification_logs
 from frappe.model.document import Document
+from frappe.query_builder.functions import Count
 from frappe.utils import cint
 
 from lms.lms.html_sanitizer import sanitize_rich_text
 
 
 class LMSQuizSubmission(Document):
+	def before_insert(self):
+		self.lock_member_attempts()
+
 	def validate(self):
-		self.validate_if_max_attempts_exceeded()
 		# Graded submissions must stay saveable after the quiz's questions change.
 		if self.is_new():
 			self.validate_result_questions()
@@ -27,18 +30,35 @@ class LMSQuizSubmission(Document):
 			row.answer = sanitize_rich_text(row.answer)
 			row.question = sanitize_rich_text(row.question)
 
+	def after_insert(self):
+		self.validate_if_max_attempts_exceeded()
+
 	def on_update(self):
 		self.notify_member()
 
+	def lock_member_attempts(self):
+		"""One member's attempts queue on their User row, so the count after an insert
+		sees every attempt that got in before it."""
+		if frappe.db.get_value("LMS Quiz", self.quiz, "max_attempts"):
+			frappe.db.get_value("User", self.member, "name", for_update=True)
+
 	def validate_if_max_attempts_exceeded(self):
-		max_attempts = frappe.db.get_value("LMS Quiz", self.quiz, ["max_attempts"])
-		if max_attempts == 0:
+		max_attempts = frappe.db.get_value("LMS Quiz", self.quiz, "max_attempts")
+		if not max_attempts:
 			return
 
-		current_user_submission_count = frappe.db.count(
-			self.doctype, filters={"quiz": self.quiz, "member": self.member}
+		# Counted after the insert, as a locking read so it sees attempts committed while
+		# this one queued. Counting first would lock the index gap another learner inserts
+		# into while that learner's count locks the same gap, deadlocking the two inserts.
+		submission = frappe.qb.DocType(self.doctype)
+		current_user_submission_count = (
+			frappe.qb.from_(submission)
+			.select(Count("*"))
+			.where((submission.member == self.member) & (submission.quiz == self.quiz))
+			.for_update()
+			.run()[0][0]
 		)
-		if current_user_submission_count >= max_attempts:
+		if current_user_submission_count > max_attempts:
 			frappe.throw(
 				_("You have exceeded the maximum number of attempts ({0}) for this quiz").format(
 					max_attempts

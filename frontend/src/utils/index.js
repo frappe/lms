@@ -7,6 +7,7 @@ import { Markdown } from '@/utils/markdownParser'
 import { useSettings } from '@/stores/settings'
 import { usersStore } from '@/stores/user'
 import { Heading } from '@/utils/heading'
+import { UnknownBlock } from '@/utils/unknownBlock'
 import Paragraph from '@editorjs/paragraph'
 import { CodeBox } from '@/utils/code'
 import NestedList from '@editorjs/nested-list'
@@ -182,6 +183,9 @@ export function getEditorTools(
 			inlineToolbar: INLINE_TOOLBAR_ORDER,
 		},
 		image: SimpleImage,
+		stub: {
+			class: UnknownBlock,
+		},
 		paragraph: {
 			class: Paragraph,
 			inlineToolbar: INLINE_TOOLBAR_ORDER,

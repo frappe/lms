@@ -118,6 +118,51 @@ class TestPaymentLink(BaseTestUtils):
 
 		self.assertEqual(self.controller.get_payment_url_calls[0]["amount"], 500)
 
+	def test_order_receipt_names_the_lms_payment(self):
+		"""The payment callback accepts a Razorpay payment only when its order's
+		receipt is the LMS Payment being credited."""
+		self._buy_course()
+
+		receipt = self.controller.create_order_calls[0]["receipt"]
+		self.assertEqual(
+			frappe.db.get_value("LMS Payment", receipt, "payment_for_document"), self.course.name
+		)
+
+	def _buy_course_billed_to(self, billing_country, country):
+		for field, value in (("apply_gst", 1), ("show_usd_equivalent", 0)):
+			original = frappe.db.get_single_value("LMS Settings", field)
+			frappe.db.set_single_value("LMS Settings", field, value)
+			self.addCleanup(frappe.db.set_single_value, "LMS Settings", field, original)
+
+		frappe.call(
+			payments_module.get_payment_link,
+			doctype="LMS Course",
+			docname=self.course.name,
+			address={
+				"billing_name": "Test Buyer",
+				"address_line1": "1 Test Street",
+				"city": "Test City",
+				"country": billing_country,
+				"source": "Website",
+				"member_consent": 1,
+			},
+			payment_for_certificate=0,
+			country=country,
+		)
+		return frappe.get_last_doc("LMS Payment", filters={"member": frappe.session.user})
+
+	def test_gst_follows_the_billing_address_not_the_country_argument(self):
+		payment = self._buy_course_billed_to("India", country="Nepal")
+
+		self.assertEqual(self.controller.get_payment_url_calls[0]["amount"], 590)
+		self.assertEqual(payment.amount_with_gst, 590)
+
+	def test_no_gst_for_a_billing_address_outside_india(self):
+		payment = self._buy_course_billed_to("Nepal", country="India")
+
+		self.assertEqual(self.controller.get_payment_url_calls[0]["amount"], 500)
+		self.assertEqual(payment.amount_with_gst, 0)
+
 	def test_the_request_carrying_the_order_id_is_written_last(self):
 		"""The controller writes two Integration Requests per attempt: the paise
 		order payload, then the checkout payload with the `order_id`.
