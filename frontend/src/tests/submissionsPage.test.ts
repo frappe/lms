@@ -96,7 +96,7 @@ vi.mock('frappe-ui', () => ({
 }))
 
 // Keeps only what the assertions read: crumbs, filter slot, selection banner.
-vi.mock('@/components/Layouts/pages/ListPage.vue', () => ({
+vi.mock('@/components/Layouts/ListPage.vue', () => ({
 	default: defineComponent({
 		name: 'ListPageStub',
 		props: [

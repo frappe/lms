@@ -1,37 +1,8 @@
 <template>
-<<<<<<< HEAD
-	<FormShell :title="title" size="4xl" @close="close">
-		<template #header-action>
-			<Badge v-if="isDirty && canManageExercise && canEdit" theme="amber">
-				{{ __('Not Saved') }}
-			</Badge>
-		</template>
-		<template #default>
-			<div v-if="!canManageExercise" class="p-4 text-base text-ink-gray-6">
-				{{ __('You are not permitted to manage programming exercises.') }}
-			</div>
-			<fieldset
-				v-else
-				:disabled="!canEdit"
-				data-testid="programming-exercise-fields"
-				class="m-0 grid min-w-0 grid-cols-1 gap-10 border-0 p-0 sm:grid-cols-2"
-			>
-				<p
-					v-if="canWrite === false"
-					data-testid="programming-exercise-read-only-note"
-					class="text-base text-ink-gray-6 sm:col-span-2"
-				>
-					{{ __('Only the authors of this programming exercise can edit it.') }}
-				</p>
-				<div class="space-y-4">
-					<FormControl
-						v-model="exercise.title"
-						:label="__('Title')"
-=======
 	<PageHeader :breadcrumbs="breadcrumbs">
 		<template #actions>
 			<template v-if="canManageExercise">
-				<Badge v-if="!isNew" :theme="saved ? 'green' : 'amber'">
+				<Badge v-if="!isNew && canEdit" :theme="saved ? 'green' : 'amber'">
 					{{ saved ? __('Saved') : __('Not saved') }}
 				</Badge>
 				<template v-if="!isNew">
@@ -52,6 +23,7 @@
 						@click="goToSubmissions()"
 					/>
 					<HeaderButton
+						v-if="canEdit"
 						data-testid="programming-exercise-delete"
 						variant="subtle"
 						theme="red"
@@ -66,10 +38,11 @@
 	<div v-if="!canManageExercise" class="p-5 text-base text-ink-gray-6">
 		{{ __('You are not permitted to manage programming exercises.') }}
 	</div>
-	<div
+	<fieldset
 		v-else
+		:disabled="!canEdit"
 		data-testid="programming-exercise-fields"
-		class="grid flex-1 grid-cols-1 lg:min-h-0 lg:grid-cols-[7fr,3fr]"
+		class="m-0 grid min-w-0 flex-1 grid-cols-1 border-0 p-0 lg:min-h-0 lg:grid-cols-[7fr,3fr]"
 	>
 		<div
 			class="flex min-h-0 flex-col gap-8 overflow-y-auto p-5"
@@ -87,11 +60,17 @@
 				/>
 			</div>
 			<template v-else>
+				<p
+					v-if="canWrite === false"
+					data-testid="programming-exercise-read-only-note"
+					class="text-base text-ink-gray-6"
+				>
+					{{ __('Only the authors of this programming exercise can edit it.') }}
+				</p>
 				<div class="flex flex-col gap-1.5">
 					<InputLabel
 						:id="problemStatementLabelId"
 						:label="__('Problem Statement')"
->>>>>>> 71e6842 (feat(exercises): rebuild the programming exercise workspace and authoring page)
 						:required="true"
 					/>
 					<RichTextEditor
@@ -99,7 +78,7 @@
 						:ariaRequired="true"
 						:content="exercise.problem_statement"
 						@change="onProblemStatementChange"
-						:editable="true"
+						:editable="canEdit"
 						:fixedMenu="true"
 						menuClass="bg-surface-gray-2"
 						editorClass="prose-sm max-w-none border-b border-x border-outline-elevation-2 bg-surface-gray-2 rounded-b-5 py-2 px-3 min-h-[12rem]"
@@ -112,85 +91,6 @@
 						:columns="testCaseColumns"
 						:checkbox-keys="['hidden']"
 						:required="true"
-<<<<<<< HEAD
-						:addable="canEdit"
-						:deletable="canEdit"
-						:editable="canEdit"
-						:placeholder="__('Add Test Case')"
-					/>
-				</div>
-				<div>
-					<div class="space-y-1.5">
-						<InputLabel
-							:id="problemStatementLabelId"
-							:label="__('Problem Statement')"
-							:required="true"
-						/>
-						<div>
-							<RichTextEditor
-								:ariaLabelledby="problemStatementLabelId"
-								:ariaRequired="true"
-								:content="exercise.problem_statement"
-								@change="(val: string) => (exercise.problem_statement = val)"
-								:editable="canEdit"
-								:fixedMenu="true"
-								menuClass="bg-surface-gray-2"
-								editorClass="prose-sm max-w-none border-b border-x border-outline-elevation-2 bg-surface-gray-2 rounded-b-5 py-1 px-2 min-h-[10rem] max-h-[21rem] overflow-y-auto"
-							/>
-						</div>
-					</div>
-				</div>
-			</fieldset>
-		</template>
-		<template #actions>
-			<div
-				v-if="canManageExercise"
-				class="flex items-center justify-end gap-2 group"
-			>
-				<HeaderButton
-					v-if="exerciseID != 'new' && canEdit"
-					data-testid="programming-exercise-delete"
-					:label="__('Delete exercise')"
-					icon="lucide-trash-2"
-					variant="outline"
-					theme="red"
-					@click="deleteExercise()"
-				/>
-				<HeaderButton
-					v-if="exerciseID != 'new'"
-					:route="{
-						name: 'ProgrammingExerciseSubmission',
-						params: {
-							exerciseID: props.exerciseID,
-							submissionID: 'new',
-						},
-					}"
-					:label="__('Test this Exercise')"
-					icon="lucide-play"
-					class="text-p-base-medium"
-				/>
-				<HeaderButton
-					v-if="exerciseID != 'new'"
-					:route="{
-						name: 'ProgrammingExerciseSubmissions',
-						query: {
-							exercise: props.exerciseID,
-						},
-					}"
-					:label="__('Check Submission')"
-					icon="lucide-clipboard-list"
-				/>
-				<HeaderButton
-					v-if="canEdit"
-					data-testid="programming-exercise-save"
-					:label="__('Save')"
-					variant="solid"
-					@click="saveExercise()"
-				/>
-			</div>
-		</template>
-	</FormShell>
-=======
 					/>
 				</div>
 			</template>
@@ -228,8 +128,7 @@
 				class="font-mono"
 			/>
 		</div>
-	</div>
->>>>>>> 71e6842 (feat(exercises): rebuild the programming exercise workspace and authoring page)
+	</fieldset>
 </template>
 <script setup lang="ts">
 import { computed, inject, ref, shallowRef, useId, watch } from 'vue'
@@ -248,19 +147,15 @@ import type { FrappeResourceError } from 'frappe-ui'
 import { ProgrammingExercise, TestCase } from '@/types'
 import ChildTable from '@/components/Controls/ChildTable.vue'
 import HeaderButton from '@/components/HeaderButton.vue'
-import PageHeader from '@/components/Layouts/pages/PageHeader.vue'
+import PageHeader from '@/components/Layouts/PageHeader.vue'
 import ProgrammingExerciseSubmission from '@/pages/ProgrammingExercises/ProgrammingExerciseSubmission.vue'
 import RichTextEditor from '@/components/RichTextEditor.vue'
-<<<<<<< HEAD
-import { useCanWrite } from '@/composables/useCanWrite'
-import { useFormRoute } from '@/composables/useFormRoute'
-=======
 import { useAutosaveDoc } from '@/composables/useAutosaveDoc'
+import { useCanWrite } from '@/composables/useCanWrite'
 import {
 	saveShortcut,
 	useKeyboardShortcuts,
 } from '@/composables/useKeyboardShortcuts'
->>>>>>> 71e6842 (feat(exercises): rebuild the programming exercise workspace and authoring page)
 import { resourceErrorMessage, submitResource } from '@/utils/resource'
 
 const user = inject<any>('$user')
@@ -272,7 +167,7 @@ const creating = ref(false)
 
 const props = withDefaults(
 	defineProps<{
-		exerciseID: string
+		exerciseID?: string
 	}>(),
 	{
 		exerciseID: 'new',
@@ -283,7 +178,7 @@ const isNew = computed(() => props.exerciseID === 'new')
 
 // Placing an exercise grants use only, so a non-author opens it read-only.
 const canWrite = useCanWrite('LMS Programming Exercise', () =>
-	props.exerciseID === 'new' ? undefined : props.exerciseID
+	isNew.value ? undefined : props.exerciseID
 )
 const canEdit = computed(() => canWrite.value === true)
 
@@ -441,7 +336,7 @@ watch(
 )
 
 const autosave = useAutosaveDoc({
-	payload: () => (isNew.value ? null : formPayload()),
+	payload: () => (isNew.value || !canEdit.value ? null : formPayload()),
 	// frappe-ui's submit() never rejects, so the error is read off the resource.
 	async save(body) {
 		await exercises.setValue.submit({ name: props.exerciseID, ...body })
@@ -554,73 +449,8 @@ const togglePreview = async () => {
 	previewing.value = true
 }
 
-<<<<<<< HEAD
-const saveExercise = () => {
-	if (!canManageExercise.value || !canEdit.value) return
-	validateTitle()
-	updateTestCasesInExercise()
-	if (props.exerciseID == 'new') createNewExercise()
-	else updateExercise()
-}
-
-const createNewExercise = () => {
-	submitResource(
-		exercises.insert,
-		{
-			...exercise.value,
-		},
-		{
-			onSuccess() {
-				isDirty.value = false
-				// insert already refetched the list itself (listResource.js:123);
-				// only the header count needs telling.
-				exerciseCount.reload()
-				toast.success(__('Programming Exercise created successfully'))
-				// replace, not push: the form entry is consumed so Back reaches
-				// whatever preceded the list rather than a stale empty form.
-				saveAndReplace({ name: 'ProgrammingExercises' })
-			},
-			onError(err: FrappeResourceError) {
-				toast.warning(resourceErrorMessage(err, __('Error')))
-			},
-		}
-	)
-}
-
-const updateExercise = () => {
-	submitResource(
-		exercises.setValue,
-		{
-			name: props.exerciseID,
-			...exercise.value,
-		},
-		{
-			onSuccess() {
-				isDirty.value = false
-				// setValue patches the row in place, which cannot reorder a list
-				// sorted by `modified desc` — so this one does need a refetch.
-				exercises.reload()
-				toast.success(__('Programming Exercise updated successfully'))
-				saveAndReplace({ name: 'ProgrammingExercises' })
-			},
-			onError(err: FrappeResourceError) {
-				toast.warning(resourceErrorMessage(err, __('Error')))
-			},
-		}
-	)
-}
-
-const testCaseColumns = computed(() => {
-	return ['Input', 'Expected Output']
-})
-
 const deleteExercise = () => {
-	if (props.exerciseID == 'new') return
-	if (!canManageExercise.value || !canEdit.value) return
-=======
-const deleteExercise = () => {
-	if (isNew.value || !canManageExercise.value) return
->>>>>>> 71e6842 (feat(exercises): rebuild the programming exercise workspace and authoring page)
+	if (isNew.value || !canManageExercise.value || !canEdit.value) return
 	submitResource(exercises.delete, props.exerciseID, {
 		onSuccess() {
 			// delete refetches the list (listResource.js:161); the count was

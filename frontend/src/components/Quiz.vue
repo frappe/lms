@@ -98,7 +98,8 @@
 						{{ quiz.data.title }}
 					</div>
 					<dl
-						class="grid grid-cols-2 gap-px overflow-hidden rounded-6 border border-outline-gray-2 bg-surface-gray-3 sm:grid-cols-4"
+						class="grid grid-cols-2 gap-px overflow-hidden rounded-6 border border-outline-gray-2 bg-surface-gray-3"
+						:class="questions.length ? 'sm:grid-cols-4' : 'sm:grid-cols-3'"
 					>
 						<div class="space-y-0.5 bg-surface-base px-3 py-2">
 							<dt class="text-xs text-ink-gray-5">{{ __('Questions') }}</dt>
@@ -116,7 +117,10 @@
 								}}
 							</dd>
 						</div>
-						<div class="space-y-0.5 bg-surface-base px-3 py-2">
+						<div
+							v-if="questions.length"
+							class="space-y-0.5 bg-surface-base px-3 py-2"
+						>
 							<dt class="text-xs text-ink-gray-5">{{ __('Pass mark') }}</dt>
 							<dd class="text-base font-medium text-ink-gray-9">
 								{{ quiz.data.passing_percentage || 0 }}%
@@ -142,51 +146,8 @@
 						class="flex flex-wrap gap-x-4 gap-y-1 text-sm text-ink-gray-6"
 					>
 						<span
-<<<<<<< HEAD
-							class="inline-flex items-center gap-1.5 bg-surface-gray-3 text-ink-gray-7 text-xs font-medium px-2.5 py-1 rounded-full"
-						>
-							<span class="lucide-list size-3.5" />
-							{{ questions.length }}
-							{{ questions.length == 1 ? __('question') : __('questions') }}
-						</span>
-						<span
-							v-if="questions.length && quiz.data.passing_percentage"
-							class="inline-flex items-center gap-1.5 bg-surface-gray-3 text-ink-gray-7 text-xs font-medium px-2.5 py-1 rounded-full"
-						>
-							<span class="lucide-target size-3.5" />
-							{{
-								__('Passing score: {0}%').format(quiz.data.passing_percentage)
-							}}
-						</span>
-						<span
-							v-if="quiz.data.max_attempts"
-							class="inline-flex items-center gap-1.5 bg-surface-gray-3 text-ink-gray-7 text-xs font-medium px-2.5 py-1 rounded-full"
-						>
-							<span class="lucide-refresh-cw size-3.5" />
-							{{ quiz.data.max_attempts }}
-							{{ quiz.data.max_attempts == 1 ? __('attempt') : __('attempts') }}
-						</span>
-						<span
-							v-if="quiz.data.duration"
-							class="inline-flex items-center gap-1.5 bg-surface-blue-1 text-ink-blue-5 text-xs font-medium px-2.5 py-1 rounded-full"
-						>
-							<span class="lucide-timer size-3.5" />
-							{{ quiz.data.duration }} {{ __('min') }}
-						</span>
-						<span
-							v-if="quiz.data.enable_proctoring"
-							class="inline-flex items-center gap-1.5 bg-surface-orange-1 text-ink-orange-5 text-xs font-medium px-2.5 py-1 rounded-full"
-						>
-							<span class="lucide-camera size-3.5" />
-							{{ __('Proctored') }}
-						</span>
-						<span
-							v-if="quiz.data.enable_scheduling && quiz.data.schedule_start"
-							class="inline-flex items-center gap-1.5 bg-surface-gray-3 text-ink-gray-7 text-xs font-medium px-2.5 py-1 rounded-full"
-=======
 							v-if="quiz.data.schedule_start"
 							class="inline-flex items-center gap-1.5"
->>>>>>> dcbde79 (feat(quiz): restyle the quiz as an assessment card)
 						>
 							<span class="lucide-calendar size-3.5" />
 							{{ __('Opens') }}:
@@ -769,6 +730,29 @@
 			/>
 		</div>
 	</div>
+	<EmptyStateLayout
+		v-else-if="quiz.error"
+		data-testid="quiz-unavailable"
+		name="quiz"
+		:icon="noQuizAccess ? 'lucide-lock' : 'lucide-circle-alert'"
+		width="lg"
+		:title="
+			noQuizAccess
+				? __('You don\'t have access to this quiz')
+				: __('This quiz couldn\'t load')
+		"
+		:description="
+			noQuizAccess
+				? __(
+						'Only students in a course or batch that uses this quiz can take it. Ask your instructor to add you.'
+				  )
+				: __('Check your connection and try again.')
+		"
+	>
+		<Button v-if="!noQuizAccess" :loading="quiz.loading" @click="quiz.reload()">
+			{{ __('Try again') }}
+		</Button>
+	</EmptyStateLayout>
 	<Dialog
 		v-model:open="showSubmissionConfirmation"
 		:title="__('Are you sure you want to submit the quiz?')"
@@ -874,6 +858,7 @@ import { markLessonProgress } from '@/utils/markLessonProgress'
 import ResponsiveListView from '@/components/ResponsiveListView.vue'
 import RichTextEditor from '@/components/RichTextEditor.vue'
 import ProctoringMonitor from '@/components/ProctoringMonitor.vue'
+import EmptyStateLayout from '@/components/Layouts/EmptyStateLayout.vue'
 import AssessmentCard from '@/components/Assessment/AssessmentCard.vue'
 import AssessmentCardHeader from '@/components/Assessment/AssessmentCardHeader.vue'
 import OptionRow from '@/components/Assessment/OptionRow.vue'
@@ -950,17 +935,10 @@ onUnmounted(() => {
 // Oldest first. violationLog is built newest-first for the on-screen activity
 // list, but the server derives the stored violation count from this payload, so
 // it ships in the order the events actually happened.
-<<<<<<< HEAD
 // withFrames=false for the pagehide beacon: browsers cap beacon payloads at
 // ~64KB, and a handful of base64 stills would push it over and drop the
 // submission entirely. The events matter more there than the pictures of them.
-const serialiseViolationLog = (withFrames = true) =>
-=======
-// withFrames=false for the pagehide beacon: that goes out as a query string, and a
-// handful of base64 stills would push it past the URL limit and drop the log
-// entirely. The events matter more there than the pictures of them.
 const serialiseViolationLog = (withFrames = true): string =>
->>>>>>> dcbde79 (feat(quiz): restyle the quiz as an assessment card)
 	JSON.stringify(
 		[...violationLog.value]
 			.reverse()
@@ -1023,6 +1001,13 @@ const quiz = createResource<QuizDetails>({
 		setupTimer()
 	},
 })
+
+// A shared link reaches students who are not in a course or batch that uses the
+// quiz. The server refuses them, and without this the page rendered nothing.
+const noQuizAccess = computed(
+	() =>
+		(quiz.error as FrappeResourceError | null)?.exc_type === 'PermissionError'
+)
 
 const populateQuestions = () => {
 	const data = quiz.data

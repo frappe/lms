@@ -63,19 +63,14 @@ import {
 	usePageMeta,
 	type FrappeResourceError,
 } from 'frappe-ui'
-<<<<<<< HEAD
-import { computed, inject, onMounted, ref, watch } from 'vue'
-import PageHeader from '@/components/Layouts/PageHeader.vue'
-=======
 import { computed, inject, onMounted, ref, shallowRef, watch } from 'vue'
 import { useDebounceFn } from '@vueuse/core'
-import PageHeader from '@/components/Layouts/pages/PageHeader.vue'
+import PageHeader from '@/components/Layouts/PageHeader.vue'
 import ExerciseCodeEditor from '@/components/ProgrammingExercises/ExerciseCodeEditor.vue'
 import ExerciseWorkspace from '@/components/ProgrammingExercises/ExerciseWorkspace.vue'
 import ExerciseWorkspaceSkeleton from '@/components/ProgrammingExercises/ExerciseWorkspaceSkeleton.vue'
 import type { TestCaseResult } from '@/components/ProgrammingExercises/ExerciseTestCases.vue'
 import type { ConsoleLine } from '@/components/ProgrammingExercises/ExerciseConsole.vue'
->>>>>>> 71e6842 (feat(exercises): rebuild the programming exercise workspace and authoring page)
 import { sessionStore } from '@/stores/session'
 import router from '@/router'
 import { openSettings } from '@/utils'

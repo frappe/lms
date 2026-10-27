@@ -81,7 +81,7 @@ import { useRouter } from 'vue-router'
 import { sessionStore } from '@/stores/session'
 import Link from '@/components/Controls/Link.vue'
 import Select from '@/components/Controls/Select.vue'
-import ListPage from '@/components/Layouts/pages/ListPage.vue'
+import ListPage from '@/components/Layouts/ListPage.vue'
 import type { Breadcrumb, ListViewOptions, SubmissionsConfig } from '@/types'
 
 const props = withDefaults(

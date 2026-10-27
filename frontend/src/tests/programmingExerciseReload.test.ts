@@ -53,7 +53,7 @@ vi.mock('@/components/ProgrammingExercises/ExerciseWorkspace.vue', () => ({
 vi.mock('@/components/ProgrammingExercises/ExerciseCodeEditor.vue', () => ({
 	default: defineComponent({ props: ['modelValue'], render: () => h('div') }),
 }))
-vi.mock('@/components/Layouts/pages/PageHeader.vue', () => ({
+vi.mock('@/components/Layouts/PageHeader.vue', () => ({
 	default: defineComponent({ props: ['breadcrumbs'], render: () => h('div') }),
 }))
 vi.mock('@/stores/session', () => ({

@@ -119,15 +119,10 @@ declare module 'vue' {
     NotPermitted: typeof import('./src/components/NotPermitted.vue')['default']
     NumberChartGraph: typeof import('./src/components/NumberChartGraph.vue')['default']
     OptionRow: typeof import('./src/components/Assessment/OptionRow.vue')['default']
-<<<<<<< HEAD
     PageBody: typeof import('./src/components/Layouts/PageBody.vue')['default']
     PageHeader: typeof import('./src/components/Layouts/PageHeader.vue')['default']
     PageModal: typeof import('./src/components/Modals/PageModal.vue')['default']
     PaymentGatewayDetails: typeof import('./src/components/Settings/PaymentGatewayDetails.vue')['default']
-=======
-    PageBody: typeof import('./src/components/Layouts/pages/PageBody.vue')['default']
-    PageHeader: typeof import('./src/components/Layouts/pages/PageHeader.vue')['default']
->>>>>>> f396269 (feat(lesson): render quizzes, assignments and exercises inline)
     PaymentGatewayForm: typeof import('./src/components/Settings/PaymentGateways/PaymentGatewayForm.vue')['default']
     PaymentGateways: typeof import('./src/components/Settings/PaymentGateways.vue')['default']
     PdfBlock: typeof import('./src/components/PdfBlock.vue')['default']
@@ -179,12 +174,8 @@ declare module 'vue' {
     SidebarLink: typeof import('./src/components/Sidebar/SidebarLink.vue')['default']
     SkeletonLoader: typeof import('./src/components/SkeletonLoader.vue')['default']
     StudentLessonSidebar: typeof import('./src/components/StudentLessonSidebar.vue')['default']
-<<<<<<< HEAD
-    TabbedDetailPage: typeof import('./src/components/Layouts/TabbedDetailPage.vue')['default']
-=======
     SubmissionsPage: typeof import('./src/components/Submissions/SubmissionsPage.vue')['default']
-    TabbedDetailPage: typeof import('./src/components/Layouts/pages/TabbedDetailPage.vue')['default']
->>>>>>> f396269 (feat(lesson): render quizzes, assignments and exercises inline)
+    TabbedDetailPage: typeof import('./src/components/Layouts/TabbedDetailPage.vue')['default']
     ToggleFilter: typeof import('./src/components/Controls/ToggleFilter.vue')['default']
     TransactionDetails: typeof import('./src/components/Settings/Transactions/TransactionDetails.vue')['default']
     TransactionList: typeof import('./src/components/Settings/Transactions/TransactionList.vue')['default']

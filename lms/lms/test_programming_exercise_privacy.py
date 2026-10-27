@@ -126,6 +126,18 @@ class TestProgrammingExerciseRead(BaseTestUtils):
 				],
 			}
 		).insert()
+		# Unplaced, this exercise is unreachable under the assessment access
+		# predicate: a learner needs a course that actually places it.
+		instructor = self._create_user(
+			f"pe-read-instructor-{frappe.generate_hash(length=8)}@example.com",
+			"PE",
+			"Instructor",
+			roles=["Course Creator"],
+		)
+		self.course = self._create_course(
+			title=f"PE Read Course {frappe.generate_hash(length=8)}", instructor=instructor.name
+		)
+		self._place_in_lesson(self.course.name, "LMS Programming Exercise", self.exercise.name)
 
 	def test_a_learner_never_receives_a_hidden_expected_output(self):
 		email = f"pe-student-{frappe.generate_hash(length=8)}@example.com"
@@ -133,6 +145,7 @@ class TestProgrammingExerciseRead(BaseTestUtils):
 		roles = frappe.get_roles(student.name)
 		self.assertIn("LMS Student", roles)
 		self.assertFalse({"Moderator", "Course Creator", "Batch Evaluator"} & set(roles))
+		self._create_enrollment(student.name, self.course.name)
 
 		frappe.set_user(student.name)
 		try:
@@ -177,6 +190,18 @@ class TestProgrammingExerciseEvaluate(BaseTestUtils):
 				],
 			}
 		).insert()
+		# Unplaced, this exercise is unreachable under the assessment access
+		# predicate: a learner needs a course that actually places it.
+		instructor = self._create_user(
+			f"pe-eval-instructor-{frappe.generate_hash(length=8)}@example.com",
+			"PE",
+			"Instructor",
+			roles=["Course Creator"],
+		)
+		self.course = self._create_course(
+			title=f"PE Eval Course {frappe.generate_hash(length=8)}", instructor=instructor.name
+		)
+		self._place_in_lesson(self.course.name, "LMS Programming Exercise", self.exercise.name)
 
 	def test_it_scores_a_mix_of_hidden_and_visible_cases(self):
 		result = evaluate_programming_exercise(self.exercise.name, ["5", "0.0"])
@@ -195,6 +220,7 @@ class TestProgrammingExerciseEvaluate(BaseTestUtils):
 		roles = frappe.get_roles(student.name)
 		self.assertIn("LMS Student", roles)
 		self.assertFalse({"Moderator", "Course Creator", "Batch Evaluator"} & set(roles))
+		self._create_enrollment(student.name, self.course.name)
 
 		frappe.set_user(student.name)
 		try:
@@ -243,6 +269,19 @@ class TestProgrammingExerciseFieldPermissions(BaseTestUtils):
 				],
 			}
 		).insert()
+		# The assessment access predicate only reaches an exercise through a course
+		# or batch: an unplaced one is unreadable by design, so a field-masking test
+		# needs a legitimately-scoped reader, not just any LMS Student.
+		instructor = self._create_user(
+			f"pe-perm-instructor-{frappe.generate_hash(length=8)}@example.com",
+			"PE",
+			"Instructor",
+			roles=["Course Creator"],
+		)
+		self.course = self._create_course(
+			title=f"PE Perm Course {frappe.generate_hash(length=8)}", instructor=instructor.name
+		)
+		self._place_in_lesson(self.course.name, "LMS Programming Exercise", self.exercise.name)
 
 	def _student(self, tag):
 		email = f"pe-{tag}-{frappe.generate_hash(length=8)}@example.com"
@@ -250,6 +289,7 @@ class TestProgrammingExerciseFieldPermissions(BaseTestUtils):
 		roles = frappe.get_roles(student.name)
 		self.assertIn("LMS Student", roles)
 		self.assertFalse({"Moderator", "Course Creator", "Batch Evaluator"} & set(roles))
+		self._create_enrollment(student.name, self.course.name)
 		return student.name
 
 	def test_the_field_carries_permlevel_1_in_the_database(self):

@@ -14,7 +14,7 @@
 			</template>
 		</div>
 		<div class="flex shrink-0 items-center gap-x-2">
-			<Badge v-if="preview" theme="gray" variant="solid" size="sm">
+			<Badge v-if="preview" theme="gray" size="sm">
 				{{ __('Preview only') }}
 			</Badge>
 			<slot />

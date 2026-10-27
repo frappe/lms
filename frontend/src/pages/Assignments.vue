@@ -81,12 +81,8 @@ import {
 	toast,
 	usePageMeta,
 } from 'frappe-ui'
-<<<<<<< HEAD
 import ListPage from '@/components/Layouts/ListPage.vue'
-=======
-import ListPage from '@/components/Layouts/pages/ListPage.vue'
 import HeaderButton from '@/components/HeaderButton.vue'
->>>>>>> dab7e3c (feat(assessments): align assessment routes and share one submissions list)
 import Select from '@/components/Controls/Select.vue'
 import { computed, inject, onMounted, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'

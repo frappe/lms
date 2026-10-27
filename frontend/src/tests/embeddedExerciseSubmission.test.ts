@@ -80,7 +80,7 @@ vi.mock('@/components/ProgrammingExercises/ExerciseCodeEditor.vue', () => ({
 			h('pre', { 'data-testid': 'code' }, props.modelValue),
 	}),
 }))
-vi.mock('@/components/Layouts/pages/PageHeader.vue', () => ({
+vi.mock('@/components/Layouts/PageHeader.vue', () => ({
 	default: defineComponent({
 		render: () => h('div', { 'data-testid': 'page-header' }),
 	}),

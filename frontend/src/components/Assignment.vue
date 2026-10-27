@@ -23,111 +23,6 @@
 					:label="saveLabel"
 					combo="Mod+S"
 				>
-<<<<<<< HEAD
-					<template #title>
-						{{ __("You've successfully submitted the assignment.") }}
-					</template>
-					<template #description>
-						{{
-							__(
-								"Once the moderator grades your submission, you'll find the details here."
-							)
-						}}
-						{{ __('Feel free to make edits to your submission if needed.') }}
-					</template>
-				</Alert>
-				<div
-					v-if="showUploader() && (attachment || canModifyAssignment)"
-					class="border rounded-6 p-3"
-				>
-					<div v-if="canModifyAssignment" class="font-semibold mb-2">
-						{{ __('Upload Assignment') }}
-					</div>
-					<div
-						v-if="canModifyAssignment"
-						class="text-ink-gray-5 text-sm mt-1 mb-4"
-					>
-						{{
-							__('You can only upload {0} files').format(assignment.data.type)
-						}}
-					</div>
-					<FileUploader
-						v-if="!attachment"
-						:fileTypes="getType()"
-						:private="true"
-						:validateFile="
-							(file) =>
-								validateFile(file, true, assignment.data.type.toLowerCase())
-						"
-						@success="(file) => saveSubmission(file)"
-					>
-						<template #default="{ uploading, progress, openFileSelector }">
-							<Button @click="openFileSelector" :loading="uploading">
-								{{
-									uploading
-										? __('Uploading {0}%').format(progress)
-										: __('Upload File')
-								}}
-							</Button>
-						</template>
-					</FileUploader>
-					<div v-else>
-						<div class="flex items-center text-ink-gray-7">
-							<a
-								:href="safeUrl(attachment)"
-								v-external
-								class="cursor-pointer !no-underline text-sm leading-5"
-							>
-								<div class="flex items-center">
-									<div class="border rounded-5 p-2 me-2">
-										<span class="lucide-file-text h-5 w-5" />
-									</div>
-									<span>
-										{{ attachment.split('/').pop() }}
-									</span>
-								</div>
-							</a>
-							<button
-								v-if="canModifyAssignment"
-								type="button"
-								:aria-label="__('Remove submission')"
-								@click="removeSubmission()"
-								class="lucide-x bg-surface-gray-3 rounded-5 cursor-pointer w-5 h-5 p-1 ms-4"
-							/>
-						</div>
-					</div>
-				</div>
-				<div
-					v-else-if="
-						assignment.data.type == 'URL' && (!scheduleBlocked || answer)
-					"
-				>
-					<FormControl
-						v-model="answer"
-						type="text"
-						:label="__('Enter a URL')"
-						:disabled="!canModifyAssignment"
-					/>
-				</div>
-				<div v-else-if="!showUploader() && (!scheduleBlocked || answer)">
-					<InputLabel
-						:id="answerLabelId"
-						:label="__('Write your answer here')"
-						class="mb-1.5"
-					/>
-					<RichTextEditor
-						:ariaLabelledby="answerLabelId"
-						:content="answer"
-						@change="(val) => (answer = val)"
-						:editable="canModifyAssignment"
-						:fixedMenu="true"
-						:uploadArgs="{
-							private: true,
-						}"
-						editorClass="prose-sm max-w-none border-b border-x border-outline-elevation-2 bg-surface-gray-2 rounded-b-5 py-1 px-2 min-h-[7rem]"
-					/>
-				</div>
-=======
 					<Button
 						variant="solid"
 						size="sm"
@@ -139,7 +34,6 @@
 					</Button>
 				</ShortcutTooltip>
 			</AssessmentCardHeader>
->>>>>>> 17b206e (feat(assignment): restyle the assignment as an assessment card)
 
 			<div
 				class="grid grid-cols-1 md:grid-cols-[minmax(0,1fr)_minmax(0,0.9fr)]"
@@ -177,11 +71,36 @@
 							theme="amber"
 							:title="scheduleMessage"
 						/>
-						<div
-							v-if="showUploader() && canModifyAssignment && !scheduleBlocked"
-						>
+						<template v-if="showUploader()">
 							<div
-								v-if="!attachment"
+								v-if="attachment"
+								data-testid="assignment-attachment"
+								class="flex h-9 items-center gap-x-2 rounded-4 border border-outline-gray-2 px-2.5"
+							>
+								<span
+									class="lucide-file-text size-4 shrink-0 text-ink-gray-6"
+								/>
+								<a
+									:href="safeUrl(attachment)"
+									v-external
+									class="min-w-0 flex-1 truncate text-base text-ink-gray-8 !no-underline"
+								>
+									{{ attachment.split('/').pop() }}
+								</a>
+								<Button
+									v-if="canModifyAssignment"
+									variant="ghost"
+									size="sm"
+									:aria-label="__('Remove submission')"
+									@click="removeSubmission()"
+								>
+									<template #icon>
+										<span class="lucide-x size-4" />
+									</template>
+								</Button>
+							</div>
+							<div
+								v-else-if="canModifyAssignment"
 								data-testid="assignment-dropzone"
 								class="flex flex-col items-center gap-2 rounded-5 border border-outline-gray-2 bg-surface-gray-1 px-4 py-5 text-center"
 							>
@@ -227,34 +146,12 @@
 									}}
 								</span>
 							</div>
-							<div
-								v-else
-								data-testid="assignment-attachment"
-								class="flex h-9 items-center gap-x-2 rounded-4 border border-outline-gray-2 px-2.5"
-							>
-								<span
-									class="lucide-file-text size-4 shrink-0 text-ink-gray-6"
-								/>
-								<a
-									:href="safeUrl(attachment)"
-									v-external
-									class="min-w-0 flex-1 truncate text-base text-ink-gray-8 !no-underline"
-								>
-									{{ attachment.split('/').pop() }}
-								</a>
-								<Button
-									variant="ghost"
-									size="sm"
-									:aria-label="__('Remove submission')"
-									@click="removeSubmission()"
-								>
-									<template #icon>
-										<span class="lucide-x size-4" />
-									</template>
-								</Button>
-							</div>
-						</div>
-						<div v-else-if="assignment.data.type == 'URL' && !scheduleBlocked">
+						</template>
+						<div
+							v-else-if="
+								assignment.data.type == 'URL' && (!scheduleBlocked || answer)
+							"
+						>
 							<FormControl
 								v-model="answer"
 								type="text"
@@ -263,7 +160,7 @@
 								:disabled="!canModifyAssignment"
 							/>
 						</div>
-						<div v-else-if="!showUploader() && !scheduleBlocked">
+						<div v-else-if="!scheduleBlocked || answer">
 							<InputLabel
 								:id="answerLabelId"
 								:label="__('Write your answer here')"

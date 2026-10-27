@@ -405,11 +405,9 @@ import { parseStoredEditorJs } from '@/utils/lessonForm'
 import { isLessonSelection } from '@/utils/lessonSelection'
 import { getLmsRoute } from '@/utils/basePath'
 import { provideStudentView } from '@/composables/useStudentView'
-<<<<<<< HEAD
-import { isInstructorOf } from '@/utils/instructors'
-=======
 import type { UserResource } from '@/composables/useStudentView'
 import type { Note, Notes as NotesResource } from '@/types'
+import { isInstructorOf } from '@/utils/instructors'
 
 interface LessonProgressEvent {
 	course: string
@@ -463,7 +461,6 @@ type TrackedVideo = HTMLVideoElement & {
 
 type LessonTab = { label: string; value: string }
 type Crumb = { label: string; route: RouteLocationRaw }
->>>>>>> f396269 (feat(lesson): render quizzes, assignments and exercises inline)
 
 const router = useRouter()
 const route = useRoute()
@@ -498,30 +495,11 @@ const { isMobile } = useScreenSize()
 const showChapters = ref(false)
 let timerInterval: ReturnType<typeof setInterval> | undefined
 
-<<<<<<< HEAD
-const props = defineProps({
-	courseName: {
-		type: String,
-		required: true,
-	},
-	chapterNumber: {
-		type: String,
-		required: true,
-	},
-	lessonNumber: {
-		type: String,
-		required: true,
-	},
-})
-=======
-const tabs = ref<LessonTab[]>([])
-
 const props = defineProps<{
 	courseName: string
 	chapterNumber: string
 	lessonNumber: string
 }>()
->>>>>>> f396269 (feat(lesson): render quizzes, assignments and exercises inline)
 
 let collapsedByLesson = false
 const isCourseAdmin = () =>
@@ -1313,7 +1291,7 @@ const updateNotes = () => {
 // Built from the current lesson, not pushed on each change: a page opened
 // straight on a quiz lesson never flips allowDiscussions, so pushed tabs never
 // appeared, and tabs pushed on an earlier lesson stayed after moving on.
-const tabs = computed(() => [
+const tabs = computed<LessonTab[]>(() => [
 	// Guests cannot save notes, so they get none.
 	...(user.data && !isAdmin.value
 		? [{ label: __('Notes'), value: 'Notes' }]
@@ -1329,25 +1307,9 @@ watch(
 		if (!options.some((tab) => tab.value === currentTab.value)) {
 			currentTab.value = options[0]?.value
 		}
-<<<<<<< HEAD
 	},
 	{ immediate: true }
 )
-=======
-		currentTab.value = 'Notes'
-	} else {
-		currentTab.value = allowDiscussions.value ? 'Community' : undefined
-	}
-	if (allowDiscussions.value) {
-		if (!tabs.value.find((tab) => tab.value === 'Community')) {
-			tabs.value.push({
-				label: __('Community'),
-				value: 'Community',
-			})
-		}
-	}
-})
->>>>>>> f396269 (feat(lesson): render quizzes, assignments and exercises inline)
 
 const redirectToLogin = () => {
 	window.location.href = `/login?redirect-to=${getLmsRoute(

@@ -31,50 +31,13 @@
 </template>
 
 <script setup lang="ts">
-<<<<<<< HEAD
-import {
-	Avatar,
-	Badge,
-	Button,
-	createListResource,
-	FormControl,
-	usePageMeta,
-	toast,
-} from 'frappe-ui'
-import type {
-	ProgrammingExerciseSubmission,
-	Filters,
-	ListRow,
-	ListViewOptions,
-} from '@/types'
-import { computed, inject, onMounted, ref, watch } from 'vue'
-import { sessionStore } from '@/stores/session'
-import { useRouter } from 'vue-router'
-import Link from '@/components/Controls/Link.vue'
-import { serverTime } from '@/utils/dayjs'
-import ListPage from '@/components/Layouts/ListPage.vue'
-
-const { brand } = sessionStore()
-const user = inject('$user') as any
-const filterFields = ['exercise', 'member', 'status']
-const filters = ref<Filters>({
-	exercise: '',
-	member: '',
-	status: '',
-})
-const router = useRouter()
-const pageLength = ref<number>(24)
-=======
 import { Avatar, Badge } from 'frappe-ui'
-import type dayjsType from 'dayjs'
-import type {} from 'dayjs/plugin/relativeTime'
 import { computed, inject } from 'vue'
 import SubmissionsPage from '@/components/Submissions/SubmissionsPage.vue'
 import type { ListRow, SessionUser, SubmissionsConfig } from '@/types'
+import { serverTime } from '@/utils/dayjs'
 
 const user = inject<SessionUser>('$user')!
-const dayjs = inject<typeof dayjsType>('$dayjs')!
->>>>>>> dab7e3c (feat(assessments): align assessment routes and share one submissions list)
 
 const isStudent = computed<boolean>(
 	() =>
@@ -101,43 +64,6 @@ const config: SubmissionsConfig = {
 		'modified',
 	],
 	orderBy: 'modified desc',
-<<<<<<< HEAD
-	pageLength: 24,
-	transform(data: ProgrammingExercise[]) {
-		return data.map((submission: ProgrammingExerciseSubmission) => {
-			return {
-				...submission,
-				modified: serverTime(submission.modified).fromNow(),
-			}
-		})
-	},
-})
-
-watch(filters.value, () => {
-	let filtersToApply: Record<string, any> = {}
-	filterFields.forEach((field) => {
-		if (filters.value[field as keyof Filters]) {
-			filtersToApply[field] = filters.value[field as keyof Filters]
-			router.push({
-				query: {
-					...router.currentRoute.value.query,
-					[field]: filters.value[field as keyof Filters],
-				},
-			})
-		} else {
-			delete filtersToApply[field]
-			const query = { ...router.currentRoute.value.query }
-			delete query[field]
-			router.push({
-				query,
-			})
-		}
-	})
-
-	submissions.update({
-		filters: {
-			...filtersToApply,
-=======
 	columns: [
 		{ label: __('Member'), key: 'member_name', width: 2, icon: 'lucide-user' },
 		{
@@ -145,7 +71,6 @@ watch(filters.value, () => {
 			key: 'exercise_title',
 			width: 2,
 			icon: 'lucide-code',
->>>>>>> dab7e3c (feat(assessments): align assessment routes and share one submissions list)
 		},
 		{
 			label: __('Status'),
@@ -206,7 +131,7 @@ watch(filters.value, () => {
 	transform: (rows: ListRow[]) =>
 		rows.map((row) => ({
 			...row,
-			modified: dayjs(row.modified as string).fromNow(),
+			modified: serverTime(row.modified as string).fromNow(),
 		})),
 }
 </script>

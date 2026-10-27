@@ -3,21 +3,15 @@
 // Reworked on feat/assessment-visual-redesign to check props and unmount.
 import { describe, expect, it, vi, beforeEach } from 'vitest'
 
-<<<<<<< HEAD
-const { calls, user } = vi.hoisted(() => ({
-	user: { data: { name: 'me@example.com' } as { name: string } | null },
-	calls: { value: [] as any[] },
-}))
-=======
-const { calls, mountBlock, unmount } = vi.hoisted(() => {
+const { calls, mountBlock, unmount, user } = vi.hoisted(() => {
 	const unmount = vi.fn()
 	return {
+		user: { data: { name: 'me@example.com' } as { name: string } | null },
 		calls: { value: [] as any[] },
 		unmount,
 		mountBlock: vi.fn(() => ({ unmount })),
 	}
 })
->>>>>>> f396269 (feat(lesson): render quizzes, assignments and exercises inline)
 
 declare global {
 	interface Window {
@@ -156,17 +150,18 @@ describe('the programming exercise block for a guest', () => {
 	beforeEach(() => {
 		user.data = null
 		calls.value = []
+		mountBlock.mockClear()
 	})
 
 	it('skips the submission lookup', async () => {
-		await iframeSrc({ studentView: false })
+		await renderInLesson({ studentView: false })
 
 		expect(calls.value).toEqual([])
 	})
 
 	it('still mounts the exercise as a new submission', async () => {
-		expect(await iframeSrc({ studentView: false })).toContain(
-			'/submission/new?'
-		)
+		await renderInLesson({ studentView: false })
+
+		expect(mountedWith().props.props.submissionID).toBe('new')
 	})
 })

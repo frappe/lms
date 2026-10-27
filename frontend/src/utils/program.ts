@@ -86,39 +86,17 @@ export class Program {
 	renderExercise(exercise: string) {
 		if (this.readOnly) {
 			const { userResource } = usersStore()
-<<<<<<< HEAD
-			const mountSubmission = (submission: string) => {
-				const studentView = this.studentView ? '&studentView=1' : ''
-				const submissionPath = getLmsRoute(
-					`programming-exercises/${exercise}/submission/${submission}?fromLesson=1${studentView}`
-				)
-				const frame = embedFrame(submissionPath, {
-					class: 'w-full h-[900px] border rounded-5',
-				})
-				this.wrapper.replaceChildren(...(frame ? [frame] : []))
-			}
 			if (!userResource.data) {
-				mountSubmission('new')
+				this.mountSubmission(exercise, 'new')
 				return
 			}
-			call('frappe.client.get_value', {
+			call<{ name?: string } | null>('frappe.client.get_value', {
 				doctype: 'LMS Programming Exercise Submission',
 				filters: {
 					exercise: exercise,
 					member: userResource.data.name,
 				},
 				fieldname: ['name'],
-			}).then((data: { name: string }) => {
-				mountSubmission(data.name || 'new')
-=======
-			call<{ name?: string } | null>('frappe.client.get_value', {
-				doctype: 'LMS Programming Exercise Submission',
-				filters: {
-					exercise: exercise,
-					member: userResource.data?.name,
-				},
-				fieldname: ['name'],
->>>>>>> f396269 (feat(lesson): render quizzes, assignments and exercises inline)
 			})
 				.catch(() => null)
 				.then((data) => {

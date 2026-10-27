@@ -14,7 +14,7 @@ String.prototype.format = function (this: string, ...args: unknown[]): string {
 }
 
 // Only the #actions slot is under test, so ListPage renders just that.
-vi.mock('@/components/Layouts/pages/ListPage.vue', () => ({
+vi.mock('@/components/Layouts/ListPage.vue', () => ({
 	default: defineComponent({
 		setup:
 			(_, { slots }) =>

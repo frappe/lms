@@ -1,45 +1,30 @@
-<<<<<<< HEAD
-=======
 // Guards the assignment card: skeleton, brief, and the per-type answer input.
 // Came with this branch's assignment block restyle as an assessment card.
 // Added on feat/assessment-visual-redesign to pin the card's states.
->>>>>>> 17b206e (feat(assignment): restyle the assignment as an assessment card)
 import { flushPromises, mount } from '@vue/test-utils'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { defineComponent, h, reactive } from 'vue'
 
 const state = vi.hoisted(() => ({
 	assignment: null as Record<string, unknown> | null,
-<<<<<<< HEAD
-	submission: null as { doc: Record<string, unknown> | null } | null,
-=======
 	loading: false,
->>>>>>> 17b206e (feat(assignment): restyle the assignment as an assessment card)
+	submission: null as { doc: Record<string, unknown> | null } | null,
 }))
 
 vi.mock('frappe-ui', () => {
 	const passthrough = (tag: string) =>
 		defineComponent({
-<<<<<<< HEAD
-=======
 			inheritAttrs: true,
->>>>>>> 17b206e (feat(assignment): restyle the assignment as an assessment card)
 			setup:
 				(_p, { slots }) =>
 				() =>
 					h(tag, slots.default?.()),
 		})
 	return {
-<<<<<<< HEAD
 		Alert: defineComponent({
-			props: ['title', 'description', 'theme'],
-			setup:
-				(props, { slots }) =>
-				() =>
-					h('div', [props.title, props.description, slots.default?.()]),
+			props: ['title'],
+			setup: (props) => () => h('div', props.title),
 		}),
-=======
->>>>>>> 17b206e (feat(assignment): restyle the assignment as an assessment card)
 		Badge: passthrough('span'),
 		Button: defineComponent({
 			setup:
@@ -53,10 +38,6 @@ vi.mock('frappe-ui', () => {
 				() =>
 					h(
 						'div',
-<<<<<<< HEAD
-						{ 'data-testid': 'file-uploader' },
-=======
->>>>>>> 17b206e (feat(assignment): restyle the assignment as an assessment card)
 						slots.default?.({
 							uploading: false,
 							progress: 0,
@@ -65,31 +46,24 @@ vi.mock('frappe-ui', () => {
 					),
 		}),
 		FormControl: defineComponent({
-<<<<<<< HEAD
-			props: ['modelValue', 'disabled'],
+			props: ['placeholder', 'modelValue', 'disabled'],
 			setup: (props) => () =>
 				h('input', {
 					'data-testid': 'url-input',
+					placeholder: props.placeholder,
 					value: props.modelValue,
 					disabled: props.disabled,
 				}),
 		}),
-		Tooltip: passthrough('div'),
-=======
-			props: ['placeholder'],
-			setup: (props) => () =>
-				h('input', { 'data-testid': 'url-input', ...props }),
-		}),
 		Skeleton: defineComponent({ render: () => h('div') }),
 		Tooltip: passthrough('div'),
 		KeyboardShortcut: passthrough('span'),
->>>>>>> 17b206e (feat(assignment): restyle the assignment as an assessment card)
 		call: vi.fn(),
 		toast: { error: vi.fn(), success: vi.fn() },
 		createResource: () =>
 			reactive({
 				data: state.assignment,
-<<<<<<< HEAD
+				loading: state.loading,
 				reload: vi.fn(),
 			}),
 		createDocumentResource: () => {
@@ -104,11 +78,11 @@ vi.mock('frappe-ui', () => {
 	}
 })
 
-vi.mock('vue-router', () => ({
-	useRouter: () => ({
+vi.mock('@/router', () => ({
+	default: {
 		push: vi.fn(),
 		currentRoute: { value: { name: 'Lesson', query: {} } },
-	}),
+	},
 }))
 vi.mock('@/components/RichTextEditor.vue', () => ({
 	default: defineComponent({
@@ -120,24 +94,6 @@ vi.mock('@/components/RichTextEditor.vue', () => ({
 				innerHTML: props.content,
 			}),
 	}),
-=======
-				loading: state.loading,
-				reload: vi.fn(),
-			}),
-		createDocumentResource: () =>
-			reactive({ doc: null, reload: vi.fn(), setValue: { submit: vi.fn() } }),
-	}
-})
-
-vi.mock('@/router', () => ({
-	default: {
-		push: vi.fn(),
-		currentRoute: { value: { name: 'Lesson', query: {} } },
-	},
-}))
-vi.mock('@/components/RichTextEditor.vue', () => ({
-	default: defineComponent({ render: () => h('div') }),
->>>>>>> 17b206e (feat(assignment): restyle the assignment as an assessment card)
 }))
 vi.mock('@/utils', () => ({ validateFile: vi.fn() }))
 
@@ -151,7 +107,6 @@ const translate = (message: string) => {
 	}
 }
 
-<<<<<<< HEAD
 const learner = { name: 'learner@example.com' }
 const evaluator = { name: 'evaluator@example.com', is_evaluator: true }
 
@@ -171,21 +126,10 @@ const mountAssignment = async (
 		},
 	})
 	if (submission && state.submission) state.submission.doc = submission
-=======
-const mountAssignment = async () => {
-	const wrapper = mount(Assignment, {
-		props: { assignmentID: 'ASG-1', showTitle: false },
-		global: {
-			provide: { $user: { data: { name: 'learner@example.com' } } },
-			mocks: { __: translate },
-		},
-	})
->>>>>>> 17b206e (feat(assignment): restyle the assignment as an assessment card)
 	await flushPromises()
 	return wrapper
 }
 
-<<<<<<< HEAD
 const ended = {
 	enable_scheduling: 1,
 	schedule_end: '2020-01-01T00:00:00Z',
@@ -200,88 +144,8 @@ const learnerSubmission = (fields: Record<string, unknown>) => ({
 
 beforeEach(() => {
 	state.assignment = null
-	state.submission = null
-})
-
-describe('the assignment card', () => {
-	it("shows an evaluator the learner's attachment, without upload or remove", async () => {
-		state.assignment = { title: 'Report', type: 'PDF', question: '<p>Q</p>' }
-		const wrapper = await mountAssignment(
-			evaluator,
-			learnerSubmission({ assignment_attachment: '/private/files/report.pdf' })
-		)
-
-		const file = wrapper.get('a[href="/private/files/report.pdf"]')
-		expect(file.text()).toContain('report.pdf')
-		expect(wrapper.find('[aria-label="Remove submission"]').exists()).toBe(
-			false
-		)
-		expect(wrapper.find('[data-testid="file-uploader"]').exists()).toBe(false)
-		expect(wrapper.text()).not.toContain('Upload Assignment')
-	})
-
-	it('shows an evaluator no empty upload box when nothing was attached', async () => {
-		state.assignment = { title: 'Report', type: 'PDF', question: '<p>Q</p>' }
-		const wrapper = await mountAssignment(evaluator, learnerSubmission({}))
-
-		expect(wrapper.find('a[href]').exists()).toBe(false)
-		expect(wrapper.find('[data-testid="file-uploader"]').exists()).toBe(false)
-		expect(wrapper.text()).not.toContain('Upload Assignment')
-	})
-
-	it('still shows the URL answer read-only after the schedule ended', async () => {
-		state.assignment = {
-			title: 'Portfolio',
-			type: 'URL',
-			question: '<p>Q</p>',
-			...ended,
-		}
-		const wrapper = await mountAssignment(
-			evaluator,
-			learnerSubmission({ answer: 'https://example.com/repo' })
-		)
-
-		const input = wrapper.get('[data-testid="url-input"]')
-		expect((input.element as HTMLInputElement).value).toBe(
-			'https://example.com/repo'
-		)
-		expect(input.attributes('disabled')).toBeDefined()
-	})
-
-	it('still shows the text answer read-only after the schedule ended', async () => {
-		state.assignment = {
-			title: 'Essay',
-			type: 'Text',
-			question: '<p>Q</p>',
-			...ended,
-		}
-		const wrapper = await mountAssignment(
-			evaluator,
-			learnerSubmission({ answer: '<p>My essay</p>' })
-		)
-
-		const answer = wrapper.get('[data-testid="text-answer"]')
-		expect(answer.text()).toBe('My essay')
-		expect(answer.attributes('data-editable')).toBe('false')
-	})
-
-	it('shows only the schedule message to a learner with no submission', async () => {
-		state.assignment = {
-			title: 'Portfolio',
-			type: 'URL',
-			question: '<p>Q</p>',
-			...ended,
-		}
-		const wrapper = await mountAssignment()
-
-		expect(wrapper.text()).toContain(
-			'The schedule for this assignment has ended.'
-		)
-		expect(wrapper.find('[data-testid="url-input"]').exists()).toBe(false)
-=======
-beforeEach(() => {
-	state.assignment = null
 	state.loading = false
+	state.submission = null
 })
 
 describe('the assignment card', () => {
@@ -343,6 +207,83 @@ describe('the assignment card', () => {
 		expect(wrapper.find('[data-testid="assignment-dropzone"]').exists()).toBe(
 			false
 		)
->>>>>>> 17b206e (feat(assignment): restyle the assignment as an assessment card)
+	})
+
+	it("shows an evaluator the learner's attachment, without upload or remove", async () => {
+		state.assignment = { title: 'Report', type: 'PDF', question: '<p>Q</p>' }
+		const wrapper = await mountAssignment(
+			evaluator,
+			learnerSubmission({ assignment_attachment: '/private/files/report.pdf' })
+		)
+
+		const file = wrapper.get('[data-testid="assignment-attachment"]')
+		expect(file.text()).toContain('report.pdf')
+		expect(file.find('button').exists()).toBe(false)
+		expect(wrapper.find('[data-testid="assignment-dropzone"]').exists()).toBe(
+			false
+		)
+	})
+
+	it('shows an evaluator no empty drop zone when nothing was attached', async () => {
+		state.assignment = { title: 'Report', type: 'PDF', question: '<p>Q</p>' }
+		const wrapper = await mountAssignment(evaluator, learnerSubmission({}))
+
+		expect(wrapper.find('[data-testid="assignment-attachment"]').exists()).toBe(
+			false
+		)
+		expect(wrapper.find('[data-testid="assignment-dropzone"]').exists()).toBe(
+			false
+		)
+	})
+
+	it('still shows the URL answer read-only after the schedule ended', async () => {
+		state.assignment = {
+			title: 'Portfolio',
+			type: 'URL',
+			question: '<p>Q</p>',
+			...ended,
+		}
+		const wrapper = await mountAssignment(
+			evaluator,
+			learnerSubmission({ answer: 'https://example.com/repo' })
+		)
+
+		const input = wrapper.get('[data-testid="url-input"]')
+		expect((input.element as HTMLInputElement).value).toBe(
+			'https://example.com/repo'
+		)
+		expect(input.attributes('disabled')).toBeDefined()
+	})
+
+	it('still shows the text answer read-only after the schedule ended', async () => {
+		state.assignment = {
+			title: 'Essay',
+			type: 'Text',
+			question: '<p>Q</p>',
+			...ended,
+		}
+		const wrapper = await mountAssignment(
+			evaluator,
+			learnerSubmission({ answer: '<p>My essay</p>' })
+		)
+
+		const answer = wrapper.get('[data-testid="text-answer"]')
+		expect(answer.text()).toBe('My essay')
+		expect(answer.attributes('data-editable')).toBe('false')
+	})
+
+	it('shows only the schedule message to a learner with no submission', async () => {
+		state.assignment = {
+			title: 'Portfolio',
+			type: 'URL',
+			question: '<p>Q</p>',
+			...ended,
+		}
+		const wrapper = await mountAssignment()
+
+		expect(wrapper.text()).toContain(
+			'The schedule for this assignment has ended.'
+		)
+		expect(wrapper.find('[data-testid="url-input"]').exists()).toBe(false)
 	})
 })

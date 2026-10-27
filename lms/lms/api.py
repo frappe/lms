@@ -2904,9 +2904,6 @@ def validate_meta_data_permissions(meta_type: str, route: str):
 		frappe.throw(_("You do not have permission to update meta tags."))
 
 
-<<<<<<< HEAD
-@frappe.whitelist(methods=["POST"])
-=======
 def can_read_expected_output(doc) -> bool:
 	return 1 in doc.get_permlevel_access("read")
 
@@ -2983,8 +2980,7 @@ def _score_test_case(case, produced, author: bool) -> dict:
 	}
 
 
-@frappe.whitelist()
->>>>>>> 71e6842 (feat(exercises): rebuild the programming exercise workspace and authoring page)
+@frappe.whitelist(methods=["POST"])
 def create_programming_exercise_submission(exercise: str, submission: str, code: str, test_cases: list):
 	frappe.only_for(["Moderator", "Course Creator", "Batch Evaluator"])
 	if submission == "new":
