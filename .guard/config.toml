@@ -2,9 +2,9 @@ strictness = 2
 comment_types = ["logic", "syntax"]
 auto_review = ["open", "push", "rebase"]
 review_drafts = false
-include_branches = ["develop"]
+include_branches = ["develop", "main-hotfix", "main"]
 disabled_labels = ["conflicts", "skip-guard"]
-exclude_authors = ["mergify[bot]", "dependabot[bot]", "github-actions[bot]"]
+exclude_authors = ["mergify[bot]", "dependabot[bot]", "github-actions[bot]", "frappe-pr-bot"]
 ignore_keywords = ["WIP", "[skip review]"]
 ignore_patterns = [
 	"yarn.lock",
