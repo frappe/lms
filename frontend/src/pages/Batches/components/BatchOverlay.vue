@@ -112,12 +112,12 @@
 					class="mt-4"
 					:label="__('Enrollment for this batch is closed')"
 				/>
-				<Badge
+				<Alert
 					v-else-if="hasSeatsLeft"
 					theme="blue"
-					size="lg"
 					class="mt-4"
-					:label="__('Contact the Administrator to enroll for this batch')"
+					:title="__('Contact the Administrator')"
+					:description="__('Ask them to enroll you in this batch.')"
 				/>
 			</div>
 		</div>
@@ -125,7 +125,7 @@
 </template>
 <script setup>
 import { inject, computed } from 'vue'
-import { Badge, Button, createResource, toast } from 'frappe-ui'
+import { Alert, Badge, Button, createResource, toast } from 'frappe-ui'
 import {
 	formatNumberIntoCurrency,
 	formatTime,
