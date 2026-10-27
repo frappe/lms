@@ -997,29 +997,7 @@ import ProgressBar from '@/components/ProgressBar.vue'
 import ResponsiveListView from '@/components/ResponsiveListView.vue'
 import RichTextEditor from '@/components/RichTextEditor.vue'
 import ProctoringMonitor from '@/components/ProctoringMonitor.vue'
-<<<<<<< HEAD
-=======
 import EmptyStateLayout from '@/components/Layouts/EmptyStateLayout.vue'
-import AssessmentCard from '@/components/Assessment/AssessmentCard.vue'
-import AssessmentCardHeader from '@/components/Assessment/AssessmentCardHeader.vue'
-import OptionRow from '@/components/Assessment/OptionRow.vue'
-import FeedbackBanner from '@/components/Assessment/FeedbackBanner.vue'
-import QuizStats from '@/components/Assessment/QuizStats.vue'
-import { attemptsLeftLabel, formatQuizSubtitle } from '@/utils/quizSummary'
-import type {
-	AnswerVerdict,
-	QuizAttempt,
-	QuizDetails,
-	QuizQuestionDetails,
-	QuizQuestionRow,
-	QuizSubmissionResult,
-	QuizWithQuestions,
-	SavedAnswer,
-	SessionUser,
-	StoredViolationRow,
-	ViolationEvent,
-} from '@/types'
->>>>>>> 7c7863f (fix(quiz): tell students without access why the quiz does not open)
 
 const user = inject('$user')
 const activeQuestion = ref(0)
@@ -1167,10 +1145,7 @@ const quiz = createResource({
 
 // A shared link reaches students who are not in a course or batch that uses the
 // quiz. The server refuses them, and without this the page rendered nothing.
-const noQuizAccess = computed(
-	() =>
-		(quiz.error as FrappeResourceError | null)?.exc_type === 'PermissionError'
-)
+const noQuizAccess = computed(() => quiz.error?.exc_type === 'PermissionError')
 
 const populateQuestions = () => {
 	const data = quiz.data
