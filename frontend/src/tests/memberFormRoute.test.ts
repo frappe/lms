@@ -432,14 +432,11 @@ describe('the member form route', () => {
 			const wrapper = await mountAdd()
 			const rows = wrapper.findAll('[data-testid="role-row"]')
 
-			expect(rows.map((row) => row.get('label').text())).toEqual([
-				'Student',
-				'Course Creator',
-				'Evaluator',
-				'Moderator',
-			])
+			expect(
+				rows.map((row) => row.get('[data-testid="switch-label"]').text())
+			).toEqual(['Student', 'Course Creator', 'Evaluator', 'Moderator'])
 			for (const row of rows) {
-				expect(row.findAll('label')).toHaveLength(1)
+				expect(row.findAll('[data-testid="switch-label"]')).toHaveLength(1)
 				expect(row.findAll('[role="switch"]')).toHaveLength(1)
 			}
 		})
@@ -468,7 +465,7 @@ describe('the member form route', () => {
 
 			expect(rows).toHaveLength(4)
 			for (const row of rows) {
-				expect(row.findAll('label')).toHaveLength(1)
+				expect(row.findAll('[data-testid="switch-label"]')).toHaveLength(1)
 				expect(row.findAll('[role="switch"]')).toHaveLength(1)
 			}
 		})

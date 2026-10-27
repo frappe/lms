@@ -415,3 +415,180 @@ describe('SettingsFields focuses the field it is asked for', () => {
 		expect(w.find('[data-setting-field="send_invites"]').exists()).toBe(true)
 	})
 })
+
+describe('SettingsFields shows a caution behind an alert icon', () => {
+	it('names the caution on a focusable icon beside the label', async () => {
+		const w = await mountFields([
+			{
+				name: 'prevent_skipping_videos',
+				label: 'Prevent Skipping Videos',
+				type: 'checkbox',
+				description: 'Learners cannot skip ahead.',
+				caution: 'Not enforced for embedded links.',
+			},
+		])
+		const icon = w.find('button[aria-label="Not enforced for embedded links."]')
+		expect(icon.exists()).toBe(true)
+		expect(icon.find('.lucide-circle-alert').exists()).toBe(true)
+		expect(w.text()).toContain('Learners cannot skip ahead.')
+	})
+
+	it('draws no icon for a field without one', async () => {
+		const w = await mountFields([
+			{ name: 'send_invites', label: 'Invites', type: 'checkbox' },
+		])
+		expect(w.find('.lucide-circle-alert').exists()).toBe(false)
+	})
+})
+
+describe('SettingsFields draws a checkbox group', () => {
+	const group: SettingsField = {
+		name: 'enforce_completion',
+		label: 'Enforce completion',
+		type: 'checkboxGroup',
+		options: [
+			{
+				name: 'enforce_video_completion',
+				label: 'Videos',
+				caution: 'Embedded links cannot be tracked.',
+			},
+			{ name: 'enforce_quiz_completion', label: 'Quizzes' },
+		],
+	}
+	const passing: SettingsField = {
+		name: 'enforce_passing',
+		label: 'Enforce passing',
+		type: 'checkboxGroup',
+		options: [
+			{
+				name: 'enforce_quiz_passing',
+				label: 'Quizzes',
+				requires: 'enforce_quiz_completion',
+			},
+		],
+	}
+
+	type Wrapper = Awaited<ReturnType<typeof mountFields>>
+	const switches = (w: Wrapper) => w.findAll('button[role="switch"]')
+	const states = (w: Wrapper) =>
+		switches(w).map((toggle) => toggle.attributes('aria-checked'))
+
+	it('names each switch from its own field', async () => {
+		const w = await mountFields([group], {
+			enforce_video_completion: 1,
+			enforce_quiz_completion: 0,
+		})
+		const groupEl = w.get('[role="group"]')
+		const labelledBy = groupEl.attributes('aria-labelledby')
+		expect(w.get(`[id="${labelledBy}"]`).text()).toBe('Enforce completion')
+		expect(states(w)).toEqual(['true', 'false'])
+		const quizName = switches(w)[1].attributes('aria-labelledby')
+		expect(w.get(`[id="${quizName}"]`).text()).toBe('Quizzes')
+		expect(
+			w.find('button[aria-label="Embedded links cannot be tracked."]').exists()
+		).toBe(true)
+	})
+
+	it('writes only the toggled field and reports it', async () => {
+		const data = { enforce_video_completion: 1, enforce_quiz_completion: 0 }
+		const w = await mountFields([group], data)
+		await switches(w)[1].trigger('click')
+		expect(data).toEqual({
+			enforce_video_completion: 1,
+			enforce_quiz_completion: 1,
+		})
+		expect(w.emitted('commit')?.at(-1)).toEqual(['now'])
+	})
+
+	// Regression on this branch only, no upstream PR: passing could be stored
+	// on with its completion off. Added on fix/course-progress-enforcement (no PR yet).
+	it('shows a switch only while the one it requires is on', async () => {
+		const data: Record<string, unknown> = { enforce_quiz_completion: 0 }
+		const w = await mountFields([group, passing], data)
+		expect(switches(w)).toHaveLength(2)
+		expect(w.text()).not.toContain('Enforce passing')
+		await switches(w)[1].trigger('click')
+		expect(switches(w)).toHaveLength(3)
+	})
+
+	it('turns a dependent switch off with the one it requires', async () => {
+		const data: Record<string, unknown> = {
+			enforce_quiz_completion: 1,
+			enforce_quiz_passing: 1,
+		}
+		const w = await mountFields([group, passing], data)
+		await switches(w)[1].trigger('click')
+		expect(data.enforce_quiz_passing).toBe(0)
+	})
+})
+
+// Regression on this branch only, no upstream PR: only the small switch itself toggled.
+// Added on fix/course-progress-enforcement (no PR yet).
+describe('SettingsFields toggles a switch from its label', () => {
+	const toggle: SettingsField = {
+		name: 'send_invites',
+		label: 'Invites',
+		type: 'checkbox',
+		description: 'Email each learner.',
+		caution: 'Needs an email account.',
+	}
+
+	const mountSwitch = (data: Record<string, unknown>, disabled = false) =>
+		mountFields([{ ...toggle, disabled } as SettingsField], data)
+
+	it('toggles from a click on the label or the description', async () => {
+		const data: Record<string, unknown> = { send_invites: 0 }
+		const w = await mountSwitch(data)
+		await w.get('label:not([data-slot])').trigger('click')
+		expect(data.send_invites).toBe(1)
+		await w.findAll('label').at(-1)!.trigger('click')
+		expect(data.send_invites).toBe(0)
+	})
+
+	it('names the switch by its label and description, once each', async () => {
+		const w = await mountSwitch({ send_invites: 0 })
+		const control = w.get('button[role="switch"]')
+		expect(
+			w.get(`[id="${control.attributes('aria-labelledby')}"]`).text()
+		).toBe('Invites')
+		expect(
+			w.get(`[id="${control.attributes('aria-describedby')}"]`).text()
+		).toBe('Email each learner.')
+		expect(control.attributes('aria-label')).toBeUndefined()
+	})
+
+	it('keeps the caution button out of the label', async () => {
+		const data: Record<string, unknown> = { send_invites: 0 }
+		const w = await mountSwitch(data)
+		const caution = w.get('button[aria-label="Needs an email account."]')
+		expect(caution.element.closest('label')).toBeNull()
+		await caution.trigger('click')
+		expect(data.send_invites).toBe(0)
+	})
+
+	it('does not toggle a disabled switch from its label', async () => {
+		const data: Record<string, unknown> = { send_invites: 0 }
+		const w = await mountSwitch(data, true)
+		const label = w.findAll('label')[0]
+		expect(label.classes()).toContain('cursor-not-allowed')
+		await label.trigger('click')
+		expect(data.send_invites).toBe(0)
+	})
+
+	it('toggles a group option from its label', async () => {
+		const data: Record<string, unknown> = { enforce_quiz_completion: 0 }
+		const w = await mountFields(
+			[
+				{
+					name: 'enforce_completion',
+					label: 'Enforce completion',
+					type: 'checkboxGroup',
+					options: [{ name: 'enforce_quiz_completion', label: 'Quizzes' }],
+				},
+			],
+			data
+		)
+		await w.get('label').trigger('click')
+		expect(data.enforce_quiz_completion).toBe(1)
+	})
+})

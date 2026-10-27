@@ -96,6 +96,14 @@ class LMSAssignmentSubmission(Document):
 
 	def on_update(self):
 		self.validate_private_attachments()
+		self.complete_lessons_on_pass()
+
+	def complete_lessons_on_pass(self):
+		if self.status != "Pass" or not self.has_value_changed("status"):
+			return
+		from lms.lms.doctype.course_lesson.course_lesson import complete_lessons_after_grading
+
+		complete_lessons_after_grading(self.member, "LMS Assignment", self.assignment)
 
 	def validate_duplicates(self):
 		if frappe.db.exists(

@@ -164,6 +164,76 @@
 					</div>
 
 					<div
+						v-else-if="field.type == 'checkboxGroup'"
+						role="group"
+						:aria-labelledby="labelId(field)"
+						:aria-describedby="describedBy(field)"
+						class="relative isolate py-3"
+					>
+						<span
+							aria-hidden="true"
+							data-testid="setting-highlight"
+							class="pointer-events-none absolute -inset-x-3 inset-y-1 -z-10 rounded-5 bg-surface-gray-2 transition-opacity duration-500"
+							:class="isFlashed(field) ? 'opacity-100' : 'opacity-0'"
+						/>
+						<div
+							:id="labelId(field)"
+							class="text-p-base-medium text-ink-gray-7"
+						>
+							{{ __(field.label) }}
+						</div>
+						<div
+							v-if="field.description"
+							:id="descriptionId(field)"
+							class="text-p-sm text-ink-gray-6"
+						>
+							{{ __(field.description) }}
+						</div>
+						<div class="mt-1 grid grid-cols-1 gap-x-8 sm:grid-cols-2">
+							<div
+								v-for="option in visibleOptions(field)"
+								:key="option.name"
+								:data-setting-field="option.name"
+								class="py-2"
+							>
+								<BooleanSwitch
+									size="sm"
+									:label="__(option.label)"
+									:description="translated(option.description)"
+									:caution="translated(option.caution)"
+									:model-value="data[option.name]"
+									:disabled="field.disabled"
+									@update:model-value="
+										(value) => onOption(field, option, value)
+									"
+								/>
+							</div>
+						</div>
+					</div>
+
+					<div
+						v-else-if="field.type == 'checkbox'"
+						:data-setting-field="field.name"
+						class="relative isolate py-3"
+					>
+						<span
+							aria-hidden="true"
+							data-testid="setting-highlight"
+							class="pointer-events-none absolute -inset-x-3 inset-y-1 -z-10 rounded-5 bg-surface-gray-2 transition-opacity duration-500"
+							:class="flashed === field.name ? 'opacity-100' : 'opacity-0'"
+						/>
+						<BooleanSwitch
+							size="sm"
+							:label="__(field.label)"
+							:description="translated(field.description)"
+							:caution="translated(field.caution)"
+							:model-value="data[field.name]"
+							:disabled="field.disabled"
+							@update:model-value="(value) => onPick(field, value)"
+						/>
+					</div>
+
+					<div
 						v-else
 						:data-setting-field="field.name"
 						class="relative isolate flex items-center justify-between gap-4 py-3"
@@ -175,30 +245,27 @@
 							:class="flashed === field.name ? 'opacity-100' : 'opacity-0'"
 						/>
 						<div class="flex flex-col">
-							<div class="text-p-base-medium text-ink-gray-7">
-								{{ __(field.label) }}
-								<span
-									v-if="field.reqd"
-									class="text-ink-red-5"
-									aria-hidden="true"
-									>*</span
-								>
+							<div
+								class="flex items-center gap-1.5 text-p-base-medium text-ink-gray-7"
+							>
+								<span>
+									{{ __(field.label) }}
+									<span
+										v-if="field.reqd"
+										class="text-ink-red-5"
+										aria-hidden="true"
+										>*</span
+									>
+								</span>
+								<CautionIcon v-if="field.caution" :text="__(field.caution)" />
 							</div>
 							<div v-if="field.description" class="text-p-sm text-ink-gray-6">
 								{{ __(field.description) }}
 							</div>
 						</div>
 						<div class="shrink-0">
-							<BooleanSwitch
-								v-if="field.type == 'checkbox'"
-								size="sm"
-								:model-value="data[field.name]"
-								:disabled="field.disabled"
-								:aria-label="__(field.label)"
-								@update:model-value="(value) => onPick(field, value)"
-							/>
 							<Link
-								v-else-if="field.type == 'link'"
+								v-if="field.type == 'link'"
 								:model-value="displayValue(field)"
 								:doctype="linkDoctype(field)"
 								:filters="field.filters"
@@ -259,6 +326,7 @@ import { nextTick, onBeforeUnmount, reactive, ref, useId, watch } from 'vue'
 import Link from '@/components/Controls/Link.vue'
 import ImageUploadField from '@/components/Controls/ImageUploadField.vue'
 import RichTextEditor from '@/components/RichTextEditor.vue'
+import CautionIcon from '@/components/Controls/CautionIcon.vue'
 import SettingsCodeField from './SettingsCodeField.vue'
 import { seedCheckboxDefaults } from '@/components/Settings/Mobile/mobileRows'
 
@@ -384,10 +452,14 @@ const INSTANT_TYPES = [
 	'upload',
 ]
 
-// A field the document has hidden is not rendered, so it is neither written nor
-// validated. Only Transactions' coupon block uses this.
+// A field the document has hidden, or a group with no option showing, is not
+// rendered, so it is neither written nor validated.
 const visibleFields = (section) =>
-	section.fields.filter((field) => !field.showIf || field.showIf(props.data))
+	section.fields.filter(
+		(field) =>
+			(!field.showIf || field.showIf(props.data)) &&
+			(field.type != 'checkboxGroup' || visibleOptions(field).length)
+	)
 
 const CONTENT_TYPES = ['textarea', 'richtext']
 
@@ -468,6 +540,35 @@ const displayValue = (field) =>
 // The user picked it, so it is written like any other value — including when
 // what they picked is the fallback they were already being shown.
 const onPick = (field, value) => setValue(field, value)
+
+// A group's own `name` keys the row; each option writes its own Check field.
+const onOption = (field, option, value) => {
+	if (field.disabled) return
+	props.data[option.name] = value ? 1 : 0
+	if (!value) {
+		for (const dependent of dependentOptions(option.name)) {
+			props.data[dependent.name] = 0
+		}
+	}
+	emit('commit', 'now')
+}
+
+const translated = (text) => (text ? __(text) : undefined)
+
+// An option that asks for another one shows only while that one is on.
+const visibleOptions = (field) =>
+	field.options.filter(
+		(option) => !option.requires || props.data[option.requires]
+	)
+
+const dependentOptions = (name) =>
+	props.sections
+		.flatMap((section) => section.fields)
+		.flatMap((field) => field.options || [])
+		.filter((option) => option.requires === name)
+
+const isFlashed = (field) =>
+	field.options.some((option) => option.name === flashed.value)
 
 // Link shows its "Create New" footer whenever this handler exists, so a
 // field with none must get none, or the button does nothing. The value

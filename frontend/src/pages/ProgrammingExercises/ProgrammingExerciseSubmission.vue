@@ -71,6 +71,7 @@ import router from '@/router'
 import { openSettings } from '@/utils'
 import { useSettings } from '@/stores/settings'
 import { getLmsRoute } from '@/utils/basePath'
+import { markLessonProgress } from '@/utils/markLessonProgress'
 import { provideStudentView } from '@/composables/useStudentView'
 import type { UserResource } from '@/composables/useStudentView'
 import { useExerciseDraft } from '@/composables/useExerciseDraft'
@@ -555,6 +556,9 @@ const createSubmission = async () => {
 	// preview would otherwise write a real submission under the author's name.
 	if (props.preview) return
 	if (!results.value.length) return
+	// markLessonProgress reads the URL, which may be another lesson by the time
+	// the save lands.
+	const lessonPath = window.location.pathname
 	// Sent whole: the server runs the code the run here used and scores it itself
 	// rather than taking these results on trust, then strips the boilerplate to store.
 	return call<string>('lms.lms.api.create_programming_exercise_submission', {
@@ -574,6 +578,8 @@ const createSubmission = async () => {
 			}
 			const ran = results.value
 			await fetchSubmission(name)
+			if (props.embedded && window.location.pathname === lessonPath)
+				markLessonProgress()
 			if (showSavedResults(ran)) {
 				toast.warning(
 					__(
