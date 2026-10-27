@@ -114,10 +114,11 @@
 				/>
 				<Alert
 					v-else-if="hasSeatsLeft"
-					theme="blue"
 					class="mt-4"
-					:title="__('Contact the Administrator')"
-					:description="__('Ask them to enroll you in this batch.')"
+					:icon="false"
+					:description="
+						__('Contact the Administrator to enroll for this batch')
+					"
 				/>
 			</div>
 		</div>
