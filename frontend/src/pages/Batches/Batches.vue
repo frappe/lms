@@ -100,13 +100,12 @@ const currentCategory = ref(null)
 const title = ref('')
 const certification = ref(false)
 const filters = ref({})
-const is_student = computed(() => user.data?.is_student)
 const isAdmin = computed(() =>
 	['is_moderator', 'is_instructor', 'is_evaluator'].some(
 		(role) => user.data?.[role]
 	)
 )
-const currentTab = ref(isAdmin.value ? 'active' : 'all')
+const currentTab = ref(isAdmin.value ? 'active' : 'upcoming')
 const orderBy = ref('start_date')
 const readOnlyMode = window.read_only_mode
 const router = useRouter()
@@ -269,10 +268,13 @@ const updateTabFilter = () => {
 	}
 }
 
+// Learners and guests are shown only batches they can still join. A start_date
+// filter makes get_batches treat the list as upcoming, which also drops today's
+// batches whose start time has passed.
 const updateStudentFilter = () => {
-	if (!user.data || (is_student.value && currentTab.value != 'enrolled')) {
-		delete filters.value['start_date']
-		filters.value['end_date'] = ['>=', dayjs().format('YYYY-MM-DD')]
+	if (!isAdmin.value && currentTab.value != 'enrolled') {
+		delete filters.value['end_date']
+		filters.value['start_date'] = ['>=', dayjs().format('YYYY-MM-DD')]
 		filters.value['published'] = 1
 	}
 }
@@ -326,7 +328,7 @@ const batchTabs = computed(() => {
 			{ label: __('Unpublished'), value: 'unpublished' },
 		]
 	}
-	const tabs = [{ label: __('All'), value: 'all' }]
+	const tabs = [{ label: __('Upcoming'), value: 'upcoming' }]
 	if (user.data) {
 		tabs.push({ label: __('Enrolled'), value: 'enrolled' })
 	}
