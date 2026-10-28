@@ -123,7 +123,6 @@ const props = withDefaults(
 	}>(),
 	{
 		type: 'image',
-		required: true,
 		shape: 'square',
 		size: 'md',
 	}

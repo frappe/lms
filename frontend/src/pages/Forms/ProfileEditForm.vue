@@ -21,7 +21,6 @@
 					<Uploader
 						v-model="profile.image"
 						:label="__('Profile Image')"
-						:required="false"
 						shape="circle"
 					/>
 					<FormControl
