@@ -143,3 +143,5 @@ lms.patches.v2_0.limit_moderator_user_access
 execute:from lms.patches.v2_0.reconcile_custom_docperm_permlevels import reconcile; reconcile(["LMS Live Class"])
 lms.patches.v2_0.repair_program_member_rows
 execute:from lms.patches.v2_0.reconcile_custom_docperm_permlevels import reconcile; reconcile(["LMS Program"])
+execute:from lms.patches.v2_0.reconcile_custom_docperm_permlevels import reconcile; reconcile(["LMS Programming Exercise"])
+lms.patches.v2_0.unhide_existing_test_cases #09-09-2026

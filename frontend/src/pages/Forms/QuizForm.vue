@@ -41,6 +41,7 @@
 			</template>
 		</template>
 	</PageHeader>
+	<h1 class="sr-only">{{ pageTitle }}</h1>
 	<div
 		v-if="quizDetails.loading && !quizDetails.doc"
 		class="flex items-center justify-center py-20"
@@ -52,11 +53,7 @@
 		class="grid flex-1 grid-cols-1 lg:min-h-0 lg:grid-cols-[7fr,3fr]"
 	>
 		<div class="flex min-h-0 flex-col overflow-y-auto px-5 py-5">
-			<div
-				v-if="previewing"
-				data-testid="quiz-preview"
-				class="mx-auto w-full max-w-2xl"
-			>
+			<div v-if="previewing" data-testid="quiz-preview" class="w-full">
 				<Quiz :quizName="quizDetails.doc.name" preview />
 			</div>
 			<template v-else>
@@ -434,11 +431,7 @@ import { useDebounceFn } from '@vueuse/core'
 
 import { onBeforeRouteLeave, useRouter } from 'vue-router'
 import { sanitizeOnWrite } from '@/utils/sanitizeOnWrite'
-<<<<<<< HEAD
-=======
 import { getLmsRoute } from '@/utils/basePath'
-import { useTelemetry } from '@framework/ui/telemetry/index'
->>>>>>> 9886d0e (feat(quiz): copy the learner link from the quiz page)
 import { resourceErrorMessage, submitResource } from '@/utils/resource'
 import { useCanWrite } from '@/composables/useCanWrite'
 
@@ -1082,6 +1075,11 @@ const calculateTotalMarks = () => {
 	const counted = limit ? rows.slice(0, limit) : rows
 	return counted.reduce((total, row) => total + (Number(row.marks) || 0), 0)
 }
+
+// A new quiz's title changes on every keystroke, so its heading stays fixed.
+const pageTitle = computed(() =>
+	isNew.value ? __('New Quiz') : doc.value?.title || __('Quiz')
+)
 
 const breadcrumbs = computed(() => {
 	const crumbs = [

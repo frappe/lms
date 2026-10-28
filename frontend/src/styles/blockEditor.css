@@ -7,6 +7,20 @@
 	display: none;
 }
 
+/* Embeds and images are drawn like the assessment cards. The class goes on
+   the wrapper: Plyr replaces the element it initialises, and an iframe does not
+   clip its own corners everywhere. */
+.embed-tool {
+	border: 1px solid var(--outline-gray-2);
+	border-radius: var(--radius-7);
+	overflow: hidden;
+}
+.cdx-simple-image__picture {
+	border: 1px solid var(--outline-gray-2);
+	border-radius: var(--radius-7);
+	overflow: hidden;
+}
+
 /* Colors use frappe-ui (Espresso) design tokens, so the editor follows the
    app's light/dark theme automatically ([data-theme='dark'] flips them). */
 .ce-block__content {
@@ -25,6 +39,20 @@
 	background: var(--surface-gray-2) !important;
 	outline: 1px dotted var(--outline-gray-3);
 	border-radius: 6px;
+}
+
+/* Text selection: EditorJS injects `.codex-editor ::selection` with a fixed
+   #d4ecff and no text colour, so dark-mode ink became unreadable while dragging.
+   `body` outranks the injected rule, which lands later in <head>. The two
+   pseudo-elements stay separate rules: a browser drops a whole rule whose
+   selector list has one it does not know. */
+body .codex-editor ::selection {
+	background-color: var(--surface-blue-3);
+	color: var(--ink-gray-9);
+}
+body .codex-editor ::-moz-selection {
+	background-color: var(--surface-blue-3);
+	color: var(--ink-gray-9);
 }
 
 .ce-toolbar__actions,

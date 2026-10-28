@@ -446,7 +446,7 @@
 									@change="(val) => (possibleAnswer = val)"
 									:editable="true"
 									:fixedMenu="true"
-									minHeight="7rem"
+									editorClass="prose-sm max-w-none border-b border-x border-outline-elevation-2 bg-surface-gray-2 rounded-b-5 py-1 px-2 min-h-[7rem]"
 									:ariaLabelledby="questionTextId"
 								/>
 							</div>
@@ -691,6 +691,29 @@
 			/>
 		</div>
 	</div>
+	<EmptyStateLayout
+		v-else-if="quiz.error"
+		data-testid="quiz-unavailable"
+		name="quiz"
+		:icon="noQuizAccess ? 'lucide-lock' : 'lucide-circle-alert'"
+		width="lg"
+		:title="
+			noQuizAccess
+				? __('You don\'t have access to this quiz')
+				: __('This quiz couldn\'t load')
+		"
+		:description="
+			noQuizAccess
+				? __(
+						'Only students in a course or batch that uses this quiz can take it. Ask your instructor to add you.'
+				  )
+				: __('Check your connection and try again.')
+		"
+	>
+		<Button v-if="!noQuizAccess" :loading="quiz.loading" @click="quiz.reload()">
+			{{ __('Try again') }}
+		</Button>
+	</EmptyStateLayout>
 	<Dialog
 		v-model:open="showSubmissionConfirmation"
 		:title="__('Are you sure you want to submit the quiz?')"
@@ -832,6 +855,7 @@ import RichTextEditor from '@/components/RichTextEditor.vue'
 import router from '@/router'
 import QuizActivityLog from '@/components/Quiz/QuizActivityLog.vue'
 import ProctoringMonitor from '@/components/ProctoringMonitor.vue'
+import EmptyStateLayout from '@/components/Layouts/EmptyStateLayout.vue'
 import AssessmentCard from '@/components/Assessment/AssessmentCard.vue'
 import AssessmentCardHeader from '@/components/Assessment/AssessmentCardHeader.vue'
 import OptionRow from '@/components/Assessment/OptionRow.vue'
@@ -969,9 +993,9 @@ onUnmounted(() => {
 // Oldest first. violationLog is built newest-first for the on-screen activity
 // list, but the server derives the stored violation count from this payload, so
 // it ships in the order the events actually happened.
-// withFrames=false for the pagehide beacon: that goes out as a query string, and a
-// handful of base64 stills would push it past the URL limit and drop the log
-// entirely. The events matter more there than the pictures of them.
+// withFrames=false for the pagehide beacon: browsers cap beacon payloads at
+// ~64KB, and a handful of base64 stills would push it over and drop the
+// submission entirely. The events matter more there than the pictures of them.
 const serialiseViolationLog = (withFrames = true): string =>
 	JSON.stringify(
 		[...violationLog.value]
@@ -994,15 +1018,14 @@ const sendSubmitBeacon = (reason: SubmissionReason): void => {
 			violation_count: String(violationCount.value),
 			submission_reason: reason,
 		})
-		// Beacons go out as a query string, so only spend the URL budget on the
-		// log when there is one.
+		if (window.csrf_token) params.set('csrf_token', window.csrf_token)
 		if (violationLog.value.length) {
 			params.set('violation_events', serialiseViolationLog(false))
 		}
 
 		navigator.sendBeacon(
-			'/api/method/lms.lms.doctype.lms_quiz.lms_quiz.submit_quiz?' +
-				params.toString()
+			'/api/method/lms.lms.doctype.lms_quiz.lms_quiz.submit_quiz',
+			params
 		)
 	}
 }
@@ -1044,6 +1067,13 @@ const quiz = createResource<QuizDetails>({
 		setupTimer()
 	},
 })
+
+// A shared link reaches students who are not in a course or batch that uses the
+// quiz. The server refuses them, and without this the page rendered nothing.
+const noQuizAccess = computed(
+	() =>
+		(quiz.error as FrappeResourceError | null)?.exc_type === 'PermissionError'
+)
 
 const populateQuestions = () => {
 	const data = quiz.data

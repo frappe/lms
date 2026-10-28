@@ -2,14 +2,21 @@ import QuizBlock from '@/components/QuizBlock.vue'
 import { registerDirectives } from '@/directives'
 import AssessmentPlugin from '@/components/AssessmentPlugin.vue'
 import { createApp, h } from 'vue'
-import { usersStore } from '../stores/user'
+import type { App } from 'vue'
 import translationPlugin from '../translation'
 import { CircleHelp } from 'lucide-vue-next'
 import router from '@/router'
-import { blockNotice } from '@/utils/blockDom'
+import { mountBlock, mountPreview } from '@/utils/blockMount'
+
+type QuizData = { quiz?: string }
 
 export class Quiz {
-	constructor({ data, api, readOnly }) {
+	data: QuizData
+	readOnly: boolean
+	wrapper!: HTMLDivElement
+	quizApp: App | null = null
+
+	constructor({ data, readOnly }: { data: QuizData; readOnly: boolean }) {
 		this.data = data
 		this.readOnly = readOnly
 	}
@@ -33,54 +40,37 @@ export class Quiz {
 		return true
 	}
 
-	render() {
+	render(): HTMLDivElement {
 		this.wrapper = document.createElement('div')
+		this.wrapper.className = 'not-prose my-5'
 		if (Object.keys(this.data).length) {
-			this.renderQuiz(this.data.quiz)
+			this.renderQuiz(this.data.quiz as string)
 		} else {
 			this.renderQuizModal()
 		}
 		return this.wrapper
 	}
 
-	renderQuiz(quiz) {
-		if (this.readOnly) {
-			// Mount the quiz inline instead of loading the whole SPA in an iframe
-			// (which flashed the app shell/sidebar before the quiz appeared). It's
-			// a standalone mount (EditorJS blocks live outside the app's Vue tree),
-			// so give it translation and the shared $user the quiz component needs.
-			const { userResource } = usersStore()
-			this.quizApp = createApp(QuizBlock, { quiz })
-			registerDirectives(this.quizApp)
-			this.quizApp.use(translationPlugin)
-			this.quizApp.provide('$user', userResource)
-			// Contain quiz render/runtime errors to this mount. Inline (unlike
-			// the old iframe) the quiz shares the lesson's render tree, so an
-			// uncaught error here would otherwise propagate through EditorJS and
-			// blank the whole lesson.
-			this.quizApp.config.errorHandler = (err) => {
-				console.error('[lms] in-lesson quiz failed to render', err)
-			}
-			this.quizApp.mount(this.wrapper)
-			return
-		}
-		this.wrapper.replaceChildren(blockNotice(`Quiz: ${quiz}`))
-		return
+	renderQuiz(quiz: string): void {
+		this.quizApp = this.readOnly
+			? mountBlock(this.wrapper, QuizBlock, { quiz })
+			: mountPreview(this.wrapper, 'quiz', quiz)
 	}
 
 	// Tear down the inline quiz app when EditorJS removes the block so the mount
 	// doesn't leak after the lesson view is destroyed.
-	destroy() {
+	destroy(): void {
 		this.quizApp?.unmount()
+		this.quizApp = null
 	}
 
-	renderQuizModal() {
+	renderQuizModal(): void {
 		if (this.readOnly) {
 			return
 		}
 		const app = createApp(AssessmentPlugin, {
 			type: 'quiz',
-			onAddition: (quiz) => {
+			onAddition: (quiz: string) => {
 				this.data.quiz = quiz
 				this.renderQuiz(quiz)
 			},
@@ -91,7 +81,7 @@ export class Quiz {
 		app.mount(this.wrapper)
 	}
 
-	save() {
+	save(): QuizData {
 		if (Object.keys(this.data).length === 0) return {}
 		return {
 			quiz: this.data.quiz,

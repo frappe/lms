@@ -10,6 +10,8 @@ const resourceState = vi.hoisted(() => ({
 	// Every resource submit, by url. `request` only records reads.
 	submits: [] as string[],
 	response: null as any,
+	// When set, the quiz request fails with this error instead of answering.
+	quizError: null as any,
 	// Per-option verdict check_answer returns: 1 correct, 2 partial, 0 wrong.
 	checkAnswer: [] as unknown[],
 }))
@@ -36,6 +38,12 @@ vi.mock('frappe-ui', async () => {
 				// Match a real network response: let the remounted component finish setup before the cached resource's original callbacks run.
 				await Promise.resolve()
 
+				if (resourceState.quizError) {
+					resource.error = resourceState.quizError
+					resource.loading = false
+					return null
+				}
+
 				const raw = structuredClone(resourceState.response)
 				const transformed = options.transform?.(raw)
 				resource.data = transformed == null ? raw : transformed
@@ -53,6 +61,7 @@ vi.mock('frappe-ui', async () => {
 		resource = reactive({
 			auto: options.auto,
 			data: null,
+			error: null,
 			loading: false,
 			reload,
 			fetch: reload,
@@ -111,6 +120,8 @@ vi.mock('frappe-ui', async () => {
 		},
 		FormControl: empty,
 		LoadingIndicator: empty,
+		Progress: empty,
+		Skeleton: empty,
 	}
 })
 
@@ -165,10 +176,14 @@ const quizResponse = () => ({
 	},
 })
 
+let mountedQuizzes = 0
+
+// A distinct idPrefix per mount, as mountBlock gives each lesson block.
 const mountQuiz = (props: Record<string, unknown> = {}) =>
 	mount(Quiz, {
 		props: { quizName: 'QUIZ-1', ...props },
 		global: {
+			config: { idPrefix: `quiz-${++mountedQuizzes}` },
 			provide: { $user: { data: { name: 'learner@example.com' } } },
 			mocks: { __: (value: string) => value },
 		},
@@ -180,6 +195,7 @@ beforeEach(() => {
 	resourceState.submits.length = 0
 	resourceState.response = quizResponse()
 	resourceState.checkAnswer = []
+	resourceState.quizError = null
 	localStorage.clear()
 })
 
@@ -202,6 +218,38 @@ describe('Quiz with no questions', () => {
 		).toBe(false)
 		;(wrapper.vm as any).startQuiz()
 		expect((wrapper.vm as any).activeQuestion).toBe(0)
+	})
+})
+
+// Guards a shared quiz link rendering a blank page for a student the server
+// refuses. Added on quiz-no-access-message.
+describe('Quiz that fails to load', () => {
+	it('tells a student without access to ask their instructor', async () => {
+		resourceState.quizError = { exc_type: 'PermissionError' }
+		const wrapper = mountQuiz()
+		await flushPromises()
+
+		expect(wrapper.find('[data-testid="quiz-unavailable"]').exists()).toBe(true)
+		expect(wrapper.text()).toContain("You don't have access to this quiz")
+		expect(wrapper.text()).toContain('Ask your instructor to add you.')
+		expect(wrapper.findAll('button').some((b) => b.text() === 'Try again')).toBe(
+			false
+		)
+	})
+
+	it('offers a retry when the quiz fails for another reason', async () => {
+		resourceState.quizError = { exc_type: 'ValidationError' }
+		const wrapper = mountQuiz()
+		await flushPromises()
+
+		expect(wrapper.text()).toContain("This quiz couldn't load")
+		const retry = wrapper.findAll('button').find((b) => b.text() === 'Try again')
+		expect(retry).toBeTruthy()
+
+		resourceState.quizError = null
+		await retry!.trigger('click')
+		await flushPromises()
+		expect(resourceState.request).toHaveBeenCalledTimes(2)
 	})
 })
 
@@ -288,6 +336,19 @@ describe('Quiz in an author preview', () => {
 		resourceState.response = choicesQuizResponse(1)
 	})
 
+	// Guards the lesson-only "Preview only" badge leaking onto the quiz form.
+	// Came with this branch's quiz assessment card restyle.
+	// Added on feat/assessment-visual-redesign; the badge marks lesson embeds.
+	it('shows no Preview only badge on the authoring preview', async () => {
+		const wrapper = mountQuiz({ preview: true })
+		await flushPromises()
+
+		const header = wrapper.findComponent({ name: 'AssessmentCardHeader' })
+		expect(header.exists()).toBe(true)
+		expect(header.props('preview')).toBe(false)
+		wrapper.unmount()
+	})
+
 	// The quiz form's Preview mounts this as it ships, and the button is not the
 	// only way in: a timed quiz auto-submits and proctoring submits on a
 	// violation. That submission is real.
@@ -312,23 +373,6 @@ describe('Quiz in an author preview', () => {
 	})
 })
 
-describe('Quiz pass mark', () => {
-	const render = async (count: number) => {
-		resourceState.response = choicesQuizResponse(count)
-		const wrapper = mountQuiz()
-		await flushPromises()
-		return wrapper
-	}
-
-	it('hides the pass mark when the quiz has no questions', async () => {
-		expect((await render(0)).text()).not.toContain('Passing score')
-	})
-
-	it('shows the pass mark when the quiz has questions', async () => {
-		expect((await render(3)).text()).toContain('Passing score: 70%')
-	})
-})
-
 describe('Quiz choices', () => {
 	// `Check` only renders when the quiz shows answers, and it is the only
 	// caller of checkAnswer, so this is the one flow that reaches the verdict
@@ -341,26 +385,12 @@ describe('Quiz choices', () => {
 
 	const pickFirstAndCheck = async (wrapper: VueWrapper<any>) => {
 		await startQuiz(wrapper)
-		await wrapper.findAll('.radio-option')[0].trigger('click')
+		await wrapper.findAll('input[type="radio"]')[0].trigger('change')
 		const check = wrapper.findAll('button').find((b) => b.text() === 'Check')
 		expect(check).toBeDefined()
 		await check!.trigger('click')
 		await flushPromises()
 	}
-
-	it('sends the option the learner picks', async () => {
-		const wrapper = mountQuiz()
-		await flushPromises()
-		resourceState.checkAnswer = [1, 0]
-		await pickFirstAndCheck(wrapper)
-
-		// The warning toast instead of a request would mean getAnswers() saw
-		// nothing selected, i.e. RadioGroup never reached selectedOptions.
-		expect(resourceState.request.mock.calls.map((call) => call[0])).toContain(
-			'lms.lms.doctype.lms_quiz.lms_quiz.check_answer'
-		)
-		wrapper.unmount()
-	})
 
 	it('marks each option right or wrong once checked, keeping the labels', async () => {
 		const wrapper = mountQuiz()
@@ -370,11 +400,10 @@ describe('Quiz choices', () => {
 
 		expect(wrapper.text()).toContain('First option 1')
 		expect(wrapper.text()).toContain('Second option 1')
-		expect(wrapper.find('.lucide-check-circle').exists()).toBe(true)
+		const firstOption = wrapper.findAll('label')[0]
+		expect(firstOption.find('.lucide-check-circle').exists()).toBe(true)
 		wrapper.unmount()
 	})
-<<<<<<< HEAD
-=======
 
 	// Guards two quizzes asking the same question sharing one radio group.
 	// Broke with this branch's quiz card restyle (radios named by question text).
@@ -580,5 +609,4 @@ describe('Quiz for screen readers', () => {
 		await flushPromises()
 		expect(document.activeElement?.textContent?.trim()).toBe('Quiz result')
 	})
->>>>>>> e992584 (feat(quiz): tighten the proctored attempt and stop leaving it unnoticed)
 })

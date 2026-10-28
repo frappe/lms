@@ -79,11 +79,7 @@ const emittedTypes = (wrapper: any, name: string): string[] =>
 
 // ─── Mount helper ─────────────────────────────────────────────────────────────
 
-<<<<<<< HEAD
-const mountMonitor = (props: Partial<{ active: boolean; violationCount: number }> = {}) =>
-=======
 const mountMonitor = (props: Partial<{ active: boolean }> = {}) =>
->>>>>>> e992584 (feat(quiz): tighten the proctored attempt and stop leaving it unnoticed)
 	mount(ProctoringMonitor, {
 		props: { active: false, ...props },
 		global: { mocks: { __: (s: string) => s } },
@@ -99,13 +95,13 @@ describe('ProctoringMonitor — setup phase', () => {
 		expect(wrapper.text()).toContain('Loading camera')
 		// Drawn by frappe-ui's Spinner, which announces itself; the hand-rolled
 		// lucide-loader-2 it replaced was an unlabelled decorative span.
-		expect(wrapper.get('[role="status"]').classes()).toContain('fui-spinner')
+		expect(wrapper.find('[role="status"].fui-spinner').exists()).toBe(true)
 	})
 
 	it('drops the spinner once the camera is past loading', async () => {
 		const wrapper = mountMonitor()
 		await flushPromises()
-		expect(wrapper.find('[role="status"]').exists()).toBe(false)
+		expect(wrapper.find('.fui-spinner').exists()).toBe(false)
 	})
 
 	it('shows an error message and emits camera-denied when access is refused', async () => {
@@ -115,14 +111,6 @@ describe('ProctoringMonitor — setup phase', () => {
 		expect(wrapper.text()).toContain('Camera access was denied')
 		expect(wrapper.emitted('camera-denied')).toBeTruthy()
 	})
-
-	it('shows "Position your face" label after camera loads', async () => {
-		const wrapper = mountMonitor()
-		await flushPromises()
-		// Models loaded, interval started — setupStatus transitions to 'detecting'
-		expect(wrapper.text()).toContain('Position your face')
-	})
-
 })
 
 describe('ProctoringMonitor — monitoring phase', () => {

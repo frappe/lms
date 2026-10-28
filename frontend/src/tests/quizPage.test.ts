@@ -14,7 +14,7 @@ vi.mock('@/stores/session', () => ({ sessionStore: () => ({ brand: {} }) }))
 vi.mock('@/components/Quiz.vue', () => ({
 	default: defineComponent({ render: () => h('div') }),
 }))
-vi.mock('@/components/Layouts/pages/PageHeader.vue', () => ({
+vi.mock('@/components/Layouts/PageHeader.vue', () => ({
 	default: defineComponent({
 		props: { breadcrumbs: { type: Array, default: () => [] } },
 		setup: (props) => () =>

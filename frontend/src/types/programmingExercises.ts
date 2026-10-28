@@ -1,24 +1,22 @@
+export type ExerciseLanguage = 'Python' | 'JavaScript'
+
 export interface ProgrammingExercise {
-    name: string;
-    title: string;
-    language: 'Python' | 'JavaScript';
-    test_cases_count: number;
-    problem_statement: string;
-    test_cases: [TestCase];
+	name: string
+	title: string
+	language: ExerciseLanguage
+	test_cases_count: number
+	problem_statement: string
+	starter_code?: string
+	test_cases: [TestCase]
 }
 
 export interface TestCase {
-    name: string;
-    input: string;
-    expected_output: string;
-    output: string;
-    status: 'Passed' | 'Failed';
-}
-
-type Filters = {
-    exercise?: string,
-    member?: string,
-    status?: string
+	name: string
+	input: string
+	expected_output: string
+	output: string
+	status: 'Passed' | 'Failed'
+	hidden?: number
 }
 
 export type ProgrammingExercises = {
@@ -39,9 +37,6 @@ export type ProgrammingExercises = {
 		) => void
 	}
 	delete: {
-		submit: (
-			name: string,
-			options?: { onSuccess?: () => void }
-		) => void
+		submit: (name: string, options?: { onSuccess?: () => void }) => void
 	}
 }
