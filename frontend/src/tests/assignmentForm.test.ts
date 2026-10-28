@@ -147,8 +147,8 @@ const makeRouter = (): Router =>
 				],
 			},
 			{
-				path: '/assignment-submissions',
-				name: 'AssignmentSubmissionList',
+				path: '/assignments/submissions',
+				name: 'AssignmentSubmissions',
 				component: List,
 			},
 		],

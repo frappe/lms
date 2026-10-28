@@ -9,7 +9,7 @@ from frappe.model.naming import make_autoname
 from frappe.utils import nowdate
 from pypika import Case
 
-from lms.lms.permissions import is_site_administrator
+from lms.lms.permissions import can_author_batch, can_author_course, is_site_administrator
 from lms.lms.utils import get_evaluator
 
 
@@ -245,14 +245,47 @@ def validate_certification_eligibility(course):
 def has_permission(doc, ptype="read", user=None):
 	user = user or frappe.session.user
 	roles = frappe.get_roles(user)
-	if is_site_administrator(user) or "Moderator" in roles or "Course Creator" in roles:
+	if is_site_administrator(user) or "Moderator" in roles:
 		return True
-	if "Batch Evaluator" in roles:
-		return ptype in ("read", "select", "print") or is_assigned_evaluator(doc, ptype, user)
-	if ptype not in ("read", "select", "print"):
+	if ptype in ("read", "select", "print"):
+		if "Course Creator" in roles or "Batch Evaluator" in roles:
+			return True
+		# A learner reads their own certificate before it is published, whoever issued it.
+		return doc.member == user or bool(doc.published)
+	if "Course Creator" in roles and is_course_or_batch_author(doc, ptype, user):
+		return True
+	return "Batch Evaluator" in roles and is_assigned_evaluator(doc, ptype, user)
+
+
+def is_course_or_batch_author(doc, ptype, user):
+	"""Scope comes from the stored row, as for an evaluator: the caller controls
+	every in-memory field and must not re-home the certificate into a course or
+	batch they author."""
+	if ptype == "create":
+		return authors_certificate(doc.course, doc.batch_name, user)
+
+	stored = frappe.db.get_value("LMS Certificate", doc.name, ["course", "batch_name"], as_dict=True)
+	if not stored or not authors_certificate(stored.course, stored.batch_name, user):
 		return False
-	# A learner reads their own certificate before it is published, whoever issued it.
-	return doc.member == user or bool(doc.published)
+	if (doc.course, doc.batch_name) == (stored.course, stored.batch_name):
+		return True
+	return authors_certificate(doc.course, doc.batch_name, user)
+
+
+def authors_certificate(course, batch_name, user):
+	"""A certificate belongs to the authors of its course and, when issued from a
+	batch, to that batch's authors too, but only for the batch's own courses."""
+	if can_author_course(course, user=user):
+		return True
+	if course and not batch_offers_course(batch_name, course):
+		return False
+	return can_author_batch(batch_name, user=user)
+
+
+def batch_offers_course(batch_name, course):
+	return bool(
+		frappe.db.exists("Batch Course", {"parent": batch_name, "parenttype": "LMS Batch", "course": course})
+	)
 
 
 def is_assigned_evaluator(doc, ptype, user):

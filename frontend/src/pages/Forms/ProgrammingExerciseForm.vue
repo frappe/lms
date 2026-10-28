@@ -1,126 +1,150 @@
 <template>
-	<FormShell :title="title" size="4xl" @close="close">
-		<template #header-action>
-			<Badge v-if="isDirty && canManageExercise && canEdit" theme="amber">
-				{{ __('Not Saved') }}
-			</Badge>
+	<PageHeader :breadcrumbs="breadcrumbs">
+		<template #actions>
+			<template v-if="canManageExercise">
+				<Badge v-if="!isNew && canEdit" :theme="saved ? 'green' : 'amber'">
+					{{ saved ? __('Saved') : __('Not saved') }}
+				</Badge>
+				<template v-if="!isNew">
+					<HeaderButton
+						data-testid="programming-exercise-preview"
+						variant="subtle"
+						icon="lucide-eye"
+						:label="previewing ? __('Back to editing') : __('Preview')"
+						:aria-pressed="previewing"
+						:disabled="!previewing && !saved"
+						@click="togglePreview()"
+					/>
+					<HeaderButton
+						data-testid="programming-exercise-submissions"
+						variant="subtle"
+						icon="lucide-clipboard-list"
+						:label="__('Submissions')"
+						@click="goToSubmissions()"
+					/>
+					<HeaderButton
+						v-if="canEdit"
+						data-testid="programming-exercise-delete"
+						variant="subtle"
+						theme="red"
+						icon="lucide-trash-2"
+						:label="__('Delete')"
+						@click="deleteExercise()"
+					/>
+				</template>
+			</template>
 		</template>
-		<template #default>
-			<div v-if="!canManageExercise" class="p-4 text-base text-ink-gray-6">
-				{{ __('You are not permitted to manage programming exercises.') }}
-			</div>
-			<fieldset
-				v-else
-				:disabled="!canEdit"
-				data-testid="programming-exercise-fields"
-				class="m-0 grid min-w-0 grid-cols-1 gap-10 border-0 p-0 sm:grid-cols-2"
+	</PageHeader>
+	<div v-if="!canManageExercise" class="p-5 text-base text-ink-gray-6">
+		{{ __('You are not permitted to manage programming exercises.') }}
+	</div>
+	<fieldset
+		v-else
+		:disabled="!canEdit"
+		data-testid="programming-exercise-fields"
+		class="m-0 grid min-w-0 flex-1 grid-cols-1 border-0 p-0 lg:min-h-0 lg:grid-cols-[7fr,3fr]"
+	>
+		<div
+			class="flex min-h-0 flex-col gap-8 overflow-y-auto p-5"
+			@focusout="createIfReady()"
+		>
+			<div
+				v-if="previewing"
+				data-testid="programming-exercise-preview-pane"
+				class="h-[900px] w-full"
 			>
+				<ProgrammingExerciseSubmission
+					:exerciseID="props.exerciseID"
+					submissionID="new"
+					preview
+				/>
+			</div>
+			<template v-else>
 				<p
 					v-if="canWrite === false"
 					data-testid="programming-exercise-read-only-note"
-					class="text-base text-ink-gray-6 sm:col-span-2"
+					class="text-base text-ink-gray-6"
 				>
 					{{ __('Only the authors of this programming exercise can edit it.') }}
 				</p>
-				<div class="space-y-4">
-					<FormControl
-						v-model="exercise.title"
-						:label="__('Title')"
+				<div class="flex flex-col gap-1.5">
+					<InputLabel
+						:id="problemStatementLabelId"
+						:label="__('Problem Statement')"
 						:required="true"
 					/>
-					<FormControl
-						v-model="exercise.language"
-						:label="__('Language')"
-						type="select"
-						:options="languageOptions"
-						:required="true"
-					/>
-					<ChildTable
-						v-model="testCases.data"
-						:label="__('Test Cases')"
-						:columns="testCaseColumns"
-						:required="true"
-						:addable="canEdit"
-						:deletable="canEdit"
-						:editable="canEdit"
-						:placeholder="__('Add Test Case')"
-					/>
-				</div>
-				<div>
-					<div class="space-y-1.5">
-						<InputLabel
-							:id="problemStatementLabelId"
-							:label="__('Problem Statement')"
-							:required="true"
+					<div data-testid="programming-exercise-problem-statement">
+						<RichTextEditor
+							:ariaLabelledby="problemStatementLabelId"
+							:ariaRequired="true"
+							:content="exercise.problem_statement"
+							@change="onProblemStatementChange"
+							:editable="canEdit"
+							:fixedMenu="true"
+							editorClass="prose-sm max-w-none border-b border-x border-outline-gray-2 hover:border-outline-gray-3 hover:shadow-sm focus-within:border-outline-gray-4 focus-within:shadow-sm rounded-b-5 py-1 px-2 min-h-[12rem] transition-colors"
 						/>
-						<div>
-							<RichTextEditor
-								:ariaLabelledby="problemStatementLabelId"
-								:ariaRequired="true"
-								:content="exercise.problem_statement"
-								@change="(val: string) => (exercise.problem_statement = val)"
-								:editable="canEdit"
-								:fixedMenu="true"
-								menuClass="bg-surface-gray-2"
-								editorClass="prose-sm max-w-none border-b border-x border-outline-elevation-2 bg-surface-gray-2 rounded-b-5 py-1 px-2 min-h-[10rem] max-h-[21rem] overflow-y-auto"
-							/>
-						</div>
 					</div>
 				</div>
-			</fieldset>
-		</template>
-		<template #actions>
-			<div
-				v-if="canManageExercise"
-				class="flex items-center justify-end gap-2 group"
-			>
-				<HeaderButton
-					v-if="exerciseID != 'new' && canEdit"
-					data-testid="programming-exercise-delete"
-					:label="__('Delete exercise')"
-					icon="lucide-trash-2"
-					variant="outline"
-					theme="red"
-					@click="deleteExercise()"
-				/>
-				<HeaderButton
-					v-if="exerciseID != 'new'"
-					:route="{
-						name: 'ProgrammingExerciseSubmission',
-						params: {
-							exerciseID: props.exerciseID,
-							submissionID: 'new',
-						},
-					}"
-					:label="__('Test this Exercise')"
-					icon="lucide-play"
-					class="text-p-base-medium"
-				/>
-				<HeaderButton
-					v-if="exerciseID != 'new'"
-					:route="{
-						name: 'ProgrammingExerciseSubmissions',
-						query: {
-							exercise: props.exerciseID,
-						},
-					}"
-					:label="__('Check Submission')"
-					icon="lucide-clipboard-list"
-				/>
-				<HeaderButton
-					v-if="canEdit"
-					data-testid="programming-exercise-save"
-					:label="__('Save')"
-					variant="solid"
-					@click="saveExercise()"
-				/>
-			</div>
-		</template>
-	</FormShell>
+				<div class="flex flex-col gap-1.5">
+					<InputLabel :id="starterCodeLabelId" :label="__('Starter Code')" />
+					<div
+						class="overflow-hidden rounded-5 border border-outline-gray-2"
+						data-testid="programming-exercise-starter-code"
+					>
+						<ExerciseCodeEditor
+							v-model="exercise.starter_code"
+							:language="exercise.language"
+							:label="__('Starter Code')"
+							:readonly="!canEdit"
+							contentClass="min-h-[24rem]"
+						/>
+					</div>
+					<InputDescription
+						:id="starterCodeDescriptionId"
+						:description="
+							__(
+								'Prefills the learner’s editor. Leave empty for the language default.'
+							)
+						"
+					/>
+				</div>
+				<div data-testid="programming-exercise-test-cases">
+					<ChildTable
+						v-model="testCaseRows"
+						:label="__('Test Cases')"
+						:columns="testCaseColumns"
+						:checkbox-keys="['hidden']"
+						:required="true"
+					/>
+				</div>
+			</template>
+		</div>
+		<div
+			class="order-first min-w-0 space-y-4 border-b p-5 lg:order-none lg:min-h-0 lg:overflow-y-auto lg:border-b-0 lg:border-s"
+		>
+			<FormControl
+				v-model="exercise.title"
+				data-testid="programming-exercise-title"
+				variant="outline"
+				:label="__('Title')"
+				:required="true"
+				@blur="onTitleBlur()"
+			/>
+			<FormControl
+				v-model="exercise.language"
+				:label="__('Language')"
+				variant="outline"
+				type="select"
+				:options="languageOptions"
+				:required="true"
+			/>
+		</div>
+	</fieldset>
 </template>
 <script setup lang="ts">
-import { computed, inject, ref, watch, useId } from 'vue'
-import { InputLabel } from 'frappe-ui/experimental'
+import { computed, inject, ref, shallowRef, useId, watch } from 'vue'
+import { useRouter } from 'vue-router'
+import { InputDescription, InputLabel } from 'frappe-ui/experimental'
 import { sanitizeOnWrite } from '@/utils/sanitizeOnWrite'
 import {
 	Badge,
@@ -133,32 +157,42 @@ import {
 import type { FrappeResourceError } from 'frappe-ui'
 import { ProgrammingExercise, TestCase } from '@/types'
 import ChildTable from '@/components/Controls/ChildTable.vue'
-import FormShell from '@/components/FormShell.vue'
+import ExerciseCodeEditor from '@/components/ProgrammingExercises/ExerciseCodeEditor.vue'
 import HeaderButton from '@/components/HeaderButton.vue'
+import PageHeader from '@/components/Layouts/PageHeader.vue'
+import ProgrammingExerciseSubmission from '@/pages/ProgrammingExercises/ProgrammingExerciseSubmission.vue'
 import RichTextEditor from '@/components/RichTextEditor.vue'
+import { useAutosaveDoc } from '@/composables/useAutosaveDoc'
 import { useCanWrite } from '@/composables/useCanWrite'
-import { useFormRoute } from '@/composables/useFormRoute'
+import {
+	saveShortcut,
+	useKeyboardShortcuts,
+} from '@/composables/useKeyboardShortcuts'
 import { resourceErrorMessage, submitResource } from '@/utils/resource'
 
 const user = inject<any>('$user')
+const router = useRouter()
 const problemStatementLabelId = useId()
-const isDirty = ref(false)
-const originalTestCaseCount = ref(0)
+const starterCodeLabelId = useId()
+const starterCodeDescriptionId = useId()
+const previewing = ref(false)
+const committedTitle = ref('')
+const creating = ref(false)
 
 const props = withDefaults(
 	defineProps<{
-		exerciseID: string
+		exerciseID?: string
 	}>(),
 	{
 		exerciseID: 'new',
 	}
 )
 
-const { close, saveAndReplace } = useFormRoute({ name: 'ProgrammingExercises' })
+const isNew = computed(() => props.exerciseID === 'new')
 
 // Placing an exercise grants use only, so a non-author opens it read-only.
 const canWrite = useCanWrite('LMS Programming Exercise', () =>
-	props.exerciseID === 'new' ? undefined : props.exerciseID
+	isNew.value ? undefined : props.exerciseID
 )
 const canEdit = computed(() => canWrite.value === true)
 
@@ -166,10 +200,6 @@ const canEdit = computed(() => canWrite.value === true)
 // to ProgrammingExercises.vue:131-138. createListResource returns whichever
 // instance was cached first under this key and DISCARDS the later caller's
 // options (listResource.js:15-22), so:
-//   - the list page constructs first in the app (a parent route component's
-//     setup runs before its child's), which is why the options are duplicated
-//     rather than trimmed — on the one path where this call wins the race the
-//     list must still get the fields/orderBy/pageLength it relies on (C4b);
 //   - a created or deleted exercise reaches the list only because insert and
 //     delete refetch THAT instance (listResource.js:123, :161). Disambiguating
 //     either key — a filter, a tab, a start — breaks that silently.
@@ -186,9 +216,7 @@ const exercises = createListResource({
 
 // Same shared-instance trick for the header count, which nothing else
 // refreshes: createResource caches by key identically (resources.js:10-20).
-// The key matches ProgrammingExercises.vue:238. Its `params` carry no filters
-// because the filters live in the list page's refs; the list page always
-// constructs this first in the app, so its params are the ones that survive.
+// The key matches ProgrammingExercises.vue:238.
 const exerciseCount = createResource({
 	url: 'frappe.client.get_count',
 	params: {
@@ -202,8 +230,6 @@ const exerciseCount = createResource({
 // A URL goes through neither. This is a UX gate, NOT the authorization
 // boundary — Frappe's server-side DocPerms on LMS Programming Exercise are.
 const canManageExercise = computed(() => {
-	// Cast because Window has no read_only_mode declaration; same shape as
-	// NewBatchForm.vue:190.
 	if ((window as Window & { read_only_mode?: boolean }).read_only_mode)
 		return false
 	return Boolean(
@@ -213,217 +239,239 @@ const canManageExercise = computed(() => {
 	)
 })
 
-const title = computed(() =>
-	props.exerciseID === 'new'
-		? __('Create Programming Exercise')
-		: __('Edit Programming Exercise')
-)
-
-// Only the fields this form edits. Deliberately NOT the whole fetched doc:
-// updateExercise spreads this straight into frappe.client.set_value's fieldname
-// map, so carrying `owner`/`creation`/`modified` along would write meta fields
-// back on every save.
+// Only the fields this form edits. Deliberately NOT the whole fetched doc: the
+// payload is spread straight into set_value's fieldname map, so carrying
+// `owner`/`creation`/`modified` along would write meta fields back every save.
 type ExerciseForm = {
-	name?: string
 	title: string
 	language: 'Python' | 'JavaScript'
 	problem_statement: string
-	test_cases: { input: string; expected_output: string; idx: number }[]
+	starter_code: string
 }
 
 const emptyExercise = (): ExerciseForm => ({
 	title: '',
 	language: 'Python',
 	problem_statement: '',
-	test_cases: [],
+	starter_code: '',
 })
 
 const exercise = ref<ExerciseForm>(emptyExercise())
+const testCaseRows = ref<
+	{ input: string; expected_output: string; hidden: boolean }[]
+>([])
 
 const languageOptions = [
 	{ label: 'Python', value: 'Python' },
 	{ label: 'JavaScript', value: 'JavaScript' },
 ]
 
-// C4 — edit mode used to be seeded from the list page's in-memory rows, which
-// are empty when this route is opened cold. Fetch the record instead, following
-// JobForm.vue:182-190.
-//
-// Constructed conditionally rather than with `name: undefined`, as
-// CouponDetails.vue:116-121 does: createDocumentResource bails out and returns
-// UNDEFINED for a falsy name (documentResource.js:15), so create mode has no
-// resource at all — hence the optional chaining below rather than a plain read.
-const exerciseDoc =
-	props.exerciseID != 'new'
-		? createDocumentResource({
-				doctype: 'LMS Programming Exercise',
-				name: props.exerciseID,
-				auto: true,
-				onError(err: FrappeResourceError) {
-					toast.error(resourceErrorMessage(err, __('Error')))
-					console.error('Error loading exercise:', err)
-				},
-		  })
-		: undefined
+const testCaseColumns = computed(() => ['Input', 'Expected Output', 'Hidden'])
 
-watch(
-	() => exerciseDoc?.doc,
-	(doc: ProgrammingExercise | undefined) => {
-		if (!doc) return
-		exercise.value = {
-			name: doc.name,
-			title: doc.title,
-			language: doc.language,
-			problem_statement: doc.problem_statement,
-			test_cases: [],
-		}
-		isDirty.value = false
-	},
-	{ immediate: true }
-)
+const completeRows = () =>
+	testCaseRows.value.filter((row) => row.expected_output)
 
-const testCases = createListResource({
-	doctype: 'LMS Test Case',
-	fields: ['input', 'expected_output', 'name'],
-	parent: 'LMS Programming Exercise',
-	orderBy: 'idx',
-	onSuccess(data: TestCase[]) {
-		isDirty.value = false
-		originalTestCaseCount.value = data.length
-	},
-	onError(err: FrappeResourceError) {
-		toast.error(resourceErrorMessage(err, __('Error')))
-		console.error('Error loading testCases:', err)
-	},
+// Rows without an expected output (required on the server) wait on the page.
+// idx is renumbered by position, or a drag's new order would be lost.
+const formPayload = () => ({
+	title: exercise.value.title,
+	language: exercise.value.language,
+	problem_statement: exercise.value.problem_statement,
+	starter_code: exercise.value.starter_code,
+	test_cases: completeRows().map((row, index) => ({
+		input: row.input,
+		expected_output: row.expected_output,
+		hidden: row.hidden ? 1 : 0,
+		idx: index + 1,
+	})),
 })
 
-const fetchTestCases = () => {
-	testCases.update({
-		filters: {
-			parent: props.exerciseID,
-			parenttype: 'LMS Programming Exercise',
-			parentfield: 'test_cases',
-		},
-	})
-	testCases.reload()
-}
+// Built from the prop, not at setup: /new and /edit/:exerciseID share the
+// component, so the create flow patches this page rather than remounting it.
+const exerciseDoc = shallowRef<any>(undefined)
 
-// C3 — this watch had no `immediate`, so the test cases were fetched only when
-// the id CHANGED under an already-mounted parent. Mounted straight from a URL
-// the exercise rendered with an empty Test Cases table, and saving it would
-// have written that emptiness back.
 watch(
 	() => props.exerciseID,
 	(id) => {
+		previewing.value = false
+		creating.value = false
+		committedTitle.value = ''
 		if (id === 'new') {
+			exerciseDoc.value = undefined
 			exercise.value = emptyExercise()
-			testCases.data = []
-			originalTestCaseCount.value = 0
-			isDirty.value = false
+			testCaseRows.value = []
 			return
 		}
-		fetchTestCases()
+		exerciseDoc.value = createDocumentResource({
+			doctype: 'LMS Programming Exercise',
+			name: id,
+			auto: true,
+			onError(err: FrappeResourceError) {
+				toast.error(resourceErrorMessage(err, __('Error')))
+			},
+		})
 	},
 	{ immediate: true }
 )
 
-const validateTitle = () => {
-	exercise.value.title = sanitizeOnWrite(exercise.value.title.trim())
-}
+// Seeding must not read as an edit. Compared by value, not a flag: the seed
+// lands before the edit watcher exists, so a flag would eat the first edit.
+let lastSeeded = ''
+// What the create sent. Edits made while it was in flight stay on the page and
+// are autosaved, instead of being replaced by the server's copy.
+let sentOnCreate = ''
 
 watch(
-	exercise,
+	() => exerciseDoc.value?.doc,
+	(doc: ProgrammingExercise | undefined) => {
+		if (!doc) return
+		if (sentOnCreate) {
+			lastSeeded = sentOnCreate
+			sentOnCreate = ''
+			if (JSON.stringify(formPayload()) !== lastSeeded) autosave.schedule()
+			return
+		}
+		exercise.value = {
+			title: doc.title,
+			language: doc.language,
+			problem_statement: doc.problem_statement,
+			starter_code: doc.starter_code ?? '',
+		}
+		testCaseRows.value = (doc.test_cases || []).map((row: TestCase) => ({
+			input: row.input,
+			expected_output: row.expected_output,
+			// A row loaded from the server carries `hidden` as 1/0, not a
+			// boolean — `??` alone binds a number to the checkbox v-model.
+			hidden: Boolean(row.hidden ?? 1),
+		}))
+		lastSeeded = JSON.stringify(formPayload())
+	},
+	{ immediate: true }
+)
+
+const autosave = useAutosaveDoc({
+	payload: () => (isNew.value || !canEdit.value ? null : formPayload()),
+	// frappe-ui's submit() never rejects, so the error is read off the resource.
+	async save(body) {
+		await exercises.setValue.submit({ name: props.exerciseID, ...body })
+		const error = exercises.setValue.error
+		if (!error) return
+		toast.error(resourceErrorMessage(error, __('Error')))
+		throw error
+	},
+})
+
+const saved = autosave.saved
+
+watch(
+	[exercise, testCaseRows],
 	() => {
-		isDirty.value = true
+		if (isNew.value) return
+		const current = JSON.stringify(formPayload())
+		if (current === lastSeeded) return
+		lastSeeded = ''
+		autosave.schedule()
 	},
 	{ deep: true }
 )
 
-watch(testCases, () => {
-	if (testCases.data?.length !== originalTestCaseCount.value) {
-		isDirty.value = true
+useKeyboardShortcuts({ shortcuts: [saveShortcut(() => autosave.flush())] })
+
+const onProblemStatementChange = (value: string) => {
+	exercise.value.problem_statement = value
+}
+
+// Created on a blur once the server's required fields are in (a statement with
+// text or an image, one test case), and only under the title last left, so a
+// half-typed title never names the document.
+const hasContent = (html: string): boolean =>
+	html.includes('<img') ||
+	Boolean(
+		new DOMParser().parseFromString(html, 'text/html').body.textContent?.trim()
+	)
+
+const readyToCreate = (): boolean =>
+	Boolean(committedTitle.value) &&
+	exercise.value.title === committedTitle.value &&
+	hasContent(exercise.value.problem_statement) &&
+	completeRows().length > 0
+
+const onTitleBlur = () => {
+	exercise.value.title = sanitizeOnWrite(exercise.value.title.trim())
+	committedTitle.value = exercise.value.title
+	createIfReady()
+}
+
+const createIfReady = () => {
+	if (!isNew.value || creating.value || !canManageExercise.value) return
+	if (!readyToCreate()) return
+	creating.value = true
+	const payload = formPayload()
+	sentOnCreate = JSON.stringify(payload)
+	submitResource(exercises.insert, payload, {
+		onSuccess(doc: { name: string }) {
+			// insert already refetched the list itself (listResource.js:123).
+			exerciseCount.reload()
+			// Only if still here: the blur that created it may have been a click away.
+			// replace, not push: Back reaches the list, not an already-written form.
+			if (router.currentRoute.value.name !== 'NewProgrammingExercise') return
+			router.replace({
+				name: 'ProgrammingExerciseForm',
+				params: { exerciseID: doc.name },
+			})
+		},
+		onError(err: FrappeResourceError) {
+			creating.value = false
+			sentOnCreate = ''
+			toast.warning(resourceErrorMessage(err, __('Error')))
+		},
+	})
+}
+
+const breadcrumbs = computed(() => [
+	{
+		label: __('Programming Exercises'),
+		route: { name: 'ProgrammingExercises' },
+	},
+	{
+		label: exercise.value.title || __('New Programming Exercise'),
+		route: isNew.value
+			? { name: 'NewProgrammingExercise' }
+			: {
+					name: 'ProgrammingExerciseForm',
+					params: { exerciseID: props.exerciseID },
+			  },
+	},
+])
+
+const goToSubmissions = () => {
+	router.push({
+		name: 'ProgrammingExerciseSubmissions',
+		query: { exercise: props.exerciseID },
+	})
+}
+
+// The preview renders the saved record, so anything the form is still holding
+// goes out first or the author is shown a version behind.
+const togglePreview = async () => {
+	if (previewing.value) {
+		previewing.value = false
+		return
 	}
-})
-
-const updateTestCasesInExercise = () => {
-	exercise.value.test_cases = (testCases.data || []).map(
-		(tc: TestCase, index: number) => ({
-			input: tc.input,
-			expected_output: tc.expected_output,
-			idx: index + 1,
-		})
-	)
+	await autosave.flush()
+	if (!saved.value) return
+	previewing.value = true
 }
-
-const saveExercise = () => {
-	if (!canManageExercise.value || !canEdit.value) return
-	validateTitle()
-	updateTestCasesInExercise()
-	if (props.exerciseID == 'new') createNewExercise()
-	else updateExercise()
-}
-
-const createNewExercise = () => {
-	submitResource(
-		exercises.insert,
-		{
-			...exercise.value,
-		},
-		{
-			onSuccess() {
-				isDirty.value = false
-				// insert already refetched the list itself (listResource.js:123);
-				// only the header count needs telling.
-				exerciseCount.reload()
-				toast.success(__('Programming Exercise created successfully'))
-				// replace, not push: the form entry is consumed so Back reaches
-				// whatever preceded the list rather than a stale empty form.
-				saveAndReplace({ name: 'ProgrammingExercises' })
-			},
-			onError(err: FrappeResourceError) {
-				toast.warning(resourceErrorMessage(err, __('Error')))
-			},
-		}
-	)
-}
-
-const updateExercise = () => {
-	submitResource(
-		exercises.setValue,
-		{
-			name: props.exerciseID,
-			...exercise.value,
-		},
-		{
-			onSuccess() {
-				isDirty.value = false
-				// setValue patches the row in place, which cannot reorder a list
-				// sorted by `modified desc` — so this one does need a refetch.
-				exercises.reload()
-				toast.success(__('Programming Exercise updated successfully'))
-				saveAndReplace({ name: 'ProgrammingExercises' })
-			},
-			onError(err: FrappeResourceError) {
-				toast.warning(resourceErrorMessage(err, __('Error')))
-			},
-		}
-	)
-}
-
-const testCaseColumns = computed(() => {
-	return ['Input', 'Expected Output']
-})
 
 const deleteExercise = () => {
-	if (props.exerciseID == 'new') return
-	if (!canManageExercise.value || !canEdit.value) return
+	if (isNew.value || !canManageExercise.value || !canEdit.value) return
 	submitResource(exercises.delete, props.exerciseID, {
 		onSuccess() {
 			// delete refetches the list (listResource.js:161); the count was
-			// left stale by the modal this form replaces.
+			// left stale by the dialog this page replaces.
 			exerciseCount.reload()
 			toast.success(__('Programming Exercise deleted successfully'))
-			close()
+			router.replace({ name: 'ProgrammingExercises' })
 		},
 		onError(err: FrappeResourceError) {
 			toast.warning(resourceErrorMessage(err, __('Error')))

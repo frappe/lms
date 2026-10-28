@@ -22,6 +22,7 @@ from lms.lms.permissions import (
 	can_instruct_batch,
 	can_use_conferencing_account,
 	courses_authored_by,
+	evaluator_role_reads_batch,
 	is_site_administrator,
 )
 from lms.lms.utils import (
@@ -350,7 +351,7 @@ def send_system_notification_for_published_batch(batch):
 	frappe.db.set_value("LMS Batch", batch.name, "notification_sent", 1)
 
 
-@frappe.whitelist()
+@frappe.whitelist(methods=["POST"])
 def create_live_class(
 	batch_name: str,
 	zoom_account: str,
@@ -448,7 +449,7 @@ def delete_zoom_meeting(meeting_id, headers):
 	)
 
 
-@frappe.whitelist()
+@frappe.whitelist(methods=["POST"])
 def create_google_meet_live_class(
 	batch_name: str,
 	google_meet_account: str,
@@ -534,8 +535,8 @@ def get_batch_timetable(batch: str):
 	is_batch_student = frappe.db.exists(
 		"LMS Batch Enrollment", {"batch": batch, "member": frappe.session.user}
 	)
-	is_admin = "Moderator" in roles or "Batch Evaluator" in roles
-	if not (is_batch_student or is_admin or can_instruct_batch(batch)):
+	is_admin = "Moderator" in roles or evaluator_role_reads_batch(batch)
+	if not (is_batch_student or is_admin or can_author_batch(batch)):
 		frappe.throw(_("You do not have permission to see this batch's timetable."), frappe.PermissionError)
 
 	timetable = frappe.get_all(
@@ -678,9 +679,7 @@ def has_permission(doc, ptype="read", user=None):
 		# A new batch has no tags yet; creation stays governed by the DocPerm grant.
 		return doc.is_new() or can_author_batch(doc.name, user=user)
 
-	# Batch Evaluator keeps its existing blanket read; any other tagged
-	# instructor/evaluator (e.g. Course Creator) is scoped to their own batch.
-	if "Batch Evaluator" in roles or can_author_batch(doc.name, user=user):
+	if can_author_batch(doc.name, user=user):
 		return True
 
 	is_enrolled = frappe.db.exists("LMS Batch Enrollment", {"batch": doc.name, "member": user})
@@ -704,7 +703,7 @@ def get_permission_query_conditions(user=None):
 		return "1 = 0"
 
 	roles = frappe.get_roles(user)
-	if "Moderator" in roles or "Batch Evaluator" in roles:
+	if "Moderator" in roles:
 		return ""
 
 	batch = frappe.qb.DocType("LMS Batch")

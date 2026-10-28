@@ -1,5 +1,6 @@
 import frappe
 from frappe.permissions import add_permission, update_permission_property
+from frappe.search.sqlite_search import build_index_in_background
 
 from lms.lms.api import give_discussions_permission
 from lms.lms.enrollment_constraints import ensure_enrollment_unique_constraints
@@ -12,6 +13,13 @@ def after_install():
 	give_event_permission()
 	ensure_batch_enrollment_index()
 	ensure_enrollment_unique_constraints()
+	build_search_index()
+
+
+def build_search_index():
+	"""Queue the first search index build. Frappe builds it on migrate and every three hours,
+	and an install is neither, so a new site would wait up to three hours for search."""
+	build_index_in_background()
 
 
 def ensure_batch_enrollment_index():
@@ -194,10 +202,10 @@ def give_lms_roles_to_admin():
 
 def give_user_list_permission():
 	doctype = "User"
-	roles = ["Course Creator", "Moderator", "Batch Evaluator"]
-	for role in roles:
-		permlevel = 0
-		create_role(doctype, role, permlevel)
+	create_role(doctype, "Moderator", 0)
+	# Select resolves User links and pickers without opening anyone's profile.
+	for role in ["Course Creator", "Batch Evaluator"]:
+		create_role(doctype, role, 0, read=0)
 	create_role(doctype, "System Manager", 1, write=1)
 
 
@@ -210,12 +218,14 @@ def give_event_permission():
 	create_role(doctype, "System Manager", 0, 1, 1)
 
 
-def create_role(doctype, role, permlevel, write=0, create=0):
+def create_role(doctype, role, permlevel, write=0, create=0, read=1):
 	if frappe.db.exists("Custom DocPerm", {"parent": doctype, "role": role, "permlevel": permlevel}):
 		return
 
 	add_permission(doctype, role, permlevel)
 	update_permission_property(doctype, role, permlevel, "select", 1)
+	if read == 0:
+		update_permission_property(doctype, role, permlevel, "read", 0)
 
 	# Only what the caller asks for: write or create on User would let a role
 	# change any account, System Managers' included.

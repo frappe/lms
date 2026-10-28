@@ -11,6 +11,12 @@
 				<template v-if="doc?.name">
 					<HeaderButton
 						variant="subtle"
+						icon="lucide-link"
+						:label="__('Copy link')"
+						@click="copyQuizLink"
+					/>
+					<HeaderButton
+						variant="subtle"
 						icon="lucide-eye"
 						:label="previewLabel"
 						:aria-pressed="previewing"
@@ -35,6 +41,7 @@
 			</template>
 		</template>
 	</PageHeader>
+	<h1 class="sr-only">{{ pageTitle }}</h1>
 	<div
 		v-if="quizDetails.loading && !quizDetails.doc"
 		class="flex items-center justify-center py-20"
@@ -46,11 +53,7 @@
 		class="grid flex-1 grid-cols-1 lg:min-h-0 lg:grid-cols-[7fr,3fr]"
 	>
 		<div class="flex min-h-0 flex-col overflow-y-auto px-5 py-5">
-			<div
-				v-if="previewing"
-				data-testid="quiz-preview"
-				class="mx-auto w-full max-w-2xl"
-			>
+			<div v-if="previewing" data-testid="quiz-preview" class="w-full">
 				<Quiz :quizName="quizDetails.doc.name" preview />
 			</div>
 			<template v-else>
@@ -428,6 +431,7 @@ import { useDebounceFn } from '@vueuse/core'
 
 import { onBeforeRouteLeave, useRouter } from 'vue-router'
 import { sanitizeOnWrite } from '@/utils/sanitizeOnWrite'
+import { getLmsRoute } from '@/utils/basePath'
 import { resourceErrorMessage, submitResource } from '@/utils/resource'
 import { useCanWrite } from '@/composables/useCanWrite'
 
@@ -673,6 +677,38 @@ const togglePreview = async () => {
 	if (hasUnsavedWork.value) return
 	// v-if, not v-show: <Quiz> fetches on mount, so a hidden instance would go stale.
 	previewing.value = true
+}
+
+// The learner-facing page, the link an author shares.
+const copyQuizLink = async () => {
+	const link = `${window.location.origin}${getLmsRoute(
+		`quiz/${encodeURIComponent(quizDetails.value.doc.name)}`
+	)}`
+	try {
+		await copyText(link)
+		toast.success(__('Link copied'))
+	} catch {
+		toast.error(__('Could not copy the link: {0}').format(link))
+	}
+}
+
+// navigator.clipboard exists only on HTTPS or localhost, so a site served over
+// plain http (a bench on a LAN hostname) falls back to the older copy command.
+const copyText = async (text) => {
+	if (navigator.clipboard?.writeText) {
+		await navigator.clipboard.writeText(text)
+		return
+	}
+	const field = document.createElement('textarea')
+	field.value = text
+	field.setAttribute('readonly', '')
+	field.style.position = 'fixed'
+	field.style.opacity = '0'
+	document.body.appendChild(field)
+	field.select()
+	const copied = document.execCommand('copy')
+	field.remove()
+	if (!copied) throw new Error('copy failed')
 }
 
 // The cross-quiz list with this quiz's filter applied, not the per-quiz page: the
@@ -1039,6 +1075,11 @@ const calculateTotalMarks = () => {
 	const counted = limit ? rows.slice(0, limit) : rows
 	return counted.reduce((total, row) => total + (Number(row.marks) || 0), 0)
 }
+
+// A new quiz's title changes on every keystroke, so its heading stays fixed.
+const pageTitle = computed(() =>
+	isNew.value ? __('New Quiz') : doc.value?.title || __('Quiz')
+)
 
 const breadcrumbs = computed(() => {
 	const crumbs = [

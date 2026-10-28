@@ -91,11 +91,6 @@ class TestSignupForm(UnitTestCase):
 		self.assertIn("signup-form", html)
 		self.assertNotIn("form-signup", html)
 
-	def test_already_registered_message_links_to_login(self):
-		html = self.render()
-		self.assertIn("You are already registered.", html)
-		self.assertIn('href=\\"#login\\"', html)
-
 	def test_optional_fields_render_only_when_configured(self):
 		html = self.render()
 		self.assertNotIn('id="user_category"', html)

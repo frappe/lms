@@ -1,4 +1,5 @@
 import { call, toast } from 'frappe-ui'
+import { ASSESSMENT_BLOCK_SELECTOR } from '@/utils/blockMount'
 import { Quiz } from '@/utils/quiz'
 import { Program } from '@/utils/program'
 import { Assignment } from '@/utils/assignment'
@@ -7,6 +8,7 @@ import { Markdown } from '@/utils/markdownParser'
 import { useSettings } from '@/stores/settings'
 import { usersStore } from '@/stores/user'
 import { Heading } from '@/utils/heading'
+import { UnknownBlock } from '@/utils/unknownBlock'
 import Paragraph from '@editorjs/paragraph'
 import { CodeBox } from '@/utils/code'
 import NestedList from '@editorjs/nested-list'
@@ -20,7 +22,7 @@ import {
 	clipboardTuneNames,
 } from '@/utils/blockTunes/clipboardTunes'
 import dayjs from '@/utils/dayjs'
-import Embed from '@editorjs/embed'
+import { SafeEmbed } from '@/utils/safeEmbed'
 import SimpleImage from '@editorjs/simple-image'
 import Table from '@editorjs/table'
 import DOMPurify from 'dompurify'
@@ -182,6 +184,9 @@ export function getEditorTools(
 			inlineToolbar: INLINE_TOOLBAR_ORDER,
 		},
 		image: SimpleImage,
+		stub: {
+			class: UnknownBlock,
+		},
 		paragraph: {
 			class: Paragraph,
 			inlineToolbar: INLINE_TOOLBAR_ORDER,
@@ -213,7 +218,7 @@ export function getEditorTools(
 		cutBlock: clipboardTunes.cutBlock,
 		pasteBlock: clipboardTunes.pasteBlock,
 		embed: {
-			class: Embed,
+			class: SafeEmbed,
 			inlineToolbar: false,
 			config: {
 				services: {
@@ -612,7 +617,7 @@ const getSidebarItems = (forMobile = false) => {
 					},
 					activeFor: [
 						'Assignments',
-						'AssignmentSubmissionList',
+						'AssignmentSubmissions',
 						'AssignmentSubmission',
 					],
 				},
@@ -927,9 +932,13 @@ const getRootNode = (selector = '#editor') => {
 	return root
 }
 
+// A saved highlight belongs to the lesson's own text, so text inside an inline
+// quiz, assignment or exercise is never a match.
 const createTextWalker = (root, phrase) => {
 	return document.createTreeWalker(root, NodeFilter.SHOW_TEXT, {
 		acceptNode(node) {
+			if (node.parentElement?.closest(ASSESSMENT_BLOCK_SELECTOR))
+				return NodeFilter.FILTER_SKIP
 			return node.nodeValue.toLowerCase().includes(phrase.toLowerCase())
 				? NodeFilter.FILTER_ACCEPT
 				: NodeFilter.FILTER_SKIP

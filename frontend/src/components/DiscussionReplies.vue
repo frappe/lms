@@ -137,6 +137,14 @@ const props = defineProps({
 		type: Boolean,
 		default: false,
 	},
+	doctype: {
+		type: String,
+		required: true,
+	},
+	docname: {
+		type: String,
+		required: true,
+	},
 })
 
 onMounted(() => {
@@ -169,12 +177,13 @@ const fetchMentionUsers = () => {
 	renderEditor.value = true
 	if (user.data?.is_student) return
 	allUsers.reload(
-		{},
+		{ doctype: props.doctype, docname: props.docname },
 		{
 			onSuccess(data) {
+				// The username is the stored id; the list and the mention show the name.
 				mentionUsers.value = Object.values(data).map((user) => {
 					return {
-						value: user.name,
+						value: user.username,
 						label: user.full_name,
 					}
 				})

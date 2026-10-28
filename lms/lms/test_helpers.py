@@ -71,6 +71,22 @@ class BaseTestUtils(IntegrationTestCase):
 		super().tearDown()
 
 	@classmethod
+	def _require(cls, holds: bool, message: str):
+		"""A setUpClass precondition: raising there errors every test in the class."""
+		if not holds:
+			raise AssertionError(message)
+
+	@classmethod
+	def _require_no_moderators(cls, *users):
+		"""A fixed-key fixture returns the existing row untouched, so declared roles are
+		decoration until read. A Moderator's refusal would prove nothing."""
+		for user in users:
+			cls._require(
+				"Moderator" not in frappe.get_roles(user),
+				f"{user} holds Moderator, so a refusal for it proves nothing",
+			)
+
+	@classmethod
 	def _create_user(cls, email, first_name, last_name, roles, user_type="Website User"):
 		if frappe.db.exists("User", email):
 			return frappe.get_doc("User", email)

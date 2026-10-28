@@ -77,11 +77,6 @@
 				:placeholder="__('Enter email subject')"
 				required
 			/>
-			<FormControl
-				v-model="emailForm.replyTo"
-				:label="__('Reply To')"
-				:placeholder="__('Enter reply to email')"
-			/>
 			<div>
 				<InputLabel
 					:id="messageLabelId"
@@ -130,7 +125,6 @@ const pageLength = ref(24)
 const emailForm = reactive({
 	subject: '',
 	message: '',
-	replyTo: '',
 })
 
 const props = defineProps({
@@ -208,7 +202,6 @@ const emailResource = createResource({
 			application: selectedApplicant.value.name,
 			subject: emailForm.subject,
 			message: emailForm.message,
-			reply_to: emailForm.replyTo || null,
 		}
 	},
 })
@@ -216,7 +209,6 @@ const emailResource = createResource({
 const openEmailModal = (applicant) => {
 	selectedApplicant.value = applicant
 	emailForm.subject = `Job Application for ${applications.data?.[0]?.job_title} - ${applicant.full_name}`
-	emailForm.replyTo = ''
 	emailForm.message = ''
 	showEmailModal.value = true
 }
