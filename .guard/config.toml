@@ -1,6 +1,5 @@
 strictness = 2
 comment_types = ["logic", "syntax"]
-auto_review = ["open", "push", "rebase"]
 review_drafts = false
 # develop and every release line that takes direct fixes or backports.
 include_branches = ["develop", "main-hotfix", "main", "version-15-hotfix", "version-16-hotfix"]
