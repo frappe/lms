@@ -17,7 +17,9 @@ export const formatQuizSubtitle = (
 	if (passingPercentage) {
 		parts.push(__('pass at {0}%').format(passingPercentage))
 	}
-	return parts.join(' · ')
+	// En spaces: the browser collapses plain ones, and a single space each side
+	// crowds the dot.
+	return parts.join('\u2002·\u2002')
 }
 
 export const attemptsLeftLabel = (attemptsLeft: number): string =>

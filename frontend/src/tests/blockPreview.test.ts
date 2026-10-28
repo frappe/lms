@@ -137,7 +137,9 @@ describe('assessment blocks in the lesson editor', () => {
 		])
 		const text = wrapper.textContent ?? ''
 		expect(text).toContain('Weekly quiz')
-		expect(text).toContain('Multiple choice · 2 questions · pass at 70%')
+		expect(text).toContain(
+			'Multiple choice\u2002·\u20022 questions\u2002·\u2002pass at 70%'
+		)
 		expect(text).toContain('15 min')
 		expect(text).toContain('3 attempts allowed')
 		expect(text).not.toContain('left')

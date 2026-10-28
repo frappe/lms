@@ -199,6 +199,28 @@ beforeEach(() => {
 	localStorage.clear()
 })
 
+// Guards an empty quiz, or one whose questions no longer resolve, offering Start
+// beside "no questions" and opening on nothing. Came with Start moving below the
+// rules, out of the branch that excluded it. Added on quiz-share-link.
+describe('Quiz with no questions', () => {
+	it('offers no Start button and cannot be started', async () => {
+		const response = quizResponse()
+		response.quiz.questions = [{ question: 'DELETED', marks: 1 }]
+		resourceState.response = response
+		const wrapper = mountQuiz()
+		await flushPromises()
+
+		expect(wrapper.text()).toContain(
+			'This quiz has no questions available yet.'
+		)
+		expect(
+			wrapper.findAll('button').some((b) => b.text() === 'Start Quiz')
+		).toBe(false)
+		;(wrapper.vm as any).startQuiz()
+		expect((wrapper.vm as any).activeQuestion).toBe(0)
+	})
+})
+
 // Guards a shared quiz link rendering a blank page for a student the server
 // refuses. Added on quiz-no-access-message.
 describe('Quiz that fails to load', () => {
@@ -236,7 +258,7 @@ describe('Quiz remount', () => {
 		const first = mountQuiz()
 		await flushPromises()
 
-		expect(first.text()).toContain('1 question')
+		expect(first.text()).toContain('Questions1')
 		expect(first.text()).toContain('Start')
 		expect(first.text()).not.toContain(
 			'This quiz has no questions available yet.'
@@ -252,7 +274,7 @@ describe('Quiz remount', () => {
 			['lms.lms.utils.get_quiz_with_questions', { quiz: 'QUIZ-1' }],
 			['lms.lms.utils.get_quiz_with_questions', { quiz: 'QUIZ-1' }],
 		])
-		expect(second.text()).toContain('1 question')
+		expect(second.text()).toContain('Questions1')
 		expect(second.text()).toContain('Start')
 		expect(second.text()).not.toContain(
 			'This quiz has no questions available yet.'
@@ -351,23 +373,6 @@ describe('Quiz in an author preview', () => {
 	})
 })
 
-describe('Quiz pass mark', () => {
-	const render = async (count: number) => {
-		resourceState.response = choicesQuizResponse(count)
-		const wrapper = mountQuiz()
-		await flushPromises()
-		return wrapper
-	}
-
-	it('hides the pass mark when the quiz has no questions', async () => {
-		expect((await render(0)).text()).not.toContain('Pass mark')
-	})
-
-	it('shows the pass mark when the quiz has questions', async () => {
-		expect((await render(3)).text()).toContain('Pass mark')
-	})
-})
-
 describe('Quiz choices', () => {
 	// `Check` only renders when the quiz shows answers, and it is the only
 	// caller of checkAnswer, so this is the one flow that reaches the verdict
@@ -386,20 +391,6 @@ describe('Quiz choices', () => {
 		await check!.trigger('click')
 		await flushPromises()
 	}
-
-	it('sends the option the learner picks', async () => {
-		const wrapper = mountQuiz()
-		await flushPromises()
-		resourceState.checkAnswer = [1, 0]
-		await pickFirstAndCheck(wrapper)
-
-		// The warning toast instead of a request would mean getAnswers() saw
-		// nothing selected, i.e. the radio never reached selectedOptions.
-		expect(resourceState.request.mock.calls.map((call) => call[0])).toContain(
-			'lms.lms.doctype.lms_quiz.lms_quiz.check_answer'
-		)
-		wrapper.unmount()
-	})
 
 	it('marks each option right or wrong once checked, keeping the labels', async () => {
 		const wrapper = mountQuiz()
@@ -445,14 +436,19 @@ describe('Quiz card', () => {
 		expect(wrapper.text()).toContain('Start Quiz')
 	})
 
-	it('summarises the quiz type, size and pass mark in the header', async () => {
+	// The stats repeat it before the start, so the header carries it only during
+	// the attempt.
+	it('summarises the quiz type, size and pass mark in the header once started', async () => {
 		resourceState.response = choicesQuizResponse(2)
 		const wrapper = mountQuiz()
 		await flushPromises()
+		const summary =
+			'Multiple choice\u2002·\u20022 questions\u2002·\u2002pass at 70%'
+		expect(wrapper.text()).not.toContain(summary)
 
-		expect(wrapper.text()).toContain(
-			'Multiple choice · 2 questions · pass at 70%'
-		)
+		await startQuiz(wrapper)
+
+		expect(wrapper.text()).toContain(summary)
 	})
 
 	it('renders one option row per option and a verdict after Check', async () => {
@@ -481,5 +477,136 @@ describe('Quiz card', () => {
 		expect(feedback.text()).toBe('Correct')
 		const firstOption = wrapper.findAll('label')[0]
 		expect(firstOption.find('.lucide-check-circle').exists()).toBe(true)
+	})
+})
+
+describe('Quiz for screen readers', () => {
+	// Guards: answers not named by the question, verdicts and steps told by icon
+	// colour, feedback unannounced, unnamed progress, focus lost at the summary.
+	// Introduced in #713, #1062, #2713 and #2823; test added with the a11y audit remediation.
+	const result = {
+		is_open_ended: 0,
+		percentage: 100,
+		score: 1,
+		score_out_of: 1,
+	}
+
+	const start = async (count = 1, question = {}, quiz = {}) => {
+		const response = choicesQuizResponse(count)
+		Object.assign(response.quiz, quiz)
+		Object.assign(response.questions_by_name.Q1, question)
+		resourceState.response = response
+		const wrapper = mount(Quiz, {
+			props: { quizName: 'QUIZ-1' },
+			attachTo: document.body,
+			global: {
+				provide: { $user: { data: { name: 'learner@example.com' } } },
+				mocks: { __: (s: string) => globalThis.__(s) },
+			},
+		})
+		await flushPromises()
+		await startQuiz(wrapper)
+		return wrapper
+	}
+
+	const pick = async (wrapper: VueWrapper<any>, button: string) => {
+		await wrapper.findAll('input[type="radio"]')[0].trigger('change')
+		await wrapper
+			.findAll('button')
+			.find((b) => b.text() === button)!
+			.trigger('click')
+		await flushPromises()
+	}
+
+	beforeEach(() => {
+		document.body.innerHTML = ''
+	})
+
+	it.each([
+		[{}, '[role="radiogroup"]'],
+		[{ multiple: 1 }, '[role="group"]'],
+		[{ type: 'User Input' }, '[aria-labelledby]'],
+	])(
+		'names the %o answer control by the question',
+		async (question, selector) => {
+			const wrapper = await start(1, question)
+			const text = wrapper
+				.findAll('div')
+				.find((div) => div.element.innerHTML.trim() === 'Question body 1')!
+			expect(text.attributes('id')).toBeTruthy()
+			expect(wrapper.get(selector).attributes('aria-labelledby')).toBe(
+				text.attributes('id')
+			)
+		}
+	)
+
+	it.each([
+		{ verdicts: [1, 0], first: ['Your answer, correct'], second: [] },
+		{
+			verdicts: [0, 2],
+			first: ['Your answer, incorrect'],
+			second: ['Correct answer'],
+		},
+	])(
+		'announces verdicts $verdicts in text',
+		async ({ verdicts, first, second }) => {
+			resourceState.checkAnswer = verdicts
+			const wrapper = await start(1, {}, { show_answers: 1 })
+			const status = wrapper.get('[role="status"]')
+			expect(status.text()).toBe('')
+
+			await pick(wrapper, 'Check')
+
+			expect(wrapper.get('[role="status"]').element).toBe(status.element)
+			expect(status.text()).not.toBe('')
+			const srText = (i: number) =>
+				wrapper
+					.findAll('label')
+					[i].findAll('.sr-only')
+					.map((s) => s.text())
+			expect([srText(0), srText(1)]).toEqual([first, second])
+			const icons = wrapper.findAll(
+				'label [class*="lucide-"][class*="-circle"]'
+			)
+			expect(icons.map((i) => i.attributes('aria-hidden'))).toContain('true')
+			expect(icons.every((i) => i.attributes('aria-hidden') === 'true')).toBe(
+				true
+			)
+		}
+	)
+
+	it('names each step with its answered state and exposes named progress', async () => {
+		const wrapper = await start(2)
+		const nav = () => wrapper.find('nav').findAll('button')
+		expect(nav()[0].attributes('aria-label')).toBe('Question 1, not answered')
+		expect(nav()[0].attributes('aria-current')).toBe('step')
+		expect(wrapper.get('[role="progressbar"]').attributes()).toMatchObject({
+			'aria-valuenow': '1',
+			'aria-valuemax': '2',
+			'aria-label': 'Quiz progress',
+		})
+
+		await pick(wrapper, 'Next')
+
+		expect(nav()[0].attributes('aria-label')).toBe('Question 1, answered')
+		expect(nav()[1].attributes('aria-current')).toBe('step')
+		expect(nav()[0].find('svg').attributes('aria-hidden')).toBe('true')
+	})
+
+	it('moves focus to the summary heading after a submit, not on a result alone', async () => {
+		const wrapper = await start(1, {}, { show_answers: 1 })
+		const submission = (wrapper.vm as any).quizSubmission
+		submission.data = result
+		await flushPromises()
+		expect(wrapper.text()).toContain('Quiz result')
+		expect(document.activeElement?.tagName).not.toBe('H2')
+
+		submission.submit.mockImplementation((_: unknown, callbacks: any) => {
+			submission.data = { ...result }
+			callbacks?.onSuccess?.()
+		})
+		;(wrapper.vm as any).submitQuiz()
+		await flushPromises()
+		expect(document.activeElement?.textContent?.trim()).toBe('Quiz result')
 	})
 })

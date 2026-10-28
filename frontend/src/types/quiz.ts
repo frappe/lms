@@ -67,6 +67,10 @@ export interface QuizSubmissionResult {
 	percentage: number
 	score: number
 	score_out_of: number
+	pass?: boolean
+	correct?: number
+	wrong?: number
+	unanswered?: number
 }
 
 /** 1 correct, 2 partially correct, 0 wrong; undefined for an untouched option. */
@@ -86,6 +90,8 @@ export interface ViolationEvent {
 	severity: ViolationSeverity
 	timestamp: string
 	frame: string | null
+	/** Seconds into the attempt, for an event this page saw happen. */
+	elapsed?: number
 }
 
 /** A proctoring event as `get_quiz_violation_logs` stores it. */
