@@ -19,6 +19,7 @@ const { resource } = vi.hoisted(() => ({
 vi.mock('frappe-ui', () => ({
 	createResource: resource,
 	createListResource: resource,
+	ScrollArea: { template: `<div><slot /></div>` },
 	call: vi.fn(),
 	Tooltip: { template: `<div><slot /></div>` },
 	Sidebar: { template: `<nav><slot /></nav>` },
