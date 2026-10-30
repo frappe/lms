@@ -500,6 +500,8 @@
 									<Button
 										v-else-if="!preview"
 										variant="solid"
+										:loading="quizSubmission.loading"
+										:disabled="quizSubmission.loading"
 										@click="handleSubmitClick()"
 									>
 										<span>{{ __('Submit') }}</span>
@@ -722,6 +724,8 @@
 				size: 'sm',
 				label: __('Submit'),
 				variant: 'solid',
+				loading: quizSubmission.loading,
+				disabled: quizSubmission.loading,
 				onClick() {
 					submitQuiz()
 					showSubmissionConfirmation = false
@@ -1011,7 +1015,13 @@ const handlePageHide = (): void => {
 // with it, is going away, which is exactly when this is sent.
 const sendSubmitBeacon = (reason: SubmissionReason): void => {
 	if (props.preview) return
-	if (activeQuestion.value > 0 && !quizSubmission.data && quiz.data) {
+	if (
+		activeQuestion.value > 0 &&
+		!submitting &&
+		!quizSubmission.loading &&
+		!quizSubmission.data &&
+		quiz.data
+	) {
 		const params = new URLSearchParams({
 			quiz: quiz.data.name,
 			results: localStorage.getItem(quiz.data.title) || '[]',
