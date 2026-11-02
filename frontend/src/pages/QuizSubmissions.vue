@@ -49,7 +49,7 @@
 			>
 				{{ value }}
 			</div>
-			<div v-else>{{ value }}</div>
+			<div v-else class="truncate">{{ value }}</div>
 		</template>
 
 		<template #selection-actions="{ unselectAll, selections }">
