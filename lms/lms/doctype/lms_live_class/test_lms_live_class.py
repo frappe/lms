@@ -870,5 +870,5 @@ class TestLMSLiveClass(BaseTestUtils):
 		):
 			live_class.reload()  # creating it saved the calendar event link back onto the row
 			live_class.update({"date": nowdate(), "time": self._later_today()})
-			live_class.save(ignore_permissions=True)
+			live_class.save()
 		self.assertIn(student, self._reminded(send_mail))
