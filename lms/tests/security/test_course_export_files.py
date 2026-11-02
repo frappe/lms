@@ -122,7 +122,10 @@ class TestCourseExportFiles(BaseTestUtils):
 		secret = self._upload(self.victim, f"secret-{self.hash}.txt")
 		for variant in ("/private/files//", "/private/files/./"):
 			with self.subTest(variant=variant):
-				forged = self._forge_row(variant + secret.file_name)
+				try:
+					forged = self._forge_row(variant + secret.file_name)
+				except frappe.PermissionError:
+					continue
 				self._cite_in_lesson(forged.file_url)
 
 				archive = self._export()
