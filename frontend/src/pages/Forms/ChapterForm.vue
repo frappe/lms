@@ -33,6 +33,7 @@
 						:private="true"
 						:validateFile="validateFile"
 						@success="(file) => (chapter.scorm_package = file)"
+						@failure="onUploadFailure"
 					>
 						<template v-slot="{ file, progress, uploading, openFileSelector }">
 							<Button @click="openFileSelector" :loading="uploading">
@@ -315,6 +316,16 @@ const saveChapter = () => {
 				toast.error(resourceErrorMessage(err))
 			},
 		}
+	)
+}
+
+// The custom slot hides FileUploader's own error line, so a rejected zip has to
+// be reported here. Validation fails with a string, an upload with an Error.
+const onUploadFailure = (err: unknown) => {
+	toast.error(
+		err instanceof Error && err.message
+			? err.message
+			: resourceErrorMessage(err, __('Error Uploading File'))
 	)
 }
 
