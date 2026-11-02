@@ -736,7 +736,7 @@ def create_submission(
 		{
 			"doctype": "LMS Quiz Submission",
 			"quiz": quiz,
-			"result": results,
+			"result": _result_rows(results),
 			"score": 0,
 			"score_out_of": score_out_of,
 			"member": frappe.session.user,
@@ -748,6 +748,23 @@ def create_submission(
 	)
 	submission.save(ignore_permissions=True)
 	return submission
+
+
+RESULT_ROW_FIELDS = (
+	"question_name",
+	"question",
+	"question_type",
+	"answer",
+	"is_correct",
+	"marks",
+	"marks_out_of",
+)
+
+
+def _result_rows(results: list) -> list[dict]:
+	"""Copy only the fields process_results derives: the rows are client dicts, and taken
+	verbatim a forged owner, creation or idx stuck to the child row."""
+	return [{field: row.get(field) for field in RESULT_ROW_FIELDS} for row in results]
 
 
 def save_progress_after_quiz(quiz_details: dict):
