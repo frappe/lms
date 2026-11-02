@@ -25,7 +25,7 @@
 				/>
 				<Button
 					v-if="user.data?.is_moderator && !isMobile"
-					:variant="course.data?.published ? 'subtle' : 'solid'"
+					variant="subtle"
 					:theme="course.data?.published ? 'red' : 'gray'"
 					:loading="publishToggle.loading"
 					@click="togglePublishCourse"

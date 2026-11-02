@@ -27,7 +27,7 @@
 			/>
 			<Button
 				v-if="tab?.key === 'settings' && isAdmin && !isMobile"
-				:variant="batch.data?.published ? 'subtle' : 'solid'"
+				variant="subtle"
 				:theme="batch.data?.published ? 'red' : 'gray'"
 				@click="togglePublishBatch"
 			>
@@ -57,17 +57,22 @@
 					@click="openAnnouncementModal"
 				/>
 			</template>
-			<ShortcutTooltip
-				v-if="tab?.key === 'settings' && isAdmin"
-				:label="__('Save')"
-				combo="Mod+S"
-			>
-				<HeaderButton
-					:label="__('Save')"
-					variant="solid"
-					@click="instance?.submitBatch()"
-				/>
-			</ShortcutTooltip>
+			<template v-if="tab?.key === 'settings' && isAdmin">
+				<Tooltip
+					v-if="!instance?.isDirty"
+					:text="__('No changes to save')"
+					:hoverDelay="100"
+				>
+					<HeaderButton :label="__('Save')" variant="solid" disabled />
+				</Tooltip>
+				<ShortcutTooltip v-else :label="__('Save')" combo="Mod+S">
+					<HeaderButton
+						:label="__('Save')"
+						variant="solid"
+						@click="instance?.submitBatch()"
+					/>
+				</ShortcutTooltip>
+			</template>
 		</template>
 
 		<template #solo>
