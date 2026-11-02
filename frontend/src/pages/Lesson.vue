@@ -404,6 +404,7 @@ import UserAvatar from '@/components/UserAvatar.vue'
 import Notes from '@/components/Notes/Notes.vue'
 import InlineLessonMenu from '@/components/Notes/InlineLessonMenu.vue'
 import { parseStoredEditorJs } from '@/utils/lessonForm'
+import { renderMath } from '@/utils/math'
 import { isLessonSelection } from '@/utils/lessonSelection'
 import { getLmsRoute } from '@/utils/basePath'
 import { provideStudentView } from '@/composables/useStudentView'
@@ -661,7 +662,10 @@ const renderEditor = (holder: string, content: string): EditorJS | null => {
 		i18n: {
 			direction: document.documentElement.dir === 'rtl' ? 'rtl' : 'ltr',
 		},
-		onReady: () => openLinksInNewTab(holder),
+		onReady: () => {
+			openLinksInNewTab(holder)
+			renderMath(document.getElementById(holder))
+		},
 	})
 }
 

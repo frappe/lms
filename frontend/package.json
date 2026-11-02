@@ -37,6 +37,7 @@
     "face-api.js": "^0.22.2",
     "frappe-ui": "1.0.0-rc.1",
     "highlight.js": "11.11.1",
+    "katex": "0.16.11",
     "lucide-static": "^1.31.0",
     "lucide-vue-next": "0.383.0",
     "markdown-it": "14.0.0",
