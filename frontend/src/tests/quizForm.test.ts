@@ -666,6 +666,10 @@ describe('QuizForm: autosave', () => {
 		await makeDirty(wrapper)
 		await idle()
 		expect(setValueSubmit).toHaveBeenCalledTimes(1)
+		expect(toast.error).toHaveBeenCalledWith(
+			'nope Your changes are not saved.',
+			{ id: 'quiz-save-failed', duration: Infinity }
+		)
 
 		await idle(10000)
 		expect(setValueSubmit).toHaveBeenCalledTimes(1)

@@ -27,6 +27,22 @@ IMAGE_DATA_URI_PATTERN = r'<img[^>]*src\s*=\s*["\'](?=data:)(.*?)["\']'
 
 
 class TestLMSQuiz(IntegrationTestCase):
+	def test_title_length_error_is_concise(self):
+		quiz = frappe.new_doc("LMS Quiz")
+		quiz.title = "A" * 140
+		quiz._validate_length()
+		quiz.title += "A"
+		with self.assertRaises(frappe.CharacterLengthExceededError) as error:
+			quiz._validate_length()
+		self.assertEqual(str(error.exception), "Title must be 140 characters or fewer.")
+
+	def test_other_length_errors_use_framework_handler(self):
+		quiz = frappe.new_doc("LMS Quiz")
+		field = frappe._dict(fieldname="other")
+		with patch("frappe.model.base_document.BaseDocument.throw_length_exceeded_error") as handler:
+			quiz.throw_length_exceeded_error(field, 10, "value")
+			handler.assert_called_once_with(field, 10, "value")
+
 	def test_with_multiple_options(self):
 		question = frappe.new_doc("LMS Question")
 		question.question = "Question Multiple"

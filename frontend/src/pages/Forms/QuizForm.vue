@@ -1009,9 +1009,9 @@ const submitQuiz = ({ notify = true } = {}) => {
 				// The server message is the actionable half, so the warning wraps around it.
 				// It stays up until dismissed, because nobody is watching an autosave fail.
 				toast.error(
-					__(
-						'{0} Your changes are not saved. Do not close this tab until they are.'
-					).format(err.messages?.[0] || err),
+					__('{0} Your changes are not saved.').format(
+						err.messages?.[0] || err
+					),
 					{ id: SAVE_FAILED_TOAST, duration: Infinity }
 				)
 			},
