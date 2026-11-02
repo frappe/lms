@@ -323,6 +323,7 @@ export const settingsStructure = [
 										name: 'default_currency',
 										type: 'Link',
 										doctype: 'Currency',
+										query: 'lms.lms.api.search_currencies',
 										description:
 											'Default currency used for course and batch pricing.',
 									},
