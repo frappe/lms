@@ -86,6 +86,7 @@
 					:label="__('Currency')"
 					v-model="transactionData.currency"
 					doctype="Currency"
+					query="lms.lms.api.search_currencies"
 					:required="!!fieldMeta.currency?.reqd"
 				/>
 				<FormControl

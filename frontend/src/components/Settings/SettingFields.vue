@@ -133,6 +133,7 @@
 								v-else-if="field.type == 'Link'"
 								v-model="data[field.name]"
 								:doctype="field.doctype"
+								:query="field.query"
 								:required="field.reqd"
 								:aria-label="__(field.label)"
 								class="w-48"

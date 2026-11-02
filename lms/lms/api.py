@@ -1204,9 +1204,6 @@ def tagged_staff(doctype: str, docname: str) -> set:
 	)
 
 
-<<<<<<< HEAD
-=======
-
 @frappe.whitelist()
 def search_currencies(
 	doctype: str,
@@ -1232,8 +1229,6 @@ def search_currencies(
 	)
 
 
-# nosemgrep: security.guest-whitelisted-method - pre-existing grant, unchanged by this branch; the endpoint gates itself (a guest on a site with allow_guest_access off gets a bare []). Flagged only because semgrep ci re-scans the whole function when its body changes.
->>>>>>> 1c9968e (fix: let LMS roles search currencies)
 @frappe.whitelist(allow_guest=True)
 def get_sidebar_settings():
 	lms_settings = frappe.get_single("LMS Settings")
