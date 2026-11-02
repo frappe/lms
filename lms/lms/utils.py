@@ -3983,7 +3983,9 @@ def get_palette(full_name: str) -> list:
 	]
 
 	encoded_name = str(full_name).encode("utf-8")
-	hash_name = hashlib.md5(encoded_name).hexdigest()
+	# Not a security hash — it only spreads names across the palette. Declaring that
+	# keeps it working on FIPS-mode hosts, where a bare md5() raises.
+	hash_name = hashlib.md5(encoded_name, usedforsecurity=False).hexdigest()
 	idx = cint((int(hash_name[4:6], 16) + 1) / 5.33)
 	return palette[idx % 8]
 

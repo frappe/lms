@@ -986,3 +986,22 @@ class TestEditorJsEmbedSources(unittest.TestCase):
 		self.assertTrue(self._kept("QhA4h6qD4wY", service="youtube"))
 		self.assertFalse(self._kept("QhA4h6qD4wY"))
 		self.assertFalse(self._kept("javascript:alert(1)", service="youtube"))
+
+
+class TestGetPaletteOnFips(UnitTestCase):
+	def test_palette_hash_is_declared_non_cryptographic(self):
+		"""On a FIPS host a bare hashlib.md5() raises, taking out every avatar render.
+		Guards that get_palette passes usedforsecurity=False."""
+		import hashlib
+
+		from lms.lms.utils import get_palette
+
+		real_md5 = hashlib.md5
+
+		def fips_md5(data, **kwargs):
+			if kwargs.get("usedforsecurity") is not False:
+				raise ValueError("[digital envelope routines] unsupported")
+			return real_md5(data, **kwargs)
+
+		with patch("lms.lms.utils.hashlib.md5", side_effect=fips_md5):
+			self.assertEqual(len(get_palette("Ada Lovelace")), 2)
