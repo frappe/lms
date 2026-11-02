@@ -1,4 +1,4 @@
-import { defineAsyncComponent, markRaw } from 'vue'
+import { defineAsyncComponent, h, markRaw } from 'vue'
 import type { SettingsGroup } from '@/types/settingsSchema'
 import Categories from '@/components/Settings/Categories.vue'
 import { membersSettingsPage } from '@/components/Settings/Members/members'
@@ -25,6 +25,10 @@ import Services from '@/components/Settings/Services/Services.vue'
 import { googleCalendarSettingsPage } from '@/components/Settings/GoogleCalendar/googleCalendar'
 import RavenSettings from '@/components/Settings/Raven/RavenSettings.vue'
 import Preferences from '@/components/Settings/Preferences.vue'
+import CloudPanel from '@/components/Settings/CloudPanel.vue'
+import { hasCloudSettings } from '@/composables/cloudSettings'
+import { usersStore } from '@/stores/user'
+import type { CloudSettingsPanel } from '@frappe/cloud-sdk'
 
 // Loaded on demand, same as the Email Accounts form below it in the tree:
 // Communication > General renders every time Settings opens, and this reads
@@ -34,6 +38,9 @@ const emailAccountDefaults = markRaw(
 		() => import('@/components/Settings/EmailAccount/EmailAccountDefaults.vue')
 	)
 )
+
+const cloudPanel = (panel: CloudSettingsPanel) =>
+	markRaw(() => h(CloudPanel, { panel }))
 
 /**
  * The settings tree, as data. Ported from settingsStructure.js, with every
@@ -507,4 +514,41 @@ export const settingsTree: SettingsGroup[] = [
 			},
 		],
 	},
+	{
+		label: 'Frappe Cloud',
+		audience: hasCloudSettings,
+		items: [
+			{
+				label: 'Billing',
+				slug: 'cloud-billing',
+				icon: 'lucide-credit-card',
+				page: { kind: 'custom', component: cloudPanel('billing') },
+			},
+			{
+				label: 'Marketplace',
+				slug: 'cloud-marketplace',
+				icon: 'lucide-store',
+				page: { kind: 'custom', component: cloudPanel('marketplace') },
+			},
+			{
+				label: 'Domains',
+				slug: 'cloud-domains',
+				icon: 'lucide-globe',
+				page: { kind: 'custom', component: cloudPanel('domains') },
+			},
+			{
+				label: 'Advanced',
+				slug: 'cloud-advanced',
+				icon: 'lucide-bolt',
+				page: { kind: 'custom', component: cloudPanel('advanced') },
+			},
+		],
+	},
 ]
+
+export const isGroupVisible = (group: SettingsGroup): boolean =>
+	group.audience
+		? group.audience()
+		: Boolean(usersStore().userResource.data?.is_moderator)
+
+export const canOpenSettings = (): boolean => settingsTree.some(isGroupVisible)

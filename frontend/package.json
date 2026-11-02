@@ -27,6 +27,7 @@
     "@editorjs/simple-image": "1.6.0",
     "@editorjs/table": "2.4.2",
     "@framework/ui": "link:../../frappe/ui",
+    "@frappe/cloud-sdk": "0.6.0",
     "@headlessui/vue": "1.7.23",
     "@vueuse/core": "^14.1.0",
     "dayjs": "1.11.10",

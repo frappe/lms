@@ -46,7 +46,10 @@ vi.mock(
 vi.mock('@/components/Layouts/settings/desktop/SettingsListPanel.vue', () => ({
 	default: { template: `<div />` },
 }))
-vi.mock('@/components/Settings/settings', () => ({ settingsTree: [] }))
+vi.mock('@/components/Settings/settings', () => ({
+	isGroupVisible: () => true,
+	settingsTree: [],
+}))
 vi.mock('@/composables/useSettingsHash', async () => {
 	const { ref } = await import('vue')
 	return {
