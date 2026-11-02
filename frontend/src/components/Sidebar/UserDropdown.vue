@@ -65,10 +65,14 @@
 			</template>
 		</Dropdown>
 	</div>
+<<<<<<< HEAD
 	<SettingsModal
 		v-if="userResource.data?.is_moderator"
 		v-model="showSettingsModal"
 	/>
+=======
+	<SettingsModal v-if="canOpenSettings()" />
+>>>>>>> 75d6477 (feat(cloud-settings): show frappe cloud panels in settings)
 </template>
 
 <script setup>
@@ -84,8 +88,14 @@ import { createDialog } from '@/utils/dialogs'
 import FrappeCloudIcon from '@/components/Icons/FrappeCloudIcon.vue'
 import LMSLogo from '@/components/Icons/LMSLogo.vue'
 import SettingsModal from '@/components/Settings/Settings.vue'
+import { canOpenSettings } from '@/components/Settings/settings'
 import { safeUrl } from '@/utils/safeUrl'
 import { openExternal } from '@/utils/openExternal'
+<<<<<<< HEAD
+=======
+import { pushSettingsHash } from '@/composables/useSettingsHash'
+import { isV1CloudAdmin } from '@/composables/cloudSettings'
+>>>>>>> 75d6477 (feat(cloud-settings): show frappe cloud panels in settings)
 
 const router = useRouter()
 const { logout, branding } = sessionStore()
@@ -215,9 +225,7 @@ const userDropdownOptions = computed(() => {
 					onClick: () => {
 						settingsStore.isSettingsOpen = true
 					},
-					condition: () => {
-						return userResource.data?.is_moderator
-					},
+					condition: canOpenSettings,
 				},
 				{
 					icon: 'lucide-wrench',
@@ -272,12 +280,7 @@ const userDropdownOptions = computed(() => {
 							],
 						})
 					},
-					condition: () => {
-						return (
-							userResource.data?.is_system_manager &&
-							userResource.data?.is_fc_site
-						)
-					},
+					condition: isV1CloudAdmin,
 				},
 				{
 					icon: 'lucide-log-out',

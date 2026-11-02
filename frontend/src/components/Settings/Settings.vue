@@ -68,8 +68,17 @@ import {
 } from 'frappe-ui'
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useSettings } from '@/stores/settings'
+<<<<<<< HEAD
 import SettingDetails from '@/components/Settings/SettingDetails.vue'
 import { settingsStructure } from '@/components/Settings/settingsStructure.js'
+=======
+import DiscardChangesDialog from '@/components/Settings/DiscardChangesDialog.vue'
+import { confirmDiscard, installDirtyGuard } from '@/composables/useDirtyGuard'
+import SettingsFieldsPanel from '@/components/Layouts/settings/desktop/SettingsFieldsPanel.vue'
+import SettingsListPanel from '@/components/Layouts/settings/desktop/SettingsListPanel.vue'
+import { isGroupVisible, settingsTree } from '@/components/Settings/settings'
+import { useSettingsHash } from '@/composables/useSettingsHash'
+>>>>>>> 75d6477 (feat(cloud-settings): show frappe cloud panels in settings)
 
 const show = defineModel()
 const doctype = ref('LMS Settings')
@@ -104,6 +113,7 @@ const panelProps = (item) => ({
 })
 
 const tabs = computed(() => {
+<<<<<<< HEAD
 	return settingsStructure.map((tab) => {
 		return {
 			...tab,
@@ -125,4 +135,82 @@ watch(show, () => {
 		settingsStore.isSettingsOpen = false
 	}
 })
+=======
+	return settingsTree
+		.filter(isGroupVisible)
+		.map((tab) => {
+			return {
+				...tab,
+				items: tab.items.filter((item) => {
+					return !item.condition || item.condition()
+				}),
+			}
+		})
+		.filter((tab) => tab.items.length)
+})
+
+const {
+	items,
+	isOpen,
+	activeTab,
+	activeRecord,
+	selectTab,
+	selectRecord,
+	replaceRecord,
+	close,
+} = useSettingsHash(tabs)
+
+// The hash owns the dialog: it is open because the URL says so, and dismissing
+// it navigates rather than flipping a flag no one else can see.
+const show = computed({
+	get: () => isOpen.value,
+	set: (value) => {
+		if (!value && !isCloudOverlayOpen()) close()
+	},
+})
+
+// A Cloud panel's menus and dialogs live in a shadow root the dialog can't
+// see, so their Esc and outside clicks would close Settings too
+const isCloudOverlayOpen = () =>
+	!!document.querySelector('fc-cloud-settings[overlay-open]')
+
+// Panels are keyed by slug, so this is what the nav emits back on a click.
+const activeSlug = computed({
+	get: () => activeTab.value?.slug ?? '',
+	set: (slug) => {
+		selectTab(items.value.find((item) => item.slug === slug) ?? null)
+	},
+})
+
+// The hash owns the open record too, so a panel's model reads and writes
+// it. Each panel gets only its own tab's record: unmounting a hidden panel
+// isn't guaranteed, so a still-mounted panel must not adopt another tab's.
+const recordFor = (item) =>
+	activeTab.value?.slug === item.slug ? activeRecord.value : null
+
+const openRecord = (item, record) => {
+	if (activeTab.value?.slug !== item.slug) return
+	selectRecord(record)
+}
+
+// A custom page that owns records gets the same pair a list panel does:
+// the record it's on, and a way to say it moved. Bound only where the item
+// declares `records`, since an undeclared listener falls through as an
+// attribute, and Vue warns about that on components that render a fragment.
+const recordModel = (item) =>
+	item.records
+		? {
+				record: recordFor(item),
+				'onUpdate:record': (record) => openRecord(item, record),
+		  }
+		: {}
+
+// A renamed record is the same record under a new name, so its hash entry
+// is rewritten rather than a second one pushed, keeping Back intact.
+// Otherwise a refresh deep-links to a document the server has forgotten.
+const renameRecord = (item, name) => {
+	if (activeTab.value?.slug !== item.slug) return
+	replaceRecord(name)
+}
+>>>>>>> 75d6477 (feat(cloud-settings): show frappe cloud panels in settings)
 </script>

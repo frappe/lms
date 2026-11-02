@@ -32,11 +32,32 @@ vi.mock('@/stores/settings', () => ({ useSettings: () => ({}) }))
 vi.mock('@/components/Settings/SettingDetails.vue', () => ({
 	default: { template: `<div />` },
 }))
+<<<<<<< HEAD
 vi.mock('@/components/Settings/settingsStructure.js', () => ({
 	settingsStructure: [
 		{
 			label: 'Configuration',
 			items: [
+=======
+vi.mock(
+	'@/components/Layouts/settings/desktop/SettingsFieldsPanel.vue',
+	() => ({
+		default: { template: `<div />` },
+	})
+)
+vi.mock('@/components/Layouts/settings/desktop/SettingsListPanel.vue', () => ({
+	default: { template: `<div />` },
+}))
+vi.mock('@/components/Settings/settings', () => ({
+	isGroupVisible: () => true,
+	settingsTree: [],
+}))
+vi.mock('@/composables/useSettingsHash', async () => {
+	const { ref } = await import('vue')
+	return {
+		useSettingsHash: () => ({
+			items: ref([
+>>>>>>> 75d6477 (feat(cloud-settings): show frappe cloud panels in settings)
 				{
 					label: 'Email Template',
 					template: { template: `<div />` },
