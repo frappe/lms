@@ -335,5 +335,7 @@ export interface SettingsItem extends SettingsRoutableItem {
 }
 
 export interface SettingsGroup extends SettingsRoutableGroup {
+	/** Who may open the group, in place of the default: Moderators only. */
+	audience?: () => boolean
 	items: SettingsItem[]
 }
