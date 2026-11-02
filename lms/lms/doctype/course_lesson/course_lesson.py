@@ -25,6 +25,7 @@ from lms.lms.permissions import (
 	INSTRUCTOR_FIELDS,
 	can_access_lesson,
 	can_author_assessment,
+	can_author_course,
 	courses_authored_by_each,
 	get_locked_lessons,
 	unplaceable_assessments,
@@ -186,17 +187,25 @@ def cleanup_lesson_backreferences(lesson: str):
 def has_permission(doc, ptype="read", user=None):
 	user = user or frappe.session.user
 	if ptype not in ("read", "select", "print"):
-		# Authoring (create/write/delete): mirror sibling LMS hooks. Moderators
-		# and Course Creators manage lessons; otherwise fall back to per-course
-		# instructor/moderator via the rule.
-		roles = frappe.get_roles(user)
-		if "Moderator" in roles or "Course Creator" in roles:
-			return True
-		return can_access_lesson(doc.name, instructor_only=True, user=user)
+		courses = _authoring_courses(doc)
+		if not courses:
+			# Let _validate_mandatory refuse a new lesson with no chapter.
+			return doc.is_new()
+		return all(can_author_course(course, user=user) for course in courses)
 	# Read/select/print: the security gate. Enrollment / preview / instructor only.
 	# Deliberately NOT widened to all Course Creators, to preserve the media-access
 	# boundary (matches the original get_lesson gate).
 	return can_access_lesson(doc.name, user=user)
+
+
+def _authoring_courses(doc) -> set[str]:
+	"""The stored course and the chapter's: `course` is fetched from `chapter` only after the create check."""
+	courses = {doc.get("course")}
+	if doc.get("chapter"):
+		courses.add(frappe.db.get_value("Course Chapter", doc.chapter, "course"))
+	if not doc.is_new():
+		courses.add(frappe.db.get_value("Course Lesson", doc.name, "course"))
+	return {course for course in courses if course}
 
 
 def get_permission_query_conditions(user=None):
