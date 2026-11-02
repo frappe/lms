@@ -1,11 +1,12 @@
 # Copyright (c) 2023, Frappe and Contributors
 # See license.txt
 
+from datetime import timedelta
 from unittest.mock import MagicMock, patch
 
 import frappe
 from frappe import _
-from frappe.utils import add_days, nowdate
+from frappe.utils import add_days, now_datetime, nowdate
 
 from lms.lms.doctype.lms_live_class.lms_live_class import GoogleCalendarMissingError
 from lms.lms.test_helpers import BaseTestUtils
@@ -812,3 +813,62 @@ class TestLMSLiveClass(BaseTestUtils):
 
 		with self.assertRaises(frappe.exceptions.ValidationError):
 			self.batch.save()
+
+	# --- Same-day reminders: a class scheduled for today after the daily run still reaches its learners ---
+
+	REMINDER_MODULE = "lms.lms.doctype.lms_live_class.lms_live_class"
+
+	def _enrol_learner(self):
+		student = self._create_user("same-day-learner@example.com", "Same", "Day", ["LMS Student"])
+		self._create_batch_enrollment(student.name, self.batch.name)
+		return student.name
+
+	def _reminded(self, send_mail):
+		return [call.args[1].member for call in send_mail.call_args_list]
+
+	def _later_today(self):
+		return (now_datetime() + timedelta(hours=2)).strftime("%H:%M:%S")
+
+	def _create_with(self, ran_today, **kwargs):
+		with (
+			patch(f"{self.REMINDER_MODULE}.daily_reminder_ran_today", return_value=ran_today),
+			patch(f"{self.REMINDER_MODULE}.send_mail") as send_mail,
+		):
+			live_class = self._create_live_class(**kwargs)
+		return live_class, send_mail
+
+	def test_class_created_for_later_today_after_the_daily_run_is_reminded(self):
+		if self._later_today() < now_datetime().strftime("%H:%M:%S"):
+			self.skipTest("two hours from now is tomorrow")
+		student = self._enrol_learner()
+		_, send_mail = self._create_with(True, date=nowdate(), time=self._later_today())
+		self.assertIn(student, self._reminded(send_mail))
+
+	def test_class_created_before_the_daily_run_is_left_to_it(self):
+		self._enrol_learner()
+		_, send_mail = self._create_with(False, date=nowdate(), time="23:59:00")
+		send_mail.assert_not_called()
+
+	def test_class_for_tomorrow_is_not_reminded_today(self):
+		self._enrol_learner()
+		_, send_mail = self._create_with(True)
+		send_mail.assert_not_called()
+
+	def test_class_that_already_started_is_not_reminded(self):
+		self._enrol_learner()
+		_, send_mail = self._create_with(True, date=nowdate(), time="00:00:01")
+		send_mail.assert_not_called()
+
+	def test_class_moved_to_later_today_is_reminded(self):
+		if self._later_today() < now_datetime().strftime("%H:%M:%S"):
+			self.skipTest("two hours from now is tomorrow")
+		student = self._enrol_learner()
+		live_class, _ = self._create_with(True)
+		with (
+			patch(f"{self.REMINDER_MODULE}.daily_reminder_ran_today", return_value=True),
+			patch(f"{self.REMINDER_MODULE}.send_mail") as send_mail,
+		):
+			live_class.reload()  # creating it saved the calendar event link back onto the row
+			live_class.update({"date": nowdate(), "time": self._later_today()})
+			live_class.save()
+		self.assertIn(student, self._reminded(send_mail))
