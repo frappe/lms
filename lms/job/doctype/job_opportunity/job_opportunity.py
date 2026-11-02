@@ -22,7 +22,7 @@ class JobOpportunity(Document):
 
 	def autoname(self):
 		if not self.name:
-			self.name = generate_slug(f"{self.job_title}-${self.company_name}", "LMS Course")
+			self.name = generate_slug(f"{self.job_title}-{self.company_name}", "Job Opportunity")
 
 
 def update_job_openings():
