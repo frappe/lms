@@ -14,6 +14,11 @@ ALLOWED_PATHS = [
 	"/api/method/frappe.integrations.oauth2.authorize",
 	"/api/method/frappe.integrations.oauth2.approve",
 	"/api/method/frappe.integrations.oauth2.get_token",
+	# OAuth clients such as frappectl register themselves before the browser sign-in and
+	# revoke their token on logout. Frappe gates registration behind OAuth Settings and
+	# rate-limits it, so allowing the path here adds nothing a site has not turned on.
+	"/api/method/frappe.integrations.oauth2.register_client",
+	"/api/method/frappe.integrations.oauth2.revoke_token",
 	"/api/method/frappe.www.login.login_via_google",
 	"/api/method/frappe.www.login.login_via_github",
 	"/api/method/frappe.www.login.login_via_facebook",

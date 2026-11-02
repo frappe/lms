@@ -77,6 +77,23 @@ def _make_quiz(question, title=None):
 	return quiz
 
 
+def _make_user(email, roles, user_type="Website User"):
+	if not frappe.db.exists("User", email):
+		user = frappe.new_doc("User")
+		user.update(
+			{
+				"email": email,
+				"first_name": email.split("@")[0],
+				"user_type": user_type,
+				"send_welcome_email": 0,
+			}
+		)
+		for role in roles:
+			user.append("roles", {"role": role})
+		user.insert(ignore_permissions=True)
+	return email
+
+
 def _make_submission(quiz_name, member="Administrator"):
 	sub = frappe.new_doc("LMS Quiz Submission")
 	sub.update(
@@ -638,3 +655,31 @@ class TestIsOpenEndedSubmission(IntegrationTestCase):
 
 	def test_nonexistent_submission_returns_false(self):
 		self.assertFalse(is_open_ended_submission("does-not-exist-xyz"))
+
+
+class TestIsOpenEndedSubmissionAccess(IntegrationTestCase):
+	"""Only the submission's owner, or someone who may read it, learns about its quiz."""
+
+	@classmethod
+	def setUpClass(cls):
+		super().setUpClass()
+		cls.owner = _make_user("open-ended-owner@example.com", ["LMS Student"])
+		cls.other = _make_user("open-ended-other@example.com", ["LMS Student"])
+		cls.moderator = _make_user("open-ended-moderator@example.com", ["Moderator"], "System User")
+		cls.submission = _make_submission(_make_quiz(_make_question()).name, member=cls.owner)
+
+	def tearDown(self):
+		frappe.set_user("Administrator")
+
+	def test_owner_gets_the_answer(self):
+		frappe.set_user(self.owner)
+		self.assertIs(is_open_ended_submission(self.submission.name), False)
+
+	def test_another_student_is_refused(self):
+		frappe.set_user(self.other)
+		with self.assertRaises(frappe.PermissionError):
+			is_open_ended_submission(self.submission.name)
+
+	def test_moderator_reviewing_submissions_gets_the_answer(self):
+		frappe.set_user(self.moderator)
+		self.assertIs(is_open_ended_submission(self.submission.name), False)

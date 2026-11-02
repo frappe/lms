@@ -345,8 +345,21 @@ def rewrite_private_media(content: str, endpoint: str | None = None) -> str:
 	return re.sub(
 		r"/private/files/([^\"'\\]+)",
 		lambda m: endpoint + quote(m.group(0)),
-		content,
+		_readable_json(content),
 	)
+
+
+def _readable_json(content: str) -> str:
+	"""Editor.js content saved by Python's json.dumps stores non-Latin letters as \\uXXXX
+	escapes, which the URL pattern above cannot match, so a Cyrillic or Devanagari file
+	name would reach the browser as a raw /private/files/ URL. Re-serialise such content
+	with the letters themselves. Anything that is not a JSON document is left as it is."""
+	if "\\u" not in content or content.lstrip()[:1] not in ("{", "["):
+		return content
+	try:
+		return json.dumps(json.loads(content), ensure_ascii=False)
+	except ValueError:
+		return content
 
 
 def get_instructors(doctype: str, docname: str):
