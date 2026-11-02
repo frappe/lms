@@ -1327,7 +1327,13 @@ def get_certification_query(filters: dict = None):
 					Certificate.course_title.like(f"%{value}%") | Certificate.batch_title.like(f"%{value}%")
 				)
 			if field == "member_name":
-				query = query.where(Certificate.member_name.like(value[1]))
+				# The SPA sends ["like", "%text%"]; anything else is matched as a substring
+				# rather than indexed into.
+				if isinstance(value, list | tuple) and len(value) > 1 and isinstance(value[1], str):
+					pattern = value[1]
+				else:
+					pattern = f"%{cstr(value)}%"
+				query = query.where(Certificate.member_name.like(pattern))
 			if field == "open_to_work":
 				query = query.where(User.open_to == "Work")
 			if field == "hiring":
