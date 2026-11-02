@@ -513,9 +513,13 @@ def _save_violation_frame(log_name: str, data_url: str) -> bool:
 
 @frappe.whitelist()
 def is_open_ended_submission(submission: str) -> bool:
-	quiz = frappe.db.get_value("LMS Quiz Submission", submission, "quiz")
+	quiz, member = frappe.db.get_value("LMS Quiz Submission", submission, ["quiz", "member"]) or (None, None)
 	if not quiz:
 		return False
+	if member != frappe.session.user and not frappe.has_permission("LMS Quiz Submission", "read", submission):
+		frappe.throw(_("Insufficient Permission"), frappe.PermissionError)
+	# A quiz is open ended as a whole (validate_open_ended_questions), so its first
+	# question decides.
 	question_type = frappe.db.get_value("LMS Quiz Question", {"parent": quiz}, "type")
 	return question_type == "Open Ended"
 

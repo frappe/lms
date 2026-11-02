@@ -1522,7 +1522,7 @@ def create_lesson(chapter: str, title: str | None = None, content: str | dict | 
 	lesson = add_lesson(title or _("Untitled lesson"), chapter, course, idx)
 	if content is not None:
 		doc = frappe.get_doc("Course Lesson", lesson)
-		doc.content = content if isinstance(content, str) else json.dumps(content)
+		doc.content = content if isinstance(content, str) else json.dumps(content, ensure_ascii=False)
 		doc.save()
 	return lesson
 
