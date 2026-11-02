@@ -688,7 +688,7 @@ class TestIsOpenEndedSubmission(unittest.TestCase):
 		self.assertFalse(is_open_ended_submission("does-not-exist-xyz"))
 
 
-class TestIsOpenEndedSubmissionAccess(IntegrationTestCase):
+class TestIsOpenEndedSubmissionAccess(unittest.TestCase):
 	"""Only the submission's owner, or someone who may read it, learns about its quiz."""
 
 	@classmethod
