@@ -207,6 +207,8 @@ import NewMemberModal from '@/components/Modals/NewMemberModal.vue'
 import { useSettings } from '@/stores/settings'
 import type { CourseFormContext, Resource } from '@/types'
 import { openExternal } from '@/utils/openExternal'
+import { hasCloudSettings } from '@/composables/cloudSettings'
+import { openSettings } from '@/utils'
 
 const { resource, markDirty } = inject<CourseFormContext>('courseForm')!
 const dayjs = inject('$dayjs') as typeof import('dayjs')
@@ -264,7 +266,8 @@ function setPaidCertificate(val: boolean) {
 }
 
 function openPaymentsApp() {
-	openExternal('https://frappecloud.com/marketplace/apps/payments')
+	if (hasCloudSettings()) openSettings('cloud-marketplace')
+	else openExternal('https://frappecloud.com/marketplace/apps/payments')
 }
 
 const timezoneResource = createResource({
