@@ -3051,6 +3051,9 @@ def get_paid_course_details(docname: str) -> dict:
 		as_dict=True,
 	)
 
+	if not details:
+		frappe.throw(_("This course does not exist."), frappe.DoesNotExistError)
+
 	if not details.paid_course and not details.paid_certificate:
 		raise frappe.throw(_("This course is free."))
 
@@ -3064,6 +3067,9 @@ def get_paid_batch_details(docname: str) -> dict:
 		["title", "name", "paid_batch", "amount", "currency", "amount_usd"],
 		as_dict=True,
 	)
+
+	if not details:
+		frappe.throw(_("This batch does not exist."), frappe.DoesNotExistError)
 
 	if not details.paid_batch:
 		raise frappe.throw(_("To join this batch, please contact the Administrator."))
