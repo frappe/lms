@@ -47,6 +47,7 @@ from lms.lms.doctype.lms_enrollment.lms_enrollment import (
 	update_enrollment,
 	update_program_progress,
 )
+from lms.lms.html_sanitizer import sanitize_rich_text
 from lms.lms.md import find_macros
 
 RE_SLUG_NOTALLOWED = re.compile("[^a-z0-9]+")
@@ -712,7 +713,8 @@ def get_course_details_for_notification(topic: dict):
 	users.append(topic.owner)
 	users += instructors
 
-	subject = _("New reply on the topic {0} in course {1}").format(topic.title, course_title)
+	# Titles are stored as typed; the subject is rendered as HTML.
+	subject = _("New reply on the topic {0} in course {1}").format(escape_html(topic.title), course_title)
 	link = get_lesson_url(course, get_lesson_index(topic.reference_docname))
 
 	return subject, link, users
@@ -779,7 +781,7 @@ def notify_mentions_on_portal(doc: Document, topic: dict):
 	if topic.reference_doctype == "Course Lesson":
 		course = frappe.db.get_value("Course Lesson", topic.reference_docname, "course")
 		subject = _("{0} mentioned you in a comment in {1}").format(
-			frappe.bold(from_user_name), frappe.bold(topic.title)
+			frappe.bold(from_user_name), frappe.bold(escape_html(topic.title))
 		)
 		link = get_lesson_url(course, get_lesson_index(topic.reference_docname))
 	else:
@@ -3966,6 +3968,8 @@ def persona_captured():
 
 
 def validate_discussion_reply(doc: Document, method: str):
+	# Released frappe skips JSON-shaped HTML, and replies are mailed out as written.
+	doc.reply = sanitize_rich_text(doc.reply)
 	topic = frappe.db.get_value(
 		"Discussion Topic", doc.topic, ["reference_doctype", "reference_docname"], as_dict=True
 	)
