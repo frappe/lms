@@ -2,6 +2,7 @@ import frappe
 
 from lms.lms.api import get_certified_participants
 from lms.lms.test_helpers import BaseTestUtils
+from lms.lms.utils import get_order_summary
 
 
 class TestCertificationMemberNameFilter(BaseTestUtils):
@@ -36,3 +37,16 @@ class TestCertificationMemberNameFilter(BaseTestUtils):
 		for value in (["like", ["%"]], ["like", {"a": 1}], ["like", 5]):
 			with self.subTest(value=value):
 				self.assertIsInstance(get_certified_participants(filters={"member_name": value}), list)
+
+
+class TestOrderSummaryForUnknownDocname(BaseTestUtils):
+	"""get_order_summary read attributes off a None get_value for an unknown course or
+	batch, an AttributeError 500. Guards a stated DoesNotExistError instead."""
+
+	def test_unknown_course(self):
+		with self.assertRaises(frappe.DoesNotExistError):
+			get_order_summary("LMS Course", "no-such-course-at-all")
+
+	def test_unknown_batch(self):
+		with self.assertRaises(frappe.DoesNotExistError):
+			get_order_summary("LMS Batch", "no-such-batch-at-all")
