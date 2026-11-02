@@ -58,11 +58,10 @@
 				/>
 			</template>
 			<TrialBanner
-				v-if="
-					userResource.data?.is_system_manager && userResource.data?.is_fc_site
-				"
+				v-if="isV1CloudAdmin()"
 				:isSidebarCollapsed="sidebarStore.isSidebarCollapsed"
 			/>
+			<TrialCard v-if="!sidebarStore.isSidebarCollapsed" />
 			<GettingStartedBanner
 				v-if="showOnboarding && !isOnboardingStepsCompleted"
 				:isSidebarCollapsed="sidebarStore.isSidebarCollapsed"
@@ -176,6 +175,8 @@ import { useTelemetry } from '@framework/ui/telemetry/index'
 import { setFormSource } from '@/composables/formTracking'
 import InviteIcon from '@/components/Icons/InviteIcon.vue'
 import UserDropdown from '@/components/Sidebar/UserDropdown.vue'
+import TrialCard from '@/components/Sidebar/TrialCard.vue'
+import { isV1CloudAdmin } from '@/composables/cloudSettings'
 import SidebarLink from '@/components/Sidebar/SidebarLink.vue'
 import CommandPalette from '@/components/CommandPalette/CommandPalette.vue'
 import { pushSettingsHash } from '@/composables/useSettingsHash'
