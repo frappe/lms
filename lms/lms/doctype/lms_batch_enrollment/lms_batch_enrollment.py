@@ -26,10 +26,29 @@ UNSCOPED_ROLES = ("Moderator", "Batch Evaluator")
 class LMSBatchEnrollment(Document):
 	def after_insert(self):
 		self.validate_against_committed_rows()
-		send_confirmation_email(self)
+		self.send_confirmation_email_or_log()
 		from lms.lms.doctype.lms_live_class.lms_live_class import add_learner_to_live_classes
 
 		add_learner_to_live_classes(self.batch)
+
+	def send_confirmation_email_or_log(self):
+		"""A failed email must not roll back the enrolment; the flag stays 0 for a resend.
+		Anything the attempt wrote or said is undone with it. Any exception, since
+		rendering a template can raise anything."""
+		messages = len(frappe.local.message_log)
+		frappe.db.savepoint("confirmation_email")
+		try:
+			send_confirmation_email(self)
+		except Exception:
+			frappe.db.rollback(save_point="confirmation_email")
+			del frappe.local.message_log[messages:]
+			frappe.log_error(
+				title="Batch enrollment confirmation email failed",
+				reference_doctype=self.doctype,
+				reference_name=self.name,
+			)
+		else:
+			frappe.db.release_savepoint("confirmation_email")
 
 	def validate(self):
 		validate_identity_unchanged(self, ("batch", "member"))
