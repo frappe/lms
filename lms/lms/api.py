@@ -3379,6 +3379,46 @@ def get_progress_distribution(progressList: list):
 	return distribution
 
 
+BUNDLED_PWA_ICONS = [
+	{
+		"src": f"/assets/lms/frontend/manifest/manifest-icon-{size}.maskable.png",
+		"sizes": f"{size}x{size}",
+		"type": "image/png",
+		"purpose": "any",
+	}
+	for size in (192, 512)
+]
+
+# The smallest icon a browser accepts for installing a PWA.
+MIN_PWA_ICON_SIZE = 192
+
+
+def get_app_logo_icons() -> list[dict]:
+	"""Website Settings' app_logo as the "any" icon, at the size read from the file. Only a
+	square of at least MIN_PWA_ICON_SIZE: a wide wordmark or a favicon would be stretched
+	or blurred, and it replaces both bundled icons."""
+	logo = frappe.db.get_single_value("Website Settings", "app_logo")
+	if not logo or not logo.startswith("/files/"):
+		return []
+	public_files = os.path.realpath(frappe.get_site_path("public", "files"))
+	path = os.path.realpath(frappe.get_site_path("public", logo.lstrip("/")))
+	if not path.startswith(public_files + os.sep):
+		return []
+
+	from PIL import Image
+
+	try:
+		with Image.open(path) as image:
+			width, height = image.size
+			mime = Image.MIME.get(image.format)
+	except OSError:
+		return []
+	if width != height or width < MIN_PWA_ICON_SIZE or not mime:
+		return []
+	return [{"src": logo, "sizes": f"{width}x{height}", "type": mime, "purpose": "any"}]
+
+
+# nosemgrep: security.guest-whitelisted-method - pre-existing grant; the manifest is public by design and reads only Website Settings branding. Flagged because semgrep ci re-scans the whole function when its body changes.
 @frappe.whitelist(allow_guest=True)
 def get_pwa_manifest():
 	"""Web app manifest for installing the LMS as a PWA."""
@@ -3409,24 +3449,9 @@ def get_pwa_manifest():
 		# Split by purpose rather than the previous combined "maskable any": a
 		# maskable icon is drawn with its edges cropped to the platform's shape,
 		# so reusing one image for both gives a clipped icon wherever the "any"
-		# slot is used. The 512 has been on disk unused.
-		#
-		# Website Settings' banner_image is deliberately NOT a source here. It is
-		# a wide banner, and it was being declared as 192x192, so any site that
-		# set one got a squashed app icon.
+		# slot is used. banner_image is a wide banner, so it is never an icon.
 		"icons": [
-			{
-				"src": "/assets/lms/frontend/manifest/manifest-icon-192.maskable.png",
-				"sizes": "192x192",
-				"type": "image/png",
-				"purpose": "any",
-			},
-			{
-				"src": "/assets/lms/frontend/manifest/manifest-icon-512.maskable.png",
-				"sizes": "512x512",
-				"type": "image/png",
-				"purpose": "any",
-			},
+			*(get_app_logo_icons() or BUNDLED_PWA_ICONS),
 			{
 				"src": "/assets/lms/frontend/manifest/manifest-icon-512.maskable.png",
 				"sizes": "512x512",
