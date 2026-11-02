@@ -106,7 +106,9 @@ class LMSQuiz(RenamableAssessment, AuthoredDocument, Document):
 	def calculate_total_marks(self):
 		if len(self.questions) == 0:
 			self.total_marks = 0
-			self.passing_percentage = 100
+			# Fill the required pass mark only when unset; never overwrite the author's.
+			if self.passing_percentage in (None, ""):
+				self.passing_percentage = 100
 			return
 
 		if self.limit_questions_to:
