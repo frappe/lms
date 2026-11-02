@@ -1,3 +1,4 @@
+import type { CloudContext } from '@frappe/cloud-sdk'
 import type { Ref } from 'vue'
 import type { LMSCourse } from './lms/LMSCourse'
 import type { LMSBatch } from './lms/LMSBatch'
@@ -39,6 +40,8 @@ export interface SessionUser {
 		is_evaluator?: boolean
 		is_student?: boolean
 		is_system_manager?: boolean
+		is_fc_site?: boolean
+		cloud_settings?: CloudContext
 	}
 }
 

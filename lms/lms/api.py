@@ -116,8 +116,18 @@ def get_user_info():
 	user.developer_mode = frappe.conf.developer_mode
 	if user.is_fc_site and user.is_system_manager:
 		user.site_info = current_site_info()
+	user.cloud_settings = get_cloud_settings_context()
 	user.permissions = _doctype_permissions()
 	return user
+
+
+def get_cloud_settings_context() -> dict:
+	try:
+		from frappe.integrations.frappe_providers.cloud_settings import get_boot_context
+	except ImportError:
+		# Frappe without Cloud Settings is older than any Frappe Cloud v2 site.
+		return {"enabled": False}
+	return get_boot_context()
 
 
 PERMISSION_DOCTYPES = (
