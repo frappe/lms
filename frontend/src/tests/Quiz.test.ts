@@ -610,3 +610,84 @@ describe('Quiz for screen readers', () => {
 		expect(document.activeElement?.textContent?.trim()).toBe('Quiz result')
 	})
 })
+
+// Guards a confirmed submit lost to a closed tab: submitQuiz waits 500ms before
+// sending, and a page gone in that window sends neither the request nor, once
+// the beacon skipped any submit under way, the beacon. Added after #3176.
+describe('Quiz closed while submitting', () => {
+	const sendBeacon = vi.fn(() => true)
+	const submitUrl = 'lms.lms.doctype.lms_quiz.lms_quiz.submit_quiz'
+
+	const beaconReason = () => {
+		const [, body] = sendBeacon.mock.calls[0] as unknown as [
+			string,
+			URLSearchParams,
+		]
+		return body.get('submission_reason')
+	}
+
+	const startAttempt = async () => {
+		const wrapper = mountQuiz()
+		await flushPromises()
+		await startQuiz(wrapper)
+		resourceState.submits.length = 0
+		return wrapper
+	}
+
+	beforeEach(() => {
+		resourceState.response = choicesQuizResponse(1)
+		sendBeacon.mockClear()
+		Object.assign(navigator, { sendBeacon })
+		vi.useFakeTimers()
+		return () => vi.useRealTimers()
+	})
+
+	it('submits by beacon when the page closes on an idle attempt', async () => {
+		const wrapper = await startAttempt()
+		window.dispatchEvent(new Event('pagehide'))
+
+		expect(sendBeacon).toHaveBeenCalledTimes(1)
+		expect(beaconReason()).toBe('browser_closed')
+		wrapper.unmount()
+	})
+
+	it('hands a submit still waiting to go out to the beacon', async () => {
+		const wrapper = await startAttempt()
+		;(wrapper.vm as any).submitQuiz('timer_expired')
+		window.dispatchEvent(new Event('pagehide'))
+		await vi.advanceTimersByTimeAsync(1000)
+
+		expect(sendBeacon).toHaveBeenCalledTimes(1)
+		expect(beaconReason()).toBe('timer_expired')
+		expect(resourceState.submits).not.toContain(submitUrl)
+		wrapper.unmount()
+	})
+
+	it('sends no beacon once the submit request is in flight', async () => {
+		const wrapper = await startAttempt()
+		const submission = (wrapper.vm as any).quizSubmission
+		submission.submit.mockImplementation(() => {
+			submission.loading = true
+		})
+		;(wrapper.vm as any).submitQuiz()
+		await vi.advanceTimersByTimeAsync(1000)
+		window.dispatchEvent(new Event('pagehide'))
+
+		expect(submission.submit).toHaveBeenCalledTimes(1)
+		expect(sendBeacon).not.toHaveBeenCalled()
+		wrapper.unmount()
+	})
+
+	it('shows Submit as loading from the moment the submit starts', async () => {
+		const wrapper = await startAttempt()
+		const submitButton = () =>
+			wrapper.findAll('button').find((button) => button.text() === 'Submit')!
+		expect(submitButton().attributes('disabled')).toBeUndefined()
+
+		;(wrapper.vm as any).submitQuiz()
+		await wrapper.vm.$nextTick()
+
+		expect(submitButton().attributes('disabled')).toBeDefined()
+		wrapper.unmount()
+	})
+})

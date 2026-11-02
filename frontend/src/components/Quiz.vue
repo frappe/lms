@@ -500,8 +500,8 @@
 									<Button
 										v-else-if="!preview"
 										variant="solid"
-										:loading="quizSubmission.loading"
-										:disabled="quizSubmission.loading"
+										:loading="isSubmitting"
+										:disabled="isSubmitting"
 										@click="handleSubmitClick()"
 									>
 										<span>{{ __('Submit') }}</span>
@@ -724,8 +724,6 @@
 				size: 'sm',
 				label: __('Submit'),
 				variant: 'solid',
-				loading: quizSubmission.loading,
-				disabled: quizSubmission.loading,
 				onClick() {
 					submitQuiz()
 					showSubmissionConfirmation = false
@@ -1012,12 +1010,18 @@ const handlePageHide = (): void => {
 }
 
 // A beacon, not a resource call: it still goes out when the page, or the quiz
-// with it, is going away, which is exactly when this is sent.
+// with it, is going away, which is exactly when this is sent. A request already
+// in flight is this attempt's, so no beacon. A submit still in its 500ms wait
+// would die with the page: the beacon takes it over, with its reason.
 const sendSubmitBeacon = (reason: SubmissionReason): void => {
 	if (props.preview) return
+	if (submitTimeout) {
+		clearTimeout(submitTimeout)
+		submitTimeout = undefined
+		reason = submissionReason.value || reason
+	}
 	if (
 		activeQuestion.value > 0 &&
-		!submitting &&
 		!quizSubmission.loading &&
 		!quizSubmission.data &&
 		quiz.data
@@ -1709,16 +1713,20 @@ const resetQuestion = () => {
 // can defer the request by 500ms) until the server answers: true once saved.
 let submitting: Promise<boolean> | null = null
 let settleSubmitting: ((saved: boolean) => void) | null = null
+// The template's view of `submitting`, which is not reactive.
+const isSubmitting = ref(false)
 
 const beginSubmitting = (): void => {
 	if (submitting) return
 	submitting = new Promise((resolve) => (settleSubmitting = resolve))
+	isSubmitting.value = true
 }
 
 const endSubmitting = (saved: boolean): void => {
 	settleSubmitting?.(saved)
 	submitting = null
 	settleSubmitting = null
+	isSubmitting.value = false
 }
 
 const submitQuiz = (reason: SubmissionReason = 'manual'): void => {
