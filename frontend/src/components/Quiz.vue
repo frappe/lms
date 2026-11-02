@@ -835,6 +835,7 @@ import {
 } from 'frappe-ui'
 import type { FrappeResourceError } from 'frappe-ui'
 import { CircleCheck } from 'lucide-vue-next'
+import { quizAnswerStorageKey } from '@/utils/quizStorage'
 import {
 	computed,
 	inject,
@@ -1030,7 +1031,7 @@ const sendSubmitBeacon = (reason: SubmissionReason): void => {
 	) {
 		const params = new URLSearchParams({
 			quiz: quiz.data.name,
-			results: localStorage.getItem(quiz.data.title) || '[]',
+			results: localStorage.getItem(answerStorageKey.value) || '[]',
 			violation_count: String(violationCount.value),
 			submission_reason: reason,
 		})
@@ -1083,6 +1084,10 @@ const quiz = createResource<QuizDetails>({
 		setupTimer()
 	},
 })
+
+const answerStorageKey = computed(() =>
+	quizAnswerStorageKey(user.data?.name, quiz.data?.name)
+)
 
 // A shared link reaches students who are not in a course or batch that uses the
 // quiz. The server refuses them, and without this the page rendered nothing.
@@ -1343,7 +1348,7 @@ const quizSubmission = createResource<QuizSubmissionResult>({
 	}) {
 		return {
 			quiz: quiz.data?.name,
-			results: localStorage.getItem(quiz.data?.title ?? '') || '[]',
+			results: localStorage.getItem(answerStorageKey.value) || '[]',
 			violation_count: values?.violation_count ?? violationCount.value,
 			submission_reason: values?.submission_reason ?? 'manual',
 			violation_events: serialiseViolationLog(),
@@ -1388,7 +1393,7 @@ const switchQuestion = (questionNumber: number): void => {
 }
 
 const readSavedAnswers = (): SavedAnswer[] | null =>
-	JSON.parse(localStorage.getItem(quiz.data?.title ?? '') ?? 'null')
+	JSON.parse(localStorage.getItem(answerStorageKey.value) ?? 'null')
 
 const loadSavedAnswers = (): void => {
 	const details = questionDetails.data
@@ -1444,7 +1449,7 @@ const startQuiz = () => {
 	if (!quiz.data || !questions.value.length) return
 	activeQuestion.value = 1
 	attemptStartedAt = Date.now()
-	localStorage.removeItem(quiz.data.title)
+	localStorage.removeItem(answerStorageKey.value)
 	// Neither in an author preview. Nothing may be submitted there, so a countdown
 	// would reach zero with no way to end the attempt and the camera would stay on
 	// with it, and a violation cap would do the same.
@@ -1696,7 +1701,7 @@ const addToLocalStorage = (): void => {
 	} else {
 		quizData = [questionData]
 	}
-	localStorage.setItem(quiz.data.title, JSON.stringify(quizData))
+	localStorage.setItem(answerStorageKey.value, JSON.stringify(quizData))
 }
 
 const nextQuestion = (): void => {
