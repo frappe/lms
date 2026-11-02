@@ -417,8 +417,10 @@ import {
 } from '@/utils/bunnyStreamPlayer'
 import {
 	holdLessonCompletion,
+	onLessonProgressMarked,
 	releaseLessonCompletion,
 } from '@/utils/markLessonProgress'
+import type { MarkedLesson } from '@/utils/markLessonProgress'
 
 interface LessonProgressEvent {
 	course: string
@@ -527,7 +529,23 @@ onMounted(() => {
 	}
 	document.addEventListener('fullscreenchange', attachFullscreenEvent)
 	socket.on('update_lesson_progress', onLessonProgress)
+	stopListeningForMarkedLessons = onLessonProgressMarked(onLessonMarked)
 })
+
+let stopListeningForMarkedLessons: (() => void) | undefined
+
+// A quiz or an assignment marks its lesson through markLessonProgress(), so
+// this unlocks the next lesson even where realtime is unavailable.
+const onLessonMarked = (marked: MarkedLesson): void => {
+	if (marked.course !== props.courseName) return
+	if (
+		marked.completed &&
+		marked.chapterNumber === props.chapterNumber &&
+		marked.lessonNumber === props.lessonNumber
+	)
+		completedLesson.value = lesson.data?.name ?? null
+	outline.reload()
+}
 
 const onLessonProgress = (data: LessonProgressEvent): void => {
 	if (data.course !== props.courseName) return
@@ -557,6 +575,7 @@ onBeforeUnmount(() => {
 	// Without this the handler outlives the page, and every revisit adds another
 	// one — so a single progress event fires one outline reload per past visit.
 	socket.off('update_lesson_progress', onLessonProgress)
+	stopListeningForMarkedLessons?.()
 	if (collapsedByLesson) sidebarStore.isSidebarCollapsed = false
 	releaseLessonCompletion()
 	trackVideoWatchDuration()

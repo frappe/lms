@@ -2582,6 +2582,14 @@ def mark_lesson_progress(course: str, chapter_number: int, lesson_number: int):
 		"Lesson Reference", {"parent": chapter_name, "idx": lesson_number}, "lesson"
 	)
 	save_progress(lesson_name, course)
+	# save_progress can decline without raising: no enrollment, or the lesson's
+	# requirements are not met yet. Report whether the lesson is now complete.
+	return bool(
+		frappe.db.exists(
+			"LMS Course Progress",
+			{"lesson": lesson_name, "member": frappe.session.user, "status": "Complete"},
+		)
+	)
 
 
 @frappe.whitelist()
