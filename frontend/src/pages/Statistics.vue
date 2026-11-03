@@ -48,7 +48,7 @@
 			<div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mt-4">
 				<ChartCard class="h-80">
 					<LineChart
-						v-if="signupsChart.data"
+						v-if="hasPoints(signupsChart.data)"
 						:data="signupsChart.data"
 						x="date"
 						y="count"
@@ -56,10 +56,21 @@
 						subtitle="Signups per day"
 						:x-axis="{ type: 'time', timeGrain: 'day' }"
 					/>
+					<ChartEmptyState
+						v-else-if="signupsChart.data"
+						:title="__('Signups')"
+						:subtitle="__('Signups per day')"
+						:message="
+							__(
+								'New accounts on your site show up here, day by day, as people join.'
+							)
+						"
+						icon="lucide-user-plus"
+					/>
 				</ChartCard>
 				<ChartCard class="h-80">
 					<LineChart
-						v-if="enrollmentChart.data"
+						v-if="hasPoints(enrollmentChart.data)"
 						:data="enrollmentChart.data"
 						x="date"
 						y="count"
@@ -67,16 +78,36 @@
 						subtitle="Enrollments per day"
 						:x-axis="{ type: 'time', timeGrain: 'day' }"
 					/>
+					<ChartEmptyState
+						v-else-if="enrollmentChart.data"
+						:title="__('Enrollments')"
+						:subtitle="__('Enrollments per day')"
+						:message="
+							__(
+								'Each time a learner joins one of your courses, it shows up here.'
+							)
+						"
+						icon="lucide-book-open"
+					/>
 				</ChartCard>
 				<ChartCard class="h-80">
 					<LineChart
-						v-if="certification.data"
+						v-if="hasPoints(certification.data)"
 						:data="certification.data"
 						x="date"
 						y="count"
 						title="Certifications"
 						subtitle="Certifications per day"
 						:x-axis="{ type: 'time', timeGrain: 'day' }"
+					/>
+					<ChartEmptyState
+						v-else-if="certification.data"
+						:title="__('Certifications')"
+						:subtitle="__('Certifications per day')"
+						:message="
+							__('Certificates your learners earn show up here, day by day.')
+						"
+						icon="lucide-badge-check"
 					/>
 				</ChartCard>
 				<ChartCard v-if="hasCompletions" class="h-80">
@@ -102,7 +133,12 @@ import {
 } from 'frappe-ui'
 import { ChartCard, DonutChart, LineChart, NumberCard } from 'frappe-ui/charts'
 import { computed } from 'vue'
+<<<<<<< HEAD
 import PageHeader from '@/components/Layouts/PageHeader.vue'
+=======
+import PageHeader from '@/components/Layouts/pages/PageHeader.vue'
+import ChartEmptyState from '@/components/ChartEmptyState.vue'
+>>>>>>> 6a6599b (feat: empty states for statistics charts and batch dashboard, announcements and feedback)
 import { compactNumber } from '@/utils/numberCardFormat'
 import { sessionStore } from '../stores/session'
 
@@ -156,6 +192,10 @@ const courseCompletion = createResource({
 	auto: true,
 	cache: ['courseCompletion'],
 })
+
+// A flat line at zero says nothing on a new site, so it gives way to a
+// sentence about what will show up there.
+const hasPoints = (data) => Boolean(data?.some((point) => point.count > 0))
 
 // A donut with zero completions conveys nothing, so hide it until at least one
 // learner has completed a course.
