@@ -12,8 +12,19 @@
 		v-model:page-length="pageLength"
 		empty-name="Assignments"
 		empty-icon="lucide-clipboard-list"
+		:empty-title="emptyState?.title"
+		:empty-description="emptyState?.description"
 		@load-more="assignments.next()"
 	>
+		<template v-if="emptyState" #empty-actions>
+			<EmptyStateActions
+				list="assignments"
+				:create-label="__('New Assignment')"
+				docs="https://docs.frappe.io/learning/assignments"
+				@create="openAssignmentForm('new')"
+			/>
+		</template>
+
 		<template #actions>
 			<HeaderButton
 				:route="{ name: 'AssignmentSubmissions' }"
@@ -83,6 +94,7 @@ import {
 	usePageMeta,
 } from 'frappe-ui'
 import ListPage from '@/components/Layouts/pages/ListPage.vue'
+import EmptyStateActions from '@/components/EmptyStateActions.vue'
 import HeaderButton from '@/components/HeaderButton.vue'
 import Select from '@/components/Controls/Select.vue'
 import { computed, inject, onMounted, ref, watch } from 'vue'
@@ -96,6 +108,18 @@ const titleFilter = ref('')
 const typeFilter = ref('')
 const { brand } = sessionStore()
 const router = useRouter()
+// What lands in this list and how to start it, for the person who would fill it;
+// learners keep the default wording.
+const emptyState = computed(() => {
+	if (readOnlyMode) return null
+	return {
+		title: __('Create your first assignment'),
+		description: __(
+			'Ask learners to upload a file, write an answer or share a link, then grade their work.'
+		),
+	}
+})
+
 const readOnlyMode = window.read_only_mode
 
 onMounted(() => {

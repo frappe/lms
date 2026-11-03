@@ -128,6 +128,10 @@ const config: SubmissionsConfig = {
 	pageTitle: 'Programming Exercise Submissions',
 	emptyName: 'Programming Exercise Submissions',
 	emptyIcon: 'lucide-file-code',
+	emptyTitle: __('No submissions yet'),
+	emptyDescription: __(
+		'Code that learners submit for your programming exercises shows up here, with test results.'
+	),
 	transform: (rows: ListRow[]) =>
 		rows.map((row) => ({
 			...row,

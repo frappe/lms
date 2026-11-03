@@ -211,7 +211,9 @@ test.describe("Quiz", () => {
 			// The empty state's description: its title is echoed into a status
 			// region for screen readers, so matching that would find two.
 			await expect(
-				page.getByText("There are no quiz submissions currently.")
+				page.getByText(
+					"Each time a learner takes a quiz, their answers and score show up here."
+				)
 			).toBeVisible();
 		});
 

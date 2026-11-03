@@ -15,10 +15,22 @@
 		v-model:page-length="pageLength"
 		empty-name="Programs"
 		empty-icon="lucide-graduation-cap"
+		:empty-title="emptyState?.title"
+		:empty-description="emptyState?.description"
 		:search-query="title"
 		@load-more="programs.next()"
 		@clear-filters="clearFilters"
 	>
+		<template v-if="emptyState" #empty-actions>
+			<EmptyStateActions
+				list="programs"
+				:tab="currentTab"
+				:create-label="__('New Program')"
+				docs="https://docs.frappe.io/learning/add-a-program"
+				@create="openForm('new')"
+			/>
+		</template>
+
 		<template #actions>
 			<Button
 				v-if="canCreateProgram()"
@@ -99,6 +111,7 @@ import { useDebounceFn } from '@vueuse/core'
 import { sessionStore } from '@/stores/session'
 import PageHeader from '@/components/Layouts/pages/PageHeader.vue'
 import ListPage from '@/components/Layouts/pages/ListPage.vue'
+import EmptyStateActions from '@/components/EmptyStateActions.vue'
 import StudentPrograms from '@/pages/Programs/StudentPrograms.vue'
 import { openFormRoute } from '@/composables/useFormRoute'
 
@@ -268,6 +281,30 @@ const programTabs = computed(() => [
 
 watch(currentTab, () => {
 	updatePrograms()
+})
+
+// What lands in this list and how to start it, for the person who would fill it;
+// learners keep the default wording.
+const emptyState = computed(() => {
+	if (!canCreateProgram()) return null
+	switch (currentTab.value) {
+		case 'published':
+			return {
+				title: __('Group courses into a program'),
+				description: __(
+					'A program puts courses in order, like a path for new hires or a full certification track.'
+				),
+			}
+		case 'unpublished':
+			return {
+				title: __('No unpublished programs'),
+				description: __(
+					'New programs wait here until you publish them, so learners only see finished paths.'
+				),
+			}
+		default:
+			return null
+	}
 })
 
 const canCreateProgram = () => {

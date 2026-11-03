@@ -14,7 +14,7 @@
 				{{ __('You are not permitted to manage programs.') }}
 			</div>
 			<div v-else data-testid="program-fields" class="text-base">
-				<div class="grid grid-cols-1 md:grid-cols-2 gap-5 pb-5">
+				<div class="space-y-5 pb-5">
 					<FormControl
 						v-model="program.name"
 						:label="__('Title')"
@@ -22,7 +22,7 @@
 						:required="true"
 						@change="dirty = true"
 					/>
-					<div class="flex flex-col space-y-3">
+					<div class="grid grid-cols-1 md:grid-cols-2 gap-5">
 						<FormControl
 							v-model="program.published"
 							:label="__('Published')"
@@ -101,9 +101,15 @@
 							</template>
 						</ListSelectBanner>
 					</ListView>
-					<div v-else class="text-ink-gray-7">
-						{{ __('No courses added yet.') }}
-					</div>
+					<SectionEmptyState
+						v-else
+						icon="lucide-book-open"
+						:message="
+							__(
+								'Add the courses learners take in this program, in the order they should take them.'
+							)
+						"
+					/>
 				</div>
 
 				<div>
@@ -135,6 +141,7 @@
 						</div>
 					</div>
 					<ResponsiveListView
+						docked-banner
 						v-if="program.program_members?.length > 0"
 						:columns="memberColumns"
 						:rows="program.program_members"
@@ -153,9 +160,15 @@
 							</Button>
 						</template>
 					</ResponsiveListView>
-					<div v-else class="text-ink-gray-7">
-						{{ __('No members added yet.') }}
-					</div>
+					<SectionEmptyState
+						v-else
+						icon="lucide-users"
+						:message="
+							__(
+								'Add the people who should take this program. They get every course in it.'
+							)
+						"
+					/>
 				</div>
 			</div>
 			<Dialog
@@ -228,6 +241,7 @@
 	</FormShell>
 </template>
 <script setup lang="ts">
+import SectionEmptyState from '@/components/SectionEmptyState.vue'
 import {
 	Badge,
 	Button,
