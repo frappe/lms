@@ -9,14 +9,12 @@
 		v-model:page-length="pageLength"
 		empty-name="Batches"
 		empty-icon="lucide-users"
-<<<<<<< HEAD
-=======
 		:empty-title="emptyState?.title"
 		:empty-description="emptyState?.description"
 		:search-query="title"
 		:filtered="Boolean(currentCategory || certification)"
->>>>>>> 05454d1 (feat: list empty states say what each list is for and how to start it)
 		@load-more="batches.next()"
+		@clear-filters="clearFilters"
 	>
 		<template #actions>
 			<div v-if="canCreateBatch()" class="flex items-center gap-2">
@@ -192,6 +190,14 @@ const batchCountResource = createResource({
 })
 
 const batchCount = computed(() => batchCountResource.data ?? null)
+
+const clearFilters = () => {
+	currentCategory.value = null
+	certification.value = false
+	// The title watcher reloads on its own; reloading here as well fetches twice.
+	if (title.value) title.value = ''
+	else updateBatches()
+}
 
 const updateBatches = () => {
 	updateFilters()

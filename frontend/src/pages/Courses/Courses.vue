@@ -9,14 +9,12 @@
 		v-model:page-length="pageLength"
 		empty-name="Courses"
 		empty-icon="lucide-book-open"
-<<<<<<< HEAD
-=======
 		:empty-title="emptyState?.title"
 		:empty-description="emptyState?.description"
 		:search-query="title"
 		:filtered="Boolean(currentCategory || certification)"
->>>>>>> 05454d1 (feat: list empty states say what each list is for and how to start it)
 		@load-more="courses.next()"
+		@clear-filters="clearFilters"
 	>
 		<template v-if="emptyState" #empty-actions>
 			<EmptyStateActions
@@ -104,12 +102,8 @@ import {
 } from 'frappe-ui'
 import ClearableCombobox from '@/components/Controls/ClearableCombobox.vue'
 import ToggleFilter from '@/components/Controls/ToggleFilter.vue'
-<<<<<<< HEAD
 import ListPage from '@/components/Layouts/ListPage.vue'
-=======
-import ListPage from '@/components/Layouts/pages/ListPage.vue'
 import EmptyStateActions from '@/components/EmptyStateActions.vue'
->>>>>>> 05454d1 (feat: list empty states say what each list is for and how to start it)
 import { computed, inject, onMounted, ref, watch } from 'vue'
 import { sessionStore } from '@/stores/session'
 import { canCreateCourse } from '@/utils'
@@ -219,6 +213,14 @@ const categories = createListResource({
 	cache: ['course_categories'],
 	auto: true,
 })
+
+const clearFilters = () => {
+	currentCategory.value = null
+	certification.value = false
+	// The title watcher reloads on its own; reloading here as well fetches twice.
+	if (title.value) title.value = ''
+	else updateCourses()
+}
 
 const updateCourses = () => {
 	updateFilters()

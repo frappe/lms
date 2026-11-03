@@ -125,12 +125,8 @@ import { useRouter } from 'vue-router'
 import { openFormRoute } from '@/composables/useFormRoute'
 import { setFormSource } from '@/composables/formTracking'
 import UserAvatar from '@/components/UserAvatar.vue'
-<<<<<<< HEAD
 import ListPage from '@/components/Layouts/ListPage.vue'
-=======
-import ListPage from '@/components/Layouts/pages/ListPage.vue'
 import EmptyStateActions from '@/components/EmptyStateActions.vue'
->>>>>>> 05454d1 (feat: list empty states say what each list is for and how to start it)
 import { profileRoute } from '@/utils/routes'
 import { serverTime } from '@/utils/dayjs'
 

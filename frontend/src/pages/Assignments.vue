@@ -92,12 +92,8 @@ import {
 	toast,
 	usePageMeta,
 } from 'frappe-ui'
-<<<<<<< HEAD
 import ListPage from '@/components/Layouts/ListPage.vue'
-=======
-import ListPage from '@/components/Layouts/pages/ListPage.vue'
 import EmptyStateActions from '@/components/EmptyStateActions.vue'
->>>>>>> 05454d1 (feat: list empty states say what each list is for and how to start it)
 import HeaderButton from '@/components/HeaderButton.vue'
 import Select from '@/components/Controls/Select.vue'
 import { computed, inject, onMounted, ref, watch } from 'vue'

@@ -145,12 +145,8 @@ import {
 } from 'frappe-ui'
 import { ChartCard, DonutChart, LineChart, NumberCard } from 'frappe-ui/charts'
 import { computed } from 'vue'
-<<<<<<< HEAD
 import PageHeader from '@/components/Layouts/PageHeader.vue'
-=======
-import PageHeader from '@/components/Layouts/pages/PageHeader.vue'
 import ChartEmptyState from '@/components/ChartEmptyState.vue'
->>>>>>> 6a6599b (feat: empty states for statistics charts and batch dashboard, announcements and feedback)
 import { compactNumber } from '@/utils/numberCardFormat'
 import { sessionStore } from '../stores/session'
 

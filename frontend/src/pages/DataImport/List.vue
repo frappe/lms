@@ -10,11 +10,8 @@
 		:has-next-page="imports.hasNextPage"
 		empty-name="Imports"
 		empty-icon="lucide-arrow-down-to-line"
-<<<<<<< HEAD:frontend/src/pages/DataImport/List.vue
-=======
 		:empty-title="emptyState?.title"
 		:empty-description="emptyState?.description"
->>>>>>> 05454d1 (feat: list empty states say what each list is for and how to start it):frontend/src/pages/DataImports.vue
 		@load-more="imports.next()"
 	>
 		<template #name="{ totalCount }">
@@ -74,21 +71,10 @@
 	</ListPage>
 </template>
 <script setup lang="ts">
-<<<<<<< HEAD:frontend/src/pages/DataImport/List.vue
 import { Badge, Button, createListResource, usePageMeta } from 'frappe-ui'
 import ListPage from '@/components/Layouts/ListPage.vue'
 import Select from '@/components/Controls/Select.vue'
-=======
-import {
-	Badge,
-	Button,
-	createListResource,
-	Select,
-	usePageMeta,
-} from 'frappe-ui'
-import ListPage from '@/components/Layouts/pages/ListPage.vue'
 import EmptyStateActions from '@/components/EmptyStateActions.vue'
->>>>>>> 05454d1 (feat: list empty states say what each list is for and how to start it):frontend/src/pages/DataImports.vue
 import { sessionStore } from '@/stores/session'
 import { importTitle, LMS_IMPORT_DOCTYPES } from '@/utils/dataImport'
 import { computed, inject, onMounted, ref, watch } from 'vue'

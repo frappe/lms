@@ -9,14 +9,12 @@
 		v-model:page-length="pageLength"
 		empty-name="Job Openings"
 		empty-icon="lucide-briefcase"
-<<<<<<< HEAD
-=======
 		:empty-title="emptyState?.title"
 		:empty-description="emptyState?.description"
 		:search-query="searchQuery"
 		:filtered="Boolean(country || jobType?.trim() || workMode?.trim())"
->>>>>>> 05454d1 (feat: list empty states say what each list is for and how to start it)
 		@load-more="jobs.next()"
+		@clear-filters="clearFilters"
 	>
 		<template v-if="emptyState" #empty-actions>
 			<EmptyStateActions
@@ -113,12 +111,8 @@ import { inject, computed, ref, onMounted, watch } from 'vue'
 import JobCard from '@/components/JobCard.vue'
 import Link from '@/components/Controls/Link.vue'
 import Select from '@/components/Controls/Select.vue'
-<<<<<<< HEAD
 import ListPage from '@/components/Layouts/ListPage.vue'
-=======
-import ListPage from '@/components/Layouts/pages/ListPage.vue'
 import EmptyStateActions from '@/components/EmptyStateActions.vue'
->>>>>>> 05454d1 (feat: list empty states say what each list is for and how to start it)
 
 const user = inject('$user')
 const jobType = ref(null)
@@ -201,6 +195,16 @@ const pageLength = computed({
 	},
 })
 
+const clearFilters = () => {
+	// Country and search are watched and reload on their own.
+	const watchedChange = Boolean(country.value || searchQuery.value)
+	jobType.value = null
+	workMode.value = null
+	country.value = null
+	searchQuery.value = ''
+	if (!watchedChange) updateJobs()
+}
+
 const updateJobs = () => {
 	updateFilters()
 	jobs.update({
@@ -259,12 +263,9 @@ watch(activeTab, () => {
 	updateJobs()
 })
 
-watch(country, () => {
-	updateJobs()
-})
-
-// Watch, not a listener. TextInput emits on both input and change.
-watch(searchQuery, () => {
+// Watch, not a listener. TextInput emits on both input and change. One
+// watcher, so clearing both in the same tick reloads once.
+watch([country, searchQuery], () => {
 	updateJobs()
 })
 

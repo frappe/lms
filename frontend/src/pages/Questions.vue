@@ -102,12 +102,8 @@ import { computed, inject, onMounted, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useDebounceFn } from '@vueuse/core'
 import { sessionStore } from '@/stores/session'
-<<<<<<< HEAD
 import ListPage from '@/components/Layouts/ListPage.vue'
-=======
-import ListPage from '@/components/Layouts/pages/ListPage.vue'
 import EmptyStateActions from '@/components/EmptyStateActions.vue'
->>>>>>> 05454d1 (feat: list empty states say what each list is for and how to start it)
 import QuestionDialog from '@/components/Quiz/QuestionDialog.vue'
 import { QUESTION_TYPES, questionTypeMeta } from '@/utils/quizQuestion'
 import { htmlToText } from '@/utils/inertHtml'
