@@ -1,6 +1,8 @@
 <template>
 	<div class="p-5">
+		<!-- Four zeros say nothing before the first student, so the empty state stands alone. -->
 		<div
+			v-if="!showStudentsEmptyState"
 			class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-5 text-ink-gray-9"
 		>
 			<NumberChartGraph
@@ -21,20 +23,30 @@
 			</NumberChartGraph>
 			<NumberChartGraph :title="__('Lessons')" :value="course.data?.lessons" />
 		</div>
-		<div
+		<EmptyStateLayout
 			v-if="showStudentsEmptyState"
-			class="flex min-h-[30vh] sm:min-h-[70vh] flex-col items-center justify-center gap-3 px-4 text-center"
+			class="min-h-[40vh] sm:min-h-[75vh]"
+			name="Students"
+			icon="lucide-users"
+			width="lg"
+			:title="__('No students in this course yet')"
+			:description="
+				__(
+					'Enroll students to follow how far each one gets through the lessons and quizzes in this course.'
+				)
+			"
 		>
-			<span class="lucide-users size-7.5 text-ink-gray-5" />
-			<div class="flex flex-col items-center gap-1">
-				<span class="text-lg-medium text-ink-gray-8">
-					{{ __('No students enrolled yet') }}
-				</span>
-				<span class="text-p-base text-ink-gray-6">
-					{{ __('Enroll students to track their progress here') }}
-				</span>
-			</div>
-		</div>
+			<Button
+				v-if="!readOnlyMode"
+				variant="solid"
+				:label="__('Enroll Students')"
+				@click="openEnrollForm"
+			>
+				<template #prefix>
+					<span class="lucide-plus size-4" />
+				</template>
+			</Button>
+		</EmptyStateLayout>
 		<div
 			v-else
 			class="grid grid-cols-1 lg:grid-cols-[2fr_1fr] gap-5 items-start"
@@ -235,11 +247,20 @@ import {
 } from 'frappe-ui/charts'
 import { PieChart } from 'echarts/charts'
 import Select from '@/components/Controls/Select.vue'
-import { computed, defineComponent, h, inject, ref, watch } from 'vue'
+import {
+	computed,
+	defineComponent,
+	getCurrentInstance,
+	h,
+	inject,
+	ref,
+	watch,
+} from 'vue'
 import type { PropType } from 'vue'
 import type dayjsType from 'dayjs'
 import { formatAmount } from '@/utils'
 import EmptyStateLayout from '@/components/Layouts/EmptyStateLayout.vue'
+import { openFormRoute } from '@/composables/useFormRoute'
 import NumberChartGraph from '@/components/NumberChartGraph.vue'
 import ProgressBar from '@/components/ProgressBar.vue'
 import ResponsiveListView from '@/components/ResponsiveListView.vue'
@@ -340,6 +361,21 @@ const averageCompletionRate = computed(() => {
 	let value = Math.ceil(chartDetails.data?.average_progress) || 0
 	return value + '%'
 })
+
+const readOnlyMode = (window as any).read_only_mode
+// Read on click, not at setup: the dashboard also renders where no router is installed.
+const instance = getCurrentInstance()
+
+// The same form the page header's Enroll button opens.
+function openEnrollForm() {
+	const { $router, $route } = instance!.proxy!
+	openFormRoute($router, {
+		name: 'NewCourseEnrollment',
+		params: { courseName: props.course.data?.name },
+		hash: $route.hash,
+		query: { ...$route.query },
+	})
+}
 
 const showStudentsEmptyState = computed(
 	() =>

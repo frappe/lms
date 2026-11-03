@@ -1,6 +1,9 @@
 <template>
 	<div class="w-[90%] lg:w-[75%] mx-auto mt-5">
-		<h2 class="text-ink-gray-9 text-lg-semibold mb-5">
+		<h2
+			v-if="communications.data?.length"
+			class="text-ink-gray-9 text-lg-semibold mb-5"
+		>
 			{{ __('Announcements') }}
 		</h2>
 		<ul v-if="communications.data?.length" class="list-none">
@@ -26,6 +29,7 @@
 		</ul>
 		<EmptyStateLayout
 			v-else-if="communications.data"
+			class="min-h-[60vh]"
 			name="Announcements"
 			icon="lucide-mail"
 			width="lg"
@@ -35,7 +39,7 @@
 			<Button
 				v-if="canAnnounce"
 				variant="solid"
-				:label="hasStudents ? __('Make Announcement') : __('Add Students')"
+				:label="hasStudents ? __('Make Announcement') : __('Enroll Students')"
 				@click="openForm"
 			>
 				<template #prefix>
@@ -90,7 +94,7 @@ const emptyDescription = computed(() => {
 				'Send everyone in this batch a message, like a schedule change or a reminder before a live class.'
 		  )
 		: __(
-				'Add students to the batch, then send them messages like a schedule change or a class reminder.'
+				'Enroll students in the batch, then send them messages like a schedule change or a class reminder.'
 		  )
 })
 
