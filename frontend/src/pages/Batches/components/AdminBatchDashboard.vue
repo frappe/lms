@@ -114,6 +114,7 @@
 			<div class="order-1 lg:order-2 space-y-5">
 				<ChartCard v-if="showProgressChart" class="h-[300px]">
 					<BarChart
+						v-if="filteredChartData.length"
 						:data="filteredChartData"
 						x="task"
 						y="value"
@@ -124,6 +125,17 @@
 							title: __('Number of Students'),
 							echartOptions: { minInterval: 1 },
 						}"
+					/>
+					<ChartEmptyState
+						v-else
+						:title="__('Batch Summary')"
+						:subtitle="__('Progress of students in courses and assessments')"
+						:message="
+							__(
+								'Bars show up here as students finish the courses and assessments in this batch.'
+							)
+						"
+						icon="lucide-chart-column"
 					/>
 				</ChartCard>
 
@@ -157,6 +169,7 @@ import { computed, inject, onMounted, ref, watch } from 'vue'
 import type dayjsType from 'dayjs'
 import { formatAmount } from '@/utils'
 import BatchFeedback from '@/pages/Batches/components/BatchFeedback.vue'
+import ChartEmptyState from '@/components/ChartEmptyState.vue'
 import BatchStudentProgress from '@/pages/Batches/components/BatchStudentProgress.vue'
 import NumberChartGraph from '@/components/NumberChartGraph.vue'
 import ResponsiveListView from '@/components/ResponsiveListView.vue'
