@@ -12,6 +12,8 @@
 		v-model:page-length="pageLength"
 		empty-name="Job Applications"
 		empty-icon="lucide-briefcase"
+		:empty-title="emptyState?.title"
+		:empty-description="emptyState?.description"
 		@load-more="applications.next()"
 	>
 		<template #filters>
@@ -255,6 +257,14 @@ const getActionOptions = (row) => {
 		onClick: () => openEmailModal(row),
 	})
 	return options
+}
+
+// Only the job's poster and moderators reach this page.
+const emptyState = {
+	title: __('No applications yet'),
+	description: __(
+		'People who apply to this job show up here. Share the job link to reach more applicants.'
+	),
 }
 
 const breadcrumbs = computed(() => [

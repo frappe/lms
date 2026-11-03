@@ -10,6 +10,8 @@
 		:has-next-page="imports.hasNextPage"
 		empty-name="Imports"
 		empty-icon="lucide-arrow-down-to-line"
+		:empty-title="emptyState?.title"
+		:empty-description="emptyState?.description"
 		@load-more="imports.next()"
 	>
 		<template #name="{ totalCount }">
@@ -18,6 +20,14 @@
 					? __('1 Import')
 					: __('{0} Imports').format(totalCount || 0)
 			}}
+		</template>
+
+		<template #empty-actions>
+			<EmptyStateActions
+				list="imports"
+				:create-label="__('New Import')"
+				@create="newImport"
+			/>
 		</template>
 
 		<template #actions>
@@ -64,6 +74,7 @@
 import { Badge, Button, createListResource, usePageMeta } from 'frappe-ui'
 import ListPage from '@/components/Layouts/ListPage.vue'
 import Select from '@/components/Controls/Select.vue'
+import EmptyStateActions from '@/components/EmptyStateActions.vue'
 import { sessionStore } from '@/stores/session'
 import { importTitle, LMS_IMPORT_DOCTYPES } from '@/utils/dataImport'
 import { computed, inject, onMounted, ref, watch } from 'vue'
@@ -164,6 +175,13 @@ const listOptions = {
 		name: 'DataImport',
 		params: { importName: row.name },
 	}),
+}
+
+const emptyState = {
+	title: __('No imports yet'),
+	description: __(
+		'Bring in courses, batches or categories from a spreadsheet instead of adding them one by one.'
+	),
 }
 
 const newImport = () =>

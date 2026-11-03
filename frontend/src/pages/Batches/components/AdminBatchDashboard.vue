@@ -1,6 +1,10 @@
 <template>
 	<div v-if="batch?.data" class="p-5">
-		<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-8">
+		<!-- Four zeros say nothing before the first student, so the empty state stands alone. -->
+		<div
+			v-if="!showStudentsEmptyState"
+			class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-8"
+		>
 			<NumberChartGraph
 				:title="__('Enrolled')"
 				:value="formatAmount(studentCount.data) || 0"
@@ -22,20 +26,30 @@
 			/>
 		</div>
 
-		<div
+		<EmptyStateLayout
 			v-if="showStudentsEmptyState"
-			class="flex min-h-[30vh] sm:min-h-[70vh] flex-col items-center justify-center gap-3 px-4 text-center"
+			class="min-h-[40vh] sm:min-h-[75vh]"
+			name="Students"
+			icon="lucide-users"
+			width="lg"
+			:title="__('No students in this batch yet')"
+			:description="
+				__(
+					'Enroll students to follow how each one moves through the courses and assessments in this batch.'
+				)
+			"
 		>
-			<span class="lucide-users size-7.5 text-ink-gray-5" />
-			<div class="flex flex-col items-center gap-1">
-				<span class="text-lg-medium text-ink-gray-8">
-					{{ __('No students enrolled yet') }}
-				</span>
-				<span class="text-p-base text-ink-gray-6">
-					{{ __('Enroll students to track their progress here') }}
-				</span>
-			</div>
-		</div>
+			<Button
+				v-if="canAddStudents"
+				variant="solid"
+				:label="__('Enroll Students')"
+				@click="openStudentForm"
+			>
+				<template #prefix>
+					<span class="lucide-plus size-4" />
+				</template>
+			</Button>
+		</EmptyStateLayout>
 		<div
 			v-else
 			class="grid grid-cols-1 lg:grid-cols-[3fr_2fr] gap-5 items-start"
@@ -114,6 +128,7 @@
 			<div class="order-1 lg:order-2 space-y-5">
 				<ChartCard v-if="showProgressChart" class="h-[300px]">
 					<BarChart
+						v-if="filteredChartData.length"
 						:data="filteredChartData"
 						x="task"
 						y="value"
@@ -124,6 +139,17 @@
 							title: __('Number of Students'),
 							echartOptions: { minInterval: 1 },
 						}"
+					/>
+					<ChartEmptyState
+						v-else
+						:title="__('Batch Summary')"
+						:subtitle="__('Progress of students in courses and assessments')"
+						:message="
+							__(
+								'Bars show up here as students finish the courses and assessments in this batch.'
+							)
+						"
+						icon="lucide-chart-column"
 					/>
 				</ChartCard>
 
@@ -153,15 +179,24 @@ import {
 	Button,
 } from 'frappe-ui'
 import { BarChart, ChartCard } from 'frappe-ui/charts'
-import { computed, inject, onMounted, ref, watch } from 'vue'
+import {
+	computed,
+	getCurrentInstance,
+	inject,
+	onMounted,
+	ref,
+	watch,
+} from 'vue'
 import type dayjsType from 'dayjs'
 import { formatAmount } from '@/utils'
 import BatchFeedback from '@/pages/Batches/components/BatchFeedback.vue'
+import ChartEmptyState from '@/components/ChartEmptyState.vue'
 import BatchStudentProgress from '@/pages/Batches/components/BatchStudentProgress.vue'
 import NumberChartGraph from '@/components/NumberChartGraph.vue'
 import ResponsiveListView from '@/components/ResponsiveListView.vue'
 import EmptyStateLayout from '@/components/Layouts/EmptyStateLayout.vue'
 import type { ListColumn, ListRow, ListViewOptions } from '@/types'
+import { openBatchForm } from '@/composables/useBatchForms'
 
 const dayjs = inject<typeof dayjsType>('$dayjs')!
 const searchFilter = ref<string | null>(null)
@@ -292,6 +327,31 @@ const showProgressChart = computed(
 		(props.batch?.data?.courses?.length ||
 			props.batch?.data?.assessments?.length)
 )
+
+const user = inject<any>('$user', null)
+// Read on click, not at setup: the dashboard also renders where no router is installed.
+const instance = getCurrentInstance()
+
+// Same people as the header's Add Student button.
+const canAddStudents = computed(
+	() =>
+		!(window as any).read_only_mode &&
+		Boolean(
+			user?.data?.is_moderator ||
+				user?.data?.is_evaluator ||
+				props.batch?.data?.can_manage
+		)
+)
+
+function openStudentForm() {
+	const { $router, $route } = instance!.proxy!
+	openBatchForm(
+		$router,
+		'NewBatchStudent',
+		props.batch?.data?.name,
+		$route.hash
+	)
+}
 
 const showStudentsEmptyState = computed(
 	() => !students.loading && !students.data?.length && !searchFilter.value

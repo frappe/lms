@@ -67,10 +67,12 @@
 				<slot name="selection-actions" v-bind="bannerProps" />
 			</template>
 		</ResponsiveListView>
-		<div v-else class="flex-1">
+		<!-- Bottom padding lifts the empty state: dead centre reads as too low. -->
+		<div v-else class="flex-1 pb-24">
 			<EmptyStateLayout
 				:name="emptyName"
 				:icon="emptyIcon"
+				:title="isFiltered ? undefined : emptyTitle || undefined"
 				:description="emptyStateDescription"
 			>
 				<Button
@@ -78,6 +80,7 @@
 					:label="__('Clear filters')"
 					@click="clearFilters"
 				/>
+				<slot v-else name="empty-actions" />
 			</EmptyStateLayout>
 		</div>
 
@@ -169,6 +172,8 @@ const props = withDefaults(
 		/** What the empty state calls these rows, e.g. "Courses". */
 		emptyName?: string
 		emptyIcon?: string
+		/** Replaces "No {emptyName} Found" when nothing is filtered. */
+		emptyTitle?: string
 		/** Replaces the default empty-state sentence, which suits learner pages. */
 		emptyDescription?: string
 		/** Text in a search box the page renders itself, in its #filters slot. */
@@ -191,6 +196,7 @@ const props = withDefaults(
 		pageLengthOptions: () => [24, 60, 120],
 		emptyName: '',
 		emptyIcon: 'lucide-graduation-cap',
+		emptyTitle: '',
 		emptyDescription: '',
 		searchQuery: '',
 		filtered: false,
