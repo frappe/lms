@@ -27,14 +27,22 @@
 						:open-to="profile.data.open_to"
 					/>
 				</div>
-				<div class="ms-6 mt-5">
+				<div class="mt-5 md:mt-0 md:ms-6 text-center md:text-start">
 					<h1 class="text-4xl-semibold text-ink-gray-9">
 						{{ profile.data.full_name }}
 					</h1>
-					<div class="text-base text-ink-gray-7 mt-1">
+					<div
+						v-if="profile.data.headline"
+						class="text-base text-ink-gray-7 mt-1"
+					>
 						{{ profile.data.headline }}
 					</div>
 					<ProfileSocialLinks
+						v-if="
+							profile.data.twitter ||
+							profile.data.linkedin ||
+							profile.data.github
+						"
 						:twitter="profile.data.twitter"
 						:linkedin="profile.data.linkedin"
 						:github="profile.data.github"
