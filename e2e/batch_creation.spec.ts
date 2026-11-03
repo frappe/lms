@@ -115,8 +115,12 @@ test.describe("Batch Creation", () => {
 		await page.goto("/lms/batches");
 		await closeOnboardingModal(page);
 
-		// Create batch
-		await button(page, "New Batch").click();
+		// Create batch. Scoped to the page header: with no batches yet, the
+		// empty state offers its own New Batch button below it.
+		await page
+			.locator("header")
+			.getByRole("button", { name: "New Batch" })
+			.click();
 
 		const field = (label: string) =>
 			page.locator("label").filter({ hasText: label }).locator("xpath=..");
