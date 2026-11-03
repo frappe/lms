@@ -1,5 +1,5 @@
 <template>
-	<div>
+	<div v-if="!showsEmptyState">
 		<Button
 			v-if="!singleThread && !readOnlyMode"
 			class="float-end"
@@ -78,10 +78,20 @@
 			:docname="props.docname"
 		/>
 	</div>
-	<div
-		v-else
-		class="flex flex-col items-center justify-center border-2 border-dashed mt-5 py-8 rounded-5"
+	<EmptyStateLayout
+		v-else-if="singleThread && topics.error"
+		class="min-h-[60vh]"
+		name="Discussions"
+		icon="lucide-message-circle"
+		width="lg"
+		:title="__('This discussion did not load')"
+		:description="
+			__(
+				'Reload to try again. If it still does not load, ask your site administrator to check the error log.'
+			)
+		"
 	>
+<<<<<<< HEAD
 		<span class="lucide-message-square-text size-7 text-ink-gray-4 me-2" />
 		<div class="mt-2">
 			<div v-if="emptyStateTitle" class="font-medium mb-2">
@@ -92,6 +102,31 @@
 			</div>
 		</div>
 	</div>
+=======
+		<Button :label="__('Reload')" @click="topics.reload()" />
+	</EmptyStateLayout>
+	<!-- Sits under a lesson, so it stays compact rather than filling the view. -->
+	<EmptyStateLayout
+		v-else-if="!singleThread && topics.data"
+		class="!min-h-0 py-10"
+		name="Discussions"
+		icon="lucide-message-circle"
+		width="lg"
+		:title="
+			emptyStateTitle
+				? __(emptyStateTitle)
+				: __('No {0} yet').format(__(title).toLowerCase())
+		"
+		:description="__(emptyStateText)"
+	>
+		<Button v-if="!readOnlyMode" variant="solid" @click="openTopicModal()">
+			<template #prefix>
+				<span class="lucide-plus size-4" />
+			</template>
+			{{ __('New {0}').format(singularize(title)) }}
+		</Button>
+	</EmptyStateLayout>
+>>>>>>> e0833fa (feat: empty states for batch tabs, course dashboard, discussions and statistics)
 	<DiscussionModal
 		v-model="showTopicModal"
 		:title="__('New {0}').format(title)"
@@ -105,7 +140,8 @@
 import { createResource, Button } from 'frappe-ui'
 import UserAvatar from '@/components/UserAvatar.vue'
 import { singularize, timeAgo } from '@/utils'
-import { ref, watch, onMounted, inject, onUnmounted } from 'vue'
+import EmptyStateLayout from '@/components/Layouts/EmptyStateLayout.vue'
+import { computed, ref, watch, onMounted, inject, onUnmounted } from 'vue'
 import DiscussionReplies from '@/components/DiscussionReplies.vue'
 import DiscussionModal from '@/components/Modals/DiscussionModal.vue'
 import { getScrollContainer } from '@/utils/scrollContainer'
@@ -178,6 +214,14 @@ const topics = createResource({
 		}
 	},
 })
+
+// An empty or failed list gets the whole area; the heading and its New button
+// would only repeat what the empty state already says and offers.
+const showsEmptyState = computed(
+	() =>
+		(props.singleThread && Boolean(topics.error)) ||
+		(!props.singleThread && Array.isArray(topics.data) && !topics.data.length)
+)
 
 const showReplies = (topic) => {
 	showTopics.value = false

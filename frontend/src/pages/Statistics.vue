@@ -46,7 +46,7 @@
 				</Tooltip>
 			</div>
 			<div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mt-4">
-				<ChartCard class="h-80">
+				<ChartCard class="h-72">
 					<LineChart
 						v-if="hasPoints(signupsChart.data)"
 						:data="signupsChart.data"
@@ -68,7 +68,7 @@
 						icon="lucide-user-plus"
 					/>
 				</ChartCard>
-				<ChartCard class="h-80">
+				<ChartCard class="h-72">
 					<LineChart
 						v-if="hasPoints(enrollmentChart.data)"
 						:data="enrollmentChart.data"
@@ -90,7 +90,7 @@
 						icon="lucide-book-open"
 					/>
 				</ChartCard>
-				<ChartCard class="h-80">
+				<ChartCard class="h-72">
 					<LineChart
 						v-if="hasPoints(certification.data)"
 						:data="certification.data"
@@ -110,14 +110,26 @@
 						icon="lucide-badge-check"
 					/>
 				</ChartCard>
-				<ChartCard v-if="hasCompletions" class="h-80">
+				<ChartCard v-if="courseCompletion.data" class="h-72">
 					<DonutChart
+						v-if="hasCompletions"
 						:data="courseCompletion.data"
 						category="label"
 						value="value"
 						title="Completions"
 						subtitle="Course Completion"
 						:center-label="__('Enrollments')"
+					/>
+					<ChartEmptyState
+						v-else
+						:title="__('Completions')"
+						:subtitle="__('Course Completion')"
+						:message="
+							__(
+								'When learners finish a course, you will see how many completed out of everyone enrolled.'
+							)
+						"
+						icon="lucide-circle-check"
 					/>
 				</ChartCard>
 			</div>
@@ -197,8 +209,8 @@ const courseCompletion = createResource({
 // sentence about what will show up there.
 const hasPoints = (data) => Boolean(data?.some((point) => point.count > 0))
 
-// A donut with zero completions conveys nothing, so hide it until at least one
-// learner has completed a course.
+// A donut with zero completions conveys nothing, so it shows a sentence until
+// at least one learner has completed a course.
 const hasCompletions = computed(() => {
 	const completed = courseCompletion.data?.find((d) => d.label === 'Completed')
 	return (completed?.value || 0) > 0

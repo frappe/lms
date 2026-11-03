@@ -22,6 +22,28 @@
 			{{ topic.title }}
 		</div>
 
+		<div
+			v-if="singleThread && replies.data && !replies.data.length"
+			class="mb-5 flex items-center gap-3 rounded-5 bg-surface-gray-1 p-4"
+		>
+			<span
+				class="lucide-message-circle size-5 shrink-0 text-ink-gray-5"
+				aria-hidden="true"
+			/>
+			<div class="space-y-0.5">
+				<div class="text-base-medium text-ink-gray-8">
+					{{ __('Start the conversation') }}
+				</div>
+				<div class="text-p-sm text-ink-gray-6">
+					{{
+						__(
+							'Ask a question or share something useful. Everyone in this batch can read and reply here.'
+						)
+					}}
+				</div>
+			</div>
+		</div>
+
 		<ul class="list-none">
 			<li v-for="(reply, index) in replies.data" :key="reply.name">
 				<div
