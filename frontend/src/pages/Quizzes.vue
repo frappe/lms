@@ -56,7 +56,7 @@
 			<div v-else-if="column.key == 'modified'" class="text-sm text-ink-gray-5">
 				{{ value }}
 			</div>
-			<div v-else>{{ value }}</div>
+			<div v-else class="truncate">{{ value }}</div>
 		</template>
 
 		<template #selection-actions="{ selections }">

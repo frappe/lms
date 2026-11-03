@@ -65,6 +65,14 @@ MAX_VIOLATION_FRAMES = 40
 
 
 class LMSQuiz(AuthoredDocument, Document):
+	def throw_length_exceeded_error(self, df, max_length, value):
+		if df.fieldname == "title":
+			frappe.throw(
+				_("Title must be {0} characters or fewer.").format(max_length),
+				frappe.CharacterLengthExceededError,
+			)
+		super().throw_length_exceeded_error(df, max_length, value)
+
 	def validate(self):
 		self.validate_duplicate_questions()
 		self.validate_limit()
