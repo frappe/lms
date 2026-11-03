@@ -13,6 +13,7 @@
 		</div>
 		<div v-if="courses.data?.length" class="text-sm">
 			<ResponsiveListView
+				docked-banner
 				:columns="courseColumns"
 				:rows="courses.data"
 				row-key="name"
