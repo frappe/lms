@@ -45,12 +45,19 @@
 				</template>
 			</ResponsiveListView>
 		</div>
-		<div v-else class="text-ink-gray-7">
-			{{ __('No assessments added to this batch') }}
-		</div>
+		<SectionEmptyState
+			v-else
+			icon="lucide-clipboard-list"
+			:message="
+				__(
+					'Add quizzes, assignments or programming exercises for students to complete during this batch.'
+				)
+			"
+		/>
 	</div>
 </template>
 <script setup>
+import SectionEmptyState from '@/components/SectionEmptyState.vue'
 import { createResource, Button, Badge } from 'frappe-ui'
 import { computed, inject } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
