@@ -235,8 +235,16 @@ test.describe("Batch Creation", () => {
 			.or(page.getByRole("tab"))
 			.filter({ hasText: "Dashboard" })
 			.click();
+<<<<<<< HEAD
 		await closeOnboardingModal(page);
 		await button(page, "Enroll").click();
+=======
+		// Exact: the empty dashboard also offers "Enroll Students".
+		await button(page, /^Enroll$/).click();
+		// The Enroll Students dialog picks students with a MultiSelect, the same
+		// trigger + content-body search as the Instructors field above. Typing
+		// the unique email narrows the results to the student made above.
+>>>>>>> bf62331 (test: click the header's Enroll, not the empty dashboard's Enroll Students)
 		const enrollDialog = page.locator('div[role="dialog"]').first();
 		const studentField = enrollDialog
 			.locator("label")
