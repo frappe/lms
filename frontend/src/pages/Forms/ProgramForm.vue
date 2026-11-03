@@ -135,6 +135,7 @@
 						</div>
 					</div>
 					<ResponsiveListView
+						docked-banner
 						v-if="program.program_members?.length > 0"
 						:columns="memberColumns"
 						:rows="program.program_members"
