@@ -73,13 +73,13 @@
 					row.username ? 'cursor-pointer hover:border-outline-gray-3' : ''
 				"
 			>
-				<div class="flex items-center gap-x-4">
+				<div class="flex items-center gap-x-4 mb-4">
 					<UserAvatar :user="row" size="2xl" />
 					<div class="flex flex-col">
 						<div class="line-clamp-1 font-semibold">
 							{{ row.full_name }}
 						</div>
-						<div class="mb-4 line-clamp-1 text-sm leading-5">
+						<div class="line-clamp-1 text-sm leading-5">
 							{{
 								row.headline || 'Joined ' + serverTime(row.creation).fromNow()
 							}}
