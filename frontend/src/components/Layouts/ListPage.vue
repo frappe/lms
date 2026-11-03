@@ -67,8 +67,26 @@
 				<slot name="selection-actions" v-bind="bannerProps" />
 			</template>
 		</ResponsiveListView>
+<<<<<<< HEAD:frontend/src/components/Layouts/ListPage.vue
 		<div v-else class="flex-1">
 			<EmptyStateLayout :name="emptyName" :icon="emptyIcon" />
+=======
+		<!-- Bottom padding lifts the empty state: dead centre reads as too low. -->
+		<div v-else class="flex-1 pb-24">
+			<EmptyStateLayout
+				:name="emptyName"
+				:icon="emptyIcon"
+				:title="isFiltered ? undefined : emptyTitle || undefined"
+				:description="emptyStateDescription"
+			>
+				<Button
+					v-if="isFiltered"
+					:label="__('Clear filters')"
+					@click="clearFilters"
+				/>
+				<slot v-else name="empty-actions" />
+			</EmptyStateLayout>
+>>>>>>> 05454d1 (feat: list empty states say what each list is for and how to start it):frontend/src/components/Layouts/pages/ListPage.vue
 		</div>
 
 		<template #footer>
@@ -159,6 +177,17 @@ const props = withDefaults(
 		/** What the empty state calls these rows, e.g. "Courses". */
 		emptyName?: string
 		emptyIcon?: string
+<<<<<<< HEAD:frontend/src/components/Layouts/ListPage.vue
+=======
+		/** Replaces "No {emptyName} Found" when nothing is filtered. */
+		emptyTitle?: string
+		/** Replaces the default empty-state sentence, which suits learner pages. */
+		emptyDescription?: string
+		/** Text in a search box the page renders itself, in its #filters slot. */
+		searchQuery?: string
+		/** A filter other than search is narrowing the rows. */
+		filtered?: boolean
+>>>>>>> 05454d1 (feat: list empty states say what each list is for and how to start it):frontend/src/components/Layouts/pages/ListPage.vue
 	}>(),
 	{
 		title: '',
@@ -175,6 +204,13 @@ const props = withDefaults(
 		pageLengthOptions: () => [24, 60, 120],
 		emptyName: '',
 		emptyIcon: 'lucide-graduation-cap',
+<<<<<<< HEAD:frontend/src/components/Layouts/ListPage.vue
+=======
+		emptyTitle: '',
+		emptyDescription: '',
+		searchQuery: '',
+		filtered: false,
+>>>>>>> 05454d1 (feat: list empty states say what each list is for and how to start it):frontend/src/components/Layouts/pages/ListPage.vue
 	}
 )
 

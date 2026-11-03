@@ -9,8 +9,19 @@
 		v-model:page-length="pageLength"
 		empty-name="Certified Members"
 		empty-icon="lucide-badge-check"
+		:empty-title="emptyState?.title"
+		:empty-description="emptyState?.description"
 		@load-more="participants.next()"
 	>
+		<template v-if="emptyState" #empty-actions>
+			<EmptyStateActions
+				list="certified_participants"
+				:create-label="__('New Course')"
+				docs="https://docs.frappe.io/learning/issue-a-certificate"
+				@create="newCourseFromEmptyState"
+			/>
+		</template>
+
 		<template #actions>
 			<Button :route="{ name: 'Courses', query: { certification: true } }">
 				<template #prefix>
@@ -111,8 +122,15 @@ import ToggleFilter from '@/components/Controls/ToggleFilter.vue'
 import { computed, inject, onMounted, ref, watch } from 'vue'
 import { sessionStore } from '../stores/session'
 import { useRouter } from 'vue-router'
+import { openFormRoute } from '@/composables/useFormRoute'
+import { setFormSource } from '@/composables/formTracking'
 import UserAvatar from '@/components/UserAvatar.vue'
+<<<<<<< HEAD
 import ListPage from '@/components/Layouts/ListPage.vue'
+=======
+import ListPage from '@/components/Layouts/pages/ListPage.vue'
+import EmptyStateActions from '@/components/EmptyStateActions.vue'
+>>>>>>> 05454d1 (feat: list empty states say what each list is for and how to start it)
 import { profileRoute } from '@/utils/routes'
 import { serverTime } from '@/utils/dayjs'
 
@@ -126,6 +144,24 @@ const memberCount = ref(0)
 const dayjs = inject('$dayjs')
 const user = inject('$user')
 const router = useRouter()
+
+// Learners keep the default wording and the Get Certified button above.
+const emptyState = computed(() => {
+	// The same people canCreateCourse allows; importing it drags in the router.
+	if (window.read_only_mode) return null
+	if (!user.data?.is_instructor && !user.data?.is_moderator) return null
+	return {
+		title: __('No one is certified yet'),
+		description: __(
+			'Learners who finish a course with a certificate show up here. Add one to a course to begin.'
+		),
+	}
+})
+
+function newCourseFromEmptyState() {
+	setFormSource('empty_state')
+	openFormRoute(router, { name: 'NewCourse' })
+}
 
 onMounted(() => {
 	if (!user.data) {

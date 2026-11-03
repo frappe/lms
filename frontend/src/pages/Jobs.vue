@@ -9,8 +9,25 @@
 		v-model:page-length="pageLength"
 		empty-name="Job Openings"
 		empty-icon="lucide-briefcase"
+<<<<<<< HEAD
+=======
+		:empty-title="emptyState?.title"
+		:empty-description="emptyState?.description"
+		:search-query="searchQuery"
+		:filtered="Boolean(country || jobType?.trim() || workMode?.trim())"
+>>>>>>> 05454d1 (feat: list empty states say what each list is for and how to start it)
 		@load-more="jobs.next()"
 	>
+		<template v-if="emptyState" #empty-actions>
+			<EmptyStateActions
+				list="jobs"
+				:tab="activeTab"
+				:create-label="__('New Job')"
+				:route="{ name: 'JobForm', params: { jobName: 'new' } }"
+				docs="https://docs.frappe.io/learning/job-listing/create-a-job-listing"
+			/>
+		</template>
+
 		<template #actions>
 			<Button
 				v-if="
@@ -96,7 +113,12 @@ import { inject, computed, ref, onMounted, watch } from 'vue'
 import JobCard from '@/components/JobCard.vue'
 import Link from '@/components/Controls/Link.vue'
 import Select from '@/components/Controls/Select.vue'
+<<<<<<< HEAD
 import ListPage from '@/components/Layouts/ListPage.vue'
+=======
+import ListPage from '@/components/Layouts/pages/ListPage.vue'
+import EmptyStateActions from '@/components/EmptyStateActions.vue'
+>>>>>>> 05454d1 (feat: list empty states say what each list is for and how to start it)
 
 const user = inject('$user')
 const jobType = ref(null)
@@ -244,6 +266,31 @@ watch(country, () => {
 // Watch, not a listener. TextInput emits on both input and change.
 watch(searchQuery, () => {
 	updateJobs()
+})
+
+// What lands in this list and how to start it, for the person who would fill it;
+// learners keep the default wording.
+const emptyState = computed(() => {
+	if (!(user.data?.name && settings.data?.allow_job_posting && !readOnlyMode))
+		return null
+	switch (activeTab.value) {
+		case 'Open':
+			return {
+				title: __('Post a job'),
+				description: __(
+					'Share openings with the people who learn on your site, from internships to full-time roles.'
+				),
+			}
+		case 'Closed':
+			return {
+				title: __('No closed jobs'),
+				description: __(
+					'Jobs you close move here, so you keep a record of past openings.'
+				),
+			}
+		default:
+			return null
+	}
 })
 
 const tabs = computed(() => {
