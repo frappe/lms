@@ -68,9 +68,6 @@
 			</template>
 		</ResponsiveListView>
 		<div v-else class="flex-1">
-<<<<<<< HEAD:frontend/src/components/Layouts/ListPage.vue
-			<EmptyStateLayout :name="emptyName" :icon="emptyIcon" />
-=======
 			<EmptyStateLayout
 				:name="emptyName"
 				:icon="emptyIcon"
@@ -82,7 +79,6 @@
 					@click="clearFilters"
 				/>
 			</EmptyStateLayout>
->>>>>>> b5e8a3f (fix: say when a search or filter matched nothing):frontend/src/components/Layouts/pages/ListPage.vue
 		</div>
 
 		<template #footer>
@@ -173,15 +169,12 @@ const props = withDefaults(
 		/** What the empty state calls these rows, e.g. "Courses". */
 		emptyName?: string
 		emptyIcon?: string
-<<<<<<< HEAD:frontend/src/components/Layouts/ListPage.vue
-=======
 		/** Replaces the default empty-state sentence, which suits learner pages. */
 		emptyDescription?: string
 		/** Text in a search box the page renders itself, in its #filters slot. */
 		searchQuery?: string
 		/** A filter other than search is narrowing the rows. */
 		filtered?: boolean
->>>>>>> b5e8a3f (fix: say when a search or filter matched nothing):frontend/src/components/Layouts/pages/ListPage.vue
 	}>(),
 	{
 		title: '',
@@ -198,12 +191,9 @@ const props = withDefaults(
 		pageLengthOptions: () => [24, 60, 120],
 		emptyName: '',
 		emptyIcon: 'lucide-graduation-cap',
-<<<<<<< HEAD:frontend/src/components/Layouts/ListPage.vue
-=======
 		emptyDescription: '',
 		searchQuery: '',
 		filtered: false,
->>>>>>> b5e8a3f (fix: say when a search or filter matched nothing):frontend/src/components/Layouts/pages/ListPage.vue
 	}
 )
 

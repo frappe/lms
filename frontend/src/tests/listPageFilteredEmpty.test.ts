@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest'
 import { mount } from '@vue/test-utils'
-import ListPage from '@/components/Layouts/pages/ListPage.vue'
+import ListPage from '@/components/Layouts/ListPage.vue'
 
 // Same contract as translation.js: a string, or `.format` when it has {n}.
 vi.stubGlobal('__', (text: string) =>
@@ -23,10 +23,10 @@ vi.mock('frappe-ui', () => ({
 	toast: {},
 }))
 vi.mock('frappe-ui/experimental', () => ({ ListFooter: { template: '<i />' } }))
-vi.mock('@/components/Layouts/pages/PageHeader.vue', () => ({
+vi.mock('@/components/Layouts/PageHeader.vue', () => ({
 	default: { template: '<i />' },
 }))
-vi.mock('@/components/Layouts/pages/PageBody.vue', () => ({
+vi.mock('@/components/Layouts/PageBody.vue', () => ({
 	default: { template: '<div><slot /></div>' },
 }))
 vi.mock('@/components/ResponsiveListView.vue', () => ({
