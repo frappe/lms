@@ -64,7 +64,7 @@ vi.mock('@/components/Controls/ToggleFilter.vue', () => stub())
 vi.mock('@/components/JobCard.vue', () => stub())
 vi.mock('@/components/UserAvatar.vue', () => stub())
 vi.mock('@/pages/Batches/components/BatchCard.vue', () => stub())
-vi.mock('@/components/Layouts/pages/ListPage.vue', () => ({
+vi.mock('@/components/Layouts/ListPage.vue', () => ({
 	default: { template: '<div><slot name="filters" /></div>' },
 }))
 vi.mock('@/stores/session', () => ({ sessionStore: () => ({ brand: {} }) }))

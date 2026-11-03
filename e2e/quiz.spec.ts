@@ -150,7 +150,12 @@ test.describe("Quiz", () => {
 			// that carries no accessible name of its own.
 			await page.locator('input[type="checkbox"]').first().click();
 			await button(page, "Delete").click();
-			await expect(page.getByText(questionText)).toHaveCount(0);
+			// The search box still holds the question text, so the empty state
+			// names the search rather than claiming the bank is empty — the
+			// question text stays on the page inside that sentence.
+			await expect(
+				page.getByText(`Nothing matches "${questionText}"`)
+			).toBeVisible();
 		});
 	});
 
