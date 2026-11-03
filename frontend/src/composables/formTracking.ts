@@ -11,6 +11,7 @@ export type FormSource =
 	| 'admin_home'
 	| 'course_editor'
 	| 'course_editor_empty_state'
+	| 'empty_state'
 	| 'direct'
 
 let pending: FormSource | null = null

@@ -9,11 +9,23 @@
 		v-model:page-length="pageLength"
 		empty-name="Courses"
 		empty-icon="lucide-book-open"
+		:empty-title="emptyState?.title"
+		:empty-description="emptyState?.description"
 		:search-query="title"
 		:filtered="Boolean(currentCategory || certification)"
 		@load-more="courses.next()"
 		@clear-filters="clearFilters"
 	>
+		<template v-if="emptyState" #empty-actions>
+			<EmptyStateActions
+				list="courses"
+				:tab="currentTab"
+				:create-label="__('New Course')"
+				docs="https://docs.frappe.io/learning/create-a-course"
+				@create="newCourseFromEmptyState"
+			/>
+		</template>
+
 		<template #actions>
 			<div v-if="canCreateCourse()" class="flex items-center gap-2">
 				<Dropdown
@@ -91,6 +103,7 @@ import {
 import ClearableCombobox from '@/components/Controls/ClearableCombobox.vue'
 import ToggleFilter from '@/components/Controls/ToggleFilter.vue'
 import ListPage from '@/components/Layouts/pages/ListPage.vue'
+import EmptyStateActions from '@/components/EmptyStateActions.vue'
 import { computed, inject, onMounted, ref, watch } from 'vue'
 import { sessionStore } from '@/stores/session'
 import { canCreateCourse } from '@/utils'
@@ -358,6 +371,49 @@ const { capture } = useTelemetry()
 // form's own close() pops it instead of replacing.
 const openNewCourse = () => {
 	setFormSource('header_button')
+	openFormRoute(router, { name: 'NewCourse' })
+}
+
+// What lands in this list and how to start it, for the person who would fill it;
+// learners keep the default wording.
+const emptyState = computed(() => {
+	if (!canCreateCourse()) return null
+	switch (currentTab.value) {
+		case 'live':
+			return {
+				title: __('Publish your first course'),
+				description: __(
+					'Turn what you know into lessons, quizzes and a certificate people can take at their own pace.'
+				),
+			}
+		case 'upcoming':
+			return {
+				title: __('No upcoming courses'),
+				description: __(
+					'Courses marked as upcoming show up here, so learners can see what is coming next.'
+				),
+			}
+		case 'created':
+			return {
+				title: __('No courses created by you'),
+				description: __(
+					'Courses you create or teach show up here, for your team, students or customers.'
+				),
+			}
+		case 'unpublished':
+			return {
+				title: __('No unpublished courses'),
+				description: __(
+					'New courses wait here while you build them. Publish one when it is ready.'
+				),
+			}
+		default:
+			return null
+	}
+})
+
+function newCourseFromEmptyState() {
+	setFormSource('empty_state')
 	openFormRoute(router, { name: 'NewCourse' })
 }
 

@@ -12,8 +12,19 @@
 		v-model:search="search"
 		empty-name="Questions"
 		empty-icon="lucide-circle-help"
+		:empty-title="emptyState?.title"
+		:empty-description="emptyState?.description"
 		@load-more="questions.next()"
 	>
+		<template v-if="emptyState" #empty-actions>
+			<EmptyStateActions
+				list="questions"
+				:create-label="__('New question')"
+				docs="https://docs.frappe.io/learning/quizzes"
+				@create="newQuestion"
+			/>
+		</template>
+
 		<template #actions>
 			<Button v-if="!readOnlyMode" variant="solid" @click="newQuestion">
 				<template #prefix>
@@ -92,6 +103,7 @@ import { useRouter } from 'vue-router'
 import { useDebounceFn } from '@vueuse/core'
 import { sessionStore } from '@/stores/session'
 import ListPage from '@/components/Layouts/pages/ListPage.vue'
+import EmptyStateActions from '@/components/EmptyStateActions.vue'
 import QuestionDialog from '@/components/Quiz/QuestionDialog.vue'
 import { QUESTION_TYPES, questionTypeMeta } from '@/utils/quizQuestion'
 import { htmlToText } from '@/utils/inertHtml'
@@ -110,6 +122,18 @@ const dayjs = inject('$dayjs') as (date: string) => {
 }
 const user = inject('$user') as SessionUser
 const router = useRouter()
+// What lands in this list and how to start it, for the person who would fill it;
+// learners keep the default wording.
+const emptyState = computed(() => {
+	if (readOnlyMode) return null
+	return {
+		title: __('Build your question bank'),
+		description: __(
+			'Write a question once and reuse it in any quiz you build.'
+		),
+	}
+})
+
 const readOnlyMode = window.read_only_mode
 const search = ref<string>('')
 const typeFilter = ref<QuestionTypeFilter>('')
