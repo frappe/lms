@@ -1,8 +1,10 @@
 # Copyright (c) 2026, Frappe and Contributors
 # See license.txt
 
+import unittest
+
 import frappe
-from frappe.core.doctype.user.user import change_password
+from frappe.core.doctype.user import user as user_controller
 
 from lms.install import give_user_list_permission
 from lms.lms.api import add_member, delete_member, update_member
@@ -58,10 +60,12 @@ class TestModeratorUserAccess(BaseTestUtils):
 		give_user_list_permission()
 		self.assertEqual(self._moderator_perm(), {"read": 1, "write": 0, "create": 0, "delete": 0})
 
+	# frappe v15 has no endpoint for setting another user's password.
+	@unittest.skipUnless(hasattr(user_controller, "change_password"), "frappe v16 endpoint")
 	def test_a_moderator_cannot_change_a_system_managers_password(self):
 		frappe.set_user(self.moderator.name)
 		with self.assertRaises(frappe.PermissionError):
-			change_password(self.admin.name, "Another-Pass-2026!")
+			user_controller.change_password(self.admin.name, "Another-Pass-2026!")
 
 	def test_a_moderator_cannot_edit_a_user(self):
 		frappe.set_user(self.moderator.name)
