@@ -450,7 +450,7 @@ describe('useSettingsMethodResource', () => {
 		expect(list.rows).toHaveLength(5)
 	})
 
-	it('offers no Load More after a first page fails, since the old offset belongs to the old search', async () => {
+	it('clears the old rows and Load More when a new search fails', async () => {
 		const list = useSettingsMethodResource({
 			method: 'lms.lms.api.get_members',
 			doctype: 'User',
@@ -464,7 +464,7 @@ describe('useSettingsMethodResource', () => {
 		expect(list.hasNextPage).toBe(false)
 		await landMethod(null)
 		expect(list.hasNextPage).toBe(false)
-		expect(list.rows).toHaveLength(5)
+		expect(list.rows).toHaveLength(0)
 	})
 
 	it('asks for a page once when Load More is clicked twice', async () => {
