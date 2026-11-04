@@ -49,6 +49,9 @@ describe('the email template form', () => {
 		['Subject', { subject: '' }],
 		['Content', { response: '' }],
 		['Content', { use_html: 1, response_html: '' }],
+		['Name', { name: '   ' }],
+		['Subject', { subject: ' ' }],
+		['Content', { response: '\n ' }],
 	])('refuses a template with no %s', (field, over) => {
 		expect(validateTemplate(template(over))).toBe(`${field} is required`)
 	})

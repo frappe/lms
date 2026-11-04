@@ -48,11 +48,15 @@ const CONTENT_ROWS = 8
 
 // Checked before Save, which renames before it writes: an empty Subject or
 // Content would otherwise fail the write after the rename had moved the record.
+// Spaces alone count as empty: a blank name is no rename target, so Save would
+// report success with the old name still in place.
+const isBlank = (value: unknown) => !String(value ?? '').trim()
+
 export const validateTemplate = (doc: SettingsListRow): string => {
-	if (!doc.name) return __('Name is required')
-	if (!doc.subject) return __('Subject is required')
-	const content = doc.use_html ? doc.response_html : doc.response
-	if (!content) return __('Content is required')
+	if (isBlank(doc.name)) return __('Name is required')
+	if (isBlank(doc.subject)) return __('Subject is required')
+	if (isBlank(doc.use_html ? doc.response_html : doc.response))
+		return __('Content is required')
 	return ''
 }
 
