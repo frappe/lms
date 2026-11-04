@@ -108,7 +108,7 @@ class LMSAssignmentSubmission(Document):
 	def validate_duplicates(self):
 		if frappe.db.exists(
 			"LMS Assignment Submission",
-			{"assignment": self.assignment, "member": self.member, "name": ["!=", self.name]},
+			{"assignment": self.assignment, "member": self.member, "name": ["!=", self.name or ""]},
 		):
 			title = (
 				frappe.db.get_value("Course Lesson", self.lesson, "title")

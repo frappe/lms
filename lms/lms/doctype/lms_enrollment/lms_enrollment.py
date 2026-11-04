@@ -79,7 +79,7 @@ class LMSEnrollment(Document):
 			{
 				"course": self.course,
 				"member": self.member,
-				"name": ["!=", self.name],
+				"name": ["!=", self.name or ""],
 			},
 		)
 

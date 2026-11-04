@@ -127,7 +127,7 @@ class LMSCertificateRequest(Document):
 			{
 				"member": self.member,
 				"course": self.course,
-				"name": ["!=", self.name],
+				"name": ["!=", self.name or ""],
 				"status": "Upcoming",
 			},
 			["date", "start_time", "course"],

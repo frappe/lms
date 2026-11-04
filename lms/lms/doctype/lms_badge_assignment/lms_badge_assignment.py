@@ -29,7 +29,7 @@ class LMSBadgeAssignment(Document):
 
 		if frappe.db.exists(
 			"LMS Badge Assignment",
-			{"badge": self.badge, "member": self.member, "name": ["!=", self.name]},
+			{"badge": self.badge, "member": self.member, "name": ["!=", self.name or ""]},
 		):
 			frappe.throw(
 				_("Badge {0} has already been assigned to this {1}.").format(self.badge, self.member)

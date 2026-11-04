@@ -106,7 +106,7 @@ class LMSCertificate(Document):
 				"LMS Certificate",
 				filters={
 					"member": self.member,
-					"name": ["!=", self.name],
+					"name": ["!=", self.name or ""],
 					"course": self.course,
 					# A member may hold one certificate per batch of the same course.
 					"batch_name": self.batch_name or ["is", "not set"],
@@ -127,7 +127,7 @@ class LMSCertificate(Document):
 				"LMS Certificate",
 				filters={
 					"member": self.member,
-					"name": ["!=", self.name],
+					"name": ["!=", self.name or ""],
 					"batch_name": self.batch_name,
 				},
 				fields=["name", "batch_name", "batch_title"],

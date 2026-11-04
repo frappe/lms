@@ -96,7 +96,7 @@ class LMSBatchEnrollment(Document):
 
 		if frappe.db.exists(
 			"LMS Batch Enrollment",
-			{"batch": self.batch, "member": self.member, "name": ["!=", self.name]},
+			{"batch": self.batch, "member": self.member, "name": ["!=", self.name or ""]},
 		):
 			frappe.throw(_("Member already enrolled in this batch"))
 
