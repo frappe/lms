@@ -287,7 +287,10 @@ const loadProviders = async () => {
 			}))
 			.filter((option) => !taken.has(option.label))
 	} catch (err: any) {
+		// With no providers the form has nothing to offer, as with a gateway
+		// that fails to load.
 		reportError(err, __('Error loading payment providers'))
+		emit('back')
 	} finally {
 		fetching.value = false
 	}
