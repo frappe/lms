@@ -13,6 +13,8 @@ const server = vi.hoisted(() => ({
 	accounts: [] as Record<string, unknown>[],
 	fail: false,
 	calls: [] as { method: string; params: unknown }[],
+	hasNextPage: false,
+	loadMore: null as null | ReturnType<typeof import('vitest').vi.fn>,
 }))
 
 vi.mock('frappe-ui', () => ({
@@ -51,8 +53,8 @@ vi.mock('@/composables/useSettingsListResource', () => ({
 	useSettingsMethodResource: () => ({
 		rows: server.accounts,
 		loading: false,
-		hasNextPage: false,
-		loadMore: vi.fn(() => Promise.resolve()),
+		hasNextPage: server.hasNextPage,
+		loadMore: server.loadMore ?? vi.fn(() => Promise.resolve()),
 		reload: vi.fn(() => Promise.resolve()),
 	}),
 }))
@@ -231,5 +233,20 @@ describe('the default pickers', () => {
 		const box = boxNamed(w, 'Default Incoming account')
 		expect(box.attributes('data-disabled')).toBeUndefined()
 		expect(box.findAll('[data-option]')).toHaveLength(0)
+	})
+
+	// A failed page leaves Load More on; asking for it again forever would
+	// flood the endpoint and the panel would never settle.
+	it('stops paging when a page adds no accounts', async () => {
+		server.hasNextPage = true
+		server.loadMore = vi.fn(() => Promise.resolve())
+		try {
+			panel()
+			await flushPromises()
+			expect(server.loadMore).toHaveBeenCalledTimes(1)
+		} finally {
+			server.hasNextPage = false
+			server.loadMore = null
+		}
 	})
 })
