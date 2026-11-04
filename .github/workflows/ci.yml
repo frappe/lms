@@ -2,9 +2,8 @@ name: Server Tests
 on:
   push:
     branches:
-      - main
-      - develop
-      - main-hotfix
+      - version-16
+      - version-16-hotfix
     # The frontend and Vue, TS, JS and CSS files are Vitest's and the UI
     # tests' business, except the two frontend files a server test reads.
     # Keep in step with is_ignored in .github/helper/changed-tests.sh.

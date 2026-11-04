@@ -8,9 +8,8 @@ on:
   workflow_dispatch:
   push:
     branches:
-      - main
-      - develop
-      - main-hotfix
+      - version-16
+      - version-16-hotfix
     paths-ignore:
       - "**.md"
       - "lms/locale/**"

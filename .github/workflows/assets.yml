@@ -1,19 +1,16 @@
 name: Pre-build assets
 
-# Every push to develop or main builds the prebuilt assets Pilot downloads.
-# Some of those commits are also advertised in frappe/marketplace, so Pilot
-# benches offer the update:
-#
-#   - develop: every push, as the nightly release.
-#   - main: only the release commit semantic-release pushes (on_release.yml),
-#     as the stable release. Merging main-hotfix into main is not a release.
+# Every push to version-16 builds the prebuilt assets Pilot downloads. Only the
+# release commit semantic-release pushes (on_release.yml) is advertised in
+# frappe/marketplace, as the stable release, so Pilot benches offer the update.
+# Merging version-16-hotfix into version-16 is not a release.
 #
 # The marketplace checks need the assets for the commit, so the release PR
 # opens only after they are built. It is merged once its checks pass.
 
 on:
   push:
-    branches: [develop, main]
+    branches: [version-16]
 
 # Release PRs for one branch edit the same entry, so a second PR opened before
 # the first merges would conflict. One run per branch at a time; a waiting run
@@ -27,23 +24,20 @@ jobs:
     name: Pre-build assets
     uses: frappe/pilot/.github/workflows/app-assets.yml@develop
     with:
-      # main supports Frappe v15 and v16; Pilot benches run v16 or later.
-      frappe-branch: ${{ github.ref_name == 'main' && 'version-16' || 'develop' }}
+      frappe-branch: version-16
     permissions:
       contents: write
 
   marketplace:
     name: Open the marketplace release PR
     needs: assets
-    if: >-
-      github.ref_name == 'develop' ||
-      startsWith(github.event.head_commit.message, 'chore(release):')
+    if: startsWith(github.event.head_commit.message, 'chore(release):')
     uses: frappe/marketplace/.github/workflows/publish-release.yml@main
     with:
       app: lms
       branch: ${{ github.ref_name }}
       commit: ${{ github.sha }}
-      channel: ${{ github.ref_name == 'main' && 'stable' || 'nightly' }}
+      channel: stable
     secrets:
       registry_token: ${{ secrets.MARKETPLACE_PR_TOKEN }}
 
