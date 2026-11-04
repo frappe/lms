@@ -260,14 +260,23 @@ export function useSettingsMethodResource<TRow = Record<string, any>>(
 	// and a superseded response is dropped, so the newer one owns the offset.
 	let requestToken = 0
 
+	// The search and filter the rows on screen answer.
+	const queryOf = () => JSON.stringify([search.value, options.params?.()])
+	let rowsQuery = queryOf()
+
 	// A failed page changes nothing, so the rows on screen stay for the user to
-	// retry. A first page belongs to a new search, so the old offset cannot
-	// continue it: Load More stays off until that page lands.
+	// retry. A first page for a new search or filter clears the old rows, which
+	// would otherwise read as its matches; and the old offset cannot continue
+	// it, so Load More stays off until that page lands.
 	const fetchPage = async (offset = start.value): Promise<void> => {
 		const token = ++requestToken
 		loading.value = true
 		requestStart.value = offset
-		if (offset === 0) hasNextPage.value = false
+		const query = queryOf()
+		if (offset === 0) {
+			hasNextPage.value = false
+			if (query !== rowsQuery) rows.value = []
+		}
 		let data: TRow[] | null = null
 		try {
 			data = await resource.reload()
@@ -278,6 +287,7 @@ export function useSettingsMethodResource<TRow = Record<string, any>>(
 		loading.value = false
 		if (!data) return
 		rows.value = offset === 0 ? data : rows.value.concat(data)
+		rowsQuery = query
 		// Paged by what the server actually returned, not the constant. An
 		// exact-equality check would hide Load More the moment the two disagree.
 		start.value = offset + data.length
