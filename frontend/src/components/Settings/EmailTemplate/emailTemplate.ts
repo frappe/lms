@@ -46,11 +46,22 @@ const columns: SettingsListColumn[] = [
 // Matching rows keeps the swap from moving anything below it.
 const CONTENT_ROWS = 8
 
+// Checked before Save, which renames before it writes: an empty Subject or
+// Content would otherwise fail the write after the rename had moved the record.
+export const validateTemplate = (doc: SettingsListRow): string => {
+	if (!doc.name) return __('Name is required')
+	if (!doc.subject) return __('Subject is required')
+	const content = doc.use_html ? doc.response_html : doc.response
+	if (!content) return __('Content is required')
+	return ''
+}
+
 const form = recordForm({
 	doctype: DOCTYPE,
 	renameField: 'name',
 	newTitle: () => __('New Email Template'),
 	recordTitle: (row) => templateLabel(row) || __('Email Template'),
+	validate: validateTemplate,
 	// Name, Subject and Content are all bare fullWidth fields with no
 	// description -- flush's usual "one block, no dividers" reads as dead air
 	// between them here, not a single grouped thing.
