@@ -287,7 +287,8 @@ const calendarEmptyDescription = computed(() => {
 	)
 })
 
-const openInvitesSetting = () => openSettings('General')
+const openInvitesSetting = () =>
+	openSettings('general', null, 'send_calendar_invite_for_evaluations')
 
 // Sign-in happens in this tab: Google returns to this page when it is done.
 const authorizeCalendar = createResource({

@@ -125,7 +125,7 @@ import {
 } from 'frappe-ui'
 import type { FrappeResourceError } from 'frappe-ui'
 import { computed, ref, watch } from 'vue'
-import SettingsLayout from '@/components/Layouts/SettingsLayout.vue'
+import SettingsLayout from '@/components/Layouts/settings/desktop/SettingsLayout.vue'
 import SwitchRow from '@/components/Controls/SwitchRow.vue'
 import RuleConditions from './RuleConditions.vue'
 import MassRemovalConfirmDialog from './MassRemovalConfirmDialog.vue'

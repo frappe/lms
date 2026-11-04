@@ -15,7 +15,7 @@ export type Permissions = Record<string, number>
 
 type Fetcher = (
 	doctype: string,
-	names: string[]
+	names: string[],
 ) => Promise<Record<string, Permissions>>
 
 export interface UsePermissionsOptions {
@@ -104,7 +104,7 @@ function flush(fetcher: Fetcher) {
 function request(
 	doctype: string,
 	name: string,
-	fetcher: Fetcher
+	fetcher: Fetcher,
 ): Promise<void> {
 	const existing = inFlight.get(key(doctype, name))
 	if (existing) return existing
@@ -125,6 +125,27 @@ function request(
 }
 
 /**
+ * Whether the server lets the session user `ptype` this document, for callers
+ * that ask from a render, such as a row menu. Unlike usePermissions it registers
+ * no watcher, so asking about many rows leaves nothing behind. Reads false until
+ * the batched answer arrives, and re-renders the caller when it does.
+ */
+export function canOnDocument(
+	doctype: string,
+	name: string,
+	ptype: string,
+): boolean {
+	revision.value
+	if (!name) return false
+	const answer = cache.get(key(doctype, name))
+	if (!answer) {
+		request(doctype, name, defaultFetcher)
+		return false
+	}
+	return !!answer[ptype]
+}
+
+/**
  * Server permissions for one document, or for the doctype when no name is given.
  *
  * `can()` answers false until a real answer has arrived. A flicker is a UX bug;
@@ -133,7 +154,7 @@ function request(
 export function usePermissions(
 	doctype: string,
 	name?: MaybeRef<string | undefined>,
-	options: UsePermissionsOptions = {}
+	options: UsePermissionsOptions = {},
 ) {
 	const fetcher = options.fetcher ?? defaultFetcher
 	const isGuest = options.user === null
@@ -145,7 +166,7 @@ export function usePermissions(
 		? inject(IS_STUDENT_VIEW, undefined)
 		: undefined
 	const studentView = computed(() =>
-		options.studentView !== undefined ? options.studentView : !!unref(injected)
+		options.studentView !== undefined ? options.studentView : !!unref(injected),
 	)
 
 	const current = () => unref(name)

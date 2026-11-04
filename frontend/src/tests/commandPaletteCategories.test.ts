@@ -32,9 +32,16 @@ vi.mock('frappe-ui', () => ({
 		Object.assign(fn, { cancel: () => {} }),
 }))
 
-vi.mock('vue-router', () => ({
-	useRouter: () => ({ push: vi.fn(), replace: vi.fn() }),
-}))
+// pushSettingsHash reads the current route's hash and query.
+const router = {
+	currentRoute: {
+		value: { hash: '', query: {}, fullPath: '/courses', matched: [{}] },
+	},
+	options: { history: { state: {} } },
+	push: vi.fn(),
+	replace: vi.fn(),
+}
+vi.mock('vue-router', () => ({ useRouter: () => router }))
 
 const user = { data: {} as Record<string, unknown> }
 vi.mock('@/stores/user', () => ({ usersStore: () => ({ userResource: user }) }))
@@ -235,7 +242,10 @@ describe('command palette categories', () => {
 	it('opens the settings dialog rather than routing', async () => {
 		await mountPalette()
 		await open('Settings')
-		expect(settings.isSettingsOpen).toBe(true)
+
+		const [to] = router.push.mock.calls.at(-1)
+		expect(to.hash).toBe('#settings/general')
+		expect(to).not.toHaveProperty('name')
 	})
 })
 
@@ -313,7 +323,8 @@ describe('command palette settings row', () => {
 		await type('sett')
 		await open('Settings')
 
-		expect(settings.isSettingsOpen).toBe(true)
+		const [to] = router.push.mock.calls.at(-1)
+		expect(to.hash).toBe('#settings/general')
 	})
 
 	it('does not offer Settings to a searching student', async () => {

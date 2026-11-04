@@ -237,7 +237,7 @@
 							variant="outline"
 							:onCreate="
 								(value, close) => {
-									openSettings('Zoom Accounts', close)
+									openSettings('zoom', close)
 								}
 							"
 						/>
@@ -249,7 +249,7 @@
 							variant="outline"
 							:onCreate="
 								(value, close) => {
-									openSettings('Google Meet Accounts', close)
+									openSettings('google-meet', close)
 								}
 							"
 						/>

@@ -333,7 +333,7 @@ const showCalendarMissing = (message) => {
 // evaluator from their own Slots tab.
 const calendarSetUpAction = (meet) => {
 	if (meet && user.data?.is_moderator) {
-		return () => openSettings('Google Meet Accounts')
+		return () => openSettings('google-meet')
 	}
 	if (!meet && user.data?.is_evaluator && user.data?.username) {
 		return () =>

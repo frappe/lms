@@ -25,26 +25,52 @@ vi.mock('frappe-ui', () => ({
 	SettingsNavItem: slot('nav-item'),
 	SettingsContent: slot('content'),
 	SettingsPanel: slot('panel'),
-	createDocumentResource: () => ({ doc: {} }),
+	createDocumentResource: () => ({ doc: null }),
 }))
 
+vi.mock('vue-router', () => ({ useRouter: () => ({}) }))
 vi.mock('@/stores/settings', () => ({ useSettings: () => ({}) }))
-vi.mock('@/components/Settings/SettingDetails.vue', () => ({
+vi.mock('@/composables/useDirtyGuard', () => ({
+	confirmDiscard: vi.fn(),
+	installDirtyGuard: () => () => {},
+}))
+vi.mock('@/components/Settings/DiscardChangesDialog.vue', () => ({
 	default: { template: `<div />` },
 }))
-vi.mock('@/components/Settings/settingsStructure.js', () => ({
-	settingsStructure: [
-		{
-			label: 'Configuration',
-			items: [
-				{
-					label: 'Email Template',
-					template: { template: `<div />` },
-				},
-			],
-		},
-	],
+vi.mock(
+	'@/components/Layouts/settings/desktop/SettingsFieldsPanel.vue',
+	() => ({
+		default: { template: `<div />` },
+	})
+)
+vi.mock('@/components/Layouts/settings/desktop/SettingsListPanel.vue', () => ({
+	default: { template: `<div />` },
 }))
+vi.mock('@/components/Settings/settings', () => ({
+	isGroupVisible: () => true,
+	settingsTree: [],
+}))
+vi.mock('@/composables/useSettingsHash', async () => {
+	const { ref } = await import('vue')
+	return {
+		useSettingsHash: () => ({
+			items: ref([
+				{
+					slug: 'email-template',
+					label: 'Email Template',
+					page: { kind: 'list' },
+				},
+			]),
+			isOpen: ref(true),
+			activeTab: ref(null),
+			activeRecord: ref(null),
+			selectTab: vi.fn(),
+			selectRecord: vi.fn(),
+			replaceRecord: vi.fn(),
+			close: vi.fn(),
+		}),
+	}
+})
 
 import Settings from '@/components/Settings/Settings.vue'
 

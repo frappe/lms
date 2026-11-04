@@ -419,7 +419,7 @@ describe('LiveClassForm as a route', () => {
 			await flushPromises()
 
 			await shownLine(wrapper).setUp.trigger('click')
-			expect(openSettingsMock).toHaveBeenCalledWith('Google Meet Accounts')
+			expect(openSettingsMock).toHaveBeenCalledWith('google-meet')
 		})
 
 		it('points anyone who cannot open the settings to their administrator', async () => {

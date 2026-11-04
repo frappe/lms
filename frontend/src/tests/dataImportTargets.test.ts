@@ -28,7 +28,7 @@ describe('data import targets', () => {
 
 	it('opens categories in Settings, where they are managed', () => {
 		importTarget('LMS Category')!.openList(router)
-		expect(openSettings).toHaveBeenCalledWith('Categories')
+		expect(openSettings).toHaveBeenCalledWith('categories')
 		expect(importTarget('LMS Category')!.openRecord).toBeUndefined()
 		// Phones have no Settings, so the wizard hides this link there.
 		expect(importTarget('LMS Category')!.listInSettings).toBe(true)
