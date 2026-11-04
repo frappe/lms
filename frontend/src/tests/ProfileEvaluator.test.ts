@@ -1019,7 +1019,11 @@ describe('ProfileEvaluator Google Calendar', () => {
 				'Turn on Send calendar invite for evaluations in Settings > General.'
 			)
 			await button(wrapper, 'Open Settings')!.trigger('click')
-			expect(openSettings).toHaveBeenCalledWith('General')
+			expect(openSettings).toHaveBeenCalledWith(
+				'general',
+				null,
+				'send_calendar_invite_for_evaluations'
+			)
 		}
 	)
 

@@ -121,17 +121,45 @@ export function isGuestAccessRevoked(visibility?: SidebarVisibility): boolean {
 	return Array.isArray(visibility)
 }
 
-// Otherwise the flags are keyed by the lowercased, underscored label, the same
-// convention the mobile nav store uses to drop a link from the bar. A label the
-// settings say nothing about always stays, and so does everything while
-// `visibility` is still unresolved: an empty bar is worse than one showing a
-// destination for a moment.
+// Rows (and labels) that cannot be switched off, mirroring the server's own
+// refusal. One Set: `sidebarRows.ts` re-exports this rather than keeping
+// its own copy that could drift.
+export const LOCKED_VISIBLE: ReadonlySet<string> = new Set(['home'])
+
+// A payload can carry rows and still not be seeded: an unpatched site answers
+// with old Web Pages and no `Built-in` row, which would drop every built-in
+// link including Home if read as the whole sidebar. `sidebarRows.ts` shares
+// this fallback predicate after the two disagreed on an empty payload once.
+export function hasBuiltInRow(rows: unknown): boolean {
+	return (
+		Array.isArray(rows) &&
+		rows.some(
+			(row) => (row as { item_type?: string })?.item_type === 'Built-in'
+		)
+	)
+}
+
+// Flags are keyed by the lowercased, underscored label, same as row `name1`,
+// so this reads rows when present and flat keys otherwise. A label the
+// settings say nothing about always stays, as does everything while
+// `visibility` is unresolved: an empty bar is worse than a stray destination.
+// A locked label can never be switched off, mirroring the server's refusal.
 export function isLinkEnabled(
 	label: string,
 	visibility?: SidebarVisibility
 ): boolean {
 	if (!visibility || isGuestAccessRevoked(visibility)) return true
 	const key = label.toLowerCase().split(' ').join('_')
+	if (LOCKED_VISIBLE.has(key)) return true
+
+	const rows = (visibility as Record<string, unknown>).sidebar_rows
+	if (hasBuiltInRow(rows)) {
+		const row = (rows as { name1?: string; hidden?: number }[]).find(
+			(candidate) => candidate.name1 === key
+		)
+		return row ? !row.hidden : true
+	}
+
 	if (!(key in visibility)) return true
 	return Boolean(parseInt(String((visibility as Record<string, unknown>)[key])))
 }

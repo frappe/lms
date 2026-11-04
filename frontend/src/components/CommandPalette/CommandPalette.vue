@@ -106,6 +106,7 @@ import {
 } from 'vue'
 import type dayjsType from 'dayjs'
 import { useRouter } from 'vue-router'
+import { pushSettingsHash } from '@/composables/useSettingsHash'
 import { usersStore } from '@/stores/user'
 import { useSettings } from '@/stores/settings'
 // @ts-expect-error utils/index.js has no type declarations yet
@@ -500,7 +501,7 @@ const accountItems = computed<PaletteItem[]>(() => {
 			title: __('Settings'),
 			icon: 'lucide-settings',
 			perform: () => {
-				settingsStore.isSettingsOpen = true
+				pushSettingsHash(router)
 			},
 		},
 	]

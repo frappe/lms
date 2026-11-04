@@ -116,8 +116,18 @@ def get_user_info():
 	user.developer_mode = frappe.conf.developer_mode
 	if user.is_fc_site and user.is_system_manager:
 		user.site_info = current_site_info()
+	user.cloud_settings = get_cloud_settings_context()
 	user.permissions = _doctype_permissions()
 	return user
+
+
+def get_cloud_settings_context() -> dict:
+	try:
+		from frappe.integrations.frappe_providers.cloud_settings import get_boot_context
+	except ImportError:
+		# Frappe without Cloud Settings is older than any Frappe Cloud v2 site.
+		return {"enabled": False}
+	return get_boot_context()
 
 
 PERMISSION_DOCTYPES = (
@@ -4520,3 +4530,33 @@ def delete_category(category: str):
 
 	frappe.delete_doc("LMS Category", category)
 	return unlinked
+
+
+@frappe.whitelist()
+def get_system_preferences():
+	from frappe.core.doctype.user.user import get_timezones
+
+	return {
+		"language": frappe.db.get_single_value("System Settings", "language"),
+		"time_zone": frappe.db.get_single_value("System Settings", "time_zone"),
+		"timezones": get_timezones().get("timezones", []),
+	}
+
+
+@frappe.whitelist()
+def set_system_preferences(language: str = None, time_zone: str = None):
+	from frappe.core.doctype.user.user import get_timezones
+
+	frappe.only_for("System Manager")
+
+	if language:
+		if not frappe.db.exists("Language", language):
+			frappe.throw(_("{0} is not a valid language").format(language))
+		frappe.db.set_single_value("System Settings", "language", language)
+
+	if time_zone:
+		if time_zone not in get_timezones().get("timezones", []):
+			frappe.throw(_("{0} is not a valid timezone").format(time_zone))
+		frappe.db.set_single_value("System Settings", "time_zone", time_zone)
+
+	frappe.clear_cache()
