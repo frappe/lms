@@ -30,7 +30,11 @@ with warnings.catch_warnings():
 	warnings.filterwarnings("ignore", message="Using slow pure-python SequenceMatcher")
 	from fuzzywuzzy import fuzz
 
-from lms.lms.doctype.course_lesson.course_lesson import get_lesson_course, save_progress
+from lms.lms.doctype.course_lesson.course_lesson import (
+	get_lesson_course,
+	save_progress,
+	video_holds_completion,
+)
 from lms.lms.doctype.lms_content_author.lms_content_author import AuthoredDocument
 from lms.lms.doctype.lms_question.lms_question import (
 	QUESTION_CORRECTNESS_FIELDS,
@@ -65,6 +69,14 @@ MAX_VIOLATION_FRAMES = 40
 
 
 class LMSQuiz(AuthoredDocument, Document):
+	def throw_length_exceeded_error(self, df, max_length, value):
+		if df.fieldname == "title":
+			frappe.throw(
+				_("Title must be {0} characters or fewer.").format(max_length),
+				frappe.CharacterLengthExceededError,
+			)
+		super().throw_length_exceeded_error(df, max_length, value)
+
 	def validate(self):
 		self.validate_duplicate_questions()
 		self.validate_limit()
@@ -237,7 +249,7 @@ def submit_quiz(
 		submission_reason=proctoring["submission_reason"],
 	)
 	percentage = submission.percentage or 0
-	save_progress_after_quiz(quiz_details, percentage)
+	save_progress_after_quiz(quiz_details)
 
 	_save_violation_events(submission.name, proctoring["events"])
 	_attach_answer_files(data["answer_files"], submission.name)
@@ -513,9 +525,13 @@ def _save_violation_frame(log_name: str, data_url: str) -> bool:
 
 @frappe.whitelist()
 def is_open_ended_submission(submission: str) -> bool:
-	quiz = frappe.db.get_value("LMS Quiz Submission", submission, "quiz")
+	quiz, member = frappe.db.get_value("LMS Quiz Submission", submission, ["quiz", "member"]) or (None, None)
 	if not quiz:
 		return False
+	if member != frappe.session.user and not frappe.has_permission("LMS Quiz Submission", "read", submission):
+		frappe.throw(_("Insufficient Permission"), frappe.PermissionError)
+	# A quiz is open ended as a whole (validate_open_ended_questions), so its first
+	# question decides.
 	question_type = frappe.db.get_value("LMS Quiz Question", {"parent": quiz}, "type")
 	return question_type == "Open Ended"
 
@@ -731,11 +747,9 @@ def create_submission(
 	return submission
 
 
-def save_progress_after_quiz(quiz_details: dict, percentage: float):
+def save_progress_after_quiz(quiz_details: dict):
+	"""save_progress decides whether this attempt is enough to complete the lesson."""
 	if not quiz_details.lesson or not quiz_details.course:
-		return
-
-	if quiz_details.passing_percentage and percentage < quiz_details.passing_percentage:
 		return
 
 	# save_progress refuses a locked lesson by raising, which would roll back the
@@ -748,6 +762,9 @@ def save_progress_after_quiz(quiz_details: dict, percentage: float):
 
 	course = get_lesson_course(quiz_details.lesson)
 	if not course or quiz_details.lesson in get_locked_lessons(course):
+		return
+	# The lesson page completes it once the video ends.
+	if video_holds_completion(quiz_details.lesson):
 		return
 
 	save_progress(quiz_details.lesson, course)

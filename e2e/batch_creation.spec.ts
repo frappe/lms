@@ -94,8 +94,8 @@ test.describe("Batch Creation", () => {
 		await page.goto("/lms/batches");
 		await closeOnboardingModal(page);
 
-		// The Enrol dialog's Student field is a User link that searches
-		// existing users, so the student must exist before we can enrol them.
+		// The Enroll Students picker searches existing users, so the student
+		// must exist before we can enrol them.
 		// Create it via Users settings (mirrors the evaluator setup, without a
 		// role).
 		await openUsersSettings(page);
@@ -115,8 +115,12 @@ test.describe("Batch Creation", () => {
 		await page.goto("/lms/batches");
 		await closeOnboardingModal(page);
 
-		// Create batch
-		await button(page, "New Batch").click();
+		// Create batch. Scoped to the page header: with no batches yet, the
+		// empty state offers its own New Batch button below it.
+		await page
+			.locator("header")
+			.getByRole("button", { name: "New Batch" })
+			.click();
 
 		const field = (label: string) =>
 			page.locator("label").filter({ hasText: label }).locator("xpath=..");
@@ -236,21 +240,34 @@ test.describe("Batch Creation", () => {
 			.filter({ hasText: "Dashboard" })
 			.click();
 		await closeOnboardingModal(page);
-		await button(page, "Enroll").click();
+		// Exact: the empty dashboard also offers "Enroll Students".
+		await button(page, /^Enroll$/).click();
+		// The Enroll Students dialog picks students with a MultiSelect, the same
+		// trigger + content-body search as the Instructors field above. Typing
+		// the unique email narrows the results to the student made above.
 		const enrollDialog = page.locator('div[role="dialog"]').first();
-		const studentField = enrollDialog
+		await enrollDialog
 			.locator("label")
-			.filter({ hasText: "Student" })
+			.filter({ hasText: "Students" })
 			.locator("xpath=..")
-			.locator("input");
-		await studentField.click();
-		await studentField.fill(randomStudent);
-		// See course_creation.spec.ts's instructor-search click for why this
-		// needs the combined find+actionability budget, not just the find half.
-		await page.locator("[data-slot=item]").first().click({ timeout: 30000 });
-		// Enrolling is a form route now (BatchStudentForm.vue), and its submit
-		// says "Enroll".
-		await page.getByTestId("batch-student-save").click();
+			.locator('[data-slot="trigger"]')
+			.click();
+		await page
+			.locator('[data-slot="content-body"] [data-slot="input"]')
+			.fill(randomStudent);
+		const studentOption = page.locator(
+			'[data-slot="content-body"] [role="option"]'
+		);
+		await expect(studentOption).toHaveCount(1, { timeout: 10000 });
+		await studentOption.first().click();
+		await page.keyboard.press("Escape");
+		// A free batch has no payment step, so Enroll submits straight away.
+		const enrolled = waitForApiCall(
+			page,
+			"/api/method/lms.lms.api.add_students_to_batch"
+		);
+		await enrollDialog.getByTestId("enroll-submit").click();
+		await enrolled;
 
 		// Verify seat count (scope to the visible overlay; the mobile
 		// md:hidden copy is first in the DOM but display:none on this

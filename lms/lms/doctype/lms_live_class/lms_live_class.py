@@ -8,7 +8,7 @@ import requests
 from frappe import _
 from frappe.model.document import Document
 from frappe.query_builder import Bracket
-from frappe.utils import cint, format_date, format_time, get_datetime, nowdate
+from frappe.utils import cint, format_date, format_time, get_datetime, now_datetime, nowdate
 from pypika.terms import LiteralValue
 
 from lms.lms.doctype.lms_batch.lms_batch import authenticate
@@ -45,6 +45,9 @@ class LMSLiveClass(Document):
 		self.create_calendar_event()
 
 	def on_update(self):
+		if self.has_value_changed("date"):
+			self.send_same_day_reminders()
+
 		if not self.event:
 			return
 
@@ -65,6 +68,16 @@ class LMSLiveClass(Document):
 		if self.event:
 			# nosemgrep: lms-unjustified-ignore-permissions - the private event's owner alone may delete it; deleting the class was already authorised
 			frappe.delete_doc("Event", self.event, force=True, ignore_permissions=True)
+
+	def send_same_day_reminders(self):
+		"""The daily reminder runs once, just after midnight. A class scheduled or moved to
+		today after that run would never be announced, so remind its learners now. Before
+		the run, the daily job covers it, so nobody is reminded twice."""
+		if str(self.date) != nowdate() or not self.time or not daily_reminder_ran_today():
+			return
+		if get_datetime(f"{self.date} {self.time}") <= now_datetime():
+			return
+		send_reminders_for_class(self)
 
 	def get_hosts(self):
 		"""Whoever scheduled the class, its host, and the batch's instructors."""
@@ -461,13 +474,26 @@ def send_live_class_reminder():
 	)
 
 	for live_class in classes:
-		students = frappe.get_all(
-			"LMS Batch Enrollment",
-			{"batch": live_class.batch_name},
-			["member", "member_name"],
-		)
-		for student in students:
-			send_mail(live_class, student)
+		send_reminders_for_class(live_class)
+
+
+def send_reminders_for_class(live_class):
+	students = frappe.get_all(
+		"LMS Batch Enrollment",
+		{"batch": live_class.batch_name},
+		["member", "member_name"],
+	)
+	for student in students:
+		send_mail(live_class, student)
+
+
+def daily_reminder_ran_today() -> bool:
+	last_run = frappe.db.get_value(
+		"Scheduled Job Type",
+		{"method": "lms.lms.doctype.lms_live_class.lms_live_class.send_live_class_reminder"},
+		"last_execution",
+	)
+	return bool(last_run) and str(get_datetime(last_run).date()) == nowdate()
 
 
 def send_mail(live_class, student):

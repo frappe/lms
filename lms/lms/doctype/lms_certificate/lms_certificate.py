@@ -158,14 +158,14 @@ def has_website_permission(doc, ptype, user, verbose=False):
 	return ptype in ["read", "print"] and bool(doc.published)
 
 
-def get_latest_certificate(member, course):
+def get_latest_certificate(member, course, *, for_update=False):
 	"""A member can hold one certificate per batch of a course plus one
 	course-level (no batch) certificate; prefer the course-level one, else
 	the most recently issued."""
 	Certificate = frappe.qb.DocType("LMS Certificate")
 	no_batch = Certificate.batch_name.isnull() | (Certificate.batch_name == "")
 	has_batch = Case().when(no_batch, 0).else_(1)
-	rows = (
+	query = (
 		frappe.qb.from_(Certificate)
 		.select(Certificate.name, Certificate.template, Certificate.issue_date)
 		.where(Certificate.member == member)
@@ -174,19 +174,23 @@ def get_latest_certificate(member, course):
 		.orderby(Certificate.issue_date, order=frappe.qb.desc)
 		.orderby(Certificate.creation, order=frappe.qb.desc)
 		.limit(1)
-		.run(as_dict=True)
 	)
+	if for_update:
+		query = query.for_update()
+	rows = query.run(as_dict=True)
 	return rows[0] if rows else None
 
 
-def is_certified(course):
-	certificate = get_latest_certificate(frappe.session.user, course)
+def is_certified(course, *, for_update=False):
+	certificate = get_latest_certificate(frappe.session.user, course, for_update=for_update)
 	return certificate.name if certificate else None
 
 
 @frappe.whitelist()
 def create_certificate(course: str):
-	certificate = is_certified(course)
+	# Serialize requests for the same course before checking for an existing certificate.
+	frappe.db.get_value("LMS Course", course, "name", for_update=True)
+	certificate = is_certified(course, for_update=True)
 	if certificate:
 		return frappe.db.get_value(
 			"LMS Certificate", certificate, ["name", "course", "template"], as_dict=True

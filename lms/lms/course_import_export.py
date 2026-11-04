@@ -796,7 +796,7 @@ def replace_assessment_names(zip_file, content):
 	except (TypeError, ValueError):
 		return content
 	if not isinstance(content, dict):
-		return json.dumps(content)
+		return json.dumps(content, ensure_ascii=False)
 	for block in content.get("blocks") or []:
 		# Raw iteration (this mutates data in place and re-dumps, so it can't go through
 		# get_editorjs_blocks); guard the same shape the helper does.
@@ -811,7 +811,7 @@ def replace_assessment_names(zip_file, content):
 			current_assessment_name = frappe.db.get_value(doctype, {"title": assessment_title}, "name")
 			if current_assessment_name:
 				data[data_field] = current_assessment_name
-	return json.dumps(content)
+	return json.dumps(content, ensure_ascii=False)
 
 
 def replace_assets(content):

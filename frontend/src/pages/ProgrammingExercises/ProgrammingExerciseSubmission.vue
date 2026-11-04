@@ -75,6 +75,7 @@ import router from '@/router'
 import { openSettings } from '@/utils'
 import { useSettings } from '@/stores/settings'
 import { getLmsRoute } from '@/utils/basePath'
+import { markLessonProgress } from '@/utils/markLessonProgress'
 import { provideStudentView } from '@/composables/useStudentView'
 import type { UserResource } from '@/composables/useStudentView'
 import { useExerciseDraft } from '@/composables/useExerciseDraft'
@@ -540,6 +541,9 @@ const createSubmission = async () => {
 	if (!results.value.length) return
 	const codeToSave = code.value.replace(storedPrefix.value, '')
 
+	// markLessonProgress reads the URL, which may be another lesson by the time
+	// the save lands.
+	const lessonPath = window.location.pathname
 	return call<string>('lms.lms.api.create_programming_exercise_submission', {
 		exercise: props.exerciseID,
 		submission: submissionID.value,
@@ -557,6 +561,8 @@ const createSubmission = async () => {
 				})
 			}
 			fetchSubmission(name)
+			if (props.embedded && window.location.pathname === lessonPath)
+				markLessonProgress()
 			toast.success(__('Submission saved!'))
 		})
 		.catch((error: any) => {

@@ -1,34 +1,36 @@
 <template>
 	<div class="p-5">
-		<Alert
-			v-if="canManageClasses() && !hasProviderAccount()"
-			theme="amber"
-			class="mb-5"
-			:title="__('No conferencing account')"
-			:description="
-				__(
-					'Please select a conferencing provider and add an account to the batch to create live classes.'
-				)
-			"
-		/>
+		<template v-if="liveClasses.data?.length">
+			<Alert
+				v-if="canManageClasses() && !hasProviderAccount()"
+				theme="amber"
+				class="mb-5"
+				:title="__('No conferencing account')"
+				:description="
+					__(
+						'Please select a conferencing provider and add an account to the batch to create live classes.'
+					)
+				"
+			/>
 
-		<div class="flex items-center justify-between">
-			<div class="text-lg-semibold text-ink-gray-9">
-				{{ __('Live Class') }}
+			<div class="flex items-center justify-between">
+				<div class="text-lg-semibold text-ink-gray-9">
+					{{ __('Live Class') }}
+				</div>
+				<Button
+					v-if="canCreateClass()"
+					data-testid="live-class-add"
+					@click="openLiveClassForm"
+				>
+					<template #prefix>
+						<span class="lucide-plus h-4 w-4" />
+					</template>
+					<span>
+						{{ __('Add') }}
+					</span>
+				</Button>
 			</div>
-			<Button
-				v-if="canCreateClass()"
-				data-testid="live-class-add"
-				@click="openLiveClassForm"
-			>
-				<template #prefix>
-					<span class="lucide-plus h-4 w-4" />
-				</template>
-				<span>
-					{{ __('Add') }}
-				</span>
-			</Button>
-		</div>
+		</template>
 		<div
 			v-if="liveClasses.data?.length"
 			class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mt-5"
@@ -124,9 +126,33 @@
 				</div>
 			</div>
 		</div>
-		<div v-else class="text-ink-gray-7 mt-5">
-			{{ __('No live classes scheduled') }}
-		</div>
+		<EmptyStateLayout
+			v-else-if="liveClasses.data"
+			class="min-h-[60vh]"
+			name="Live Classes"
+			icon="lucide-laptop"
+			width="lg"
+			:title="emptyState.title"
+			:description="emptyState.description"
+		>
+			<Button
+				v-if="canCreateClass()"
+				data-testid="live-class-add"
+				variant="solid"
+				:label="__('Schedule a Class')"
+				@click="openLiveClassForm"
+			>
+				<template #prefix>
+					<span class="lucide-plus size-4" />
+				</template>
+			</Button>
+			<Button
+				v-else-if="needsProvider"
+				variant="solid"
+				:label="__('Open Settings')"
+				@click="openSettings"
+			/>
+		</EmptyStateLayout>
 	</div>
 
 	<LiveClassAttendance
@@ -148,11 +174,12 @@ import {
 	Tooltip,
 	toast,
 } from 'frappe-ui'
-import { inject, ref } from 'vue'
+import { computed, inject, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { formatTime } from '@/utils/'
 import { openBatchForm } from '@/composables/useBatchForms'
 import LiveClassAttendance from '@/components/Modals/LiveClassAttendance.vue'
+import EmptyStateLayout from '@/components/Layouts/EmptyStateLayout.vue'
 import { safeUrl } from '@/utils/safeUrl'
 
 const user = inject('$user')
@@ -257,6 +284,38 @@ const canCreateClass = () => {
 	if (!hasProviderAccount()) return false
 	return canManageClasses()
 }
+
+// Someone who could schedule classes but has no Zoom or Google Meet account on the batch yet.
+const needsProvider = computed(
+	() => !readOnlyMode && canManageClasses() && !hasProviderAccount()
+)
+
+const emptyState = computed(() => {
+	if (needsProvider.value) {
+		return {
+			title: __('Set up live classes'),
+			description: __(
+				'Pick Zoom or Google Meet for this batch in Settings, then schedule classes your students join from here.'
+			),
+		}
+	}
+	if (canCreateClass()) {
+		return {
+			title: __('No live classes yet'),
+			description: __(
+				'Schedule a class on Zoom or Google Meet. Students get a reminder and join from here.'
+			),
+		}
+	}
+	return {
+		title: __('No live classes yet'),
+		description: __(
+			'Classes your instructors schedule show up here, with a link to join.'
+		),
+	}
+})
+
+const openSettings = () => router.push({ ...route, hash: '#settings' })
 
 const isAdmin = () => {
 	return (

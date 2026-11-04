@@ -112,6 +112,7 @@
 								/>
 								<Link
 									doctype="Currency"
+									query="lms.lms.api.search_currencies"
 									v-model="batchDetail.doc.currency"
 									:filters="{ enabled: 1 }"
 									:label="__('Currency')"

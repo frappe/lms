@@ -31,6 +31,7 @@
 				:disabled="!allowEdit || chapterRenaming"
 				item-key="name"
 				group="chapters"
+				v-bind="outlineDragOptions"
 				@end="updateChapterOrder"
 			>
 				<template #item="{ element: chapter }">
@@ -72,6 +73,7 @@ import Draggable from 'vuedraggable'
 import ChapterRow from '@/components/ChapterRow.vue'
 import { openFormRoute } from '@/composables/useFormRoute'
 import type { OutlineChapter, OutlineLesson, Resource } from '@/types'
+import { outlineDragOptions } from '@/utils/courseOutline'
 
 interface DraggableEvent {
 	item: { __draggable_context: { element: OutlineChapter | OutlineLesson } }

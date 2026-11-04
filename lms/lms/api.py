@@ -35,9 +35,23 @@ from frappe.utils import (
 	now,
 	strip_html,
 )
+from frappe.utils.password import get_decrypted_password, remove_encrypted_password
 from frappe.utils.response import Response
 from pypika import functions as fn
 
+from lms.lms.bulk_enrollment import (
+	can_enroll_others,
+	can_record_payments,
+	enroll_each,
+	get_paid_kind,
+	get_preview,
+	parse_members,
+	parse_payment_args,
+	require_enroll_target,
+	require_user,
+	resolve_payment,
+	search_users,
+)
 from lms.lms.course_import_export import (
 	export_course_zip,
 	get_uploaded_zip_path,
@@ -49,6 +63,7 @@ from lms.lms.doctype.course_lesson.course_lesson import (
 	save_progress,
 )
 from lms.lms.doctype.lms_certificate.lms_certificate import evaluates_certificate, get_latest_certificate
+from lms.lms.doctype.lms_certificate_evaluation.lms_certificate_evaluation import can_evaluate
 from lms.lms.html_sanitizer import sanitize_rich_text
 from lms.lms.permissions import is_site_administrator
 from lms.lms.utils import (
@@ -622,9 +637,16 @@ def get_evaluator_details(evaluator: str):
 		"slots": doc.as_dict(),
 		"calendar": get_evaluator_calendar(evaluator),
 		"google_enabled": is_google_calendar_enabled(),
+		# Says whether the empty state links to Google Settings or asks for an admin.
+		"can_configure_google": bool(frappe.has_permission("Google Settings", "write")),
 		# Evaluator Schedule holds bare wall-clock times and the whole booking
 		# pipeline reads them as system time, so the editor has to say so.
 		"timezone": format_timezone(get_system_timezone()),
+		# schedule_evals only puts bookings on the evaluator's calendar when this is on.
+		"evaluation_invites": bool(
+			frappe.db.get_single_value("LMS Settings", "send_calendar_invite_for_evaluations")
+		),
+		"can_configure_invites": bool(frappe.has_permission("LMS Settings", "write")),
 	}
 
 
@@ -644,12 +666,65 @@ def get_evaluator_calendar(evaluator: str):
 	# Authorised means Google gave a refresh token. An authorization code alone
 	# is left behind when the token exchange fails, and sends nothing.
 	calendar.is_authorized = bool(calendar.pop("refresh_token"))
+	# Connected means bookings reach Google. Only the owner's page asks Google
+	# whether the token still works; nobody else is shown the calendar section.
+	calendar.connected = bool(
+		calendar.is_authorized
+		and calendar.enable
+		and calendar.push_to_google_calendar
+		and (evaluator != frappe.session.user or google_still_authorizes(calendar.name))
+	)
 	return calendar
+
+
+GOOGLE_TOKEN_CHECK_CACHE = "lms_google_calendar_token_ok"
+
+
+def google_still_authorizes(calendar: str) -> bool:
+	"""A token revoked from the Google account, or expired, stays stored here.
+	Asking Google for an access token is the only way to tell, so the answer is
+	cached rather than asked on every page load."""
+	key = f"{GOOGLE_TOKEN_CHECK_CACHE}:{calendar}"
+	cached = frappe.cache.get_value(key)
+	if cached is not None:
+		return bool(cached)
+
+	settings = frappe.get_cached_doc("Google Settings")
+	try:
+		response = request_google_access_token(settings, calendar)
+	except Exception:
+		# Google out of reach is not Google saying no. Ask again in a minute,
+		# not on every load while each try waits out the timeout.
+		frappe.cache.set_value(key, 1, expires_in_sec=60)
+		return True
+
+	valid = response.get("error") != "invalid_grant"
+	frappe.cache.set_value(key, int(valid), expires_in_sec=600)
+	return valid
+
+
+def request_google_access_token(settings, calendar: str) -> dict:
+	import requests
+	from frappe.integrations.google_oauth import GoogleOAuth
+
+	return requests.post(
+		GoogleOAuth.OAUTH_URL,
+		data={
+			"client_id": settings.client_id,
+			"client_secret": settings.get_password(fieldname="client_secret", raise_exception=False),
+			"refresh_token": get_decrypted_password(
+				"Google Calendar", calendar, "refresh_token", raise_exception=False
+			),
+			"grant_type": "refresh_token",
+		},
+		timeout=5,
+	).json()
 
 
 def is_google_calendar_enabled() -> bool:
 	settings = frappe.get_cached_doc("Google Settings")
-	return bool(settings.enable and settings.client_id)
+	# The same three GoogleCalendar.validate needs before it lets a calendar save.
+	return bool(settings.enable and settings.client_id and settings.client_secret)
 
 
 def get_own_calendar_doc():
@@ -702,6 +777,10 @@ def rename_own_calendar(current: str, value) -> None:
 	# Read first: renaming clears the cache.
 	pending = get_pending_sign_in(frappe.session.user)
 	signing_in = bool(pending) and pending["calendar"] == current
+	# The token check is cached by name too; without it the next load asks Google.
+	token_key = f"{GOOGLE_TOKEN_CHECK_CACHE}:{current}"
+	token_ok = frappe.cache.get_value(token_key)
+	token_ttl = frappe.cache.ttl(frappe.cache.make_key(token_key))
 
 	from frappe.model.rename_doc import rename_doc
 
@@ -710,6 +789,9 @@ def rename_own_calendar(current: str, value) -> None:
 
 	if signing_in:
 		set_pending_sign_in(frappe.session.user, value, pending["state"])
+	frappe.cache.delete_value(token_key)
+	if token_ok is not None and token_ttl > 0:
+		frappe.cache.set_value(f"{GOOGLE_TOKEN_CHECK_CACHE}:{value}", token_ok, expires_in_sec=token_ttl)
 
 
 def rename_on_google(current: str, value: str) -> None:
@@ -857,12 +939,66 @@ def save_calendar_tokens(calendar, code: str) -> bool:
 
 	calendar.authorization_code = code
 	calendar.refresh_token = response["refresh_token"]
+	# Connect is the only switch the Slots tab offers, and bookings need both on.
+	calendar.enable = 1
+	calendar.push_to_google_calendar = 1
+	frappe.cache.delete_value(f"{GOOGLE_TOKEN_CHECK_CACHE}:{calendar.name}")
 	# nosemgrep: lms-unjustified-ignore-permissions - the caller's own calendar, checked in google_calendar_callback
 	calendar.save(ignore_permissions=True)
 	return True
 
 
-@frappe.whitelist()
+@frappe.whitelist(methods=["POST"])
+def disconnect_evaluator_calendar():
+	"""Revoke and forget the caller's Google token, so a later Connect may use another
+	account. `enable` goes off too: bookings check only it and would fail with no token.
+	No role gate, so a former evaluator can still revoke."""
+	name = frappe.db.get_value("Google Calendar", {"user": frappe.session.user}, "name")
+	if not name:
+		frappe.throw(_("You have no Google Calendar to disconnect."), frappe.DoesNotExistError)
+
+	token = get_decrypted_password("Google Calendar", name, "refresh_token", raise_exception=False)
+	if token:
+		revoke_google_token(token)
+
+	for fieldname in ("refresh_token", "authorization_code", "next_sync_token"):
+		remove_encrypted_password("Google Calendar", name, fieldname)
+	# Not doc.save(): GoogleCalendar.validate refuses while Google Settings is
+	# off, and disconnecting has to work then too.
+	frappe.db.set_value(
+		"Google Calendar",
+		name,
+		{
+			"enable": 0,
+			"refresh_token": None,
+			"authorization_code": None,
+			"next_sync_token": None,
+			"google_calendar_id": None,
+		},
+	)
+	frappe.cache.delete_value(f"{GOOGLE_TOKEN_CHECK_CACHE}:{name}")
+	return get_evaluator_calendar(frappe.session.user)
+
+
+GOOGLE_REVOKE_URL = "https://oauth2.googleapis.com/revoke"
+
+
+def revoke_google_token(token: str) -> None:
+	"""Best effort: the token is forgotten here whatever Google says, and the
+	user can still remove access from their Google account."""
+	import requests
+
+	try:
+		response = requests.post(GOOGLE_REVOKE_URL, data={"token": token}, timeout=10)
+	except Exception:
+		frappe.log_error(title="Could not revoke Google Calendar access")
+		return
+	# 400 invalid_token: Google had already revoked it.
+	if response.status_code not in (200, 400):
+		frappe.log_error(title="Could not revoke Google Calendar access", message=response.text)
+
+
+@frappe.whitelist(methods=["POST"])
 def ensure_evaluator_calendar():
 	"""Create the caller's own Google Calendar record, on demand.
 
@@ -871,7 +1007,7 @@ def ensure_evaluator_calendar():
 	their behalf, but only for themselves, and only when they ask for it by
 	starting the authorisation flow.
 	"""
-	frappe.only_for(EVALUATOR_ROLES)
+	frappe.only_for("Batch Evaluator")
 	user = frappe.session.user
 
 	existing = frappe.db.get_value("Google Calendar", {"user": user}, "name")
@@ -911,45 +1047,50 @@ def validate_evaluator_name(evaluator: str) -> str:
 
 
 def enforce_evaluator_access(evaluator: str) -> str:
-	"""View or edit your own availability; a Moderator may do either for anyone.
-
-	Two gates, not one. The role check is what keeps non-evaluators out: with
-	the ownership check alone, any authenticated user could name *themselves*
-	and reach the write path, which provisions a Course Evaluator (and with it
-	the Batch Evaluator role) with ignore_permissions.
-	"""
+	"""View your own availability, or anyone's as a Moderator; writes are owner-only
+	(get_owned_evaluator_doc). The role gate matters too: without it anyone could name
+	themselves and reach the write path, which provisions a Course Evaluator and its role."""
 	frappe.only_for(EVALUATOR_ROLES)
-	evaluator = validate_evaluator_name(evaluator)
+	return check_evaluator_access(validate_evaluator_name(evaluator))
 
-	if evaluator == frappe.session.user:
-		return evaluator
 
-	if "Moderator" in frappe.get_roles():
-		return evaluator
+def check_evaluator_access(evaluator: str) -> str:
+	if evaluator != frappe.session.user and "Moderator" not in frappe.get_roles():
+		frappe.throw(_("You can only see or change your own availability."), frappe.PermissionError)
 
-	frappe.throw(_("You can only see or change your own availability."), frappe.PermissionError)
+	if not frappe.db.exists("User", evaluator):
+		frappe.throw(_("Evaluator {0} not found").format(evaluator), frappe.DoesNotExistError)
+
+	# Only a Batch Evaluator can be picked as a course or batch evaluator (that
+	# role and the Course Evaluator record move together), so nobody else has
+	# availability to keep. A Moderator gives the role from the Roles tab.
+	if "Batch Evaluator" not in frappe.get_roles(evaluator):
+		frappe.throw(
+			_("{0} doesn't have the Batch Evaluator role, so they have no availability to set.").format(
+				evaluator
+			),
+			frappe.PermissionError,
+			title=_("Not an evaluator"),
+		)
+
+	return evaluator
 
 
 def get_owned_evaluator_doc(evaluator: str, create: bool = False):
-	"""Resolve the caller's (or, for a Moderator, the target's) availability.
-
-	`create` is only ever set by the one endpoint that means "this person is an
-	evaluator now" (adding a slot), and only after that call's own arguments
-	have been validated. Editing, deleting or setting unavailability on a record
-	that does not exist is a mistake, not a reason to conjure one: saving a
-	Course Evaluator grants the Batch Evaluator role, so creating on those paths
-	handed out a role for a write that was then rejected.
-	"""
-	evaluator = enforce_evaluator_access(evaluator)
+	"""Resolve the caller's own availability for a write; naming anyone else,
+	a Moderator included, is refused. `create` only on add/save, after their
+	arguments are validated: saving a Course Evaluator grants Batch Evaluator."""
+	evaluator = validate_evaluator_name(evaluator)
+	if evaluator != frappe.session.user:
+		frappe.throw(_("You can only change your own availability."), frappe.PermissionError)
+	frappe.only_for(EVALUATOR_ROLES)
+	evaluator = check_evaluator_access(evaluator)
 
 	if frappe.db.exists("Course Evaluator", evaluator):
 		return frappe.get_doc("Course Evaluator", evaluator)
 
 	if not create:
 		frappe.throw(_("{0} has no availability set up yet.").format(evaluator), frappe.DoesNotExistError)
-
-	if not frappe.db.exists("User", evaluator):
-		frappe.throw(_("Evaluator {0} not found").format(evaluator), frappe.DoesNotExistError)
 
 	doc = frappe.new_doc("Course Evaluator")
 	doc.evaluator = evaluator
@@ -1067,6 +1208,53 @@ def set_evaluator_unavailability(evaluator: str, fieldname: str, value: str | No
 
 	doc.set(fieldname, validate_unavailability_date(value))
 	doc.save(ignore_permissions=True)
+
+
+EVALUATOR_MAX_SLOTS = 100
+
+
+def validate_schedule_row(row, position: int) -> dict:
+	if not isinstance(row, dict):
+		frappe.throw(_("Row {0} of the schedule is not a time range.").format(position))
+
+	day = row.get("day")
+	if day not in EVALUATOR_SLOT_DAYS:
+		frappe.throw(_("Row {0}: {1} is not a valid day.").format(position, day))
+
+	return {
+		"day": day,
+		"start_time": validate_slot_time(row.get("start_time")),
+		"end_time": validate_slot_time(row.get("end_time")),
+	}
+
+
+@frappe.whitelist(methods=["POST"])
+def save_evaluator_availability(
+	schedule: list, unavailable_from: str | None = None, unavailable_to: str | None = None
+):
+	"""Replace the caller's weekly schedule and time off in one save. Always the
+	caller's own: a Moderator reviews other evaluators' availability, never edits
+	it here."""
+	if not isinstance(schedule, list):
+		frappe.throw(_("Schedule must be a list of time ranges."))
+	if len(schedule) > EVALUATOR_MAX_SLOTS:
+		frappe.throw(_("Keep the schedule under {0} time ranges.").format(EVALUATOR_MAX_SLOTS))
+
+	rows = [validate_schedule_row(row, position) for position, row in enumerate(schedule, start=1)]
+	unavailable_from = validate_unavailability_date(unavailable_from)
+	unavailable_to = validate_unavailability_date(unavailable_to)
+	if bool(unavailable_from) != bool(unavailable_to):
+		frappe.throw(_("Set both dates of the time off, or clear it."), title=_("Time off incomplete"))
+
+	doc = get_owned_evaluator_doc(frappe.session.user, create=True)
+	doc.schedule = []
+	for row in rows:
+		doc.append("schedule", row)
+	doc.unavailable_from = unavailable_from
+	doc.unavailable_to = unavailable_to
+	# nosemgrep: lms-unjustified-ignore-permissions - caller's own record only (get_owned_evaluator_doc on session user); evaluators have no Course Evaluator write permission
+	doc.save(ignore_permissions=True)
+	return get_evaluator_details(frappe.session.user)
 
 
 @frappe.whitelist()
@@ -1203,6 +1391,31 @@ def tagged_staff(doctype: str, docname: str) -> set:
 	)
 
 
+@frappe.whitelist()
+def search_currencies(
+	doctype: str,
+	txt: str,
+	searchfield: str | None = None,
+	start: int = 0,
+	page_len: int = 10,
+	filters: dict | str | None = None,
+):
+	"""search_link `query` for the pricing pickers: LMS roles cannot read Currency."""
+	frappe.only_for(["Moderator", "Course Creator", "Batch Evaluator", "System Manager"])
+	if not isinstance(txt, str):
+		frappe.throw(_("Search text must be text."))
+
+	return frappe.get_all(
+		"Currency",
+		filters={"enabled": 1, "name": ["like", f"%{txt}%"]},
+		fields=["name"],
+		order_by="name",
+		limit_start=cint(start),
+		limit_page_length=cint(page_len),
+		as_list=True,
+	)
+
+
 @frappe.whitelist(allow_guest=True)
 def get_sidebar_settings():
 	lms_settings = frappe.get_single("LMS Settings")
@@ -1322,7 +1535,7 @@ def create_lesson(chapter: str, title: str | None = None, content: str | dict | 
 	lesson = add_lesson(title or _("Untitled lesson"), chapter, course, idx)
 	if content is not None:
 		doc = frappe.get_doc("Course Lesson", lesson)
-		doc.content = content if isinstance(content, str) else json.dumps(content)
+		doc.content = content if isinstance(content, str) else json.dumps(content, ensure_ascii=False)
 		doc.save()
 	return lesson
 
@@ -1559,13 +1772,16 @@ def save_evaluation_details(
 	Save evaluation details for a member against a course.
 	"""
 	frappe.only_for(["Batch Evaluator", "Moderator"])
-	assigned_evaluator = get_evaluator(course, batch_name)
-	if not has_moderator_role() and frappe.session.user != assigned_evaluator:
+	user = frappe.session.user
+	if has_moderator_role():
+		evaluator = get_evaluator(course, batch_name) or user
+	elif can_evaluate(user, member, course, batch_name):
+		evaluator = user
+	else:
 		frappe.throw(
 			_("You are not the assigned evaluator for this course and batch."),
 			frappe.PermissionError,
 		)
-	evaluator = assigned_evaluator or frappe.session.user
 
 	# Serialise saves per member; the locking read below then sees rows another
 	# request committed after this one's snapshot.
@@ -2768,6 +2984,7 @@ def save_evaluator_role(user: str, value: int):
 			doc.evaluator = user
 			frappe.db.savepoint("save_evaluator")
 			try:
+				# nosemgrep: lms-unjustified-ignore-permissions - Moderator-only (only_for above), and Moderators may create Course Evaluator
 				doc.save(ignore_permissions=True)
 			except frappe.DuplicateEntryError:
 				# A concurrent request already created this evaluator; the primary key (autoname field:evaluator) guarantees uniqueness, so the row exists. Nothing more to do.
@@ -3007,6 +3224,7 @@ def make_new_exercise_submission(exercise: str, code: str, test_cases: list):
 		)
 
 	submission.status = get_exercise_status(test_cases)
+	submission.flags.graded_on_server = True
 	submission.insert()
 	return submission.name
 
@@ -3358,32 +3576,192 @@ def get_live_class_start_url(live_class: str) -> str:
 
 
 @frappe.whitelist(methods=["POST"])
-def add_students_to_batch(batch: str, members: list | str) -> dict:
-	"""Enroll each member in the batch, as adding them one at a time would. A member who cannot
-	be added is reported in `errors` and does not stop the rest. `members` is a list of users, or
-	that list as JSON."""
+def add_students_to_batch(
+	batch: str,
+	members: list | str,
+	payment_details: dict | str | None = None,
+	linked_payments: dict | str | None = None,
+	member_payment_details: dict | str | None = None,
+) -> dict:
+	"""Enroll each member in the batch; one who cannot be added is reported in `errors`. For a paid
+	batch, `payment_details` records a received payment per member, `linked_payments` attaches
+	existing ones and `member_payment_details` overrides payment values for named members."""
 	if not isinstance(batch, str) or not frappe.db.exists("LMS Batch", batch):
 		frappe.throw(_("Invalid batch."))
-	if isinstance(members, str):
-		members = frappe.parse_json(members)
-	if not isinstance(members, list) or not all(isinstance(member, str) for member in members):
+	if not isinstance(members, list | str):
 		frappe.throw(_("Members must be a list of users."))
+	if not all(
+		isinstance(arg, dict | str | None)
+		for arg in (payment_details, linked_payments, member_payment_details)
+	):
+		frappe.throw(_("Payment arguments must be JSON objects."))
 
-	added, errors = [], []
-	for member in members:
-		messages = len(frappe.local.message_log)
-		frappe.db.savepoint("add_student_to_batch")
-		try:
-			frappe.get_doc({"doctype": "LMS Batch Enrollment", "batch": batch, "member": member}).insert()
-		except Exception as e:
-			frappe.db.rollback(save_point="add_student_to_batch")
-			# The row's messages are its error below, not a message for the whole request.
-			del frappe.local.message_log[messages:]
-			errors.append({"member": member, "error": str(e)})
-		else:
-			frappe.db.release_savepoint("add_student_to_batch")
-			added.append(member)
-	return {"added": added, "errors": errors}
+	has_payments = payment_details is not None or linked_payments is not None
+	if has_payments:
+		if not can_record_payments("LMS Batch", batch):
+			frappe.throw(_("You cannot record payments for this batch."), frappe.PermissionError)
+		if get_paid_kind("LMS Batch", batch) != "batch":
+			frappe.throw(_("Payments can only be recorded for a paid batch."))
+
+	members = parse_members(members) if has_payments else parse_members(members, limit=None)
+	details, linked, member_details = parse_payment_args(
+		payment_details, linked_payments, member_payment_details, members
+	)
+
+	def enroll_one(member: str) -> str:
+		user = require_user(member)
+		member = user.name
+		payment = resolve_payment(user, "LMS Batch", batch, False, details, linked, member_details)
+		if has_payments and not payment:
+			frappe.throw(_("No payment was given for {0}. Add a payment for this student.").format(member))
+		frappe.get_doc(
+			{"doctype": "LMS Batch Enrollment", "batch": batch, "member": member, "payment": payment}
+		).insert()
+		return "added"
+
+	outcomes, errors = enroll_each(members, enroll_one)
+	return {"added": outcomes.get("added", []), "errors": errors}
+
+
+@frappe.whitelist(methods=["POST"])
+def enroll_students_in_course(
+	course: str,
+	members: list | str,
+	purchased_certificate: bool = False,
+	payment_details: dict | str | None = None,
+	linked_payments: dict | str | None = None,
+	member_payment_details: dict | str | None = None,
+) -> dict:
+	"""Enroll each member in the course; one who cannot be enrolled is reported in `errors`. With
+	`purchased_certificate`, members already enrolled are upgraded to the certificate instead.
+	`member_payment_details` overrides payment values and address for named members."""
+	if not isinstance(course, str) or not frappe.db.exists("LMS Course", course):
+		frappe.throw(_("Invalid course."))
+	if not can_enroll_others("LMS Course", course):
+		frappe.throw(_("You cannot enroll students in this course."), frappe.PermissionError)
+	if not isinstance(purchased_certificate, bool | int) or purchased_certificate not in (0, 1):
+		frappe.throw(_("Purchased certificate must be true or false."))
+	if not isinstance(members, list | str):
+		frappe.throw(_("Members must be a list of users."))
+	if not all(
+		isinstance(arg, dict | str | None)
+		for arg in (payment_details, linked_payments, member_payment_details)
+	):
+		frappe.throw(_("Payment arguments must be JSON objects."))
+
+	purchased_certificate = bool(purchased_certificate)
+	kind = get_paid_kind("LMS Course", course, purchased_certificate)
+	if purchased_certificate and kind == "course":
+		frappe.throw(
+			_(
+				"The certificate cannot be bought separately on a paid course. Turn off the certificate switch and try again."
+			)
+		)
+	has_payments = payment_details is not None or linked_payments is not None
+	if has_payments:
+		if not can_record_payments("LMS Course", course):
+			frappe.throw(_("You cannot record payments for this course."), frappe.PermissionError)
+		if kind is None:
+			frappe.throw(_("Payments can only be recorded for a paid course or a purchased certificate."))
+
+	members = parse_members(members)
+	details, linked, member_details = parse_payment_args(
+		payment_details, linked_payments, member_payment_details, members
+	)
+	for_certificate = kind == "certificate"
+
+	def enroll_one(member: str) -> str:
+		user = require_user(member)
+		member = user.name
+		# Same lock order as LMSEnrollment.validate_duplicate_enrollment: course first.
+		frappe.db.get_value("LMS Course", course, "name", for_update=True)
+		existing = frappe.db.get_value(
+			"LMS Enrollment",
+			{"course": course, "member": member},
+			["name", "purchased_certificate"],
+			as_dict=True,
+			for_update=purchased_certificate,
+		)
+		if existing and purchased_certificate and existing.purchased_certificate:
+			frappe.throw(_("Certificate already purchased by {0}.").format(member))
+
+		payment = resolve_payment(
+			user, "LMS Course", course, for_certificate, details, linked, member_details
+		)
+		if has_payments and not payment:
+			frappe.throw(_("No payment was given for {0}. Add a payment for this student.").format(member))
+
+		if existing and purchased_certificate:
+			enrollment = frappe.get_doc("LMS Enrollment", existing.name)
+			enrollment.purchased_certificate = 1
+			if payment:
+				enrollment.payment = payment
+			enrollment.save()
+			return "upgraded"
+
+		frappe.get_doc(
+			{
+				"doctype": "LMS Enrollment",
+				"course": course,
+				"member": member,
+				"purchased_certificate": int(purchased_certificate),
+				"payment": payment,
+			}
+		).insert()
+		return "added"
+
+	outcomes, errors = enroll_each(members, enroll_one)
+	return {
+		"added": outcomes.get("added", []),
+		"upgraded": outcomes.get("upgraded", []),
+		"errors": errors,
+	}
+
+
+@frappe.whitelist()
+def get_bulk_enrollment_preview(
+	doctype: str, docname: str, members: list | str, purchased_certificate: bool = False
+) -> dict:
+	"""What bulk-enrolling these members would do: a status per member, the seats left and the price."""
+	if not isinstance(doctype, str) or not isinstance(docname, str):
+		frappe.throw(_("Invalid course or batch."))
+	require_enroll_target(doctype, docname)
+	if not isinstance(members, list | str):
+		frappe.throw(_("Members must be a list of users."))
+	if not isinstance(purchased_certificate, bool | int) or purchased_certificate not in (0, 1):
+		frappe.throw(_("Purchased certificate must be true or false."))
+	return get_preview(doctype, docname, parse_members(members), bool(purchased_certificate))
+
+
+@frappe.whitelist()
+def search_users_to_enroll(
+	enroll_doctype: str,
+	enroll_docname: str,
+	txt: str = "",
+	include_enrolled: bool = False,
+	page_length: int = 10,
+	names: list | str | None = None,
+) -> list[dict]:
+	"""Enabled users matching `txt` who can be enrolled, or exactly `names` to label chips."""
+	if not isinstance(enroll_doctype, str) or not isinstance(enroll_docname, str):
+		frappe.throw(_("Invalid course or batch."))
+	require_enroll_target(enroll_doctype, enroll_docname)
+	if not isinstance(txt, str):
+		frappe.throw(_("Search text must be text."))
+	if not isinstance(include_enrolled, bool | int) or include_enrolled not in (0, 1):
+		frappe.throw(_("Include enrolled must be true or false."))
+	if isinstance(page_length, bool) or not isinstance(page_length, int | str):
+		frappe.throw(_("Page length must be a number."))
+	if not isinstance(names, list | str | None):
+		frappe.throw(_("Names must be a list of users."))
+	return search_users(
+		enroll_doctype,
+		enroll_docname,
+		txt.strip(),
+		bool(include_enrolled),
+		max(cint(page_length), 1),
+		parse_members(names, limit=None) if names is not None else None,
+	)
 
 
 @frappe.whitelist()

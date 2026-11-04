@@ -114,6 +114,10 @@ const config: SubmissionsConfig = {
 	pageTitle: 'Assignment Submissions',
 	emptyName: 'Assignment Submissions',
 	emptyIcon: 'lucide-pencil',
+	emptyTitle: __('No assignment submissions yet'),
+	emptyDescription: __(
+		'Work that learners hand in for your assignments shows up here, ready for you to grade.'
+	),
 	transform: (rows: ListRow[]) =>
 		rows.map((row) => ({
 			...row,

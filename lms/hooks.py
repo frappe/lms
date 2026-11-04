@@ -220,6 +220,7 @@ scheduler_events = {
 		"lms.lms.doctype.lms_course.lms_course.update_course_statistics",
 		"lms.lms.doctype.lms_certificate_request.lms_certificate_request.mark_eval_as_completed",
 		"lms.lms.doctype.lms_live_class.lms_live_class.update_attendance",
+		"lms.lms.day1_email.send_day1_email",
 	],
 	"daily": [
 		"lms.job.doctype.job_opportunity.job_opportunity.update_job_openings",
@@ -228,6 +229,7 @@ scheduler_events = {
 		"lms.lms.doctype.lms_live_class.lms_live_class.send_live_class_reminder",
 		"lms.lms.doctype.lms_course.lms_course.send_notification_for_published_courses",
 		"lms.lms.doctype.course_lesson.course_lesson.rename_settled_untitled_lessons",
+		"lms.lms.doctype.course_evaluator.course_evaluator.clear_expired_time_off",
 	],
 }
 

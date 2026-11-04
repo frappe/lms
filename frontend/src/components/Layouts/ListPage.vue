@@ -67,8 +67,21 @@
 				<slot name="selection-actions" v-bind="bannerProps" />
 			</template>
 		</ResponsiveListView>
-		<div v-else class="flex-1">
-			<EmptyStateLayout :name="emptyName" :icon="emptyIcon" />
+		<!-- Bottom padding lifts the empty state: dead centre reads as too low. -->
+		<div v-else class="flex-1 pb-24">
+			<EmptyStateLayout
+				:name="emptyName"
+				:icon="emptyIcon"
+				:title="isFiltered ? undefined : emptyTitle || undefined"
+				:description="emptyStateDescription"
+			>
+				<Button
+					v-if="isFiltered"
+					:label="__('Clear filters')"
+					@click="clearFilters"
+				/>
+				<slot v-else name="empty-actions" />
+			</EmptyStateLayout>
 		</div>
 
 		<template #footer>
@@ -159,6 +172,14 @@ const props = withDefaults(
 		/** What the empty state calls these rows, e.g. "Courses". */
 		emptyName?: string
 		emptyIcon?: string
+		/** Replaces "No {emptyName} Found" when nothing is filtered. */
+		emptyTitle?: string
+		/** Replaces the default empty-state sentence, which suits learner pages. */
+		emptyDescription?: string
+		/** Text in a search box the page renders itself, in its #filters slot. */
+		searchQuery?: string
+		/** A filter other than search is narrowing the rows. */
+		filtered?: boolean
 	}>(),
 	{
 		title: '',
@@ -175,10 +196,14 @@ const props = withDefaults(
 		pageLengthOptions: () => [24, 60, 120],
 		emptyName: '',
 		emptyIcon: 'lucide-graduation-cap',
+		emptyTitle: '',
+		emptyDescription: '',
+		searchQuery: '',
+		filtered: false,
 	}
 )
 
-const emit = defineEmits<{ loadMore: [] }>()
+const emit = defineEmits<{ loadMore: []; clearFilters: [] }>()
 
 // On a phone the bulk-action banner docks against the same bottom edge the
 // footer holds, and the banner is what the reader is working with, so the
@@ -195,6 +220,31 @@ const pageLength = defineModel<number>('pageLength', { default: 24 })
 // unbound it is `undefined` and there is no box, so pages with nothing to
 // search are unchanged.
 const search = defineModel<string>('search')
+
+// With a search or filter on, an empty list means nothing matched, not that
+// there is nothing to show (Helpdesk's SkeletonLoader `hasAppliedFilter`).
+const activeQuery = computed(() => (search.value || props.searchQuery).trim())
+
+const isFiltered = computed(() => props.filtered || Boolean(activeQuery.value))
+
+const emptyStateDescription = computed(() => {
+	if (activeQuery.value) {
+		return __(
+			'Nothing matches "{0}". Try another search or clear the filters.'
+		).format(activeQuery.value)
+	}
+	if (props.filtered) {
+		return __(
+			'Nothing matches the filters applied. Try changing or clearing them.'
+		)
+	}
+	return props.emptyDescription
+})
+
+const clearFilters = () => {
+	if (search.value) search.value = ''
+	emit('clearFilters')
+}
 
 watch(pageLength, (value: number) => {
 	// reload() ignores a new pageLength while start > 0: it refetches the

@@ -1,6 +1,40 @@
 <template>
 	<div class="mt-7 mb-20">
-		<div class="flex h-dvh flex-col overflow-hidden">
+		<div
+			v-if="loadError"
+			class="rounded-6 border border-outline-gray-2"
+			data-testid="schedule-error"
+		>
+			<EmptyStateLayout
+				:name="__('Evaluations')"
+				icon="lucide-calendar-x-2"
+				width="lg"
+				:title="__('Could not load evaluations')"
+				:description="__('The request did not get through. Try again.')"
+			>
+				<Button
+					variant="subtle"
+					:loading="evaluations.list?.loading"
+					@click="retryLoad"
+				>
+					<span class="text-p-base">{{ __('Retry') }}</span>
+				</Button>
+			</EmptyStateLayout>
+		</div>
+		<div
+			v-else-if="evaluations.list?.fetched && !evaluations.data?.length"
+			class="rounded-6 border border-outline-gray-2"
+			data-testid="empty-schedule"
+		>
+			<EmptyStateLayout
+				:name="__('Evaluations')"
+				icon="lucide-calendar-check"
+				width="lg"
+				:title="__('No evaluations yet')"
+				:description="emptyDescription"
+			/>
+		</div>
+		<div v-else class="flex h-dvh flex-col overflow-hidden">
 			<Calendar
 				v-if="evaluations.data?.length"
 				:config="calendarConfig"
@@ -36,8 +70,9 @@
 <script setup>
 import { createListResource, Button } from 'frappe-ui'
 import { Calendar } from 'frappe-ui/experimental'
-import { inject, ref } from 'vue'
+import { computed, inject, ref } from 'vue'
 import Event from '@/components/Modals/Event.vue'
+import EmptyStateLayout from '@/components/Layouts/EmptyStateLayout.vue'
 
 // #header hides the view switcher, so m/w/d would leave Week with no way back.
 const calendarConfig = { defaultMode: 'Week', enableShortcuts: false }
@@ -97,6 +132,19 @@ const evaluations = createListResource({
 		})
 	},
 })
+
+// Cached rows still beat an error, so only an empty failed load shows one.
+const loadError = computed(
+	() => Boolean(evaluations.list?.error) && !evaluations.data?.length
+)
+// The error state already shows the failure.
+const retryLoad = () => evaluations.reload().catch(() => {})
+
+const emptyDescription = computed(() =>
+	props.profile.data?.name === user.data?.name
+		? __('Evaluations students book with you will show up here.')
+		: __('Evaluations students book with this evaluator will show up here.')
+)
 
 const openEvent = (event) => {
 	currentEvent.value = event.calendarEvent

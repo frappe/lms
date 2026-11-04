@@ -9,7 +9,12 @@
 		v-model:page-length="pageLength"
 		empty-name="Batches"
 		empty-icon="lucide-users"
+		:empty-title="emptyState?.title"
+		:empty-description="emptyState?.description"
+		:search-query="title"
+		:filtered="Boolean(currentCategory || certification)"
 		@load-more="batches.next()"
+		@clear-filters="clearFilters"
 	>
 		<template #actions>
 			<div v-if="canCreateBatch()" class="flex items-center gap-2">
@@ -58,6 +63,16 @@
 			/>
 		</template>
 
+		<template v-if="emptyState" #empty-actions>
+			<EmptyStateActions
+				list="batches"
+				:tab="currentTab"
+				:create-label="__('New Batch')"
+				docs="https://docs.frappe.io/learning/create-a-batch"
+				@create="newBatchFromEmptyState"
+			/>
+		</template>
+
 		<template #card="{ row }">
 			<router-link
 				:to="{ name: 'BatchDetail', params: { batchName: row.name } }"
@@ -87,6 +102,7 @@ import BatchCard from '@/pages/Batches/components/BatchCard.vue'
 import ListPage from '@/components/Layouts/ListPage.vue'
 import { openFormRoute } from '@/composables/useFormRoute'
 import { setFormSource } from '@/composables/formTracking'
+import EmptyStateActions from '@/components/EmptyStateActions.vue'
 
 const user = inject('$user')
 const dayjs = inject('$dayjs')
@@ -174,6 +190,14 @@ const batchCountResource = createResource({
 })
 
 const batchCount = computed(() => batchCountResource.data ?? null)
+
+const clearFilters = () => {
+	currentCategory.value = null
+	certification.value = false
+	// The title watcher reloads on its own; reloading here as well fetches twice.
+	if (title.value) title.value = ''
+	else updateBatches()
+}
 
 const updateBatches = () => {
 	updateFilters()
@@ -335,6 +359,50 @@ const openNewBatch = () => {
 	setFormSource('header_button')
 	openFormRoute(router, { name: 'NewBatch' })
 }
+// A new site's batch tabs are all empty, and the learner wording ("fresh
+// learning experiences are on the way") tells the person who would create
+// them nothing. Each tab says what lands there and how to start one.
+const emptyState = computed(() => {
+	if (!canCreateBatch()) return null
+	switch (currentTab.value) {
+		case 'active':
+			return {
+				title: __('Teach people together in a batch'),
+				description: __(
+					'Take a group through your courses on a schedule, with live classes and a certificate at the end.'
+				),
+			}
+		case 'upcoming':
+			return {
+				title: __('No upcoming batches'),
+				description: __(
+					'Published batches that start later show up here, so you can open sign-ups early.'
+				),
+			}
+		case 'archived':
+			return {
+				title: __('No archived batches'),
+				description: __(
+					'Batches move here once they start, so you can look back at each group.'
+				),
+			}
+		case 'unpublished':
+			return {
+				title: __('No unpublished batches'),
+				description: __(
+					'New batches wait here until you publish them, so learners never see a half-ready batch.'
+				),
+			}
+		default:
+			return null
+	}
+})
+
+function newBatchFromEmptyState() {
+	setFormSource('empty_state')
+	openFormRoute(router, { name: 'NewBatch' })
+}
+
 const openBatchImport = () =>
 	router.push({ name: 'NewDataImport', params: { doctype: 'LMS Batch' } })
 

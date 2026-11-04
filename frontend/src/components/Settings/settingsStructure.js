@@ -42,7 +42,7 @@ export const settingsStructure = [
 										name: 'prevent_skipping_videos',
 										type: 'checkbox',
 										description:
-											'If enabled, users will no able to move forward in a video',
+											"Learners can't jump ahead of the furthest point they've watched. This is not enforced for videos from Cloudflare Stream, Google Drive, Aparat or other embedded links.",
 									},
 								],
 							},
@@ -223,6 +223,9 @@ export const settingsStructure = [
 							},
 						],
 					},
+					// No programming exercise switches: create_programming_exercise_submission
+					// is closed to LMS Student on this branch, so a learner could never
+					// satisfy them and the lesson would stay incomplete.
 					{
 						label: 'Enforcement',
 						columns: [
@@ -233,7 +236,7 @@ export const settingsStructure = [
 										name: 'enforce_video_completion',
 										type: 'checkbox',
 										description:
-											'When enabled, lessons that contain a video can only be marked complete by playing the video to the end. If the video fails to load, the dwell timer is used as a fallback.',
+											'When enabled, lessons that contain a video can only be marked complete by playing the video to the end. A video that fails to load, or comes from Cloudflare Stream, Google Drive, Aparat or another embedded link, cannot be tracked, so its lesson completes on the dwell timer instead.',
 									},
 									{
 										label: 'Enforce assignment completion',
@@ -252,6 +255,42 @@ export const settingsStructure = [
 										type: 'checkbox',
 										description:
 											'When enabled, lessons with a quiz cannot be marked complete until the quiz is submitted.',
+									},
+								],
+							},
+						],
+					},
+					{
+						label: 'Passing',
+						columns: [
+							{
+								fields: [
+									{
+										label: 'Enforce quiz passing',
+										name: 'enforce_quiz_passing',
+										type: 'checkbox',
+										default: 1,
+										description:
+											'The quiz must be passed, not just attempted. Applies only while quiz completion is enforced.',
+									},
+									{
+										label: 'Enforce open-ended quiz passing',
+										name: 'enforce_open_ended_quiz_passing',
+										type: 'checkbox',
+										default: 1,
+										description:
+											'The lesson completes only after an instructor grades the quiz. Applies only while quiz completion is enforced.',
+									},
+								],
+							},
+							{
+								fields: [
+									{
+										label: 'Enforce assignment passing',
+										name: 'enforce_assignment_passing',
+										type: 'checkbox',
+										description:
+											'The lesson completes only after an instructor grades the assignment Pass. Applies only while assignment completion is enforced.',
 									},
 								],
 							},
@@ -323,6 +362,7 @@ export const settingsStructure = [
 										name: 'default_currency',
 										type: 'Link',
 										doctype: 'Currency',
+										query: 'lms.lms.api.search_currencies',
 										description:
 											'Default currency used for course and batch pricing.',
 									},
