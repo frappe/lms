@@ -163,8 +163,10 @@ class TestSaveProgressEnrollmentLifecycle(BaseTestUtils):
 				"enabled": 1,
 			}
 		).insert(ignore_permissions=True)
-		frappe.client_cache.delete_value("webhooks")
-		self.addCleanup(frappe.client_cache.delete_value, "webhooks")
+		# frappe v15 keeps the webhook list in frappe.cache; v16 moved it to client_cache.
+		cache = getattr(frappe, "client_cache", frappe.cache)
+		cache.delete_value("webhooks")
+		self.addCleanup(cache.delete_value, "webhooks")
 
 		# Queueing a webhook also registers flush_webhook_execution_queue on
 		# frappe.db.after_commit. This test never commits, so both would outlive it and

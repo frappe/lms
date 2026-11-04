@@ -1,4 +1,5 @@
 import json
+import re
 from contextlib import contextmanager
 from unittest.mock import patch
 
@@ -12,6 +13,18 @@ from lms.lms.course_import_export import get_assessment_map
 from lms.lms.doctype.lms_certificate.lms_certificate import get_default_certificate_template
 from lms.lms.doctype.lms_quiz.lms_quiz import submit_quiz
 from lms.lms.lesson_assessments import ASSESSMENT_BLOCK_KEYS
+
+
+def compact_styles(html: str) -> str:
+	"""Inline styles written the same way whichever sanitiser stored them.
+
+	nh3 (frappe v16) writes `color:red`, bleach (frappe v15) writes `color: red;`.
+	"""
+	return re.sub(
+		r'style="([^"]*)"',
+		lambda m: 'style="' + re.sub(r"\s*([:;])\s*", r"\1", m.group(1)).rstrip(";") + '"',
+		html,
+	)
 
 
 def enforce_role_gates():

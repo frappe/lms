@@ -1,6 +1,7 @@
 # Copyright (c) 2026, FOSS United and Contributors
 # See license.txt
 
+import inspect
 from unittest.mock import patch
 
 import frappe
@@ -18,7 +19,9 @@ class TestSearchIndexBuild(FrappeTestCase):
 	def test_frappe_can_build_and_resume_the_index(self):
 		# Frappe passes is_continuation on every build; an override without it raised TypeError.
 		framework_build_index(LearningSearch, force=True)
-		framework_build_index(LearningSearch, force=True, is_continuation=True)
+		# frappe v15's build_index takes no is_continuation and never resumes.
+		if "is_continuation" in inspect.signature(framework_build_index).parameters:
+			framework_build_index(LearningSearch, force=True, is_continuation=True)
 
 		self.assertTrue(LearningSearch().index_exists())
 

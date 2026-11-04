@@ -14,7 +14,7 @@ from frappe.utils import escape_html, get_system_timezone, getdate, to_timedelta
 
 import lms
 from lms.lms.doctype.lms_certificate.lms_certificate import is_certified
-from lms.lms.test_helpers import BaseTestUtils
+from lms.lms.test_helpers import BaseTestUtils, compact_styles
 from lms.lms.utils import (
 	DEFAULT_PAGE_LENGTH,
 	MAX_EDITORJS_DEPTH,
@@ -733,9 +733,9 @@ class TestEditorJsSanitisation(unittest.TestCase):
 		# The align tool carries its whole payload in an attribute, so it is the
 		# one a tag-level allowlist can silently strip.
 		text = '<span class="lms-align" style="text-align: center; ' 'display: block;">mid</span>'
-		out = self._text(self._payload(text))
+		out = compact_styles(self._text(self._payload(text)))
 		self.assertIn("lms-align", out)
-		self.assertIn("text-align:center", out.replace(" ;", ";"))
+		self.assertIn("text-align:center", out)
 		self.assertIn("display:block", out)
 
 	def test_keeps_the_other_inline_tools(self):

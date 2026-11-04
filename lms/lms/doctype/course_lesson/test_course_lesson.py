@@ -15,7 +15,7 @@ from lms.lms.doctype.course_lesson.course_lesson import (
 	get_quiz_progress,
 	rename_settled_untitled_lessons,
 )
-from lms.lms.test_helpers import BaseTestUtils
+from lms.lms.test_helpers import BaseTestUtils, compact_styles
 from lms.lms.utils import can_modify_course
 
 IGNORE_TEST_RECORD_DEPENDENCIES = ["Course Chapter", "LMS Course"]
@@ -437,7 +437,8 @@ class TestLessonContentSurvivesSave(BaseTestUtils):
 	def test_attribute_bearing_inline_markup_round_trips(self):
 		for name, markup in self.ATTRIBUTE_MARKUP.items():
 			with self.subTest(markup=name):
-				self.assertEqual(self._saved_text(markup, f"Lesson {name}"), markup)
+				saved = self._saved_text(markup, f"Lesson {name}")
+				self.assertEqual(compact_styles(saved), compact_styles(markup))
 
 	def test_link_keeps_its_href_and_gains_rel(self):
 		saved = self._saved_text('<a href="https://frappe.io/">here</a>', "Lesson link")
