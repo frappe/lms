@@ -15,9 +15,11 @@ Usage:
 
 import json
 import os
-import subprocess
 import sys
 import time
+import urllib.error
+import urllib.parse
+import urllib.request
 from functools import cache
 
 REPO = os.environ["GITHUB_REPOSITORY"]
@@ -33,15 +35,53 @@ SERVER_BLIND = (".md", ".vue", ".ts", ".js", ".css")
 SERVER_READS = ("frontend/src/utils/lessonForm.ts", "frontend/src/directives/safeHtmlLevels.ts")
 
 
-def gh(*args, attempts=3):
-	"""A GitHub API call, tried again after a failure such as a dropped connection."""
+API = "https://api.github.com"
+
+
+def gh(path, method="GET", body=None, params=None, attempts=3):
+	"""A GitHub REST call, tried again after a failure such as a dropped connection.
+
+	Plain urllib rather than the gh CLI: the marketplace check blocks any app that
+	spawns a process, and this file ships with the app."""
+	url = f"{API}/{path}"
+	if params:
+		url += ("&" if "?" in url else "?") + urllib.parse.urlencode(params)
+	request = urllib.request.Request(
+		url,
+		data=json.dumps(body).encode() if body is not None else None,
+		method=method,
+		headers={
+			"Accept": "application/vnd.github+json",
+			"Authorization": f"Bearer {os.environ['GH_TOKEN']}",
+			"X-GitHub-Api-Version": "2022-11-28",
+		},
+	)
 	for attempt in range(attempts):
 		try:
-			return json.loads(subprocess.check_output(["gh", "api", *args], text=True))
-		except subprocess.CalledProcessError:
+			with urllib.request.urlopen(request, timeout=60) as response:
+				payload = response.read()
+				return json.loads(payload) if payload else None
+		except (urllib.error.URLError, TimeoutError):
 			if attempt == attempts - 1:
 				raise
 			time.sleep(10)
+
+
+def search(query):
+	return gh("search/issues", params={"q": query})["items"]
+
+
+def open_pulls(base):
+	"""Every open pull request into this base, page by page."""
+	page = 1
+	while True:
+		pulls = gh(
+			f"repos/{REPO}/pulls", params={"base": base, "state": "open", "per_page": 100, "page": page}
+		)
+		yield from pulls
+		if len(pulls) < 100:
+			return
+		page += 1
 
 
 def tested_branch(base):
@@ -83,7 +123,7 @@ def fixed_after(workflow, failed_run, branch):
 		query = (
 			f"repo:{REPO} is:pr is:merged base:{base} label:{FIX_LABEL} merged:>={failed_run['created_at']}"
 		)
-		for item in gh("-X", "GET", "search/issues", "-f", f"q={query}")["items"]:
+		for item in search(query):
 			pr = gh(f"repos/{REPO}/pulls/{item['number']}")
 			if suite_result(pr_run(workflow, pr), workflow)[0] == "success":
 				return True
@@ -144,10 +184,10 @@ def post(pr):
 	if current and (current["state"], current["description"]) == (state, description):
 		return
 
-	fields = ["-f", f"state={state}", "-f", f"context={context}", "-f", f"description={description}"]
+	fields = {"state": state, "context": context, "description": description}
 	if url:
-		fields += ["-f", f"target_url={url}"]
-	gh("-X", "POST", f"repos/{REPO}/statuses/{sha}", *fields)
+		fields["target_url"] = url
+	gh(f"repos/{REPO}/statuses/{sha}", method="POST", body=fields)
 	print(f"#{pr['number']}: {state}")
 	time.sleep(1)
 
@@ -179,7 +219,7 @@ def start(force):
 				if not needs_suite(workflow, None if len(changes) >= 300 else files):
 					print(f"{workflow} on {branch}: no changes it can see since {last['head_sha'][:7]}")
 					continue
-			subprocess.run(["gh", "workflow", "run", workflow, "--repo", REPO, "--ref", branch], check=True)
+			gh(f"repos/{REPO}/actions/workflows/{workflow}/dispatches", method="POST", body={"ref": branch})
 			print(f"{workflow} on {branch}: started on {head[:7]}")
 
 
@@ -187,11 +227,8 @@ def refresh():
 	for branch, bases in BRANCHES.items():
 		print(f"{branch}: failing {list(failing_suites(branch)) or 'nothing'}")
 		for base in bases:
-			for page in gh(
-				"--paginate", "--slurp", f"repos/{REPO}/pulls?base={base}&state=open&per_page=100"
-			):
-				for pr in page:
-					post(pr)
+			for pr in open_pulls(base):
+				post(pr)
 
 
 if __name__ == "__main__":
@@ -202,7 +239,7 @@ if __name__ == "__main__":
 		post(gh(f"repos/{REPO}/pulls/{sys.argv[2]}"))
 	elif command == "commit":
 		query = f"repo:{REPO} is:pr is:open sha:{sys.argv[2]}"
-		for item in gh("-X", "GET", "search/issues", "-f", f"q={query}")["items"]:
+		for item in search(query):
 			pr = gh(f"repos/{REPO}/pulls/{item['number']}")
 			if pr["head"]["sha"] == sys.argv[2]:
 				post(pr)
