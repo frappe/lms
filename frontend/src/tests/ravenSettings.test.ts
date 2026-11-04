@@ -96,8 +96,8 @@ vi.mock('frappe-ui', async () => {
 let translate = (text: string, args?: unknown[]): string =>
 	args
 		? text.replace(/\{(\d+)\}/g, (_m, index) =>
-				String(args[Number(index)] ?? '')
-		  )
+				String(args[Number(index)] ?? ''),
+			)
 		: text
 
 const __t = (text: string, args?: unknown[]): string => translate(text, args)
@@ -253,7 +253,7 @@ const channelDetail = (over: Record<string, unknown> = {}) => ({
 const apiRule = (
 	rule_type: string,
 	config: Record<string, unknown>,
-	provider = 'LMS'
+	provider = 'LMS',
 ) => ({ provider, rule_type, status: 'Active', config })
 
 beforeEach(() => {
@@ -300,6 +300,22 @@ describe('the Raven setup gate', () => {
 		expect(server.calls.map((c) => c.url)).toEqual([SETUP])
 	})
 
+	// Settings.vue hands a custom page only its label.
+	it('opens with the label alone, as Settings hands it', () => {
+		server.data[SETUP] = {
+			raven: true,
+			raven_integration: true,
+			enabled: false,
+		}
+
+		const w = mount(RavenSettings, {
+			props: { label: 'Raven' },
+			...mountOptions,
+		})
+
+		expect(w.text()).toContain('Raven')
+	})
+
 	it.each([
 		{
 			app: 'raven_integration',
@@ -319,7 +335,7 @@ describe('the Raven setup gate', () => {
 			expect(w.text()).toContain('Enable Raven Integration')
 			expect(w.text()).toContain(`Install the ${app} app`)
 			expect(buttonNamed(w, 'Enable')!.attributes('disabled')).toBeDefined()
-		}
+		},
 	)
 
 	it('comes alive only once both apps are there', async () => {
@@ -348,7 +364,7 @@ describe('the Raven setup gate', () => {
 		}
 		const raven = panel()
 		expect(raven.get('a').attributes('href')).toContain(
-			'marketplace/apps/raven'
+			'marketplace/apps/raven',
 		)
 		expect(raven.get('a').attributes('target')).toBe('_blank')
 		expect(raven.get('a').attributes('rel')).toContain('noopener')
@@ -380,7 +396,7 @@ describe('the Raven setup gate', () => {
 		}
 		try {
 			expect(panel().text()).toContain(
-				'To enable this integration, install the Raven app.'
+				'To enable this integration, install the Raven app.',
 			)
 		} finally {
 			translate = plain
@@ -632,7 +648,7 @@ describe('the workspace list', () => {
 		stateFilter(w).vm.$emit('update:modelValue', 'stale')
 		w.findComponent({ name: 'SettingsList' }).vm.$emit(
 			'update:search',
-			'design'
+			'design',
 		)
 		await nextTick()
 
@@ -645,7 +661,7 @@ describe('the workspace list', () => {
 				name: `RWM-${i}`,
 				workspace_label: `Workspace ${i}`,
 				raven_workspace: `WS-${i}`,
-			})
+			}),
 		)
 		const w = list()
 		expect(rows(w)).toHaveLength(SETTINGS_PAGE_LENGTH)
@@ -754,7 +770,7 @@ describe("a workspace's Channels tab", () => {
 			expect(control.attributes('aria-checked')).toBe(checked)
 			expect(control.attributes('disabled') !== undefined).toBe(off)
 			if (why) expect(rows(w)[0].text()).toContain(why)
-		}
+		},
 	)
 
 	it('names each switch after the row it belongs to', () => {
@@ -796,7 +812,7 @@ describe("a workspace's Channels tab", () => {
 		expect(button.attributes('disabled')).toBeUndefined()
 		expect(w.emitted('new')).toBeUndefined()
 		expect(w.findComponent({ name: 'Button' }).props('tooltip')).toBe(
-			'Save this workspace before adding channels to it.'
+			'Save this workspace before adding channels to it.',
 		)
 	})
 
@@ -804,7 +820,7 @@ describe("a workspace's Channels tab", () => {
 		server.data[LIST_CHANNELS] = []
 
 		expect(tab().text()).toContain(
-			'Add one to give this workspace its first members.'
+			'Add one to give this workspace its first members.',
 		)
 	})
 })
@@ -855,7 +871,7 @@ describe("a workspace's Members tab", () => {
 
 	it('says nobody is in a channel yet, rather than showing an empty table', () => {
 		expect(tab([]).text()).toContain(
-			'Nobody is in a channel of this workspace yet.'
+			'Nobody is in a channel of this workspace yet.',
 		)
 	})
 
@@ -980,7 +996,7 @@ describe('a condition row', () => {
 		expect(
 			cells(row({}))
 				.classes()
-				.some((c) => c.startsWith('flex'))
+				.some((c) => c.startsWith('flex')),
 		).toBe(false)
 	})
 
@@ -996,7 +1012,7 @@ describe('a condition row', () => {
 
 		// [type][kind][roles]: three, so one line.
 		expect(
-			columns({ rule_type: 'Staff', staff_kind: 'Platform role' })
+			columns({ rule_type: 'Staff', staff_kind: 'Platform role' }),
 		).toContain('sm:grid-cols-3')
 
 		// [type][scope] / [payment][enrolled in]: four, so two rows of two.
@@ -1024,7 +1040,7 @@ describe('a condition row', () => {
 		const groups = w.findAll('[role="group"]')
 
 		const valueCell = groups.find((g) =>
-			g.findComponent({ name: 'MultiLink' }).exists()
+			g.findComponent({ name: 'MultiLink' }).exists(),
 		)!
 		expect(valueCell.attributes('aria-labelledby')).toContain('row-name ')
 	})
@@ -1045,7 +1061,7 @@ describe('a condition row', () => {
 		// left behind would announce the cell twice.
 		const w = row({})
 		const trigger = w.get(
-			'[data-testid="condition-type"] [data-slot="trigger"]'
+			'[data-testid="condition-type"] [data-slot="trigger"]',
 		)
 
 		expect(trigger.attributes('aria-labelledby')).toContain('row-name ')
@@ -1120,7 +1136,7 @@ describe('a condition row', () => {
 
 		expect(w.findComponent({ name: 'MultiLink' }).exists()).toBe(false)
 		expect(
-			(control.props('options') as { value: string }[]).map((o) => o.value)
+			(control.props('options') as { value: string }[]).map((o) => o.value),
 		).toEqual(['Course Creator', 'Evaluator', 'Moderator'])
 
 		control.vm.$emit('update:modelValue', ['Moderator', 'Evaluator'])
@@ -1182,11 +1198,11 @@ describe('the conditions of a channel', () => {
 		const row = conditionRows(w)[0]
 
 		expect(w.get('[data-testid="section-errors"]').text()).toBe(
-			'Finish every condition before saving.'
+			'Finish every condition before saving.',
 		)
 		expect(row.attributes('aria-invalid')).toBe('true')
 		expect(w.get(`#${row.attributes('aria-describedby')}`).text()).toContain(
-			'Finish every condition before saving.'
+			'Finish every condition before saving.',
 		)
 		expect(buttonNamed(w, 'Save')!.attributes('disabled')).toBeDefined()
 	})
@@ -1225,7 +1241,7 @@ describe('the conditions of a channel', () => {
 
 		expect(triggers).toHaveLength(2)
 		expect(
-			w.findAll('span.sr-only').filter((s) => s.text() === 'Condition actions')
+			w.findAll('span.sr-only').filter((s) => s.text() === 'Condition actions'),
 		).toHaveLength(1)
 		// The row's own name first, then the shared word: eight identical
 		// "Condition actions" buttons cannot be told apart in a rotor listing.
@@ -1244,8 +1260,8 @@ describe('the conditions of a channel', () => {
 			.findAllComponents({ name: 'Dropdown' })
 			.find((d) =>
 				(d.props('options') as { label: string }[]).some(
-					(o) => o.label === 'Remove'
-				)
+					(o) => o.label === 'Remove',
+				),
 			)!
 
 		expect(menu.props('align')).toBe('end')
@@ -1346,7 +1362,7 @@ describe('leaving a Raven detail page', () => {
 
 			expect(w.emitted('back')).toHaveLength(1)
 			expect(dialog(w).props('open')).toBe(false)
-		}
+		},
 	)
 
 	it.each(pages)(
@@ -1368,7 +1384,7 @@ describe('leaving a Raven detail page', () => {
 
 			expect(w.emitted('back')).toHaveLength(1)
 			expect(dialog(w).props('open')).toBe(false)
-		}
+		},
 	)
 
 	it('asks about a new workspace that has been half filled in', async () => {
