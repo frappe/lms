@@ -6,6 +6,8 @@ from frappe import _
 from frappe.model.document import Document
 from frappe.utils import cint, get_url_to_list, validate_email_address, validate_url
 
+from lms.lms.doctype.course_lesson.course_lesson import COMPLETION_ITEMS
+
 
 class LMSSettings(Document):
 	def validate(self):
@@ -13,10 +15,16 @@ class LMSSettings(Document):
 		self.validate_signup()
 		self.validate_contact_us_details()
 		self.validate_lesson_dwell_time()
+		self.validate_passing_needs_completion()
 
 	def validate_lesson_dwell_time(self):
 		if cint(self.lesson_dwell_time) < 1:
 			frappe.throw(_("Lesson Dwell Time must be at least 1 second."))
+
+	def validate_passing_needs_completion(self):
+		for toggle, passing_toggle, _default in COMPLETION_ITEMS.values():
+			if not cint(self.get(toggle)):
+				self.set(passing_toggle, 0)
 
 	def validate_google_settings(self):
 		if self.send_calendar_invite_for_evaluations:
