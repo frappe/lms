@@ -7,7 +7,7 @@
  * this form hands it.
  */
 import { describe, expect, it, vi } from 'vitest'
-import { mount } from '@vue/test-utils'
+import { flushPromises, mount } from '@vue/test-utils'
 
 vi.hoisted(() => {
 	// emailAccounts.ts reaches @/composables/useSettingsListResource, which
@@ -120,5 +120,28 @@ describe('the isNew provider picker', () => {
 
 		expect(w.find('[data-testid="provider-GMail"]').exists()).toBe(true)
 		expect(w.find('[data-testid="settings-fields"]').exists()).toBe(false)
+	})
+})
+
+describe('an existing account', () => {
+	// Saving a form that never loaded would send a blank account under the
+	// record's name.
+	it('goes back to the list when the account fails to load', async () => {
+		const { call } = await import('frappe-ui')
+		vi.mocked(call).mockRejectedValueOnce(new Error('gone'))
+		const logged = vi.spyOn(console, 'error').mockImplementation(() => {})
+
+		const w = mountForm('Support')
+		await flushPromises()
+
+		expect(w.emitted('back')).toHaveLength(1)
+		logged.mockRestore()
+	})
+
+	it('goes back when the server has no such account', async () => {
+		const w = mountForm('Missing')
+		await flushPromises()
+
+		expect(w.emitted('back')).toHaveLength(1)
 	})
 })

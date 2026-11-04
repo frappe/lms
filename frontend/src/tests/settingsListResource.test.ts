@@ -426,4 +426,58 @@ describe('useSettingsMethodResource', () => {
 		expect(list.rows).toHaveLength(7)
 		expect(list.hasNextPage).toBe(false)
 	})
+
+	it('keeps the rows and the next page when a page fails', async () => {
+		const list = useSettingsMethodResource({
+			method: 'lms.lms.api.get_members',
+			doctype: 'User',
+			pageLength: 5,
+		})
+		await landMethod(new Array(5).fill({ name: 'a' }))
+
+		list.loadMore()
+		await landMethod(null)
+		expect(list.rows).toHaveLength(5)
+		expect(list.hasNextPage).toBe(true)
+
+		// The retry asks for the same page, not the one after it.
+		list.loadMore()
+		expect(methodCalls.at(-1)).toMatchObject({ start: 5 })
+
+		list.reload()
+		await landMethod(null)
+		await landMethod(null)
+		expect(list.rows).toHaveLength(5)
+	})
+
+	it('clears the old rows and Load More when a new search fails', async () => {
+		const list = useSettingsMethodResource({
+			method: 'lms.lms.api.get_members',
+			doctype: 'User',
+			pageLength: 5,
+		})
+		await landMethod(new Array(5).fill({ name: 'a' }))
+		expect(list.hasNextPage).toBe(true)
+
+		list.search = 'b'
+		await nextTick()
+		expect(list.hasNextPage).toBe(false)
+		await landMethod(null)
+		expect(list.hasNextPage).toBe(false)
+		expect(list.rows).toHaveLength(0)
+	})
+
+	it('asks for a page once when Load More is clicked twice', async () => {
+		const list = useSettingsMethodResource({
+			method: 'lms.lms.api.get_members',
+			doctype: 'User',
+			pageLength: 5,
+		})
+		await landMethod(new Array(5).fill({ name: 'a' }))
+		const before = methodCalls.length
+
+		list.loadMore()
+		list.loadMore()
+		expect(methodCalls.length).toBe(before + 1)
+	})
 })

@@ -77,7 +77,8 @@ export const colourModeRow = (themePreference: ThemePreference): MobileRow => ({
 	key: 'colour-mode',
 	label: 'Colour mode',
 	icon: 'lucide-sun-moon',
-	value: COLOUR_MODE_LABELS[themePreference] || 'System',
+	// The list translates labels, not values, so the value is translated here.
+	value: __(COLOUR_MODE_LABELS[themePreference] || 'System'),
 	action: COLOUR_MODE_ACTION,
 })
 

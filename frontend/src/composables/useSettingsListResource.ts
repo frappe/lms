@@ -238,6 +238,9 @@ export function useSettingsMethodResource<TRow = Record<string, any>>(
 	const search = ref('')
 	const rows = ref([]) as Ref<TRow[]>
 	const start = ref(0)
+	// The offset of the request in flight, which is the rows' own offset only
+	// once that request succeeds.
+	const requestStart = ref(0)
 	const hasNextPage = ref(false)
 	const loading = ref(false)
 	const pageLength = options.pageLength ?? SETTINGS_PAGE_LENGTH
@@ -246,7 +249,7 @@ export function useSettingsMethodResource<TRow = Record<string, any>>(
 		url: options.method,
 		makeParams: () => ({
 			search: search.value,
-			start: start.value,
+			start: requestStart.value,
 			...options.params?.(),
 		}),
 		auto: false,
@@ -257,9 +260,23 @@ export function useSettingsMethodResource<TRow = Record<string, any>>(
 	// and a superseded response is dropped, so the newer one owns the offset.
 	let requestToken = 0
 
-	const fetchPage = async (): Promise<void> => {
+	// The search and filter the rows on screen answer.
+	const queryOf = () => JSON.stringify([search.value, options.params?.()])
+	let rowsQuery = queryOf()
+
+	// A failed page changes nothing, so the rows on screen stay for the user to
+	// retry. A first page for a new search or filter clears the old rows, which
+	// would otherwise read as its matches; and the old offset cannot continue
+	// it, so Load More stays off until that page lands.
+	const fetchPage = async (offset = start.value): Promise<void> => {
 		const token = ++requestToken
 		loading.value = true
+		requestStart.value = offset
+		const query = queryOf()
+		if (offset === 0) {
+			hasNextPage.value = false
+			if (query !== rowsQuery) rows.value = []
+		}
 		let data: TRow[] | null = null
 		try {
 			data = await resource.reload()
@@ -269,21 +286,18 @@ export function useSettingsMethodResource<TRow = Record<string, any>>(
 		if (token !== requestToken) return
 		loading.value = false
 		if (!data) return
-		rows.value = rows.value.concat(data)
+		rows.value = offset === 0 ? data : rows.value.concat(data)
+		rowsQuery = query
 		// Paged by what the server actually returned, not the constant. An
 		// exact-equality check would hide Load More the moment the two disagree.
-		start.value = start.value + data.length
+		start.value = offset + data.length
 		hasNextPage.value = data.length >= pageLength
 	}
 
-	// Back to the first page, dropping what's on screen: the search term and
-	// filter both go to the server, so a match past page one is reachable without Load More.
-	const reload = (): Promise<void> => {
-		rows.value = []
-		start.value = 0
-		hasNextPage.value = false
-		return fetchPage()
-	}
+	// Back to the first page: the search term and filter both go to the server,
+	// so a match past page one is reachable without Load More. The first page
+	// replaces the rows when it lands.
+	const reload = (): Promise<void> => fetchPage(0)
 
 	watch(search, () => reload())
 
@@ -294,7 +308,8 @@ export function useSettingsMethodResource<TRow = Record<string, any>>(
 		rows,
 		loading,
 		hasNextPage,
-		loadMore: fetchPage,
+		// A second click while a page loads would ask for the same offset again.
+		loadMore: () => (loading.value ? Promise.resolve() : fetchPage()),
 		reload,
 	}) as SettingsListView<TRow>
 

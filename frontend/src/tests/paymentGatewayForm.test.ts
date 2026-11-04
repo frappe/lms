@@ -14,9 +14,10 @@ import { describe, expect, it, vi } from 'vitest'
 import { nextTick, ref } from 'vue'
 import { flushPromises, mount } from '@vue/test-utils'
 
-const { calls, dirtyChecks } = vi.hoisted(() => ({
+const { calls, dirtyChecks, failProviders } = vi.hoisted(() => ({
 	calls: { value: [] as { method: string; args: any }[] },
 	dirtyChecks: { value: [] as (() => boolean)[] },
+	failProviders: { value: false },
 }))
 
 // GoCardless as the site actually ships it: two secrets typed as Data.
@@ -55,6 +56,8 @@ vi.mock('frappe-ui', () => {
 	return {
 		call: (method: string, args: any) => {
 			calls.value.push({ method, args })
+			if (method === 'frappe.client.get_list' && failProviders.value)
+				return Promise.reject(new Error('offline'))
 			if (method === 'frappe.client.get_list' && args.doctype === 'DocType')
 				return Promise.resolve([
 					{ name: 'GoCardless Settings', issingle: 0 },
@@ -216,5 +219,21 @@ describe('PaymentGatewayForm after creating', () => {
 		).toBe(true)
 		// ...and nothing is left for the guard to stop the form over.
 		expect(isDirty()).toBe(false)
+	})
+})
+
+describe('PaymentGatewayForm without providers', () => {
+	// Nothing could be added from an empty picker, so it leaves rather than
+	// sitting there with no way to retry.
+	it('goes back to the list when the providers fail to load', async () => {
+		failProviders.value = true
+		const logged = vi.spyOn(console, 'error').mockImplementation(() => {})
+		try {
+			const wrapper = await mountNewGateway()
+			expect(wrapper.emitted('back')).toHaveLength(1)
+		} finally {
+			failProviders.value = false
+			logged.mockRestore()
+		}
 	})
 })

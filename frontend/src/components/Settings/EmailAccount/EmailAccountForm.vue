@@ -129,7 +129,7 @@ import type { FieldsSection } from '@/types/settingsSchema'
 // exist yet.
 const props = defineProps<{ name?: string | null }>()
 
-const emit = defineEmits<{ back: [] }>()
+const emit = defineEmits<{ back: []; renamed: [string] }>()
 
 const NEW_RECORD = 'new'
 
@@ -289,11 +289,14 @@ onMounted(async () => {
 		const account = (await call(EMAIL_ACCOUNT_METHODS.get, {
 			name: props.name,
 		})) as Record<string, any> | null
-		if (account) seed(account)
+		if (account) return seed(account)
 	} catch (err: any) {
-		error.value = __('Failed to load email account')
 		console.error(err)
 	}
+	// With nothing loaded the form would edit a blank account under this
+	// record's name, so it goes back to the list instead.
+	toast.error(__('Failed to load email account'))
+	emit('back')
 })
 
 // A rename goes through its own endpoint, not the update, so the two are tracked
@@ -335,6 +338,9 @@ const updateAccount = async () => {
 		// rejected there -- and a retry would otherwise rename from a name the
 		// server has already forgotten, which `_require_account` throws on.
 		loaded.value.email_account_name = state.email_account_name
+		// The URL and the list follow now, so the record stays reachable even
+		// if the update below fails.
+		emit('renamed', state.email_account_name)
 	}
 	if (fieldsDirty.value)
 		await call(EMAIL_ACCOUNT_METHODS.update, {

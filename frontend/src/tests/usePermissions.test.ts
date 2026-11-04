@@ -1,6 +1,15 @@
 import { describe, expect, it, vi } from 'vitest'
 import { ref } from 'vue'
+
+const { serverCall } = vi.hoisted(() => ({
+	serverCall: vi.fn(async (_method: string, args: { names: string[] }) =>
+		Object.fromEntries(args.names.map((n) => [n, { read: 1, delete: 1 }])),
+	),
+}))
+vi.mock('frappe-ui', () => ({ call: serverCall }))
+
 import {
+	canOnDocument,
 	invalidatePermissions,
 	usePermissions,
 } from '../composables/usePermissions'
@@ -54,7 +63,7 @@ describe('usePermissions', () => {
 
 	it('batches the names asked for in the same tick into one call', async () => {
 		const fetcher = vi.fn(async (_doctype: string, names: string[]) =>
-			Object.fromEntries(names.map((n) => [n, { read: 1 }]))
+			Object.fromEntries(names.map((n) => [n, { read: 1 }])),
 		)
 		const a = usePermissions('Course Lesson', ref('l1'), { fetcher })
 		const b = usePermissions('Course Lesson', ref('l2'), { fetcher })
@@ -77,7 +86,7 @@ describe('usePermissions', () => {
 
 	it('re-asks when the name changes', async () => {
 		const fetcher = vi.fn(async (_doctype: string, names: string[]) =>
-			Object.fromEntries(names.map((n) => [n, { read: 1 }]))
+			Object.fromEntries(names.map((n) => [n, { read: 1 }])),
 		)
 		const name = ref('c7')
 		const { can, loading } = usePermissions('LMS Course', name, { fetcher })
@@ -89,5 +98,34 @@ describe('usePermissions', () => {
 		await vi.waitFor(() => expect(loading.value).toBe(false))
 		expect(can('read')).toBe(true)
 		expect(fetcher).toHaveBeenCalledTimes(2)
+	})
+})
+
+// Asked from a row menu's render, once per row on screen.
+describe('canOnDocument', () => {
+	it('reads false until the answer lands, then the server answer', async () => {
+		expect(canOnDocument('LMS Payment', 'pay-1', 'delete')).toBe(false)
+		await vi.waitFor(() =>
+			expect(canOnDocument('LMS Payment', 'pay-1', 'delete')).toBe(true),
+		)
+		expect(canOnDocument('LMS Payment', 'pay-1', 'write')).toBe(false)
+	})
+
+	it('asks once for a page of rows', async () => {
+		serverCall.mockClear()
+		canOnDocument('LMS Payment', 'pay-2', 'delete')
+		canOnDocument('LMS Payment', 'pay-3', 'delete')
+		canOnDocument('LMS Payment', 'pay-2', 'delete')
+		await vi.waitFor(() => expect(serverCall).toHaveBeenCalledTimes(1))
+		expect(serverCall.mock.calls[0][1]).toEqual({
+			doctype: 'LMS Payment',
+			names: ['pay-2', 'pay-3'],
+		})
+	})
+
+	it('denies a row with no name without asking', () => {
+		serverCall.mockClear()
+		expect(canOnDocument('LMS Payment', '', 'delete')).toBe(false)
+		expect(serverCall).not.toHaveBeenCalled()
 	})
 })
