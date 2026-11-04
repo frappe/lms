@@ -45,7 +45,8 @@ export function installDirtyGuard(
 		)
 		if (!dirty.length) return true
 		// Same view: a query change (the page's filters) is not leaving the form.
-		if (to.hash === from.hash) return true
+		// Another path under the same hash is a different page, so it still asks.
+		if (to.path === from.path && to.hash === from.hash) return true
 
 		if (!(await confirm())) return false
 
