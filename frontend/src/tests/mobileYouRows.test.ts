@@ -3,7 +3,10 @@
  * destination on both the bar and this list, an unrecognised destination
  * landing somewhere, and the emitted icon classes matching real lucide SVGs.
  */
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
+
+// Marks what went through translation, so a test can see it did.
+vi.stubGlobal('__', (text: string) => `«${text}»`)
 import { existsSync } from 'node:fs'
 import { resolve } from 'node:path'
 
@@ -193,7 +196,8 @@ describe('the last group', () => {
 			'Settings'
 		)?.rows.find((row) => row.key === 'colour-mode')
 		expect(fromYou).toEqual(colourModeRow('dark'))
-		expect(fromYou?.value).toBe('Dark')
+		// The list translates labels, not values, so the builder does.
+		expect(fromYou?.value).toBe('«Dark»')
 	})
 })
 
