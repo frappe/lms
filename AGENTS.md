@@ -71,6 +71,14 @@ yarn test-local       # Playwright with its UI
 - New features need a test that fails without the change.
 - Python tests must create the users they act as. The helpers in
   `lms/lms/test_helpers.py` default to `frappe@example.com`, which does not exist in CI.
+- Pull requests into `develop` and the hotfix branches skip the server and UI suites.
+  They run every hour on `develop` and `version-16`, started by Branch Tests
+  (`branch-status.yml`), which lives on `develop` alone because GitHub runs scheduled
+  workflows only from the default branch. The pull request shows the result as Develop
+  status or Version-16 status. Label a pull request
+  `Run Server Tests` or `Run UI Tests` to run a suite on it. A pull request that fixes a
+  failing branch is labelled `fixes-develop`: it runs the full suites, and its status
+  turns green once the failing ones pass on it.
 
 ---
 
@@ -79,8 +87,10 @@ yarn test-local       # Playwright with its UI
 - Conventional Commits: `feat:`, `fix:`, `refactor:`, `test:`, `docs:`, `ci:`, with
   an optional scope such as `fix(quiz):`.
 - One commit per coherent change.
-- Pull requests go to `develop`. Fixes reach release branches through the
-  `backport main-hotfix` and similar labels.
+- Pull requests go to `develop`. Fixes reach a release line through its hotfix
+  branch, with the `backport version-16-hotfix` label. `version-16` is released every
+  week; `version-15` gets a fix (`backport version-15-hotfix`) only when a customer
+  needs one.
 - A UI change needs before and after screenshots in the PR.
 - Pre-commit runs ruff, prettier and eslint. If a hook changes a file, stage it again
   and recommit.
