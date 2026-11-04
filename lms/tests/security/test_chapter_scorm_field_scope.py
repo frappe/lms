@@ -2,8 +2,9 @@
 # For license information, please see license.txt
 
 import frappe
+from frappe.client import get as client_get
 
-from lms.lms.test_helpers import BaseTestUtils, client_get
+from lms.lms.test_helpers import BaseTestUtils
 
 # Asserted live in setUp rather than trusted. LMS Student is on every actor:
 # add_lms_student_role is registered on User.before_insert and appends it
@@ -25,6 +26,10 @@ MANIFEST_FILE = "/scorm/canary-course/canary-chapter/imsmanifest.xml"
 PACKAGE_PATH = "/scorm/canary-course/canary-chapter"
 
 ABSENT = "<absent>"
+
+
+def drop_nulls(document):
+	return {key: value for key, value in document.items() if value is not None}
 
 
 class ScormChapterFixture(BaseTestUtils):
@@ -120,10 +125,12 @@ class ScormChapterFixture(BaseTestUtils):
 
 	def _single_doc_read(self, label):
 		"""The REST single-doc path. `frappe.get_doc` runs no permission check at all,
-		so the read has to go through the endpoint that applies field-level ones."""
+		so the read has to go through the endpoint that applies field-level ones.
+		Nulls are dropped as develop's `client.get` does; version-16 returns a withheld
+		field as None instead."""
 		frappe.set_user(getattr(self, label).name)
 		try:
-			return client_get("Course Chapter", self.chapter.name)
+			return drop_nulls(client_get("Course Chapter", self.chapter.name))
 		finally:
 			frappe.set_user("Administrator")
 

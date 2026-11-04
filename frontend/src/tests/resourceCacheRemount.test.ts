@@ -86,8 +86,6 @@ vi.mock('frappe-ui', async () => {
 		createListResource,
 		Avatar: passthrough,
 		Dialog: { props: ['open'], template: '<div><slot /></div>' },
-		FormControl: passthrough,
-		NumberChart: passthrough,
 		TabButtons: passthrough,
 	}
 })
@@ -118,7 +116,7 @@ vi.stubGlobal('__', (s: string) => s)
 const mountDialog = () =>
 	mount(VideoStatistics, {
 		props: { modelValue: true, lessonName: 'lesson-1', lessonTitle: 'L1' },
-		global: { mocks: { __: (s: string) => s }, stubs: { teleport: true } },
+		global: { mocks: { __: (s: string) => s } },
 	})
 
 describe('VideoStatistics.vue across a remount', () => {

@@ -2,9 +2,10 @@
 # For license information, please see license.txt
 
 import frappe
+from frappe.client import get as client_get
 from frappe.permissions import rights
 
-from lms.lms.test_helpers import BaseTestUtils, client_get
+from lms.lms.test_helpers import BaseTestUtils
 from lms.lms.utils import get_assignment
 from lms.patches.v2_0 import reconcile_custom_docperm_permlevels
 
@@ -27,6 +28,10 @@ GRADING_ACTORS = ("creator", "evaluator", "moderator", "sysmanager")
 
 MODEL_ANSWER = "<p>THE-MODEL-ANSWER-NO-STUDENT-MAY-READ</p>"
 ABSENT = "<absent>"
+
+
+def drop_nulls(document):
+	return {key: value for key, value in document.items() if value is not None}
 
 
 class TestAssignmentAnswerScope(BaseTestUtils):
@@ -136,10 +141,12 @@ class TestAssignmentAnswerScope(BaseTestUtils):
 
 	def _single_doc_read(self, label):
 		"""The REST single-doc path. `frappe.get_doc` runs no permission check at all,
-		so the read has to go through the endpoint that applies field-level ones."""
+		so the read has to go through the endpoint that applies field-level ones.
+		Nulls are dropped as develop's `client.get` does; version-16 returns a withheld
+		field as None instead."""
 		frappe.set_user(getattr(self, label).name)
 		try:
-			return client_get("LMS Assignment", self.assignment.name)
+			return drop_nulls(client_get("LMS Assignment", self.assignment.name))
 		finally:
 			frappe.set_user("Administrator")
 

@@ -95,8 +95,17 @@ vi.mock('lucide-vue-next', () => ({
 	NotebookPen: { render: () => null },
 }))
 
-vi.mock('frappe-ui/frappe', () => ({
-	useOnboarding: () => ({ updateOnboardingStep: vi.fn() }),
+vi.mock(
+	'@framework/ui/components/Onboarding/index',
+	async (importOriginal) => ({
+		...(await importOriginal<
+			typeof import('@framework/ui/components/Onboarding/index')
+		>()),
+		useOnboarding: () => ({ updateOnboardingStep: vi.fn() }),
+	})
+)
+vi.mock('@framework/ui/telemetry/index', async (importOriginal) => ({
+	...(await importOriginal<typeof import('@framework/ui/telemetry/index')>()),
 	useTelemetry: () => ({ capture: vi.fn() }),
 }))
 
@@ -419,6 +428,59 @@ describe('LessonForm title is single-line', () => {
 
 		const editLesson = findResource('frappe.client.set_value')
 		expect(editLesson.lastParams.fieldname.title).toBe('Assignment sjksjla')
+	})
+})
+
+describe('LessonForm title focus ring', () => {
+	let wrapper: VueWrapper
+
+	beforeEach(() => {
+		created.list.length = 0
+		editorState.saveData = {}
+	})
+
+	afterEach(() => {
+		wrapper?.unmount()
+		document.body.innerHTML = ''
+	})
+
+	const titleField = () => wrapper.find('textarea.lesson-title')
+
+	async function refocus() {
+		await titleField().trigger('blur')
+		await titleField().trigger('focus')
+	}
+
+	it('hides the ring when the title is focused by a click', async () => {
+		wrapper = await mountLoaded()
+
+		document.dispatchEvent(new Event('pointerdown'))
+		await refocus()
+		expect(titleField().classes()).not.toContain('focus:ring-2')
+	})
+
+	it('shows the ring when a key moved focus to the title', async () => {
+		wrapper = await mountLoaded()
+
+		for (const key of ['Tab', 'Enter']) {
+			document.dispatchEvent(new KeyboardEvent('keydown', { key }))
+			await refocus()
+			expect(titleField().classes()).toContain('focus:ring-2')
+
+			await titleField().trigger('blur')
+			expect(titleField().classes()).not.toContain('focus:ring-2')
+		}
+	})
+
+	it('ignores modifier shortcuts such as Ctrl+S', async () => {
+		wrapper = await mountLoaded()
+
+		document.dispatchEvent(new Event('pointerdown'))
+		document.dispatchEvent(
+			new KeyboardEvent('keydown', { key: 's', ctrlKey: true })
+		)
+		await refocus()
+		expect(titleField().classes()).not.toContain('focus:ring-2')
 	})
 })
 

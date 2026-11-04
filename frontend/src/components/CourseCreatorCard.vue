@@ -1,5 +1,5 @@
 <template>
-	<div v-if="instructors?.length" class="border-2 rounded-md p-5">
+	<div v-if="instructors?.length" class="border-2 rounded-5 p-5">
 		<div class="uppercase text-ink-gray-5 text-xs-semibold tracking-wider mb-4">
 			{{ headerLabel }}
 		</div>

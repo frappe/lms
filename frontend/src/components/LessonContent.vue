@@ -1,5 +1,9 @@
 <template>
-	<div v-if="youtubeEmbedId(youtube)" :key="youtubeEmbedId(youtube)">
+	<div
+		v-if="youtubeEmbedId(youtube)"
+		:key="youtubeEmbedId(youtube)"
+		class="not-prose my-5 overflow-hidden rounded-7 border border-outline-gray-2"
+	>
 		<div
 			class="video-player"
 			data-plyr-provider="youtube"
@@ -18,18 +22,27 @@
 			<div
 				v-if="youtubeEmbedId(getId(block))"
 				:key="youtubeEmbedId(getId(block))"
-				class="video-player"
-				data-plyr-provider="youtube"
-				:data-plyr-embed-id="youtubeEmbedId(getId(block))"
-			></div>
+				class="not-prose my-5 overflow-hidden rounded-7 border border-outline-gray-2"
+			>
+				<div
+					class="video-player"
+					data-plyr-provider="youtube"
+					:data-plyr-embed-id="youtubeEmbedId(getId(block))"
+				></div>
+			</div>
 		</div>
 		<div v-else-if="block.includes('{{ Quiz')">
 			<Quiz :quiz="getId(block)" />
 		</div>
-		<div v-else-if="block.includes('{{ Video')">
+		<div
+			v-else-if="block.includes('{{ Video')"
+			class="not-prose my-5 overflow-hidden rounded-7 border border-outline-gray-2"
+		>
 			<video
+				:ref="guardMacroVideo"
 				controls
 				width="100%"
+				class="block w-full"
 				controlsList="nodownload"
 				oncontextmenu="return false;"
 			>
@@ -38,25 +51,41 @@
 		</div>
 		<div v-else-if="block.includes('{{ PDF')">
 			<PdfBlock v-if="inlinePdf" :file="getId(block)" />
-			<iframe
+			<div
 				v-else
-				:src="safeUrl(getId(block))"
-				:title="__('PDF document')"
-				width="100%"
-				height="700px"
-				class="mb-4"
-				type="application/pdf"
-			></iframe>
+				class="not-prose my-5 overflow-hidden rounded-7 border border-outline-gray-2"
+			>
+				<iframe
+					:src="safeUrl(getId(block))"
+					:title="__('PDF document')"
+					width="100%"
+					height="700px"
+					class="block"
+					type="application/pdf"
+				></iframe>
+			</div>
 		</div>
-		<div v-else-if="block.includes('{{ Audio')">
-			<audio width="100%" controls controlsList="nodownload">
+		<div
+			v-else-if="block.includes('{{ Audio')"
+			class="not-prose my-5 overflow-hidden rounded-7 border border-outline-gray-2"
+		>
+			<audio
+				width="100%"
+				class="block w-full"
+				controls
+				controlsList="nodownload"
+			>
 				<source :src="safeUrl(getId(block))" type="audio/mp3" />
 			</audio>
 		</div>
-		<div v-else-if="block.includes('{{ Embed')">
+		<div
+			v-else-if="block.includes('{{ Embed')"
+			class="not-prose my-5 overflow-hidden rounded-7 border border-outline-gray-2"
+		>
 			<iframe
 				width="100%"
 				height="400"
+				class="block"
 				:src="safeUrl(getId(block))"
 				:title="__('Embedded content')"
 				frameborder="0"
@@ -70,13 +99,16 @@
 		<Quiz :quiz="quizId" />
 	</div>
 </template>
-<script setup>
+<script setup lang="ts">
+import type { ComponentPublicInstance } from 'vue'
 import Quiz from '@/components/QuizBlock.vue'
 import PdfBlock from '@/components/PdfBlock.vue'
+// @ts-expect-error markdown-it ships no type declarations
 import MarkdownIt from 'markdown-it'
 import { extractYoutubeID, getMacroArg } from '@/utils/lessonMacros'
 import { usesWebkitPdfViewer } from '@/utils/pdfViewer'
 import { safeUrl } from '@/utils/safeUrl'
+import { guardVideoElementSkips } from '@/utils/videoSkipGuard'
 
 const inlinePdf = usesWebkitPdfViewer()
 
@@ -87,27 +119,24 @@ const markdown = new MarkdownIt({
 
 // The directive sanitizes at the rich level, which is where the anchor-target
 // hook and the form-tag blocklist live. This only does the markdown pass.
-const renderMarkdown = (block) => markdown.render(block)
+const renderMarkdown = (block: string): string => markdown.render(block)
 
-const props = defineProps({
-	content: {
-		type: String,
-		required: true,
-	},
-	youtube: {
-		type: String,
-		required: false,
-	},
-	quizId: {
-		type: String,
-		required: false,
-	},
-})
+defineProps<{
+	content: string
+	youtube?: string
+	quizId?: string
+}>()
 
-const getId = (block) => {
+const getId = (block: string): string => {
 	// Guard the match: a malformed `{{ PDF() }}` / unbalanced-quote macro yields
 	// null, and the old unguarded [1] threw and killed the whole lesson render.
 	return getMacroArg(block) ?? ''
+}
+
+const guardMacroVideo = (
+	el: Element | ComponentPublicInstance | null
+): void => {
+	if (el instanceof HTMLVideoElement) guardVideoElementSkips(el)
 }
 
 // Both authoring paths (the `youtube` field and the `{{ YouTubeVideo }}` macro)
@@ -116,5 +145,6 @@ const getId = (block) => {
 // enforce_video_completion saw "no video" and auto-completed on the dwell timer.
 // Falsy id => render nothing rather than a Plyr player with no video, which
 // would suppress the dwell timer and leave the lesson uncompletable.
-const youtubeEmbedId = (source) => (source ? extractYoutubeID(source) : '')
+const youtubeEmbedId = (source: string | undefined): string =>
+	source ? extractYoutubeID(source) : ''
 </script>

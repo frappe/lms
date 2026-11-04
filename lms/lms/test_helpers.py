@@ -14,17 +14,30 @@ from lms.lms.doctype.lms_certificate.lms_certificate import get_default_certific
 from lms.lms.doctype.lms_quiz.lms_quiz import submit_quiz
 from lms.lms.lesson_assessments import ASSESSMENT_BLOCK_KEYS
 
-STYLE_ATTRIBUTE = re.compile(r'style="([^"]*)"')
+
+def compact_styles(html: str) -> str:
+	"""Inline styles written the same way whichever sanitiser stored them.
+
+	nh3 (frappe v16) writes `color:red`, bleach (frappe v15) writes `color: red;`.
+	"""
+	return re.sub(
+		r'style="([^"]*)"',
+		lambda m: 'style="' + re.sub(r"\s*([:;])\s*", r"\1", m.group(1)).rstrip(";") + '"',
+		html,
+	)
 
 
-def enforce_role_gates(test_case):
-	"""Make `frappe.only_for` check roles for the rest of `test_case`.
+def enforce_role_gates():
+	"""Make `frappe.only_for` check roles for the whole test run.
 
 	frappe v15's `only_for` returns early whenever `flags.in_test` is set, so an
-	endpoint's role gate never fires under the test runner (develop dropped that
-	bypass). The real check runs, with only that flag lowered around it.
+	endpoint's role gate never fires under the test runner, though every request
+	is gated. The real check runs here with only that flag lowered around it, as
+	it does on v16. Runs as the before_tests hook.
 	"""
 	only_for = frappe.only_for
+	if getattr(only_for, "enforces_role_gates", False):
+		return
 
 	def checked_only_for(*args, **kwargs):
 		in_test = frappe.flags.in_test
@@ -34,34 +47,8 @@ def enforce_role_gates(test_case):
 		finally:
 			frappe.flags.in_test = in_test
 
-	patcher = patch.object(frappe, "only_for", checked_only_for)
-	patcher.start()
-	test_case.addCleanup(patcher.stop)
-
-
-def client_get(doctype, name):
-	"""`frappe.client.get` as develop returns it, nulls dropped (frappe 9e687317a7).
-
-	frappe v15 keeps a field the reader may not see as `None`, so a masked field would
-	still show up as a key. The value is masked on both; this only aligns the shape.
-	"""
-	from frappe.client import get
-
-	return {key: value for key, value in get(doctype, name).items() if value is not None}
-
-
-def normalise_inline_styles(html):
-	"""Rewrite each style attribute as `prop:value;prop:value`.
-
-	frappe's sanitiser re-serialises inline CSS and the lines differ: nh3 (develop)
-	drops the spaces, bleach (v15) keeps them and appends a `;`. Same declarations.
-	"""
-
-	def canonical(match):
-		declarations = (d.split(":", 1) for d in match.group(1).split(";") if ":" in d)
-		return 'style="{}"'.format(";".join(f"{p.strip()}:{v.strip()}" for p, v in declarations))
-
-	return STYLE_ATTRIBUTE.sub(canonical, html)
+	checked_only_for.enforces_role_gates = True
+	frappe.only_for = checked_only_for
 
 
 # frappe keys cached documents as f"document_cache::{doctype}::{name}"
@@ -120,6 +107,22 @@ class BaseTestUtils(FrappeTestCase):
 		frappe.cache.delete_key(user_cache_keys)
 		frappe.set_user("Administrator")
 		super().tearDown()
+
+	@classmethod
+	def _require(cls, holds: bool, message: str):
+		"""A setUpClass precondition: raising there errors every test in the class."""
+		if not holds:
+			raise AssertionError(message)
+
+	@classmethod
+	def _require_no_moderators(cls, *users):
+		"""A fixed-key fixture returns the existing row untouched, so declared roles are
+		decoration until read. A Moderator's refusal would prove nothing."""
+		for user in users:
+			cls._require(
+				"Moderator" not in frappe.get_roles(user),
+				f"{user} holds Moderator, so a refusal for it proves nothing",
+			)
 
 	@classmethod
 	def _create_user(cls, email, first_name, last_name, roles, user_type="Website User"):

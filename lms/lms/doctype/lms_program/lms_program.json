@@ -100,7 +100,7 @@
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2026-09-20 10:00:00.000000",
+ "modified": "2026-10-22 15:23:42.430380",
  "modified_by": "sayali@frappe.io",
  "module": "LMS",
  "name": "LMS Program",
@@ -148,6 +148,24 @@
   {
    "read": 1,
    "role": "LMS Student"
+  },
+  {
+   "permlevel": 1,
+   "read": 1,
+   "role": "System Manager",
+   "write": 1
+  },
+  {
+   "permlevel": 1,
+   "read": 1,
+   "role": "Moderator",
+   "write": 1
+  },
+  {
+   "permlevel": 1,
+   "read": 1,
+   "role": "Course Creator",
+   "write": 1
   }
  ],
  "row_format": "Dynamic",

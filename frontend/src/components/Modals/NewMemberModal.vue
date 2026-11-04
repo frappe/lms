@@ -1,13 +1,12 @@
 <template>
 	<Dialog
 		v-model:open="show"
-		:title="isEdit ? __('Edit Member') : __('Add New Member')"
+		:title="isEdit ? __('Edit Member') : __('New Member')"
 		size="lg"
 		:actions="[
 			{
-				label: isEdit ? __('Save') : __('Add'),
+				label: isEdit ? __('Save') : __('Create'),
 				variant: 'solid',
-				loading: submitting,
 				onClick: ({ close }: any) => submit(close),
 			},
 		]"
@@ -43,10 +42,28 @@
 					<div class="text-p-sm-medium text-ink-gray-7">
 						{{ __('Roles') }}
 					</div>
-					<RoleSwitches
-						:model-value="roles"
-						@toggle="(key, value) => (roles[key] = value)"
-					/>
+					<div class="grid md:grid-cols-2 gap-x-6 gap-y-3">
+						<BooleanSwitch
+							size="sm"
+							:label="__('Student')"
+							v-model="roles.lms_student"
+						/>
+						<BooleanSwitch
+							size="sm"
+							:label="__('Course Creator')"
+							v-model="roles.course_creator"
+						/>
+						<BooleanSwitch
+							size="sm"
+							:label="__('Evaluator')"
+							v-model="roles.batch_evaluator"
+						/>
+						<BooleanSwitch
+							size="sm"
+							:label="__('Moderator')"
+							v-model="roles.moderator"
+						/>
+					</div>
 				</div>
 			</div>
 		</template>
@@ -55,14 +72,9 @@
 
 <script setup lang="ts">
 import { call, Dialog, FormControl, toast } from 'frappe-ui'
-import RoleSwitches from '@/components/Controls/RoleSwitches.vue'
+import BooleanSwitch from '@/components/Controls/BooleanSwitch.vue'
 import { computed, reactive, ref, watch } from 'vue'
 import { cleanError } from '@/utils'
-import {
-	ROLE_ROWS,
-	noRoles,
-	type MemberRoleKey,
-} from '@/components/Settings/Members/members'
 
 const show = defineModel<boolean>({ default: false })
 const submitting = ref(false)
@@ -79,12 +91,12 @@ const emit = defineEmits<{
 
 const isEdit = computed(() => !!props.editMember)
 
-// The server's name for each role, keyed the same way `roles` is. Derived
-// from ROLE_ROWS rather than hand-duplicated, so this can't silently drift
-// from MemberForm.vue's own mapping.
-const ROLE_MAP = Object.fromEntries(
-	ROLE_ROWS.map((row) => [row.key, row.role])
-) as Record<MemberRoleKey, string>
+const ROLE_MAP: Record<string, string> = {
+	moderator: 'Moderator',
+	course_creator: 'Course Creator',
+	batch_evaluator: 'Batch Evaluator',
+	lms_student: 'LMS Student',
+}
 
 const member = reactive({
 	email: '',
@@ -92,7 +104,12 @@ const member = reactive({
 	last_name: '',
 })
 
-const roles = reactive(noRoles())
+const roles = reactive({
+	moderator: false,
+	course_creator: false,
+	batch_evaluator: false,
+	lms_student: false,
+})
 
 const initialRoles = reactive({ ...roles })
 
@@ -104,9 +121,11 @@ const resetForm = () => {
 }
 
 const applyDefaultRoles = () => {
-	for (const row of ROLE_ROWS) {
-		roles[row.key] = props.defaultRoles?.includes(row.key) ?? false
-	}
+	roles.moderator = props.defaultRoles?.includes('moderator') ?? false
+	roles.course_creator = props.defaultRoles?.includes('course_creator') ?? false
+	roles.batch_evaluator =
+		props.defaultRoles?.includes('batch_evaluator') ?? false
+	roles.lms_student = props.defaultRoles?.includes('lms_student') ?? false
 }
 
 const loadMember = () => {
@@ -114,7 +133,7 @@ const loadMember = () => {
 	member.first_name = ''
 	member.last_name = ''
 	const current = props.editMember?.roles ?? []
-	for (const key of Object.keys(ROLE_MAP) as MemberRoleKey[]) {
+	for (const key of Object.keys(ROLE_MAP) as (keyof typeof roles)[]) {
 		roles[key] = current.includes(ROLE_MAP[key])
 		initialRoles[key] = roles[key]
 	}
@@ -132,9 +151,7 @@ const submit = (close?: () => void) => {
 }
 
 const assignRoles = async (userEmail: string) => {
-	const selectedRoles = (
-		Object.entries(roles) as [MemberRoleKey, boolean][]
-	).filter(([_, checked]) => checked)
+	const selectedRoles = Object.entries(roles).filter(([_, checked]) => checked)
 
 	for (const [key, _] of selectedRoles) {
 		await call('lms.lms.api.save_role', {
@@ -153,13 +170,10 @@ const addMember = async (close?: () => void) => {
 
 	submitting.value = true
 	try {
-		const user = await call('frappe.client.insert', {
-			doc: {
-				doctype: 'User',
-				email: member.email.trim(),
-				first_name: member.first_name.trim() || undefined,
-				last_name: member.last_name.trim() || undefined,
-			},
+		const user = await call('lms.lms.api.add_member', {
+			email: member.email.trim(),
+			first_name: member.first_name.trim() || undefined,
+			last_name: member.last_name.trim() || undefined,
 		})
 
 		await assignRoles(user.name)

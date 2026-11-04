@@ -41,6 +41,20 @@ describe('safeUrl', () => {
 		expect(safeUrl('/files/a\\b.pdf')).toBe('/files/a\\b.pdf')
 	})
 
+	// Guards the opt-in for camera stills widening into a way to bind any data:
+	// URL. Added on quiz-share-link with the inline stills in the activity log.
+	it('lets an image src opt in to inline raster images only', () => {
+		const jpeg = 'data:image/jpeg;base64,AAAA'
+		expect(safeUrl(jpeg)).toBeUndefined()
+		expect(safeUrl(jpeg, { inlineImage: true })).toBe(jpeg)
+		expect(
+			safeUrl('data:image/svg+xml;base64,AAAA', { inlineImage: true })
+		).toBeUndefined()
+		expect(
+			safeUrl('data:text/html,<script>alert(1)</script>', { inlineImage: true })
+		).toBeUndefined()
+	})
+
 	it('returns undefined for nullish input', () => {
 		expect(safeUrl(null)).toBeUndefined()
 		expect(safeUrl(undefined)).toBeUndefined()
@@ -83,14 +97,14 @@ const EXEMPT = new Map<string, string>([
 		'link comes from the services table in emailConfig.ts',
 	],
 	[
-		'../components/Settings/EmailAccount/EmailProviderPicker.vue',
+		'../components/Settings/EmailAccount/EmailProviderIcon.vue',
 		'logo comes from the services table in emailConfig.ts',
 	],
-	[
-		'../components/Settings/EmailAccount/EmailAccountForm.vue',
-		'logo comes from the same services table, for the picked-provider header',
-	],
 	['../components/Settings/Raven/RavenSetupRow.vue', 'constant https literal'],
+	[
+		'../components/CourseEditorEmptyState.vue',
+		'docs link picked from a table of constant https literals',
+	],
 	[
 		'../pages/ProfileCertificates.vue',
 		'template literal rooted at /api/method/',

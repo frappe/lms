@@ -75,8 +75,12 @@
 				/>
 			</div>
 		</div>
-		<div v-else class="text-ink-gray-7 leading-5">
-			{{ __('No feedback received yet.') }}
+		<div v-else class="text-p-sm text-ink-gray-6">
+			{{
+				__(
+					'Students can rate this batch and leave a note. Their average ratings show up here.'
+				)
+			}}
 		</div>
 	</div>
 	<FeedbackModal

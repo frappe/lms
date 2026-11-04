@@ -117,7 +117,13 @@ class TestLessonLockingIntegration(BaseTestUtils):
 		chapter = self._create_chapter(title, self.course.name)
 		self._create_chapter_reference(self.course.name, chapter.name, idx=2)
 		frappe.db.set_value(
-			"Course Chapter", chapter.name, {"is_scorm_package": 1, "launch_file": "index.html"}
+			"Course Chapter",
+			chapter.name,
+			{
+				"is_scorm_package": 1,
+				"launch_file": "index.html",
+				"scorm_package_path": f"/scorm/{self.course.name}/{chapter.name}",
+			},
 		)
 		lesson = self._create_lesson("SCORM Lesson", chapter.name, self.course.name)
 		self._create_lesson_reference(chapter.name, lesson.name)
@@ -368,10 +374,10 @@ class TestLessonLockingIntegration(BaseTestUtils):
 
 		from lms.page_renderers import SCORMRenderer
 
-		renderer = SCORMRenderer(path=f"scorm/{self.course.name}/{chapter.title}/index.html")
+		renderer = SCORMRenderer(path=f"scorm/{self.course.name}/{chapter.name}/index.html")
 
 		with self.assertRaises(frappe.PermissionError):
-			renderer._check_permission()
+			renderer._check_permission(self.course.name, chapter.name)
 
 	def test_scorm_renderer_serves_bytes_once_the_chapter_is_unlocked(self):
 		self._enable()
@@ -381,9 +387,9 @@ class TestLessonLockingIntegration(BaseTestUtils):
 
 		from lms.page_renderers import SCORMRenderer
 
-		renderer = SCORMRenderer(path=f"scorm/{self.course.name}/{chapter.title}/index.html")
+		renderer = SCORMRenderer(path=f"scorm/{self.course.name}/{chapter.name}/index.html")
 
-		self.assertIsNone(renderer._check_permission())
+		self.assertIsNone(renderer._check_permission(self.course.name, chapter.name))
 
 	def test_outline_withholds_the_package_of_a_locked_scorm_chapter(self):
 		"""The chapter row still carries launch_file in the database — _add_scorm_chapter
@@ -500,16 +506,30 @@ class TestLessonLockingIntegration(BaseTestUtils):
 
 		self.assertEqual(lock_state.call_count, 1)
 
-	def test_outline_does_not_publish_the_quiz_of_a_locked_lesson(self):
+	def test_outline_carries_no_lesson_content_for_anyone(self):
+		# The outline is readable before the lesson is, by guests included, so it must
+		# not carry what the lesson page gates: the video, the quiz and the question.
 		self._enable()
 		quiz = self._create_lesson_quiz(self.lessons[2].name)
-		frappe.db.set_value("Course Lesson", self.lessons[2].name, "quiz_id", quiz.name)
+		frappe.db.set_value(
+			"Course Lesson",
+			self.lessons[2].name,
+			{"quiz_id": quiz.name, "youtube": "https://youtu.be/gated000000", "question": "Gated?"},
+		)
 
 		from lms.lms.utils import get_course_outline
 
-		outline = get_course_outline(self.course.name, progress=True)
-		lessons = [lesson for chapter in outline for lesson in chapter.lessons]
-		self.assertIsNone(lessons[2].quiz_id)
+		for user, progress in ((self.student.name, True), ("Guest", False)):
+			frappe.set_user(user)
+			try:
+				outline = get_course_outline(self.course.name, progress=progress)
+			finally:
+				frappe.set_user("Administrator")
+			lessons = [lesson for chapter in outline for lesson in chapter.lessons]
+			self.assertEqual(len(lessons), 3, f"{user} did not receive the outline")
+			for lesson in lessons:
+				for field in ("youtube", "quiz_id", "question"):
+					self.assertNotIn(field, lesson, f"{user} received {field} for {lesson.name}")
 
 	def test_progress_is_published_to_the_completing_member_alone(self):
 		# The outline reload for a quiz or assignment completion rides on this event,

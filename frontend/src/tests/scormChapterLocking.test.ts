@@ -78,7 +78,7 @@ vi.mock('@/stores/session', () => ({
 vi.mock('@/stores/sidebar', () => ({
 	useSidebar: () => ({ isSidebarCollapsed: false }),
 }))
-vi.mock('@/components/Layouts/pages/PageHeader.vue', () => ({
+vi.mock('@/components/Layouts/PageHeader.vue', () => ({
 	default: { name: 'PageHeader', template: '<div><slot /></div>' },
 }))
 
@@ -397,6 +397,20 @@ describe('SCORMChapter.vue plays what the server says it may play', () => {
 			'lms.lms.doctype.course_lesson.course_lesson.save_progress',
 			expect.objectContaining({ lesson: 'L-SCORM', course: 'COURSE-1' })
 		)
+	})
+
+	it('reads and writes through both SCORM APIs without logging', async () => {
+		const log = vi.spyOn(console, 'log').mockImplementation(() => {})
+		wrapper = await mountChapter()
+		await answerPlayback(playbackAnswer())
+		const { API, API_1484_11 } = window as any
+		API.LMSGetValue('cmi.core.lesson_status')
+		API.LMSSetValue('cmi.core.lesson_status', 'passed')
+		API_1484_11.GetValue('cmi.completion_status')
+		API_1484_11.SetValue('cmi.completion_status', 'completed')
+		await flushPromises()
+
+		expect(log).not.toHaveBeenCalled()
 	})
 
 	it('leaves for the course when the chapter does not resolve', async () => {

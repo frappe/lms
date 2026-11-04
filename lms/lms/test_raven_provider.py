@@ -29,7 +29,8 @@ class TestOptionalRavenIntegrationImport(FrappeTestCase):
 	"""lms.raven_provider must import on a bench without the optional raven_integration app.
 
 	Regression: a module-scope `from raven_integration.exceptions import ProviderDataError`
-	made every test module that touches the provider error out on import.
+	made every test module that touches the provider error out on import. Schema-free, so
+	FrappeTestCase (FrappeTestCase's record loader trips the Fiscal Year flake).
 	"""
 
 	def test_imports_without_raven_integration(self):
@@ -383,7 +384,8 @@ class TestPaymentFilter(FrappeTestCase):
 class TestBatchEnrollmentIndex(FrappeTestCase):
 	"""The (batch, member) index that TestRulePerformance's 200ms budget depends on.
 
-	Added by lms.patches.v2_0.add_batch_enrollment_index.
+	Added by lms.patches.v2_0.add_batch_enrollment_index. Schema-only, so FrappeTestCase.
+	FrappeTestCase's test-record loader trips the Fiscal Year overlap flake here.
 	"""
 
 	def test_batch_member_index_exists(self):
@@ -918,7 +920,8 @@ class TestTriggersFireAtAll(FrappeTestCase):
 class TestGetRavenSetup(FrappeTestCase):
 	"""Settings > Raven asks LMS, not raven_integration, whether raven_integration is
 	there. A method of an uninstalled app raises AppNotInstalledError, and the panel
-	that exists to say "install it" cannot render off an exception.
+	that exists to say "install it" cannot render off an exception. Schema-free, so
+	FrappeTestCase.
 	"""
 
 	def setUp(self):

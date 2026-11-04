@@ -27,7 +27,7 @@
 						</template>
 						<template v-if="Number(course.data.rating) > 0">
 							<div class="flex items-center gap-1">
-								<LucideStar class="size-4 text-transparent fill-yellow-500" />
+								<LucideStar class="size-4 text-transparent fill-ink-amber-7" />
 								<span class="font-medium text-ink-gray-9">{{
 									formatRating(course.data.rating)
 								}}</span>
@@ -59,7 +59,7 @@
 							>
 								<UserAvatar
 									v-for="instructor in course.data.instructors"
-									:key="instructor.name"
+									:key="instructor.username"
 									:user="instructor"
 								/>
 							</span>
@@ -96,7 +96,7 @@
 							{{ outlineStats }}
 						</div>
 					</div>
-					<div class="border rounded-md p-2">
+					<div class="border rounded-5 p-2">
 						<SkeletonLoader
 							v-if="outline.loading && !outline.data"
 							variant="course-outline"

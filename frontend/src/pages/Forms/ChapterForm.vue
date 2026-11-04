@@ -30,44 +30,40 @@
 					<FileUploader
 						v-if="!chapter.scorm_package"
 						:fileTypes="['.zip']"
-						:uploadArgs="{ private: true }"
+						:private="true"
 						:validateFile="validateFile"
 						@success="(file) => (chapter.scorm_package = file)"
 					>
 						<template v-slot="{ file, progress, uploading, openFileSelector }">
-							<div class="mb-4">
-								<Button @click="openFileSelector" :loading="uploading">
-									{{ uploadLabel(uploading, progress) }}
-								</Button>
-							</div>
+							<Button @click="openFileSelector" :loading="uploading">
+								{{ uploadLabel(uploading, progress) }}
+							</Button>
 						</template>
 					</FileUploader>
-					<div v-else class="">
-						<div class="flex items-center">
-							<div class="border rounded-md p-2 me-2 shrink-0">
-								<span class="lucide-file-text h-5 w-5 text-ink-gray-7" />
-							</div>
-							<div class="flex min-w-0 flex-1 flex-col">
-								<span
-									class="truncate text-ink-gray-9"
-									:title="chapter.scorm_package.file_name"
-								>
-									{{ chapter.scorm_package.file_name }}
-								</span>
-								<span
-									v-if="chapter.scorm_package.file_size"
-									class="text-sm text-ink-gray-4 mt-1"
-								>
-									{{ getFileSize(chapter.scorm_package.file_size) }}
-								</span>
-							</div>
-							<button
-								type="button"
-								:aria-label="__('Remove file')"
-								@click="() => (chapter.scorm_package = null)"
-								class="lucide-x bg-surface-gray-3 rounded-md cursor-pointer w-5 h-5 p-1 ms-4 shrink-0"
-							/>
+					<div v-else class="flex items-center">
+						<div class="border rounded-5 p-2 me-2 shrink-0">
+							<span class="lucide-file-text h-5 w-5 text-ink-gray-7" />
 						</div>
+						<div class="flex min-w-0 flex-1 flex-col">
+							<span
+								class="truncate text-ink-gray-9"
+								:title="chapter.scorm_package.file_name"
+							>
+								{{ chapter.scorm_package.file_name }}
+							</span>
+							<span
+								v-if="chapter.scorm_package.file_size"
+								class="text-sm text-ink-gray-4 mt-1"
+							>
+								{{ getFileSize(chapter.scorm_package.file_size) }}
+							</span>
+						</div>
+						<button
+							type="button"
+							:aria-label="__('Remove file')"
+							@click="() => (chapter.scorm_package = null)"
+							class="lucide-x bg-surface-gray-3 rounded-5 cursor-pointer w-5 h-5 p-1 ms-4 shrink-0"
+						/>
 					</div>
 				</div>
 			</div>
@@ -76,7 +72,7 @@
 			<div v-if="canManageChapters" class="flex items-center justify-end">
 				<HeaderButton
 					data-testid="chapter-save"
-					:label="__('Save')"
+					:label="isEdit ? __('Save') : __('Add')"
 					variant="solid"
 					:loading="chapterResource.loading"
 					:disabled="isEdit && !chapterDetail"
@@ -95,12 +91,16 @@ import {
 	getCachedResource,
 	toast,
 } from 'frappe-ui'
+import type { FrappeResourceError } from 'frappe-ui'
 import BooleanSwitch from '@/components/Controls/BooleanSwitch.vue'
 import { computed, inject, onMounted, reactive, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { getFileSize } from '@/utils/'
 import { resourceErrorMessage, submitResource } from '@/utils/resource'
-import { useOnboarding } from 'frappe-ui/frappe'
+import { useOnboarding } from '@framework/ui/components/Onboarding/index'
+import { useTelemetry } from '@framework/ui/telemetry/index'
+import { takeFormSource } from '@/composables/formTracking'
+import { seesOnboarding } from '@/utils/onboarding'
 import FormShell from '@/components/FormShell.vue'
 import HeaderButton from '@/components/HeaderButton.vue'
 import { useFormRoute } from '@/composables/useFormRoute'
@@ -206,6 +206,10 @@ const outline = createResource({
 
 // C3 — the old watch had no `immediate`, so a directly-mounted route rendered
 // an empty form. Nothing else fills this key, so edit mode always fetches.
+const { capture } = useTelemetry()
+// Read once, at mount: the opener sets it just before navigating here.
+const formSource = takeFormSource()
+
 onMounted(() => {
 	if (isEdit.value) outline.fetch()
 })
@@ -279,7 +283,11 @@ const saveChapter = () => {
 			validate: validateChapter,
 			onSuccess() {
 				if (!isEdit.value) {
-					if (user.data?.is_system_manager)
+					capture('chapter_created', {
+						course: props.courseName,
+						source: formSource,
+					})
+					if (seesOnboarding(user.data))
 						updateOnboardingStep('create_first_chapter')
 				}
 				// Stands in for the modal's `created`/`updated` emits: a route
@@ -298,7 +306,7 @@ const saveChapter = () => {
 				// the course rather than a stale form.
 				saveAndReplace(parent)
 			},
-			onError(err: unknown) {
+			onError(err: string | FrappeResourceError) {
 				toast.error(resourceErrorMessage(err))
 			},
 		}

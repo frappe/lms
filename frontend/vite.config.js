@@ -35,9 +35,8 @@ function assertFrameworkUiLinked(frontend) {
 }
 
 export default defineConfig(async ({ mode }) => {
-	const isDev = mode === 'development'
-	assertFrameworkUiLinked(__dirname)
-	const frappeui = await importFrappeUIPlugin(isDev)
+	assertFrameworkUiLinked(import.meta.dirname)
+	const frappeui = await importFrappeUIPlugin()
 
 	const config = {
 		define: {
@@ -82,13 +81,17 @@ export default defineConfig(async ({ mode }) => {
 			// at `${BASE_URL}pdfjs/...`. Served in dev too (static-copy dev middleware).
 			viteStaticCopy({
 				targets: [
+					// stripBase: the plugin keeps the source path under dest
+					// otherwise (pdfjs/cmaps/node_modules/pdfjs-dist/cmaps/...).
 					{
 						src: 'node_modules/pdfjs-dist/cmaps/*',
 						dest: 'pdfjs/cmaps',
+						rename: { stripBase: true },
 					},
 					{
 						src: 'node_modules/pdfjs-dist/standard_fonts/*',
 						dest: 'pdfjs/standard_fonts',
+						rename: { stripBase: true },
 					},
 				],
 			}),
@@ -137,7 +140,7 @@ export default defineConfig(async ({ mode }) => {
 			// apps/frappe/ui that has no node_modules beside it.
 			preserveSymlinks: true,
 			alias: {
-				'@': path.resolve(__dirname, 'src'),
+				'@': path.resolve(import.meta.dirname, 'src'),
 			},
 			// Force one copy of prosemirror; duplicate copies break tiptap's
 			// instanceof checks and crash the list buttons.
@@ -148,37 +151,54 @@ export default defineConfig(async ({ mode }) => {
 				'prosemirror-state',
 				'prosemirror-view',
 				'prosemirror-transform',
+				// A nested second copy of these makes the html language throw
+				// while parsing and leaves javascript with no syntax tree.
+				'@codemirror/language',
+				'@codemirror/state',
+				'@codemirror/view',
+				'@lezer/common',
+				'@lezer/lr',
+				'@lezer/highlight',
 				'vue',
 				'frappe-ui',
 			],
 		},
 		optimizeDeps: {
 			include: [
-				'feather-icons',
 				'tailwind.config.js',
 				'highlight.js',
 				'plyr',
-				'interactjs',
+				// frappe-ui is excluded below, so a subpath only it imports is served
+				// raw beside a pre-bundled sibling: a second `echarts/core` or
+				// `@codemirror/state`. Bundle each family in one run, as Insights does.
+				'echarts/core',
+				'echarts/charts',
+				'echarts/components',
+				'echarts/renderers',
+				'echarts/features',
+				'@codemirror/state',
+				'@codemirror/view',
+				'@codemirror/language',
+				'@codemirror/commands',
+				'@codemirror/search',
+				'@codemirror/autocomplete',
+				'@codemirror/lang-html',
+				'@codemirror/lang-javascript',
+				'@lezer/common',
+				'@lezer/highlight',
 			],
-			exclude: mode === 'production' ? [] : ['frappe-ui'],
+			// @framework/ui joins frappe-ui here: pre-bundling its Onboarding index
+			// inlines onboarding.ts, while its .vue files are served raw and import the
+			// same file from source. Two module copies: the sidebar fills one step
+			// list, the panel reads the other and shows 0/0 steps and NaN%.
+			exclude:
+				mode === 'production' ? [] : ['frappe-ui', '@framework/ui'],
 		},
 	}
 	return config
 })
 
-async function importFrappeUIPlugin(isDev) {
-	if (isDev) {
-		try {
-			const module = await import('../frappe-ui/vite')
-			return module.default
-		} catch (error) {
-			console.warn(
-				'Local frappe-ui not found, falling back to npm package:',
-				error.message
-			)
-		}
-	}
-	// Fall back to npm package if local import fails
+async function importFrappeUIPlugin() {
 	const module = await import('frappe-ui/vite')
 	return module.default
 }

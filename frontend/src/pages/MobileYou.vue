@@ -94,15 +94,15 @@ import {
 	unreadCount,
 } from '@/stores/notifications'
 import { pickPrimaryTabs } from '@/utils/mobileNav'
-import MobilePageLayout from '@/components/Layouts/pages/mobile/MobilePageLayout.vue'
+import MobilePageLayout from '@/components/Layouts/MobilePageLayout.vue'
 import BottomSheet from '@/components/BottomSheet.vue'
-import SettingsRowList from '@/components/Layouts/settings/mobile/SettingsRowList.vue'
-import { buildYouRows } from '@/components/Settings/Mobile/mobileRows'
+import SettingsRowList from '@/components/Settings/Mobile/SettingsRowList.vue'
+import { buildYouRows } from '@/components/Settings/youRows'
 import {
 	buildAppearanceRows,
 	COLOUR_MODE_ACTION,
 	type SettingsUser,
-} from '@/components/Settings/Mobile/mobileRows'
+} from '@/components/Settings/mobileSettings'
 
 const router = useRouter()
 const { logout, brand } = sessionStore()

@@ -2,7 +2,6 @@
  "actions": [],
  "allow_import": 1,
  "allow_rename": 1,
- "autoname": "format: ASG-{#####}",
  "creation": "2023-05-26 19:41:26.025081",
  "default_view": "List",
  "doctype": "DocType",
@@ -37,7 +36,7 @@
    "fieldtype": "Select",
    "in_list_view": 1,
    "in_standard_filter": 1,
-   "label": "Type",
+   "label": "Submission Type",
    "options": "Document\nPDF\nURL\nImage\nText",
    "reqd": 1
   },
@@ -127,11 +126,10 @@
    "link_fieldname": "assignment"
   }
  ],
- "modified": "2026-09-08 02:30:00.000000",
+ "modified": "2026-10-16 18:30:00.000000",
  "modified_by": "sayali@frappe.io",
  "module": "LMS",
  "name": "LMS Assignment",
- "naming_rule": "Expression (old style)",
  "owner": "Administrator",
  "permissions": [
   {

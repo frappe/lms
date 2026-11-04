@@ -11,6 +11,8 @@
 		:list-options="listOptions"
 		empty-name="Quiz Submissions"
 		empty-icon="lucide-file-check"
+		:empty-title="emptyState?.title"
+		:empty-description="emptyState?.description"
 		@load-more="submissions.next()"
 	>
 		<template #filters>
@@ -69,7 +71,7 @@ import { computed, inject, onMounted, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { sessionStore } from '@/stores/session'
 import Link from '@/components/Controls/Link.vue'
-import ListPage from '@/components/Layouts/pages/ListPage.vue'
+import ListPage from '@/components/Layouts/ListPage.vue'
 import { useBulkDeleteAction } from '@/utils/bulkDelete'
 import type { LMSQuizSubmission } from '@/types/lms/LMSQuizSubmission'
 import type {
@@ -101,7 +103,11 @@ const filters = ref<QuizSubmissionFilters>({ quiz: '', member: '', course: '' })
 setFiltersFromRoute()
 
 onMounted(() => {
-	if (!user.data?.is_instructor && !user.data?.is_moderator) {
+	if (
+		!user.data?.is_instructor &&
+		!user.data?.is_moderator &&
+		!user.data?.is_evaluator
+	) {
 		router.push({ name: 'Courses' })
 		return
 	}
@@ -220,6 +226,14 @@ const columns = computed<ListColumn[]>(() => [
 
 // A filter is not a place, so the trail never names the quiz in scope. The quiz
 // is already named by the filter control and by every row's Quiz column.
+// Only instructors and moderators reach this page.
+const emptyState = {
+	title: __('No quiz attempts yet'),
+	description: __(
+		'Each time a learner takes a quiz, their answers and score show up here.'
+	),
+}
+
 const breadcrumbs = computed<Breadcrumb[]>(() => [
 	{ label: __('Quizzes'), route: { name: 'Quizzes' } },
 	{ label: __('Submissions') },

@@ -13,10 +13,11 @@
 		</div>
 		<div v-if="assessments.data?.length" class="text-sm">
 			<ResponsiveListView
+				docked-banner
 				:columns="assessmentColumns"
 				:rows="assessments.data"
 				row-key="name"
-				class="sm:border sm:rounded-lg"
+				class="sm:border sm:rounded-6"
 				:options="listOptions"
 			>
 				<template #cell="{ column, value }">
@@ -44,12 +45,19 @@
 				</template>
 			</ResponsiveListView>
 		</div>
-		<div v-else class="text-ink-gray-7">
-			{{ __('No assessments added to this batch') }}
-		</div>
+		<SectionEmptyState
+			v-else
+			icon="lucide-clipboard-list"
+			:message="
+				__(
+					'Add quizzes, assignments or programming exercises for students to complete during this batch.'
+				)
+			"
+		/>
 	</div>
 </template>
 <script setup>
+import SectionEmptyState from '@/components/SectionEmptyState.vue'
 import { createResource, Button, Badge } from 'frappe-ui'
 import { computed, inject } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
@@ -212,7 +220,7 @@ const getStatusTheme = (status) => {
 	if (status === 'Pass' || status === 'Passed') {
 		return 'green'
 	} else if (status === 'Not Graded') {
-		return 'orange'
+		return 'amber'
 	} else {
 		return 'red'
 	}

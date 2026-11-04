@@ -2,7 +2,6 @@
 	<Button
 		v-if="certification.data && certification.data.certificate"
 		@click="downloadCertificate"
-		class=""
 	>
 		<template #prefix>
 			<span class="lucide-graduation-cap size-4" />
@@ -17,39 +16,37 @@
 			user.data?.is_student
 		"
 	>
-		<router-link
+		<Button
 			v-if="!certification.data.membership.purchased_certificate"
-			:to="{
+			:route="{
 				name: 'Billing',
 				params: {
 					type: 'certificate',
 					name: courseName,
 				},
 			}"
+			class="w-full"
 		>
-			<Button class="w-full">
-				<template #prefix>
-					<span class="lucide-graduation-cap size-4" />
-				</template>
-				{{ __('Get Certified') }}
-			</Button>
-		</router-link>
-		<router-link
+			<template #prefix>
+				<span class="lucide-graduation-cap size-4" />
+			</template>
+			{{ __('Get Certified') }}
+		</Button>
+		<Button
 			v-else-if="!certification.data.membership.certificate"
-			:to="{
+			:route="{
 				name: 'CourseCertification',
 				params: {
 					courseName: courseName,
 				},
 			}"
+			class="w-full"
 		>
-			<Button class="w-full">
-				<template #prefix>
-					<span class="lucide-graduation-cap size-4" />
-				</template>
-				{{ __('Get Certified') }}
-			</Button>
-		</router-link>
+			<template #prefix>
+				<span class="lucide-graduation-cap size-4" />
+			</template>
+			{{ __('Get Certified') }}
+		</Button>
 	</div>
 </template>
 <script setup lang="ts">
@@ -80,7 +77,7 @@ const downloadCertificate = () => {
 	openExternal(
 		`/api/method/frappe.utils.print_format.download_pdf?doctype=LMS+Certificate&name=${
 			cert.name
-		}&format=${encodeURIComponent(cert.template)}`
+		}&format=${encodeURIComponent(cert.template)}&no_letterhead=1`
 	)
 }
 </script>

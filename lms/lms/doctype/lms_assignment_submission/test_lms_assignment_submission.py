@@ -19,6 +19,12 @@ class TestLMSAssignmentSubmission(MemberOwnershipTestMixin, BaseTestUtils):
 		cls.student_b = cls._create_user("rtv.student.b@example.com", "Student", "Bravo", ["LMS Student"])
 		cls.moderator = cls._create_user("rtv.moderator@example.com", "Mod", "Erator", ["Moderator"])
 		cls.assignment = cls._create_assignment()
+		# A learner answers only an assignment a course of theirs places.
+		instructor = cls._create_user("rtv.instructor@example.com", "In", "Structor", ["Course Creator"])
+		course = cls._create_course(title="Assignment Submission Course", instructor=instructor.name)
+		cls._place_in_lesson(course.name, "LMS Assignment", cls.assignment.name)
+		cls._create_enrollment(cls.student_a.name, course.name)
+		cls._create_enrollment(cls.student_b.name, course.name)
 
 	def tearDown(self):
 		frappe.set_user("Administrator")
@@ -150,3 +156,27 @@ class TestLMSAssignmentSubmission(MemberOwnershipTestMixin, BaseTestUtils):
 	def test_plain_text_comments_are_stored_unchanged(self):
 		text = "Tom & Jerry: 5 > 3"
 		self.assertEqual(self._stored(self._save_on_released_frappe(text), "comments"), text)
+
+	# Guards the grading notification linking to the SPA's submission route.
+	# The link came in #1223; this branch's route moves had to keep it in step.
+	# Added on feat/assessment-visual-redesign with the assignment route changes.
+	def test_update_notification_links_to_the_submission_page(self):
+		frappe.set_user(self.moderator.name)
+		submission = self._new_submission(member=self.student_a.name)
+		submission.insert()
+
+		submission.comments = "Looks good"
+		submission.evaluator = "Administrator"
+		submission.trigger_update_notification()
+
+		log_name = frappe.db.get_value(
+			"Notification Log",
+			{"document_type": submission.doctype, "document_name": submission.name},
+			"name",
+		)
+
+		link = frappe.db.get_value("Notification Log", log_name, "link")
+		self.assertEqual(
+			link,
+			f"/lms/assignment-submission/{submission.assignment}/{submission.name}",
+		)

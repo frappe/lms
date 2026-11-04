@@ -25,6 +25,8 @@ const h = vi.hoisted(() => ({
 		match: string
 		answer?: (payload: any) => unknown
 		fail?: unknown
+		/** Reject like frappe-ui's handleError does, instead of resolving. */
+		rethrow?: boolean
 	}[],
 	errors: [] as string[],
 	providers: [] as any[],
@@ -106,32 +108,40 @@ vi.mock('frappe-ui', () => ({
 			r.data = null
 		})
 		r.reload = vi.fn(async () => r.data)
-		r.submit = vi.fn((payload: any) => {
+		// Per-call handlers run after the resource's own, as in frappe-ui.
+		const succeed = (value: unknown, opts?: any) => {
+			config.onSuccess?.(value)
+			opts?.onSuccess?.(value)
+			return value
+		}
+		const fail = (scripted: any, answered: unknown, opts?: any) => {
+			r.error = scripted.fail
+			config.onError?.(scripted.fail)
+			opts?.onError?.(scripted.fail)
+			if (scripted.rethrow) return Promise.reject(scripted.fail)
+			// submit() never rejects, and on a failure it resolves with the last
+			// SUCCESSFUL call's data rather than this one's.
+			return Promise.resolve(answered)
+		}
+		const deferred = (payload: any, opts?: any) =>
+			new Promise((resolve) => {
+				r._resolve = (value?: unknown) => {
+					r.loading = false
+					resolve(succeed(value ?? payload, opts))
+				}
+			})
+		r.submit = vi.fn((payload: any, opts?: any) => {
 			h.calls.push({ url, payload })
 			// Mirrors frappe-ui: loading flips before any await and only flips back
 			// when the fetch settles, which is what a re-entrancy guard reads.
 			r.loading = true
 			r.error = null
 			const scripted = h.replies.find((s) => url.includes(s.match))
-			if (!scripted)
-				return new Promise((resolve) => {
-					r._resolve = (value?: unknown) => {
-						r.loading = false
-						config.onSuccess?.(value ?? payload)
-						resolve(value ?? payload)
-					}
-				})
+			if (!scripted) return deferred(payload, opts)
 			r.loading = false
 			const answered = scripted.answer?.(payload) ?? null
-			if (scripted.fail) {
-				r.error = scripted.fail
-				config.onError?.(scripted.fail)
-				// submit() never rejects, and on a failure it resolves with the last
-				// SUCCESSFUL call's data rather than this one's.
-				return Promise.resolve(answered)
-			}
-			config.onSuccess?.(answered)
-			return Promise.resolve(answered)
+			if (scripted.fail) return fail(scripted, answered, opts)
+			return Promise.resolve(succeed(answered, opts))
 		})
 		h.resources.push(r)
 		return r
@@ -833,13 +843,67 @@ describe('useMappingList: adopting and deleting a row', () => {
 
 		const del = res('delete_channel')
 		expect(del.submit).toHaveBeenCalledTimes(1)
-		expect(del.submit).toHaveBeenCalledWith({ name: 'RCM-1' })
+		expect(del.submit).toHaveBeenCalledWith(
+			{ name: 'RCM-1' },
+			expect.anything()
+		)
 
 		del._resolve()
 		await flushPromises()
 
 		expect(del.submit).toHaveBeenCalledTimes(1)
 		expect(list.deleteOpen.value).toBe(false)
+	})
+
+	it('closes the dialog, confirms and reloads once the delete lands', async () => {
+		answers({ match: 'delete_channel' })
+		const list = await channelList([
+			{ ...unmappedChannel(), name: 'RCM-1', mapped: true },
+		])
+		list.askDelete(list.rows.value[0])
+		const { toast } = await import('frappe-ui')
+		vi.mocked(toast.success).mockClear()
+
+		await list.confirmDelete()
+
+		expect(list.deleteOpen.value).toBe(false)
+		expect(toast.success).toHaveBeenCalledWith('Channel mapping deleted')
+		expect(res('list_channels').reload).toHaveBeenCalled()
+		expect(h.errors).toEqual([])
+	})
+
+	it('surfaces a bug after a landed delete instead of calling it a failure', async () => {
+		answers({ match: 'delete_channel' })
+		const list = await channelList([
+			{ ...unmappedChannel(), name: 'RCM-1', mapped: true },
+		])
+		const bug = new Error('reload broke')
+		res('list_channels').reload = vi.fn(() => {
+			throw bug
+		})
+		list.askDelete(list.rows.value[0])
+
+		await expect(list.confirmDelete()).rejects.toBe(bug)
+
+		expect(h.errors).toEqual([])
+	})
+
+	it('toasts a failed delete and settles instead of rejecting', async () => {
+		answers({
+			match: 'delete_channel',
+			fail: { messages: ['Mapping is locked'] },
+			rethrow: true,
+		})
+		const list = await channelList([
+			{ ...unmappedChannel(), name: 'RCM-1', mapped: true },
+		])
+		list.askDelete(list.rows.value[0])
+
+		await expect(list.confirmDelete()).resolves.toBeUndefined()
+
+		expect(h.errors).toEqual(['Mapping is locked'])
+		expect(list.deleteOpen.value).toBe(true)
+		expect(res('list_channels').reload).not.toHaveBeenCalled()
 	})
 })
 

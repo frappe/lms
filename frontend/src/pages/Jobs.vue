@@ -9,27 +9,41 @@
 		v-model:page-length="pageLength"
 		empty-name="Job Openings"
 		empty-icon="lucide-briefcase"
+		:empty-title="emptyState?.title"
+		:empty-description="emptyState?.description"
+		:search-query="searchQuery"
+		:filtered="Boolean(country || jobType?.trim() || workMode?.trim())"
 		@load-more="jobs.next()"
+		@clear-filters="clearFilters"
 	>
+		<template v-if="emptyState" #empty-actions>
+			<EmptyStateActions
+				list="jobs"
+				:tab="activeTab"
+				:create-label="__('New Job')"
+				:route="{ name: 'JobForm', params: { jobName: 'new' } }"
+				docs="https://docs.frappe.io/learning/job-listing/create-a-job-listing"
+			/>
+		</template>
+
 		<template #actions>
-			<router-link
+			<Button
 				v-if="
 					user.data?.name && settings.data?.allow_job_posting && !readOnlyMode
 				"
-				:to="{
+				variant="solid"
+				:route="{
 					name: 'JobForm',
 					params: {
 						jobName: 'new',
 					},
 				}"
 			>
-				<Button variant="solid">
-					<template #prefix>
-						<span class="lucide-plus size-4" />
-					</template>
-					{{ __('Create') }}
-				</Button>
-			</router-link>
+				<template #prefix>
+					<span class="lucide-plus size-4" />
+				</template>
+				{{ __('New Job') }}
+			</Button>
 		</template>
 
 		<template #filters>
@@ -38,14 +52,12 @@
 				v-model="activeTab"
 				:options="tabs"
 				class="!w-fit shrink-0"
-				@change="updateJobs"
 			/>
 			<FormControl
 				type="text"
 				:placeholder="__('Search')"
 				:aria-label="__('Search jobs')"
 				v-model="searchQuery"
-				@input="updateJobs"
 			>
 				<template #prefix>
 					<span class="lucide-search size-4 text-ink-gray-5" />
@@ -99,7 +111,8 @@ import { inject, computed, ref, onMounted, watch } from 'vue'
 import JobCard from '@/components/JobCard.vue'
 import Link from '@/components/Controls/Link.vue'
 import Select from '@/components/Controls/Select.vue'
-import ListPage from '@/components/Layouts/pages/ListPage.vue'
+import ListPage from '@/components/Layouts/ListPage.vue'
+import EmptyStateActions from '@/components/EmptyStateActions.vue'
 
 const user = inject('$user')
 const jobType = ref(null)
@@ -182,6 +195,16 @@ const pageLength = computed({
 	},
 })
 
+const clearFilters = () => {
+	// Country and search are watched and reload on their own.
+	const watchedChange = Boolean(country.value || searchQuery.value)
+	jobType.value = null
+	workMode.value = null
+	country.value = null
+	searchQuery.value = ''
+	if (!watchedChange) updateJobs()
+}
+
 const updateJobs = () => {
 	updateFilters()
 	jobs.update({
@@ -240,20 +263,49 @@ watch(activeTab, () => {
 	updateJobs()
 })
 
-watch(country, () => {
+// Watch, not a listener. TextInput emits on both input and change. One
+// watcher, so clearing both in the same tick reloads once.
+watch([country, searchQuery], () => {
 	updateJobs()
+})
+
+// What lands in this list and how to start it, for the person who would fill it;
+// learners keep the default wording.
+const emptyState = computed(() => {
+	if (!(user.data?.name && settings.data?.allow_job_posting && !readOnlyMode))
+		return null
+	switch (activeTab.value) {
+		case 'Open':
+			return {
+				title: __('Post a job'),
+				description: __(
+					'Share openings with the people who learn on your site, from internships to full-time roles.'
+				),
+			}
+		case 'Closed':
+			return {
+				title: __('No closed jobs'),
+				description: __(
+					'Jobs you close move here, so you keep a record of past openings.'
+				),
+			}
+		default:
+			return null
+	}
 })
 
 const tabs = computed(() => {
 	const tabsArray = [
 		{
 			label: __('Open'),
+			value: 'Open',
 		},
 	]
 
 	if (closedJobs.value) {
 		tabsArray.push({
 			label: __('Closed'),
+			value: 'Closed',
 		})
 	}
 

@@ -16,6 +16,7 @@
 	</EmptyStateLayout>
 </template>
 <script setup>
+import { Button } from 'frappe-ui'
 import EmptyStateLayout from '@/components/Layouts/EmptyStateLayout.vue'
 import { useRouter } from 'vue-router'
 

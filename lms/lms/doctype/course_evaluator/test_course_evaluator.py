@@ -13,7 +13,7 @@ from lms.lms.doctype.course_evaluator.course_evaluator import (
 	get_schedule_range_end_date,
 	group_slots_by_display_date,
 )
-from lms.lms.test_helpers import BaseTestUtils, enforce_role_gates
+from lms.lms.test_helpers import BaseTestUtils
 
 EVALUATOR_NOWTIME = "lms.lms.doctype.course_evaluator.course_evaluator.nowtime"
 REQUEST_NOWTIME = "lms.lms.doctype.lms_certificate_request.lms_certificate_request.nowtime"
@@ -202,6 +202,7 @@ class TestTodaysSlots(BaseTestUtils):
 			"Student",
 			["LMS Student"],
 		)
+		self._create_enrollment(student.name, self.course.name)
 		frappe.set_user(student.name)
 
 		slots = self._todays_slots(get_schedule(self.course.name))
@@ -325,11 +326,6 @@ class TestEvaluatorRoleCRUD(BaseTestUtils):
 			"frappe@example.com", "Frappe", "Admin", ["Moderator", "Course Creator", "Batch Evaluator"]
 		)
 		cls.test_user = cls._create_user("eval_test@example.com", "Eval", "Tester", ["LMS Student"])
-
-	def setUp(self):
-		super().setUp()
-		# Per test, not per class: enforce_role_gates registers an addCleanup.
-		enforce_role_gates(self)
 
 	def _has_batch_evaluator_role(self, user):
 		return frappe.db.exists("Has Role", {"parent": user, "role": "Batch Evaluator"})

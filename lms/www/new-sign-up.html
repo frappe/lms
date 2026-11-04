@@ -27,7 +27,7 @@
 	<div class="form-group">
 		<label for="invite_code">Invite Code:</label>
 		<input id="invite_code" type="text" class="form-control" readonly required
-			value="{{ frappe.form_dict['invite_code'] }}">
+			value="{{ frappe.form_dict['invite_code'] | e }}">
 	</div>
 	<button type="submit" id="submit" class="btn btn-primary">{{_("Submit")}}</button>
 </form>

@@ -43,7 +43,8 @@
 		<link rel="apple-touch-icon" href="public/manifest/apple-icon-180.png" />
 		<meta name="mobile-web-app-capable" content="yes" />
 		<meta name="theme-color" content="#FFFFFF" media="(prefers-color-scheme: light)" />
-		<meta name="theme-color" content="#0F0F0F" media="(prefers-color-scheme: dark)" />
+		<!-- Mirrors frappe-ui dark --surface-base, oklch(0.205 0 0) -->
+		<meta name="theme-color" content="#171717" media="(prefers-color-scheme: dark)" />
 		<meta name="apple-mobile-web-app-status-bar-style" content="default" />
 		<meta name="msapplication-navbutton-color" content="#ffffff" />
 		<link
@@ -252,7 +253,7 @@
 		<meta name="twitter:image" content="{{ meta.image | e }}" />
 		<meta name="twitter:description" content="{{ meta.description | e }}" />
 	</head>
-	<body class="sm:overscroll-y-none no-scrollbar">
+	<body class="sm:overscroll-y-none">
 		<div id="app">
 			<div id="seo-content">
 				<h1>{{ meta.title | e }}</h1>

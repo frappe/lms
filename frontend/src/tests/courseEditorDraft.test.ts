@@ -15,6 +15,9 @@ const state = vi.hoisted(() => ({
 	course: null as any,
 }))
 
+vi.mock('@framework/ui/telemetry/index', () => ({
+	useTelemetry: () => ({ capture: vi.fn() }),
+}))
 vi.mock('vue-router', () => ({
 	useRoute: () => state.route,
 	useRouter: () => ({

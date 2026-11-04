@@ -24,6 +24,11 @@ class TestPrivateFileReattach(BaseTestUtils):
 			f"pfr-s-{self.hash}@example.com", "Sam", "Student", ["LMS Student"]
 		).name
 		self.assignment = self._create_assignment(f"PFR Assignment {self.hash}").name
+		# A learner answers only an assignment a course of theirs places.
+		instructor = self._create_user(f"pfr-i-{self.hash}@example.com", "In", "Str", ["Course Creator"]).name
+		course = self._create_course(title=f"PFR Course {self.hash}", instructor=instructor).name
+		self._place_in_lesson(course, "LMS Assignment", self.assignment)
+		self._create_enrollment(self.student, course)
 
 	def _upload(self, owner, file_name):
 		frappe.set_user(owner)
@@ -230,14 +235,15 @@ class TestPrivateFileReattach(BaseTestUtils):
 		self.assertFalse(frappe.db.exists("LMS Job Application", {"user": self.student}))
 
 	def test_own_resume_is_emailed_with_its_own_content(self):
-		own = self._upload(self.student, f"resume-{self.hash}.txt")
+		file_name = f"resume-{self.hash}.txt"
+		own = self._upload(self.student, file_name)
 
 		self._apply(own.file_url)
 
 		attachments = self.sendmail.call_args.kwargs["attachments"]
 		self.assertEqual(
 			attachments,
-			[{"fname": own.file_name, "fcontent": frappe.get_doc("File", own.name).get_content()}],
+			[{"fname": own.file_name, "fcontent": f"{self.student} {file_name} {self.hash}".encode()}],
 		)
 
 	def test_company_logo_cannot_publish_another_users_file(self):

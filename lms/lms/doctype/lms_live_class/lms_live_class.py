@@ -8,11 +8,18 @@ import requests
 from frappe import _
 from frappe.model.document import Document
 from frappe.query_builder import Bracket
-from frappe.utils import cint, format_date, format_time, get_datetime, nowdate
+from frappe.utils import cint, format_date, format_time, get_datetime, now_datetime, nowdate
 from pypika.terms import LiteralValue
 
 from lms.lms.doctype.lms_batch.lms_batch import authenticate
-from lms.lms.permissions import authored_batch_condition, can_author_batch, is_site_administrator
+from lms.lms.permissions import (
+	CONFERENCING_ACCOUNT_FIELDS,
+	authored_batch_condition,
+	can_author_batch,
+	can_instruct_batch,
+	can_use_conferencing_account,
+	is_site_administrator,
+)
 
 
 class GoogleCalendarMissingError(frappe.ValidationError):
@@ -21,10 +28,26 @@ class GoogleCalendarMissingError(frappe.ValidationError):
 
 
 class LMSLiveClass(Document):
+	def validate(self):
+		self.validate_conferencing_accounts()
+
+	def validate_conferencing_accounts(self):
+		"""Checked here too, so a class saved directly cannot name someone else's account.
+		The create endpoints check before calling Zoom or Google and flag the class."""
+		if self.flags.conferencing_account_checked:
+			return
+		batch_changed = self.has_value_changed("batch_name")
+		for doctype, field in CONFERENCING_ACCOUNT_FIELDS.items():
+			if self.get(field) and (batch_changed or self.has_value_changed(field)):
+				check_class_can_use_account(doctype, self.get(field), self.batch_name)
+
 	def after_insert(self):
 		self.create_calendar_event()
 
 	def on_update(self):
+		if self.has_value_changed("date"):
+			self.send_same_day_reminders()
+
 		if not self.event:
 			return
 
@@ -45,6 +68,16 @@ class LMSLiveClass(Document):
 		if self.event:
 			# nosemgrep: lms-unjustified-ignore-permissions - the private event's owner alone may delete it; deleting the class was already authorised
 			frappe.delete_doc("Event", self.event, force=True, ignore_permissions=True)
+
+	def send_same_day_reminders(self):
+		"""The daily reminder runs once, just after midnight. A class scheduled or moved to
+		today after that run would never be announced, so remind its learners now. Before
+		the run, the daily job covers it, so nobody is reminded twice."""
+		if str(self.date) != nowdate() or not self.time or not daily_reminder_ran_today():
+			return
+		if get_datetime(f"{self.date} {self.time}") <= now_datetime():
+			return
+		send_reminders_for_class(self)
 
 	def get_hosts(self):
 		"""Whoever scheduled the class, its host, and the batch's instructors."""
@@ -136,6 +169,18 @@ class LMSLiveClass(Document):
 					"join_url": google_meet_link,
 				},
 			)
+
+
+def check_class_can_use_account(doctype, account, batch):
+	"""A live class may use the batch's own account or one the user may use anyway. A
+	missing account gets the same message, so it does not reveal which accounts exist."""
+	if not can_use_conferencing_account(doctype, account, batch):
+		frappe.throw(
+			_(
+				"You can't use this account for this batch's live classes. Use your own account or the one set on the batch."
+			),
+			frappe.PermissionError,
+		)
 
 
 def get_live_class_calendar(conferencing_provider, google_meet_account=None):
@@ -325,6 +370,11 @@ def invite_missing_learners(live_class: str) -> bool:
 	if not missing:
 		return True
 
+	# With push off, Frappe saves the guest rows but never sends them to Google, so
+	# the learners would look invited and never be retried.
+	if not frappe.db.get_value("Google Calendar", event.google_calendar, "push_to_google_calendar"):
+		return False
+
 	# Hidden again before every invite: the guest list shows every learner to every
 	# other one until it is.
 	if not hide_guest_list(event, event.google_calendar):
@@ -424,13 +474,26 @@ def send_live_class_reminder():
 	)
 
 	for live_class in classes:
-		students = frappe.get_all(
-			"LMS Batch Enrollment",
-			{"batch": live_class.batch_name},
-			["member", "member_name"],
-		)
-		for student in students:
-			send_mail(live_class, student)
+		send_reminders_for_class(live_class)
+
+
+def send_reminders_for_class(live_class):
+	students = frappe.get_all(
+		"LMS Batch Enrollment",
+		{"batch": live_class.batch_name},
+		["member", "member_name"],
+	)
+	for student in students:
+		send_mail(live_class, student)
+
+
+def daily_reminder_ran_today() -> bool:
+	last_run = frappe.db.get_value(
+		"Scheduled Job Type",
+		{"method": "lms.lms.doctype.lms_live_class.lms_live_class.send_live_class_reminder"},
+		"last_execution",
+	)
+	return bool(last_run) and str(get_datetime(last_run).date()) == nowdate()
 
 
 def send_mail(live_class, student):
@@ -521,11 +584,13 @@ def has_permission(doc, ptype="read", user=None):
 		return True
 
 	if ptype not in ("read", "select", "print"):
-		if not can_author_batch(doc.batch_name, user=user):
+		# Only the batch's instructors schedule and change its classes; a tagged
+		# evaluator keeps read access below.
+		if not can_instruct_batch(doc.batch_name, user=user):
 			return False
 		# Authorise the stored batch too, or a submitted batch_name moves the class.
 		stored = None if doc.is_new() else frappe.db.get_value("LMS Live Class", doc.name, "batch_name")
-		return not stored or can_author_batch(stored, user=user)
+		return not stored or can_instruct_batch(stored, user=user)
 
 	# "Batch Evaluator" keeps its existing blanket read; any other tagged
 	# instructor/evaluator (e.g. Course Creator) is scoped to their own batch.

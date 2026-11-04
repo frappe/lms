@@ -1,6 +1,10 @@
 <template>
 	<div v-if="batch?.data" class="p-5">
-		<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-8">
+		<!-- Four zeros say nothing before the first student, so the empty state stands alone. -->
+		<div
+			v-if="!showStudentsEmptyState"
+			class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-8"
+		>
 			<NumberChartGraph
 				:title="__('Enrolled')"
 				:value="formatAmount(studentCount.data) || 0"
@@ -22,25 +26,35 @@
 			/>
 		</div>
 
-		<div
+		<EmptyStateLayout
 			v-if="showStudentsEmptyState"
-			class="flex min-h-[30vh] sm:min-h-[70vh] flex-col items-center justify-center gap-3 px-4 text-center"
+			class="min-h-[40vh] sm:min-h-[75vh]"
+			name="Students"
+			icon="lucide-users"
+			width="lg"
+			:title="__('No students in this batch yet')"
+			:description="
+				__(
+					'Enroll students to follow how each one moves through the courses and assessments in this batch.'
+				)
+			"
 		>
-			<span class="lucide-users size-7.5 text-ink-gray-5" />
-			<div class="flex flex-col items-center gap-1">
-				<span class="text-lg-medium text-ink-gray-8">
-					{{ __('No students enrolled yet') }}
-				</span>
-				<span class="text-p-base text-ink-gray-6">
-					{{ __('Enroll students to track their progress here') }}
-				</span>
-			</div>
-		</div>
+			<Button
+				v-if="canAddStudents"
+				variant="solid"
+				:label="__('Enroll Students')"
+				@click="openStudentForm"
+			>
+				<template #prefix>
+					<span class="lucide-plus size-4" />
+				</template>
+			</Button>
+		</EmptyStateLayout>
 		<div
 			v-else
 			class="grid grid-cols-1 lg:grid-cols-[3fr_2fr] gap-5 items-start"
 		>
-			<div class="border rounded-lg py-3 px-4 order-2 lg:order-1">
+			<div class="border rounded-6 py-3 px-4 order-2 lg:order-1">
 				<div class="flex items-center justify-between gap-x-2 mb-3">
 					<h2 class="text-lg-semibold text-ink-gray-9">
 						{{ __('Students') }}
@@ -112,34 +126,34 @@
 			</div>
 
 			<div class="order-1 lg:order-2 space-y-5">
-				<AxisChart
-					v-if="showProgressChart"
-					class="border rounded-lg p-3 min-h-[300px]"
-					:config="{
-						data: filteredChartData,
-						title: __('Batch Summary'),
-						subtitle: __('Progress of students in courses and assessments'),
-						xAxis: {
-							key: 'task',
-							title: 'Tasks',
-							type: 'category',
-						},
-						yAxis: {
+				<ChartCard v-if="showProgressChart" class="h-[300px]">
+					<BarChart
+						v-if="filteredChartData.length"
+						:data="filteredChartData"
+						x="task"
+						y="value"
+						:title="__('Batch Summary')"
+						:subtitle="__('Progress of students in courses and assessments')"
+						:x-axis="{ title: __('Tasks'), type: 'category' }"
+						:y-axis="{
 							title: __('Number of Students'),
-							echartOptions: {
-								minInterval: 1,
-							},
-						},
-						series: [
-							{
-								name: 'value',
-								type: 'bar',
-							},
-						],
-					}"
-				/>
+							echartOptions: { minInterval: 1 },
+						}"
+					/>
+					<ChartEmptyState
+						v-else
+						:title="__('Batch Summary')"
+						:subtitle="__('Progress of students in courses and assessments')"
+						:message="
+							__(
+								'Bars show up here as students finish the courses and assessments in this batch.'
+							)
+						"
+						icon="lucide-chart-column"
+					/>
+				</ChartCard>
 
-				<div class="p-4 border rounded-lg">
+				<div class="p-4 border rounded-6">
 					<BatchFeedback
 						v-if="batch.data"
 						:batch="batch.data.name"
@@ -158,22 +172,31 @@
 </template>
 <script setup lang="ts">
 import {
-	AxisChart,
 	createResource,
 	createListResource,
 	FormControl,
 	Avatar,
 	Button,
 } from 'frappe-ui'
-import { computed, inject, onMounted, ref, watch } from 'vue'
+import { BarChart, ChartCard } from 'frappe-ui/charts'
+import {
+	computed,
+	getCurrentInstance,
+	inject,
+	onMounted,
+	ref,
+	watch,
+} from 'vue'
 import type dayjsType from 'dayjs'
 import { formatAmount } from '@/utils'
 import BatchFeedback from '@/pages/Batches/components/BatchFeedback.vue'
+import ChartEmptyState from '@/components/ChartEmptyState.vue'
 import BatchStudentProgress from '@/pages/Batches/components/BatchStudentProgress.vue'
 import NumberChartGraph from '@/components/NumberChartGraph.vue'
 import ResponsiveListView from '@/components/ResponsiveListView.vue'
 import EmptyStateLayout from '@/components/Layouts/EmptyStateLayout.vue'
 import type { ListColumn, ListRow, ListViewOptions } from '@/types'
+import { openBatchForm } from '@/composables/useBatchForms'
 
 const dayjs = inject<typeof dayjsType>('$dayjs')!
 const searchFilter = ref<string | null>(null)
@@ -201,13 +224,13 @@ const certificationCount = createResource({
 	auto: true,
 })
 
-// The Enrolled card used to read batch.data.students.length, refreshed by the
+// The Enrolled card used to read the batch's student list, refreshed by the
 // enrollment modal calling batch.reload() on the resource it was handed. The
 // routed form has no such handle — get_batch_details deliberately carries no
 // cache key (useBatchForms.ts) — so the count comes from its own cached
 // resource, shaped like certificationCount above, which the form can reach by
-// key. The two numbers are identical: get_batch_details builds `students` from
-// exactly this get_all with no further filter.
+// key. The two numbers are identical: get_batch_details builds `student_count`
+// from exactly this get_all with no further filter.
 const studentCount = createResource({
 	url: 'frappe.client.get_count',
 	cache: ['batch_student_count', props.batch?.data?.name],
@@ -225,7 +248,6 @@ const students = createListResource({
 	},
 	fields: [
 		'name',
-		'member',
 		'member_name',
 		'member_username',
 		'member_image',
@@ -293,7 +315,8 @@ const studentListOptions: ListViewOptions = {
 	selectable: false,
 	showTooltip: false,
 	onRowClick: (row: ListRow) => {
-		currentStudent.value = row.member
+		// member_username is copied at enrollment and goes stale on a rename.
+		currentStudent.value = row.name
 		showProgressModal.value = true
 	},
 }
@@ -304,6 +327,31 @@ const showProgressChart = computed(
 		(props.batch?.data?.courses?.length ||
 			props.batch?.data?.assessments?.length)
 )
+
+const user = inject<any>('$user', null)
+// Read on click, not at setup: the dashboard also renders where no router is installed.
+const instance = getCurrentInstance()
+
+// Same people as the header's Add Student button.
+const canAddStudents = computed(
+	() =>
+		!(window as any).read_only_mode &&
+		Boolean(
+			user?.data?.is_moderator ||
+				user?.data?.is_evaluator ||
+				props.batch?.data?.can_manage
+		)
+)
+
+function openStudentForm() {
+	const { $router, $route } = instance!.proxy!
+	openBatchForm(
+		$router,
+		'NewBatchStudent',
+		props.batch?.data?.name,
+		$route.hash
+	)
+}
 
 const showStudentsEmptyState = computed(
 	() => !students.loading && !students.data?.length && !searchFilter.value

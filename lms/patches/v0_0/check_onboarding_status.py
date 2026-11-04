@@ -8,4 +8,4 @@ def execute():
 		and frappe.db.count("Course Lesson")
 		and frappe.db.count("LMS Quiz")
 	):
-		frappe.db.set_value("LMS Settings", None, "is_onboarding_complete", True)
+		frappe.db.set_single_value("LMS Settings", "is_onboarding_complete", True)

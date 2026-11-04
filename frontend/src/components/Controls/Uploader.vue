@@ -9,16 +9,19 @@
 		/>
 		<FileUploader
 			:fileTypes="[fileType]"
-			:uploadArgs="{ private: false }"
-			:validateFile="(file: File) => validateFile(file, true, type)"
+			:private="false"
+			:validateFile="(file: File) => validateFile(file, false, type)"
 			@success="(file: { file_url: string }) => saveFile(file)"
 			@failure="onUploadFailure"
 		>
 			<template v-slot="{ uploading, progress, openFileSelector }">
-				<div class="flex items-start gap-4">
+				<div
+					class="flex"
+					:class="size === 'sm' ? 'items-center gap-3' : 'items-start gap-4'"
+				>
 					<div
 						:class="[
-							'relative shrink-0 border rounded-md bg-surface-gray-2 grid place-items-center overflow-hidden',
+							'relative shrink-0 border rounded-5 bg-surface-gray-2 grid place-items-center overflow-hidden',
 							previewBoxClasses,
 						]"
 					>
@@ -40,34 +43,49 @@
 							class="size-5 text-ink-gray-5"
 						/>
 					</div>
-					<div class="flex items-center gap-2">
-						<Button
-							:id="inputId"
-							@click="openFileSelector"
-							:loading="uploading"
-						>
-							{{
-								uploading
-									? `${__('Uploading')} ${progress}%`
-									: modelValue
-									? __('Replace')
-									: __('Upload')
-							}}
-						</Button>
-						<Button
-							v-if="modelValue && !uploading"
-							variant="ghost"
-							theme="red"
-							@click="removeImage()"
-						>
-							{{ __('Remove') }}
-						</Button>
+					<div
+						:class="
+							size === 'sm'
+								? 'flex min-w-0 flex-col items-start gap-1.5'
+								: 'flex items-center gap-2'
+						"
+					>
+						<div class="flex items-center gap-2">
+							<Button
+								:id="inputId"
+								@click="openFileSelector"
+								:loading="uploading"
+							>
+								{{
+									uploading
+										? `${__('Uploading')} ${progress}%`
+										: modelValue
+										? __('Replace')
+										: __('Upload')
+								}}
+							</Button>
+							<Button
+								v-if="modelValue && !uploading"
+								variant="ghost"
+								theme="red"
+								@click="removeImage()"
+							>
+								{{ __('Remove') }}
+							</Button>
+						</div>
+						<!-- The small preview leaves room beside it, so the hint sits
+						     there instead of under the whole control. -->
+						<InputDescription
+							v-if="size === 'sm' && showDescription"
+							:id="descriptionId"
+							:description="description ? __(description) : undefined"
+						/>
 					</div>
 				</div>
 			</template>
 		</FileUploader>
 		<InputDescription
-			v-if="showDescription"
+			v-if="size !== 'sm' && showDescription"
 			:id="descriptionId"
 			:description="description ? __(description) : undefined"
 		/>
@@ -77,13 +95,13 @@
 
 <script setup lang="ts">
 import { validateFile } from '@/utils'
-import { Button, FileUploader, toast } from 'frappe-ui'
+import { Button, FileUploader, UploadError, toast } from 'frappe-ui'
 import {
 	InputDescription,
 	InputError,
 	InputLabel,
 	useInputLabeling,
-} from '@/components/Form/labeling'
+} from 'frappe-ui/experimental'
 import { Image, Video } from 'lucide-vue-next'
 import { computed } from 'vue'
 import { safeUrl } from '@/utils/safeUrl'
@@ -99,6 +117,7 @@ const props = withDefaults(
 		type?: 'image' | 'video'
 		required?: boolean
 		shape?: 'square' | 'circle'
+		size?: 'sm' | 'md'
 		description?: string
 		error?: string
 	}>(),
@@ -106,6 +125,7 @@ const props = withDefaults(
 		type: 'image',
 		required: true,
 		shape: 'square',
+		size: 'md',
 	}
 )
 
@@ -125,7 +145,8 @@ const fileType = computed<string>(() =>
 
 const previewBoxClasses = computed<string>(() => {
 	if (props.shape === 'circle') return 'size-24 rounded-full'
-	return 'w-56 aspect-[750/422] rounded-md'
+	if (props.size === 'sm') return 'w-24 aspect-[750/422] rounded-4'
+	return 'w-56 aspect-[750/422] rounded-5'
 })
 
 const saveFile = (file: { file_url: string }) => {
@@ -136,13 +157,13 @@ const removeImage = () => {
 	emit('update:modelValue', '')
 }
 
-const onUploadFailure = (error: any) => {
-	let message = __('Error Uploading File')
-	if (error?._server_messages) {
-		message = JSON.parse(JSON.parse(error._server_messages)[0]).message
-	} else if (error?.exc) {
-		message = JSON.parse(error.exc)[0].split('\n').slice(-2, -1)[0]
-	}
-	toast.error(message)
+const uploadErrorMessage = (error: unknown): string => {
+	if (typeof error === 'string') return error
+	if (error instanceof UploadError) return error.messages[0] || error.message
+	return __('Error Uploading File')
+}
+
+const onUploadFailure = (error: unknown) => {
+	toast.error(uploadErrorMessage(error))
 }
 </script>

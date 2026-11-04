@@ -24,3 +24,32 @@ declare module '@/components/Controls/IconPicker.vue' {
 	const component: Component
 	export default component
 }
+
+// AssessmentPlugin.vue is a plain-JS SFC imported by the typed EditorJS block
+// tools (utils/quiz.ts). DELETE this entry the moment it gains `lang="ts"`.
+declare module '@/components/AssessmentPlugin.vue' {
+	import type { Component } from 'vue'
+	const component: Component
+	export default component
+}
+
+// The media blocks and the uploader are plain-JS SFCs imported by the typed
+// upload tool (utils/upload.ts). DELETE each entry when its SFC gains
+// `lang="ts"`.
+declare module '@/components/AudioBlock.vue' {
+	import type { Component } from 'vue'
+	const component: Component
+	export default component
+}
+
+declare module '@/components/VideoBlock.vue' {
+	import type { Component } from 'vue'
+	const component: Component
+	export default component
+}
+
+declare module '@/components/UploadPlugin.vue' {
+	import type { Component } from 'vue'
+	const component: Component
+	export default component
+}

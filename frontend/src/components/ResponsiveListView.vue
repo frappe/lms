@@ -51,7 +51,7 @@
 								size="md"
 								:model-value="isRowSelected(row)"
 								:aria-label="selectionLabel(row)"
-								@update:model-value="setRowSelected(row, $event)"
+								@update:model-value="toggleRowSelection(row)"
 							/>
 						</div>
 						<component
@@ -75,16 +75,26 @@
 							</div>
 							<div
 								v-if="detailColumns.length"
-								class="mt-0.5 flex min-w-0 flex-wrap items-baseline gap-x-1.5 text-p-sm text-ink-gray-6"
+								class="mt-0.5 flex min-w-0 items-baseline gap-x-1.5 overflow-hidden text-p-sm text-ink-gray-6"
 							>
 								<template
 									v-for="(column, index) in detailColumns"
 									:key="column.key"
 								>
-									<span v-if="index && !noDetailSeparator" aria-hidden="true"
-										>·</span
+									<span
+										v-if="index && !noDetailSeparator"
+										aria-hidden="true"
+										class="shrink-0"
 									>
-									<span class="min-w-0 truncate [&>*]:truncate">
+										·
+									</span>
+									<span
+										:class="
+											index === 0
+												? 'min-w-0 truncate [&>*]:truncate'
+												: 'shrink-0 truncate [&>*]:truncate'
+										"
+									>
 										<span class="sr-only">{{ column.label }}: </span>
 										<slot
 											name="cell"
@@ -136,7 +146,7 @@
 		</template>
 	</ListView>
 
-	<div v-if="showCards && selectionEnabled" :class="CARD_DOCK_CLASS">
+	<div v-if="docksBanner && selectionEnabled" :class="CARD_DOCK_CLASS">
 		<span class="sr-only" role="status">{{ selectionAnnouncement }}</span>
 		<div
 			ref="bannerDock"
@@ -149,15 +159,15 @@
 
 <script setup lang="ts">
 import { computed, onMounted, ref, useSlots, watch } from 'vue'
+import { Checkbox } from 'frappe-ui'
 import {
-	Checkbox,
 	ListHeader,
 	ListHeaderItem,
 	ListRowItem,
 	ListRows,
 	ListSelectBanner,
 	ListView,
-} from 'frappe-ui'
+} from 'frappe-ui/experimental'
 import type { ListColumn, ListRow, ListViewOptions } from '@/types'
 import { useScreenSize } from '@/utils/composables'
 
@@ -189,6 +199,12 @@ const props = withDefaults(
 		forceCards?: boolean
 		/** Drop the `·` between detail cells, for a list whose cells are already badges. */
 		noDetailSeparator?: boolean
+		/**
+		 * Put the selection banner under the rows at every width, as the cards do.
+		 * For a short table inside a form, where frappe-ui's floating banner
+		 * would sit on top of the very rows that were selected.
+		 */
+		dockedBanner?: boolean
 	}>(),
 	{
 		options: undefined,
@@ -196,6 +212,7 @@ const props = withDefaults(
 		pageScroll: false,
 		forceCards: false,
 		noDetailSeparator: false,
+		dockedBanner: false,
 	}
 )
 
@@ -292,8 +309,13 @@ const selectionEnabled = computed(
 		props.options?.selectable === true && Boolean(slots['selection-actions'])
 )
 
+// Cards always dock their banner below the rows; a docked table does too.
+const docksBanner = computed(() => showCards.value || props.dockedBanner)
+
 const bannerRendered = computed(() =>
-	showCards.value ? selectionEnabled.value : Boolean(slots['selection-actions'])
+	docksBanner.value
+		? selectionEnabled.value
+		: Boolean(slots['selection-actions'])
 )
 
 const bannerDock = ref<HTMLElement | null>(null)
@@ -306,26 +328,23 @@ onMounted(() => (mounted.value = true))
  * render — empty, since frappe-ui hides it while nothing is selected.
  */
 const bannerTarget = computed(() =>
-	showCards.value && mounted.value ? bannerDock.value : null
+	docksBanner.value && mounted.value ? bannerDock.value : null
 )
 
 // The banner is sized for a desk in frappe-ui; only the card layout's copy is
 // unpinned, so the class travels with the layout rather than the element.
 const bannerClass = computed(() =>
-	showCards.value ? CARD_BANNER_CLASS : undefined
+	docksBanner.value ? CARD_BANNER_CLASS : undefined
 )
 
-// A row's own checkbox. The attribute is written on the box around it because
-// frappe-ui's Checkbox inherits attributes onto its root as well as onto the
-// input, and it is the input that takes focus.
+// Row checkbox. The attribute sits on the wrapper, but the input inside takes
+// focus.
 const SELECT_BOX = '[data-list-select] input'
 
 const NO_SELECTION: ReadonlySet<unknown> = new Set()
 
 // ListView owns the selection. Reading it back off the instance rather than
-// keeping a copy is what stops a card and the banner from ever disagreeing,
-// and it is live: a copy would still hold the old value on the second of the
-// two events one checkbox click sends.
+// keeping a copy stops a card and the banner from disagreeing.
 const selections = computed<ReadonlySet<unknown>>(
 	() => listView.value?.selections ?? NO_SELECTION
 )
@@ -358,13 +377,6 @@ const lastActedKey = ref<string | null>(null)
 function toggleRowSelection(row: ListRow) {
 	lastActedKey.value = String(row[props.rowKey])
 	listView.value?.toggleRow(row[props.rowKey])
-}
-
-// frappe-ui's Checkbox reports the same value twice per click, so this sets the
-// state that was asked for rather than flipping the current one.
-function setRowSelected(row: ListRow, selected: unknown) {
-	if (isRowSelected(row) === Boolean(selected)) return
-	toggleRowSelection(row)
 }
 
 // The card has to change element mid-selection rather than only its ARIA:

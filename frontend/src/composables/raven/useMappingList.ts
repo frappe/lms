@@ -1,8 +1,10 @@
 // Shared list behaviour for the workspace and channel mapping tables, whose
 // endpoints differ only by entity name.
 import { createResource, toast } from 'frappe-ui'
+import type { FrappeResourceError } from 'frappe-ui'
 import { computed, ref, type ComputedRef, type Ref } from 'vue'
 import type { RavenChannel, RavenWorkspace } from '@/types'
+import { submitResource } from '@/utils/resource'
 
 export type MappingEntity = 'workspace' | 'channel'
 export type MappingRecord = RavenWorkspace | RavenChannel
@@ -49,9 +51,9 @@ export interface MappingList {
 	takeActionMenu: (row: MappingRow) => DropdownOption[]
 	deleteOpen: Ref<boolean>
 	toDelete: Ref<MappingRow | null>
-	deleting: ComputedRef<boolean>
 	askDelete: (row: MappingRow) => void
-	confirmDelete: () => void
+	/** Resolves when the delete settles, so the dialog's button can spin. */
+	confirmDelete: () => Promise<unknown> | void
 }
 
 export interface MappingListOptions {
@@ -122,7 +124,7 @@ export function useMappingList(options: MappingListOptions): MappingList {
 
 	const onError =
 		(fallback: string) =>
-		(err: { messages?: string[] }): void => {
+		(err: FrappeResourceError): void => {
 			toast.error(err?.messages?.[0] ?? fallback)
 		}
 
@@ -138,7 +140,7 @@ export function useMappingList(options: MappingListOptions): MappingList {
 	// An unmapped row is a raw Raven record; its first edit adopts it: create the
 	// mapping, flip the row in place, return the docname for the caller's edit.
 	function isDuplicate(err: unknown): boolean {
-		const e = err as { exc_type?: string; messages?: string[] } | null
+		const e = err as FrappeResourceError | null
 		if (!e) return false
 		if (e.exc_type === 'DuplicateEntryError') return true
 		return (e.messages ?? []).some((m) => /already managed|duplicate/i.test(m))
@@ -146,7 +148,7 @@ export function useMappingList(options: MappingListOptions): MappingList {
 
 	const linkRecord = createResource({
 		url: `raven_integration.api.link_${entity}`,
-		onError(err: { exc_type?: string; messages?: string[] }) {
+		onError(err: FrappeResourceError) {
 			// A duplicate is a benign adopt race; ensureMapped recovers silently.
 			if (isDuplicate(err)) return
 			toast.error(err?.messages?.[0] ?? copy.link)
@@ -265,25 +267,28 @@ export function useMappingList(options: MappingListOptions): MappingList {
 	const toDelete = ref<MappingRow | null>(null)
 	const deleteRecord = createResource({
 		url: `raven_integration.api.delete_${entity}`,
-		onSuccess() {
-			deleteOpen.value = false
-			// Both tables confirm the delete out loud; the channel table used to
-			// succeed silently, which was the drift between the two copies.
-			toast.success(copy.removed)
-			records.reload()
-		},
-		onError: onError(copy.remove),
 	})
-	const deleting = computed<boolean>(() => deleteRecord.loading)
 	function askDelete(row: MappingRow): void {
 		toDelete.value = row
 		deleteOpen.value = true
 	}
-	function confirmDelete(): void {
+	function confirmDelete(): Promise<unknown> | void {
 		// A second confirm while the first is in flight (double-click) must no-op,
 		// not race the first for the same row's delete lock. Mirrors linkRow.
 		if (deleteRecord.loading) return
-		if (toDelete.value?.name) deleteRecord.submit({ name: toDelete.value.name })
+		if (!toDelete.value?.name) return
+		return submitResource(
+			deleteRecord,
+			{ name: toDelete.value.name },
+			{
+				onSuccess() {
+					deleteOpen.value = false
+					toast.success(copy.removed)
+					records.reload()
+				},
+				onError: onError(copy.remove),
+			}
+		)
 	}
 
 	// Stale rows swap their inline controls for this menu: the only two ways out
@@ -312,7 +317,6 @@ export function useMappingList(options: MappingListOptions): MappingList {
 		takeActionMenu,
 		deleteOpen,
 		toDelete,
-		deleting,
 		askDelete,
 		confirmDelete,
 	}

@@ -32,7 +32,6 @@ vi.mock('frappe-ui', () => ({
 		reload: vi.fn(),
 		fetch: vi.fn(),
 	}),
-	Progress: { template: `<div />` },
 }))
 
 vi.mock('@headlessui/vue', () => ({

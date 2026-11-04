@@ -4,25 +4,8 @@ import { defineComponent, h } from 'vue'
 
 vi.stubGlobal('__', (text: string) => text)
 
-// vue-router resolves a matched record's async `component()` as part of
-// navigation itself (to extract in-component guards), before this test ever
-// asks what the current route is. The real Batches/NewBatchForm/BatchDetail
-// SFCs pull in frappe-ui, and frappe-ui's ESM build does not resolve under
-// plain Node module resolution (no bundler) — the same failure that made
-// `@/router` unimportable here. Stubbing the three page components keeps the
-// navigation real while keeping their unrelated dependency chains out of it;
-// the route TABLE under test is still the genuine one from `@/routes`.
-// HeaderButton wraps frappe-ui's Button in a Tooltip below the mobile
-// breakpoint, and the hand-written frappe-ui mock here has no Tooltip. Stub it
-// down to the bare button so the fallthrough attrs the assertions use
-// (data-testid, the click handler) still land where they did before.
-vi.mock('@/components/HeaderButton.vue', () => ({
-	default: {
-		inheritAttrs: false,
-		template: `<button v-bind="$attrs" />`,
-	},
-}))
-
+// Navigation imports each matched page SFC, so stub them; the route table
+// from @/routes stays real.
 vi.mock('@/pages/Batches/Batches.vue', () => ({
 	default: defineComponent({ render: () => h('div') }),
 }))
@@ -37,12 +20,8 @@ vi.mock('@/pages/Batches/BatchDetail.vue', () => ({
 // only proves vue-router ranks static above dynamic — it would stay green
 // while the route table said something else entirely.
 //
-// This imports `@/routes` rather than `@/router`: router.js imports frappe-ui
-// at module scope for its navigation guard, and frappe-ui's ESM build fails
-// to resolve an extensionless import in this environment, so importing
-// `@/router` throws before a single test runs. The route table itself has no
-// such dependency — every entry is a lazy `() => import(...)` — so it lives in
-// its own module and router.js imports it from there too.
+// This imports `@/routes` rather than `@/router`, which pulls in the stores and
+// the navigation guard's server calls; the route table has none of that.
 import { routes } from '@/routes'
 
 describe('the new-batch route', () => {

@@ -24,7 +24,7 @@
 							:columns="courseColumns"
 							:rows="batch.data?.courses"
 							row-key="name"
-							class="sm:border sm:rounded-lg"
+							class="sm:border sm:rounded-6"
 							:options="courseListOptions"
 						>
 							<template #cell="{ column, row, value }">
@@ -34,9 +34,15 @@
 								<span v-else>{{ value }}</span>
 							</template>
 						</ResponsiveListView>
-						<div v-else class="text-ink-gray-7">
-							{{ __('No courses added to this batch') }}
-						</div>
+						<SectionEmptyState
+							v-else
+							icon="lucide-book-open"
+							:message="
+								__(
+									'Courses for this batch show up here once your instructors add them.'
+								)
+							"
+						/>
 					</div>
 					<!-- <BatchCourses :batch="batch" /> -->
 					<Assessments :batch="batch.data.name" />
@@ -58,6 +64,7 @@
 	</div>
 </template>
 <script setup>
+import SectionEmptyState from '@/components/SectionEmptyState.vue'
 import { computed, inject } from 'vue'
 import { createListResource } from 'frappe-ui'
 import Assessments from '@/pages/Batches/components/Assessments.vue'

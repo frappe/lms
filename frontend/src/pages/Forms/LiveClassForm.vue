@@ -1,6 +1,6 @@
 <template>
 	<FormShell
-		:title="__('Create a Live Class')"
+		:title="__('New Live Class')"
 		size="xl"
 		position="top"
 		@close="close"
@@ -98,7 +98,7 @@
 			>
 				<HeaderButton
 					data-testid="live-class-save"
-					:label="__('Save')"
+					:label="__('Create')"
 					variant="solid"
 					:loading="
 						createLiveClass.loading || createGoogleMeetLiveClass.loading
@@ -121,8 +121,6 @@ import {
 import { computed, reactive, inject, onMounted, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { getTimezones, getUserTimezone, openSettings } from '@/utils/'
-import { canManageGoogleIntegrations } from '@/components/Settings/GoogleApi/googleApi'
-import { canManageGoogleMeet } from '@/components/Settings/GoogleMeet/googleMeet'
 import FormShell from '@/components/FormShell.vue'
 import HeaderButton from '@/components/HeaderButton.vue'
 import {
@@ -165,10 +163,10 @@ const conferencingProvider = computed(
 	() => batch.data?.conferencing_provider || null
 )
 
-// can_manage, not the Batch Evaluator role: create_live_class accepts only an
-// evaluator the batch tags.
+// can_schedule_classes, not the Batch Evaluator role or can_manage:
+// create_live_class accepts only the batch's instructors.
 const isAdmin = computed(() =>
-	Boolean(user.data?.is_moderator || batch.data?.can_manage)
+	Boolean(user.data?.is_moderator || batch.data?.can_schedule_classes)
 )
 
 // Copied from LiveClass.vue's canCreateClass()/hasProviderAccount(), which gate
@@ -190,7 +188,9 @@ const hasProviderAccount = computed(() => {
 const refusal = computed(() => {
 	if (readOnlyMode) return __('This site is in read-only mode.')
 	if (!isAdmin.value)
-		return __('You are not permitted to create a live class for this batch.')
+		return __(
+			"You can't schedule live classes for this batch. Ask one of its instructors or a Moderator."
+		)
 	if (!hasProviderAccount.value)
 		return __(
 			'Please select a conferencing provider and add an account to the batch to create live classes.'
@@ -328,12 +328,12 @@ const showCalendarMissing = (message) => {
 // Where "Set up" goes. Moderators with access get the Settings page. Evaluators
 // have no Settings, but a Zoom class uses their own calendar, which they manage
 // on their profile's Slots tab. A Meet account's calendar is the admin's.
+// Settings has a Google Meet accounts panel but no Google Calendar one, so a
+// Zoom class's calendar is set up by the site administrator, or by an
+// evaluator from their own Slots tab.
 const calendarSetUpAction = (meet) => {
-	if (
-		user.data?.is_moderator &&
-		(meet ? canManageGoogleMeet() : canManageGoogleIntegrations())
-	) {
-		return () => openSettings(meet ? 'google-meet' : 'google-calendar')
+	if (meet && user.data?.is_moderator) {
+		return () => openSettings('Google Meet Accounts')
 	}
 	if (!meet && user.data?.is_evaluator && user.data?.username) {
 		return () =>

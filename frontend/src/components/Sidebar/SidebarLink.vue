@@ -2,7 +2,7 @@
 	<button
 		v-if="link && !link.onlyMobile"
 		:data-notifications-trigger="link.panel === 'notifications' ? '' : null"
-		class="flex w-full h-7 cursor-pointer items-center rounded text-ink-gray-8 duration-300 ease-in-out focus:outline-none focus:transition-none focus-visible:rounded focus-visible:ring-2 focus-visible:ring-outline-gray-3"
+		class="flex w-full h-7 cursor-pointer items-center rounded-4 text-ink-gray-8 duration-300 ease-in-out focus:outline-none focus:transition-none focus-visible:rounded-4 focus-visible:ring-2 focus-visible:ring-outline-gray-3"
 		:class="
 			isActive ? 'bg-surface-elevation-3 shadow-sm' : 'hover:bg-surface-gray-2'
 		"
@@ -12,11 +12,7 @@
 			class="flex items-center w-full duration-300 ease-in-out group"
 			:class="isCollapsed ? 'p-1 relative' : 'px-2 py-1'"
 		>
-			<Tooltip
-				:text="__(link.label)"
-				placement="right"
-				:disabled="!isCollapsed"
-			>
+			<Tooltip :text="__(link.label)" side="right" :disabled="!isCollapsed">
 				<slot name="icon">
 					<span class="grid size-4 flex-shrink-0 place-items-center">
 						<component
@@ -28,9 +24,9 @@
 			</Tooltip>
 			<Tooltip
 				:text="__(link.label)"
-				placement="right"
+				side="right"
 				:disabled="isCollapsed"
-				:hoverDelay="1.5"
+				:hoverDelay="1500"
 			>
 				<span
 					class="min-w-0 truncate text-p-sm duration-300 ease-in-out"
@@ -60,6 +56,21 @@
 			>
 				{{ link.count }}
 			</span>
+			<div
+				v-if="showControls && !isCollapsed"
+				class="flex items-center gap-x-2 !ms-auto block text-p-xs text-ink-gray-5 group-hover:visible invisible"
+			>
+				<component
+					:is="icons['Edit']"
+					class="h-3 w-3 stroke-1.5 text-ink-gray-7"
+					@click.stop="openModal(link)"
+				/>
+				<component
+					:is="icons['X']"
+					class="h-3 w-3 stroke-1.5 text-ink-gray-7"
+					@click.stop="deletePage(link)"
+				/>
+			</div>
 		</div>
 	</button>
 	<ContactUsEmail v-model="showContactForm" />
@@ -74,20 +85,25 @@ import { toggleNotifications } from '@/stores/notifications'
 import { useSettings } from '@/stores/settings'
 import type { SidebarLink } from '@/types'
 import { openExternal } from '@/utils/openExternal'
-import { safeUrl } from '@/utils/safeUrl'
 
 const router = useRouter()
 const settingsStore = useSettings()
+const emit = defineEmits<{
+	openModal: [link: SidebarLink]
+	deletePage: [link: SidebarLink]
+}>()
 const showContactForm = ref<boolean>(false)
 
 const props = withDefaults(
 	defineProps<{
 		link: SidebarLink
 		isCollapsed?: boolean
+		showControls?: boolean
 		activeTab?: string
 	}>(),
 	{
 		isCollapsed: false,
+		showControls: false,
 		activeTab: '',
 	}
 )
@@ -103,29 +119,14 @@ function handleClick(): void {
 	}
 	if (props.link.to && router.hasRoute(props.link.to)) {
 		router.push({ name: props.link.to })
-		// A URL can carry an `@` in its path, and an External row's target is
-		// whatever an admin typed, so the mailto guess only applies without a scheme.
-	} else if (
-		props.link.to?.includes('@') &&
-		!props.link.to.startsWith('http')
-	) {
+	} else if (props.link.to?.includes('@')) {
 		showContactForm.value = true
 	} else if (props.link.to) {
 		if (props.link.to.startsWith('http')) {
-			if (props.link.open_in_new_window === 0) {
-				const href = safeUrl(props.link.to)
-				if (href) window.location.href = href
-				return
-			}
 			openExternal(props.link.to)
 			return
 		}
-		// A Route row's target already begins with /; a Web Page's route does
-		// not. Prefixing a second slash would make it scheme-relative and send
-		// the browser off-site.
-		window.location.href = props.link.to.startsWith('/')
-			? props.link.to
-			: `/${props.link.to}`
+		window.location.href = `/${props.link.to}`
 	}
 }
 
@@ -135,4 +136,12 @@ const isActive = computed<boolean>(() => {
 			(props.activeTab && props.link?.label?.includes(props.activeTab))
 	)
 })
+
+function openModal(link: SidebarLink): void {
+	emit('openModal', link)
+}
+
+function deletePage(link: SidebarLink): void {
+	emit('deletePage', link)
+}
 </script>

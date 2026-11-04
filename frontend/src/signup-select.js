@@ -1,5 +1,5 @@
 import { createApp, h, ref } from 'vue'
-import { Select } from 'frappe-ui'
+import Select from 'frappe-ui-select'
 import './signup-select.css'
 
 const nativeSelect = document.querySelector('#user_category')
@@ -57,7 +57,7 @@ if (nativeSelect && mountPoint) {
 					label: () =>
 						h(
 							'span',
-							{ class: 'text-base text-ink-gray-5 w-full mb-0' },
+							{ class: 'text-base text-ink-gray-6 w-full mb-0' },
 							label
 						),
 				}

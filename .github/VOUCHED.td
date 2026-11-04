@@ -12,10 +12,8 @@
 #   - Optional details after a space following the handle.
 AryamanSharma14
 Bowrna
-bvnaik05
 FawazAlhafiz
 frappe-pr-bot
-harshpwctech
 mergify[bot]
 NagariaHussain
 sayali-fossist

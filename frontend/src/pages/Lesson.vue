@@ -3,17 +3,17 @@
 		<PageHeader :breadcrumbs="breadcrumbs">
 			<template #actions>
 				<CertificationLinks :courseName="courseName" />
-				<router-link
+				<HeaderButton
 					v-if="canEditLesson"
-					:to="{
+					:label="__('Editor View')"
+					icon="lucide-pencil"
+					:route="{
 						name: 'CourseDetail',
 						params: { courseName: courseName },
 						hash: '#editor',
 						query: { editLesson: `${chapterNumber}-${lessonNumber}` },
 					}"
-				>
-					<HeaderButton :label="__('Editor View')" icon="lucide-pencil" />
-				</router-link>
+				/>
 			</template>
 		</PageHeader>
 
@@ -52,7 +52,7 @@
 
 		<div class="grid md:grid-cols-[70%,30%] sm:h-[94vh]">
 			<div v-if="lesson.data.no_preview" class="sm:border-e">
-				<div class="shadow rounded-md w-3/4 mt-10 mx-auto text-center p-4">
+				<div class="shadow rounded-5 w-3/4 mt-10 mx-auto text-center p-4">
 					<div class="flex items-center justify-center mt-4 gap-x-2">
 						<span class="lucide-lock-keyhole size-4 text-ink-gray-5" />
 						<div class="text-lg-semibold text-ink-gray-7">
@@ -129,7 +129,7 @@
 									</span>
 									<span class="lucide-info size-3" />
 									<div
-										class="hidden group-hover:block rounded bg-surface-gray-10 px-2 py-1 text-xs text-ink-base shadow-xl absolute start-0 top-full mt-2"
+										class="hidden group-hover:block [@media(hover:none)]:block [@media(hover:none)]:static [@media(hover:none)]:mt-0 rounded-4 bg-surface-gray-10 px-2 py-1 text-xs text-ink-base shadow-xl absolute start-0 top-full mt-2"
 									>
 										{{ Math.ceil(lesson.data.membership.progress) }}%
 										{{ __('completed') }}
@@ -148,32 +148,12 @@
 										</template>
 									</Button>
 								</Tooltip>
-								<Button v-if="lesson.data.prev" @click="switchLesson('prev')">
-									<template #prefix>
-										<span class="lucide-chevron-left size-4" />
-									</template>
-									<span>{{ __('Previous') }}</span>
-								</Button>
-								<Button
-									v-if="lesson.data.next && canGoNext"
-									@click="switchLesson('next')"
-								>
-									<template #suffix>
-										<span class="lucide-chevron-right size-4" />
-									</template>
-									<span>{{ __('Next') }}</span>
-								</Button>
-								<router-link
-									v-else
-									:to="{
-										name: 'CourseDetail',
-										params: { courseName: courseName },
-									}"
-								>
-									<Button class="text-p-base-medium">{{
-										__('Back to Course')
-									}}</Button>
-								</router-link>
+								<LessonNavButtons
+									:hasPrev="!!lesson.data.prev"
+									:hasNext="!!(lesson.data.next && canGoNext)"
+									:courseName="courseName"
+									@switch="switchLesson"
+								/>
 							</div>
 
 							<div
@@ -188,38 +168,12 @@
 										<span class="lucide-message-circle-question size-4" />
 									</template>
 								</Button>
-								<Button v-if="lesson.data.prev" @click="switchLesson('prev')">
-									<template #prefix>
-										<span class="lucide-chevron-left size-4" />
-									</template>
-									<span>
-										{{ __('Previous') }}
-									</span>
-								</Button>
-
-								<Button
-									v-if="lesson.data.next && canGoNext"
-									@click="switchLesson('next')"
-								>
-									<template #suffix>
-										<span class="lucide-chevron-right size-4" />
-									</template>
-									<span>
-										{{ __('Next') }}
-									</span>
-								</Button>
-
-								<router-link
-									v-else
-									:to="{
-										name: 'CourseDetail',
-										params: { courseName: courseName },
-									}"
-								>
-									<Button class="text-p-base-medium">
-										{{ __('Back to Course') }}
-									</Button>
-								</router-link>
+								<LessonNavButtons
+									:hasPrev="!!lesson.data.prev"
+									:hasNext="!!(lesson.data.next && canGoNext)"
+									:courseName="courseName"
+									@switch="switchLesson"
+								/>
 							</div>
 						</div>
 
@@ -232,7 +186,7 @@
 							>
 								<UserAvatar
 									v-for="instructor in lesson.data.instructors"
-									:key="instructor.name ?? instructor"
+									:key="instructor.username"
 									:user="instructor"
 								/>
 							</span>
@@ -247,7 +201,7 @@
 								hasInstructorNotesToRender(lesson.data.instructor_content) &&
 								allowInstructorContent()
 							"
-							class="bg-surface-gray-2 p-3 rounded-md mt-6"
+							class="bg-surface-gray-2 p-3 rounded-5 mt-6"
 						>
 							<h2 class="text-ink-gray-5 font-medium">
 								{{ __('Instructor Notes') }}
@@ -268,10 +222,10 @@
 						</div>
 						<div
 							v-if="contentUnreadable"
-							class="flex items-center gap-3 rounded-lg bg-surface-amber-2 p-3 mt-8"
+							class="flex items-center gap-3 rounded-6 bg-surface-amber-2 p-3 mt-8"
 						>
 							<div
-								class="grid size-7 shrink-0 place-items-center text-ink-amber-6"
+								class="grid size-7 shrink-0 place-items-center text-ink-amber-5"
 							>
 								<span class="lucide-circle-alert size-4" aria-hidden="true" />
 							</div>
@@ -309,7 +263,7 @@
 						</div>
 					</div>
 					<div
-						v-if="lesson.data && (allowDiscussions || tabs.length > 1)"
+						v-if="lesson.data && tabs.length"
 						class="mt-10 pb-20 pt-5 border-t px-5"
 						ref="discussionsContainer"
 					>
@@ -343,6 +297,7 @@
 					:courseName="courseName"
 					:courseTitle="lesson.data.course_title"
 					:progress="lessonProgress"
+					:withProgress="Boolean(user.data)"
 					:selectedLessonNumber="`${chapterNumber}-${lessonNumber}`"
 					:completedLesson="completedLesson"
 				/>
@@ -374,6 +329,7 @@
 			<StudentLessonSidebar
 				:courseName="courseName"
 				:progress="lessonProgress"
+				:withProgress="Boolean(user.data)"
 				:selectedLessonNumber="`${chapterNumber}-${lessonNumber}`"
 				:completedLesson="completedLesson"
 				:hideHeader="true"
@@ -389,7 +345,7 @@
 		@updateNotes="updateNotes"
 	/>
 </template>
-<script setup>
+<script setup lang="ts">
 import {
 	Badge,
 	Button,
@@ -401,6 +357,7 @@ import {
 	usePageMeta,
 	toast,
 } from 'frappe-ui'
+import type { FrappeResourceError } from 'frappe-ui'
 import {
 	computed,
 	watch,
@@ -411,6 +368,7 @@ import {
 	nextTick,
 } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
+import type { RouteLocationRaw } from 'vue-router'
 import {
 	getEditorTools,
 	enablePlyr,
@@ -435,20 +393,88 @@ import Discussions from '@/components/Discussions.vue'
 import CertificationLinks from '@/components/CertificationLinks.vue'
 import CourseOutline from '@/components/CourseOutline.vue'
 import LockedLessonNotice from '@/components/LockedLessonNotice.vue'
+import LessonNavButtons from '@/components/LessonNavButtons.vue'
 import StudentLessonSidebar from '@/components/StudentLessonSidebar.vue'
 import BottomSheet from '@/components/BottomSheet.vue'
-import PageHeader from '@/components/Layouts/pages/PageHeader.vue'
+import PageHeader from '@/components/Layouts/PageHeader.vue'
 import HeaderButton from '@/components/HeaderButton.vue'
 import UserAvatar from '@/components/UserAvatar.vue'
 import Notes from '@/components/Notes/Notes.vue'
 import InlineLessonMenu from '@/components/Notes/InlineLessonMenu.vue'
 import { parseStoredEditorJs } from '@/utils/lessonForm'
+import { isLessonSelection } from '@/utils/lessonSelection'
 import { getLmsRoute } from '@/utils/basePath'
 import { provideStudentView } from '@/composables/useStudentView'
+import type { UserResource } from '@/composables/useStudentView'
+import type { Note, Notes as NotesResource } from '@/types'
+import { isInstructorOf } from '@/utils/instructors'
+import { allowSkipUpTo } from '@/utils/videoSkipGuard'
+import {
+	enableBunnyPlayers,
+	isBunnyStreamSource,
+} from '@/utils/bunnyStreamPlayer'
+import {
+	holdLessonCompletion,
+	releaseLessonCompletion,
+} from '@/utils/markLessonProgress'
+
+interface LessonProgressEvent {
+	course: string
+	lesson: string
+	progress: number
+}
+
+interface LessonSocket {
+	on: (event: string, handler: (data: LessonProgressEvent) => void) => void
+	off: (event: string, handler: (data: LessonProgressEvent) => void) => void
+}
+
+interface LessonPayload {
+	locked?: boolean
+	is_scorm_package?: boolean
+	chapter_name?: string
+	membership?: { progress?: number } | null
+	content?: string | null
+	instructor_content?: string | null
+}
+
+interface OutlineChapter {
+	lessons?: { number: string; locked?: boolean }[]
+}
+
+interface PlayerEvent {
+	detail?: { code?: number; message?: string }
+}
+
+// The subset of Plyr (and its YouTube/Vimeo `embed`) this page drives. The
+// Bunny Stream adapter has the same shape.
+interface LessonPlayer {
+	source: string
+	currentTime: number
+	duration: number
+	embed: { seekTo: (seconds: number, allowSeekAhead: boolean) => void }
+	on: (event: string, handler: (event: PlayerEvent) => void) => void
+	play: () => void
+	pause: () => void
+	_lmsEndedAttached?: boolean
+}
+
+interface WatchedVideo {
+	source: string
+	watch_time: number
+}
+
+type TrackedVideo = HTMLVideoElement & {
+	_lmsErrorAttached?: boolean
+	_lmsEndedAttached?: boolean
+}
+
+type LessonTab = { label: string; value: string }
+type Crumb = { label: string; route: RouteLocationRaw }
 
 const router = useRouter()
 const route = useRoute()
-const realUser = inject('$user')
+const realUser = inject<UserResource>('$user')!
 // A component's own provide() is invisible to its own inject(), so read the
 // handles provideStudentView returns rather than calling useStudentView().
 const { isStudentView, mockedUser } = provideStudentView(
@@ -458,43 +484,32 @@ const { isStudentView, mockedUser } = provideStudentView(
 // Shadows every user.data read below and in every child, so the page renders
 // exactly what a student sees.
 const user = mockedUser
-const socket = inject('$socket')
+const socket = inject<LessonSocket>('$socket')!
 const allowDiscussions = ref(false)
-const editor = ref(null)
-const instructorEditor = ref(null)
+const editor = ref<EditorJS | null>(null)
+const instructorEditor = ref<EditorJS | null>(null)
 const lessonProgress = ref(0)
-const lessonContainer = ref(null)
+const lessonContainer = ref<HTMLElement | null>(null)
 const zenModeEnabled = ref(false)
 const hasQuiz = ref(false)
-const discussionsContainer = ref(null)
+const discussionsContainer = ref<HTMLElement | null>(null)
 const timer = ref(0)
 const { brand } = sessionStore()
 const sidebarStore = useSidebar()
-const plyrSources = ref([])
+const plyrSources = ref<LessonPlayer[]>([])
 const showInlineMenu = ref(false)
-const currentTab = ref(null)
-const completedLesson = ref(null)
+const currentTab = ref<string | undefined>(undefined)
+const completedLesson = ref<string | null>(null)
 const settingsStore = useSettings()
 const { isMobile } = useScreenSize()
 const showChapters = ref(false)
-let timerInterval = null
+let timerInterval: ReturnType<typeof setInterval> | undefined
 
-const tabs = ref([])
-
-const props = defineProps({
-	courseName: {
-		type: String,
-		required: true,
-	},
-	chapterNumber: {
-		type: String,
-		required: true,
-	},
-	lessonNumber: {
-		type: String,
-		required: true,
-	},
-})
+const props = defineProps<{
+	courseName: string
+	chapterNumber: string
+	lessonNumber: string
+}>()
 
 let collapsedByLesson = false
 const isCourseAdmin = () =>
@@ -512,7 +527,7 @@ onMounted(() => {
 	socket.on('update_lesson_progress', onLessonProgress)
 })
 
-const onLessonProgress = (data) => {
+const onLessonProgress = (data: LessonProgressEvent): void => {
 	if (data.course !== props.courseName) return
 	lessonProgress.value = data.progress
 	// A quiz or an assignment completes its lesson by calling
@@ -541,12 +556,13 @@ onBeforeUnmount(() => {
 	// one — so a single progress event fires one outline reload per past visit.
 	socket.off('update_lesson_progress', onLessonProgress)
 	if (collapsedByLesson) sidebarStore.isSidebarCollapsed = false
+	releaseLessonCompletion()
 	trackVideoWatchDuration()
 })
 
 const lesson = createResource({
 	url: 'lms.lms.utils.get_lesson',
-	makeParams(values) {
+	makeParams(values?: { chapter: string; lesson: string }) {
 		return {
 			course: props.courseName,
 			chapter: values ? values.chapter : props.chapterNumber,
@@ -562,10 +578,12 @@ const contentUnreadable = ref(false)
 
 // A single stored block is EditorJS's empty default, so notes only count from
 // two up. Unreadable notes render nothing at all.
-const hasInstructorNotesToRender = (instructorContent) =>
+const hasInstructorNotesToRender = (
+	instructorContent: string | null | undefined
+): instructorContent is string =>
 	(parseStoredEditorJs(instructorContent)?.blocks?.length ?? 0) > 1
 
-const setupLesson = (data) => {
+const setupLesson = (data: LessonPayload): void => {
 	if (Object.keys(data).length === 0) {
 		router.push({
 			name: 'CourseDetail',
@@ -585,7 +603,7 @@ const setupLesson = (data) => {
 			},
 		})
 	}
-	lessonProgress.value = data.membership?.progress
+	lessonProgress.value = data.membership?.progress ?? 0
 	contentUnreadable.value = false
 	if (data.content) {
 		editor.value = renderEditor('editor', data.content)
@@ -616,7 +634,7 @@ const checkQuiz = () => {
 
 // Returns null when the stored payload will not parse. Throwing aborts
 // setupLesson mid-way and takes the timer, video sources and notes with it.
-const openLinksInNewTab = (holder) => {
+const openLinksInNewTab = (holder: string): void => {
 	const root = document.getElementById(holder)
 	if (!root) return
 	root.querySelectorAll('a').forEach((a) => {
@@ -625,13 +643,15 @@ const openLinksInNewTab = (holder) => {
 	})
 }
 
-const renderEditor = (holder, content) => {
+const renderEditor = (holder: string, content: string): EditorJS | null => {
 	const data = parseStoredEditorJs(content)
 	if (!data) return null
-	const existing = document.getElementById(holder)
-	if (existing) existing.innerHTML = ''
+	// A fresh child per editor, so a late destroy() of the previous one cannot
+	// empty it. Attached after render: the holder is under v-if="lesson.data".
+	const host = document.createElement('div')
+	nextTick(() => document.getElementById(holder)?.replaceChildren(host))
 	return new EditorJS({
-		holder: holder,
+		holder: host,
 		tools: getEditorTools(false, {}, { studentView: isStudentView.value }),
 		data: sanitizeEditorJs(data),
 		readOnly: true,
@@ -649,6 +669,7 @@ const renderEditor = (holder, content) => {
 // and the second one fails with TimestampMismatchError on LMS Enrollment.
 let progressSubmitting = false
 const markProgress = () => {
+	releaseLessonCompletion()
 	if (progressSubmitting) return
 	// Only enrolled students record progress; a moderator previewing has no
 	// membership row so save_progress would no-op server-side but still
@@ -668,7 +689,7 @@ const markProgress = () => {
 			onSuccess() {
 				progressSubmitting = false
 			},
-			onError(err) {
+			onError(err: unknown) {
 				progressSubmitting = false
 				console.error(err)
 			},
@@ -684,7 +705,7 @@ const progress = createResource({
 			course: props.courseName,
 		}
 	},
-	onSuccess(data) {
+	onSuccess(data: number) {
 		lessonProgress.value = data
 		completedLesson.value = lesson.data?.name
 		// Reload here rather than waiting on the socket, so this page's own
@@ -700,7 +721,7 @@ const notes = createListResource({
 		member: user.data?.name,
 	},
 	fields: ['name', 'color', 'highlighted_text', 'note'],
-	onSuccess(data) {
+	onSuccess(data: Note[]) {
 		data.forEach((note) => {
 			setTimeout(() => {
 				highlightText(note)
@@ -710,7 +731,7 @@ const notes = createListResource({
 })
 
 const breadcrumbs = computed(() => {
-	let crumbs = [{ label: __('Courses'), route: { name: 'Courses' } }]
+	const crumbs: Crumb[] = [{ label: __('Courses'), route: { name: 'Courses' } }]
 	crumbs.push({
 		label: lesson?.data?.course_title,
 		route: { name: 'CourseDetail', params: { courseName: props.courseName } },
@@ -748,8 +769,10 @@ watch(
 	() => outline.reload()
 )
 
-const lessonNumbers = computed(() =>
-	(outline.data ?? []).flatMap((c) => c.lessons?.map((l) => l.number) ?? [])
+const lessonNumbers = computed<string[]>(() =>
+	(outline.data ?? []).flatMap(
+		(c: OutlineChapter) => c.lessons?.map((l) => l.number) ?? []
+	)
 )
 const currentIndex = computed(() =>
 	lessonNumbers.value.indexOf(`${props.chapterNumber}-${props.lessonNumber}`)
@@ -763,7 +786,7 @@ const hasNext = computed(
 	() => currentIndex.value >= 0 && currentIndex.value < lessonTotal.value - 1
 )
 const outlineLessons = computed(() =>
-	(outline.data ?? []).flatMap((c) => c.lessons ?? [])
+	(outline.data ?? []).flatMap((c: OutlineChapter) => c.lessons ?? [])
 )
 const nextLessonLocked = computed(
 	() => !!outlineLessons.value[currentIndex.value + 1]?.locked
@@ -778,7 +801,10 @@ const canGoNext = computed(() => {
 	return hasNext.value && !nextLessonLocked.value
 })
 
-const goToLessonNumber = (number, { replace = false } = {}) => {
+const goToLessonNumber = (
+	number: string,
+	{ replace = false }: { replace?: boolean } = {}
+): void => {
 	trackVideoWatchDuration()
 	const [chapterNumber, lessonNumber] = number.split('-')
 	const target = {
@@ -811,7 +837,7 @@ const goNext = () => {
 		goToLessonNumber(lessonNumbers.value[currentIndex.value + 1])
 }
 
-const switchLesson = (direction) => {
+const switchLesson = (direction: 'prev' | 'next'): void => {
 	if (direction === 'next' && !canGoNext.value) return
 	trackVideoWatchDuration()
 	let target =
@@ -848,15 +874,18 @@ watch(
 	}
 )
 
-const resetLessonState = (newChapterNumber, newLessonNumber) => {
-	editor.value = null
-	instructorEditor.value = null
+const resetLessonState = (
+	newChapterNumber: string | string[],
+	newLessonNumber: string | string[]
+): void => {
+	destroyEditors()
 	allowDiscussions.value = false
 	lesson.submit({
 		chapter: newChapterNumber,
 		lesson: newLessonNumber,
 	})
 	videoFallbackArmed = false
+	releaseLessonCompletion()
 	fallbackGeneration++
 	clearInterval(timerInterval)
 	timer.value = 0
@@ -872,8 +901,8 @@ const trackVideoWatchDuration = () => {
 	})
 }
 
-const getVideoDetails = () => {
-	let details = []
+const getVideoDetails = (): WatchedVideo[] => {
+	const details: WatchedVideo[] = []
 	const videos = document.querySelectorAll('video')
 	if (videos.length > 0) {
 		videos.forEach((video) => {
@@ -887,8 +916,8 @@ const getVideoDetails = () => {
 	return details
 }
 
-const getPlyrSourceDetails = () => {
-	let details = []
+const getPlyrSourceDetails = (): WatchedVideo[] => {
+	const details: WatchedVideo[] = []
 	plyrSources.value.forEach((source) => {
 		if (isVideoComplete(source.currentTime, source.duration)) markProgress()
 		let src = cleanYouTubeUrl(source.source)
@@ -900,7 +929,7 @@ const getPlyrSourceDetails = () => {
 	return details
 }
 
-const cleanYouTubeUrl = (url) => {
+const cleanYouTubeUrl = (url: string): string => {
 	if (!url) return url
 	const urlObj = new URL(url)
 	urlObj.searchParams.delete('t')
@@ -909,7 +938,7 @@ const cleanYouTubeUrl = (url) => {
 
 watch(
 	() => lesson.data,
-	async (data) => {
+	async (data: LessonPayload) => {
 		setupLesson(data)
 		// Settings drive dwell + enforcement; if they haven't resolved yet
 		// the timer reads undefined and falls back to 30s. Await the
@@ -925,21 +954,28 @@ watch(
 		updateNotes()
 		const hasVideoListener =
 			plyrSources.value.length > 0 || !!document.querySelector('video')
-		const enforceVideo = Number(
-			settingsStore.settings?.data?.enforce_video_completion ?? 0
+		const enforceVideo = Boolean(
+			Number(settingsStore.settings?.data?.enforce_video_completion ?? 0)
 		)
 		// When the lesson has video AND enforcement is on, suppress dwell so
 		// completion is gated on play-to-end. When enforcement is off, dwell
 		// runs for every lesson type (including YouTube/Plyr), so admins can
 		// set a short dwell to mark video lessons complete without a full
 		// playthrough.
+		// A quiz or assignment submit would otherwise complete the lesson before
+		// the enforced video is watched; markProgress releases the hold.
 		if (!shouldStartDwellTimer({ hasVideo: hasVideoListener, enforceVideo })) {
 			clearInterval(timerInterval)
+			holdLessonCompletion()
+		} else {
+			releaseLessonCompletion()
 		}
+		// After the hold, so a video resumed at its end can release it.
+		updateVideoWatchDuration()
 		if (
 			shouldAttachVideoFallback({ hasVideo: hasVideoListener, enforceVideo })
 		) {
-			document.querySelectorAll('video').forEach((video) => {
+			document.querySelectorAll<TrackedVideo>('video').forEach((video) => {
 				if (video._lmsErrorAttached) return
 				video._lmsErrorAttached = true
 				const gen = fallbackGeneration
@@ -959,9 +995,9 @@ watch(
 const getPlyrSource = async () => {
 	await nextTick()
 	if (plyrSources.value.length == 0) {
-		plyrSources.value = await enablePlyr()
-		const enforceVideo = Number(
-			settingsStore.settings?.data?.enforce_video_completion ?? 0
+		plyrSources.value = [...(await enablePlyr()), ...enableBunnyPlayers()]
+		const enforceVideo = Boolean(
+			Number(settingsStore.settings?.data?.enforce_video_completion ?? 0)
 		)
 		if (
 			shouldAttachVideoFallback({
@@ -989,13 +1025,16 @@ const getPlyrSource = async () => {
 			})
 		}
 	}
-	updateVideoWatchDuration()
 }
 
 const updateVideoWatchDuration = () => {
 	if (lesson.data.videos && lesson.data.videos.length > 0) {
-		lesson.data.videos.forEach((video) => {
-			if (video.source.includes('youtube') || video.source.includes('vimeo')) {
+		lesson.data.videos.forEach((video: WatchedVideo) => {
+			if (
+				video.source.includes('youtube') ||
+				video.source.includes('vimeo') ||
+				isBunnyStreamSource(video.source)
+			) {
 				updatePlyrVideoTime(video)
 			} else {
 				updateVideoTime(video)
@@ -1011,7 +1050,7 @@ const attachVideoEndedListeners = () => {
 		trackVideoWatchDuration()
 	}
 
-	document.querySelectorAll('video').forEach((video) => {
+	document.querySelectorAll<TrackedVideo>('video').forEach((video) => {
 		if (!video._lmsEndedAttached) {
 			video.addEventListener('ended', onVideoEnded)
 			video._lmsEndedAttached = true
@@ -1029,32 +1068,57 @@ const attachVideoEndedListeners = () => {
 	})
 }
 
-const updatePlyrVideoTime = (video) => {
+const updatePlyrVideoTime = (video: WatchedVideo): void => {
 	plyrSources.value.forEach((plyrSource) => {
 		let lastWatchedTime = 0
 		let isSeeking = false
 
 		plyrSource.on('ready', () => {
 			if (plyrSource.source === video.source) {
+				allowSkipUpTo(plyrSource, video.watch_time)
 				plyrSource.embed.seekTo(video.watch_time, true)
 				plyrSource.play()
 				plyrSource.pause()
+				completePlayerIfWatched(plyrSource, video.watch_time)
 			}
 		})
 	})
 }
 
-const updateVideoTime = (video) => {
+// A video watched to the end on an earlier visit has nothing left to end, so
+// resuming there counts as the ended event the enforced-video hold waits for.
+const completeIfWatched = (watchTime: number, duration: number): void => {
+	if (isVideoComplete(watchTime, duration)) markProgress()
+}
+
+// Bunny reports its duration only with timeupdate, so at ready it is still 0.
+const completePlayerIfWatched = (
+	player: LessonPlayer,
+	watchTime: number
+): void => {
+	if (player.duration > 0) return completeIfWatched(watchTime, player.duration)
+	let checked = false
+	player.on('timeupdate', () => {
+		if (checked || !(player.duration > 0)) return
+		checked = true
+		completeIfWatched(watchTime, player.duration)
+	})
+}
+
+const updateVideoTime = (video: WatchedVideo): void => {
 	const videos = document.querySelectorAll('video')
 	if (videos.length > 0) {
 		videos.forEach((vid) => {
 			if (vid.src === video.source) {
 				let watch_time = video.watch_time < vid.duration ? video.watch_time : 0
+				allowSkipUpTo(vid, video.watch_time)
 				if (vid.readyState >= 1) {
 					vid.currentTime = watch_time
+					completeIfWatched(video.watch_time, vid.duration)
 				} else {
 					vid.addEventListener('loadedmetadata', () => {
 						vid.currentTime = watch_time
+						completeIfWatched(video.watch_time, vid.duration)
 					})
 				}
 			}
@@ -1064,13 +1128,14 @@ const updateVideoTime = (video) => {
 
 let videoFallbackArmed = false
 let fallbackGeneration = 0
-const fallbackToDwellTimer = (reason) => {
+const fallbackToDwellTimer = (reason: string): void => {
 	// The dwell fallback only matters for an enrolled student tracking progress.
 	// Don't surface the "mark as viewed" toast in student view or to
 	// non-enrolled viewers (admins/instructors reviewing the lesson).
 	if (isStudentView.value || !lesson.data?.membership) return
 	if (videoFallbackArmed) return
 	videoFallbackArmed = true
+	releaseLessonCompletion()
 	console.warn('[Lesson] video fallback engaged:', reason)
 	toast.warning(
 		__(
@@ -1099,17 +1164,33 @@ const startTimer = () => {
 
 onBeforeUnmount(() => {
 	clearInterval(timerInterval)
+	destroyEditors()
 })
+
+// destroy() runs each block tool's destroy(), which unmounts the inline
+// assessment apps. Waits for isReady: destroy() throws on a starting editor.
+const destroyEditor = (instance: EditorJS | null): void => {
+	instance?.isReady.then(() => instance.destroy()).catch(() => {})
+}
+
+const destroyEditors = (): void => {
+	destroyEditor(editor.value)
+	destroyEditor(instructorEditor.value)
+	editor.value = null
+	instructorEditor.value = null
+}
 
 const checkIfDiscussionsAllowed = () => {
 	hasQuiz.value = false
 	if (lesson.data?.content) {
 		try {
-			JSON.parse(lesson.data.content)?.blocks?.forEach((block) => {
-				if (block.type === 'quiz') {
-					hasQuiz.value = true
+			JSON.parse(lesson.data.content)?.blocks?.forEach(
+				(block: { type: string }) => {
+					if (block.type === 'quiz') {
+						hasQuiz.value = true
+					}
 				}
-			})
+			)
 		} catch {
 			// legacy markdown lessons
 		}
@@ -1129,8 +1210,11 @@ const checkIfDiscussionsAllowed = () => {
 }
 
 const isAdmin = computed(() => {
-	let isInstructor = lesson.data?.instructors?.includes(user.data?.name)
-	return user.data?.is_moderator || isInstructor
+	const isInstructor = isInstructorOf(
+		lesson.data?.instructors,
+		user.data?.username
+	)
+	return Boolean(user.data?.is_moderator) || isInstructor
 })
 
 // Student view is a mode, not a destination: every hop that stays on a lesson
@@ -1143,8 +1227,11 @@ const studentViewQuery = computed(() =>
 // Reads the real user, not the student-view shadow, so the way back to the
 // editor survives ?studentView=1.
 const canEditLesson = computed(() => {
-	const isInstructor = lesson.data?.instructors?.includes(realUser.data?.name)
-	return realUser.data?.is_moderator || isInstructor
+	const isInstructor = isInstructorOf(
+		lesson.data?.instructors,
+		realUser.data?.username
+	)
+	return Boolean(realUser.data?.is_moderator) || isInstructor
 })
 
 const allowInstructorContent = () => {
@@ -1172,19 +1259,18 @@ const enrollStudent = () => {
 			onSuccess() {
 				window.location.reload()
 			},
-			onError(err) {
-				toast.error(__(err.messages?.[0] || err))
+			onError(err: FrappeResourceError) {
+				toast.error(__(err.messages?.[0] || err.message))
 				console.error(err)
 			},
 		}
 	)
 }
 
-const toggleInlineMenu = async () => {
+const toggleInlineMenu = async (): Promise<void> => {
 	showInlineMenu.value = false
 	await nextTick()
-	let selection = window.getSelection()
-	if (selection.toString()) {
+	if (isLessonSelection(window.getSelection())) {
 		showInlineMenu.value = true
 	}
 }
@@ -1200,15 +1286,23 @@ const canGoZen = () => {
 	return false
 }
 
-const goFullScreen = () => {
-	if (lessonContainer.value.requestFullscreen) {
-		lessonContainer.value.requestFullscreen()
-	} else if (lessonContainer.value.mozRequestFullScreen) {
-		lessonContainer.value.mozRequestFullScreen()
-	} else if (lessonContainer.value.webkitRequestFullscreen) {
-		lessonContainer.value.webkitRequestFullscreen()
-	} else if (lessonContainer.value.msRequestFullscreen) {
-		lessonContainer.value.msRequestFullscreen()
+type VendorFullscreen = HTMLElement & {
+	mozRequestFullScreen?: () => void
+	webkitRequestFullscreen?: () => void
+	msRequestFullscreen?: () => void
+}
+
+const goFullScreen = (): void => {
+	const container = lessonContainer.value as VendorFullscreen | null
+	if (!container) return
+	if (container.requestFullscreen) {
+		container.requestFullscreen()
+	} else if (container.mozRequestFullScreen) {
+		container.mozRequestFullScreen()
+	} else if (container.webkitRequestFullscreen) {
+		container.webkitRequestFullscreen()
+	} else if (container.msRequestFullscreen) {
+		container.msRequestFullscreen()
 	}
 }
 
@@ -1243,27 +1337,28 @@ const updateNotes = () => {
 	notes.reload()
 }
 
-watch(allowDiscussions, () => {
-	if (!isAdmin.value) {
-		if (!tabs.value.find((tab) => tab.value === 'Notes')) {
-			tabs.value.push({
-				label: __('Notes'),
-				value: 'Notes',
-			})
+// Built from the current lesson, not pushed on each change: a page opened
+// straight on a quiz lesson never flips allowDiscussions, so pushed tabs never
+// appeared, and tabs pushed on an earlier lesson stayed after moving on.
+const tabs = computed<LessonTab[]>(() => [
+	// Guests cannot save notes, so they get none.
+	...(user.data && !isAdmin.value
+		? [{ label: __('Notes'), value: 'Notes' }]
+		: []),
+	...(allowDiscussions.value
+		? [{ label: __('Community'), value: 'Community' }]
+		: []),
+])
+
+watch(
+	tabs,
+	(options) => {
+		if (!options.some((tab) => tab.value === currentTab.value)) {
+			currentTab.value = options[0]?.value
 		}
-		currentTab.value = 'Notes'
-	} else {
-		currentTab.value = allowDiscussions.value ? 'Community' : null
-	}
-	if (allowDiscussions.value) {
-		if (!tabs.value.find((tab) => tab.value === 'Community')) {
-			tabs.value.push({
-				label: __('Community'),
-				value: 'Community',
-			})
-		}
-	}
-})
+	},
+	{ immediate: true }
+)
 
 const redirectToLogin = () => {
 	window.location.href = `/login?redirect-to=${getLmsRoute(
@@ -1288,127 +1383,8 @@ usePageMeta(() => {
 	transition: margin 0.1s ease-in-out;
 }
 
-.lesson-content p {
-	margin-bottom: 1rem;
-	line-height: 1.7;
-}
-
-.lesson-content li {
-	line-height: 1.7;
-}
-
-.lesson-content ol {
-	list-style: auto;
-	margin: revert;
-	padding: 1rem;
-}
-
-.lesson-content ul {
-	list-style: auto;
-	padding: 1rem;
-	margin: revert;
-}
-
-.lesson-content img {
-	border: 1px solid theme('colors.gray.200');
-	border-radius: 0.5rem;
-}
-
-.lesson-content code {
-	display: block;
-	overflow-x: auto;
-	padding: 1rem 1.25rem;
-	background: #011627;
-	color: #d6deeb;
-	border-radius: 0.5rem;
-	margin: 1rem 0;
-}
-
-.lesson-content a {
-	color: theme('colors.gray.900');
-	text-decoration: underline;
-	font-weight: 500;
-}
-
-.embed-tool__caption,
-.cdx-simple-image__caption {
-	display: none;
-}
-
-.ce-block__content {
-	max-width: unset;
-}
-
 .codex-editor__redactor {
 	padding-bottom: 0px !important;
-}
-
-.codeBoxHolder {
-	display: flex;
-	flex-direction: column;
-	justify-content: flex-start;
-	align-items: flex-start;
-}
-
-.codeBoxTextArea {
-	width: 100%;
-	min-height: 30px;
-	padding: 10px;
-	border-radius: 2px 2px 2px 0;
-	border: none !important;
-	outline: none !important;
-	font: 14px monospace;
-}
-
-.codeBoxSelectDiv {
-	display: flex;
-	flex-direction: column;
-	justify-content: flex-start;
-	align-items: flex-start;
-	position: relative;
-}
-
-.codeBoxSelectInput {
-	border-radius: 0 0 20px 2px;
-	padding: 2px 26px;
-	padding-top: 0;
-	padding-inline-end: 0;
-	text-align: start;
-	cursor: pointer;
-	border: none !important;
-	outline: none !important;
-}
-
-.codeBoxSelectDropIcon {
-	position: absolute !important;
-	inset-inline-start: 10px !important;
-	bottom: 0 !important;
-	width: unset !important;
-	height: unset !important;
-	font-size: 16px !important;
-}
-
-.codeBoxSelectPreview {
-	display: none;
-	flex-direction: column;
-	justify-content: flex-start;
-	align-items: flex-start;
-	border-radius: 2px;
-	box-shadow: 0 3px 15px -3px rgba(13, 20, 33, 0.13);
-	position: absolute;
-	top: 100%;
-	margin: 5px 0;
-	max-height: 30vh;
-	overflow-x: hidden;
-	overflow-y: auto;
-	z-index: 10000;
-}
-
-.codeBoxSelectItem {
-	width: 100%;
-	padding: 5px 20px;
-	margin: 0;
-	cursor: pointer;
 }
 
 .codeBoxSelectItem:hover {
@@ -1417,49 +1393,5 @@ usePageMeta(() => {
 
 .codeBoxSelectedItem {
 	background-color: lightblue !important;
-}
-
-.codeBoxShow {
-	display: flex !important;
-}
-
-.dark {
-	color: #abb2bf;
-	background-color: #282c34;
-}
-
-.light {
-	color: #383a42;
-	background-color: #fafafa;
-}
-
-.codeBoxTextArea {
-	line-height: 1.7;
-}
-
-.tc-table {
-	border-inline-start: 1px solid #e8e8eb;
-}
-
-.plyr__control--overlaid {
-	background: radial-gradient(
-		circle,
-		rgba(0, 0, 0, 0.4) 0%,
-		rgba(0, 0, 0, 0.5) 50%
-	);
-}
-
-.plyr__control:hover {
-	background: none;
-}
-
-.plyr--video {
-	border: 1px solid theme('colors.gray.200');
-	border-radius: 8px;
-}
-
-:root {
-	--plyr-range-fill-background: white;
-	--plyr-video-control-background-hover: transparent;
 }
 </style>

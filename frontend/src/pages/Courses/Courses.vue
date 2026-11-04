@@ -9,32 +9,42 @@
 		v-model:page-length="pageLength"
 		empty-name="Courses"
 		empty-icon="lucide-book-open"
+		:empty-title="emptyState?.title"
+		:empty-description="emptyState?.description"
+		:search-query="title"
+		:filtered="Boolean(currentCategory || certification)"
 		@load-more="courses.next()"
+		@clear-filters="clearFilters"
 	>
+		<template v-if="emptyState" #empty-actions>
+			<EmptyStateActions
+				list="courses"
+				:tab="currentTab"
+				:create-label="__('New Course')"
+				docs="https://docs.frappe.io/learning/create-a-course"
+				@create="newCourseFromEmptyState"
+			/>
+		</template>
+
 		<template #actions>
-			<Dropdown
-				placement="right"
-				side="bottom"
-				v-if="canCreateCourse()"
-				:options="courseMenu"
-			>
-				<template v-slot="{ open }">
-					<Button variant="solid">
-						<template #prefix>
-							<span class="lucide-plus size-4" />
-						</template>
-						{{ __('Create') }}
-						<template #suffix>
-							<span
-								:class="[
-									'lucide-chevron-down ms-1 size-4 transform transition-transform',
-									open ? 'rotate-180' : '',
-								]"
-							/>
-						</template>
+			<div v-if="canCreateCourse()" class="flex items-center gap-2">
+				<Dropdown
+					align="end"
+					side="bottom"
+					:options="importMenu"
+					@update:open="(open) => open && capture('course_import_menu_opened')"
+				>
+					<Button variant="subtle">
+						{{ __('Import') }}
 					</Button>
-				</template>
-			</Dropdown>
+				</Dropdown>
+				<Button variant="solid" @click="openNewCourse">
+					<template #prefix>
+						<span class="lucide-plus size-4" />
+					</template>
+					{{ __('New Course') }}
+				</Button>
+			</div>
 		</template>
 
 		<template #filters>
@@ -48,7 +58,6 @@
 				:placeholder="__('Search')"
 				:aria-label="__('Search')"
 				type="text"
-				@input="updateCourses()"
 			>
 				<template #prefix>
 					<span class="lucide-search size-4 text-ink-gray-5" />
@@ -93,13 +102,16 @@ import {
 } from 'frappe-ui'
 import ClearableCombobox from '@/components/Controls/ClearableCombobox.vue'
 import ToggleFilter from '@/components/Controls/ToggleFilter.vue'
-import ListPage from '@/components/Layouts/pages/ListPage.vue'
+import ListPage from '@/components/Layouts/ListPage.vue'
+import EmptyStateActions from '@/components/EmptyStateActions.vue'
 import { computed, inject, onMounted, ref, watch } from 'vue'
 import { sessionStore } from '@/stores/session'
 import { canCreateCourse } from '@/utils'
 import CourseCard from '@/components/CourseCard.vue'
 import { useRouter } from 'vue-router'
 import { openFormRoute } from '@/composables/useFormRoute'
+import { setFormSource } from '@/composables/formTracking'
+import { useTelemetry } from '@framework/ui/telemetry/index'
 
 const user = inject('$user')
 const dayjs = inject('$dayjs')
@@ -120,6 +132,8 @@ const router = useRouter()
 onMounted(() => {
 	setFiltersFromQuery()
 	updateCourses()
+	// TextInput emits on input and change; watched after query hydration to avoid a refetch.
+	watch(title, updateCourses)
 })
 
 const setFiltersFromQuery = () => {
@@ -199,6 +213,14 @@ const categories = createListResource({
 	cache: ['course_categories'],
 	auto: true,
 })
+
+const clearFilters = () => {
+	currentCategory.value = null
+	certification.value = false
+	// The title watcher reloads on its own; reloading here as well fetches twice.
+	if (title.value) title.value = ''
+	else updateCourses()
+}
 
 const updateCourses = () => {
 	updateFilters()
@@ -343,36 +365,76 @@ const courseTabs = computed(() => {
 	return tabs
 })
 
-const courseMenu = computed(() => {
-	return [
-		{
-			label: __('New Course'),
-			icon: 'lucide-book-open',
-			onClick() {
-				// openFormRoute, not a bare router.push: it stamps the history
-				// entry so the form's own close() pops it instead of replacing.
-				openFormRoute(router, { name: 'NewCourse' })
-			},
-		},
-		{
-			label: __('Import via Data Import Tool'),
-			icon: 'lucide-upload',
-			onClick() {
-				router.push({
-					name: 'NewDataImport',
-					params: { doctype: 'LMS Course' },
-				})
-			},
-		},
-		{
-			label: __('Import via ZIP'),
-			icon: 'lucide-folder-plus',
-			onClick() {
-				openFormRoute(router, { name: 'CourseImport' })
-			},
-		},
-	]
+const { capture } = useTelemetry()
+
+// openFormRoute, not a bare router.push: it stamps the history entry so the
+// form's own close() pops it instead of replacing.
+const openNewCourse = () => {
+	setFormSource('header_button')
+	openFormRoute(router, { name: 'NewCourse' })
+}
+
+// What lands in this list and how to start it, for the person who would fill it;
+// learners keep the default wording.
+const emptyState = computed(() => {
+	if (!canCreateCourse()) return null
+	switch (currentTab.value) {
+		case 'live':
+			return {
+				title: __('Publish your first course'),
+				description: __(
+					'Turn what you know into lessons, quizzes and a certificate people can take at their own pace.'
+				),
+			}
+		case 'upcoming':
+			return {
+				title: __('No upcoming courses'),
+				description: __(
+					'Courses marked as upcoming show up here, so learners can see what is coming next.'
+				),
+			}
+		case 'created':
+			return {
+				title: __('No courses created by you'),
+				description: __(
+					'Courses you create or teach show up here, for your team, students or customers.'
+				),
+			}
+		case 'unpublished':
+			return {
+				title: __('No unpublished courses'),
+				description: __(
+					'New courses wait here while you build them. Publish one when it is ready.'
+				),
+			}
+		default:
+			return null
+	}
 })
+
+function newCourseFromEmptyState() {
+	setFormSource('empty_state')
+	openFormRoute(router, { name: 'NewCourse' })
+}
+
+const importMenu = computed(() => [
+	{
+		label: __('Import from a spreadsheet'),
+		icon: 'lucide-upload',
+		onClick() {
+			capture('course_import_clicked', { via: 'spreadsheet' })
+			router.push({ name: 'NewDataImport', params: { doctype: 'LMS Course' } })
+		},
+	},
+	{
+		label: __('Import via ZIP'),
+		icon: 'lucide-folder-plus',
+		onClick() {
+			capture('course_import_clicked', { via: 'zip' })
+			openFormRoute(router, { name: 'CourseImport' })
+		},
+	},
+])
 
 const breadcrumbs = computed(() => [
 	{

@@ -34,13 +34,12 @@
 		v-model:open="list.deleteOpen.value"
 		entity="workspace"
 		:name="list.toDelete.value?.label ?? ''"
-		:loading="list.deleting.value"
 		:message="
 			__(
 				'This deletes the workspace mapping and every channel mapping under it, with their conditions, and removes everyone those conditions added to its channels. Anyone added by hand in Raven stays. This action cannot be undone.'
 			)
 		"
-		@confirm="list.confirmDelete"
+		:on-confirm="list.confirmDelete"
 	/>
 </template>
 
@@ -63,7 +62,7 @@
 // tab you had to already be on to know it existed.
 import { computed, ref, watch } from 'vue'
 import { Select } from 'frappe-ui'
-import SettingsList from '@/components/Layouts/settings/desktop/SettingsList.vue'
+import SettingsList from '@/components/Layouts/SettingsList.vue'
 import DeleteConfirmDialog from './DeleteConfirmDialog.vue'
 import {
 	useMappingList,
