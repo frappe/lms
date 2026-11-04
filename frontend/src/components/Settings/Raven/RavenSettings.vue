@@ -31,7 +31,7 @@
 	<SettingsLayout
 		v-else-if="!setup.loading"
 		:title="__(label)"
-		:description="__(description)"
+		:description="description ? __(description) : ''"
 	>
 		<template #title-badge>
 			<Badge
@@ -86,7 +86,7 @@ import type { RavenSetupState } from '@/types'
 
 // Settings.vue passes every panel a label/description; declaring them keeps them out
 // of $attrs, where `description` would fall through and override SettingsLayout's.
-defineProps<{ label: string; description: string }>()
+defineProps<{ label: string; description?: string }>()
 
 // Endpoints are System Manager-only but Settings opens for any moderator. Its own
 // state, else they get the "not set up" card telling them to fix what they can't.
