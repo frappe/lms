@@ -26,6 +26,8 @@ Add students with `method call lms.lms.api.add_students_to_batch -F batch=<b> -F
 
 The call returns `added` and `errors`. A student who cannot be added, for example when the batch is full, is listed in `errors` with the reason, and the rest are still added.
 
+For a paid batch, pass `-F 'payment_details:={"amount": 500, "currency": "INR", "source": "<LMS Source>"}'` to record a received payment per student, or `-F 'linked_payments:={"<user>": "<LMS Payment>"}'` to attach existing received ones. This needs a Moderator or an instructor or evaluator tagged on the batch. `source` is optional (omit it, or send null or an empty string, to record the payment without one). Add an optional `address` object (`address_line1`, `city`, `country` required; `address_line2`, `state`, `pincode`, `phone` optional) to `payment_details` to create a Billing address per student. To vary one student, pass `-F 'member_payment_details:={"<user>": {"amount": 250, "currency": "INR", "source": "<LMS Source>", "billing_name": "...", "address": {...}}}'`. Every key is optional, the user must be in `members`, and a student's value beats the common one. A bad value for one student skips only that student.
+
 Read the batch with `method call lms.lms.utils.get_batch_details -F batch=<b>`. It returns the courses, instructors, `student_count` and, when the batch has a seat count, `seats_left`.
 
 Read a student's progress with `method call lms.lms.utils.get_batch_student_progress -F member=<user> -F batch=<b>`. Read the batch as a whole with `get_batch_chart_data -F batch=<b>`.
