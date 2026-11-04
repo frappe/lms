@@ -685,7 +685,9 @@ def google_still_authorizes(calendar: str) -> bool:
 	Asking Google for an access token is the only way to tell, so the answer is
 	cached rather than asked on every page load."""
 	key = f"{GOOGLE_TOKEN_CHECK_CACHE}:{calendar}"
-	cached = frappe.cache.get_value(key)
+	# expires=True: a key written with an expiry is not kept in the request's local cache,
+	# where frappe v15 would go on returning the miss read before it was set.
+	cached = frappe.cache.get_value(key, expires=True)
 	if cached is not None:
 		return bool(cached)
 
@@ -779,7 +781,7 @@ def rename_own_calendar(current: str, value) -> None:
 	signing_in = bool(pending) and pending["calendar"] == current
 	# The token check is cached by name too; without it the next load asks Google.
 	token_key = f"{GOOGLE_TOKEN_CHECK_CACHE}:{current}"
-	token_ok = frappe.cache.get_value(token_key)
+	token_ok = frappe.cache.get_value(token_key, expires=True)
 	token_ttl = frappe.cache.ttl(frappe.cache.make_key(token_key))
 
 	from frappe.model.rename_doc import rename_doc
@@ -820,7 +822,7 @@ EVALUATOR_CALENDAR_CACHE = "lms_evaluator_calendar_authorization"
 
 
 def get_pending_sign_in(user: str) -> dict | None:
-	pending = frappe.cache.get_value(f"{EVALUATOR_CALENDAR_CACHE}:{user}")
+	pending = frappe.cache.get_value(f"{EVALUATOR_CALENDAR_CACHE}:{user}", expires=True)
 	# A sign-in started before `state` existed was stored as the calendar name
 	# alone; it can't be checked, so it is treated as none.
 	return pending if isinstance(pending, dict) else None
