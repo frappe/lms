@@ -38,7 +38,15 @@ vi.mock('frappe-ui', () => ({
 
 const push = vi.fn()
 vi.mock('vue-router', () => ({
-	useRouter: () => ({ push, replace: vi.fn() }),
+	// openFormRoute stamps the page it leaves into history.state.
+	useRouter: () => ({
+		push,
+		replace: vi.fn(),
+		currentRoute: {
+			value: { hash: '', query: {}, fullPath: '/courses', matched: [{}] },
+		},
+		options: { history: { state: {} } },
+	}),
 }))
 
 // The palette reads roles to decide which category rows to show, which page a
@@ -315,7 +323,9 @@ describe('command palette form routes', () => {
 		await select(item.title)
 
 		expect(push).toHaveBeenCalledWith(
-			expect.objectContaining({ state: { lmsFormEntry: true } })
+			expect.objectContaining({
+				state: { lmsFormEntry: true, lmsFormBackground: '/courses' },
+			})
 		)
 	})
 

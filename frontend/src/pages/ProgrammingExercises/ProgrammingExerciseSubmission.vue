@@ -10,7 +10,7 @@
 		<span>
 			{{ falconError }}
 		</span>
-		<Button v-if="user.data?.is_moderator" @click="openSettings('General')">
+		<Button v-if="user.data?.is_moderator" @click="openSettings('general')">
 			<template #prefix>
 				<span class="lucide-settings size-4" />
 			</template>

@@ -7,6 +7,8 @@ import { Upload } from '@/utils/upload'
 import { Markdown } from '@/utils/markdownParser'
 import { useSettings } from '@/stores/settings'
 import { usersStore } from '@/stores/user'
+import router from '@/router'
+import { pushSettingsHash } from '@/composables/useSettingsHash'
 import { Heading } from '@/utils/heading'
 import { UnknownBlock } from '@/utils/unknownBlock'
 import Paragraph from '@editorjs/paragraph'
@@ -860,7 +862,10 @@ export const createLMSCategory = (name) => {
 // arrived. Say so instead, and leave the form where it is.
 // Returns whether Settings actually opened, so a caller that closes itself
 // separately can stay put when it did not.
-export const openSettings = (category, close = null) => {
+// Takes the tab's slug, not its label, since renaming a label must not break
+// callers. Returns whether Settings actually opened, so a caller that closes
+// itself separately can stay put when it did not.
+export const openSettings = (slug, close = null, field = null) => {
 	const settingsStore = useSettings()
 	if (!settingsStore.isSettingsMounted) {
 		toast.error(__('Settings is only available on a larger screen.'))
@@ -869,8 +874,8 @@ export const openSettings = (category, close = null) => {
 	if (close) {
 		close()
 	}
-	settingsStore.activeTab = category
-	settingsStore.isSettingsOpen = true
+	settingsStore.focusField = field
+	pushSettingsHash(router, slug)
 	return true
 }
 

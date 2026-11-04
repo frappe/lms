@@ -30,7 +30,7 @@ const TARGETS: Record<string, ImportTarget> = {
 	// Categories have no page of their own; they are managed in Settings.
 	'LMS Category': {
 		title: 'Categories',
-		openList: () => openSettings('Categories'),
+		openList: () => openSettings('categories'),
 		listInSettings: true,
 	},
 }
