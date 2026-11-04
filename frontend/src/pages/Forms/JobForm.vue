@@ -62,7 +62,7 @@
 					</div>
 				</div>
 				<div class="border-t lg:border-s lg:border-t-0 lg:h-[93vh]">
-					<div v-if="jobName != 'new'" class="p-5 space-y-5 border-b">
+					<div v-if="jobName != 'new'" class="py-5 lg:p-5 space-y-5 border-b">
 						<FormControl
 							v-model="job.status"
 							:label="__('Status')"
@@ -71,7 +71,7 @@
 							:required="true"
 						/>
 					</div>
-					<div class="p-5 space-y-5 border-b">
+					<div class="py-5 lg:p-5 space-y-5 border-b">
 						<h2 class="text-ink-gray-9 font-semibold">
 							{{ __('Location') }}
 						</h2>
@@ -87,7 +87,7 @@
 							:required="true"
 						/>
 					</div>
-					<div class="p-5 space-y-5">
+					<div class="py-5 lg:p-5 space-y-5">
 						<h2 class="text-ink-gray-9 font-semibold">
 							{{ __('Company Details') }}
 						</h2>
