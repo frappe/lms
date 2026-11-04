@@ -72,8 +72,10 @@ yarn test-local       # Playwright with its UI
 - Python tests must create the users they act as. The helpers in
   `lms/lms/test_helpers.py` default to `frappe@example.com`, which does not exist in CI.
 - Pull requests into `develop` and the hotfix branches skip the server and UI suites.
-  They run every hour on `develop` and `version-16` (Branch Tests), and the pull request
-  shows the result as Develop status or Version-16 status. Label a pull request
+  They run every hour on `develop` and `version-16`, started by Branch Tests
+  (`branch-status.yml`), which lives on `develop` alone because GitHub runs scheduled
+  workflows only from the default branch. The pull request shows the result as Develop
+  status or Version-16 status. Label a pull request
   `Run Server Tests` or `Run UI Tests` to run a suite on it. A pull request that fixes a
   failing branch is labelled `fixes-develop`: it runs the full suites, and its status
   turns green once the failing ones pass on it.
