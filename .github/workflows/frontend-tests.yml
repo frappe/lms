@@ -9,7 +9,7 @@ on:
       - "lms/raven_provider.py"
       - ".github/workflows/frontend-tests.yml"
   push:
-    branches: [main, develop, main-hotfix]
+    branches: [version-15, version-15-hotfix]
     paths:
       - "frontend/**"
       - "package.json"

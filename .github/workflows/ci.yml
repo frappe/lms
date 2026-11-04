@@ -2,9 +2,8 @@ name: Server Tests
 on:
   push:
     branches:
-      - main
-      - develop
-      - main-hotfix
+      - version-15
+      - version-15-hotfix
     # The frontend and Vue, TS, JS and CSS files are Vitest's and the UI
     # tests' business, except the two frontend files a server test reads.
     # Keep in step with is_ignored in .github/helper/changed-tests.sh.
@@ -73,8 +72,9 @@ jobs:
         with:
           site: frappe.local
           db-root-password: root
-          frappe-branch: version-16
-          payments-branch: version-16
+          frappe-branch: version-15
+          payments-branch: version-15
+          python-version: "3.11"
           site-config: '{"allow_tests": true, "block_endpoints": 1}'
 
       - name: Run tests

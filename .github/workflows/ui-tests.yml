@@ -8,9 +8,8 @@ on:
   workflow_dispatch:
   push:
     branches:
-      - main
-      - develop
-      - main-hotfix
+      - version-15
+      - version-15-hotfix
     paths-ignore:
       - "**.md"
       - "lms/locale/**"
@@ -67,8 +66,9 @@ jobs:
           site: lms.test
           db-root-password: "123"
           build-assets: "true"
-          frappe-branch: version-16
-          payments-branch: version-16
+          frappe-branch: version-15
+          payments-branch: version-15
+          python-version: "3.11"
           site-config: >-
             {
               "allow_tests": true,

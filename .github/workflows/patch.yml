@@ -17,8 +17,8 @@ on:
   # key follows the runner image, so every push keeps it current.
   push:
     branches:
-      - develop
-      - main-hotfix
+      - version-15
+      - version-15-hotfix
 
 permissions:
   contents: read
