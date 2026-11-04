@@ -6,12 +6,8 @@ from frappe import _
 from frappe.model.document import Document
 from frappe.utils import cint, get_url_to_list, validate_email_address, validate_url
 
-<<<<<<< HEAD
-=======
 from lms.lms.doctype.course_lesson.course_lesson import COMPLETION_ITEMS
-from lms.lms.sidebar import validate_sidebar_items
 
->>>>>>> 71ec26e (feat: enforce passing or an attempt per completion item)
 
 class LMSSettings(Document):
 	def validate(self):
@@ -19,11 +15,7 @@ class LMSSettings(Document):
 		self.validate_signup()
 		self.validate_contact_us_details()
 		self.validate_lesson_dwell_time()
-<<<<<<< HEAD
-=======
 		self.validate_passing_needs_completion()
-		validate_sidebar_items(self)
->>>>>>> 71ec26e (feat: enforce passing or an attempt per completion item)
 
 	def validate_lesson_dwell_time(self):
 		if cint(self.lesson_dwell_time) < 1:

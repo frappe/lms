@@ -5,17 +5,6 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { flushPromises, mount, type VueWrapper } from '@vue/test-utils'
 import { defineComponent, h, reactive } from 'vue'
 
-<<<<<<< HEAD
-const { call, routerPush, pageMeta, collectOutputs, runner, documentCache } =
-	vi.hoisted(() => ({
-		documentCache: new Map<string, { reload: () => void }>(),
-		runner: { url: '' },
-		call: vi.fn(),
-		routerPush: vi.fn(),
-		pageMeta: vi.fn(),
-		collectOutputs: vi.fn(async () => ({ outputs: ['5'], elapsed: [0.1] })),
-	}))
-=======
 const {
 	call,
 	routerPush,
@@ -24,24 +13,17 @@ const {
 	runner,
 	documentCache,
 	saved,
-	toast,
 	markLessonProgress,
 } = vi.hoisted(() => ({
 	markLessonProgress: vi.fn(),
 	documentCache: new Map<string, { reload: () => void }>(),
-	// The rows the server's own run stored, which reload() hands back.
-	saved: {
-		rows: [] as Record<string, unknown>[],
-		doc: {} as Record<string, unknown>,
-	},
-	toast: { error: vi.fn(), success: vi.fn(), warning: vi.fn() },
+	saved: { doc: {} as Record<string, unknown> },
 	runner: { url: '' },
 	call: vi.fn(),
 	routerPush: vi.fn(),
 	pageMeta: vi.fn(),
 	collectOutputs: vi.fn(async () => ({ outputs: ['5'], elapsed: [0.1] })),
 }))
->>>>>>> ef1ea17 (feat: mark the lesson complete when its exercise passes)
 
 vi.mock('frappe-ui', () => ({
 	Badge: defineComponent({
@@ -73,6 +55,7 @@ vi.mock('frappe-ui', () => ({
 				status: 'Passed',
 				code: 'print(1)',
 				test_cases: [],
+				...saved.doc,
 			}
 		}
 		documentCache.set(options.name, resource)
@@ -188,6 +171,7 @@ const runCode = async (wrapper: VueWrapper) => {
 
 beforeEach(() => {
 	documentCache.clear()
+	saved.doc = {}
 	call.mockReset()
 	call.mockImplementation((method: string) => {
 		if (method === 'lms.lms.api.get_programming_exercise')
