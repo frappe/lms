@@ -1,15 +1,23 @@
 name: Create weekly release
+# Wednesdays open the version-16 release. version-15 releases only when a customer needs a fix:
+# run this workflow by hand and pick version-15.
 on:
   schedule:
     - cron: '30 3 * * 3'
   workflow_dispatch:
+    inputs:
+      version:
+        description: Release line
+        type: choice
+        options: [version-16, version-15]
+        default: version-16
 
 jobs:
   release:
     name: Release
     runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
+    env:
+      VERSION: ${{ inputs.version || 'version-16' }}
 
     steps:
       - uses: octokit/request-action@v2.x
@@ -18,9 +26,9 @@ jobs:
           owner: frappe
           repo: lms
           title: |-
-            "chore: merge 'main-hotfix' into 'main'"
+            "chore: merge '${{ env.VERSION }}-hotfix' into '${{ env.VERSION }}'"
           body: "Automated weekly release"
-          base: main
-          head: main-hotfix
+          base: ${{ env.VERSION }}
+          head: ${{ env.VERSION }}-hotfix
         env:
           GITHUB_TOKEN: ${{ secrets.RELEASE_TOKEN }}
