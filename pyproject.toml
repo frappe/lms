@@ -4,7 +4,7 @@ authors = [
     { name = "Frappe Technologies Pvt Ltd", email = "developers@frappe.io"}
 ]
 description = "Easy to use, open source, Learning Management System"
-requires-python = ">=3.10"
+requires-python = ">=3.10,<3.15"
 readme = "README.md"
 dynamic = ["version"]
 dependencies = [
@@ -69,7 +69,7 @@ indent-style = "tab"
 docstring-code-format = true
 
 [tool.bench.frappe-dependencies]
-frappe = ">=15.121.0,<17.0.0"
+frappe = ">=15.121.0,<16.0.0"
 payments = ">=0.0.1,<1.0.0"
 
 [tool.bench.assets]
