@@ -9,7 +9,7 @@ from unittest.mock import patch
 import frappe
 from bs4 import BeautifulSoup
 from frappe import _
-from frappe.tests import UnitTestCase
+from frappe.tests.utils import FrappeTestCase
 from jinja2 import ChoiceLoader, Environment, FileSystemLoader, PrefixLoader
 
 import lms
@@ -22,7 +22,7 @@ SIGNUP_FORM = "lms/templates/signup-form.html"
 RELEASED_LOGIN_HELPERS = {"login_handlers", "set_status", "show_field_error"}
 
 
-class TestSignupForm(UnitTestCase):
+class TestSignupForm(FrappeTestCase):
 	def patched_settings(self, lms_settings):
 		original = frappe.db.get_single_value
 

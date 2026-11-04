@@ -5,7 +5,7 @@ import io
 from unittest.mock import patch
 
 import frappe
-from frappe.tests import IntegrationTestCase
+from frappe.tests.utils import FrappeTestCase
 from pypdf import PdfWriter
 
 from lms.job.doctype.lms_job_application import lms_job_application
@@ -20,7 +20,7 @@ def blank_pdf():
 	return buffer.getvalue()
 
 
-class TestResumeAttachment(IntegrationTestCase):
+class TestResumeAttachment(FrappeTestCase):
 	def test_the_employer_gets_the_resume_bytes(self):
 		"""Version-16's File.get_content returned this PDF as str, so the employer's copy
 		was re-encoded as UTF-8 and would not open."""

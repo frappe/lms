@@ -2,16 +2,16 @@
 # See license.txt
 
 # import frappe
-from frappe.tests import IntegrationTestCase
+from frappe.tests.utils import FrappeTestCase
 
-# On IntegrationTestCase, the doctype test records and all
+# On FrappeTestCase, the doctype test records and all
 # link-field test record dependencies are recursively loaded
 # Use these module variables to add/remove to/from that list
 EXTRA_TEST_RECORD_DEPENDENCIES = []  # eg. ["User"]
 IGNORE_TEST_RECORD_DEPENDENCIES = []  # eg. ["User"]
 
 
-class IntegrationTestLMSLessonNote(IntegrationTestCase):
+class IntegrationTestLMSLessonNote(FrappeTestCase):
 	"""
 	Integration tests for LMSLessonNote.
 	Use this class for testing interactions between multiple components.

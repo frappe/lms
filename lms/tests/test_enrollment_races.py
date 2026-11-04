@@ -2,7 +2,7 @@ from contextlib import contextmanager
 from unittest.mock import patch
 
 import frappe
-from frappe.tests import UnitTestCase
+from frappe.tests.utils import FrappeTestCase
 
 from lms.lms.api import enroll_students_in_course
 from lms.lms.doctype.lms_batch_enrollment.lms_batch_enrollment import LMSBatchEnrollment
@@ -15,7 +15,7 @@ from lms.lms.test_helpers import BaseTestUtils
 from lms.lms.utils import enroll_in_course
 
 
-class TestEnrollmentUniqueIndexes(UnitTestCase):
+class TestEnrollmentUniqueIndexes(FrappeTestCase):
 	"""add_unique/sql_ddl commit, which would collapse BaseTestUtils' per-test
 	savepoint, so these three schema-only checks run outside it entirely."""
 

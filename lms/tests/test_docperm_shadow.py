@@ -5,7 +5,7 @@ import io
 from contextlib import redirect_stdout
 
 import frappe
-from frappe.tests import IntegrationTestCase
+from frappe.tests.utils import FrappeTestCase
 
 from lms.lms.docperm_shadow import (
 	LMS_MANAGED_CUSTOM_DOCPERM_DOCTYPES,
@@ -16,7 +16,7 @@ from lms.lms.docperm_shadow import (
 ALERT_TITLE_FRAGMENT = "Custom DocPerm"
 
 
-class TestDocPermShadow(IntegrationTestCase):
+class TestDocPermShadow(FrappeTestCase):
 	"""A Custom DocPerm row replaces a doctype's shipped permissions wholesale
 	(frappe.model.meta.Meta.set_custom_permissions), so a shipped permlevel > 0 row
 	stops applying with no error and no log line. These pin what the migrate-time
@@ -29,7 +29,7 @@ class TestDocPermShadow(IntegrationTestCase):
 		self.touched_doctypes: set[str] = set()
 
 	def tearDown(self):
-		# IntegrationTestCase rolls the transaction back once per class, not per test,
+		# FrappeTestCase rolls the transaction back once per class, not per test,
 		# so a DocPerm row moved here is still moved when the next test reads it.
 		# Restore the shared rows by hand, newest first.
 		for name, permlevel in reversed(self.moved_permlevels):

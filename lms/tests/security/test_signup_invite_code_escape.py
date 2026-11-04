@@ -1,13 +1,13 @@
 import frappe
 from bs4 import BeautifulSoup
-from frappe.tests import IntegrationTestCase
+from frappe.tests.utils import FrappeTestCase
 from frappe.utils import set_request
 from frappe.website.serve import get_response
 
 PAYLOAD = '"><script>alert(1)</script>'
 
 
-class TestSignupInviteCodeEscape(IntegrationTestCase):
+class TestSignupInviteCodeEscape(FrappeTestCase):
 	def setUp(self):
 		self.addCleanup(frappe.set_user, frappe.session.user)
 		frappe.set_user("Guest")

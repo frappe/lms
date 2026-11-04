@@ -9,7 +9,7 @@ from pathlib import Path
 from unittest.mock import patch
 
 import frappe
-from frappe.tests import UnitTestCase
+from frappe.tests.utils import FrappeTestCase
 from frappe.utils import escape_html, get_system_timezone, getdate, to_timedelta
 
 import lms
@@ -427,7 +427,7 @@ class TestGetLessonIcon(unittest.TestCase):
 				self.assertEqual(get_lesson_icon("", _content(block)), "icon-list")
 
 
-class TestResolvePageLength(UnitTestCase):
+class TestResolvePageLength(FrappeTestCase):
 	"""
 	`createListResource` sends `limit_page_length` and then advances `start` by
 	the same number. An endpoint that ignores it returns a page of a different
@@ -624,7 +624,7 @@ class TestListEndpointPaging(BaseTestUtils):
 			frappe.db.set_single_value("LMS Settings", "allow_guest_access", 1)
 
 
-class TestFormatTimezone(UnitTestCase):
+class TestFormatTimezone(FrappeTestCase):
 	def test_iana_zone_gains_its_offset(self):
 		self.assertEqual(format_timezone("Asia/Kolkata", "2026-08-03"), "Asia/Kolkata (GMT+5:30)")
 
@@ -647,7 +647,7 @@ class TestFormatTimezone(UnitTestCase):
 
 
 @patch("lms.lms.utils.get_system_timezone", return_value="Asia/Kolkata")
-class TestConvertFromSystemTimezone(UnitTestCase):
+class TestConvertFromSystemTimezone(FrappeTestCase):
 	def test_converts_the_wall_clock(self, _system_timezone):
 		date, time = convert_from_system_timezone("2026-08-03", "10:00:00", "Europe/Berlin")
 		self.assertEqual(date, getdate("2026-08-03"))

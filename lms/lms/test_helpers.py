@@ -4,7 +4,7 @@ from unittest.mock import patch
 
 import frappe
 from frappe.cache_manager import user_cache_keys
-from frappe.tests import IntegrationTestCase
+from frappe.tests.utils import FrappeTestCase
 from frappe.utils import add_days, nowdate
 from frappe.utils.html_utils import sanitize_html
 
@@ -45,7 +45,7 @@ def released_frappe_sanitizer():
 		yield
 
 
-class BaseTestUtils(IntegrationTestCase):
+class BaseTestUtils(FrappeTestCase):
 	"""
 	Base class with helper methods for creating test data.
 	Subclasses should call super().setUp() and super().tearDown().

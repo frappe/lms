@@ -3,7 +3,6 @@ import sys
 import types
 
 import frappe
-from frappe.tests import UnitTestCase
 from frappe.tests.utils import FrappeTestCase
 
 from lms import raven_provider
@@ -26,12 +25,12 @@ def _minimal_course():
 	).insert()
 
 
-class TestOptionalRavenIntegrationImport(UnitTestCase):
+class TestOptionalRavenIntegrationImport(FrappeTestCase):
 	"""lms.raven_provider must import on a bench without the optional raven_integration app.
 
 	Regression: a module-scope `from raven_integration.exceptions import ProviderDataError`
 	made every test module that touches the provider error out on import. Schema-free, so
-	UnitTestCase (IntegrationTestCase's record loader trips the Fiscal Year flake).
+	FrappeTestCase (FrappeTestCase's record loader trips the Fiscal Year flake).
 	"""
 
 	def test_imports_without_raven_integration(self):
@@ -382,11 +381,11 @@ class TestPaymentFilter(FrappeTestCase):
 			self.assertIn(user.name, matched)
 
 
-class TestBatchEnrollmentIndex(UnitTestCase):
+class TestBatchEnrollmentIndex(FrappeTestCase):
 	"""The (batch, member) index that TestRulePerformance's 200ms budget depends on.
 
-	Added by lms.patches.v2_0.add_batch_enrollment_index. Schema-only, so UnitTestCase.
-	IntegrationTestCase's test-record loader trips the Fiscal Year overlap flake here.
+	Added by lms.patches.v2_0.add_batch_enrollment_index. Schema-only, so FrappeTestCase.
+	FrappeTestCase's test-record loader trips the Fiscal Year overlap flake here.
 	"""
 
 	def test_batch_member_index_exists(self):
@@ -888,7 +887,7 @@ class TestStaffScopedToABatch(FrappeTestCase):
 		self.assertEqual(members, {self.instructor.name, "Administrator"})
 
 
-class TestTriggersFireAtAll(UnitTestCase):
+class TestTriggersFireAtAll(FrappeTestCase):
 	"""Every declared trigger must be a doctype whose save runs doc_events.
 
 	raven_integration dispatches from a wildcard doc_events handler, which frappe
@@ -918,11 +917,11 @@ class TestTriggersFireAtAll(UnitTestCase):
 			self.assertIn(parent, TRIGGERS)
 
 
-class TestGetRavenSetup(UnitTestCase):
+class TestGetRavenSetup(FrappeTestCase):
 	"""Settings > Raven asks LMS, not raven_integration, whether raven_integration is
 	there. A method of an uninstalled app raises AppNotInstalledError, and the panel
 	that exists to say "install it" cannot render off an exception. Schema-free, so
-	UnitTestCase.
+	FrappeTestCase.
 	"""
 
 	def setUp(self):

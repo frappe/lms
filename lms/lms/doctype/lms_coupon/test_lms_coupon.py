@@ -2,18 +2,18 @@
 # See license.txt
 
 import frappe
-from frappe.tests import IntegrationTestCase, UnitTestCase
+from frappe.tests.utils import FrappeTestCase
 
 from lms.lms.utils import apply_coupon, calculate_discount_amount
 
-# On IntegrationTestCase, the doctype test records and all
+# On FrappeTestCase, the doctype test records and all
 # link-field test record dependencies are recursively loaded
 # Use these module variables to add/remove to/from that list
 EXTRA_TEST_RECORD_DEPENDENCIES = []  # eg. ["User"]
 IGNORE_TEST_RECORD_DEPENDENCIES = []  # eg. ["User"]
 
 
-class UnitTestLMSCoupon(UnitTestCase):
+class UnitTestLMSCoupon(FrappeTestCase):
 	"""
 	Unit tests for coupon discount calculation.
 	"""
@@ -43,7 +43,7 @@ class UnitTestLMSCoupon(UnitTestCase):
 		self.assertEqual(calculate_discount_amount(1000, coupon), 250)
 
 
-class IntegrationTestLMSCoupon(IntegrationTestCase):
+class IntegrationTestLMSCoupon(FrappeTestCase):
 	"""
 	Integration tests for LMSCoupon.
 	Use this class for testing interactions between multiple components.
