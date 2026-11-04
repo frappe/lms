@@ -1,6 +1,6 @@
-import { flushPromises, mount } from '@vue/test-utils'
+import { config, flushPromises, mount } from '@vue/test-utils'
 import type { VueWrapper } from '@vue/test-utils'
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import Quiz from '@/components/Quiz.vue'
 
@@ -174,6 +174,19 @@ const quizResponse = () => ({
 			is_correct_1: 1,
 		},
 	},
+})
+
+// Unmounts whatever a test left mounted: a live quiz keeps its pagehide listener
+// and would send a beacon during a later test.
+const roots: VueWrapper[] = []
+config.plugins.VueWrapper.install((wrapper) => {
+	if ((wrapper as unknown as { __app: unknown }).__app) roots.push(wrapper)
+	return {}
+})
+afterEach(() => {
+	for (const wrapper of roots.splice(0)) {
+		if (!wrapper.vm?.$.isUnmounted) wrapper.unmount()
+	}
 })
 
 let mountedQuizzes = 0
