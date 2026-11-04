@@ -10,6 +10,8 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
+      matrix:
+        version: [version-15, version-16]
 
     steps:
       - uses: octokit/request-action@v2.x
@@ -18,9 +20,9 @@ jobs:
           owner: frappe
           repo: lms
           title: |-
-            "chore: merge 'main-hotfix' into 'main'"
+            "chore: merge '${{ matrix.version }}-hotfix' into '${{ matrix.version }}'"
           body: "Automated weekly release"
-          base: main
-          head: main-hotfix
+          base: ${{ matrix.version }}
+          head: ${{ matrix.version }}-hotfix
         env:
           GITHUB_TOKEN: ${{ secrets.RELEASE_TOKEN }}
