@@ -500,11 +500,8 @@
 									<Button
 										v-else-if="!preview"
 										variant="solid"
-<<<<<<< HEAD
-=======
 										:loading="isSubmitting"
 										:disabled="isSubmitting"
->>>>>>> 81426fe (fix(quiz): don't lose a submit pending when the page closes)
 										@click="handleSubmitClick()"
 									>
 										<span>{{ __('Submit') }}</span>
@@ -1018,9 +1015,6 @@ const handlePageHide = (): void => {
 // would die with the page: the beacon takes it over, with its reason.
 const sendSubmitBeacon = (reason: SubmissionReason): void => {
 	if (props.preview) return
-<<<<<<< HEAD
-	if (activeQuestion.value > 0 && !quizSubmission.data && quiz.data) {
-=======
 	if (submitTimeout) {
 		clearTimeout(submitTimeout)
 		submitTimeout = undefined
@@ -1032,7 +1026,6 @@ const sendSubmitBeacon = (reason: SubmissionReason): void => {
 		!quizSubmission.data &&
 		quiz.data
 	) {
->>>>>>> 81426fe (fix(quiz): don't lose a submit pending when the page closes)
 		const params = new URLSearchParams({
 			quiz: quiz.data.name,
 			results: localStorage.getItem(quiz.data.title) || '[]',
