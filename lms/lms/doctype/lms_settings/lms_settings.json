@@ -556,6 +556,7 @@
 			"default": "0",
 			"fieldname": "enforce_programming_exercise_completion",
 			"fieldtype": "Check",
+			"hidden": 1,
 			"label": "Enforce Programming Exercise Completion"
 		},
 		{
@@ -580,6 +581,7 @@
 			"default": "0",
 			"fieldname": "enforce_programming_exercise_passing",
 			"fieldtype": "Check",
+			"hidden": 1,
 			"label": "Enforce Programming Exercise Passing"
 		}
 	],
