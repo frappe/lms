@@ -260,12 +260,14 @@ export function useSettingsMethodResource<TRow = Record<string, any>>(
 	// and a superseded response is dropped, so the newer one owns the offset.
 	let requestToken = 0
 
-	// A failed page changes nothing, so the rows on screen and Load More both
-	// stay as they were for the user to retry.
+	// A failed page changes nothing, so the rows on screen stay for the user to
+	// retry. A first page belongs to a new search, so the old offset cannot
+	// continue it: Load More stays off until that page lands.
 	const fetchPage = async (offset = start.value): Promise<void> => {
 		const token = ++requestToken
 		loading.value = true
 		requestStart.value = offset
+		if (offset === 0) hasNextPage.value = false
 		let data: TRow[] | null = null
 		try {
 			data = await resource.reload()
@@ -296,7 +298,8 @@ export function useSettingsMethodResource<TRow = Record<string, any>>(
 		rows,
 		loading,
 		hasNextPage,
-		loadMore: () => fetchPage(),
+		// A second click while a page loads would ask for the same offset again.
+		loadMore: () => (loading.value ? Promise.resolve() : fetchPage()),
 		reload,
 	}) as SettingsListView<TRow>
 
