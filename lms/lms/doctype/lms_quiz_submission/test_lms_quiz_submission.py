@@ -29,6 +29,25 @@ class TestSetPercentage(unittest.TestCase):
 		self.assertEqual(self.percentage(0, 4), 0)
 
 
+class TestValidateMarks(unittest.TestCase):
+	def submission(self, marks, percentage=0):
+		rows = [SimpleNamespace(idx=i, marks=m, marks_out_of=1) for i, m in enumerate(marks, 1)]
+		return SimpleNamespace(result=rows, score=None, score_out_of=len(rows), percentage=percentage)
+
+	def test_score_is_the_sum_of_the_marks(self):
+		submission = self.submission([1, -1, 1])
+		LMSQuizSubmission.validate_marks(submission)
+		self.assertEqual(submission.score, 1)
+
+	def test_negative_marking_never_takes_the_score_below_zero(self):
+		# Regression: negative marking showed a "-3 / 4" score (#3022, fixed in #3043).
+		# Re-marking a saved submission must also reset its old percentage.
+		submission = self.submission([1, -1, -1, -1, -1], percentage=80)
+		LMSQuizSubmission.validate_marks(submission)
+		LMSQuizSubmission.set_percentage(submission)
+		self.assertEqual((submission.score, submission.percentage), (0, 0))
+
+
 class TestQuizResultSanitization(BaseTestUtils):
 	"""Ticket 68647 finding 3. An open-ended answer is stored as the learner typed it.
 
@@ -133,3 +152,77 @@ class TestQuizResultSanitization(BaseTestUtils):
 		stored = self._stored_row(doc).question
 		self.assertNotIn("onerror", stored)
 		self.assertIn("<img", stored)
+
+
+class TestQuizSubmissionQuestions(BaseTestUtils):
+	"""Ticket 79939: repeated or foreign result rows were each scored, so the total could
+	pass score_out_of. Tests added with the fix; every path that inserts is covered."""
+
+	@classmethod
+	def setUpClass(cls):
+		super().setUpClass()
+		cls.questions = cls._create_quiz_questions()
+		cls.quiz = cls._make_quiz(cls.questions[:2])
+		cls.limited_quiz = cls._make_quiz(cls.questions, shuffle_questions=1, limit_questions_to=2)
+
+	@classmethod
+	def _make_quiz(cls, questions, **settings):
+		quiz = frappe.new_doc("LMS Quiz")
+		quiz.update(
+			{"title": f"Question Rows Quiz {frappe.generate_hash(length=6)}", "passing_percentage": 70}
+		)
+		quiz.update(settings)
+		for question in questions:
+			quiz.append("questions", {"question": question.name, "marks": 5})
+		quiz.save()
+		return quiz
+
+	def _insert(self, quiz, questions):
+		doc = frappe.new_doc("LMS Quiz Submission")
+		doc.update(
+			{
+				"quiz": quiz.name,
+				"member": "Administrator",
+				"score_out_of": quiz.total_marks,
+				"passing_percentage": 70,
+			}
+		)
+		for question in questions:
+			doc.append(
+				"result",
+				{
+					"question_name": question.name,
+					"question_type": "Choices",
+					"answer": "Option 1",
+					"is_correct": 1,
+					"marks": 5,
+					"marks_out_of": 5,
+				},
+			)
+		return doc.insert()
+
+	def test_one_row_per_question_is_accepted(self):
+		self.assertEqual(self._insert(self.quiz, self.questions[:2]).percentage, 100)
+
+	def test_a_question_answered_twice_is_rejected(self):
+		with self.assertRaises(frappe.ValidationError):
+			self._insert(self.quiz, [self.questions[0], self.questions[0]])
+
+	def test_a_question_outside_the_quiz_is_rejected(self):
+		with self.assertRaises(frappe.ValidationError):
+			self._insert(self.quiz, [self.questions[0], self.questions[2]])
+
+	def test_more_rows_than_the_attempt_shows_are_rejected(self):
+		self.assertEqual(self._insert(self.limited_quiz, self.questions[:2]).percentage, 100)
+		with self.assertRaises(frappe.ValidationError):
+			self._insert(self.limited_quiz, self.questions)
+
+	def test_a_graded_submission_saves_after_its_question_leaves_the_quiz(self):
+		quiz = self._make_quiz(self.questions[:2])
+		doc = self._insert(quiz, self.questions[:2])
+		quiz.questions = quiz.questions[:1]
+		quiz.save()
+
+		doc.result[1].marks = 3
+		doc.save()
+		self.assertEqual(doc.score, 8)

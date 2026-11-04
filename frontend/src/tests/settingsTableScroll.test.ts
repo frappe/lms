@@ -32,7 +32,8 @@ vi.mock('frappe-ui/list', () => ({
 		template: `<div><template v-for="item in items" :key="item.name"><slot :item="item" /></template></div>`,
 	},
 	ListRow: {
-		template: `<div data-testid="row" v-bind="$attrs" @click="$emit('click')"><slot /></div>`,
+		props: ['onClick'],
+		template: `<div data-testid="row" @click="onClick?.($event)"><slot /></div>`,
 	},
 	ListCell: { template: `<div><slot /></div>` },
 }))
@@ -41,7 +42,7 @@ const translate = (text: string) => text
 
 vi.stubGlobal('__', translate)
 
-import SettingsTable from '@/components/Layouts/settings/desktop/SettingsTable.vue'
+import SettingsTable from '@/components/Layouts/SettingsTable.vue'
 
 const columns: SettingsListColumn[] = [
 	{
@@ -67,10 +68,20 @@ describe('SettingsTable: the scrolling window', () => {
 	it('opens a window of exactly the rows asked for, plus the header', () => {
 		// The header shares the scroll box, so it has to be paid for or the
 		// window comes up a row short of what the caller asked for. `2rem` is
-		// frappe-ui's own ListHeader height (`h-8`).
+		// frappe-ui's own ListHeader height (`h-8`). jsdom's cssstyle folds the
+		// `56px * 9` product itself, so the value that round-trips is `504px`.
 		expect(scroller(build({ visibleRows: 9 })).style.maxHeight).toBe(
-			'calc(var(--list-row-height) * 9 + 2rem)'
+			'calc(504px + 2rem)'
 		)
+	})
+
+	it('feeds List the same row height the ceiling is built from', () => {
+		// v1 List sizes rows to content unless given `:row-height` — the ceiling
+		// above and this prop must read one shared number, or they drift apart
+		// the way `--list-row-height` (a var nothing in v1 List reads) and a
+		// prop-less <List> silently did.
+		const list = build({ visibleRows: 9 }).get('[data-testid="list"]')
+		expect(list.attributes('row-height')).toBe('56')
 	})
 
 	it('caps nothing unless a page asks it to', () => {
@@ -80,11 +91,12 @@ describe('SettingsTable: the scrolling window', () => {
 		expect(scroller(build()).style.maxHeight).toBe('')
 	})
 
-	it('keeps Load More inside the window but outside the table', () => {
-		// Inside the window: it's the row after the last row, so under a capped
-		// scroller it must stay above the fold. Outside the table: `List` is a
-		// `role="table"`, which re-parents any button inside it onto the table
-		// regardless of wrapper. The scroller being the outer element allows both.
+	it('leaves Load More outside the table', () => {
+		// Two reasons, either sufficient. `List` is a `role="table"`, which owns
+		// only rows and rowgroups, the scroller being `role="presentation"` does
+		// not launder a button placed inside it, it re-parents it onto the table.
+		// And under `visibleRows` an inside button sits below the fold: the page
+		// fetches 13 rows, the tabs show 9.
 		const wrapper = build({ visibleRows: 9, hasNextPage: true })
 		const button = '[data-testid="load-more"]'
 
@@ -92,7 +104,6 @@ describe('SettingsTable: the scrolling window', () => {
 		expect(wrapper.get('[data-testid="list"]').find(button).exists()).toBe(
 			false
 		)
-		expect(scroller(wrapper).contains(wrapper.get(button).element)).toBe(true)
 	})
 
 	it('emits loadMore from there all the same', async () => {

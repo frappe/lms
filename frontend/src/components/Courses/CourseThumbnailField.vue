@@ -6,82 +6,87 @@
 	>
 		<InputLabel :id="thumbnailLabelId" :label="__('Course thumbnail')" />
 
-		<div class="flex flex-col gap-4 sm:flex-row sm:items-start">
+		<div v-if="hasImage" class="flex flex-col gap-4 sm:flex-row sm:items-start">
 			<div
-				class="relative aspect-[750/422] w-full shrink-0 grid place-items-center overflow-hidden rounded-lg border border-outline-gray-2 bg-surface-gray-2 sm:w-56"
-				:style="
-					!hasImage && doc?.card_gradient
-						? { backgroundColor: wellColor }
-						: undefined
-				"
+				class="relative aspect-[750/422] w-full shrink-0 grid place-items-center overflow-hidden rounded-6 border border-outline-gray-2 bg-surface-gray-2 sm:w-56"
 			>
-				<img
-					v-if="hasImage"
-					:src="safeUrl(doc.image)"
-					alt=""
-					class="size-full object-cover"
-				/>
-				<button
-					v-else
-					type="button"
-					class="grid size-full place-items-center transition hover:opacity-95 focus-visible:-outline-offset-2"
-					:aria-label="__('Upload a course thumbnail image')"
-					@click="openFilePicker"
-				>
-					<span
-						v-if="!doc?.card_gradient"
-						class="flex flex-col items-center gap-1 text-ink-gray-5"
-					>
-						<span class="lucide-image size-5" aria-hidden="true" />
-						<span class="text-xs">{{ __('No thumbnail') }}</span>
-					</span>
-				</button>
+				<img :src="safeUrl(doc.image)" alt="" class="size-full object-cover" />
 			</div>
 
 			<div class="min-w-0 space-y-3 sm:flex-1">
-				<template v-if="hasImage">
-					<div class="space-y-0.5 text-sm">
-						<div class="text-ink-gray-9 font-medium break-all leading-5">
-							{{ filename }}
-							<span class="ms-2 text-ink-gray-5 font-normal">
-								{{ metaLabel }}
-							</span>
-						</div>
+				<div class="space-y-0.5 text-sm">
+					<div class="text-ink-gray-9 font-medium break-all leading-5">
+						{{ filename }}
+						<span class="ms-2 text-ink-gray-5 font-normal">
+							{{ metaLabel }}
+						</span>
 					</div>
-					<div class="flex items-center gap-2">
-						<FileUploader
-							ref="uploaderRef"
-							:fileTypes="['.jpg,.jpeg,.gif,.png']"
-							:uploadArgs="{ private: false }"
-							@success="(file) => onUploaded(file.file_url)"
-							@failure="onUploadFailure"
-						>
-							<template #default="{ openFileSelector, uploading }">
-								<Button
-									class="text-p-base-medium"
-									:loading="uploading"
-									@click="openFileSelector"
-								>
-									<template #prefix>
-										<span class="lucide-upload size-4" />
-									</template>
-									{{ uploading ? __('Uploading') : __('Replace') }}
-								</Button>
-							</template>
-						</FileUploader>
-						<Button variant="ghost" theme="red" @click="removeImage">
-							<template #prefix>
-								<span class="lucide-trash-2 size-4" />
-							</template>
-							{{ __('Remove') }}
-						</Button>
-					</div>
-					<p class="text-p-xs text-ink-gray-5">
-						{{ __('Remove the image to pick a color instead.') }}
-					</p>
-				</template>
+				</div>
+				<div class="flex items-center gap-2">
+					<FileUploader
+						:fileTypes="['.jpg,.jpeg,.gif,.png']"
+						:private="false"
+						@success="(file) => onUploaded(file.file_url)"
+						@failure="onUploadFailure"
+					>
+						<template #default="{ openFileSelector, uploading }">
+							<Button
+								class="text-p-base-medium"
+								:loading="uploading"
+								@click="openFileSelector"
+							>
+								<template #prefix>
+									<span class="lucide-upload size-4" />
+								</template>
+								{{ uploading ? __('Uploading') : __('Replace') }}
+							</Button>
+						</template>
+					</FileUploader>
+					<Button variant="ghost" theme="red" @click="removeImage">
+						<template #prefix>
+							<span class="lucide-trash-2 size-4" />
+						</template>
+						{{ __('Remove') }}
+					</Button>
+				</div>
+				<p class="text-p-xs text-ink-gray-5">
+					{{ __('Remove the image to pick a color instead.') }}
+				</p>
+			</div>
+		</div>
 
-				<template v-else>
+		<FileUploader
+			v-else
+			class="flex flex-col gap-4 sm:flex-row sm:items-start"
+			:fileTypes="['.jpg,.jpeg,.gif,.png']"
+			:private="false"
+			@success="(file) => onUploaded(file.file_url)"
+			@failure="onUploadFailure"
+		>
+			<template #default="{ openFileSelector, uploading }">
+				<div
+					class="relative aspect-[750/422] w-full shrink-0 grid place-items-center overflow-hidden rounded-6 border border-outline-gray-2 bg-surface-gray-2 sm:w-56"
+					:style="
+						doc?.card_gradient ? { backgroundColor: wellColor } : undefined
+					"
+				>
+					<button
+						type="button"
+						class="grid size-full place-items-center transition hover:opacity-95 focus-visible:-outline-offset-2"
+						:aria-label="__('Upload a course thumbnail image')"
+						@click="openFileSelector"
+					>
+						<span
+							v-if="!doc?.card_gradient"
+							class="flex flex-col items-center gap-1 text-ink-gray-5"
+						>
+							<span class="lucide-image size-5" aria-hidden="true" />
+							<span class="text-xs">{{ __('No thumbnail') }}</span>
+						</span>
+					</button>
+				</div>
+
+				<div class="min-w-0 space-y-3 sm:flex-1">
 					<div class="space-y-2">
 						<div class="text-xs text-ink-gray-5">
 							{{ __('Color') }}
@@ -91,50 +96,46 @@
 								v-for="c in colors"
 								:key="c"
 								type="button"
-								class="size-8 rounded-md border border-outline-gray-2 transition"
+								class="size-8 rounded-5 border border-outline-gray-2 transition"
 								:class="
 									doc?.card_gradient === c
 										? 'ring-2 ring-offset-2 ring-outline-gray-4'
 										: 'hover:scale-105'
 								"
-								:style="{ backgroundColor: `var(--${c.toLowerCase()}-400)` }"
+								:style="{ backgroundColor: cardColor(c) }"
 								:aria-label="c"
 								@click="pickColor(c)"
 							/>
 						</div>
 					</div>
 					<div class="flex flex-col items-start gap-1.5">
-						<FileUploader
-							ref="uploaderRef"
-							:fileTypes="['.jpg,.jpeg,.gif,.png']"
-							:uploadArgs="{ private: false }"
-							@success="(file) => onUploaded(file.file_url)"
-							@failure="onUploadFailure"
-						>
-							<template #default="{ openFileSelector, uploading }">
-								<Button :loading="uploading" @click="openFileSelector">
-									<template #prefix>
-										<span class="lucide-upload size-4" />
-									</template>
-									{{ uploading ? __('Uploading') : __('Upload image instead') }}
-								</Button>
+						<Button :loading="uploading" @click="openFileSelector">
+							<template #prefix>
+								<span class="lucide-upload size-4" />
 							</template>
-						</FileUploader>
+							{{ uploading ? __('Uploading') : __('Upload image instead') }}
+						</Button>
 						<p class="text-p-xs text-ink-gray-5">
 							{{ __('Upload an image to replace the color.') }}
 						</p>
 					</div>
-				</template>
-			</div>
-		</div>
+				</div>
+			</template>
+		</FileUploader>
 	</div>
 </template>
 
 <script setup lang="ts">
-import { Button, FileUploader, createResource, toast } from 'frappe-ui'
+import {
+	Button,
+	FileUploader,
+	UploadError,
+	createResource,
+	toast,
+} from 'frappe-ui'
 import { computed, inject, ref, useId, watch } from 'vue'
 import type { CourseFormContext, Resource } from '@/types'
-import { InputLabel } from '@/components/Form/labeling'
+import { InputLabel } from 'frappe-ui/experimental'
 import { safeUrl } from '@/utils/safeUrl'
 
 // Layout mirrors VideoPreviewField (the sibling field in the same form row):
@@ -162,10 +163,12 @@ const colors = [
 
 const hasImage = computed<boolean>(() => Boolean(doc.value?.image))
 
+// token-exempt: previews CourseCard's gradient, which keeps the raw ramp in both themes.
+const cardColor = (c: string): string => `var(--${c.toLowerCase()}-400)`
+
 const wellColor = computed<string>(() => {
 	const c = doc.value?.card_gradient
-	if (!c) return ''
-	return `var(--${String(c).toLowerCase()}-400)`
+	return c ? cardColor(String(c)) : ''
 })
 
 const filename = computed<string>(() => {
@@ -223,18 +226,6 @@ const metaLabel = computed<string>(() => {
 	return parts.join(' · ')
 })
 
-const uploaderRef = ref<{ inputRef: () => HTMLInputElement | null } | null>(
-	null
-)
-
-// Only the empty well is clickable, and only to add an image. It used to also
-// delete the thumbnail when one was set, which gave a control named after the
-// image a destructive action — worse now that the well spans the viewport on a
-// phone. Removing stays with the labelled Remove button.
-function openFilePicker() {
-	uploaderRef.value?.inputRef?.()?.click?.()
-}
-
 function onUploaded(url: string) {
 	if (!doc.value) return
 	doc.value.image = url
@@ -253,15 +244,11 @@ function pickColor(c: string) {
 	markDirty()
 }
 
-function onUploadFailure(error: any) {
-	let message = __('Error uploading file')
-	if (error?._server_messages) {
-		try {
-			message = JSON.parse(JSON.parse(error._server_messages)[0]).message
-		} catch {
-			/* fall through */
-		}
-	}
+function onUploadFailure(error: unknown) {
+	const message =
+		error instanceof UploadError
+			? error.messages[0] || error.message
+			: __('Error uploading file')
 	toast.error(message)
 }
 </script>

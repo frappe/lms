@@ -15,7 +15,7 @@
 								streakInfo.data?.current_streak || 0
 							)
 						"
-						class="bg-surface-amber-2 px-2 py-1 rounded-md cursor-pointer"
+						class="bg-surface-amber-2 px-2 py-1 rounded-5 cursor-pointer"
 					>
 						<span> 🔥 </span>
 						<span class="text-ink-gray-9">

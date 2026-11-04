@@ -62,7 +62,7 @@ vi.mock('@/stores/mobileNavLinks', () => ({
 	sidebarLinks,
 }))
 
-import MobileLayout from '@/components/Layouts/pages/mobile/MobileLayout.vue'
+import MobileLayout from '@/components/Layouts/MobileLayout.vue'
 
 const Blank = defineComponent({ render: () => h('div') })
 

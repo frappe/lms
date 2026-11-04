@@ -1,14 +1,43 @@
 <template>
 	<div class="mt-7 mb-20">
-		<div class="flex h-dvh flex-col overflow-hidden">
+		<div
+			v-if="loadError"
+			class="rounded-6 border border-outline-gray-2"
+			data-testid="schedule-error"
+		>
+			<EmptyStateLayout
+				:name="__('Evaluations')"
+				icon="lucide-calendar-x-2"
+				width="lg"
+				:title="__('Could not load evaluations')"
+				:description="__('The request did not get through. Try again.')"
+			>
+				<Button
+					variant="subtle"
+					:loading="evaluations.list?.loading"
+					@click="retryLoad"
+				>
+					<span class="text-p-base">{{ __('Retry') }}</span>
+				</Button>
+			</EmptyStateLayout>
+		</div>
+		<div
+			v-else-if="evaluations.list?.fetched && !evaluations.data?.length"
+			class="rounded-6 border border-outline-gray-2"
+			data-testid="empty-schedule"
+		>
+			<EmptyStateLayout
+				:name="__('Evaluations')"
+				icon="lucide-calendar-check"
+				width="lg"
+				:title="__('No evaluations yet')"
+				:description="emptyDescription"
+			/>
+		</div>
+		<div v-else class="flex h-dvh flex-col overflow-hidden">
 			<Calendar
 				v-if="evaluations.data?.length"
-				:config="{
-					defaultMode: 'Week',
-					disableModes: ['Day', 'Week'],
-					redundantCellHeight: 100,
-					enableShortcuts: false,
-				}"
+				:config="calendarConfig"
 				:events="evaluations.data"
 				@click="(event) => openEvent(event)"
 			>
@@ -21,14 +50,12 @@
 							<Button
 								@click="decrement()"
 								variant="ghost"
-								class="h-4 w-4"
 								icon="lucide-chevron-left"
 								:label="__('Previous')"
 							/>
 							<Button
 								@click="increment()"
 								variant="ghost"
-								class="h-4 w-4"
 								icon="lucide-chevron-right"
 								:label="__('Next')"
 							/>
@@ -41,9 +68,14 @@
 	<Event v-model="showEvent" :event="currentEvent" />
 </template>
 <script setup>
-import { Calendar, createListResource, Button } from 'frappe-ui'
-import { inject, ref } from 'vue'
+import { createListResource, Button } from 'frappe-ui'
+import { Calendar } from 'frappe-ui/experimental'
+import { computed, inject, ref } from 'vue'
 import Event from '@/components/Modals/Event.vue'
+import EmptyStateLayout from '@/components/Layouts/EmptyStateLayout.vue'
+
+// #header hides the view switcher, so m/w/d would leave Week with no way back.
+const calendarConfig = { defaultMode: 'Week', enableShortcuts: false }
 
 const user = inject('$user')
 const currentEvent = ref(null)
@@ -100,6 +132,19 @@ const evaluations = createListResource({
 		})
 	},
 })
+
+// Cached rows still beat an error, so only an empty failed load shows one.
+const loadError = computed(
+	() => Boolean(evaluations.list?.error) && !evaluations.data?.length
+)
+// The error state already shows the failure.
+const retryLoad = () => evaluations.reload().catch(() => {})
+
+const emptyDescription = computed(() =>
+	props.profile.data?.name === user.data?.name
+		? __('Evaluations students book with you will show up here.')
+		: __('Evaluations students book with this evaluator will show up here.')
+)
 
 const openEvent = (event) => {
 	currentEvent.value = event.calendarEvent

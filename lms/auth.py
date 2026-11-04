@@ -14,6 +14,11 @@ ALLOWED_PATHS = [
 	"/api/method/frappe.integrations.oauth2.authorize",
 	"/api/method/frappe.integrations.oauth2.approve",
 	"/api/method/frappe.integrations.oauth2.get_token",
+	# OAuth clients such as frappectl register themselves before the browser sign-in and
+	# revoke their token on logout. Frappe gates registration behind OAuth Settings and
+	# rate-limits it, so allowing the path here adds nothing a site has not turned on.
+	"/api/method/frappe.integrations.oauth2.register_client",
+	"/api/method/frappe.integrations.oauth2.revoke_token",
 	"/api/method/frappe.www.login.login_via_google",
 	"/api/method/frappe.www.login.login_via_github",
 	"/api/method/frappe.www.login.login_via_facebook",
@@ -61,7 +66,7 @@ def authenticate():
 	if frappe.form_dict.cmd:
 		path = f"/api/method/{frappe.form_dict.cmd}"
 	else:
-		path = frappe.request.path
+		path = api_v1_path(frappe.request.path)
 
 	user_type = frappe.db.get_value("User", frappe.session.user, "user_type")
 	if user_type == "System User":
@@ -82,6 +87,18 @@ def authenticate():
 	if path in ALLOWED_PATHS:
 		return
 	frappe.throw(f"Access not allowed for this URL: {path}", frappe.PermissionError)
+
+
+def api_v1_path(path):
+	"""/api/v2/method/<m> as /api/method/<m>, so v2 calls (frappectl uses them) get v1's rules.
+
+	v2 serves the same whitelisted methods, so a method allowed or refused on v1 is
+	allowed or refused on v2. v2 document routes are left as they are, refused like
+	/api/resource."""
+	for prefix in ("/api/v1/method/", "/api/v2/method/"):
+		if path.startswith(prefix):
+			return "/api/method/" + path[len(prefix) :]
+	return path
 
 
 def is_server_script_path(path):

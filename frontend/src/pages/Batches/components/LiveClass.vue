@@ -1,36 +1,36 @@
 <template>
 	<div class="p-5">
-		<div
-			v-if="isAdmin() && !hasProviderAccount()"
-			class="flex lg:items-center gap-x-2 mb-5 bg-surface-amber-1 px-3 py-2 rounded-lg text-ink-amber-6"
-		>
-			<span class="lucide-alert-circle size-7 md:size-4" />
-			<span class="leading-5">
-				{{
+		<template v-if="liveClasses.data?.length">
+			<Alert
+				v-if="canManageClasses() && !hasProviderAccount()"
+				theme="amber"
+				class="mb-5"
+				:title="__('No conferencing account')"
+				:description="
 					__(
 						'Please select a conferencing provider and add an account to the batch to create live classes.'
 					)
-				}}
-			</span>
-		</div>
+				"
+			/>
 
-		<div class="flex items-center justify-between">
-			<div class="text-lg-semibold text-ink-gray-9">
-				{{ __('Live Class') }}
+			<div class="flex items-center justify-between">
+				<div class="text-lg-semibold text-ink-gray-9">
+					{{ __('Live Class') }}
+				</div>
+				<Button
+					v-if="canCreateClass()"
+					data-testid="live-class-add"
+					@click="openLiveClassForm"
+				>
+					<template #prefix>
+						<span class="lucide-plus h-4 w-4" />
+					</template>
+					<span>
+						{{ __('Add') }}
+					</span>
+				</Button>
 			</div>
-			<Button
-				v-if="canCreateClass()"
-				data-testid="live-class-add"
-				@click="openLiveClassForm"
-			>
-				<template #prefix>
-					<span class="lucide-plus h-4 w-4" />
-				</template>
-				<span>
-					{{ __('Add') }}
-				</span>
-			</Button>
-		</div>
+		</template>
 		<div
 			v-if="liveClasses.data?.length"
 			class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mt-5"
@@ -38,7 +38,7 @@
 			<div
 				v-for="cls in liveClasses.data"
 				:key="cls.name"
-				class="flex flex-col border rounded-md h-full text-ink-gray-7 hover:border-outline-gray-3 p-3"
+				class="flex flex-col border rounded-5 h-full text-ink-gray-7 hover:border-outline-gray-3 p-3"
 				:class="{
 					'cursor-pointer': isAdmin() && cls.attendees > 0,
 				}"
@@ -72,7 +72,7 @@
 						v-if="canManageClasses() && cls.invite_status === 'Failed'"
 						class="flex items-center justify-between gap-2"
 					>
-						<div class="flex items-center gap-x-2 text-ink-amber-6">
+						<div class="flex items-center gap-x-2 text-ink-amber-4">
 							<span class="lucide-circle-alert w-4 h-4" />
 							<span>{{ __('Invites not sent') }}</span>
 						</div>
@@ -94,9 +94,9 @@
 								user.data?.is_evaluator ||
 								batch.data?.can_manage
 							"
-							:href="safeUrl(cls.start_url || cls.join_url)"
+							:href="safeUrl(startUrl(cls))"
 							v-external
-							class="cursor-pointer inline-flex items-center justify-center gap-2 transition-colors focus:outline-none text-ink-gray-8 bg-surface-gray-2 hover:bg-surface-gray-3 active:bg-surface-gray-4 focus-visible:ring focus-visible:ring-outline-gray-3 h-7 text-base px-2 rounded"
+							class="cursor-pointer inline-flex items-center justify-center gap-2 transition-colors text-ink-gray-8 bg-surface-gray-2 hover:bg-surface-gray-3 active:bg-surface-gray-4 h-7 text-base px-2 rounded-4"
 							:class="cls.join_url ? 'w-full' : 'w-1/2'"
 						>
 							<span class="lucide-monitor h-4 w-4" />
@@ -105,7 +105,7 @@
 						<a
 							:href="safeUrl(cls.join_url)"
 							v-external
-							class="w-full cursor-pointer inline-flex items-center justify-center gap-2 transition-colors focus:outline-none text-ink-gray-8 bg-surface-gray-2 hover:bg-surface-gray-3 active:bg-surface-gray-4 focus-visible:ring focus-visible:ring-outline-gray-3 h-7 text-base px-2 rounded"
+							class="w-full cursor-pointer inline-flex items-center justify-center gap-2 transition-colors text-ink-gray-8 bg-surface-gray-2 hover:bg-surface-gray-3 active:bg-surface-gray-4 h-7 text-base px-2 rounded-4"
 						>
 							<span class="lucide-video h-4 w-4" />
 							{{ __('Join') }}
@@ -114,9 +114,9 @@
 					<Tooltip
 						v-else-if="hasClassEnded(cls)"
 						:text="__('This class has ended')"
-						placement="right"
+						side="right"
 					>
-						<div class="flex items-center gap-x-2 text-ink-amber-6 w-fit">
+						<div class="flex items-center gap-x-2 text-ink-amber-5 w-fit">
 							<span class="lucide-info w-4 h-4" />
 							<span>
 								{{ __('Ended') }}
@@ -126,9 +126,33 @@
 				</div>
 			</div>
 		</div>
-		<div v-else class="text-ink-gray-7 mt-5">
-			{{ __('No live classes scheduled') }}
-		</div>
+		<EmptyStateLayout
+			v-else-if="liveClasses.data"
+			class="min-h-[60vh]"
+			name="Live Classes"
+			icon="lucide-laptop"
+			width="lg"
+			:title="emptyState.title"
+			:description="emptyState.description"
+		>
+			<Button
+				v-if="canCreateClass()"
+				data-testid="live-class-add"
+				variant="solid"
+				:label="__('Schedule a Class')"
+				@click="openLiveClassForm"
+			>
+				<template #prefix>
+					<span class="lucide-plus size-4" />
+				</template>
+			</Button>
+			<Button
+				v-else-if="needsProvider"
+				variant="solid"
+				:label="__('Open Settings')"
+				@click="openSettings"
+			/>
+		</EmptyStateLayout>
 	</div>
 
 	<LiveClassAttendance
@@ -143,17 +167,19 @@
 // <button> without invalid nesting. Reaching it by keyboard needs a dedicated
 // action control, which is a redesign rather than an attribute.
 import {
+	Alert,
 	createListResource,
 	createResource,
 	Button,
 	Tooltip,
 	toast,
 } from 'frappe-ui'
-import { inject, ref } from 'vue'
+import { computed, inject, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { formatTime } from '@/utils/'
 import { openBatchForm } from '@/composables/useBatchForms'
 import LiveClassAttendance from '@/components/Modals/LiveClassAttendance.vue'
+import EmptyStateLayout from '@/components/Layouts/EmptyStateLayout.vue'
 import { safeUrl } from '@/utils/safeUrl'
 
 const user = inject('$user')
@@ -247,17 +273,49 @@ const hasProviderAccount = () => {
 	return false
 }
 
-// Moderators and the batch's own authors: the only users the server lets
+// Moderators and the batch's instructors: the only users the server lets
 // create a class or retry its invites. isAdmin also takes in every evaluator,
 // who would only get a permission error.
 const canManageClasses = () =>
-	Boolean(user.data?.is_moderator || props.batch.data?.can_manage)
+	Boolean(user.data?.is_moderator || props.batch.data?.can_schedule_classes)
 
 const canCreateClass = () => {
 	if (readOnlyMode) return false
 	if (!hasProviderAccount()) return false
 	return canManageClasses()
 }
+
+// Someone who could schedule classes but has no Zoom or Google Meet account on the batch yet.
+const needsProvider = computed(
+	() => !readOnlyMode && canManageClasses() && !hasProviderAccount()
+)
+
+const emptyState = computed(() => {
+	if (needsProvider.value) {
+		return {
+			title: __('Set up live classes'),
+			description: __(
+				'Pick Zoom or Google Meet for this batch in Settings, then schedule classes your students join from here.'
+			),
+		}
+	}
+	if (canCreateClass()) {
+		return {
+			title: __('No live classes yet'),
+			description: __(
+				'Schedule a class on Zoom or Google Meet. Students get a reminder and join from here.'
+			),
+		}
+	}
+	return {
+		title: __('No live classes yet'),
+		description: __(
+			'Classes your instructors schedule show up here, with a link to join.'
+		),
+	}
+})
+
+const openSettings = () => router.push({ ...route, hash: '#settings' })
 
 const isAdmin = () => {
 	return (
@@ -266,6 +324,13 @@ const isAdmin = () => {
 		Boolean(props.batch.data?.can_manage)
 	)
 }
+
+// The start link is not sent to every instructor, so Start goes through the
+// server, which opens the class for the batch's staff.
+const startUrl = (cls) =>
+	`/api/method/lms.lms.api.start_live_class?live_class=${encodeURIComponent(
+		cls.name
+	)}`
 
 const canAccessClass = (cls) => {
 	if (cls.date < dayjs().format('YYYY-MM-DD')) return false

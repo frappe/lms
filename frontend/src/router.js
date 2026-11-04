@@ -29,14 +29,7 @@ let router = createRouter({
 	routes,
 })
 
-export async function guardNavigation(to, from, next) {
-	// Query- or hash-only navigations stay on the page already passed the checks
-	// below. `from.name` must be set, or the initial navigation (from
-	// START_LOCATION) to an unnamed route would skip the checks entirely.
-	if (from.name && to.name === from.name && to.path === from.path) {
-		return next()
-	}
-
+router.beforeEach(async (to, from, next) => {
 	const { userResource } = usersStore()
 	let { isLoggedIn } = sessionStore()
 	const { settings } = useSettings()
@@ -77,8 +70,6 @@ export async function guardNavigation(to, from, next) {
 	}
 
 	return next()
-}
-
-router.beforeEach(guardNavigation)
+})
 
 export default router

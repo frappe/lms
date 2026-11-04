@@ -295,3 +295,97 @@ class TestSaveProgressEnrollmentLifecycle(BaseTestUtils):
 		utils.recalculate_course_progress(self.course.name, stranger.name)
 
 		self.assertEqual(calls, [stranger.name])
+
+
+class TestSaveProgressProgrammingExerciseGate(BaseTestUtils):
+	SETTING = "enforce_programming_exercise_completion"
+
+	@classmethod
+	def setUpClass(cls):
+		super().setUpClass()
+		cls.instructor = cls._create_user(
+			"pe-instructor@example.com", "Exercise", "Instructor", ["Course Creator"]
+		)
+		cls.student = cls._create_user("pe-student@example.com", "Exercise", "Student", ["LMS Student"])
+		cls.exercise = cls._create_programming_exercise("Gate Exercise")
+		cls.course = cls._create_course("Exercise Gate Course", instructor=cls.instructor.email)
+		cls.chapter = cls._create_chapter("PE Chapter", cls.course.name)
+		cls._create_chapter_reference(cls.course.name, cls.chapter.name)
+		content = frappe.as_json(
+			{"blocks": [{"type": "program", "data": {"exercise": cls.exercise.name}}], "version": "2.29.0"}
+		)
+		cls.lesson = cls._create_lesson("PE Lesson", cls.chapter.name, cls.course.name, content=content)
+		cls._create_lesson_reference(cls.chapter.name, cls.lesson.name)
+		cls._create_enrollment(cls.student.email, cls.course.name)
+
+		original_capture = course_lesson.capture
+		course_lesson.capture = lambda *a, **k: None
+		cls.addClassCleanup(setattr, course_lesson, "capture", original_capture)
+
+	def setUp(self):
+		super().setUp()
+		previous = frappe.db.get_single_value("LMS Settings", self.SETTING)
+		previous_passing = frappe.db.get_single_value("LMS Settings", "enforce_programming_exercise_passing")
+		self.addCleanup(self._set_enforcement, previous, previous_passing)
+		frappe.db.delete("LMS Course Progress", {"member": self.student.email, "lesson": self.lesson.name})
+		frappe.db.delete(
+			"LMS Programming Exercise Submission",
+			{"member": self.student.email, "exercise": self.exercise.name},
+		)
+
+	def tearDown(self):
+		frappe.set_user("Administrator")
+		super().tearDown()
+
+	def _set_enforcement(self, value, passing=0):
+		frappe.db.set_single_value("LMS Settings", self.SETTING, value)
+		frappe.db.set_single_value("LMS Settings", "enforce_programming_exercise_passing", passing)
+		frappe.clear_document_cache("LMS Settings", "LMS Settings")
+
+	def _submit(self, status):
+		submission = frappe.new_doc("LMS Programming Exercise Submission")
+		submission.update(
+			{
+				"exercise": self.exercise.name,
+				"member": self.student.email,
+				"code": "print(1)",
+				"status": status,
+			}
+		)
+		submission.insert()
+
+	def _completes_lesson(self):
+		frappe.set_user(self.student.email)
+		try:
+			course_lesson.save_progress(self.lesson.name, self.course.name)
+		finally:
+			frappe.set_user("Administrator")
+		return bool(
+			frappe.db.exists(
+				"LMS Course Progress",
+				{"member": self.student.email, "lesson": self.lesson.name, "status": "Complete"},
+			)
+		)
+
+	def test_exercise_does_not_gate_completion_when_the_setting_is_off(self):
+		self._set_enforcement(0)
+		self.assertTrue(self._completes_lesson())
+
+	def test_lesson_stays_incomplete_without_a_submission(self):
+		self._set_enforcement(1)
+		self.assertFalse(self._completes_lesson())
+
+	def test_a_failed_submission_completes_the_lesson_by_default(self):
+		self._set_enforcement(1)
+		self._submit("Failed")
+		self.assertTrue(self._completes_lesson())
+
+	def test_lesson_stays_incomplete_after_a_failed_submission_when_it_must_pass(self):
+		self._set_enforcement(1, passing=1)
+		self._submit("Failed")
+		self.assertFalse(self._completes_lesson())
+
+	def test_lesson_completes_after_a_passed_submission_when_it_must_pass(self):
+		self._set_enforcement(1, passing=1)
+		self._submit("Passed")
+		self.assertTrue(self._completes_lesson())

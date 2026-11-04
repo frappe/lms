@@ -121,7 +121,7 @@
    "default": "0",
    "fieldname": "is_correct_1",
    "fieldtype": "Check",
-   "label": "Is Correct"
+   "label": "Is Correct 1"
   },
   {
    "fieldname": "column_break_fpvl",
@@ -130,7 +130,7 @@
   {
    "fieldname": "explanation_1",
    "fieldtype": "Small Text",
-   "label": "Explanation",
+   "label": "Explanation 1",
    "permlevel": 1
   },
   {
@@ -148,7 +148,7 @@
    "default": "0",
    "fieldname": "is_correct_2",
    "fieldtype": "Check",
-   "label": "Is Correct"
+   "label": "Is Correct 2"
   },
   {
    "fieldname": "column_break_akwy",
@@ -157,7 +157,7 @@
   {
    "fieldname": "explanation_2",
    "fieldtype": "Small Text",
-   "label": "Explanation ",
+   "label": "Explanation 2",
    "permlevel": 1
   },
   {
@@ -174,7 +174,7 @@
    "default": "0",
    "fieldname": "is_correct_3",
    "fieldtype": "Check",
-   "label": "Is Correct"
+   "label": "Is Correct 3"
   },
   {
    "fieldname": "column_break_atpl",
@@ -183,7 +183,7 @@
   {
    "fieldname": "explanation_3",
    "fieldtype": "Small Text",
-   "label": "Explanation",
+   "label": "Explanation 3",
    "permlevel": 1
   },
   {
@@ -200,7 +200,7 @@
    "default": "0",
    "fieldname": "is_correct_4",
    "fieldtype": "Check",
-   "label": "Is Correct"
+   "label": "Is Correct 4"
   },
   {
    "fieldname": "column_break_lknb",
@@ -209,7 +209,7 @@
   {
    "fieldname": "explanation_4",
    "fieldtype": "Small Text",
-   "label": "Explanation",
+   "label": "Explanation 4",
    "permlevel": 1
   },
   {
@@ -226,7 +226,7 @@
    "default": "0",
    "fieldname": "is_correct_5",
    "fieldtype": "Check",
-   "label": "Is Correct"
+   "label": "Is Correct 5"
   },
   {
    "fieldname": "column_break_opt_5",
@@ -235,7 +235,7 @@
   {
    "fieldname": "explanation_5",
    "fieldtype": "Small Text",
-   "label": "Explanation",
+   "label": "Explanation 5",
    "permlevel": 1
   },
   {
@@ -252,7 +252,7 @@
    "default": "0",
    "fieldname": "is_correct_6",
    "fieldtype": "Check",
-   "label": "Is Correct"
+   "label": "Is Correct 6"
   },
   {
    "fieldname": "column_break_opt_6",
@@ -261,7 +261,7 @@
   {
    "fieldname": "explanation_6",
    "fieldtype": "Small Text",
-   "label": "Explanation",
+   "label": "Explanation 6",
    "permlevel": 1
   },
   {
@@ -278,7 +278,7 @@
    "default": "0",
    "fieldname": "is_correct_7",
    "fieldtype": "Check",
-   "label": "Is Correct"
+   "label": "Is Correct 7"
   },
   {
    "fieldname": "column_break_opt_7",
@@ -287,7 +287,7 @@
   {
    "fieldname": "explanation_7",
    "fieldtype": "Small Text",
-   "label": "Explanation",
+   "label": "Explanation 7",
    "permlevel": 1
   },
   {
@@ -304,7 +304,7 @@
    "default": "0",
    "fieldname": "is_correct_8",
    "fieldtype": "Check",
-   "label": "Is Correct"
+   "label": "Is Correct 8"
   },
   {
    "fieldname": "column_break_opt_8",
@@ -313,7 +313,7 @@
   {
    "fieldname": "explanation_8",
    "fieldtype": "Small Text",
-   "label": "Explanation",
+   "label": "Explanation 8",
    "permlevel": 1
   },
   {
@@ -330,7 +330,7 @@
    "default": "0",
    "fieldname": "is_correct_9",
    "fieldtype": "Check",
-   "label": "Is Correct"
+   "label": "Is Correct 9"
   },
   {
    "fieldname": "column_break_opt_9",
@@ -339,7 +339,7 @@
   {
    "fieldname": "explanation_9",
    "fieldtype": "Small Text",
-   "label": "Explanation",
+   "label": "Explanation 9",
    "permlevel": 1
   },
   {
@@ -356,7 +356,7 @@
    "default": "0",
    "fieldname": "is_correct_10",
    "fieldtype": "Check",
-   "label": "Is Correct"
+   "label": "Is Correct 10"
   },
   {
    "fieldname": "column_break_opt_10",
@@ -365,7 +365,7 @@
   {
    "fieldname": "explanation_10",
    "fieldtype": "Small Text",
-   "label": "Explanation",
+   "label": "Explanation 10",
    "permlevel": 1
   },
   {

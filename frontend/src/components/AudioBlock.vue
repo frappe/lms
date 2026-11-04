@@ -6,7 +6,10 @@
 		<audio @ended="handleAudioEnd" controlsList="nodownload" class="mb-4">
 			<source :src="safeUrl(encodeURI(file))" type="audio/mp3" />
 		</audio>
-		<div class="flex items-center gap-x-2 shadow rounded-lg p-1 w-1/2">
+		<div
+			data-testid="audio-player"
+			class="flex items-center gap-x-2 rounded-7 overflow-hidden border border-outline-gray-2 p-1 w-1/2"
+		>
 			<Button
 				variant="ghost"
 				:label="isPlaying ? __('Pause') : __('Play')"
@@ -119,7 +122,7 @@ watch(isPlaying, (newVal) => {
 	flex: 1;
 	-webkit-appearance: none;
 	appearance: none;
-	background-color: theme('colors.gray.400');
+	background-color: var(--surface-gray-4);
 	cursor: pointer;
 }
 
@@ -127,7 +130,7 @@ watch(isPlaying, (newVal) => {
 	height: 10px;
 	width: 10px;
 	-webkit-appearance: none;
-	background-color: theme('colors.gray.900');
+	background-color: var(--surface-gray-10);
 }
 
 @media screen and (-webkit-min-device-pixel-ratio: 0) {
@@ -140,7 +143,7 @@ watch(isPlaying, (newVal) => {
 	input[type='range']::-webkit-slider-thumb {
 		-webkit-appearance: none;
 		cursor: pointer;
-		box-shadow: -150px 0 0 150px theme('colors.gray.900');
+		box-shadow: -150px 0 0 150px var(--surface-gray-10);
 	}
 }
 </style>

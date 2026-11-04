@@ -6,10 +6,13 @@ import unittest
 from unittest.mock import patch
 
 import frappe
-from frappe.utils import add_to_date, now_datetime
+from frappe.utils import add_to_date, escape_html, now_datetime
+from frappe.www.printview import get_html_and_style
 
+from lms.lms.doctype.course_lesson import course_lesson
 from lms.lms.doctype.course_lesson.course_lesson import (
 	UNTITLED_LESSON_TITLE,
+	get_quiz_progress,
 	rename_settled_untitled_lessons,
 )
 from lms.lms.test_helpers import BaseTestUtils
@@ -75,87 +78,85 @@ def _content(*blocks):
 	return json.dumps({"time": 0, "version": "2.30.0", "blocks": list(blocks)})
 
 
-class TestApplyEnforcementFlags(unittest.TestCase):
-	def _call(self, *, quiz_done, assignment_done, enforce_quiz, enforce_assignment):
-		from lms.lms.doctype.course_lesson.course_lesson import (
-			apply_enforcement_flags,
+ALL_ENFORCED = {
+	"enforce_quiz_completion": 1,
+	"enforce_assignment_completion": 1,
+	"enforce_programming_exercise_completion": 1,
+}
+
+
+# Guards each item's rule, and that a field missing before migrate keeps the old gate.
+# Added on fix/course-progress-enforcement (no PR yet).
+class TestCompletionRules(unittest.TestCase):
+	def _rules(self, stored):
+		"""get_cached_value returns every field asked for, None where meta lacks it."""
+
+		def get_cached_value(doctype, name, fields, as_dict):
+			return frappe._dict({field: stored.get(field) for field in fields})
+
+		with patch.object(course_lesson.frappe, "get_cached_value", side_effect=get_cached_value):
+			return course_lesson.get_completion_rules()
+
+	def test_missing_passing_toggles_keep_what_each_item_required_before(self):
+		self.assertEqual(
+			self._rules(ALL_ENFORCED),
+			{
+				"quiz": "Passed",
+				"open_ended_quiz": "Passed",
+				"assignment": "Attempted",
+				"programming_exercise": "Attempted",
+			},
 		)
 
-		settings = {
-			"enforce_quiz_completion": enforce_quiz,
-			"enforce_assignment_completion": enforce_assignment,
+	def test_passing_toggles_choose_between_a_pass_and_an_attempt(self):
+		stored = {
+			**ALL_ENFORCED,
+			"enforce_quiz_passing": 0,
+			"enforce_open_ended_quiz_passing": 1,
+			"enforce_assignment_passing": 1,
+			"enforce_programming_exercise_passing": 1,
 		}
-		return apply_enforcement_flags(
-			quiz_done=quiz_done,
-			assignment_done=assignment_done,
-			settings=settings,
-		)
-
-	def test_both_enforced_passes_through(self):
 		self.assertEqual(
-			self._call(quiz_done=True, assignment_done=True, enforce_quiz=1, enforce_assignment=1),
-			(True, True),
+			self._rules(stored),
+			{
+				"quiz": "Attempted",
+				"open_ended_quiz": "Passed",
+				"assignment": "Passed",
+				"programming_exercise": "Passed",
+			},
 		)
+
+	def test_the_quiz_toggle_gates_open_ended_quizzes_too(self):
+		stored = {
+			"enforce_quiz_completion": 0,
+			"enforce_quiz_passing": 1,
+			"enforce_open_ended_quiz_passing": 1,
+		}
+		rules = self._rules(stored)
+		self.assertEqual((rules["quiz"], rules["open_ended_quiz"]), (None, None))
+
+	def test_an_item_switched_off_has_no_rule(self):
+		stored = {
+			"enforce_quiz_completion": 0,
+			"enforce_assignment_completion": 0,
+			"enforce_programming_exercise_completion": "0",
+			"enforce_assignment_passing": 1,
+		}
 		self.assertEqual(
-			self._call(quiz_done=False, assignment_done=True, enforce_quiz=1, enforce_assignment=1),
-			(False, True),
+			self._rules(stored),
+			{"quiz": None, "open_ended_quiz": None, "assignment": None, "programming_exercise": None},
 		)
+
+	def test_a_site_without_the_fields_gates_what_it_always_did(self):
 		self.assertEqual(
-			self._call(quiz_done=True, assignment_done=False, enforce_quiz=1, enforce_assignment=1),
-			(True, False),
+			self._rules({}),
+			{
+				"quiz": "Passed",
+				"open_ended_quiz": "Passed",
+				"assignment": "Attempted",
+				"programming_exercise": None,
+			},
 		)
-
-
-class _DictSubclass(dict):
-	"""A frappe._dict-like subclass: the helper must duck-type, not isinstance-check."""
-
-
-class TestApplyEnforcementFlagsEdgeCases(unittest.TestCase):
-	QUIZ_OFF = {"enforce_quiz_completion": 0, "enforce_assignment_completion": 1}
-	ASSIGNMENT_OFF = {"enforce_quiz_completion": 1, "enforce_assignment_completion": 0}
-	BOTH_OFF = {"enforce_quiz_completion": 0, "enforce_assignment_completion": 0}
-	STRING_ZERO = {"enforce_quiz_completion": "0", "enforce_assignment_completion": "0"}
-	STRING_ONE = {"enforce_quiz_completion": "1", "enforce_assignment_completion": "1"}
-	NONE_QUIZ = {"enforce_quiz_completion": None, "enforce_assignment_completion": 1}
-
-	def setUp(self):
-		from lms.lms.doctype.course_lesson.course_lesson import (
-			apply_enforcement_flags,
-		)
-
-		self.fn = apply_enforcement_flags
-
-	def test_a_flag_is_enforced_unless_it_is_explicitly_falsy(self):
-		"""Enforcement is the default: only a genuinely falsy flag turns it off, and a
-		missing key is not falsy because dict.get supplies 1."""
-		cases = [
-			# case, quiz_done, assignment_done, settings, expected
-			("quiz_off", False, False, self.QUIZ_OFF, (True, False)),
-			("assignment_off", False, False, self.ASSIGNMENT_OFF, (False, True)),
-			("missing_keys_stay_enforced", False, True, {}, (False, True)),
-			("both_off_and_both_done", True, True, self.BOTH_OFF, (True, True)),
-			("both_off_and_quiz_done", True, False, self.BOTH_OFF, (True, True)),
-			("both_off_and_assignment_done", False, True, self.BOTH_OFF, (True, True)),
-			("both_off_and_neither_done", False, False, self.BOTH_OFF, (True, True)),
-			# "0" is a non-empty string, so it is truthy and still reads as enforced.
-			# Callers that hit this should pass int(value) explicitly.
-			("string_zero_is_truthy", False, False, self.STRING_ZERO, (False, False)),
-			("string_one_both_done", True, True, self.STRING_ONE, (True, True)),
-			("string_one_quiz_undone", False, True, self.STRING_ONE, (False, True)),
-			# Present-but-None is falsy, unlike a missing key.
-			("none_disables", False, False, self.NONE_QUIZ, (True, False)),
-			("dict_subclass_is_duck_typed", False, False, _DictSubclass(self.QUIZ_OFF), (True, False)),
-		]
-		for case, quiz_done, assignment_done, settings, expected in cases:
-			with self.subTest(case=case):
-				got = self.fn(quiz_done=quiz_done, assignment_done=assignment_done, settings=settings)
-				self.assertEqual(got, expected)
-
-	def test_does_not_mutate_settings(self):
-		settings = {"enforce_quiz_completion": 1, "enforce_assignment_completion": 0}
-		snapshot = dict(settings)
-		self.fn(quiz_done=True, assignment_done=False, settings=settings)
-		self.assertEqual(settings, snapshot)
 
 
 class TestServePrivateFileVersionSafe(unittest.TestCase):
@@ -442,6 +443,109 @@ class TestLessonContentSurvivesSave(BaseTestUtils):
 		saved = self._saved_text('<a href="https://frappe.io/">here</a>', "Lesson link")
 		self.assertIn('href="https://frappe.io/"', saved)
 		self.assertIn('rel="noopener noreferrer"', saved)
+
+	def test_markup_that_is_not_json_is_escaped_on_save(self):
+		markup = "<img src=x onerror=alert(1)>"
+		lesson = self._create_lesson("Lesson plain markup", self.chapter.name, self.course.name, markup)
+		lesson.instructor_content = markup
+		lesson.save()
+		stored = frappe.db.get_value("Course Lesson", lesson.name, ["content", "instructor_content"])
+		self.assertEqual(list(stored), [escape_html(markup)] * 2)
+
+		# A later save must not escape it again.
+		lesson.reload()
+		lesson.save()
+		self.assertEqual(frappe.db.get_value("Course Lesson", lesson.name, "content"), escape_html(markup))
+
+	def test_inline_formatting_survives_a_save(self):
+		# The link carries the rel nh3 adds to every <a>, as the editor stores it after a save.
+		link = '<a href="https://frappe.io" rel="noopener noreferrer">site</a>'
+		content = _content(
+			{"type": "paragraph", "data": {"text": f"<b>bold</b> <i>italic</i> {link}"}},
+			{"type": "list", "data": {"style": "unordered", "items": ["<b>one</b>", f"<i>two</i> {link}"]}},
+		)
+		lesson = self._create_lesson("Lesson inline formatting", self.chapter.name, self.course.name, content)
+		stored = frappe.db.get_value("Course Lesson", lesson.name, "content")
+		self.assertEqual(json.loads(stored), json.loads(content))
+
+	def test_markup_in_a_key_is_cleaned_on_save(self):
+		content = json.dumps({"<svg onload=alert(1)>": "x", "blocks": []})
+		lesson = self._create_lesson("Lesson key markup", self.chapter.name, self.course.name, content)
+		self.assertNotIn("onload", frappe.db.get_value("Course Lesson", lesson.name, "content"))
+
+	def test_every_editor_block_saves_unchanged(self):
+		# Assessment blocks must point at real records, or validate refuses the lesson.
+		assessments = {
+			"quiz": {"quiz": self._create_quiz(self._create_quiz_questions()).name},
+			"assignment": {"assignment": self._create_assignment().name},
+			"program": {"exercise": self._create_programming_exercise().name},
+		}
+		blocks = [
+			{**block, "data": assessments.get(name, block["data"])}
+			for name, block in NON_EMBED_BLOCKS.items()
+		]
+		content = _content(*blocks, _embed_block("youtube", EMBED_SERVICE_URLS["youtube"]))
+		lesson = self._create_lesson("Lesson every block", self.chapter.name, self.course.name, content)
+		stored = frappe.db.get_value("Course Lesson", lesson.name, "content")
+		self.assertEqual(json.loads(stored), json.loads(content))
+
+	def test_an_embed_with_a_script_url_is_dropped_on_save(self):
+		bad = {**_embed_block("drive", EMBED_SERVICE_URLS["drive"])}
+		bad["data"] = {**bad["data"], "embed": "javascript:alert(document.domain)//x"}
+		good = _embed_block("drive", EMBED_SERVICE_URLS["drive"])
+		content = _content(bad, good)
+		lesson = self._create_lesson("Lesson script embed", self.chapter.name, self.course.name, content)
+		lesson.instructor_content = content
+		lesson.save()
+		for field in ("content", "instructor_content"):
+			with self.subTest(field=field):
+				stored = json.loads(frappe.db.get_value("Course Lesson", lesson.name, field))
+				self.assertEqual(stored["blocks"], [good])
+
+	def test_a_row_the_old_sanitiser_mangled_stays_readable_after_a_title_only_save(self):
+		lesson = self._create_lesson("Lesson mangled", self.chapter.name, self.course.name)
+		mangled = (
+			'{"blocks":[{"type":"paragraph","data":{"text":"<a href="\\&quot;https://frappe.io/\\&quot;" '
+			'rel="noopener noreferrer">here</a>"}}]}'
+		)
+		frappe.db.set_value("Course Lesson", lesson.name, "content", mangled)
+		lesson.reload()
+		lesson.title = "Lesson mangled, renamed"
+		lesson.save()
+		stored = json.loads(frappe.db.get_value("Course Lesson", lesson.name, "content"))
+		self.assertEqual(
+			stored["blocks"][0]["data"]["text"],
+			'<a href="https://frappe.io/" rel="noopener noreferrer">here</a>',
+		)
+
+
+class TestLessonPrint(BaseTestUtils):
+	"""The Standard print view renders Text fields without escaping, and lesson
+	content is EditorJS JSON no reader wants on paper, so both fields are hidden."""
+
+	def setUp(self):
+		super().setUp()
+		self._create_user("frappe@example.com", "Frappe", "Admin", ["Moderator", "Course Creator"])
+		self.course = self._create_course(title="Print Course")
+		self.chapter = self._create_chapter("Print Chapter", self.course.name)
+
+	def test_content_fields_are_hidden_from_print(self):
+		meta = frappe.get_meta("Course Lesson")
+		for fieldname in ("content", "instructor_content"):
+			self.assertTrue(meta.get_field(fieldname).print_hide, f"{fieldname} must be print_hide")
+
+	def test_standard_print_has_no_event_handler(self):
+		lesson = self._create_lesson("Print lesson", self.chapter.name, self.course.name)
+		# Written past validate, the way a row saved before cleaning was stored.
+		frappe.db.set_value(
+			"Course Lesson",
+			lesson.name,
+			{"content": "<img src=x onerror=alert(1)>", "instructor_content": "<svg onload=alert(1)>"},
+		)
+		html = get_html_and_style("Course Lesson", lesson.name, print_format="Standard")["html"]
+		self.assertIn("Print lesson", html)
+		self.assertNotIn("onerror", html)
+		self.assertNotIn("onload", html)
 
 
 class TestServeResourceFileOwnership(BaseTestUtils):
@@ -1302,3 +1406,43 @@ class TestServeResourceOwnerLookupIsBatched(BaseTestUtils):
 			msg=f"owner lookups must be batched: {few_queries} query(s) for 2 owners, "
 			f"{many_queries} for 6",
 		)
+
+
+# Regression from #2426: quiz enforcement ignored the legacy quiz_id field.
+# Added on fix/course-progress-enforcement (no PR yet).
+class TestLegacyQuizIdGatesCompletion(BaseTestUtils):
+	"""Lesson.vue renders `quiz_id` under a legacy markdown `body`, so quiz enforcement
+	must count it there, and only there."""
+
+	@classmethod
+	def setUpClass(cls):
+		super().setUpClass()
+		cls.instructor = cls._create_user(
+			"qid-instructor@example.com", "Qid", "Instructor", ["Course Creator"]
+		)
+		cls.student = cls._create_user("qid-student@example.com", "Qid", "Student", ["LMS Student"])
+		cls.course = cls._create_course("Quiz Id Course", instructor=cls.instructor.email)
+		cls.chapter = cls._create_chapter("Quiz Id Chapter", cls.course.name)
+		cls.quiz = cls._create_quiz(cls._create_quiz_questions()[:1], title="Quiz Id Quiz")
+
+	def tearDown(self):
+		frappe.set_user("Administrator")
+		super().tearDown()
+
+	def _quiz_done_for(self, title, body, content):
+		lesson = self._create_lesson(title, self.chapter.name, self.course.name)
+		frappe.db.set_value(
+			"Course Lesson", lesson.name, {"body": body, "content": content, "quiz_id": self.quiz.name}
+		)
+		frappe.set_user(self.student.email)
+		return get_quiz_progress(lesson.name)
+
+	def test_unpassed_quiz_id_blocks_a_markdown_lesson(self):
+		self.assertFalse(self._quiz_done_for("Quiz Id Markdown", "Read this first.", None))
+
+	def test_quiz_id_is_ignored_when_block_content_is_rendered_instead(self):
+		content = frappe.as_json({"blocks": [{"type": "paragraph", "data": {"text": "Hi"}}]})
+		self.assertTrue(self._quiz_done_for("Quiz Id Blocks", "Read this first.", content))
+
+	def test_quiz_id_is_ignored_when_the_lesson_has_no_body(self):
+		self.assertTrue(self._quiz_done_for("Quiz Id Empty", None, None))

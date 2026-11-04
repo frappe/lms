@@ -1,6 +1,8 @@
 <template>
 	<div class="p-5">
+		<!-- Four zeros say nothing before the first student, so the empty state stands alone. -->
 		<div
+			v-if="!showStudentsEmptyState"
 			class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-5 text-ink-gray-9"
 		>
 			<NumberChartGraph
@@ -16,30 +18,40 @@
 				:value="course.data?.rating || 0"
 			>
 				<template #prefix>
-					<LucideStar class="size-5 text-transparent fill-amber-500" />
+					<LucideStar class="size-5 text-transparent fill-ink-amber-7" />
 				</template>
 			</NumberChartGraph>
 			<NumberChartGraph :title="__('Lessons')" :value="course.data?.lessons" />
 		</div>
-		<div
+		<EmptyStateLayout
 			v-if="showStudentsEmptyState"
-			class="flex min-h-[30vh] sm:min-h-[70vh] flex-col items-center justify-center gap-3 px-4 text-center"
+			class="min-h-[40vh] sm:min-h-[75vh]"
+			name="Students"
+			icon="lucide-users"
+			width="lg"
+			:title="__('No students in this course yet')"
+			:description="
+				__(
+					'Enroll students to follow how far each one gets through the lessons and quizzes in this course.'
+				)
+			"
 		>
-			<span class="lucide-users size-7.5 text-ink-gray-5" />
-			<div class="flex flex-col items-center gap-1">
-				<span class="text-lg-medium text-ink-gray-8">
-					{{ __('No students enrolled yet') }}
-				</span>
-				<span class="text-p-base text-ink-gray-6">
-					{{ __('Enroll students to track their progress here') }}
-				</span>
-			</div>
-		</div>
+			<Button
+				v-if="!readOnlyMode"
+				variant="solid"
+				:label="__('Enroll Students')"
+				@click="openEnrollForm"
+			>
+				<template #prefix>
+					<span class="lucide-plus size-4" />
+				</template>
+			</Button>
+		</EmptyStateLayout>
 		<div
 			v-else
 			class="grid grid-cols-1 lg:grid-cols-[2fr_1fr] gap-5 items-start"
 		>
-			<div class="border rounded-lg py-3 px-4">
+			<div class="border rounded-6 py-3 px-4">
 				<div class="flex items-center justify-between mb-3">
 					<div class="text-lg-semibold text-ink-gray-9">
 						{{ __('Students') }}
@@ -116,7 +128,8 @@
 			<div class="space-y-5">
 				<div
 					v-if="chartDetails.data?.average_progress > 0"
-					class="border rounded-lg p-4"
+					ref="progressSummary"
+					class="border rounded-6 p-4"
 				>
 					<div class="text-ink-gray-5 mb-4">
 						{{ __('Progress Summary') }}
@@ -131,18 +144,8 @@
 								:key="row.name"
 							>
 								<div
-									class="size-2 rounded"
-									:style="{
-										backgroundColor: `var(--${
-											row.name.startsWith('Just')
-												? 'red'
-												: row.name.startsWith('In')
-												? 'amber'
-												: row.name.startsWith('Adv')
-												? 'blue'
-												: 'green'
-										}-400)`,
-									}"
+									class="size-2 rounded-4"
+									:style="{ backgroundColor: progressColor(row.name) }"
 								></div>
 								<Tooltip :text="row.name.split('(')[1].replace(')', '')">
 									<div class="ms-2">
@@ -162,41 +165,12 @@
 								</Tooltip>
 							</li>
 						</ul>
-						<ECharts
-							class="w-40 h-20"
-							:options="{
-								color: progressColors,
-								series: [
-									{
-										type: 'pie',
-										radius: ['50%', '70%'],
-										center: ['50%', '50%'],
-										label: {
-											show: false,
-										},
-										labelLine: {
-											show: false,
-										},
-										emphasis: {
-											label: {
-												show: false,
-											},
-											scale: false,
-										},
-										legend: {
-											show: false,
-										},
-										data: chartDetails.data?.progress_distribution || [],
-									},
-								],
-								showInlineLabels: false,
-							}"
-						/>
+						<ProgressRing class="w-40 h-20" :slices="progressSlices" />
 					</div>
 				</div>
 				<div
 					v-if="lessonProgress.data?.length"
-					class="border rounded-lg pt-4 px-4"
+					class="border rounded-6 pt-4 px-4"
 				>
 					<div class="flex items-center justify-between mb-4">
 						<div class="text-ink-gray-5">
@@ -205,7 +179,8 @@
 						<Select
 							:options="lessonProgressSortingOptions"
 							@update:modelValue="
-								(value: string) => updateLessonProgress(value)
+								(value: SelectOptionValue | null) =>
+									value != null && updateLessonProgress(String(value))
 							"
 							:placeholder="__('Sort by')"
 							class="!w-32"
@@ -260,15 +235,31 @@ import {
 	Button,
 	createListResource,
 	createResource,
-	ECharts,
 	FormControl,
 	Tooltip,
 } from 'frappe-ui'
+import type { SelectOptionValue } from 'frappe-ui'
+import {
+	registerChartModules,
+	useChart,
+	useChartTokens,
+} from 'frappe-ui/charts'
+import { PieChart } from 'echarts/charts'
 import Select from '@/components/Controls/Select.vue'
-import { computed, inject, ref, watch } from 'vue'
+import {
+	computed,
+	defineComponent,
+	getCurrentInstance,
+	h,
+	inject,
+	ref,
+	watch,
+} from 'vue'
+import type { PropType } from 'vue'
 import type dayjsType from 'dayjs'
 import { formatAmount } from '@/utils'
 import EmptyStateLayout from '@/components/Layouts/EmptyStateLayout.vue'
+import { openFormRoute } from '@/composables/useFormRoute'
 import NumberChartGraph from '@/components/NumberChartGraph.vue'
 import ProgressBar from '@/components/ProgressBar.vue'
 import ResponsiveListView from '@/components/ResponsiveListView.vue'
@@ -370,14 +361,81 @@ const averageCompletionRate = computed(() => {
 	return value + '%'
 })
 
+const readOnlyMode = (window as any).read_only_mode
+// Read on click, not at setup: the dashboard also renders where no router is installed.
+const instance = getCurrentInstance()
+
+// The same form the page header's Enroll button opens.
+function openEnrollForm() {
+	const { $router, $route } = instance!.proxy!
+	openFormRoute($router, {
+		name: 'NewCourseEnrollment',
+		params: { courseName: props.course.data?.name },
+		hash: $route.hash,
+		query: { ...$route.query },
+	})
+}
+
 const showStudentsEmptyState = computed(
 	() =>
 		!progressList.loading && !progressList.data?.length && !searchFilter.value
 )
 
-const progressColors = computed(() =>
-	['red', 'amber', 'blue', 'green'].map((color) => `var(--${color}-400)`)
-)
+type ProgressRow = { name: string; value: number }
+type ProgressSlice = ProgressRow & { itemStyle: { color: string } }
+
+const PROGRESS_CATEGORICAL_SLOT = { red: 8, amber: 6, blue: 0, green: 2 }
+
+registerChartModules([PieChart])
+
+const progressSummary = ref<HTMLElement>()
+const { tokens: chartTokens } = useChartTokens(progressSummary)
+
+const progressHue = (name: string): keyof typeof PROGRESS_CATEGORICAL_SLOT => {
+	if (name.startsWith('Just')) return 'red'
+	if (name.startsWith('In')) return 'amber'
+	if (name.startsWith('Adv')) return 'blue'
+	return 'green'
+}
+
+const progressColor = (name: string) => {
+	const slot = PROGRESS_CATEGORICAL_SLOT[progressHue(name)]
+	return chartTokens.value.categorical[slot]
+}
+
+const progressSlices = computed<ProgressSlice[]>(() => {
+	const rows = (chartDetails.data?.progress_distribution || []) as ProgressRow[]
+	return rows.map((row) => ({
+		...row,
+		itemStyle: { color: progressColor(row.name) },
+	}))
+})
+
+const ProgressRing = defineComponent({
+	props: {
+		slices: { type: Array as PropType<ProgressSlice[]>, required: true },
+	},
+	setup(ringProps) {
+		const plot = ref<HTMLElement>()
+		useChart({
+			container: plot,
+			option: () => ({
+				series: [
+					{
+						type: 'pie',
+						radius: ['50%', '70%'],
+						center: ['50%', '50%'],
+						label: { show: false },
+						labelLine: { show: false },
+						emphasis: { label: { show: false }, scale: false },
+						data: ringProps.slices,
+					},
+				],
+			}),
+		})
+		return () => h('div', { ref: plot })
+	},
+})
 
 const progressColumns = computed<ListColumn[]>(() => {
 	return [

@@ -4,22 +4,8 @@ import { defineComponent, h } from 'vue'
 
 vi.stubGlobal('__', (text: string) => text)
 
-// vue-router resolves a matched record's async `component()` during navigation
-// itself, so the real SFCs would be imported here — and frappe-ui's ESM build
-// does not resolve under plain Node module resolution. Stubbing the three page
-// components keeps the navigation real; the route TABLE under test is still the
-// genuine one from `@/routes`.
-// HeaderButton wraps frappe-ui's Button in a Tooltip below the mobile
-// breakpoint, and the hand-written frappe-ui mock here has no Tooltip. Stub it
-// down to the bare button so the fallthrough attrs the assertions use
-// (data-testid, the click handler) still land where they did before.
-vi.mock('@/components/HeaderButton.vue', () => ({
-	default: {
-		inheritAttrs: false,
-		template: `<button v-bind="$attrs" />`,
-	},
-}))
-
+// Navigation imports each matched page SFC, so stub them; the route table
+// from @/routes stays real.
 vi.mock('@/pages/Programs/Programs.vue', () => ({
 	default: defineComponent({ render: () => h('div') }),
 }))

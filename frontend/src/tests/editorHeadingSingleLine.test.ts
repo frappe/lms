@@ -9,15 +9,13 @@ declare global {
 	}
 }
 window.__ = (text: string): string => text
+// Importing '@/utils' loads plyr, which needs window.matchMedia that jsdom lacks.
 window.matchMedia ??= (() => ({
 	matches: false,
 	addEventListener: () => {},
 	removeEventListener: () => {},
 })) as unknown as typeof window.matchMedia
 
-// '@/utils' pulls frappe-ui's resource plugin, which doesn't resolve under
-// vitest; only the tool-config shape matters here.
-vi.mock('frappe-ui', () => ({ call: () => {}, toast: {} }))
 vi.mock('@/stores/settings', () => ({ useSettings: () => ({}) }))
 vi.mock('@/stores/user', () => ({ usersStore: () => ({ userResource: {} }) }))
 

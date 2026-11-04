@@ -14,7 +14,8 @@
 		:description="description"
 		:error="error"
 		@update:modelValue="
-			(val: SelectOptionValue | undefined) => emit('update:modelValue', val)
+			(val: SelectOptionValue | null | undefined) =>
+				emit('update:modelValue', val ?? null)
 		"
 	/>
 </template>
@@ -25,12 +26,12 @@ import type { SelectOption, SelectOptionValue } from 'frappe-ui'
 
 defineOptions({ inheritAttrs: false })
 
-type SelectSize = 'sm' | 'md' | 'lg' | 'xl'
+type SelectSize = 'xs' | 'sm' | 'md' | 'lg'
 type SelectVariant = 'subtle' | 'outline' | 'ghost'
 
 const props = withDefaults(
 	defineProps<{
-		modelValue?: SelectOptionValue
+		modelValue?: SelectOptionValue | null
 		options?: SelectOption[]
 		label?: string
 		description?: string
@@ -46,6 +47,6 @@ const props = withDefaults(
 )
 
 const emit = defineEmits<{
-	(e: 'update:modelValue', value: SelectOptionValue | undefined): void
+	(e: 'update:modelValue', value: SelectOptionValue | null): void
 }>()
 </script>

@@ -1,52 +1,54 @@
 <template>
-	<SettingsList
-		v-if="!record"
-		:title="label"
-		:columns="couponColumns"
-		:rows="list.rows"
-		:loading="list.loading"
-		:has-next-page="list.hasNextPage"
-		v-model:search="list.search"
-		searchable
-		empty-name="Coupons"
-		empty-icon="lucide-ticket"
-		@new="openForm(NEW_RECORD)"
-		@load-more="list.loadMore()"
-		@row-click="(row) => openForm(row.name)"
+	<CouponList
+		v-if="step === 'list'"
+		:label="props.label"
+		:description="props.description"
+		:list="list"
+		@updateStep="updateStep"
 	/>
-
-	<CouponForm v-else :name="record" @back="closeForm()" />
+	<CouponDetails
+		v-else-if="step == 'details'"
+		:key="data?.name || 'new'"
+		:coupons="list.resource"
+		:data="data"
+		@updateStep="updateStep"
+	/>
 </template>
 <script setup lang="ts">
+import { ref } from 'vue'
 import { useSettingsListResource } from '@/composables/useSettingsListResource'
-import { NEW_RECORD } from '@/composables/useSettingsSource'
-import CouponForm from '@/components/Settings/Coupons/CouponForm.vue'
-import SettingsList from '@/components/Layouts/settings/desktop/SettingsList.vue'
-import {
-	couponColumns,
-	couponListOptions,
-} from '@/components/Settings/Coupons/coupons'
+import CouponList from '@/components/Settings/Coupons/CouponList.vue'
+import CouponDetails from '@/components/Settings/Coupons/CouponDetails.vue'
+import type { Coupon } from '@/types'
 
-// The list of one settings page, and the form behind a row as its own
-// component: three files per list page, config, list, form. CouponForm is
-// imported statically since an async component renders nothing until its chunk resolves.
+const step = ref('list')
+const data = ref<Coupon | null>(null)
 
-defineProps<{
+const props = defineProps<{
 	label: string
+	description: string
 }>()
 
-// The open record, as a model rather than state of its own, the same
-// contract SettingsListPanel has. Whether the form is showing is read off
-// this and never stored beside it, since a second copy could disagree with the URL.
-const record = defineModel<string | null>('record', { default: null })
-
-const list = useSettingsListResource(couponListOptions)
-
-const openForm = (name: string) => {
-	record.value = name
+const updateStep = (newStep: 'list' | 'new' | 'edit', newData: Coupon) => {
+	step.value = newStep
+	if (newData) {
+		data.value = newData
+	}
 }
 
-const closeForm = () => {
-	record.value = null
-}
+const list = useSettingsListResource<Coupon>({
+	doctype: 'LMS Coupon',
+	fields: [
+		'name',
+		'code',
+		'discount_type',
+		'percentage_discount',
+		'fixed_amount_discount',
+		'expires_on',
+		'usage_limit',
+		'redemption_count',
+		'enabled',
+	],
+	searchFields: ['code'],
+})
 </script>

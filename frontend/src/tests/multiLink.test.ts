@@ -118,7 +118,6 @@ vi.mock('frappe-ui', async () => {
 	).default
 	return {
 		MultiSelect,
-		FormLabel: { props: ['label'], template: `<label>{{ label }}</label>` },
 		Button: {
 			props: ['variant', 'size', 'ariaLabel'],
 			emits: ['click'],

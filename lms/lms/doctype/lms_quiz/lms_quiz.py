@@ -4,6 +4,7 @@
 import json
 import os
 import re
+import warnings
 from binascii import Error as BinasciiError
 from functools import partial
 
@@ -15,15 +16,25 @@ from frappe.utils import (
 	cint,
 	comma_and,
 	convert_utc_to_system_timezone,
+	cstr,
 	escape_html,
 	get_datetime,
 	now_datetime,
 )
 from frappe.utils.file_manager import safe_b64decode
 from frappe.utils.html_utils import sanitize_html
-from fuzzywuzzy import fuzz
 
-from lms.lms.doctype.course_lesson.course_lesson import get_lesson_course, save_progress
+# fuzzywuzzy warns on import unless python-Levenshtein is installed. That
+# package scores differently from difflib and would change which answers pass.
+with warnings.catch_warnings():
+	warnings.filterwarnings("ignore", message="Using slow pure-python SequenceMatcher")
+	from fuzzywuzzy import fuzz
+
+from lms.lms.doctype.course_lesson.course_lesson import (
+	get_lesson_course,
+	save_progress,
+	video_holds_completion,
+)
 from lms.lms.doctype.lms_content_author.lms_content_author import AuthoredDocument
 from lms.lms.doctype.lms_question.lms_question import (
 	QUESTION_CORRECTNESS_FIELDS,
@@ -44,7 +55,7 @@ from lms.lms.utils import (
 ALLOWED_DATAURL_IMAGE_EXTENSIONS = {".png", ".jpg", ".jpeg", ".gif", ".webp", ".avif", ".bmp"}
 
 VIOLATION_EVENT_TYPES = {"tab_switch", "no_face", "multiple_faces", "focus_loss", "camera_disconnect"}
-SUBMISSION_REASONS = {"manual", "timer_expired", "max_violations", "browser_closed"}
+SUBMISSION_REASONS = {"manual", "timer_expired", "max_violations", "browser_closed", "left_page"}
 # One attempt cannot plausibly produce more proctoring events than this; the rest is a flood.
 MAX_VIOLATION_EVENTS = 500
 # Proctoring frames are ~320px JPEGs, so a frame past this is not a frame. Held as a
@@ -58,6 +69,14 @@ MAX_VIOLATION_FRAMES = 40
 
 
 class LMSQuiz(AuthoredDocument, Document):
+	def throw_length_exceeded_error(self, df, max_length, value):
+		if df.fieldname == "title":
+			frappe.throw(
+				_("Title must be {0} characters or fewer.").format(max_length),
+				frappe.CharacterLengthExceededError,
+			)
+		super().throw_length_exceeded_error(df, max_length, value)
+
 	def validate(self):
 		self.validate_duplicate_questions()
 		self.validate_limit()
@@ -191,6 +210,7 @@ def submit_quiz(
 			"marks_to_cut",
 			"enable_proctoring",
 			"max_violations",
+			"limit_questions_to",
 			"enable_scheduling",
 			"schedule_start",
 			"schedule_end",
@@ -229,7 +249,7 @@ def submit_quiz(
 		submission_reason=proctoring["submission_reason"],
 	)
 	percentage = submission.percentage or 0
-	save_progress_after_quiz(quiz_details, percentage)
+	save_progress_after_quiz(quiz_details)
 
 	_save_violation_events(submission.name, proctoring["events"])
 	_attach_answer_files(data["answer_files"], submission.name)
@@ -241,6 +261,28 @@ def submit_quiz(
 		"pass": percentage >= quiz_details.passing_percentage,
 		"percentage": percentage,
 		"is_open_ended": is_open_ended,
+		**_answer_counts(data["results"], _attempt_size(quiz_details)),
+	}
+
+
+def _attempt_size(quiz_details: dict) -> int:
+	"""How many questions one attempt shows. A quiz limited to part of its questions
+	draws that many per attempt; the rest were never seen, so not unanswered."""
+	total = frappe.db.count("LMS Quiz Question", {"parent": quiz_details.name})
+	limit = cint(quiz_details.limit_questions_to)
+	return min(limit, total) if limit else total
+
+
+def _answer_counts(results: list, total_questions: int) -> dict:
+	"""Correct, wrong and not answered, for the result screen. A blank answer counts
+	as not answered, and so does a question the attempt never reached, which has no
+	result row at all."""
+	answered = [row for row in results if cstr(row.get("answer")).strip()]
+	correct = sum(1 for row in answered if row.get("is_correct"))
+	return {
+		"correct": correct,
+		"wrong": len(answered) - correct,
+		"unanswered": max(total_questions - len(answered), 0),
 	}
 
 
@@ -483,9 +525,13 @@ def _save_violation_frame(log_name: str, data_url: str) -> bool:
 
 @frappe.whitelist()
 def is_open_ended_submission(submission: str) -> bool:
-	quiz = frappe.db.get_value("LMS Quiz Submission", submission, "quiz")
+	quiz, member = frappe.db.get_value("LMS Quiz Submission", submission, ["quiz", "member"]) or (None, None)
 	if not quiz:
 		return False
+	if member != frappe.session.user and not frappe.has_permission("LMS Quiz Submission", "read", submission):
+		frappe.throw(_("Insufficient Permission"), frappe.PermissionError)
+	# A quiz is open ended as a whole (validate_open_ended_questions), so its first
+	# question decides.
 	question_type = frappe.db.get_value("LMS Quiz Question", {"parent": quiz}, "type")
 	return question_type == "Open Ended"
 
@@ -576,6 +622,8 @@ def process_results(results: list, quiz_details: dict):
 		else:
 			is_open_ended = True
 			result["is_correct"] = 0
+			# An evaluator grades it later; whatever marks the page sent do not count.
+			result["marks"] = 0
 			answer = re.sub(
 				r'<img[^>]*src\s*=\s*["\'](?=data:)(.*?)["\']',
 				partial(_save_file, answer_files),
@@ -699,11 +747,9 @@ def create_submission(
 	return submission
 
 
-def save_progress_after_quiz(quiz_details: dict, percentage: float):
+def save_progress_after_quiz(quiz_details: dict):
+	"""save_progress decides whether this attempt is enough to complete the lesson."""
 	if not quiz_details.lesson or not quiz_details.course:
-		return
-
-	if quiz_details.passing_percentage and percentage < quiz_details.passing_percentage:
 		return
 
 	# save_progress refuses a locked lesson by raising, which would roll back the
@@ -716,6 +762,9 @@ def save_progress_after_quiz(quiz_details: dict, percentage: float):
 
 	course = get_lesson_course(quiz_details.lesson)
 	if not course or quiz_details.lesson in get_locked_lessons(course):
+		return
+	# The lesson page completes it once the video ends.
+	if video_holds_completion(quiz_details.lesson):
 		return
 
 	save_progress(quiz_details.lesson, course)

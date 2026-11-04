@@ -70,15 +70,9 @@ const MARKETPLACE_URL = 'https://cloud.frappe.io/marketplace/apps/raven'
 // separate __() calls could not be reordered by a translator, gave the fragments
 // no context in the POT file, and fixed an English word order into the DOM, which
 // is also what an RTL locale has to undo.
-//
-// `.format()` first: `__()` returns an object, not a string, for a
-// placeholder message, and `.split('{0}')` on that crashed outright.
-const sentence = computed<string[]>(() => {
-	const filled = __('Install the {0} app to enable this integration.').format(
-		appName.value
-	)
-	return filled.split(appName.value)
-})
+const sentence = computed<string[]>(() =>
+	__('Install the {0} app to enable this integration.').split('{0}')
+)
 
 // Not translated: both are the app's own name as it is spelled everywhere else.
 const appName = computed<string>(() =>

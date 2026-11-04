@@ -1,11 +1,11 @@
 <template>
 	<FormShell
-		:title="isNew ? __('Create Program') : __('Edit Program')"
+		:title="isNew ? __('New Program') : __('Edit Program')"
 		size="2xl"
 		@close="close"
 	>
 		<template #header-action>
-			<Badge theme="orange" v-if="dirty">
+			<Badge theme="amber" v-if="dirty">
 				{{ __('Not Saved') }}
 			</Badge>
 		</template>
@@ -14,7 +14,7 @@
 				{{ __('You are not permitted to manage programs.') }}
 			</div>
 			<div v-else data-testid="program-fields" class="text-base">
-				<div class="grid grid-cols-1 md:grid-cols-2 gap-5 pb-5">
+				<div class="space-y-5 pb-5">
 					<FormControl
 						v-model="program.name"
 						:label="__('Title')"
@@ -22,7 +22,7 @@
 						:required="true"
 						@change="dirty = true"
 					/>
-					<div class="flex flex-col space-y-3">
+					<div class="grid grid-cols-1 md:grid-cols-2 gap-5">
 						<FormControl
 							v-model="program.published"
 							:label="__('Published')"
@@ -64,7 +64,7 @@
 						:rowKey="'course'"
 					>
 						<ListHeader
-							class="mb-2 grid items-center gap-x-4 rounded bg-surface-gray-2 p-2"
+							class="mb-2 grid items-center gap-x-4 rounded-4 bg-surface-gray-2 p-2"
 						>
 							<ListHeaderItem
 								:item="item"
@@ -101,9 +101,15 @@
 							</template>
 						</ListSelectBanner>
 					</ListView>
-					<div v-else class="text-ink-gray-7">
-						{{ __('No courses added yet.') }}
-					</div>
+					<SectionEmptyState
+						v-else
+						icon="lucide-book-open"
+						:message="
+							__(
+								'Add the courses learners take in this program, in the order they should take them.'
+							)
+						"
+					/>
 				</div>
 
 				<div>
@@ -135,6 +141,7 @@
 						</div>
 					</div>
 					<ResponsiveListView
+						docked-banner
 						v-if="program.program_members?.length > 0"
 						:columns="memberColumns"
 						:rows="program.program_members"
@@ -153,9 +160,15 @@
 							</Button>
 						</template>
 					</ResponsiveListView>
-					<div v-else class="text-ink-gray-7">
-						{{ __('No members added yet.') }}
-					</div>
+					<SectionEmptyState
+						v-else
+						icon="lucide-users"
+						:message="
+							__(
+								'Add the people who should take this program. They get every course in it.'
+							)
+						"
+					/>
 				</div>
 			</div>
 			<Dialog
@@ -193,7 +206,7 @@
 							:label="__('Program Member')"
 							:onCreate="
 								(value: string, close: () => void) =>
-									openSettings('members', close)
+									openSettings('Members', close)
 							"
 						/>
 					</div>
@@ -219,7 +232,7 @@
 				/>
 				<HeaderButton
 					data-testid="program-save"
-					:label="__('Save')"
+					:label="isNew ? __('Create') : __('Save')"
 					variant="solid"
 					@click="saveProgram()"
 				/>
@@ -228,6 +241,7 @@
 	</FormShell>
 </template>
 <script setup lang="ts">
+import SectionEmptyState from '@/components/SectionEmptyState.vue'
 import {
 	Badge,
 	Button,
@@ -235,14 +249,17 @@ import {
 	createListResource,
 	Dialog,
 	FormControl,
+	toast,
+} from 'frappe-ui'
+import type { FrappeResourceError } from 'frappe-ui'
+import {
 	ListSelectBanner,
 	ListView,
 	ListHeader,
 	ListHeaderItem,
 	ListRows,
 	ListRow,
-	toast,
-} from 'frappe-ui'
+} from 'frappe-ui/experimental'
 import { computed, inject, ref, watch, getCurrentInstance } from 'vue'
 
 import { Program, ProgramCourse, ProgramMember } from '@/types'
@@ -255,8 +272,7 @@ import Link from '@/components/Controls/Link.vue'
 import ResponsiveListView from '@/components/ResponsiveListView.vue'
 import Draggable from 'vuedraggable'
 import ProgramProgressSummary from '@/components/Programs/ProgramProgressSummary.vue'
-import { submitResource } from '@/utils/resource'
-import { reindexProgramCourses } from '@/utils/programOrder'
+import { resourceErrorMessage, submitResource } from '@/utils/resource'
 
 const showFormDialog = ref(false)
 const currentForm = ref<'course' | 'member'>('course')
@@ -338,13 +354,14 @@ const programDoc = createDocumentResource({
 	doctype: 'LMS Program',
 	name: isNew.value ? undefined : programId.value,
 	auto: !isNew.value,
-	onError(err: any) {
-		toast.warning(__(err.messages?.[0] || err))
+	onError(err: FrappeResourceError) {
+		toast.warning(resourceErrorMessage(err, __('Error')))
 	},
 })
 
 const programCourses = createListResource({
 	doctype: 'LMS Program Course',
+	pageLength: 99999,
 	fields: ['course', 'course_title', 'name', 'idx'],
 	parent: 'LMS Program',
 	orderBy: 'idx',
@@ -355,6 +372,7 @@ const programCourses = createListResource({
 
 const programMembers = createListResource({
 	doctype: 'LMS Program Member',
+	pageLength: 99999,
 	fields: ['member', 'full_name', 'progress', 'name'],
 	parent: 'LMS Program',
 	orderBy: 'creation desc',
@@ -426,7 +444,6 @@ const saveProgram = () => {
 	validateTitle()
 	if (isNew.value) createNewProgram()
 	else updateProgram()
-	dirty.value = false
 }
 
 // Saving navigates onward by REPLACING, so the entry this form was opened on is
@@ -445,11 +462,12 @@ const createNewProgram = () => {
 		},
 		{
 			onSuccess() {
+				dirty.value = false
 				toast.success(__('Program created successfully'))
 				afterSave()
 			},
-			onError(err: any) {
-				toast.warning(__(err.messages?.[0] || err))
+			onError(err: FrappeResourceError) {
+				toast.warning(resourceErrorMessage(err, __('Error')))
 			},
 		}
 	)
@@ -469,11 +487,12 @@ const updateProgram = () => {
 		},
 		{
 			onSuccess() {
+				dirty.value = false
 				toast.success(__('Program updated successfully'))
 				afterSave()
 			},
-			onError(err: any) {
-				toast.warning(__(err.messages?.[0] || err))
+			onError(err: FrappeResourceError) {
+				toast.warning(resourceErrorMessage(err, __('Error')))
 			},
 		}
 	)
@@ -536,9 +555,12 @@ const addMember = (close: () => void) => {
 	}
 }
 
-const updateOrder = () => {
+const updateOrder = (e: { oldIndex: number; newIndex: number }) => {
+	if (e.oldIndex === e.newIndex) return
 	// vuedraggable updates the bound array before emitting `end`.
-	reindexProgramCourses(program.value.program_courses)
+	program.value.program_courses.forEach((course, index) => {
+		course.idx = index + 1
+	})
 	dirty.value = true
 }
 
@@ -573,7 +595,7 @@ const deleteProgram = () => {
 				label: __('Delete'),
 				theme: 'red',
 				variant: 'solid',
-				onClick(closeDialog: () => void) {
+				onClick({ close: closeDialog }: { close: () => void }) {
 					submitResource(programs.delete, programId.value, {
 						onSuccess() {
 							toast.success(__('Program deleted successfully'))
@@ -581,8 +603,8 @@ const deleteProgram = () => {
 							closeDialog()
 							close()
 						},
-						onError(err: any) {
-							toast.warning(__(err.messages?.[0] || err))
+						onError(err: FrappeResourceError) {
+							toast.warning(resourceErrorMessage(err, __('Error')))
 							closeDialog()
 						},
 					})

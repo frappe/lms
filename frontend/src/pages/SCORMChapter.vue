@@ -36,7 +36,7 @@
 import { Button, call, createResource, toast, usePageMeta } from 'frappe-ui'
 import { computed, inject, onBeforeMount, ref } from 'vue'
 import { useRouter } from 'vue-router'
-import PageHeader from '@/components/Layouts/pages/PageHeader.vue'
+import PageHeader from '@/components/Layouts/PageHeader.vue'
 import LockedLessonNotice from '@/components/LockedLessonNotice.vue'
 import { useSidebar } from '@/stores/sidebar'
 import { sessionStore } from '../stores/session'
@@ -79,7 +79,6 @@ const playback = createResource({
 		return { chapter: props.chapterName }
 	},
 	auto: true,
-	cache: ['chapter', props.chapterName],
 	onSuccess(data) {
 		if (data?.locked) outline.fetch()
 		else if (data?.launch_file) progress.submit()
@@ -290,13 +289,8 @@ const setupSCORMAPI = () => {
 	window.API_1484_11 = {
 		Initialize: () => 'true',
 		Terminate: () => 'true',
-		GetValue: (key) => {
-			console.log(`GET: ${key}`)
-			return getDataFromLMS(key)
-		},
+		GetValue: (key) => getDataFromLMS(key),
 		SetValue: (key, value) => {
-			console.log(`SET: ${key} to value: ${value}`)
-
 			saveDataToLMS(key, value)
 			return 'true'
 		},
@@ -308,12 +302,8 @@ const setupSCORMAPI = () => {
 	window.API = {
 		LMSInitialize: () => 'true',
 		LMSFinish: () => 'true',
-		LMSGetValue: (key) => {
-			console.log(`GET: ${key}`)
-			return getDataFromLMS(key)
-		},
+		LMSGetValue: (key) => getDataFromLMS(key),
 		LMSSetValue: (key, value) => {
-			console.log(`SET: ${key} to value: ${value}`)
 			saveDataToLMS(key, value)
 			return 'true'
 		},

@@ -2,6 +2,10 @@ import type { OutlineChapter } from '@/types'
 
 type Chapters = OutlineChapter[] | null | undefined
 
+// On touch, a row starts dragging only after a long press, so a swipe scrolls
+// the outline instead of reordering it. Mouse drags start at once.
+export const outlineDragOptions = { delay: 300, delayOnTouchOnly: true }
+
 export function findLessonNameByNumber(
 	chapters: Chapters,
 	number: string

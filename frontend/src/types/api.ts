@@ -1,6 +1,7 @@
 import type { Ref } from 'vue'
 import type { LMSCourse } from './lms/LMSCourse'
 import type { LMSBatch } from './lms/LMSBatch'
+import type { CourseEvaluator } from './lms/CourseEvaluator'
 
 export interface Resource<T = unknown> {
 	data: T
@@ -16,6 +17,7 @@ export interface Resource<T = unknown> {
 	// see utils/resource.ts.
 	submit(params?: unknown, opts?: unknown): Promise<T>
 	update(opts: unknown): void
+	setData(data: T): void
 	setValue: { submit(values: unknown, opts?: unknown): Promise<T> }
 }
 
@@ -40,7 +42,9 @@ export interface SessionUser {
 	}
 }
 
-export interface CourseInstructorInfo extends UserInfo {
+// `name` is the login email, sent only to the instructor themselves.
+export interface CourseInstructorInfo extends Omit<UserInfo, 'name'> {
+	name?: string
 	instructor?: string
 	bio?: string | null
 }
@@ -67,8 +71,12 @@ export interface CourseDetails
 
 export interface BatchDetails extends Omit<LMSBatch, 'instructors'> {
 	instructors: string[]
-	students?: string[]
+	student_count?: number
+	is_student?: boolean
 	batch_details_raw?: string
+	/** A listed instructor of this batch, or a Moderator: the server refuses
+	 * instructor-list changes from anyone else, a tagged evaluator included. */
+	can_change_instructors?: boolean
 }
 
 export interface CourseReviewInfo {
@@ -99,6 +107,8 @@ export interface OutlineChapter {
 
 export interface CertificationInfo {
 	title?: string | null
+	has_evaluator?: boolean
+	// The evaluator's login email, sent only to the evaluator themselves.
 	evaluator?: string | null
 	certificate?: {
 		name: string
@@ -139,4 +149,27 @@ export interface CourseFormContext {
 	relatedCourses: Ref<string[]>
 	meta: CourseFormMeta
 	markDirty: () => void
+}
+
+export interface EvaluatorCalendar {
+	name?: string
+	enable: 0 | 1
+	calendar_name: string
+	push_to_google_calendar: 0 | 1
+	is_authorized: boolean
+	connected: boolean
+}
+
+// lms.lms.api.get_evaluator_details, also returned by save_evaluator_availability.
+export interface EvaluatorDetails {
+	slots: Pick<
+		CourseEvaluator,
+		'evaluator' | 'schedule' | 'unavailable_from' | 'unavailable_to'
+	>
+	calendar: EvaluatorCalendar | null
+	google_enabled: boolean
+	can_configure_google: boolean
+	timezone: string
+	evaluation_invites: boolean
+	can_configure_invites: boolean
 }

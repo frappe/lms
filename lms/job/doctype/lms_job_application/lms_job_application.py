@@ -5,11 +5,13 @@ import frappe
 from frappe import _
 from frappe.model.document import Document
 
-from lms.lms.utils import get_attachable_file, validate_attachable_file
+from lms.lms.permissions import validate_filed_for_self
+from lms.lms.utils import get_attachable_file, read_file_bytes, validate_attachable_file
 
 
 class LMSJobApplication(Document):
 	def validate(self):
+		validate_filed_for_self(self, "user")
 		self.validate_duplicate()
 		validate_attachable_file(self, "resume")
 		self.validate_resume_exists()
@@ -54,7 +56,7 @@ class LMSJobApplication(Document):
 				attachments=[
 					{
 						"fname": resume_file.file_name,
-						"fcontent": resume_file.get_content(),
+						"fcontent": read_file_bytes(resume_file),
 					}
 				],
 				header=[subject, "green"],

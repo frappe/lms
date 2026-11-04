@@ -65,7 +65,9 @@ class TestEnrollmentIdentityFields(BaseTestUtils):
 		self.assertEqual(self._stored("course"), self.free_course.name)
 
 	def test_student_cannot_hand_enrollment_to_another_member(self):
-		with self.assertRaises(frappe.CannotChangeConstantError):
+		# Refused by the permission check now (the row would leave the student's
+		# reach), before the identity check is reached. Either refusal will do.
+		with self.assertRaises((frappe.CannotChangeConstantError, frappe.PermissionError)):
 			self._set_enrollment(self.student.email, "member", self.other.email)
 		self.assertEqual(self._stored("member"), self.student.email)
 
@@ -73,6 +75,12 @@ class TestEnrollmentIdentityFields(BaseTestUtils):
 		with self.assertRaises(frappe.CannotChangeConstantError):
 			self._set_enrollment(self.student.email, "enrollment_from_batch", self.paid_batch.name)
 		self.assertIsNone(self._stored("enrollment_from_batch"))
+
+	def test_moderator_cannot_hand_enrollment_to_another_member_either(self):
+		# The permission hook lets a Moderator through, so this reaches the identity check.
+		with self.assertRaises(frappe.CannotChangeConstantError):
+			self._set_enrollment(self.moderator.email, "member", self.other.email)
+		self.assertEqual(self._stored("member"), self.student.email)
 
 	def test_moderator_cannot_repoint_enrollment_either(self):
 		with self.assertRaises(frappe.CannotChangeConstantError):

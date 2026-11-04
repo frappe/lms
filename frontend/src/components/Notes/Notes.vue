@@ -17,6 +17,7 @@
 import { useDebounceFn } from '@vueuse/core'
 import { inject, ref, onMounted, watch } from 'vue'
 import type { Note, Notes } from '@/types'
+import type { FrappeResourceError } from 'frappe-ui'
 import { blockQuotesClick } from '@/utils/'
 import RichTextEditor from '@/components/RichTextEditor.vue'
 
@@ -89,7 +90,7 @@ const createNote = () => {
 				currentNoteName.value = data.name || null
 				emit('updateNotes')
 			},
-			onError(err: any) {
+			onError(err: FrappeResourceError) {
 				console.error('Error creating note:', err)
 			},
 		}
@@ -109,7 +110,7 @@ const updateNote = () => {
 			onSuccess(data: Note) {
 				emit('updateNotes')
 			},
-			onError(err: any) {
+			onError(err: FrappeResourceError) {
 				console.error('Error updating note:', err)
 			},
 		}

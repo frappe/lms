@@ -40,8 +40,7 @@ vi.mock('@/components/HeaderButton.vue', () => ({
 vi.mock('@/stores/settings', () => ({ useSettings: () => ({}) }))
 vi.mock('@/stores/user', () => ({ usersStore: () => ({ userResource: {} }) }))
 
-// frappe-ui's ESM build does not resolve under vitest, so every export
-// CourseOutline, ChapterForm and FormShell reach for is stubbed by hand.
+// Covers every export CourseOutline, ChapterForm and FormShell reach for.
 vi.mock('frappe-ui', () => ({
 	createResource: createResourceMock,
 	call: vi.fn(),
@@ -61,15 +60,22 @@ vi.mock('frappe-ui', () => ({
 		emits: ['update:modelValue'],
 		template: `<label>{{ label }}<input :value="modelValue" /></label>`,
 	},
-	FormLabel: { props: ['label'], template: `<label>{{ label }}</label>` },
 	FileUploader: passthrough,
-	Switch: passthrough,
 }))
 
-vi.mock('frappe-ui/frappe', () => ({
+vi.mock('@framework/ui/telemetry/index', async (importOriginal) => ({
+	...(await importOriginal<typeof import('@framework/ui/telemetry/index')>()),
 	useTelemetry: () => ({ capture: vi.fn() }),
-	useOnboarding: () => ({ updateOnboardingStep: vi.fn() }),
 }))
+vi.mock(
+	'@framework/ui/components/Onboarding/index',
+	async (importOriginal) => ({
+		...(await importOriginal<
+			typeof import('@framework/ui/components/Onboarding/index')
+		>()),
+		useOnboarding: () => ({ updateOnboardingStep: vi.fn() }),
+	})
+)
 
 vi.mock('@/components/Controls/BooleanSwitch.vue', () => ({
 	default: { props: ['modelValue', 'label'], template: `<label />` },

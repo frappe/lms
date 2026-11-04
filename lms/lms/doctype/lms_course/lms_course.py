@@ -7,7 +7,9 @@ import frappe
 from frappe import _
 from frappe.desk.doctype.notification_log.notification_log import make_notification_logs
 from frappe.model.document import Document
-from frappe.utils import cint, flt, today
+from frappe.utils import cint, comma_and, escape_html, flt, today
+
+from lms.lms.doctype.course_lesson.course_lesson import get_valid_question_count
 
 from ...utils import (
 	generate_slug,
@@ -24,6 +26,7 @@ from ...utils import (
 class LMSCourse(Document):
 	def validate(self):
 		self.validate_published()
+		self.warn_quizzes_without_questions()
 		self.validate_instructors()
 		self.validate_duplicate_instructors()
 		self.validate_video_link()
@@ -40,6 +43,22 @@ class LMSCourse(Document):
 			return
 		if self.is_new() or self.has_value_changed("published") or not self.published_on:
 			self.published_on = today()
+
+	def warn_quizzes_without_questions(self):
+		"""Learners pass these quizzes by default, so tell the instructor on publish."""
+		if not self.published or not (self.is_new() or self.has_value_changed("published")):
+			return
+		quizzes = get_quizzes_without_questions(self.name)
+		if not quizzes:
+			return
+		self.set_onload("quizzes_without_questions", quizzes)
+		frappe.msgprint(
+			_("These quizzes have no questions, so learners skip them: {0}").format(
+				comma_and([escape_html(title) for title in quizzes])
+			),
+			title=_("Quizzes without questions"),
+			indicator="orange",
+		)
 
 	def validate_instructors(self):
 		if self.is_new() and not self.instructors:
@@ -149,6 +168,29 @@ class LMSCourse(Document):
 
 	def __repr__(self):
 		return f"<Course#{self.name}>"
+
+
+def get_quizzes_without_questions(course: str) -> list[str]:
+	"""Titles of quizzes placed in the course's lessons that have no valid question."""
+	placement = frappe.qb.DocType("LMS Lesson Assessment")
+	lesson = frappe.qb.DocType("Course Lesson")
+	quiz = frappe.qb.DocType("LMS Quiz")
+	placed = (
+		frappe.qb.from_(placement)
+		.join(lesson)
+		.on(lesson.name == placement.parent)
+		.join(quiz)
+		.on(quiz.name == placement.assessment_name)
+		.where(
+			(lesson.course == course)
+			& (placement.parenttype == "Course Lesson")
+			& (placement.assessment_type == "LMS Quiz")
+			& (placement.instructor_only == 0)
+		)
+		.select(quiz.name, quiz.title)
+		.distinct()
+	).run(as_dict=True)
+	return [row.title for row in placed if not get_valid_question_count(row.name)]
 
 
 def send_notification_for_published_courses():

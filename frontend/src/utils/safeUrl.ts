@@ -15,7 +15,17 @@
 const ALLOWED = /^(https?:|\/(?![/\\])|#|mailto:)/i
 const IGNORED_BY_BROWSER = /[\u0000-\u0020]/g
 
-export const safeUrl = (value?: string | null): string | undefined => {
+// Opt-in, for an <img> src only: a camera still the page captured itself is a
+// base64 raster, which an <img> renders without running anything. Never for an
+// href, where a data: URL is a page; and never svg, which can carry script.
+const INLINE_IMAGE = /^data:image\/(jpeg|png|webp);base64,/i
+
+export const safeUrl = (
+	value?: string | null,
+	options: { inlineImage?: boolean } = {}
+): string | undefined => {
 	if (!value) return undefined
-	return ALLOWED.test(value.replace(IGNORED_BY_BROWSER, '')) ? value : undefined
+	const url = value.replace(IGNORED_BY_BROWSER, '')
+	if (ALLOWED.test(url)) return value
+	return options.inlineImage && INLINE_IMAGE.test(url) ? value : undefined
 }

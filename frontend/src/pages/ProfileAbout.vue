@@ -18,7 +18,7 @@
 		</h2>
 		<div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
 			<div v-for="badge in badges.data" :key="badge.badge">
-				<HoverCard :leave-delay="0.01">
+				<HoverCard :leave-delay="10">
 					<template #trigger>
 						<div class="relative">
 							<img
@@ -39,7 +39,7 @@
 					</template>
 					<template #default>
 						<div class="w-[250px] text-base">
-							<div class="bg-surface-gray-2 rounded-t-md py-5">
+							<div class="bg-surface-gray-2 rounded-t-5 py-5">
 								<img
 									:src="safeUrl(badge.badge_image)"
 									:alt="badge.badge"
@@ -60,7 +60,7 @@
 									{{ dayjs(badge.issued_on).format('DD MMM YYYY') }}
 								</div>
 								<div
-									v-if="user.data?.name == profile.data?.name"
+									v-if="user.data?.username == profile.data?.username"
 									class="flex flex-col mt-4"
 								>
 									<span class="text-xs-medium text-ink-gray-7 mb-1">
@@ -125,7 +125,7 @@ const props = defineProps({
 const badges = createResource({
 	url: 'lms.lms.api.get_badges',
 	params: {
-		member: props.profile.data.name,
+		member: props.profile.data.username,
 	},
 	auto: true,
 	transform(data) {

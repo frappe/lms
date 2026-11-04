@@ -59,7 +59,10 @@ def has_permission(doc, ptype="read", user=None):
 		# question of both those and the stored row: either alone lets an evaluator
 		# move an evaluation onto, or off, a course they do not evaluate.
 		stored = frappe.db.get_value(
-			"LMS Certificate Evaluation", doc.name, ["evaluator", "course", "batch_name"], as_dict=True
+			"LMS Certificate Evaluation",
+			doc.name,
+			["evaluator", "member", "course", "batch_name"],
+			as_dict=True,
 		)
 		if not stored or not is_assigned_evaluator(stored, user):
 			return False
@@ -69,7 +72,29 @@ def has_permission(doc, ptype="read", user=None):
 
 
 def is_assigned_evaluator(evaluation, user):
-	return evaluation.evaluator == user and get_evaluator(evaluation.course, evaluation.batch_name) == user
+	return evaluation.evaluator == user and can_evaluate(
+		user, evaluation.member, evaluation.course, evaluation.batch_name
+	)
+
+
+def can_evaluate(user: str, member: str, course: str, batch_name: str | None = None) -> bool:
+	"""The course/batch's evaluator, or the evaluator on the member's live certificate request."""
+	if get_evaluator(course, batch_name) == user:
+		return True
+	if not (member and course):
+		return False
+	return bool(
+		frappe.db.exists(
+			"LMS Certificate Request",
+			{
+				"member": member,
+				"course": course,
+				"batch_name": batch_name or ("is", "not set"),
+				"evaluator": user,
+				"status": ("!=", "Cancelled"),
+			},
+		)
+	)
 
 
 def get_permission_query_conditions(user=None):
@@ -112,9 +137,10 @@ def create_lms_certificate(source_name: str, target_doc: dict = None):
 		)
 
 	# get_mapped_doc checks create before it maps, so seed the scope that check reads.
-	# A Document, not a dict: get_mapped_doc on frappe v15 and v16 checks permission on it.
-	target_doc = target_doc or frappe.get_doc(
-		{
+	# A Document, not a dict: version-16's get_mapped_doc takes only a str or a Document.
+	target_doc = frappe.get_doc(
+		target_doc
+		or {
 			"doctype": "LMS Certificate",
 			"course": evaluation.course,
 			"batch_name": evaluation.batch_name,

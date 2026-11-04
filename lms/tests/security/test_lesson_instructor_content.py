@@ -3,7 +3,7 @@ import json
 import frappe
 
 from lms.lms.test_helpers import BaseTestUtils
-from lms.lms.utils import get_lesson
+from lms.lms.utils import get_lesson, get_lesson_creation_details
 
 SECRET_MARKER = "ANSWER-KEY-8f21"
 
@@ -67,3 +67,15 @@ class TestLessonInstructorContentLeak(BaseTestUtils):
 		result = self._get(self.instructor.email)
 		self.assertIn(SECRET_MARKER, result.get("instructor_content") or "")
 		self.assertEqual(result.get("instructor_notes"), self.SECRET_NOTES)
+
+	def test_only_the_courses_authors_get_the_lesson_creation_details(self):
+		other = self._create_user(
+			f"other-instr-{frappe.generate_hash(length=6)}@example.com", "Ot", "Her", ["Course Creator"]
+		).email
+		frappe.set_user(other)
+		with self.assertRaises(frappe.PermissionError):
+			get_lesson_creation_details(self.course.name, 1, 1)
+
+		frappe.set_user(self.instructor.email)
+		details = get_lesson_creation_details(self.course.name, 1, 1)
+		self.assertEqual(details["lesson"]["instructor_notes"], self.SECRET_NOTES)

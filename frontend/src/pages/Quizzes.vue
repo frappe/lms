@@ -11,24 +11,39 @@
 		v-model:search="search"
 		empty-name="Quizzes"
 		empty-icon="lucide-circle-help"
+		:empty-title="emptyState?.title"
+		:empty-description="emptyState?.description"
 		@load-more="quizzes.next()"
 	>
 		<template #name="{ totalCount }">
 			{{ __('{0} Quizzes').format(totalCount || 0) }}
 		</template>
 
+		<template v-if="emptyState" #empty-actions>
+			<EmptyStateActions
+				list="quizzes"
+				:create-label="__('New Quiz')"
+				docs="https://docs.frappe.io/learning/quizzes"
+				@create="createQuiz"
+			/>
+		</template>
+
 		<template #actions>
-			<router-link :to="{ name: 'QuizSubmissions' }">
-				<HeaderButton :label="__('Submissions')" icon="lucide-file-check" />
-			</router-link>
-			<router-link :to="{ name: 'Questions' }">
-				<HeaderButton :label="__('Questions')" icon="lucide-circle-help" />
-			</router-link>
+			<HeaderButton
+				:route="{ name: 'QuizSubmissions' }"
+				:label="__('Submissions')"
+				icon="lucide-file-check"
+			/>
+			<HeaderButton
+				:route="{ name: 'Questions' }"
+				:label="__('Questions')"
+				icon="lucide-circle-help"
+			/>
 			<Button v-if="!readOnlyMode" variant="solid" @click="createQuiz">
 				<template #prefix>
 					<span class="lucide-plus size-4" />
 				</template>
-				{{ __('Create') }}
+				{{ __('New Quiz') }}
 			</Button>
 		</template>
 
@@ -41,7 +56,7 @@
 			<div v-else-if="column.key == 'modified'" class="text-sm text-ink-gray-5">
 				{{ value }}
 			</div>
-			<div v-else>{{ value }}</div>
+			<div v-else class="truncate">{{ value }}</div>
 		</template>
 
 		<template #selection-actions="{ selections }">
@@ -66,7 +81,8 @@
 </template>
 <script setup>
 import { Button, Checkbox, createListResource, usePageMeta } from 'frappe-ui'
-import ListPage from '@/components/Layouts/pages/ListPage.vue'
+import ListPage from '@/components/Layouts/ListPage.vue'
+import EmptyStateActions from '@/components/EmptyStateActions.vue'
 import HeaderButton from '@/components/HeaderButton.vue'
 import { useRouter } from 'vue-router'
 import { computed, inject, onMounted, ref, watch } from 'vue'
@@ -79,6 +95,18 @@ const user = inject('$user')
 const dayjs = inject('$dayjs')
 const router = useRouter()
 const search = ref('')
+// What lands in this list and how to start it, for the person who would fill it;
+// learners keep the default wording.
+const emptyState = computed(() => {
+	if (readOnlyMode) return null
+	return {
+		title: __('Create your first quiz'),
+		description: __(
+			'Check what learners understood with multiple choice, short answer or open ended questions.'
+		),
+	}
+})
+
 const readOnlyMode = window.read_only_mode
 const quizFilters = ref({})
 

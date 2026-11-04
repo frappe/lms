@@ -74,7 +74,8 @@ class TestProfileDetails(BaseTestUtils):
 		frappe.session.user = self.member.email
 		details = get_profile_details(self.roleless.username)
 
-		self.assertEqual(details.name, self.roleless.email)
+		self.assertEqual(details.username, self.roleless.username)
+		self.assertNotIn("name", details)
 
 	def test_unknown_username_does_not_leak_existence_to_a_roleless_caller(self):
 		"""Same error for a real username and a made-up one, so the endpoint

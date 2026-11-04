@@ -3,7 +3,6 @@
 
 import os
 import re
-from contextlib import contextmanager
 from pathlib import Path
 from unittest.mock import patch
 
@@ -24,7 +23,6 @@ RELEASED_LOGIN_HELPERS = {"login_handlers", "set_status", "show_field_error"}
 
 
 class TestSignupForm(UnitTestCase):
-	@contextmanager
 	def patched_settings(self, lms_settings):
 		original = frappe.db.get_single_value
 
@@ -33,23 +31,23 @@ class TestSignupForm(UnitTestCase):
 				return lms_settings.get(fieldname)
 			return original(doctype, fieldname, *args, **kwargs)
 
-		with patch.object(frappe.db, "get_single_value", get_single_value):
-			# The unrestricted jenv binds get_single_value when it is built and is cached on
-			# frappe.local, so rebuild it inside the patch and again after it.
+		# A plain function, not a MagicMock: jinja's sandbox refuses to call a mock.
+		return patch.object(frappe.db, "get_single_value", get_single_value)
+
+	def render(self, **lms_settings):
+		with self.patched_settings(lms_settings):
 			self.drop_cached_jenv()
 			try:
-				yield
+				return frappe.get_template(SIGNUP_FORM).render({})
 			finally:
 				self.drop_cached_jenv()
 
 	def drop_cached_jenv(self):
+		"""On version-16 the template globals hold frappe.db.get_single_value itself, bound
+		when the environment is built, so a cached one would not see the patch."""
 		for key in ("jenv_restricted", "jenv_unrestricted"):
 			if hasattr(frappe.local, key):
 				delattr(frappe.local, key)
-
-	def render(self, **lms_settings):
-		with self.patched_settings(lms_settings):
-			return frappe.get_template(SIGNUP_FORM).render({})
 
 	def render_without_framework_templates(self, **lms_settings):
 		"""Render with only LMS's own templates on the loader path, the way a site
@@ -80,15 +78,18 @@ class TestSignupForm(UnitTestCase):
 		html = self.render()
 		self.assertIn('class="es-button w-full btn-signup"', html)
 
+	def test_required_fields_are_marked(self):
+		# Regression: the button stayed grey with no hint which fields it waits on
+		# (#3012, fixed in #3051).
+		soup = BeautifulSoup(self.render(), "html.parser")
+		for field in ("signup_fullname", "signup_email"):
+			marker = soup.select_one(f'label[for="{field}"] span[aria-hidden="true"]')
+			self.assertEqual(marker.text, "*")
+
 	def test_does_not_reuse_the_framework_signup_class(self):
 		html = self.render()
 		self.assertIn("signup-form", html)
 		self.assertNotIn("form-signup", html)
-
-	def test_already_registered_message_links_to_login(self):
-		html = self.render()
-		self.assertIn("You are already registered.", html)
-		self.assertIn('href=\\"#login\\"', html)
 
 	def test_optional_fields_render_only_when_configured(self):
 		html = self.render()

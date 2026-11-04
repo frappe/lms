@@ -19,7 +19,7 @@
                 <use href="#icon-quote"></use>
             </svg>
             <div class="testimonial-review">
-                {{ review.review }}
+                {{ review.review | e }}
             </div>
             <div class="testimonial-footer">
                 <div>
@@ -27,7 +27,7 @@
                 </div>
                 <div class="ml-3">
                   <div class="testimonial-author-name" >{{ member.full_name }}</div>
-                  {% if member.headline %}<div class="testimonial-profession">{{ member.headline }}</div> {% endif %}
+                  {% if member.headline %}<div class="testimonial-profession">{{ member.headline | e }}</div> {% endif %}
                 </div>
               </div>
         </div>

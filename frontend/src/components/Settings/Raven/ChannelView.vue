@@ -4,14 +4,14 @@
 			<Badge
 				v-if="rules.dirty.value"
 				variant="subtle"
-				theme="orange"
+				theme="amber"
 				size="sm"
 				:label="__('Not Saved')"
 			/>
 		</template>
 
 		<template #header-actions>
-			<Switch
+			<SwitchRow
 				v-if="!isNew && rules.detail.value"
 				size="sm"
 				:label="__('Enabled')"
@@ -120,12 +120,13 @@ import {
 	Button,
 	FormControl,
 	LoadingIndicator,
-	Switch,
 	createResource,
 	toast,
 } from 'frappe-ui'
+import type { FrappeResourceError } from 'frappe-ui'
 import { computed, ref, watch } from 'vue'
-import SettingsLayout from '@/components/Layouts/settings/desktop/SettingsLayout.vue'
+import SettingsLayout from '@/components/Layouts/SettingsLayout.vue'
+import SwitchRow from '@/components/Controls/SwitchRow.vue'
 import RuleConditions from './RuleConditions.vue'
 import MassRemovalConfirmDialog from './MassRemovalConfirmDialog.vue'
 import UnsavedChangesDialog from './UnsavedChangesDialog.vue'
@@ -200,7 +201,7 @@ const channelTypeOptions = CHANNEL_TYPES.map((type) => ({
 }))
 
 function onError(fallback: string) {
-	return (err: { messages?: string[] }): void => {
+	return (err: FrappeResourceError): void => {
 		toast.error(err?.messages?.[0] ?? fallback)
 		rules.reload()
 	}

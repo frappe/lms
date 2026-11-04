@@ -17,7 +17,7 @@
 					>
 						<UserAvatar
 							v-for="instructor in batch.data.instructors"
-							:key="instructor.name"
+							:key="instructor.username"
 							:user="instructor"
 						/>
 					</div>
@@ -67,6 +67,7 @@
 	</div>
 </template>
 <script setup lang="ts">
+import { watch } from 'vue'
 import { createResource } from 'frappe-ui'
 import CourseCard from '@/components/CourseCard.vue'
 import BatchOverlay from '@/pages/Batches/components/BatchOverlay.vue'
@@ -82,10 +83,19 @@ const props = defineProps({
 
 const courses = createResource({
 	url: 'lms.lms.utils.get_batch_courses',
-	params: {
+	makeParams: () => ({
 		batch: props.batch?.data?.name,
-	},
-	cache: ['batchCourses', props.batch?.data?.name],
-	auto: true,
+	}),
 })
+
+watch(
+	() => props.batch?.data?.name,
+	(name) => {
+		if (!name) return
+		// A slow response for the previous batch would overwrite this one.
+		courses.abort()
+		courses.reload()
+	},
+	{ immediate: true }
+)
 </script>

@@ -75,13 +75,7 @@ after_sync = "lms.install.after_sync"
 before_uninstall = "lms.install.before_uninstall"
 setup_wizard_complete = "lms.demo.demo_data.create_demo_data"
 after_migrate = [
-	"lms.sqlite.build_index_in_background",
 	"lms.lms.doctype.lms_payment.lms_payment.add_unique_payment_id_constraint",
-	# Also on migrate, not only after_sync. Both seeders are create-if-absent, and
-	# running the sidebar one on fresh installs alone means a fourteenth built-in
-	# added to `standard_sidebar_items` later never reaches a site that has
-	# already run the v2_0 patch -- which is what its own docstring promises.
-	"lms.lms.sidebar.seed_sidebar_items",
 	"lms.lms.docperm_shadow.warn_about_shadowed_permlevels",
 ]
 
@@ -101,6 +95,8 @@ permission_query_conditions = {
 	"LMS Course Progress": "lms.lms.permissions.course_record_query_conditions",
 	"LMS Video Watch Duration": "lms.lms.permissions.course_record_query_conditions",
 	"LMS Course Review": "lms.lms.permissions.course_record_query_conditions",
+	"LMS Enrollment": "lms.lms.permissions.enrollment_query_conditions",
+	"LMS Lesson Note": "lms.lms.permissions.lesson_note_query_conditions",
 	"LMS Coupon": "lms.lms.permissions.coupon_query_conditions",
 	"LMS Certificate": "lms.lms.doctype.lms_certificate.lms_certificate.get_permission_query_conditions",
 	"LMS Live Class": "lms.lms.doctype.lms_live_class.lms_live_class.get_permission_query_conditions",
@@ -123,6 +119,8 @@ has_permission = {
 	"LMS Course Progress": "lms.lms.permissions.course_record_has_permission",
 	"LMS Video Watch Duration": "lms.lms.permissions.course_record_has_permission",
 	"LMS Course Review": "lms.lms.permissions.course_record_has_permission",
+	"LMS Enrollment": "lms.lms.permissions.enrollment_has_permission",
+	"LMS Lesson Note": "lms.lms.permissions.lesson_note_has_permission",
 	"LMS Coupon": "lms.lms.permissions.coupon_has_permission",
 	"LMS Live Class": "lms.lms.doctype.lms_live_class.lms_live_class.has_permission",
 	"LMS Batch": "lms.lms.doctype.lms_batch.lms_batch.has_permission",
@@ -215,7 +213,6 @@ doc_events = {
 # ---------------
 scheduler_events = {
 	"all": [
-		"lms.sqlite.build_index_in_background",
 		"lms.lms.doctype.lms_live_class.lms_live_class.retry_pending_invites",
 	],
 	"hourly": [
@@ -223,6 +220,7 @@ scheduler_events = {
 		"lms.lms.doctype.lms_course.lms_course.update_course_statistics",
 		"lms.lms.doctype.lms_certificate_request.lms_certificate_request.mark_eval_as_completed",
 		"lms.lms.doctype.lms_live_class.lms_live_class.update_attendance",
+		"lms.lms.day1_email.send_day1_email",
 	],
 	"daily": [
 		"lms.job.doctype.job_opportunity.job_opportunity.update_job_openings",
@@ -231,6 +229,7 @@ scheduler_events = {
 		"lms.lms.doctype.lms_live_class.lms_live_class.send_live_class_reminder",
 		"lms.lms.doctype.lms_course.lms_course.send_notification_for_published_courses",
 		"lms.lms.doctype.course_lesson.course_lesson.rename_settled_untitled_lessons",
+		"lms.lms.doctype.course_evaluator.course_evaluator.clear_expired_time_off",
 	],
 }
 
@@ -322,10 +321,6 @@ extend_bootinfo = [
 ## subclass of lms.plugins.PageExtension
 # lms_lesson_page_extension = None
 
-# lms_lesson_page_extensions = [
-# 	"lms.plugins.LiveCodeExtension"
-# ]
-
 has_website_permission = {
 	"LMS Certificate Evaluation": "lms.lms.doctype.lms_certificate_evaluation.lms_certificate_evaluation.has_website_permission",
 	"LMS Certificate": "lms.lms.doctype.lms_certificate.lms_certificate.has_website_permission",
@@ -333,11 +328,8 @@ has_website_permission = {
 
 ## Markdown Macros for Lessons
 lms_markdown_macro_renderers = {
-	"Exercise": "lms.plugins.exercise_renderer",
-	"Quiz": "lms.plugins.quiz_renderer",
 	"YouTubeVideo": "lms.plugins.youtube_video_renderer",
 	"Video": "lms.plugins.video_renderer",
-	"Assignment": "lms.plugins.assignment_renderer",
 	"Embed": "lms.plugins.embed_renderer",
 	"Audio": "lms.plugins.audio_renderer",
 	"PDF": "lms.plugins.pdf_renderer",
@@ -383,23 +375,3 @@ raven_membership_providers = ["lms.raven_provider.get_provider"]
 # on System Manager plus whatever this hook names, and grants the named roles the
 # permissions its own doctypes need on install/migrate.
 raven_integration_manager_roles = ["Moderator"]
-
-# The sidebar's built-in rows, and their default order — which reproduces what
-# getSidebarItems() renders today, exactly. An app that wants a fourteenth adds
-# it here; the row says where it sits and whether it shows, and the JavaScript
-# entry of the same name1 says what it is.
-standard_sidebar_items = [
-	{"name1": "home", "is_standard": 1, "item_type": "Built-in"},
-	{"name1": "search", "is_standard": 1, "item_type": "Built-in"},
-	{"name1": "notifications", "is_standard": 1, "item_type": "Built-in"},
-	{"name1": "courses", "is_standard": 1, "item_type": "Built-in"},
-	{"name1": "programs", "is_standard": 1, "item_type": "Built-in"},
-	{"name1": "batches", "is_standard": 1, "item_type": "Built-in"},
-	{"name1": "certifications", "is_standard": 1, "item_type": "Built-in"},
-	{"name1": "jobs", "is_standard": 1, "item_type": "Built-in"},
-	{"name1": "statistics", "is_standard": 1, "item_type": "Built-in"},
-	{"name1": "contact_us", "is_standard": 1, "item_type": "Built-in"},
-	{"name1": "quizzes", "is_standard": 1, "item_type": "Built-in"},
-	{"name1": "assignments", "is_standard": 1, "item_type": "Built-in"},
-	{"name1": "programming_exercises", "is_standard": 1, "item_type": "Built-in"},
-]

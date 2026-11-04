@@ -202,6 +202,7 @@ class TestTodaysSlots(BaseTestUtils):
 			"Student",
 			["LMS Student"],
 		)
+		self._create_enrollment(student.name, self.course.name)
 		frappe.set_user(student.name)
 
 		slots = self._todays_slots(get_schedule(self.course.name))

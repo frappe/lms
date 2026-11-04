@@ -8,6 +8,7 @@ from frappe.model.document import Document
 from frappe.utils import validate_url
 
 from lms.lms.html_sanitizer import sanitize_rich_text
+from lms.lms.permissions import can_access_assessment
 from lms.lms.schedule_utils import assert_within_schedule
 from lms.lms.utils import PRIVILEGED_ROLES, get_attachable_files, get_lms_route, validate_attachable_file
 
@@ -15,6 +16,7 @@ from lms.lms.utils import PRIVILEGED_ROLES, get_attachable_files, get_lms_route,
 class LMSAssignmentSubmission(Document):
 	def validate(self):
 		self.enforce_member_ownership()
+		self.enforce_assignment_access()
 		self.enforce_grading_permission()
 		self.sanitize_rich_text_fields()
 		self.validate_schedule_window()
@@ -74,6 +76,14 @@ class LMSAssignmentSubmission(Document):
 		for field, default in defaults.items():
 			setattr(self, field, previous.get(field) if previous else default)
 
+	def enforce_assignment_access(self):
+		"""A learner answers only an assignment a course or batch of theirs places.
+		The fetch_from fields would otherwise copy any assignment's question back."""
+		if PRIVILEGED_ROLES & set(frappe.get_roles()):
+			return
+		if not can_access_assessment("LMS Assignment", self.assignment):
+			frappe.throw(_("You do not have access to this assignment."), frappe.PermissionError)
+
 	def enforce_member_ownership(self):
 		if PRIVILEGED_ROLES & set(frappe.get_roles()):
 			return
@@ -86,6 +96,14 @@ class LMSAssignmentSubmission(Document):
 
 	def on_update(self):
 		self.validate_private_attachments()
+		self.complete_lessons_on_pass()
+
+	def complete_lessons_on_pass(self):
+		if self.status != "Pass" or not self.has_value_changed("status"):
+			return
+		from lms.lms.doctype.course_lesson.course_lesson import complete_lessons_after_grading
+
+		complete_lessons_after_grading(self.member, "LMS Assignment", self.assignment)
 
 	def validate_duplicates(self):
 		if frappe.db.exists(

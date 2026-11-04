@@ -6,70 +6,73 @@
 			:label="label"
 			:required="required"
 		/>
-		<div class="overflow-visible border border-outline-elevation-2 rounded-md">
-			<div class="overflow-x-auto">
+		<div class="overflow-visible border border-outline-elevation-2 rounded-5">
+			<div
+				class="grid overflow-x-auto gap-x-4"
+				role="table"
+				:aria-labelledby="label ? labelId : undefined"
+				data-testid="child-table-grid"
+				:style="{ gridTemplateColumns: getGridTemplateColumns() }"
+			>
 				<div
-					class="grid items-center gap-x-4 p-2 border-b border-outline-elevation-2"
-					:style="{ gridTemplateColumns: getGridTemplateColumns() }"
+					role="row"
+					class="col-span-full grid grid-cols-subgrid items-center p-2 border-b border-outline-elevation-2"
 				>
 					<div
 						v-for="(column, index) in columns"
 						:key="index"
+						role="columnheader"
 						class="text-sm text-ink-gray-5"
+						:class="{ 'text-center': isCheckboxColumn(column) }"
 					>
 						{{ column }}
 					</div>
-					<div></div>
+					<div role="columnheader">
+						<span class="sr-only">{{ actionsLabel }}</span>
+					</div>
 				</div>
 				<div
 					v-for="(row, rowIndex) in rows"
 					:key="rowIndex"
-					class="grid items-center gap-x-4 p-2"
-					:style="{ gridTemplateColumns: getGridTemplateColumns() }"
+					role="row"
+					class="col-span-full grid grid-cols-subgrid items-center p-2"
 				>
 					<template v-for="key in Object.keys(row)" :key="key">
-						<input
-							v-if="showKey(key)"
-							v-model="row[key]"
-							:aria-label="columnLabel(key)"
-							class="py-1.5 px-2 w-full border-none bg-transparent text-ink-gray-8 focus:ring-0 focus:border focus:border-outline-gray-3 focus:bg-surface-gray-2 rounded-md text-sm focus:outline-none"
-						/>
+						<div
+							v-if="showKey(key) && (checkboxKeys ?? []).includes(key)"
+							role="cell"
+							class="flex justify-center"
+						>
+							<Checkbox
+								:model-value="!!row[key]"
+								:aria-label="cellLabel(key, rowIndex)"
+								@update:model-value="(checked) => (row[key] = !!checked)"
+							/>
+						</div>
+						<div v-else-if="showKey(key)" role="cell" class="min-w-0">
+							<input
+								v-model="row[key]"
+								:aria-label="cellLabel(key, rowIndex)"
+								class="py-1.5 px-2 w-full rounded-5 border border-outline-gray-2 bg-surface-base text-sm text-ink-gray-8 placeholder-ink-gray-4 transition-colors hover:border-outline-gray-3 hover:shadow-sm focus:border-outline-gray-4 focus:shadow-sm focus:outline-none focus:ring-0"
+							/>
+						</div>
 					</template>
 
-					<div class="relative">
-						<Button
-							variant="ghost"
-							:label="__('Row actions')"
-							@click="(event: MouseEvent) => toggleMenu(rowIndex, event)"
-						>
-							<template #icon>
-								<span
-									class="lucide-ellipsis size-4 text-ink-gray-7 cursor-pointer"
-								/>
-							</template>
-						</Button>
-
-						<div
-							v-if="menuOpenIndex === rowIndex"
-							ref="menuRef"
-							class="absolute end-0 w-32 z-50 bg-surface-elevation-2 border border-outline-elevation-2 rounded-md shadow-sm"
-							:class="
-								rowIndex == (rows?.length ?? 0) - 1
-									? 'bottom-full mb-1'
-									: 'top-full mt-1'
-							"
-						>
-							<button
-								type="button"
+					<div role="cell">
+						<Tooltip :text="removeRowTooltip">
+							<Button
+								variant="ghost"
+								:label="removeRowLabel(rowIndex)"
 								@click="deleteRow(rowIndex)"
-								class="flex items-center gap-x-2 w-full text-start px-3 py-2 text-sm text-ink-red-6"
 							>
-								<span class="lucide-trash-2 size-4" />
-								<span>
-									{{ __('Delete') }}
-								</span>
-							</button>
-						</div>
+								<template #icon>
+									<span
+										class="lucide-x size-4 text-ink-gray-7"
+										aria-hidden="true"
+									/>
+								</template>
+							</Button>
+						</Tooltip>
 					</div>
 				</div>
 			</div>
@@ -80,7 +83,7 @@
 				<template #prefix>
 					<span class="lucide-plus size-4 text-ink-gray-7" />
 				</template>
-				{{ __('Add Row') }}
+				{{ placeholder || __('Add Row') }}
 			</Button>
 		</div>
 		<InputDescription
@@ -94,38 +97,31 @@
 
 <script setup lang="ts">
 import { nextTick, ref, watch } from 'vue'
-import { Button } from 'frappe-ui'
-import { onClickOutside } from '@vueuse/core'
+import { Button, Checkbox, Tooltip } from 'frappe-ui'
 import {
 	InputDescription,
 	InputError,
 	InputLabel,
 	useInputLabeling,
-} from '@/components/Form/labeling'
+} from 'frappe-ui/experimental'
 
-const rows = defineModel<Record<string, string>[]>()
-const menuRef = ref(null)
-const menuOpenIndex = ref<number | null>(null)
-const menuTopPosition = ref<string>('')
-const menuLeftPosition = ref('0px')
+const rows = defineModel<Record<string, string | boolean>[]>()
 
 const emit = defineEmits<{
-	(e: 'update:modelValue', value: Record<string, string>[]): void
+	(e: 'update:modelValue', value: Record<string, string | boolean>[]): void
 }>()
-
-type Cell = {
-	value: string
-	editable?: boolean
-}
 
 const props = withDefaults(
 	defineProps<{
-		modelValue?: Record<string, string>[]
+		modelValue?: Record<string, string | boolean>[]
 		columns?: string[]
+		checkboxKeys?: string[]
 		label?: string
 		description?: string
 		error?: string
 		required?: boolean
+		/** Add-row button text. Already translated by the caller. */
+		placeholder?: string
 	}>(),
 	{
 		columns: () => [] as string[],
@@ -152,9 +148,10 @@ const addRow = () => {
 	if (!rows.value) {
 		rows.value = []
 	}
-	let newRow: { [key: string]: string } = {}
+	let newRow: { [key: string]: string | boolean } = {}
 	columns.value.forEach((column: any) => {
-		newRow[keyFor(column)] = ''
+		const key = keyFor(column)
+		newRow[key] = (props.checkboxKeys ?? []).includes(key) ? true : ''
 	})
 	rows.value.push(newRow)
 	focusNewRowInput()
@@ -178,17 +175,22 @@ const deleteRow = (index: number) => {
 	emit('update:modelValue', rows.value ?? [])
 }
 
+// A fixed actions track: a fraction took ~120px for a 28px button, and each row
+// computes its own grid, so a fixed width keeps the header aligned.
+const ACTIONS_COLUMN_WIDTH = '2.25rem'
+
+// A checkbox column is as wide as its label; text columns share the rest.
 const getGridTemplateColumns = () => {
-	return [...Array(columns.value.length).fill('1fr'), '0.25fr'].join(' ')
+	return [
+		...columns.value.map((column) =>
+			isCheckboxColumn(column) ? 'max-content' : 'minmax(8rem, 1fr)'
+		),
+		ACTIONS_COLUMN_WIDTH,
+	].join(' ')
 }
 
-const toggleMenu = (index: number, event: MouseEvent) => {
-	menuOpenIndex.value = menuOpenIndex.value === index ? null : index
-}
-
-onClickOutside(menuRef, () => {
-	menuOpenIndex.value = null
-})
+const isCheckboxColumn = (column: string) =>
+	(props.checkboxKeys ?? []).includes(keyFor(column))
 
 const keyFor = (column: string) => column.toLowerCase().split(' ').join('_')
 
@@ -199,4 +201,12 @@ const showKey = (key: string) => {
 const columnLabel = (key: string) => {
 	return __(columns.value.find((col) => keyFor(col) === key) || key)
 }
+
+const actionsLabel = __('Actions')
+const removeRowTooltip = __('Remove row')
+const removeRowLabel = (rowIndex: number) =>
+	__('Remove row {0}').format(rowIndex + 1)
+
+const cellLabel = (key: string, rowIndex: number) =>
+	__('{0}, row {1}').format(columnLabel(key), rowIndex + 1)
 </script>

@@ -4,6 +4,7 @@
 // what it cannot know, which rule types exist, which conditions are unfinished,
 // and what saving one costs in members.
 import { createResource, toast } from 'frappe-ui'
+import type { FrappeResourceError } from 'frappe-ui'
 import { computed, ref, type ComputedRef, type Ref } from 'vue'
 import {
 	autoRuleLabel,
@@ -127,7 +128,7 @@ export function useChannelRules(
 			// What came back is by definition what is saved, so the page opens clean.
 			markSaved()
 		},
-		onError(err: { messages?: string[] }) {
+		onError(err: FrappeResourceError) {
 			// Without this the page keeps `data === null` while `loading` goes false,
 			// and the form renders an empty Name and a defaulted Visibility as though
 			// they were the channel's saved settings.
@@ -262,7 +263,7 @@ export function useChannelRules(
 			// which still reads the old prop until the owner's update propagates.
 			load(next)
 		},
-		onError(err: { messages?: string[] }) {
+		onError(err: FrappeResourceError) {
 			inFlightSignature.value = null
 			toast.error(err?.messages?.[0] ?? __('Could not save the channel'))
 		},
@@ -282,7 +283,7 @@ export function useChannelRules(
 			// until the owner's adoption propagates.
 			load(newName)
 		},
-		onError(err: { messages?: string[] }) {
+		onError(err: FrappeResourceError) {
 			inFlightSignature.value = null
 			toast.error(err?.messages?.[0] ?? __('Could not create the channel'))
 		},
@@ -347,7 +348,7 @@ export function useChannelRules(
 			}
 			apply()
 		},
-		onError(err: { messages?: string[] }) {
+		onError(err: FrappeResourceError) {
 			// Never apply a membership change we could not preview.
 			pending.value = null
 			toast.error(

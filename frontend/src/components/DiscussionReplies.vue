@@ -22,6 +22,28 @@
 			{{ topic.title }}
 		</div>
 
+		<div
+			v-if="singleThread && replies.data && !replies.data.length"
+			class="mb-5 flex items-center gap-3 rounded-5 bg-surface-gray-1 p-4"
+		>
+			<span
+				class="lucide-message-circle size-5 shrink-0 text-ink-gray-5"
+				aria-hidden="true"
+			/>
+			<div class="space-y-0.5">
+				<div class="text-base-medium text-ink-gray-8">
+					{{ __('Start the conversation') }}
+				</div>
+				<div class="text-p-sm text-ink-gray-6">
+					{{
+						__(
+							'Ask a question or share something useful. Everyone in this batch can read and reply here.'
+						)
+					}}
+				</div>
+			</div>
+		</div>
+
 		<ul class="list-none">
 			<li v-for="(reply, index) in replies.data" :key="reply.name">
 				<div
@@ -83,7 +105,7 @@
 						:fixedMenu="reply.editable || false"
 						:editorClass="
 							reply.editable
-								? 'ProseMirror prose prose-table:table-fixed prose-td:p-2 prose-th:p-2 prose-td:border prose-th:border prose-td:border-outline-gray-2 prose-th:border-outline-gray-2 prose-td:relative prose-th:relative prose-th:bg-surface-gray-2 prose-sm max-w-none'
+								? 'prose-table:table-fixed prose-td:p-2 prose-th:p-2 prose-td:border prose-th:border prose-td:border-outline-gray-2 prose-th:border-outline-gray-2 prose-td:relative prose-th:relative prose-th:bg-surface-gray-2 prose-sm'
 								: 'prose-sm'
 						"
 					/>
@@ -93,13 +115,12 @@
 
 		<RichTextEditor
 			v-if="renderEditor && !readOnlyMode"
-			class="mt-5"
 			:content="newReply"
 			:mentions="mentionUsers"
 			@change="(val) => (newReply = val)"
 			:placeholder="__('Type your reply here...')"
 			:fixedMenu="true"
-			editorClass="ProseMirror prose prose-table:table-fixed prose-td:p-2 prose-th:p-2 prose-td:border prose-th:border prose-td:border-outline-gray-2 prose-th:border-outline-gray-2 prose-td:relative prose-th:relative prose-th:bg-surface-gray-2 prose-sm max-w-none border border-outline-gray-2 rounded-b-md min-h-[7rem] py-1 px-2"
+			editorClass="prose-table:table-fixed prose-td:p-2 prose-th:p-2 prose-td:border prose-th:border prose-td:border-outline-gray-2 prose-th:border-outline-gray-2 prose-td:relative prose-th:relative prose-th:bg-surface-gray-2 prose-sm border border-outline-gray-2 rounded-b-5 min-h-[7rem] py-1 px-2"
 		/>
 		<div v-if="!readOnlyMode" class="flex justify-between mt-2">
 			<span> </span>
@@ -116,7 +137,7 @@ import { call, createResource, Button, Dropdown, toast } from 'frappe-ui'
 import { timeAgo } from '@/utils'
 import UserAvatar from '@/components/UserAvatar.vue'
 import { ref, inject, onMounted, onUnmounted } from 'vue'
-import { useTelemetry } from 'frappe-ui/frappe'
+import { useTelemetry } from '@framework/ui/telemetry/index'
 import RichTextEditor from '@/components/RichTextEditor.vue'
 
 const showTopics = defineModel('showTopics')
@@ -137,6 +158,14 @@ const props = defineProps({
 	singleThread: {
 		type: Boolean,
 		default: false,
+	},
+	doctype: {
+		type: String,
+		required: true,
+	},
+	docname: {
+		type: String,
+		required: true,
 	},
 })
 
@@ -165,17 +194,18 @@ const replies = createResource({
 })
 
 const fetchMentionUsers = () => {
-	// Render the editor right away; mentions are reactive and populate once the
-	// user list resolves, so we no longer block the editor on that fetch.
+	// Render the editor right away; the @ menu reads mentionUsers live, so it
+	// fills in once the user list resolves.
 	renderEditor.value = true
 	if (user.data?.is_student) return
 	allUsers.reload(
-		{},
+		{ doctype: props.doctype, docname: props.docname },
 		{
 			onSuccess(data) {
+				// The username is the stored id; the list and the mention show the name.
 				mentionUsers.value = Object.values(data).map((user) => {
 					return {
-						value: user.name,
+						value: user.username,
 						label: user.full_name,
 					}
 				})

@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia'
 import { createResource } from 'frappe-ui'
 import { usersStore } from './user'
+import { forgetContinuePanelClosed } from '@/utils/continuePanel'
 import { computed, reactive, ref } from 'vue'
 
 export const sessionStore = defineStore('lms-session', () => {
@@ -10,9 +11,7 @@ export const sessionStore = defineStore('lms-session', () => {
 	function sessionUser() {
 		let cookies = new URLSearchParams(document.cookie.split('; ').join('&'))
 		let _sessionUser = cookies.get('user_id')
-		// A first visit carries no user_id cookie at all, and is a guest too:
-		// get_user_info is not open to guests, so asking would only fail.
-		if (!_sessionUser || _sessionUser === 'Guest') {
+		if (_sessionUser === 'Guest') {
 			_sessionUser = null
 		} else {
 			userResource.reload()
@@ -28,6 +27,8 @@ export const sessionStore = defineStore('lms-session', () => {
 		onSuccess() {
 			userResource.reset()
 			user.value = null
+			// A closed continue-your-course panel comes back on the next sign-in.
+			forgetContinuePanelClosed()
 			window.location.reload()
 		},
 	})

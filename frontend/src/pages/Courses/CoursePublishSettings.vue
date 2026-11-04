@@ -48,6 +48,7 @@
 					<Link
 						v-model="doc.currency"
 						doctype="Currency"
+						query="lms.lms.api.search_currencies"
 						:label="__('Currency')"
 						:filters="{ enabled: 1 }"
 						:placeholder="__('Select currency')"
@@ -102,6 +103,7 @@
 						<Link
 							v-model="doc.currency"
 							doctype="Currency"
+							query="lms.lms.api.search_currencies"
 							:label="__('Currency')"
 							:filters="{ enabled: 1 }"
 							:placeholder="__('Select currency')"
