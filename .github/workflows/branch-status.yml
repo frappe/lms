@@ -1,0 +1,82 @@
+name: Branch Tests
+
+# Pull requests into develop and the hotfix branches skip the server and UI suites. They run here
+# instead, every hour on develop and version-16 when new commits need them, and each open pull
+# request gets a status showing whether its branch passes. A pull request labelled fixes-develop
+# runs the suites itself, and its status turns green once the suites failing on its branch pass.
+# Scheduled workflows run only from the default branch, so this file lives on develop alone.
+
+on:
+  schedule:
+    - cron: "23 * * * *"
+  pull_request_target:
+    branches: [develop, version-16-hotfix]
+    types: [opened, synchronize, reopened, labeled, unlabeled, closed]
+  workflow_run:
+    workflows: [Server Tests, UI Tests]
+    types: [completed]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: write
+  statuses: write
+  pull-requests: read
+
+jobs:
+  run-suites:
+    name: Run Full Suites
+    if: >-
+      ${{ github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+      || (github.event.action == 'closed' && github.event.pull_request.merged
+      && contains(github.event.pull_request.labels.*.name, 'fixes-develop')) }}
+    runs-on: ubuntu-latest
+    steps:
+      # Only the helper is checked out, from the default branch: pull request code never runs here.
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.repository.default_branch }}
+          sparse-checkout: .github/helper
+      - run: python .github/helper/branch_status.py start ${{ github.event_name != 'schedule' && 'all' || '' }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+
+  update:
+    name: Update Pull Requests
+    if: >-
+      ${{ github.event.action != 'closed'
+      && (!contains(fromJSON('["labeled", "unlabeled"]'), github.event.action)
+      || contains(fromJSON('["fixes-develop", "Run Server Tests", "Run UI Tests"]'), github.event.label.name)) }}
+    runs-on: ubuntu-latest
+    concurrency:
+      group: branch-status-${{ github.event.pull_request.number || github.event.workflow_run.head_sha || 'all' }}
+      cancel-in-progress: true
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.repository.default_branch }}
+          sparse-checkout: .github/helper
+      # The suites' plan job reads labels live, so a re-run picks up the one just added.
+      - name: Run the suites when a test label is added
+        if: ${{ github.event.action == 'labeled' }}
+        run: |
+          for workflow in ci.yml ui-tests.yml; do
+            run_id=$(gh run list --repo "$GITHUB_REPOSITORY" --workflow "$workflow" --commit "$HEAD_SHA" --event pull_request --limit 1 --json databaseId --jq '.[0].databaseId')
+            [ -n "$run_id" ] || continue
+            gh run cancel "$run_id" --repo "$GITHUB_REPOSITORY" 2>/dev/null || true
+            for _ in $(seq 60); do [ "$(gh run view "$run_id" --repo "$GITHUB_REPOSITORY" --json status --jq .status)" = completed ] && break; sleep 10; done
+            gh run rerun "$run_id" --repo "$GITHUB_REPOSITORY"
+          done
+        env:
+          GH_TOKEN: ${{ github.token }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+      - run: |
+          if [ -n "$PR" ]; then python .github/helper/branch_status.py pr "$PR"
+          elif [ "$RUN_EVENT" = pull_request ]; then python .github/helper/branch_status.py commit "$RUN_SHA"
+          else python .github/helper/branch_status.py refresh
+          fi
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR: ${{ github.event.pull_request.number }}
+          RUN_EVENT: ${{ github.event.workflow_run.event }}
+          RUN_SHA: ${{ github.event.workflow_run.head_sha }}

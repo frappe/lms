@@ -1,24 +1,5 @@
 name: Server Tests
 on:
-  push:
-    branches:
-      - main
-      - develop
-      - main-hotfix
-    # The frontend and Vue, TS, JS and CSS files are Vitest's and the UI
-    # tests' business, except the two frontend files a server test reads.
-    # Keep in step with is_ignored in .github/helper/changed-tests.sh.
-    paths:
-      - "**"
-      - "!**.md"
-      - "!lms/locale/**"
-      - "!frontend/**"
-      - "!**.vue"
-      - "!**.ts"
-      - "!**.js"
-      - "!**.css"
-      - "frontend/src/utils/lessonForm.ts"
-      - "frontend/src/directives/safeHtmlLevels.ts"
   pull_request:
     paths:
       - "**"
@@ -31,14 +12,49 @@ on:
       - "!**.css"
       - "frontend/src/utils/lessonForm.ts"
       - "frontend/src/directives/safeHtmlLevels.ts"
+  workflow_dispatch:
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
+  plan:
+    name: Plan
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      run: ${{ steps.plan.outputs.run }}
+      full: ${{ steps.plan.outputs.full }}
+    steps:
+      # Pull requests into develop and the hotfix branches skip this suite: it runs every hour
+      # on the branch instead (branch-status.yml on develop), and on the release pull request.
+      # A label runs it on one pull request. Labels are read live, so a re-run sees a new one.
+      - id: plan
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR: ${{ github.event.pull_request.number }}
+          BASE: ${{ github.base_ref }}
+        run: |
+          labels=$(gh pr view "$PR" --repo "$GITHUB_REPOSITORY" --json labels --jq '[.labels[].name]')
+          has() { jq -e --arg l "$1" 'index($l) != null' <<<"$labels" >/dev/null; }
+          full=false
+          if has all-tests || has fixes-develop; then full=true; fi
+          run=true
+          if [ "$BASE" = develop ] || [[ "$BASE" == *-hotfix ]]; then
+            run=false
+            if has "Run Server Tests" || has fixes-develop; then run=true; fi
+          fi
+          echo "run=$run" >> "$GITHUB_OUTPUT"
+          echo "full=$full" >> "$GITHUB_OUTPUT"
+          echo "Base $BASE, labels $labels: run=$run full=$full"
+
   tests:
     name: Server Tests
+    needs: plan
+    if: >-
+      !cancelled() && (github.event_name != 'pull_request' || needs.plan.outputs.run == 'true')
     runs-on: ubuntu-latest
     timeout-minutes: 30
     services:
@@ -63,7 +79,7 @@ jobs:
         id: select
         if: >-
           github.event_name == 'pull_request' &&
-          !contains(github.event.pull_request.labels.*.name, 'all-tests')
+          needs.plan.outputs.full != 'true'
         run: |
           set -euo pipefail
           git diff --name-status --no-renames HEAD^1 HEAD \
