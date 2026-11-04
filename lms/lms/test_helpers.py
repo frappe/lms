@@ -13,6 +13,31 @@ from lms.lms.doctype.lms_certificate.lms_certificate import get_default_certific
 from lms.lms.doctype.lms_quiz.lms_quiz import submit_quiz
 from lms.lms.lesson_assessments import ASSESSMENT_BLOCK_KEYS
 
+
+def enforce_role_gates():
+	"""Make `frappe.only_for` check roles for the whole test run.
+
+	frappe v15's `only_for` returns early whenever `flags.in_test` is set, so an
+	endpoint's role gate never fires under the test runner, though every request
+	is gated. The real check runs here with only that flag lowered around it, as
+	it does on v16. Runs as the before_tests hook.
+	"""
+	only_for = frappe.only_for
+	if getattr(only_for, "enforces_role_gates", False):
+		return
+
+	def checked_only_for(*args, **kwargs):
+		in_test = frappe.flags.in_test
+		frappe.flags.in_test = False
+		try:
+			return only_for(*args, **kwargs)
+		finally:
+			frappe.flags.in_test = in_test
+
+	checked_only_for.enforces_role_gates = True
+	frappe.only_for = checked_only_for
+
+
 # frappe keys cached documents as f"document_cache::{doctype}::{name}"
 # (frappe/model/document.py, get_document_cache_key).
 DOCUMENT_CACHE_PREFIX = "document_cache::"

@@ -238,7 +238,7 @@ fixtures = ["Custom Field", "Function", "Industry", "LMS Category"]
 # Testing
 # -------
 
-# before_tests = "lms.install.before_tests"
+before_tests = "lms.lms.test_helpers.enforce_role_gates"
 
 # Overriding Methods
 # ------------------------------
