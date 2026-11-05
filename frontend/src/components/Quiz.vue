@@ -38,14 +38,13 @@
 						quiz.data.max_violations == 1 ? __('violation') : __('violations')
 					}}
 				</Badge>
-				<!-- After a submit the result says it beside Try again. A preview
-				     counts the author's own attempts, so it leaves this out. -->
+				<!-- After a submit the result says it beside Try again. -->
 				<span
 					v-if="
+						attemptsCounted &&
 						attemptsLeft !== null &&
 						!quizSubmission.data &&
-						!scheduleBlocked &&
-						!preview
+						!scheduleBlocked
 					"
 					class="hidden text-xs text-ink-gray-6 sm:inline"
 				>
@@ -97,8 +96,8 @@
 						:questions="questions.length"
 						:duration="quiz.data.duration"
 						:passingPercentage="quiz.data.passing_percentage"
-						:attemptsLeft="preview ? null : attemptsLeft"
-						:maxAttempts="preview ? quiz.data.max_attempts : null"
+						:attemptsLeft="attemptsCounted ? attemptsLeft : null"
+						:maxAttempts="attemptsCounted ? null : quiz.data.max_attempts"
 					/>
 					<Alert
 						v-if="scheduleNotice"
@@ -243,7 +242,12 @@
 					<!-- Last, after the camera and the rules: the learner reads them and sees the
 					     camera turn ready on the way to the button it unlocks. -->
 					<div
-						v-if="questions.length && !attemptsExhausted && !scheduleBlocked"
+						v-if="
+							questions.length &&
+							attemptsReady &&
+							!attemptsExhausted &&
+							!scheduleBlocked
+						"
 						class="flex flex-wrap items-center justify-between gap-3"
 					>
 						<span class="text-sm text-ink-gray-6">
@@ -1251,6 +1255,18 @@ const proctoringRules = computed(() => [
 
 const choiceCorrect = computed(
 	() => !showAnswers.some((answer) => answer == 0 || answer == 2)
+)
+
+// A preview loads the author's own attempts, which say nothing about a student's.
+const attemptsCounted = computed(() => !props.preview && attempts.data != null)
+
+// Start waits for the learner's attempts, or a used-up quiz would offer it until they load.
+const attemptsReady = computed(
+	() =>
+		props.preview ||
+		!quiz.data?.max_attempts ||
+		attempts.data != null ||
+		!!attempts.error
 )
 
 // A preview submits nothing, so the author's own attempts never use it up.
