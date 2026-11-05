@@ -187,6 +187,7 @@
 					<div
 						v-if="
 							quiz.data.enable_proctoring &&
+							attemptsReady &&
 							!attemptsExhausted &&
 							!scheduleBlocked
 						"
