@@ -40,7 +40,9 @@
 				</Badge>
 				<!-- After a submit the result says it beside Try again. -->
 				<span
-					v-if="attemptsLeft !== null && !quizSubmission.data"
+					v-if="
+						attemptsLeft !== null && !quizSubmission.data && !scheduleBlocked
+					"
 					class="hidden text-xs text-ink-gray-6 sm:inline"
 				>
 					{{ attemptsLeftLabel(attemptsLeft) }}
