@@ -160,9 +160,14 @@
 								)
 							}}
 						</p>
-						<Button :loading="attempts.loading" @click="attempts.reload()">
-							{{ __('Try again') }}
-						</Button>
+						<div class="flex items-center gap-2">
+							<Button v-if="inVideo" @click="props.backToVideo()">
+								{{ __('Resume Video') }}
+							</Button>
+							<Button :loading="attempts.loading" @click="attempts.reload()">
+								{{ __('Try again') }}
+							</Button>
+						</div>
 					</template>
 					<template v-else-if="attemptsExhausted">
 						<FeedbackBanner :correct="false">
