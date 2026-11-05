@@ -14,7 +14,7 @@ import Quiz from '@/components/Quiz.vue'
 const resourceState = vi.hoisted(() => ({
 	request: vi.fn(),
 	response: null as any,
-	attempts: [] as unknown[],
+	attempts: [] as unknown[] | null,
 }))
 
 vi.mock('frappe-ui', async () => {
@@ -34,6 +34,7 @@ vi.mock('frappe-ui', async () => {
 				resource.data = transformed == null ? raw : transformed
 				options.onSuccess?.(raw)
 			} else if (options.url === 'frappe.client.get_list') {
+				// null leaves the request in flight.
 				resource.data = structuredClone(resourceState.attempts)
 			}
 
@@ -251,6 +252,18 @@ describe('Scheduled quiz start screen', () => {
 
 		expect(startButton(wrapper)).toBeDefined()
 		expect(wrapper.text()).not.toContain("You've used all")
+		wrapper.unmount()
+	})
+
+	it('waits for the learner\'s attempts before offering Start', async () => {
+		resourceState.response = scheduledQuizResponse(openWindow)
+		resourceState.attempts = null
+		const wrapper = await mountQuiz()
+
+		expect(startButton(wrapper)).toBeUndefined()
+		const stats = wrapper.find('[data-testid="quiz-stats"]')
+		expect(stats.attributes('maxattempts')).toBe('3')
+		expect(stats.attributes('attemptsleft')).toBeUndefined()
 		wrapper.unmount()
 	})
 
