@@ -41,7 +41,8 @@
 				<!-- After a submit the result says it beside Try again. -->
 				<span
 					v-if="
-						attemptsCounted &&
+						!preview &&
+						attemptsReady &&
 						attemptsLeft !== null &&
 						!quizSubmission.data &&
 						!scheduleBlocked
@@ -96,8 +97,9 @@
 						:questions="questions.length"
 						:duration="quiz.data.duration"
 						:passingPercentage="quiz.data.passing_percentage"
-						:attemptsLeft="attemptsCounted ? attemptsLeft : null"
-						:maxAttempts="attemptsCounted ? null : quiz.data.max_attempts"
+						:attemptsLeft="preview ? null : attemptsLeft"
+						:maxAttempts="preview ? quiz.data.max_attempts : null"
+						:attemptsLoading="!attemptsReady"
 					/>
 					<Alert
 						v-if="scheduleNotice"
@@ -149,6 +151,18 @@
 						<Button v-if="inVideo" @click="props.backToVideo()">{{
 							__('Resume Video')
 						}}</Button>
+					</template>
+					<template v-else-if="attemptsUnknown">
+						<p class="text-p-base text-ink-gray-6">
+							{{
+								__(
+									"Your past attempts didn't load. Try again to start the quiz."
+								)
+							}}
+						</p>
+						<Button :loading="attempts.loading" @click="attempts.reload()">
+							{{ __('Try again') }}
+						</Button>
 					</template>
 					<template v-else-if="attemptsExhausted">
 						<FeedbackBanner :correct="false">
@@ -1257,17 +1271,12 @@ const choiceCorrect = computed(
 	() => !showAnswers.some((answer) => answer == 0 || answer == 2)
 )
 
-// A preview loads the author's own attempts, which say nothing about a student's.
-const attemptsCounted = computed(() => !props.preview && attempts.data != null)
-
-// Start waits for the learner's attempts, or a used-up quiz would offer it until they load.
+// Start and the count wait for the learner's attempts, or a used-up quiz would offer
+// Start until they load. A preview loads the author's own, which say nothing.
 const attemptsReady = computed(
-	() =>
-		props.preview ||
-		!quiz.data?.max_attempts ||
-		attempts.data != null ||
-		!!attempts.error
+	() => props.preview || !quiz.data?.max_attempts || attempts.data != null
 )
+const attemptsUnknown = computed(() => !attemptsReady.value && !!attempts.error)
 
 // A preview submits nothing, so the author's own attempts never use it up.
 const attemptsExhausted = computed(
