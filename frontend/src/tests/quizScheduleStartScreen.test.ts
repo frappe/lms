@@ -284,6 +284,16 @@ describe('Scheduled quiz start screen', () => {
 		wrapper.unmount()
 	})
 
+	it('asks for no camera while the attempts cannot load', async () => {
+		resourceState.response = scheduledQuizResponse(openWindow)
+		resourceState.response.quiz.enable_proctoring = 1
+		resourceState.attemptsFail = true
+		const wrapper = await mountQuiz()
+
+		expect(wrapper.text()).not.toContain('Camera Setup')
+		wrapper.unmount()
+	})
+
 	it('keeps Resume Video beside Try again in a video', async () => {
 		resourceState.response = scheduledQuizResponse(openWindow)
 		resourceState.attemptsFail = true
