@@ -15,6 +15,7 @@ const resourceState = vi.hoisted(() => ({
 	request: vi.fn(),
 	response: null as any,
 	attempts: [] as unknown[] | null,
+	attemptsFail: false,
 }))
 
 vi.mock('frappe-ui', async () => {
@@ -35,7 +36,8 @@ vi.mock('frappe-ui', async () => {
 				options.onSuccess?.(raw)
 			} else if (options.url === 'frappe.client.get_list') {
 				// null leaves the request in flight.
-				resource.data = structuredClone(resourceState.attempts)
+				if (resourceState.attemptsFail) resource.error = new Error('failed')
+				else resource.data = structuredClone(resourceState.attempts)
 			}
 
 			resource.loading = false
@@ -45,6 +47,7 @@ vi.mock('frappe-ui', async () => {
 		resource = reactive({
 			auto: options.auto,
 			data: null,
+			error: null,
 			loading: false,
 			reload,
 			fetch: reload,
@@ -198,6 +201,7 @@ afterAll(() => {
 beforeEach(() => {
 	resourceState.request.mockReset()
 	resourceState.attempts = []
+	resourceState.attemptsFail = false
 	localStorage.clear()
 })
 
@@ -262,8 +266,21 @@ describe('Scheduled quiz start screen', () => {
 
 		expect(startButton(wrapper)).toBeUndefined()
 		const stats = wrapper.find('[data-testid="quiz-stats"]')
-		expect(stats.attributes('maxattempts')).toBe('3')
-		expect(stats.attributes('attemptsleft')).toBeUndefined()
+		expect(stats.attributes('attemptsloading')).toBe('true')
+		expect(stats.attributes('maxattempts')).toBeUndefined()
+		wrapper.unmount()
+	})
+
+	it('offers Try again, not Start, when the attempts fail to load', async () => {
+		resourceState.response = scheduledQuizResponse(openWindow)
+		resourceState.attemptsFail = true
+		const wrapper = await mountQuiz()
+
+		expect(startButton(wrapper)).toBeUndefined()
+		expect(wrapper.text()).toContain("Your past attempts didn't load.")
+		expect(
+			wrapper.findAll('button').some((button) => button.text() === 'Try again')
+		).toBe(true)
 		wrapper.unmount()
 	})
 
