@@ -1253,8 +1253,10 @@ const choiceCorrect = computed(
 	() => !showAnswers.some((answer) => answer == 0 || answer == 2)
 )
 
+// A preview submits nothing, so the author's own attempts never use it up.
 const attemptsExhausted = computed(
 	() =>
+		!props.preview &&
 		!!quiz.data?.max_attempts &&
 		(attempts.data?.length ?? 0) >= quiz.data.max_attempts
 )
