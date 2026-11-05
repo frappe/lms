@@ -38,10 +38,14 @@
 						quiz.data.max_violations == 1 ? __('violation') : __('violations')
 					}}
 				</Badge>
-				<!-- After a submit the result says it beside Try again. -->
+				<!-- After a submit the result says it beside Try again. A preview
+				     counts the author's own attempts, so it leaves this out. -->
 				<span
 					v-if="
-						attemptsLeft !== null && !quizSubmission.data && !scheduleBlocked
+						attemptsLeft !== null &&
+						!quizSubmission.data &&
+						!scheduleBlocked &&
+						!preview
 					"
 					class="hidden text-xs text-ink-gray-6 sm:inline"
 				>
@@ -93,7 +97,8 @@
 						:questions="questions.length"
 						:duration="quiz.data.duration"
 						:passingPercentage="quiz.data.passing_percentage"
-						:attemptsLeft="attemptsLeft"
+						:attemptsLeft="preview ? null : attemptsLeft"
+						:maxAttempts="preview ? quiz.data.max_attempts : null"
 					/>
 					<Alert
 						v-if="scheduleNotice"

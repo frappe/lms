@@ -158,9 +158,9 @@ const notOpenWindow = {
 	schedule_end_iso: null,
 }
 
-const mountQuiz = async () => {
+const mountQuiz = async (props: Record<string, unknown> = {}) => {
 	const wrapper = mount(Quiz, {
-		props: { quizName: 'QUIZ-1' },
+		props: { quizName: 'QUIZ-1', ...props },
 		global: {
 			provide: { $user: { data: { name: 'learner@example.com' } } },
 			mocks: { __: (value: string) => value },
@@ -224,6 +224,19 @@ describe('Scheduled quiz start screen', () => {
 		expect(wrapper.find('[data-testid="quiz-stats"]').exists()).toBe(true)
 		expect(wrapper.text()).toContain('Before you start')
 		expect(startButton(wrapper)).toBeDefined()
+		wrapper.unmount()
+	})
+
+	// The author's own submissions load in a preview, so their count says nothing
+	// about what a student will see.
+	it('shows the configured attempts, not the author\'s, in a preview', async () => {
+		resourceState.response = scheduledQuizResponse(openWindow)
+		const wrapper = await mountQuiz({ preview: true })
+
+		const stats = wrapper.find('[data-testid="quiz-stats"]')
+		expect(stats.attributes('maxattempts')).toBe('3')
+		expect(stats.attributes('attemptsleft')).toBeUndefined()
+		expect(wrapper.text()).not.toContain('attempts left')
 		wrapper.unmount()
 	})
 
