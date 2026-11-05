@@ -127,6 +127,7 @@ const scheduledQuizResponse = (window: Record<string, string | null>) => ({
 		shuffle_questions: 0,
 		show_answers: 0,
 		show_submission_history: 0,
+		max_attempts: 3,
 		enable_scheduling: 1,
 		...window,
 		questions: [{ question: 'Q1', marks: 1 }],
@@ -205,6 +206,7 @@ describe('Scheduled quiz start screen', () => {
 		// 18:00 at +05:30 is 12:30 in the learner's UTC browser, not 6:00 PM.
 		expect(notice.text()).toContain('Opens on Thursday, 31 December 2099 at 12:30 PM')
 		expect(wrapper.find('[data-testid="quiz-stats"]').exists()).toBe(false)
+		expect(wrapper.text()).not.toContain('attempts left')
 		expect(wrapper.text()).not.toContain('Before you start')
 		expect(startButton(wrapper)).toBeUndefined()
 		wrapper.unmount()
