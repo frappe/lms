@@ -45,7 +45,7 @@
 					/>
 				</Tooltip>
 			</div>
-			<div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mt-4">
+			<div class="statistics-charts grid grid-cols-1 lg:grid-cols-2 gap-4 mt-4">
 				<ChartCard class="h-72">
 					<LineChart
 						v-if="hasPoints(signupsChart.data)"
@@ -219,3 +219,9 @@ usePageMeta(() => {
 	}
 })
 </script>
+
+<style scoped>
+[data-theme='dark'] .statistics-charts {
+	--chart-sequential-1: var(--dark-cyan-200);
+}
+</style>
