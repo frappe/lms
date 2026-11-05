@@ -75,53 +75,42 @@
 
 			<div v-if="activeQuestion == 0">
 				<!-- What the quiz is comes first, then the rules for taking it. -->
-				<div class="space-y-3.5 border-b border-outline-gray-1 p-3.5">
+				<!-- Before it opens and after it closes the quiz can't be taken, so its
+				     numbers and rules stay hidden and the notice says when. -->
+				<div
+					class="space-y-3.5 p-3.5"
+					:class="{
+						'border-b border-outline-gray-1': !scheduleBlocked || inVideo,
+					}"
+				>
 					<div class="text-base-semibold text-ink-gray-9">
 						{{ quiz.data.title }}
 					</div>
 					<QuizStats
+						v-if="!scheduleBlocked"
 						:questions="questions.length"
 						:duration="quiz.data.duration"
 						:passingPercentage="quiz.data.passing_percentage"
 						:attemptsLeft="attemptsLeft"
 					/>
-
-					<div
-						v-if="
-							quiz.data.enable_scheduling &&
-							(quiz.data.schedule_start || quiz.data.schedule_end)
-						"
-						class="flex flex-wrap gap-x-4 gap-y-1 text-sm text-ink-gray-6"
-					>
-						<span
-							v-if="quiz.data.schedule_start"
-							class="inline-flex items-center gap-1.5"
-						>
-							<span class="lucide-calendar size-3.5" />
-							{{ __('Opens') }}:
-							{{
-								formatScheduleDate(
-									quiz.data.schedule_start_iso || quiz.data.schedule_start
-								)
-							}}
-						</span>
-						<span
-							v-if="quiz.data.schedule_end"
-							class="inline-flex items-center gap-1.5"
-						>
-							<span class="lucide-calendar-x size-3.5" />
-							{{ __('Closes') }}:
-							{{
-								formatScheduleDate(
-									quiz.data.schedule_end_iso || quiz.data.schedule_end
-								)
-							}}
-						</span>
-					</div>
+					<Alert
+						v-if="scheduleNotice"
+						data-testid="quiz-schedule-notice"
+						:data-state="scheduleNotice.state"
+						:theme="scheduleNotice.theme"
+						:icon="SCHEDULE_ICONS[scheduleNotice.state]"
+						:title="scheduleNotice.title"
+						:description="scheduleNotice.description"
+					/>
 				</div>
 
 				<div
-					v-if="introTips.length && questions.length && !attemptsExhausted"
+					v-if="
+						introTips.length &&
+						questions.length &&
+						!attemptsExhausted &&
+						!scheduleBlocked
+					"
 					class="space-y-2 border-b border-outline-gray-1 p-3.5"
 				>
 					<div class="text-sm text-ink-gray-6">
@@ -141,8 +130,13 @@
 					</ol>
 				</div>
 
-				<div class="space-y-3.5 p-3.5">
-					<template v-if="!questions.length">
+				<div v-if="!scheduleBlocked || inVideo" class="space-y-3.5 p-3.5">
+					<template v-if="scheduleBlocked">
+						<Button @click="props.backToVideo()">{{
+							__('Resume Video')
+						}}</Button>
+					</template>
+					<template v-else-if="!questions.length">
 						<p class="text-p-base text-ink-gray-6">
 							{{ __('This quiz has no questions available yet.') }}
 						</p>
@@ -161,17 +155,6 @@
 								)
 							}}
 						</FeedbackBanner>
-						<Button v-if="inVideo" @click="props.backToVideo()">{{
-							__('Resume Video')
-						}}</Button>
-					</template>
-					<template v-else-if="scheduleBlocked">
-						<div
-							data-testid="quiz-schedule-blocked"
-							class="rounded-6 bg-surface-amber-1 px-4 py-3 text-p-base text-ink-amber-5"
-						>
-							{{ scheduleMessage }}
-						</div>
 						<Button v-if="inVideo" @click="props.backToVideo()">{{
 							__('Resume Video')
 						}}</Button>
@@ -822,6 +805,7 @@
 </template>
 <script setup lang="ts">
 import {
+	Alert,
 	Badge,
 	Button,
 	Checkbox,
@@ -833,7 +817,7 @@ import {
 	toast,
 } from 'frappe-ui'
 import type { FrappeResourceError } from 'frappe-ui'
-import { CircleCheck } from 'lucide-vue-next'
+import { CalendarClock, CircleCheck, Lock, Timer } from 'lucide-vue-next'
 import {
 	computed,
 	inject,
@@ -847,10 +831,8 @@ import {
 } from 'vue'
 import { timeAgo } from '@/utils/format'
 import { violationLabel } from '@/utils/proctoring'
-import {
-	formatScheduleDate,
-	useAssessmentSchedule,
-} from '@/composables/useAssessmentSchedule'
+import { useAssessmentSchedule } from '@/composables/useAssessmentSchedule'
+import { quizScheduleNotice } from '@/utils/quizSchedule'
 import { markLessonProgress } from '@/utils/markLessonProgress'
 import ResponsiveListView from '@/components/ResponsiveListView.vue'
 import RichTextEditor from '@/components/RichTextEditor.vue'
@@ -1270,11 +1252,31 @@ const attemptsExhausted = computed(
 		(attempts.data?.length ?? 0) >= quiz.data.max_attempts
 )
 
-const { scheduleBlockReason, scheduleBlocked, scheduleMessage } =
-	useAssessmentSchedule(() => quiz.data, {
+const { now, scheduleBlockReason, scheduleBlocked } = useAssessmentSchedule(
+	() => quiz.data,
+	{
 		opensOn: (date) => __('This quiz opens on {0}.').format(date),
 		ended: () => __('The schedule for this quiz has ended.'),
-	})
+	}
+)
+
+const SCHEDULE_ICONS = {
+	not_started: CalendarClock,
+	open: CalendarClock,
+	closing_soon: Timer,
+	ended: Lock,
+}
+
+// While the quiz is open the notice sits beside Start, so it goes when there
+// is nothing to start.
+const scheduleNotice = computed(() => {
+	if (
+		!scheduleBlocked.value &&
+		(!questions.value.length || attemptsExhausted.value)
+	)
+		return null
+	return quizScheduleNotice(quiz.data, now.value)
+})
 
 watch(scheduleBlockReason, (reason, previous) => {
 	// Questions are withheld while blocked; once the window opens, refetch so
