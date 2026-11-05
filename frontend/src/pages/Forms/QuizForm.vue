@@ -119,7 +119,7 @@
 
 				<Alert
 					v-else-if="showOpenEndedNotice"
-					class="mb-5"
+					class="manual-grading-alert mb-5"
 					theme="amber"
 					dismissible
 					:title="__('Manual grading')"
@@ -1109,3 +1109,11 @@ usePageMeta(() => {
 	}
 })
 </script>
+
+<style scoped>
+.manual-grading-alert > :deep([data-slot='dismiss']) {
+	top: 0.625rem;
+	right: auto;
+	inset-inline-end: 0.625rem;
+}
+</style>
