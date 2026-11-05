@@ -14,6 +14,7 @@ import Quiz from '@/components/Quiz.vue'
 const resourceState = vi.hoisted(() => ({
 	request: vi.fn(),
 	response: null as any,
+	attempts: [] as unknown[],
 }))
 
 vi.mock('frappe-ui', async () => {
@@ -32,6 +33,8 @@ vi.mock('frappe-ui', async () => {
 				const transformed = options.transform?.(raw)
 				resource.data = transformed == null ? raw : transformed
 				options.onSuccess?.(raw)
+			} else if (options.url === 'frappe.client.get_list') {
+				resource.data = structuredClone(resourceState.attempts)
 			}
 
 			resource.loading = false
@@ -193,6 +196,7 @@ afterAll(() => {
 
 beforeEach(() => {
 	resourceState.request.mockReset()
+	resourceState.attempts = []
 	localStorage.clear()
 })
 
@@ -237,6 +241,16 @@ describe('Scheduled quiz start screen', () => {
 		expect(stats.attributes('maxattempts')).toBe('3')
 		expect(stats.attributes('attemptsleft')).toBeUndefined()
 		expect(wrapper.text()).not.toContain('attempts left')
+		wrapper.unmount()
+	})
+
+	it('lets an author who used up their own attempts start a preview', async () => {
+		resourceState.response = scheduledQuizResponse(openWindow)
+		resourceState.attempts = [{ name: 'S1' }, { name: 'S2' }, { name: 'S3' }]
+		const wrapper = await mountQuiz({ preview: true })
+
+		expect(startButton(wrapper)).toBeDefined()
+		expect(wrapper.text()).not.toContain("You've used all")
 		wrapper.unmount()
 	})
 
