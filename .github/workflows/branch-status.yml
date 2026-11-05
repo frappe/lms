@@ -1,7 +1,7 @@
 name: Branch Tests
 
-# Pull requests into develop and the hotfix branches skip the server and UI suites. They run here
-# instead, every hour on develop and version-16 when new commits need them, and each open pull
+# Pull requests into develop and the hotfix branches skip the server, UI and frontend suites. They
+# run here instead, every hour on develop and version-16 when new commits need them, and each open pull
 # request gets a status showing whether its branch passes. A pull request labelled fixes-develop
 # runs the suites itself, and its status turns green once the suites failing on its branch pass.
 # Scheduled workflows run only from the default branch, so this file lives on develop alone.
@@ -13,7 +13,7 @@ on:
     branches: [develop, version-16-hotfix]
     types: [opened, synchronize, reopened, labeled, unlabeled, closed]
   workflow_run:
-    workflows: [Server Tests, UI Tests]
+    workflows: [Server Tests, UI Tests, Frontend Tests]
     types: [completed]
   workflow_dispatch:
 
@@ -46,7 +46,7 @@ jobs:
     if: >-
       ${{ github.event.action != 'closed'
       && (!contains(fromJSON('["labeled", "unlabeled"]'), github.event.action)
-      || contains(fromJSON('["fixes-develop", "Run Server Tests", "Run UI Tests"]'), github.event.label.name)) }}
+      || contains(fromJSON('["fixes-develop", "Run Server Tests", "Run UI Tests", "Run Frontend Tests"]'), github.event.label.name)) }}
     runs-on: ubuntu-latest
     concurrency:
       group: branch-status-${{ github.event.pull_request.number || github.event.workflow_run.head_sha || 'all' }}
@@ -60,7 +60,7 @@ jobs:
       - name: Run the suites when a test label is added
         if: ${{ github.event.action == 'labeled' }}
         run: |
-          for workflow in ci.yml ui-tests.yml; do
+          for workflow in ci.yml ui-tests.yml frontend-tests.yml; do
             run_id=$(gh run list --repo "$GITHUB_REPOSITORY" --workflow "$workflow" --commit "$HEAD_SHA" --event pull_request --limit 1 --json databaseId --jq '.[0].databaseId')
             [ -n "$run_id" ] || continue
             gh run cancel "$run_id" --repo "$GITHUB_REPOSITORY" 2>/dev/null || true
