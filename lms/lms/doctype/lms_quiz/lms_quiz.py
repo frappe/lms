@@ -54,7 +54,15 @@ from lms.lms.utils import (
 # enabling stored XSS on the LMS origin. SVG is excluded (script-bearing).
 ALLOWED_DATAURL_IMAGE_EXTENSIONS = {".png", ".jpg", ".jpeg", ".gif", ".webp", ".avif", ".bmp"}
 
-VIOLATION_EVENT_TYPES = {"tab_switch", "no_face", "multiple_faces", "focus_loss", "camera_disconnect"}
+VIOLATION_EVENT_TYPES = {
+	"tab_switch",
+	"no_face",
+	"multiple_faces",
+	"focus_loss",
+	"camera_disconnect",
+	"fullscreen_exit",
+	"side_panel_detected",
+}
 SUBMISSION_REASONS = {"manual", "timer_expired", "max_violations", "browser_closed", "left_page"}
 # One attempt cannot plausibly produce more proctoring events than this; the rest is a flood.
 MAX_VIOLATION_EVENTS = 500
@@ -64,8 +72,9 @@ MAX_VIOLATION_EVENTS = 500
 MAX_VIOLATION_FRAME_CHARS = 400_000
 MAX_VIOLATION_FRAME_BYTES = 250 * 1024
 # Per attempt, not per event: an attempt that trips two hundred times does not need two
-# hundred stills to show what happened.
-MAX_VIOLATION_FRAMES = 40
+# hundred stills to show what happened. Two keep the submission payload small enough to
+# post in one request; the frontend also sends at most this many.
+MAX_VIOLATION_FRAMES = 2
 
 
 class LMSQuiz(AuthoredDocument, Document):

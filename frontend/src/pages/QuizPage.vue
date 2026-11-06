@@ -4,7 +4,7 @@
 		class="md:w-7/12 md:mx-auto mx-4 py-6 flex grow flex-col"
 		:class="{ 'pt-4 md:w-full': fromLesson }"
 	>
-		<Quiz :quizName="quizID" />
+		<Quiz :quizName="quizID" :fromLesson="fromLesson" />
 	</div>
 </template>
 <script setup>
