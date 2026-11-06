@@ -60,7 +60,7 @@ class TestLMSAssignmentSubmission(MemberOwnershipTestMixin, BaseTestUtils):
 		doc = frappe.new_doc("LMS Assignment Submission")
 		doc.update(
 			{
-				"assignment": self._audio_assignment(),
+				"assignment": self.audio_assignment.name,
 				"member": self.student_a.name,
 				"assignment_attachment": attachment,
 			}
