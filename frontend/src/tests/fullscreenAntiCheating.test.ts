@@ -23,9 +23,13 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { flushPromises, mount } from '@vue/test-utils'
 import ProctoringMonitor from '@/components/ProctoringMonitor.vue'
 import {
+	currentFullscreenElement,
+	FULLSCREEN_EXIT_GRACE_MS,
+	isFullscreenSupported,
 	isProctoringAllowed,
 	isSidePanelViewport,
 	serialiseViolationLog,
+	TAB_SWITCH_SUPPRESSES_FULLSCREEN_MS,
 	violationLabel,
 } from '@/utils/proctoring'
 
@@ -116,32 +120,80 @@ describe('Anti-Cheating & Full-Screen Enforcement Test Suite', () => {
 	describe('1. Full-Screen Exit Enforcement', () => {
 		it('flags fullscreen_exit violation when student exits full-screen mode', async () => {
 			const wrapper = await mountMonitoringMonitor()
+			vi.useFakeTimers()
+			try {
+				// Student was in full-screen, then presses ESC or exits
+				Object.defineProperty(document, 'fullscreenElement', {
+					value: null,
+					configurable: true,
+				})
+				document.dispatchEvent(new Event('fullscreenchange'))
+				expect(emittedTypes(wrapper, 'violation')).not.toContain('fullscreen_exit')
 
-			// Student was in full-screen, then presses ESC or exits
-			Object.defineProperty(document, 'fullscreenElement', {
-				value: null,
-				configurable: true,
-			})
-			document.dispatchEvent(new Event('fullscreenchange'))
-
-			const violations = emittedTypes(wrapper, 'violation')
-			expect(violations).toContain('fullscreen_exit')
-			wrapper.unmount()
+				await vi.advanceTimersByTimeAsync(FULLSCREEN_EXIT_GRACE_MS)
+				expect(emittedTypes(wrapper, 'violation')).toContain('fullscreen_exit')
+			} finally {
+				vi.useRealTimers()
+				wrapper.unmount()
+			}
 		})
 
 		it('does not flag fullscreen_exit when full-screen is successfully active', async () => {
 			const wrapper = await mountMonitoringMonitor()
+			vi.useFakeTimers()
+			try {
+				// Student is currently in full-screen
+				Object.defineProperty(document, 'fullscreenElement', {
+					value: document.documentElement,
+					configurable: true,
+				})
+				document.dispatchEvent(new Event('fullscreenchange'))
+				await vi.advanceTimersByTimeAsync(FULLSCREEN_EXIT_GRACE_MS)
 
-			// Student is currently in full-screen
-			Object.defineProperty(document, 'fullscreenElement', {
-				value: document.documentElement,
-				configurable: true,
-			})
-			document.dispatchEvent(new Event('fullscreenchange'))
+				expect(emittedTypes(wrapper, 'violation')).not.toContain('fullscreen_exit')
+			} finally {
+				vi.useRealTimers()
+				wrapper.unmount()
+			}
+		})
 
-			const violations = emittedTypes(wrapper, 'violation')
-			expect(violations).not.toContain('fullscreen_exit')
-			wrapper.unmount()
+		it('does not bill a tab switch as a fullscreen exit and a focus loss as well', async () => {
+			const wrapper = await mountMonitoringMonitor()
+			vi.useFakeTimers()
+			try {
+				window.dispatchEvent(new Event('blur'))
+				Object.defineProperty(document, 'visibilityState', {
+					value: 'hidden',
+					configurable: true,
+				})
+				document.dispatchEvent(new Event('visibilitychange'))
+				Object.defineProperty(document, 'fullscreenElement', {
+					value: null,
+					configurable: true,
+				})
+				document.dispatchEvent(new Event('fullscreenchange'))
+
+				// Coming back does not turn the browser's own fullscreen drop into
+				// a second violation.
+				Object.defineProperty(document, 'visibilityState', {
+					value: 'visible',
+					configurable: true,
+				})
+				document.dispatchEvent(new Event('visibilitychange'))
+				document.dispatchEvent(new Event('fullscreenchange'))
+
+				await vi.advanceTimersByTimeAsync(
+					Math.max(FULLSCREEN_EXIT_GRACE_MS, 1_500) +
+						TAB_SWITCH_SUPPRESSES_FULLSCREEN_MS
+				)
+				const violations = emittedTypes(wrapper, 'violation')
+				expect(violations.filter((type) => type === 'tab_switch')).toHaveLength(1)
+				expect(violations).not.toContain('fullscreen_exit')
+				expect(violations).not.toContain('focus_loss')
+			} finally {
+				vi.useRealTimers()
+				wrapper.unmount()
+			}
 		})
 	})
 
@@ -264,6 +316,31 @@ describe('Anti-Cheating & Full-Screen Enforcement Test Suite', () => {
 			wrapper.unmount()
 		})
 
+		it('blocks the macOS devtools shortcut even when Option rewrites the key', async () => {
+			const wrapper = await mountMonitoringMonitor()
+
+			const inspect = new KeyboardEvent('keydown', {
+				key: 'Dead',
+				code: 'KeyI',
+				metaKey: true,
+				altKey: true,
+				cancelable: true,
+			})
+			window.dispatchEvent(inspect)
+			expect(inspect.defaultPrevented).toBe(true)
+
+			const firefoxConsole = new KeyboardEvent('keydown', {
+				key: 'k',
+				code: 'KeyK',
+				ctrlKey: true,
+				shiftKey: true,
+				cancelable: true,
+			})
+			window.dispatchEvent(firefoxConsole)
+			expect(firefoxConsole.defaultPrevented).toBe(true)
+			wrapper.unmount()
+		})
+
 		it('blocks Ctrl+U (View Source) and Ctrl+P (Print)', async () => {
 			const wrapper = await mountMonitoringMonitor()
 
@@ -381,6 +458,12 @@ describe('Anti-Cheating & Full-Screen Enforcement Test Suite', () => {
 			).toBe(false)
 		})
 
+		it('identifies a bottom-docked panel that takes at least 200px of height', () => {
+			expect(isSidePanelViewport({ ...desktop, innerHeight: 680 })).toBe(true)
+			expect(isSidePanelViewport({ ...desktop, innerHeight: 880 })).toBe(true)
+			expect(isSidePanelViewport({ ...desktop, innerHeight: 881 })).toBe(false)
+		})
+
 		it('does not mistake page zoom for a side panel', () => {
 			// Zoom narrows the viewport, but it takes height in the same step.
 			expect(
@@ -460,6 +543,51 @@ describe('Anti-Cheating & Full-Screen Enforcement Test Suite', () => {
 			})
 			expect(getUserMediaMock.mock.calls[1][0]).toEqual({ video: true })
 			wrapper.unmount()
+		})
+
+		it('does not leave clipboard or keyboard blocks after unmount during camera startup', async () => {
+			let resolveStream: (stream: ReturnType<typeof makeMockStream>) => void
+			getUserMediaMock.mockReturnValue(
+				new Promise((resolve) => {
+					resolveStream = resolve
+				})
+			)
+			const wrapper = mount(ProctoringMonitor, {
+				props: { active: true },
+				global: { mocks: { __: (s: string) => s } },
+				attachTo: document.body,
+			})
+			wrapper.unmount()
+			resolveStream!(makeMockStream())
+			await flushPromises()
+
+			const copy = new Event('copy', { cancelable: true })
+			const f12 = new KeyboardEvent('keydown', { key: 'F12', cancelable: true })
+			document.dispatchEvent(copy)
+			window.dispatchEvent(f12)
+			expect(copy.defaultPrevented).toBe(false)
+			expect(f12.defaultPrevented).toBe(false)
+		})
+
+		it('does not reattach listeners when monitoring resumes after unmount', async () => {
+			const wrapper = await mountMonitoringMonitor()
+			await wrapper.setProps({ active: false })
+
+			let resolveStream: (stream: ReturnType<typeof makeMockStream>) => void
+			getUserMediaMock.mockReturnValue(
+				new Promise((resolve) => {
+					resolveStream = resolve
+				})
+			)
+			const resuming = wrapper.setProps({ active: true })
+			wrapper.unmount()
+			resolveStream!(makeMockStream())
+			await resuming.catch(() => {})
+			await flushPromises()
+
+			const copy = new Event('copy', { cancelable: true })
+			document.dispatchEvent(copy)
+			expect(copy.defaultPrevented).toBe(false)
 		})
 
 		it('stops a camera that resolves after the component was unmounted', async () => {
@@ -547,10 +675,10 @@ describe('Anti-Cheating & Full-Screen Enforcement Test Suite', () => {
 			expect(isProctoringAllowed({ ...standalone, preview: true })).toBe(false)
 		})
 
-		it('disables proctoring when the fromLesson query parameter is present', () => {
-			expect(
-				isProctoringAllowed({ ...standalone, fromLessonQuery: true })
-			).toBe(false)
+		it('keeps proctoring on for a standalone exam; the fromLesson flag is an explicit embed prop', () => {
+			// ?fromLesson is a layout hint the learner can type. It is not an input here.
+			expect(isProctoringAllowed(standalone)).toBe(true)
+			expect(isProctoringAllowed({ ...standalone, fromLesson: true })).toBe(false)
 		})
 
 		it('disables proctoring on a lesson route or course learning path', () => {
@@ -574,6 +702,19 @@ describe('Anti-Cheating & Full-Screen Enforcement Test Suite', () => {
 			).toBe(true)
 		})
 
+		it('treats a prefixed fullscreen session as fullscreen', () => {
+			const doc = document as Document & {
+				webkitFullscreenElement?: Element | null
+				webkitFullscreenEnabled?: boolean
+			}
+			doc.webkitFullscreenElement = document.documentElement
+			doc.webkitFullscreenEnabled = true
+			expect(currentFullscreenElement()).toBe(document.documentElement)
+			expect(isFullscreenSupported()).toBe(true)
+			doc.webkitFullscreenElement = null
+			doc.webkitFullscreenEnabled = false
+		})
+
 		it('disables proctoring when the quiz does not enable it', () => {
 			expect(
 				isProctoringAllowed({ ...standalone, enableProctoring: false })
@@ -590,7 +731,7 @@ describe('Anti-Cheating & Full-Screen Enforcement Test Suite', () => {
 			frame,
 		})
 
-		it('sends at most two frames and keeps events chronological', () => {
+		it('sends at most two frames, the newest ones, and keeps events chronological', () => {
 			// violationLog is newest-first; the payload must be oldest-first.
 			const log = [
 				event('e5', 'frame-5'),
@@ -609,11 +750,11 @@ describe('Anti-Cheating & Full-Screen Enforcement Test Suite', () => {
 				'e5',
 			])
 			expect(sent.map((e: { frame: string | null }) => e.frame)).toEqual([
-				'frame-1',
-				'frame-2',
 				null,
 				null,
+				'frame-3',
 				null,
+				'frame-5',
 			])
 		})
 
