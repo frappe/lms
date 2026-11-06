@@ -37,7 +37,7 @@
    "in_list_view": 1,
    "in_standard_filter": 1,
    "label": "Submission Type",
-   "options": "Document\nPDF\nURL\nImage\nText",
+   "options": "Document\nPDF\nURL\nImage\nText\nAudio",
    "reqd": 1
   },
   {
@@ -126,7 +126,7 @@
    "link_fieldname": "assignment"
   }
  ],
- "modified": "2026-10-16 18:30:00.000000",
+ "modified": "2026-11-06 12:00:00.000000",
  "modified_by": "sayali@frappe.io",
  "module": "LMS",
  "name": "LMS Assignment",
