@@ -12,7 +12,7 @@ import { usesWebkitPdfViewer } from '@/utils/pdfViewer'
 import { embedFrame } from '@/utils/blockDom'
 import { safeUrl } from '@/utils/safeUrl'
 import translationPlugin from '../translation'
-import { isAudioType } from '@/utils/audio'
+import { AUDIO_LINK, fileExtension, isAudioType } from '@/utils/audio'
 
 // What the block saves: an uploaded file and, for a video, its in-video quizzes.
 interface UploadData {
@@ -47,6 +47,7 @@ export class Upload {
 	config: Record<string, unknown>
 	wrapper!: HTMLDivElement
 	app: App | null = null
+	uploader: App | null = null
 
 	constructor({
 		data,
@@ -80,6 +81,23 @@ export class Upload {
 
 	static get isReadOnlySupported() {
 		return true
+	}
+
+	// A pasted link to an audio file becomes a player without uploading it.
+	static get pasteConfig() {
+		return { patterns: { audio: AUDIO_LINK } }
+	}
+
+	onPaste(event: { type: string; detail: { data: string } }): void {
+		if (event.type !== 'pattern') return
+		const file_url = event.detail.data.trim()
+		this.data = { file_url, file_type: fileExtension(file_url), quizzes: [] }
+		// The block rendered its uploader before the paste arrived; it goes, so it
+		// opens no file picker.
+		this.uploader?.unmount()
+		this.uploader = null
+		this.wrapper.replaceChildren()
+		this.renderFile(this.data as UploadedFile)
 	}
 
 	render(): HTMLDivElement {
@@ -172,6 +190,7 @@ export class Upload {
 		registerDirectives(app)
 		app.use(translationPlugin)
 		app.mount(this.wrapper)
+		this.uploader = app
 	}
 
 	validate(savedData: UploadData): boolean {
@@ -197,6 +216,8 @@ export class Upload {
 			this.app.unmount()
 			this.app = null
 		}
+		this.uploader?.unmount()
+		this.uploader = null
 	}
 
 	isVideo(type: string): boolean {
