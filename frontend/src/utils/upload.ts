@@ -119,6 +119,7 @@ export class Upload {
 			// The player's labels call __(); without this it fails to render at all.
 			app.use(translationPlugin)
 			app.mount(this.wrapper)
+			this.app = app
 			return
 		} else if (file.file_type == 'PDF') {
 			// WebKit refuses to scroll a PDF in an <iframe>, so it gets the inline

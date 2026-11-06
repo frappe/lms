@@ -10,10 +10,10 @@ const AUDIO_MIME: Record<string, string> = {
 export const AUDIO_EXTENSIONS = Object.keys(AUDIO_MIME)
 
 export const isAudioType = (type: string | null | undefined): boolean =>
-	!!type && type.toLowerCase() in AUDIO_MIME
+	!!type && Object.hasOwn(AUDIO_MIME, type.toLowerCase())
 
 /** The MIME type for an audio file's url, so browsers do not skip a wav or m4a labelled mp3. */
 export const audioMime = (url: string): string | undefined => {
 	const extension = url.split(/[?#]/)[0].split('.').pop()?.toLowerCase() || ''
-	return AUDIO_MIME[extension]
+	return Object.hasOwn(AUDIO_MIME, extension) ? AUDIO_MIME[extension] : undefined
 }
