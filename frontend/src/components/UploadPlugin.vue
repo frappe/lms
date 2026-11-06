@@ -32,7 +32,8 @@ const AutoOpen = {
 	props: { open: { type: Function, required: true } },
 	async mounted() {
 		await nextTick()
-		this.open()
+		// A pasted link replaces the uploader in the same tick it mounts.
+		if (!this.$.isUnmounted) this.open()
 	},
 	render: () => null,
 }

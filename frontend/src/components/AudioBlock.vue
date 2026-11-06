@@ -9,7 +9,7 @@
 			@loadedmetadata="duration = audio.duration"
 			@timeupdate="currentTime = audio.currentTime"
 		>
-			<source :src="safeUrl(encodeURI(file))" :type="audioMime(file)" />
+			<source :src="safeUrl(encodeLink(file))" :type="audioMime(file)" />
 		</audio>
 		<div
 			data-testid="audio-player"
@@ -81,7 +81,7 @@
 import { computed, ref } from 'vue'
 import { Button } from 'frappe-ui'
 import { safeUrl } from '@/utils/safeUrl'
-import { audioMime } from '@/utils/audio'
+import { audioMime, encodeLink } from '@/utils/audio'
 
 const RATES = [1, 1.25, 1.5, 2]
 
