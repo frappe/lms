@@ -1,5 +1,10 @@
 <template>
-	<Quiz v-if="user.data" :quizName="quiz"></Quiz>
+	<Quiz
+		v-if="user.data"
+		:quizName="quiz"
+		:isEmbeddedInLesson="true"
+		:fromLesson="true"
+	></Quiz>
 	<div v-else class="border rounded-5 text-center py-20">
 		<div>
 			{{ __('Please login to access the quiz.') }}
