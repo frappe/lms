@@ -12,6 +12,9 @@ from lms.lms.permissions import can_access_assessment
 from lms.lms.schedule_utils import assert_within_schedule
 from lms.lms.utils import PRIVILEGED_ROLES, get_attachable_files, get_lms_route, validate_attachable_file
 
+# The files an Audio assignment's player can play, as frontend/src/utils/audio.ts lists them.
+AUDIO_EXTENSIONS = (".mp3", ".wav", ".ogg", ".m4a", ".aac")
+
 
 class LMSAssignmentSubmission(Document):
 	def validate(self):
@@ -22,8 +25,24 @@ class LMSAssignmentSubmission(Document):
 		self.validate_schedule_window()
 		self.validate_duplicates()
 		self.validate_url()
+		self.validate_audio_attachment()
 		validate_attachable_file(self, "assignment_attachment")
 		self.validate_status()
+
+	def validate_audio_attachment(self):
+		"""The upload picker filters by type in the browser; a submission saved through the API skips it."""
+		if not self.assignment_attachment:
+			return
+		if frappe.db.get_value("LMS Assignment", self.assignment, "type") != "Audio":
+			return
+		path = self.assignment_attachment.split("?", 1)[0].lower()
+		if not path.endswith(AUDIO_EXTENSIONS):
+			frappe.throw(
+				_("Upload an audio file: {0}.").format(
+					", ".join(ext.lstrip(".") for ext in AUDIO_EXTENSIONS)
+				),
+				title=_("Not an Audio File"),
+			)
 
 	def sanitize_rich_text_fields(self):
 		"""Drop form controls the framework's allowlist keeps: `comments` is mailed as

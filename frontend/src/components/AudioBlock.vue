@@ -1,5 +1,5 @@
 <template>
-	<div>
+	<div class="audio-root">
 		<audio
 			ref="audio"
 			controlsList="nodownload"
@@ -34,9 +34,7 @@
 					/>
 				</template>
 			</Button>
-			<span
-				class="hidden shrink-0 text-xs tabular-nums text-ink-gray-7 sm:inline"
-			>
+			<span class="audio-elapsed shrink-0 text-xs tabular-nums text-ink-gray-7">
 				{{ formatTime(currentTime) }}
 			</span>
 			<input
@@ -63,11 +61,11 @@
 			>
 				{{ rate }}x
 			</Button>
-			<!-- A phone has its own volume; the bar keeps the room. -->
+			<!-- A narrow player drops these so the seek bar keeps its room; a phone has its own volume. -->
 			<Button
 				variant="ghost"
 				size="sm"
-				class="hidden shrink-0 sm:inline-flex"
+				class="audio-mute shrink-0"
 				:label="isMuted ? __('Unmute') : __('Mute')"
 				@click="toggleMute"
 			>
@@ -139,6 +137,18 @@ const formatTime = (time) => {
 </script>
 
 <style scoped>
+/* Sized by the space it is given, not the screen: a lesson column or an assignment card can be narrow on a wide screen. */
+.audio-root {
+	container-type: inline-size;
+}
+
+@container (max-width: 380px) {
+	.audio-elapsed,
+	.audio-mute {
+		display: none;
+	}
+}
+
 /* The played part is drawn in the track itself, so it needs no second element. */
 .audio-seek {
 	-webkit-appearance: none;
