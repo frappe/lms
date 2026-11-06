@@ -42,7 +42,7 @@ vi.mock('frappe-ui', () => {
 							uploading: false,
 							progress: 0,
 							openFileSelector: () => {},
-						})
+						}),
 					),
 		}),
 		FormControl: defineComponent({
@@ -112,7 +112,7 @@ const evaluator = { name: 'evaluator@example.com', is_evaluator: true }
 
 const mountAssignment = async (
 	user: Record<string, unknown> = learner,
-	submission?: Record<string, unknown>
+	submission?: Record<string, unknown>,
 ) => {
 	const wrapper = mount(Assignment, {
 		props: {
@@ -154,7 +154,7 @@ describe('the assignment card', () => {
 		const wrapper = await mountAssignment()
 
 		expect(wrapper.find('[data-testid="assignment-skeleton"]').exists()).toBe(
-			true
+			true,
 		)
 		expect(wrapper.text()).toContain('Assignment')
 	})
@@ -168,13 +168,13 @@ describe('the assignment card', () => {
 		const wrapper = await mountAssignment()
 
 		expect(wrapper.find('[data-testid="assignment-skeleton"]').exists()).toBe(
-			false
+			false,
 		)
 		expect(wrapper.text()).toContain('Temperature Converter')
 		expect(wrapper.text()).toContain('Brief')
 		expect(wrapper.text()).toContain('Convert Celsius.')
 		expect(wrapper.find('[data-testid="assignment-dropzone"]').exists()).toBe(
-			true
+			true,
 		)
 		expect(wrapper.find('[data-testid="url-input"]').exists()).toBe(false)
 		const labels = wrapper.findAll('button').map((b) => b.text())
@@ -205,7 +205,7 @@ describe('the assignment card', () => {
 
 		expect(wrapper.find('[data-testid="url-input"]').exists()).toBe(true)
 		expect(wrapper.find('[data-testid="assignment-dropzone"]').exists()).toBe(
-			false
+			false,
 		)
 	})
 
@@ -213,14 +213,40 @@ describe('the assignment card', () => {
 		state.assignment = { title: 'Report', type: 'PDF', question: '<p>Q</p>' }
 		const wrapper = await mountAssignment(
 			evaluator,
-			learnerSubmission({ assignment_attachment: '/private/files/report.pdf' })
+			learnerSubmission({ assignment_attachment: '/private/files/report.pdf' }),
 		)
 
 		const file = wrapper.get('[data-testid="assignment-attachment"]')
 		expect(file.text()).toContain('report.pdf')
 		expect(file.find('button').exists()).toBe(false)
 		expect(wrapper.find('[data-testid="assignment-dropzone"]').exists()).toBe(
-			false
+			false,
+		)
+	})
+
+	it("lets an evaluator listen to a learner's audio answer", async () => {
+		state.assignment = { title: 'Pitch', type: 'Audio', question: '<p>Q</p>' }
+		const wrapper = await mountAssignment(
+			evaluator,
+			learnerSubmission({ assignment_attachment: '/private/files/pitch.m4a' }),
+		)
+
+		expect(
+			wrapper.get('[data-testid="assignment-attachment"]').text(),
+		).toContain('pitch.m4a')
+		const player = wrapper.get('[data-testid="assignment-audio"]')
+		expect(player.find('source').attributes('type')).toBe('audio/mp4')
+	})
+
+	it('offers an audio upload for an audio assignment', async () => {
+		state.assignment = { title: 'Pitch', type: 'Audio', question: '<p>Q</p>' }
+		const wrapper = await mountAssignment()
+
+		expect(wrapper.find('[data-testid="assignment-dropzone"]').exists()).toBe(
+			true,
+		)
+		expect(wrapper.find('[data-testid="assignment-audio"]').exists()).toBe(
+			false,
 		)
 	})
 
@@ -229,10 +255,10 @@ describe('the assignment card', () => {
 		const wrapper = await mountAssignment(evaluator, learnerSubmission({}))
 
 		expect(wrapper.find('[data-testid="assignment-attachment"]').exists()).toBe(
-			false
+			false,
 		)
 		expect(wrapper.find('[data-testid="assignment-dropzone"]').exists()).toBe(
-			false
+			false,
 		)
 	})
 
@@ -245,12 +271,12 @@ describe('the assignment card', () => {
 		}
 		const wrapper = await mountAssignment(
 			evaluator,
-			learnerSubmission({ answer: 'https://example.com/repo' })
+			learnerSubmission({ answer: 'https://example.com/repo' }),
 		)
 
 		const input = wrapper.get('[data-testid="url-input"]')
 		expect((input.element as HTMLInputElement).value).toBe(
-			'https://example.com/repo'
+			'https://example.com/repo',
 		)
 		expect(input.attributes('disabled')).toBeDefined()
 	})
@@ -264,7 +290,7 @@ describe('the assignment card', () => {
 		}
 		const wrapper = await mountAssignment(
 			evaluator,
-			learnerSubmission({ answer: '<p>My essay</p>' })
+			learnerSubmission({ answer: '<p>My essay</p>' }),
 		)
 
 		const answer = wrapper.get('[data-testid="text-answer"]')
@@ -282,7 +308,7 @@ describe('the assignment card', () => {
 		const wrapper = await mountAssignment()
 
 		expect(wrapper.text()).toContain(
-			'The schedule for this assignment has ended.'
+			'The schedule for this assignment has ended.',
 		)
 		expect(wrapper.find('[data-testid="url-input"]').exists()).toBe(false)
 	})

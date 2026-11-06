@@ -21,12 +21,14 @@
 <script setup>
 import { Button, ErrorMessage, FileUploader } from 'frappe-ui'
 import { nextTick, computed } from 'vue'
+import { AUDIO_EXTENSIONS, isAudioType } from '@/utils/audio'
 
 const AutoOpen = {
 	props: { open: { type: Function, required: true } },
 	async mounted() {
 		await nextTick()
-		this.open()
+		// A pasted link replaces the uploader in the same tick it mounts.
+		if (!this.$.isUnmounted) this.open()
 	},
 	render: () => null,
 }
@@ -64,8 +66,12 @@ const addFile = (file) => {
 
 const validateFile = (file) => {
 	let extension = file.name.split('.').pop().toLowerCase()
-	if (!['jpg', 'jpeg', 'png', 'mp4', 'mov', 'mp3', 'pdf'].includes(extension)) {
-		return __('Only image and video files are allowed.')
+	if (
+		!['jpg', 'jpeg', 'png', 'mp4', 'mov', 'pdf', ...AUDIO_EXTENSIONS].includes(
+			extension
+		)
+	) {
+		return __('Upload an image, video, audio or PDF file.')
 	}
 }
 
@@ -73,7 +79,5 @@ const isVideo = (type) => {
 	return ['mov', 'mp4', 'avi', 'mkv', 'webm'].includes(type.toLowerCase())
 }
 
-const isAudio = (type) => {
-	return ['mp3', 'wav', 'ogg'].includes(type.toLowerCase())
-}
+const isAudio = (type) => isAudioType(type)
 </script>

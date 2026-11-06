@@ -25,6 +25,21 @@ class TestLMSAssignmentSubmission(MemberOwnershipTestMixin, BaseTestUtils):
 		cls._place_in_lesson(course.name, "LMS Assignment", cls.assignment.name)
 		cls._create_enrollment(cls.student_a.name, course.name)
 		cls._create_enrollment(cls.student_b.name, course.name)
+		existing = frappe.db.exists("LMS Assignment", {"title": "Audio Submission Assignment"})
+		cls.audio_assignment = (
+			frappe.get_doc("LMS Assignment", existing)
+			if existing
+			else frappe.get_doc(
+				{
+					"doctype": "LMS Assignment",
+					"title": "Audio Submission Assignment",
+					"question": "Record your answer.",
+					"type": "Audio",
+					"grade_assignment": 1,
+				}
+			).insert()
+		)
+		cls._place_in_lesson(course.name, "LMS Assignment", cls.audio_assignment.name)
 
 	def tearDown(self):
 		frappe.set_user("Administrator")
@@ -40,6 +55,28 @@ class TestLMSAssignmentSubmission(MemberOwnershipTestMixin, BaseTestUtils):
 
 	def _new_doc(self, member=None, variant=0):
 		return self._new_submission(member=member)
+
+	def _audio_submission(self, attachment):
+		doc = frappe.new_doc("LMS Assignment Submission")
+		doc.update(
+			{
+				"assignment": self.audio_assignment.name,
+				"member": self.student_a.name,
+				"assignment_attachment": attachment,
+			}
+		)
+		return doc
+
+	def test_an_audio_assignment_takes_an_m4a_recording(self):
+		frappe.set_user(self.student_a.name)
+		doc = self._audio_submission("/files/pitch.m4a")
+		doc.insert()
+		self.assertEqual(doc.type, "Audio")
+
+	def test_an_audio_assignment_refuses_a_file_that_is_not_audio(self):
+		frappe.set_user(self.student_a.name)
+		with self.assertRaises(frappe.ValidationError):
+			self._audio_submission("/files/notes.pdf").insert()
 
 	def test_student_cannot_reassign_member_on_update(self):
 		frappe.set_user(self.student_a.name)
