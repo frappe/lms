@@ -158,9 +158,9 @@ String.prototype.format = function (...args: unknown[]) {
 	return this.replace(/\{(\d+)\}/g, (_: string, i: number) => String(args[i]))
 }
 
-const mountQuiz = () =>
+const mountQuiz = (props: Record<string, unknown> = {}) =>
 	mount(Quiz, {
-		props: { quizName: 'quiz-a' },
+		props: { quizName: 'quiz-a', ...props },
 		global: {
 			provide: { $user: { data: { name: 'student@example.com' } } },
 			mocks: { __: (s: string) => s },
@@ -255,6 +255,93 @@ describe('Quiz.vue violation count', () => {
 		vm.handleViolation('tab_switch')
 		await flushPromises()
 		expect(count()).toContain('1 / 3')
+		wrapper.unmount()
+	})
+})
+
+describe('Quiz.vue submission lifecycle', () => {
+	beforeEach(() => {
+		submitSpy.mockClear()
+		toastMock.error.mockClear()
+		submitOutcome = 'fails'
+		localStorage.clear()
+		vi.useFakeTimers()
+	})
+
+	afterEach(() => {
+		vi.useRealTimers()
+	})
+
+	it('sends one request when Submit is pressed again while the first is in flight', async () => {
+		const wrapper = mountQuiz()
+		await flushPromises()
+		const vm = wrapper.vm as any
+		vm.startQuiz()
+		await flushPromises()
+
+		vm.submitQuiz()
+		vm.submitQuiz()
+		await runDeferredSubmit()
+
+		expect(submissionCalls()).toHaveLength(1)
+		wrapper.unmount()
+	})
+
+	it('auto-submits immediately on reaching the violation cap', async () => {
+		const wrapper = mountQuiz()
+		await flushPromises()
+		const vm = wrapper.vm as any
+		vm.startQuiz()
+		await flushPromises()
+
+		vm.handleViolation('tab_switch')
+		vm.handleViolation('no_face')
+		await flushPromises()
+		expect(submissionCalls()).toHaveLength(0)
+
+		vm.handleViolation('focus_loss')
+		await flushPromises()
+
+		// The max-violations path submits without the 500ms deferral.
+		expect(submissionCalls()).toHaveLength(1)
+		expect(toastMock.error).toHaveBeenCalledWith(
+			expect.stringContaining('Maximum violations')
+		)
+		wrapper.unmount()
+	})
+
+	it('restores proctoring and allows a retry when the submit fails', async () => {
+		const wrapper = mountQuiz()
+		await flushPromises()
+		const vm = wrapper.vm as any
+		vm.startQuiz()
+		await flushPromises()
+		expect(vm.proctoringActive).toBe(true)
+
+		vm.submitQuiz()
+		await runDeferredSubmit()
+
+		// A network failure must not leave the attempt with anti-cheating off.
+		expect(vm.proctoringActive).toBe(true)
+		expect(vm.submissionReason).toBe('')
+
+		vm.submitQuiz()
+		await runDeferredSubmit()
+		expect(submissionCalls()).toHaveLength(2)
+		wrapper.unmount()
+	})
+
+	it('does not start proctoring for a quiz opened from a lesson', async () => {
+		const wrapper = mountQuiz({ fromLesson: true })
+		await flushPromises()
+		const vm = wrapper.vm as any
+		vm.startQuiz()
+		await flushPromises()
+
+		vm.handleViolation('tab_switch')
+
+		expect(vm.violationCount).toBe(0)
+		expect(wrapper.find('[data-testid="violation-count"]').exists()).toBe(false)
 		wrapper.unmount()
 	})
 })

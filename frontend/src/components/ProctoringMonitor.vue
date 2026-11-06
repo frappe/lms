@@ -149,6 +149,8 @@ let stream = null
 let setupInterval = null
 let monitorInterval = null
 let focusBlurTimer = null
+let monitoredTrack = null
+let isDestroyed = false
 let noFaceStreak = 0
 let multiFaceStreak = 0
 // When each condition was first warned about, so the violation can be held back
@@ -160,8 +162,8 @@ const STREAK_THRESHOLD = 3
 const ESCALATION_GAP = 10_000
 // Wide enough to recognise a face and read a room, small enough that forty of them
 // still make a reasonable request.
-const FRAME_WIDTH = 320
-const FRAME_QUALITY = 0.6
+const FRAME_WIDTH = 240
+const FRAME_QUALITY = 0.5
 let cameraReadyEmitted = false
 
 const setupStatusLabel = computed(() => {
@@ -200,19 +202,47 @@ onMounted(async () => {
 })
 
 onUnmounted(() => {
+	isDestroyed = true
 	stopAll()
 })
 
 // ─── Setup phase ─────────────────────────────────────────────────────────────
 
-const startCamera = async () => {
+// Acquire the camera stream without touching the setup UI. Called on mount and
+// again when monitoring resumes after stopCamera() released the stream.
+const acquireStream = async () => {
+	if (stream) return true
 	try {
-		stream = await navigator.mediaDevices.getUserMedia({ video: true })
+		let mediaStream
+		try {
+			// On mobile, request front-facing (selfie) camera for face proctoring
+			mediaStream = await navigator.mediaDevices.getUserMedia({
+				video: { facingMode: 'user' },
+			})
+		} catch {
+			mediaStream = await navigator.mediaDevices.getUserMedia({ video: true })
+		}
+		if (isDestroyed) {
+			mediaStream.getTracks?.().forEach((t) => t.stop())
+			return false
+		}
+		stream = mediaStream
+		return true
 	} catch {
+		if (isDestroyed) return false
 		cameraError.value = __(
 			'Camera access was denied. Please allow camera access and reload.'
 		)
 		emit('camera-denied')
+		return false
+	}
+}
+
+const startCamera = async () => {
+	if (!(await acquireStream())) return
+
+	if (isDestroyed) {
+		stopCamera()
 		return
 	}
 
@@ -225,9 +255,15 @@ const startCamera = async () => {
 			'/assets/lms/frontend/models'
 		)
 	} catch {
+		if (isDestroyed) return
 		cameraError.value = __(
 			'Failed to load face detection models. Please reload.'
 		)
+		return
+	}
+
+	if (isDestroyed) {
+		stopCamera()
 		return
 	}
 
@@ -268,10 +304,18 @@ watch(
 	async (active) => {
 		if (active) {
 			clearInterval(setupInterval)
+			setupInterval = null
 			phase.value = 'monitoring'
+			// stopCamera() releases the stream when monitoring stops, so resuming
+			// (a failed submit put the attempt back in progress) has to reacquire
+			// it, not just reattach the old, stopped tracks.
+			await acquireStream()
 			await nextTick()
 			if (videoEl.value && stream) videoEl.value.srcObject = stream
 			startMonitoring()
+		} else {
+			stopMonitoring()
+			stopCamera()
 		}
 	}
 )
@@ -279,12 +323,41 @@ watch(
 // ─── Monitoring phase ─────────────────────────────────────────────────────────
 
 const startMonitoring = () => {
+	stopMonitoring()
 	monitorInterval = setInterval(runMonitorDetection, 2000)
 	document.addEventListener('visibilitychange', onVisibilityChange)
+	document.addEventListener('fullscreenchange', onFullscreenChange)
+	document.addEventListener('copy', onCopy)
+	document.addEventListener('paste', onPaste)
+	document.addEventListener('cut', onCut)
+	document.addEventListener('contextmenu', onContextMenu)
+	window.addEventListener('keydown', onKeyDown)
 	window.addEventListener('blur', onWindowBlur)
 	window.addEventListener('focus', onWindowFocus)
-	const videoTrack = stream?.getVideoTracks?.()?.[0]
-	if (videoTrack) videoTrack.addEventListener('ended', onCameraDisconnect)
+	monitoredTrack = stream?.getVideoTracks?.()?.[0] ?? null
+	monitoredTrack?.addEventListener('ended', onCameraDisconnect)
+}
+
+const stopMonitoring = () => {
+	if (monitorInterval) {
+		clearInterval(monitorInterval)
+		monitorInterval = null
+	}
+	if (focusBlurTimer) {
+		clearTimeout(focusBlurTimer)
+		focusBlurTimer = null
+	}
+	monitoredTrack?.removeEventListener?.('ended', onCameraDisconnect)
+	monitoredTrack = null
+	document.removeEventListener('visibilitychange', onVisibilityChange)
+	document.removeEventListener('fullscreenchange', onFullscreenChange)
+	document.removeEventListener('copy', onCopy)
+	document.removeEventListener('paste', onPaste)
+	document.removeEventListener('cut', onCut)
+	document.removeEventListener('contextmenu', onContextMenu)
+	window.removeEventListener('keydown', onKeyDown)
+	window.removeEventListener('blur', onWindowBlur)
+	window.removeEventListener('focus', onWindowFocus)
 }
 
 const runMonitorDetection = async () => {
@@ -367,8 +440,34 @@ const captureFrame = () => {
 const onVisibilityChange = () => {
 	// The element keeps its frames while the tab is hidden, so the still shows
 	// what the camera saw at the moment they switched away.
-	if (document.visibilityState === 'hidden')
+	if (props.active && document.visibilityState === 'hidden')
 		emit('violation', 'tab_switch', captureFrame())
+}
+
+const onFullscreenChange = () => {
+	if (!props.active) return
+	if (!document.fullscreenElement) {
+		emit('violation', 'fullscreen_exit', captureFrame())
+	}
+}
+
+// Silently prevent copying, cutting, pasting, right-click, and devtools/inspection shortcuts
+const onCopy = (e) => e.preventDefault()
+const onCut = (e) => e.preventDefault()
+const onPaste = (e) => e.preventDefault()
+const onContextMenu = (e) => e.preventDefault()
+
+const onKeyDown = (e) => {
+	const key = e.key?.toLowerCase()
+	const ctrlOrCmd = e.ctrlKey || e.metaKey
+
+	if (
+		e.key === 'F12' ||
+		(ctrlOrCmd && ['c', 'v', 'x', 'u', 'p', 's'].includes(key)) ||
+		(ctrlOrCmd && e.shiftKey && ['i', 'j', 'c'].includes(key))
+	) {
+		e.preventDefault()
+	}
 }
 
 const onWindowBlur = () => {
@@ -376,7 +475,7 @@ const onWindowBlur = () => {
 	if (document.visibilityState === 'hidden') return
 	focusBlurTimer = setTimeout(
 		() => emit('violation', 'focus_loss', captureFrame()),
-		10_000
+		1500
 	)
 }
 
@@ -392,13 +491,22 @@ const onCameraDisconnect = () =>
 
 // ─── Cleanup ──────────────────────────────────────────────────────────────────
 
+const stopCamera = () => {
+	if (stream) {
+		stream.getTracks?.().forEach((t) => t.stop())
+		stream = null
+	}
+	if (videoEl.value) {
+		videoEl.value.srcObject = null
+	}
+}
+
 const stopAll = () => {
-	clearInterval(setupInterval)
-	clearInterval(monitorInterval)
-	clearTimeout(focusBlurTimer)
-	document.removeEventListener('visibilitychange', onVisibilityChange)
-	window.removeEventListener('blur', onWindowBlur)
-	window.removeEventListener('focus', onWindowFocus)
-	stream?.getTracks?.().forEach((t) => t.stop())
+	if (setupInterval) {
+		clearInterval(setupInterval)
+		setupInterval = null
+	}
+	stopMonitoring()
+	stopCamera()
 }
 </script>
