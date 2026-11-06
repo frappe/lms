@@ -262,7 +262,7 @@ const assignmentColumns = computed(() => {
 })
 
 const assignmentTypes = computed(() => {
-	let types = [' ', 'Document', 'Image', 'PDF', 'URL', 'Text']
+	let types = [' ', 'Document', 'Image', 'PDF', 'Audio', 'URL', 'Text']
 	return types.map((type) => {
 		return {
 			label: __(type),
