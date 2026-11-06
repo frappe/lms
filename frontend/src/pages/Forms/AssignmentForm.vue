@@ -346,6 +346,7 @@ const assignmentOptions = computed(() => {
 		{ label: 'PDF', value: 'PDF' },
 		{ label: 'Image', value: 'Image' },
 		{ label: 'Document', value: 'Document' },
+		{ label: 'Audio', value: 'Audio' },
 		{ label: 'Text', value: 'Text' },
 		{ label: 'URL', value: 'URL' },
 	]
