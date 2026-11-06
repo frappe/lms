@@ -131,10 +131,13 @@ describe('the media players', () => {
 		wrapper.unmount()
 	})
 
+	// The player is a filled bar, not an outlined card, so it carries no border.
 	it('rounds the audio player', () => {
 		const wrapper = mountPlayer(AudioBlock, { file: '/files/talk.mp3' })
 
-		expectCard(wrapper.find('[data-testid="audio-player"]').element)
+		const player = wrapper.find('[data-testid="audio-player"]').element
+		for (const name of ['rounded-7', 'overflow-hidden'])
+			expect(player.classList).toContain(name)
 		vi.runOnlyPendingTimers()
 		wrapper.unmount()
 	})

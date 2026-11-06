@@ -8,18 +8,7 @@ on:
       # Read from disk by frontend/src/tests/ravenRuleModel.test.ts.
       - "lms/raven_provider.py"
       - ".github/workflows/frontend-tests.yml"
-<<<<<<< HEAD
-  push:
-    branches: [version-16, version-16-hotfix]
-    paths:
-      - "frontend/**"
-      - "package.json"
-      # Read from disk by frontend/src/tests/ravenRuleModel.test.ts.
-      - "lms/raven_provider.py"
-      - ".github/workflows/frontend-tests.yml"
-=======
   workflow_dispatch:
->>>>>>> d34a356 (ci: run frontend tests every hour on develop and version-16 instead of on each pull request)
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}

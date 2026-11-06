@@ -13,11 +13,7 @@
 		</audio>
 		<div
 			data-testid="audio-player"
-<<<<<<< HEAD
-			class="flex items-center gap-x-2 rounded-7 overflow-hidden border border-outline-gray-2 p-1 w-1/2"
-=======
 			class="flex h-11 w-full max-w-lg items-center gap-x-2.5 overflow-hidden rounded-7 bg-surface-gray-2 pe-1.5 ps-1"
->>>>>>> 67f5b33 (fix(lesson): show audio in the lesson editor, accept m4a and redesign the player)
 		>
 			<Button
 				variant="outline"
