@@ -2,7 +2,7 @@ import { mount } from '@vue/test-utils'
 import { describe, expect, it, vi } from 'vitest'
 
 import AudioBlock from '@/components/AudioBlock.vue'
-import { audioMime, isAudioType } from '@/utils/audio'
+import { audioMime, encodeLink, isAudioType } from '@/utils/audio'
 
 vi.mock('frappe-ui', () => ({
 	Button: {
@@ -15,7 +15,7 @@ vi.mock('frappe-ui', () => ({
 
 String.prototype.format = function (...args: unknown[]) {
 	return this.replace(/\{(\d+)\}/g, (_match: string, index: number) =>
-		String(args[index])
+		String(args[index]),
 	)
 }
 
@@ -60,5 +60,16 @@ describe('AudioBlock', () => {
 		first.unmount()
 		second.unmount()
 		vi.restoreAllMocks()
+	})
+})
+
+describe('encodeLink', () => {
+	it('encodes a raw link once and leaves an encoded one alone', () => {
+		expect(encodeLink('/files/Broken Heart 1.mp3')).toBe(
+			'/files/Broken%20Heart%201.mp3',
+		)
+		expect(encodeLink('https://cdn.example.com/Broken%20Heart.mp3')).toBe(
+			'https://cdn.example.com/Broken%20Heart.mp3',
+		)
 	})
 })

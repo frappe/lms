@@ -26,7 +26,7 @@ import {
 } from '@/utils/blockTunes/clipboardTunes'
 import dayjs from '@/utils/dayjs'
 import { SafeEmbed } from '@/utils/safeEmbed'
-import SimpleImage from '@editorjs/simple-image'
+import LessonImage from '@/utils/lessonImage'
 import Table from '@editorjs/table'
 import DOMPurify from 'dompurify'
 import { decodeEntities } from './inertHtml'
@@ -186,7 +186,7 @@ export function getEditorTools(
 			class: Markdown,
 			inlineToolbar: INLINE_TOOLBAR_ORDER,
 		},
-		image: SimpleImage,
+		image: LessonImage,
 		stub: {
 			class: UnknownBlock,
 		},

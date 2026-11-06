@@ -116,6 +116,14 @@ describe('UploadPlugin: file picker', () => {
 		expect(openFileSelector).toHaveBeenCalledTimes(1)
 	})
 
+	// A pasted audio link replaces the uploader before its first tick.
+	it('opens no file selector once it is gone before its first tick', async () => {
+		const wrapper = mountPlugin({ docname: null, fieldname: 'content' })
+		wrapper.unmount()
+		await flushPromises()
+		expect(openFileSelector).not.toHaveBeenCalled()
+	})
+
 	it('keeps an upload button to reopen a cancelled picker', async () => {
 		const wrapper = mountPlugin({ docname: null, fieldname: 'content' })
 		await flushPromises()
