@@ -44,7 +44,7 @@ vi.mock('frappe-ui', async () => {
 					h(
 						'div',
 						{ class: 'file-uploader' },
-						slots.default?.({ openFileSelector, ...slotState })
+						slots.default?.({ openFileSelector, ...slotState }),
 					)
 			},
 		},
@@ -137,7 +137,31 @@ describe('UploadPlugin: file picker', () => {
 		const wrapper = mountPlugin({ docname: null, fieldname: 'content' })
 		await flushPromises()
 		expect(wrapper.find('.error-message').text()).toBe(
-			'Only image and video files are allowed.'
+			'Only image and video files are allowed.',
+		)
+	})
+})
+
+describe('UploadPlugin: what a lesson accepts', () => {
+	const check = (name: string) =>
+		uploader(mountPlugin({ docname: null, fieldname: 'content' })).props(
+			'validateFile',
+		)({ name })
+
+	it('takes the audio files phones and recorders save', () => {
+		for (const name of [
+			'talk.mp3',
+			'memo.M4A',
+			'clip.wav',
+			'clip.ogg',
+			'clip.aac',
+		])
+			expect(check(name)).toBeUndefined()
+	})
+
+	it('refuses a file it cannot show', () => {
+		expect(check('notes.docx')).toBe(
+			'Upload an image, video, audio or PDF file.',
 		)
 	})
 })
