@@ -331,6 +331,22 @@ describe('Quiz.vue submission lifecycle', () => {
 		wrapper.unmount()
 	})
 
+	it('keeps proctoring on when the URL only carries the fromLesson layout flag', async () => {
+		window.history.pushState({}, '', '/lms/quiz/quiz-a?fromLesson=1')
+		expect(window.location.search).toContain('fromLesson')
+		const wrapper = mountQuiz()
+		await flushPromises()
+		const vm = wrapper.vm as any
+		vm.startQuiz()
+		await flushPromises()
+
+		expect(vm.proctoringActive).toBe(true)
+		vm.handleViolation('tab_switch')
+		expect(vm.violationCount).toBe(1)
+		window.history.pushState({}, '', '/')
+		wrapper.unmount()
+	})
+
 	it('does not start proctoring for a quiz opened from a lesson', async () => {
 		const wrapper = mountQuiz({ fromLesson: true })
 		await flushPromises()
@@ -534,6 +550,117 @@ describe('Quiz.vue leaving a proctored attempt', () => {
 		expect(await navigate()).toBe(true)
 		expect((wrapper.vm as any).showLeaveConfirmation).toBe(false)
 		wrapper.unmount()
+	})
+
+	it('keeps the questions locked while full-screen dimensions settle', async () => {
+		vi.useFakeTimers()
+		Object.defineProperty(document, 'fullscreenEnabled', {
+			configurable: true,
+			value: true,
+		})
+		Object.defineProperty(document, 'fullscreenElement', {
+			configurable: true,
+			value: null,
+		})
+		try {
+			const wrapper = mountQuiz()
+			await flushPromises()
+			const vm = wrapper.vm as any
+			vm.startQuiz()
+			await flushPromises()
+			const locked = () =>
+				wrapper.get('[data-testid="quiz-attempt"]').element.hasAttribute('inert')
+			expect(locked()).toBe(true)
+
+			Object.defineProperty(document, 'fullscreenElement', {
+				configurable: true,
+				value: document.documentElement,
+			})
+			document.dispatchEvent(new Event('fullscreenchange'))
+			await flushPromises()
+			expect(locked()).toBe(true)
+
+			await vi.advanceTimersByTimeAsync(400)
+			expect(locked()).toBe(false)
+			wrapper.unmount()
+		} finally {
+			Object.defineProperty(document, 'fullscreenEnabled', {
+				configurable: true,
+				value: false,
+			})
+			Object.defineProperty(document, 'fullscreenElement', {
+				configurable: true,
+				value: null,
+			})
+			vi.useRealTimers()
+		}
+	})
+
+	it('locks the questions and the question list until full-screen is active', async () => {
+		Object.defineProperty(document, 'fullscreenEnabled', {
+			configurable: true,
+			value: true,
+		})
+		Object.defineProperty(document, 'fullscreenElement', {
+			configurable: true,
+			value: null,
+		})
+		const wrapper = mountQuiz()
+		await flushPromises()
+		const vm = wrapper.vm as any
+		vm.startQuiz()
+		await flushPromises()
+
+		expect(
+			wrapper.get('[data-testid="quiz-attempt"]').element.hasAttribute('inert')
+		).toBe(true)
+		expect(
+			wrapper
+				.get('[data-testid="quiz-question-nav"]')
+				.element.hasAttribute('inert')
+		).toBe(true)
+		Object.defineProperty(document, 'fullscreenEnabled', {
+			configurable: true,
+			value: false,
+		})
+		wrapper.unmount()
+	})
+
+	it('stays in full-screen when submit fails, and leaves only after it is saved', async () => {
+		submitOutcome = 'fails'
+		const exit = vi.fn().mockResolvedValue(undefined)
+		const previous = document.exitFullscreen
+		document.exitFullscreen = exit
+		Object.defineProperty(document, 'fullscreenElement', {
+			configurable: true,
+			value: document.documentElement,
+		})
+		vi.useFakeTimers()
+		try {
+			const wrapper = mountQuiz()
+			await flushPromises()
+			const vm = wrapper.vm as any
+			vm.startQuiz()
+			await flushPromises()
+
+			vm.submitQuiz()
+			await vi.advanceTimersByTimeAsync(1_000)
+			expect(exit).not.toHaveBeenCalled()
+			expect(vm.proctoringActive).toBe(true)
+
+			submitOutcome = 'succeeds'
+			vm.submitQuiz()
+			await vi.advanceTimersByTimeAsync(1_000)
+			expect(exit).toHaveBeenCalledTimes(1)
+			wrapper.unmount()
+		} finally {
+			document.exitFullscreen = previous
+			Object.defineProperty(document, 'fullscreenElement', {
+				configurable: true,
+				value: null,
+			})
+			vi.useRealTimers()
+		}
 	})
 
 	it('lets the learner go freely before the attempt starts', async () => {

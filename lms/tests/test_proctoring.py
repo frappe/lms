@@ -279,9 +279,7 @@ class TestViolationEventNormalization(unittest.TestCase):
 		)
 
 	def test_only_the_frame_cap_is_attached(self):
-		events = [
-			{"frame": f"data:image/jpeg;base64,frame-{i}"} for i in range(MAX_VIOLATION_FRAMES + 3)
-		]
+		events = [{"frame": f"data:image/jpeg;base64,frame-{i}"} for i in range(MAX_VIOLATION_FRAMES + 3)]
 		with patch(
 			"lms.lms.doctype.lms_quiz.lms_quiz._save_violation_frame", return_value=True
 		) as save_frame:

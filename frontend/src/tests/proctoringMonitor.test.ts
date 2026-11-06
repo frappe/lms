@@ -10,6 +10,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { flushPromises, mount } from '@vue/test-utils'
 import ProctoringMonitor from '@/components/ProctoringMonitor.vue'
+import { FULLSCREEN_EXIT_GRACE_MS } from '@/utils/proctoring'
 
 // ─── face-api.js mock ─────────────────────────────────────────────────────────
 
@@ -141,14 +142,20 @@ describe('ProctoringMonitor — monitoring phase', () => {
 	it('emits violation("fullscreen_exit") when exiting full-screen', async () => {
 		const wrapper = mountMonitor({ active: true })
 		await flushPromises()
+		vi.useFakeTimers()
+		try {
+			Object.defineProperty(document, 'fullscreenElement', {
+				value: null,
+				configurable: true,
+			})
+			document.dispatchEvent(new Event('fullscreenchange'))
+			await vi.advanceTimersByTimeAsync(FULLSCREEN_EXIT_GRACE_MS)
 
-		Object.defineProperty(document, 'fullscreenElement', {
-			value: null,
-			configurable: true,
-		})
-		document.dispatchEvent(new Event('fullscreenchange'))
-
-		expect(emittedTypes(wrapper, 'violation')).toContain('fullscreen_exit')
+			expect(emittedTypes(wrapper, 'violation')).toContain('fullscreen_exit')
+		} finally {
+			vi.useRealTimers()
+			wrapper.unmount()
+		}
 	})
 
 	it('blocks copy and cut events silently without emitting violations or warnings', async () => {

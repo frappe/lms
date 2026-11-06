@@ -121,6 +121,12 @@
 import { Spinner } from 'frappe-ui'
 import * as faceapi from 'face-api.js'
 import { computed, nextTick, onMounted, onUnmounted, ref, watch } from 'vue'
+import {
+	currentFullscreenElement,
+	FULLSCREEN_CHANGE_EVENTS,
+	FULLSCREEN_EXIT_GRACE_MS,
+	TAB_SWITCH_SUPPRESSES_FULLSCREEN_MS,
+} from '@/utils/proctoring'
 
 const props = defineProps({
 	active: { type: Boolean, default: false },
@@ -149,6 +155,8 @@ let stream = null
 let setupInterval = null
 let monitorInterval = null
 let focusBlurTimer = null
+let fullscreenExitTimer = null
+let tabHiddenAt = 0
 let monitoredTrack = null
 let isDestroyed = false
 let noFaceStreak = 0
@@ -190,15 +198,18 @@ const setMinimized = async (value) => {
 
 onMounted(async () => {
 	await startCamera()
+	// Unmount during getUserMedia used to fall through and attach the clipboard
+	// and fullscreen listeners anyway. Nothing removes them after onUnmounted.
+	if (isDestroyed || !props.active) return
 	// Monitoring instance mounts with active=true — skip setup, go straight to monitoring
-	if (props.active) {
-		clearInterval(setupInterval)
-		phase.value = 'monitoring'
-		// Wait for the monitoring <video> element to mount, then re-attach the stream
-		await nextTick()
-		if (videoEl.value && stream) videoEl.value.srcObject = stream
-		startMonitoring()
-	}
+	clearInterval(setupInterval)
+	setupInterval = null
+	phase.value = 'monitoring'
+	// Wait for the monitoring <video> element to mount, then re-attach the stream
+	await nextTick()
+	if (isDestroyed || !props.active) return
+	if (videoEl.value && stream) videoEl.value.srcObject = stream
+	startMonitoring()
 })
 
 onUnmounted(() => {
@@ -310,7 +321,18 @@ watch(
 			// (a failed submit put the attempt back in progress) has to reacquire
 			// it, not just reattach the old, stopped tracks.
 			await acquireStream()
+			// The attempt can end, or this instance can unmount, while getUserMedia
+			// is still pending. Starting the listeners then leaves copy, paste and
+			// the keyboard blocked on a page that is no longer an exam.
+			if (isDestroyed || !props.active) {
+				stopCamera()
+				return
+			}
 			await nextTick()
+			if (isDestroyed || !props.active) {
+				stopCamera()
+				return
+			}
 			if (videoEl.value && stream) videoEl.value.srcObject = stream
 			startMonitoring()
 		} else {
@@ -324,14 +346,19 @@ watch(
 
 const startMonitoring = () => {
 	stopMonitoring()
+	tabHiddenAt = 0
 	monitorInterval = setInterval(runMonitorDetection, 2000)
 	document.addEventListener('visibilitychange', onVisibilityChange)
-	document.addEventListener('fullscreenchange', onFullscreenChange)
-	document.addEventListener('copy', onCopy)
-	document.addEventListener('paste', onPaste)
-	document.addEventListener('cut', onCut)
-	document.addEventListener('contextmenu', onContextMenu)
-	window.addEventListener('keydown', onKeyDown)
+	for (const eventName of FULLSCREEN_CHANGE_EVENTS) {
+		document.addEventListener(eventName, onFullscreenChange)
+	}
+	// Capture so a child that stops the event (the answer editor, for one)
+	// cannot let a copy or a devtools shortcut through.
+	document.addEventListener('copy', onCopy, true)
+	document.addEventListener('paste', onPaste, true)
+	document.addEventListener('cut', onCut, true)
+	document.addEventListener('contextmenu', onContextMenu, true)
+	window.addEventListener('keydown', onKeyDown, true)
 	window.addEventListener('blur', onWindowBlur)
 	window.addEventListener('focus', onWindowFocus)
 	monitoredTrack = stream?.getVideoTracks?.()?.[0] ?? null
@@ -347,15 +374,21 @@ const stopMonitoring = () => {
 		clearTimeout(focusBlurTimer)
 		focusBlurTimer = null
 	}
+	if (fullscreenExitTimer) {
+		clearTimeout(fullscreenExitTimer)
+		fullscreenExitTimer = null
+	}
 	monitoredTrack?.removeEventListener?.('ended', onCameraDisconnect)
 	monitoredTrack = null
 	document.removeEventListener('visibilitychange', onVisibilityChange)
-	document.removeEventListener('fullscreenchange', onFullscreenChange)
-	document.removeEventListener('copy', onCopy)
-	document.removeEventListener('paste', onPaste)
-	document.removeEventListener('cut', onCut)
-	document.removeEventListener('contextmenu', onContextMenu)
-	window.removeEventListener('keydown', onKeyDown)
+	for (const eventName of FULLSCREEN_CHANGE_EVENTS) {
+		document.removeEventListener(eventName, onFullscreenChange)
+	}
+	document.removeEventListener('copy', onCopy, true)
+	document.removeEventListener('paste', onPaste, true)
+	document.removeEventListener('cut', onCut, true)
+	document.removeEventListener('contextmenu', onContextMenu, true)
+	window.removeEventListener('keydown', onKeyDown, true)
 	window.removeEventListener('blur', onWindowBlur)
 	window.removeEventListener('focus', onWindowFocus)
 }
@@ -438,17 +471,52 @@ const captureFrame = () => {
 }
 
 const onVisibilityChange = () => {
+	if (document.visibilityState !== 'hidden') return
+	tabHiddenAt = Date.now()
+	// blur often fires while the tab is still visible, and the timer would
+	// otherwise count focus_loss on top of the tab switch.
+	if (focusBlurTimer) {
+		clearTimeout(focusBlurTimer)
+		focusBlurTimer = null
+	}
+	if (fullscreenExitTimer) {
+		clearTimeout(fullscreenExitTimer)
+		fullscreenExitTimer = null
+	}
 	// The element keeps its frames while the tab is hidden, so the still shows
 	// what the camera saw at the moment they switched away.
-	if (props.active && document.visibilityState === 'hidden')
-		emit('violation', 'tab_switch', captureFrame())
+	if (props.active) emit('violation', 'tab_switch', captureFrame())
 }
 
 const onFullscreenChange = () => {
 	if (!props.active) return
-	if (!document.fullscreenElement) {
-		emit('violation', 'fullscreen_exit', captureFrame())
+	if (fullscreenExitTimer) {
+		clearTimeout(fullscreenExitTimer)
+		fullscreenExitTimer = null
 	}
+	if (currentFullscreenElement()) return
+	// Chrome leaves fullscreen because the tab was hidden. That is the tab
+	// switch, not a second incident, including when the exit event arrives
+	// just before the visibility event or just after the student comes back.
+	if (document.visibilityState === 'hidden') return
+	if (
+		tabHiddenAt &&
+		Date.now() - tabHiddenAt < TAB_SWITCH_SUPPRESSES_FULLSCREEN_MS
+	) {
+		return
+	}
+	fullscreenExitTimer = setTimeout(() => {
+		fullscreenExitTimer = null
+		if (!props.active || currentFullscreenElement()) return
+		if (document.visibilityState === 'hidden') return
+		if (
+			tabHiddenAt &&
+			Date.now() - tabHiddenAt < TAB_SWITCH_SUPPRESSES_FULLSCREEN_MS
+		) {
+			return
+		}
+		emit('violation', 'fullscreen_exit', captureFrame())
+	}, FULLSCREEN_EXIT_GRACE_MS)
 }
 
 // Silently prevent copying, cutting, pasting, right-click, and devtools/inspection shortcuts
@@ -457,26 +525,37 @@ const onCut = (e) => e.preventDefault()
 const onPaste = (e) => e.preventDefault()
 const onContextMenu = (e) => e.preventDefault()
 
-const onKeyDown = (e) => {
+const matchesShortcut = (e, letters) => {
 	const key = e.key?.toLowerCase()
-	const ctrlOrCmd = e.ctrlKey || e.metaKey
+	if (letters.includes(key)) return true
+	// Option on macOS rewrites e.key (Cmd+Option+I reports a dead key), so the
+	// physical key is what identifies the devtools shortcuts.
+	return letters.some((letter) => e.code === `Key${letter.toUpperCase()}`)
+}
 
-	if (
+const onKeyDown = (e) => {
+	const ctrlOrCmd = e.ctrlKey || e.metaKey
+	const devtools =
 		e.key === 'F12' ||
-		(ctrlOrCmd && ['c', 'v', 'x', 'u', 'p', 's'].includes(key)) ||
-		(ctrlOrCmd && e.shiftKey && ['i', 'j', 'c'].includes(key))
-	) {
-		e.preventDefault()
-	}
+		e.code === 'F12' ||
+		(ctrlOrCmd &&
+			(e.shiftKey || e.altKey) &&
+			matchesShortcut(e, ['i', 'j', 'c', 'k', 'u']))
+	const clipboard =
+		ctrlOrCmd && !e.altKey && matchesShortcut(e, ['c', 'v', 'x', 'u', 'p', 's'])
+
+	if (devtools || clipboard) e.preventDefault()
 }
 
 const onWindowBlur = () => {
 	// Tab switch is already handled by visibilitychange — skip to avoid duplicate events
-	if (document.visibilityState === 'hidden') return
-	focusBlurTimer = setTimeout(
-		() => emit('violation', 'focus_loss', captureFrame()),
-		1500
-	)
+	if (!props.active || document.visibilityState === 'hidden') return
+	if (focusBlurTimer) clearTimeout(focusBlurTimer)
+	focusBlurTimer = setTimeout(() => {
+		focusBlurTimer = null
+		if (!props.active || document.visibilityState === 'hidden') return
+		emit('violation', 'focus_loss', captureFrame())
+	}, 1500)
 }
 
 const onWindowFocus = () => {

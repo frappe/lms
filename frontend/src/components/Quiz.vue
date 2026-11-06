@@ -303,13 +303,11 @@
 				<!-- Overlay when defocused during proctored quiz -->
 				<div
 					v-if="
-						proctoringRunning &&
-						proctoringActive &&
+						examLocked &&
 						!isWindowFocused &&
 						!showFullscreenWarning &&
 						!showSidePanelWarning &&
-						!submitting &&
-						!submissionReason
+						!fullscreenPending
 					"
 					class="absolute inset-0 z-40 flex flex-col items-center justify-center rounded-6 bg-surface-base/90 backdrop-blur-md p-6 text-center shadow-lg"
 					role="dialog"
@@ -322,7 +320,10 @@
 					>
 						<span class="lucide-alert-circle size-6" />
 					</div>
-					<h3 id="quiz-focus-lost-title" class="text-base-semibold text-ink-gray-9">
+					<h3
+						id="quiz-focus-lost-title"
+						class="text-base-semibold text-ink-gray-9"
+					>
 						{{ __('Exam Paused — Window Focus Lost') }}
 					</h3>
 					<p class="mt-1 text-sm text-ink-gray-6 max-w-sm">
@@ -338,13 +339,10 @@
 				</div>
 
 				<div
+					data-testid="quiz-attempt"
+					:inert="examLocked || undefined"
 					:class="{
-						'blur-lg pointer-events-none select-none':
-							proctoringRunning &&
-							proctoringActive &&
-							(!isWindowFocused ||
-								showFullscreenWarning ||
-								showSidePanelWarning),
+						'pointer-events-none select-none blur-lg': examLocked,
 					}"
 				>
 					<template v-for="(question, qtidx) in questions" :key="question.name">
@@ -673,6 +671,7 @@
 				summaryLog.length
 			"
 			class="rounded-6 border border-outline-gray-2 p-3.5"
+			:inert="examLocked || undefined"
 		>
 			<QuizActivityLog :entries="summaryLog" />
 		</div>
@@ -681,7 +680,10 @@
 			v-if="
 				activeQuestion > 0 && !quizSubmission.data && !quiz.data.show_answers
 			"
+			data-testid="quiz-question-nav"
 			class="rounded-6 border border-outline-gray-2 p-3.5"
+			:inert="examLocked || undefined"
+			:class="{ 'pointer-events-none select-none blur-lg': examLocked }"
 		>
 			<div class="text-sm-semibold text-ink-gray-9">
 				{{ __('Questions') }}
@@ -727,6 +729,8 @@
 				activeQuestion > 0 && !quizSubmission.data && reviewQuestions.length
 			"
 			class="rounded-6 border border-outline-gray-2 p-3.5"
+			:inert="examLocked || undefined"
+			:class="{ 'pointer-events-none select-none blur-lg': examLocked }"
 		>
 			<div class="text-sm-semibold text-ink-gray-9">
 				{{ __('Questions marked for review') }}
@@ -912,13 +916,16 @@
 				>
 					<span class="lucide-maximize size-6" />
 				</div>
-				<h3 id="quiz-fullscreen-title" class="text-lg font-semibold text-ink-gray-9">
+				<h3
+					id="quiz-fullscreen-title"
+					class="text-lg font-semibold text-ink-gray-9"
+				>
 					{{ __('Full-Screen Mode Required') }}
 				</h3>
 				<p class="mt-2 text-sm text-ink-gray-6">
 					{{
 						__(
-							'Exiting full-screen mode has been recorded as a violation. Please return to full-screen mode to continue your exam.'
+							'This exam has to stay in full-screen. Return to full-screen to continue.'
 						)
 					}}
 				</p>
@@ -959,7 +966,10 @@
 				>
 					<span class="lucide-alert-triangle size-6" />
 				</div>
-				<h3 id="quiz-side-panel-title" class="text-lg font-semibold text-ink-gray-9">
+				<h3
+					id="quiz-side-panel-title"
+					class="text-lg font-semibold text-ink-gray-9"
+				>
 					{{ __('Side Panel Detected') }}
 				</h3>
 				<p class="mt-2 text-sm text-ink-gray-6">
@@ -1006,7 +1016,10 @@
 				>
 					<span class="lucide-alert-octagon size-6" />
 				</div>
-				<h3 id="quiz-max-violations-title" class="text-lg font-semibold text-ink-gray-9">
+				<h3
+					id="quiz-max-violations-title"
+					class="text-lg font-semibold text-ink-gray-9"
+				>
 					{{ __('Maximum Violations Limit Reached') }}
 				</h3>
 				<p class="mt-2 text-sm text-ink-gray-6">
@@ -1055,6 +1068,9 @@ import {
 } from 'vue'
 import { timeAgo } from '@/utils/format'
 import {
+	currentFullscreenElement,
+	FULLSCREEN_CHANGE_EVENTS,
+	isFullscreenSupported,
 	isProctoringAllowed,
 	isSidePanelViewport,
 	serialiseViolationLog,
@@ -1118,8 +1134,9 @@ const props = withDefaults(
 )
 
 const isProctoringEligible = computed<boolean>(() => {
-	// Proctoring must only run for standalone exams/quizzes where enable_proctoring is true,
-	// NEVER when opened from a lesson, course, in-video, or author preview.
+	// Proctoring runs for a standalone exam with enable_proctoring set. A lesson
+	// embed, an in-video popup, and the author preview pass that in as props.
+	// The ?fromLesson layout flag is not one of those: the learner can type it.
 	let routeName: string | null = null
 	let routePath: string | null = null
 	try {
@@ -1136,9 +1153,6 @@ const isProctoringEligible = computed<boolean>(() => {
 		inVideo: props.inVideo,
 		fromLesson: props.fromLesson,
 		isEmbeddedInLesson: props.isEmbeddedInLesson,
-		fromLessonQuery:
-			typeof window !== 'undefined' &&
-			new URLSearchParams(window.location.search).has('fromLesson'),
 		routeName,
 		routePath,
 	})
@@ -1174,22 +1188,63 @@ const showFullscreenWarning = ref(false)
 const showSidePanelWarning = ref(false)
 const isWindowFocused = ref(true)
 const isSubmittingMaxViolations = ref(false)
+// True from the moment a proctored attempt asks for fullscreen until the browser
+// has entered it or the warning modal has taken over. requestFullscreen is
+// asynchronous, and the questions used to stay usable for that whole wait.
+const fullscreenPending = ref(false)
+let viewportCheckTimeout: ReturnType<typeof setTimeout> | undefined
+let blurredDuringFullscreen = false
 let lastSidePanelViolation = 0
+
+const scheduleViewportCheck = (delay: number) => {
+	clearTimeout(viewportCheckTimeout)
+	viewportCheckTimeout = setTimeout(() => {
+		viewportCheckTimeout = undefined
+		fullscreenPending.value = false
+		// Blur during the fullscreen request is ignored. If focus never came
+		// back, the pause overlay takes over once that request has settled.
+		if (blurredDuringFullscreen) {
+			blurredDuringFullscreen = false
+			isWindowFocused.value = false
+		}
+		checkViewportSecurity()
+	}, delay)
+}
+
+const examLocked = computed(
+	() =>
+		proctoringRunning.value &&
+		proctoringActive.value &&
+		(fullscreenPending.value ||
+			!isWindowFocused.value ||
+			showFullscreenWarning.value ||
+			showSidePanelWarning.value)
+)
 
 const requestFullscreen = () => {
 	try {
-		const docEl = document.documentElement as any
-		if (!document.fullscreenElement) {
-			if (docEl.requestFullscreen) {
-				docEl.requestFullscreen().catch(() => {})
-			} else if (docEl.webkitRequestFullscreen) {
-				docEl.webkitRequestFullscreen()
-			} else if (docEl.msRequestFullscreen) {
-				docEl.msRequestFullscreen()
-			}
+		const docEl = document.documentElement as HTMLElement & {
+			webkitRequestFullscreen?: () => void
+			msRequestFullscreen?: () => void
 		}
+		if (currentFullscreenElement()) return
+		let pending: Promise<void> | undefined
+		if (docEl.requestFullscreen) {
+			pending = docEl.requestFullscreen()
+		} else if (docEl.webkitRequestFullscreen) {
+			docEl.webkitRequestFullscreen()
+		} else if (docEl.msRequestFullscreen) {
+			docEl.msRequestFullscreen()
+		}
+		// A rejected request never fires fullscreenchange, so the warning would
+		// otherwise wait on the fallback timer while the questions stay usable.
+		pending?.catch(() => {
+			fullscreenPending.value = false
+			checkViewportSecurity()
+		})
 	} catch {
-		// Ignore if unsupported or blocked
+		fullscreenPending.value = false
+		checkViewportSecurity()
 	}
 }
 
@@ -1214,25 +1269,14 @@ const exitFullscreen = () => {
 	}
 }
 
-const isFullscreenSupported = (): boolean => {
-	const doc = document as any
-	return !!(
-		doc.fullscreenEnabled ||
-		doc.webkitFullscreenEnabled ||
-		doc.mozFullScreenEnabled ||
-		doc.msFullscreenEnabled
-	)
-}
-
 const isSidePanelOpen = (): boolean =>
 	isSidePanelViewport({
-		fullscreen: !!document.fullscreenElement,
+		fullscreen: !!currentFullscreenElement(),
 		screenWidth: window.screen?.width ?? 0,
 		screenHeight: window.screen?.height ?? 0,
 		innerWidth: window.innerWidth,
 		innerHeight: window.innerHeight,
-		userAgent:
-			typeof navigator !== 'undefined' ? navigator.userAgent : '',
+		userAgent: typeof navigator !== 'undefined' ? navigator.userAgent : '',
 	})
 
 const checkViewportSecurity = () => {
@@ -1250,7 +1294,7 @@ const checkViewportSecurity = () => {
 		return
 	}
 
-	if (isFullscreenSupported() && !document.fullscreenElement) {
+	if (isFullscreenSupported() && !currentFullscreenElement()) {
 		showFullscreenWarning.value = true
 		showSidePanelWarning.value = false
 	} else if (isSidePanelOpen()) {
@@ -1268,6 +1312,12 @@ const checkViewportSecurity = () => {
 }
 
 const handleWindowBlur = () => {
+	// Entering fullscreen blurs the window for a moment. The attempt is already
+	// locked while that request is in flight, and it is not a focus violation.
+	if (fullscreenPending.value) {
+		blurredDuringFullscreen = true
+		return
+	}
 	if (
 		isProctoringEligible.value &&
 		proctoringRunning.value &&
@@ -1280,6 +1330,7 @@ const handleWindowBlur = () => {
 }
 
 const handleWindowFocus = () => {
+	blurredDuringFullscreen = false
 	isWindowFocused.value = true
 	checkViewportSecurity()
 }
@@ -1300,27 +1351,29 @@ const handleResumeAfterSidePanel = () => {
 }
 
 const handleFullscreenChange = () => {
-	if (!document.fullscreenElement) {
+	if (!currentFullscreenElement()) {
+		clearTimeout(viewportCheckTimeout)
+		fullscreenPending.value = false
 		checkViewportSecurity()
 	} else {
-		// Browser just entered fullscreen; allow 400ms for window dimensions to settle
-		setTimeout(() => {
-			checkViewportSecurity()
-		}, 400)
+		// Stay locked until the size has settled. Clearing the pending flag here
+		// opened the questions for that whole wait, side panel included.
+		fullscreenPending.value = true
+		scheduleViewportCheck(400)
 	}
 }
 
 const reEnterFullscreen = () => {
 	requestFullscreen()
-	setTimeout(() => {
-		checkViewportSecurity()
-	}, 400)
+	scheduleViewportCheck(400)
 }
 
 onMounted(() => {
 	window.addEventListener('pagehide', handlePageHide)
 	window.addEventListener('beforeunload', handleBeforeUnload)
-	document.addEventListener('fullscreenchange', handleFullscreenChange)
+	for (const eventName of FULLSCREEN_CHANGE_EVENTS) {
+		document.addEventListener(eventName, handleFullscreenChange)
+	}
 	window.addEventListener('resize', checkViewportSecurity)
 	window.addEventListener('blur', handleWindowBlur)
 	window.addEventListener('focus', handleWindowFocus)
@@ -1380,10 +1433,13 @@ onUnmounted(() => {
 	removeLeaveGuard()
 	window.removeEventListener('pagehide', handlePageHide)
 	window.removeEventListener('beforeunload', handleBeforeUnload)
-	document.removeEventListener('fullscreenchange', handleFullscreenChange)
+	for (const eventName of FULLSCREEN_CHANGE_EVENTS) {
+		document.removeEventListener(eventName, handleFullscreenChange)
+	}
 	window.removeEventListener('resize', checkViewportSecurity)
 	window.removeEventListener('blur', handleWindowBlur)
 	window.removeEventListener('focus', handleWindowFocus)
+	clearTimeout(viewportCheckTimeout)
 	exitFullscreen()
 	stopTimer()
 })
@@ -1883,10 +1939,11 @@ const startQuiz = () => {
 	if (quiz.data.duration) startTimer()
 	if (isProctoringEligible.value) {
 		proctoringActive.value = true
+		if (isFullscreenSupported() && !currentFullscreenElement()) {
+			fullscreenPending.value = true
+		}
 		requestFullscreen()
-		setTimeout(() => {
-			checkViewportSecurity()
-		}, 800)
+		scheduleViewportCheck(800)
 	}
 }
 
@@ -2036,6 +2093,9 @@ const handleWarning = (
 	eventType: string,
 	frame: string | null = null
 ): void => {
+	// A detection pass can still resolve after the attempt has stopped. Those
+	// warnings are not part of the submission.
+	if (!proctoringActive.value || submissionReason.value || submitting) return
 	// Deduplicate consecutive warnings of the same type
 	if (
 		violationLog.value[0]?.eventType === eventType &&
@@ -2187,13 +2247,19 @@ const submitQuiz = (reason: SubmissionReason = 'manual'): void => {
 	// submit (a leave, say) is still on its way, and a second would be recorded too.
 	// Everything below changes attempt state, so the guard has to come first.
 	if (submitting) return
+	clearTimeout(viewportCheckTimeout)
+	viewportCheckTimeout = undefined
 	proctoringActive.value = false
+	fullscreenPending.value = false
+	blurredDuringFullscreen = false
 	if (reason === 'max_violations') {
 		isSubmittingMaxViolations.value = true
 	}
 	submissionReason.value = reason
 	beginSubmitting()
-	exitFullscreen()
+	// Stay in fullscreen until the submission is actually saved. Leaving now
+	// fires fullscreenchange, and a failed submit turns monitoring back on in
+	// time to record that exit as the student's own violation.
 	if (reason === 'max_violations') {
 		createSubmission(reason)
 		return
@@ -2268,8 +2334,13 @@ const createSubmission = (reason: SubmissionReason = 'manual'): void => {
 						submissionReason.value = ''
 						if (isProctoringEligible.value) {
 							proctoringActive.value = true
-							// Dimensions and the fullscreen element settle a tick later.
-							setTimeout(() => checkViewportSecurity(), 0)
+							// Still out of full-screen (the request never entered, or the
+							// browser dropped it) stays locked until the check below
+							// replaces the pending flag with the warning modal.
+							if (isFullscreenSupported() && !currentFullscreenElement()) {
+								fullscreenPending.value = true
+							}
+							scheduleViewportCheck(0)
 						}
 					}
 				}
@@ -2292,6 +2363,13 @@ const resetQuiz = () => {
 	quizSubmission.reset()
 	violationCount.value = 0
 	proctoringActive.value = false
+	clearTimeout(viewportCheckTimeout)
+	viewportCheckTimeout = undefined
+	fullscreenPending.value = false
+	blurredDuringFullscreen = false
+	showFullscreenWarning.value = false
+	showSidePanelWarning.value = false
+	isWindowFocused.value = true
 	cameraReady.value = false
 	violationLog.value = []
 	lastSidePanelViolation = 0
