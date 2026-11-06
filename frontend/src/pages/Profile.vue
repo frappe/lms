@@ -37,6 +37,17 @@
 					>
 						{{ profile.data.headline }}
 					</div>
+					<div
+						v-if="profileEmailDisplay"
+						class="flex items-center gap-1.5 text-base text-ink-gray-7 mt-1.5"
+						data-testid="profile-email"
+					>
+						<span
+							class="lucide-mail size-4 text-ink-gray-6"
+							aria-hidden="true"
+						/>
+						<span>{{ profileEmailDisplay }}</span>
+					</div>
 					<ProfileSocialLinks
 						v-if="
 							profile.data.twitter ||
@@ -242,6 +253,13 @@ const isSessionUser = () => {
 		$user.data?.username === profile.data?.username
 	)
 }
+
+const profileEmailDisplay = computed(() => {
+	if (isSessionUser()) {
+		return $user.data?.email || $user.data?.name || profile.data?.name
+	}
+	return profile.data?.name || null
+})
 
 // Another evaluator's slots and schedule are keyed on their email, which only a
 // moderator is sent; the endpoints refuse anyone else anyway.
