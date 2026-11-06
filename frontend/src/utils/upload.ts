@@ -12,6 +12,7 @@ import { usesWebkitPdfViewer } from '@/utils/pdfViewer'
 import { embedFrame } from '@/utils/blockDom'
 import { safeUrl } from '@/utils/safeUrl'
 import translationPlugin from '../translation'
+import { isAudioType } from '@/utils/audio'
 
 // What the block saves: an uploaded file and, for a video, its in-video quizzes.
 interface UploadData {
@@ -115,6 +116,8 @@ export class Upload {
 				file: file.file_url,
 			})
 			registerDirectives(app)
+			// The player's labels call __(); without this it fails to render at all.
+			app.use(translationPlugin)
 			app.mount(this.wrapper)
 			return
 		} else if (file.file_type == 'PDF') {
@@ -131,7 +134,7 @@ export class Upload {
 						class: 'block',
 						type: 'application/pdf',
 					},
-					__('PDF document')
+					__('PDF document'),
 				)
 				this.wrapper.replaceChildren(...(frame ? [embedCard(frame)] : []))
 				return
@@ -200,6 +203,6 @@ export class Upload {
 	}
 
 	isAudio(type: string): boolean {
-		return ['mp3', 'wav', 'ogg'].includes(type.toLowerCase())
+		return isAudioType(type)
 	}
 }
