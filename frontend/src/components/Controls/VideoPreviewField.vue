@@ -7,9 +7,9 @@
 			:label="label ? __(label) : undefined"
 			:required="required"
 		/>
-		<div class="flex flex-col gap-4 sm:flex-row sm:items-start">
+		<div class="media-field-layout">
 			<div
-				class="relative aspect-[750/422] w-full shrink-0 grid place-items-center overflow-hidden rounded-6 border border-outline-gray-2 bg-surface-gray-2 sm:w-56"
+				class="relative aspect-[750/422] w-full shrink-0 grid place-items-center overflow-hidden rounded-6 border border-outline-gray-2 bg-surface-gray-2 media-field-preview max-w-full"
 			>
 				<iframe
 					v-if="preview.type === 'youtube'"
@@ -48,11 +48,11 @@
 				</button>
 			</div>
 
-			<div v-if="isUploadedVideo" class="min-w-0 space-y-2 sm:flex-1">
-				<div class="text-p-sm-medium text-ink-gray-7 truncate">
+			<div v-if="isUploadedVideo" class="contents">
+				<div class="media-field-details text-p-sm-medium text-ink-gray-7 break-words">
 					{{ fileName }}
 				</div>
-				<div class="flex items-center gap-2">
+				<div class="media-field-actions">
 					<FileUploader
 						:fileTypes="['video/mp4', 'video/webm', 'video/ogg']"
 						:private="false"
@@ -80,7 +80,7 @@
 						{{ __('Remove') }}
 					</Button>
 				</div>
-				<p class="text-p-sm text-ink-gray-6">
+				<p class="media-field-help text-p-sm text-ink-gray-6">
 					{{
 						__(
 							'Uploaded video. Students see it on the course page. Remove it to use a YouTube link instead.'
@@ -89,8 +89,9 @@
 				</p>
 			</div>
 
-			<div v-else class="min-w-0 space-y-2 sm:flex-1">
+			<div v-else class="contents">
 				<FormControl
+					class="media-field-details"
 					:id="inputId"
 					type="text"
 					v-model="urlInput"
@@ -104,7 +105,7 @@
 					@success="(file: { file_url: string }) => update(file.file_url)"
 				>
 					<template #default="{ openFileSelector, uploading, progress }">
-						<Button :loading="uploading" @click="openFileSelector">
+						<Button class="media-field-actions" :loading="uploading" @click="openFileSelector">
 							<template #prefix>
 								<span class="lucide-upload size-4" />
 							</template>
@@ -112,7 +113,7 @@
 						</Button>
 					</template>
 				</FileUploader>
-				<p class="text-p-sm text-ink-gray-6">
+				<p class="media-field-help text-p-sm text-ink-gray-6">
 					{{
 						preview.type === 'youtube'
 							? __(
