@@ -17,38 +17,40 @@
 				<div class="media-field-details text-sm">
 					<div class="text-ink-gray-9 font-medium break-words leading-5">
 						{{ filename }}
-						<span class="ms-2 inline-block whitespace-nowrap text-ink-gray-6 font-normal">
+						<span
+							class="ms-2 inline-block whitespace-nowrap text-ink-gray-6 font-normal"
+						>
 							{{ metaLabel }}
 						</span>
 					</div>
 				</div>
 				<div class="media-field-actions">
-						<FileUploader
-							:fileTypes="['.jpg,.jpeg,.gif,.png']"
-							:private="false"
-							@success="(file) => onUploaded(file.file_url)"
-							@failure="onUploadFailure"
-						>
-							<template #default="{ openFileSelector, uploading }">
-								<Button
-									class="text-p-base-medium"
-									:loading="uploading"
-									@click="openFileSelector"
-								>
-									<template #prefix>
-										<span class="lucide-upload size-4" />
-									</template>
-									{{ uploading ? __('Uploading') : __('Replace') }}
-								</Button>
-							</template>
-						</FileUploader>
-						<Button variant="ghost" theme="red" @click="removeImage">
-							<template #prefix>
-								<span class="lucide-trash-2 size-4" />
-							</template>
-							{{ __('Remove') }}
-						</Button>
-					</div>
+					<FileUploader
+						:fileTypes="['.jpg,.jpeg,.gif,.png']"
+						:private="false"
+						@success="(file) => onUploaded(file.file_url)"
+						@failure="onUploadFailure"
+					>
+						<template #default="{ openFileSelector, uploading }">
+							<Button
+								class="text-p-base-medium"
+								:loading="uploading"
+								@click="openFileSelector"
+							>
+								<template #prefix>
+									<span class="lucide-upload size-4" />
+								</template>
+								{{ uploading ? __('Uploading') : __('Replace') }}
+							</Button>
+						</template>
+					</FileUploader>
+					<Button variant="ghost" theme="red" @click="removeImage">
+						<template #prefix>
+							<span class="lucide-trash-2 size-4" />
+						</template>
+						{{ __('Remove') }}
+					</Button>
+				</div>
 				<p class="media-field-help text-p-xs text-ink-gray-6">
 					{{ __('Remove the image to pick a color instead.') }}
 				</p>

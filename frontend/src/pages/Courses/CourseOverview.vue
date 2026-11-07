@@ -59,7 +59,11 @@
 							class="flex items-center"
 						>
 							<span
-								v-if="course.data.category || Number(course.data.rating) > 0 || course.data.enrollments"
+								v-if="
+									course.data.category ||
+									Number(course.data.rating) > 0 ||
+									course.data.enrollments
+								"
 								aria-hidden="true"
 								class="lucide-dot size-5 shrink-0 me-3"
 							/>

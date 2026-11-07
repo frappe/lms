@@ -49,7 +49,9 @@
 			</div>
 
 			<div v-if="isUploadedVideo" class="contents">
-				<div class="media-field-details text-p-sm-medium text-ink-gray-7 break-words">
+				<div
+					class="media-field-details text-p-sm-medium text-ink-gray-7 break-words"
+				>
 					{{ fileName }}
 				</div>
 				<div class="media-field-actions">
@@ -105,7 +107,11 @@
 					@success="(file: { file_url: string }) => update(file.file_url)"
 				>
 					<template #default="{ openFileSelector, uploading, progress }">
-						<Button class="media-field-actions" :loading="uploading" @click="openFileSelector">
+						<Button
+							class="media-field-actions"
+							:loading="uploading"
+							@click="openFileSelector"
+						>
 							<template #prefix>
 								<span class="lucide-upload size-4" />
 							</template>

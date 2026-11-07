@@ -16,7 +16,8 @@
 		>
 			<template v-slot="{ uploading, progress, openFileSelector }">
 				<div
-					class="flex items-start" :class="size === 'sm' ? 'gap-3' : 'gap-4'"
+					class="flex items-start"
+					:class="size === 'sm' ? 'gap-3' : 'gap-4'"
 				>
 					<div
 						:class="[
