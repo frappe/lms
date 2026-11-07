@@ -70,3 +70,49 @@ main#main-content {
 .prose {
 	--tw-prose-bullets: var(--ink-gray-4);
 }
+
+.media-field-layout {
+	display: grid;
+	grid-template-areas: "preview" "actions" "details" "help";
+	align-items: start;
+	gap: 0.5rem 1rem;
+	min-width: 0;
+}
+
+.media-field-preview {
+	grid-area: preview;
+	min-width: 0;
+}
+
+.media-field-actions {
+	grid-area: actions;
+	display: flex;
+	flex-direction: column;
+	align-items: flex-start;
+	justify-self: start;
+	gap: 0.5rem;
+}
+
+button.media-field-actions {
+	flex-direction: row;
+	align-items: center;
+}
+
+.media-field-details {
+	grid-area: details;
+	min-width: 0;
+	contain: inline-size;
+}
+
+.media-field-help {
+	grid-area: help;
+	min-width: 0;
+	contain: inline-size;
+}
+
+@media (min-width: 360px) {
+	.media-field-layout {
+		grid-template-columns: minmax(0, 14rem) max-content;
+		grid-template-areas: "preview actions" "details details" "help help";
+	}
+}

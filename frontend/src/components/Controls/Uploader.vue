@@ -16,12 +16,12 @@
 		>
 			<template v-slot="{ uploading, progress, openFileSelector }">
 				<div
-					class="flex"
-					:class="size === 'sm' ? 'items-center gap-3' : 'items-start gap-4'"
+					class="flex items-start"
+					:class="size === 'sm' ? 'gap-3' : 'gap-4'"
 				>
 					<div
 						:class="[
-							'relative shrink-0 border rounded-5 bg-surface-gray-2 grid place-items-center overflow-hidden',
+							'relative shrink-0 border bg-surface-gray-2 grid place-items-center overflow-hidden',
 							previewBoxClasses,
 						]"
 					>
