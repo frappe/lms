@@ -51,7 +51,14 @@ pilot get-app https://github.com/frappe/payments --skip-assets
 # shellcheck disable=SC2086
 pilot new-site "$SITE" --admin-password admin --apps frappe payments --skip-assets
 config="sites/$SITE/site_config.json"
-jq --argjson extra "$SITE_CONFIG" '. * $extra' "$config" > "$config.new"
-mv "$config.new" "$config"
+SITE_NAME="$SITE" SITE_CONFIG_JSON="$SITE_CONFIG" python3 - <<'EOF'
+import json, os
+path = os.path.join("sites", os.environ["SITE_NAME"], "site_config.json")
+with open(path) as f:
+    config = json.load(f)
+config.update(json.loads(os.environ.get("SITE_CONFIG_JSON") or "{}"))
+with open(path, "w") as f:
+    json.dump(config, f, indent=1)
+EOF
 # Emails resolve CSS through assets.json; tests never load the built bundles.
 mkdir -p sites/assets && echo '{}' > sites/assets/assets.json
