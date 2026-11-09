@@ -5,14 +5,12 @@
 # The app under test (lms) is installed per-run afterwards, so every run
 # tests fresh PR code.
 #
-# Expects from the caller: FRAPPE_BRANCH, SITE, SITE_CONFIG (JSON object
-# merged into the new site's site_config.json).
+# Expects from the caller: FRAPPE_BRANCH, SITE.
 
 set -eo pipefail
 
 FRAPPE_BRANCH="${FRAPPE_BRANCH:-develop}"
 SITE="${SITE:-frappe.local}"
-SITE_CONFIG="${SITE_CONFIG:-{}}"
 BENCH_NAME="frappe-bench"
 BENCH_PATH="$HOME/pilot/benches/$BENCH_NAME"
 DB_HOST="127.0.0.1"
@@ -51,12 +49,13 @@ pilot get-app https://github.com/frappe/payments --skip-assets
 # shellcheck disable=SC2086
 pilot new-site "$SITE" --admin-password admin --apps frappe payments --skip-assets
 config="sites/$SITE/site_config.json"
-SITE_NAME="$SITE" SITE_CONFIG_JSON="$SITE_CONFIG" python3 - <<'EOF'
+SITE_NAME="$SITE" python3 - <<'EOF'
 import json, os
 path = os.path.join("sites", os.environ["SITE_NAME"], "site_config.json")
 with open(path) as f:
     config = json.load(f)
-config.update(json.loads(os.environ.get("SITE_CONFIG_JSON") or "{}"))
+# Same flags the bench-based CI merged in: tests allowed, website blocked.
+config.update({"allow_tests": True, "block_endpoints": 1})
 with open(path, "w") as f:
     json.dump(config, f, indent=1)
 EOF
