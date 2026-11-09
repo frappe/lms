@@ -63,12 +63,12 @@ jobs:
         ports:
           - 6379:6379
       mariadb:
-        image: mariadb:11.8
+        image: anandology/mariadb-utf8mb4:10.3
         env:
           MYSQL_ROOT_PASSWORD: root
         ports:
           - 3306:3306
-        options: --health-cmd="mariadb-admin ping" --health-interval=5s --health-timeout=2s --health-retries=3
+        options: --health-cmd="mysqladmin ping" --health-interval=5s --health-timeout=2s --health-retries=3
     steps:
       # Depth 2 keeps the PR base, the merge commit's first parent.
       - uses: actions/checkout@v4
