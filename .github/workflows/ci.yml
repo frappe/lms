@@ -115,7 +115,6 @@ jobs:
         env:
           FRAPPE_BRANCH: develop
           SITE: frappe.local
-          SITE_CONFIG: '{"allow_tests": true, "block_endpoints": 1}'
         run: bash ${GITHUB_WORKSPACE}/.github/helper/install.sh
 
       - name: Install app under test
