@@ -1082,6 +1082,7 @@ import { markLessonProgress } from '@/utils/markLessonProgress'
 import ResponsiveListView from '@/components/ResponsiveListView.vue'
 import RichTextEditor from '@/components/RichTextEditor.vue'
 import router from '@/router'
+import { isSidebarHidden } from '@/stores/sidebar'
 import QuizActivityLog from '@/components/Quiz/QuizActivityLog.vue'
 import ProctoringMonitor from '@/components/ProctoringMonitor.vue'
 import EmptyStateLayout from '@/components/Layouts/EmptyStateLayout.vue'
@@ -1179,6 +1180,13 @@ const proctoringRunning = computed(
 		activeQuestion.value > 0 &&
 		!quizSubmission.data &&
 		isProctoringEligible.value
+)
+watch(
+	proctoringRunning,
+	(running) => {
+		isSidebarHidden.value = running
+	},
+	{ immediate: true }
 )
 const cameraReady = ref(false)
 const violationLog = ref<ViolationEvent[]>([])
@@ -1430,6 +1438,7 @@ watch(showLeaveConfirmation, (open) => {
 })
 
 onUnmounted(() => {
+	isSidebarHidden.value = false
 	removeLeaveGuard()
 	window.removeEventListener('pagehide', handlePageHide)
 	window.removeEventListener('beforeunload', handleBeforeUnload)
@@ -2350,6 +2359,7 @@ const createSubmission = (reason: SubmissionReason = 'manual'): void => {
 }
 
 const resetQuiz = () => {
+	isSidebarHidden.value = false
 	activeQuestion.value = 0
 	selectedOptions.value.splice(
 		0,

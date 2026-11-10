@@ -7,7 +7,7 @@
 		>
 			{{ __('Skip to main content') }}
 		</a>
-		<div class="h-full border-e bg-surface-sidebar">
+		<div v-if="!isSidebarHidden" class="h-full border-e bg-surface-sidebar">
 			<AppSidebar />
 		</div>
 		<main
@@ -20,6 +20,36 @@
 	</div>
 </template>
 <script setup>
+import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
 import { skipToContent } from '@/utils/a11y'
 import AppSidebar from '@/components/Sidebar/AppSidebar.vue'
+import { isSidebarHidden as isExamSidebarHidden } from '@/stores/sidebar'
+
+const isFullscreen = ref(false)
+
+const updateFullscreen = () => {
+	if (typeof document === 'undefined') return
+	isFullscreen.value = Boolean(
+		document.fullscreenElement ||
+			document.webkitFullscreenElement ||
+			document.msFullscreenElement
+	)
+}
+
+onMounted(() => {
+	updateFullscreen()
+	document.addEventListener('fullscreenchange', updateFullscreen)
+	document.addEventListener('webkitfullscreenchange', updateFullscreen)
+	document.addEventListener('msfullscreenchange', updateFullscreen)
+})
+
+onBeforeUnmount(() => {
+	document.removeEventListener('fullscreenchange', updateFullscreen)
+	document.removeEventListener('webkitfullscreenchange', updateFullscreen)
+	document.removeEventListener('msfullscreenchange', updateFullscreen)
+})
+
+const isSidebarHidden = computed(() =>
+	Boolean(isExamSidebarHidden.value || isFullscreen.value)
+)
 </script>

@@ -1,6 +1,8 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
 
+export const isSidebarHidden = ref(false)
+
 export const useSidebar = defineStore('sidebar', () => {
 	const isSidebarCollapsed = ref(false)
 	// One entry per group, because a sidebar can now carry several. Absent
@@ -38,6 +40,7 @@ export const useSidebar = defineStore('sidebar', () => {
 
 	return {
 		isSidebarCollapsed,
+		isSidebarHidden,
 		openSidebarGroups,
 		isGroupOpen,
 		toggleGroup,
