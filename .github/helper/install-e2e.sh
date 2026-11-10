@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# EXPERIMENTAL: provision a bench for Playwright e2e on pilot. Full init
+# Provision a bench for Playwright e2e on pilot. Full init
 # (frontend toolchain included), real asset build, site served by pilot's
 # web on :8000. Fresh provision every run; nothing is cached.
 #
