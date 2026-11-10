@@ -52,6 +52,7 @@ runs:
         payments=$(git ls-remote https://github.com/frappe/payments HEAD | cut -f1)
         test -n "$frappe" && test -n "$payments"
         echo "key=bench-${ImageOS:-unknown}-py$PYTHON_VERSION-$frappe-$payments-$SETUP_HASH" >> "$GITHUB_OUTPUT"
+        echo "restore=packages-bench-${ImageOS:-unknown}-" >> "$GITHUB_OUTPUT"
 
     # bench installs through uv; pip installs bench itself. Keyed with the
     # bench, so a frappe or payments dependency bump saves a fresh entry.
@@ -63,7 +64,7 @@ runs:
           ~/.cache/uv
         key: packages-${{ steps.key.outputs.key }}-${{ hashFiles('pyproject.toml') }}
         restore-keys: |
-          packages-
+          ${{ steps.key.outputs.restore }}
 
     - name: Install bench
       shell: bash
