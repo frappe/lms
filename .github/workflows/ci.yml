@@ -15,7 +15,7 @@ on:
   workflow_dispatch:
     inputs:
       e2e:
-        description: Run the experimental pilot e2e job instead of server tests
+        description: Run the pilot e2e job instead of server tests
         type: boolean
         default: false
       spec:
@@ -169,8 +169,8 @@ jobs:
           fail_ci_if_error: false
           verbose: true
 
-  # EXPERIMENTAL (play branch only): Playwright e2e on pilot. Full init, real
-  # asset build, site served by pilot web on :8000.
+  # Playwright e2e on pilot: full init, real asset build, site served by
+  # pilot web on :8000. Dispatch-only via the e2e input.
   e2e:
     name: UI Tests (Playwright on Pilot)
     if: github.event_name == 'workflow_dispatch' && inputs.e2e == true
