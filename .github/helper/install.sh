@@ -1,9 +1,7 @@
 #!/bin/bash
 
-# Provision a bench for backend-only CI: framework + payments, no frontend
-# assets, external MariaDB. Fresh provision every run; nothing is cached.
-# The app under test (lms) is installed per-run afterwards, so every run
-# tests fresh PR code.
+# Backend-only CI bench: framework + payments, no frontend assets, external
+# MariaDB. Fresh provision every run; the app under test is installed per-run.
 #
 # Expects from the caller: FRAPPE_BRANCH, SITE.
 
@@ -39,7 +37,7 @@ pilot -b "$BENCH_NAME" start > "$RUNNER_TEMP/pilot.log" 2>&1 &
 curl --fail --silent --show-error --retry 30 --retry-connrefused --retry-delay 1 \
   http://127.0.0.1:7000/api/v1/health
 
-# The external MariaDB service has no utf8mb4 defaults; Frappe needs them.
+# The service image already defaults to utf8mb4; re-assert it for safety.
 printf '[client]\nskip-ssl\n' > ~/.my.cnf
 mariadb --host "$DB_HOST" --port "$DB_PORT" -u root -p"$DB_ROOT_PASSWORD" -e "SET GLOBAL character_set_server = 'utf8mb4'"
 mariadb --host "$DB_HOST" --port "$DB_PORT" -u root -p"$DB_ROOT_PASSWORD" -e "SET GLOBAL collation_server = 'utf8mb4_unicode_ci'"
@@ -54,10 +52,9 @@ import json, os
 path = os.path.join("sites", os.environ["SITE_NAME"], "site_config.json")
 with open(path) as f:
     config = json.load(f)
-# Same flags the bench-based CI merged in: tests allowed, website blocked.
 config.update({"allow_tests": True, "block_endpoints": 1})
 with open(path, "w") as f:
     json.dump(config, f, indent=1)
 EOF
-# Emails resolve CSS through assets.json; tests never load the built bundles.
+# Tests never load the built bundles; emails only need assets.json to exist.
 mkdir -p sites/assets && echo '{}' > sites/assets/assets.json
