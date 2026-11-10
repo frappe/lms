@@ -64,10 +64,10 @@ jobs:
           - 6379:6379
       mariadb:
         image: anandology/mariadb-utf8mb4:10.3
-        env:
-          MYSQL_ROOT_PASSWORD: root
         ports:
           - 3306:3306
+        env:
+          MYSQL_ROOT_PASSWORD: root
         options: --health-cmd="mysqladmin ping" --health-interval=5s --health-timeout=2s --health-retries=3
     steps:
       # Depth 2 keeps the PR base, the merge commit's first parent.
@@ -113,8 +113,6 @@ jobs:
         working-directory: /home/runner/pilot/benches/frappe-bench
         run: |
           export PATH="$HOME/pilot/bin:$HOME/.local/bin:$PATH"
-          # The provisioned site never contains this app, so every run
-          # installs fresh PR code.
           pilot get-app "${GITHUB_WORKSPACE}" --branch "${GITHUB_SHA}" --skip-assets
           pilot install-app frappe.local lms
 
