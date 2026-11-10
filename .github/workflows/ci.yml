@@ -75,6 +75,22 @@ jobs:
         with:
           fetch-depth: 2
 
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      - name: Cache pip
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cache/pip
+            ~/.cache/uv
+          key: ${{ runner.os }}-pip-${{ hashFiles('**/*requirements.txt', '**/pyproject.toml', '**/setup.py', '**/setup.cfg') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
+            ${{ runner.os }}-
+
       - name: Select tests
         id: select
         if: >-
@@ -85,27 +101,36 @@ jobs:
           git diff --name-status --no-renames HEAD^1 HEAD \
             | .github/helper/changed-tests.sh server >> "$GITHUB_OUTPUT"
 
-      - uses: ./.github/actions/setup-bench
-        with:
-          site: frappe.local
-          db-root-password: root
-          site-config: '{"allow_tests": true, "block_endpoints": 1}'
+      - name: Setup Pilot bench
+        shell: bash
+        env:
+          FRAPPE_BRANCH: develop
+          SITE: frappe.local
+        run: bash ${GITHUB_WORKSPACE}/.github/helper/install.sh
+
+      - name: Install app under test
+        shell: bash
+        working-directory: /home/runner/pilot/benches/frappe-bench
+        run: |
+          export PATH="$HOME/pilot/bin:$HOME/.local/bin:$PATH"
+          pilot get-app "${GITHUB_WORKSPACE}" --branch "${GITHUB_SHA}" --skip-assets
+          pilot install-app frappe.local lms
 
       - name: Run tests
         if: steps.select.outputs.mode != 'subset'
-        working-directory: /home/runner/frappe-bench
-        run: bench --site frappe.local run-tests --app lms --coverage
+        working-directory: /home/runner/pilot/benches/frappe-bench
+        run: pilot frappe --site frappe.local run-tests --app lms --coverage
 
       - name: Run changed tests
         if: steps.select.outputs.mode == 'subset'
-        working-directory: /home/runner/frappe-bench
+        working-directory: /home/runner/pilot/benches/frappe-bench
         env:
           MODULES: ${{ steps.select.outputs.tests }}
         run: |
           failed=0
           for module in $MODULES; do
             echo "::group::$module"
-            bench --site frappe.local run-tests --app lms --module "$module" \
+            pilot frappe --site frappe.local run-tests --app lms --module "$module" \
               || failed=1
             echo "::endgroup::"
           done
@@ -118,7 +143,7 @@ jobs:
         with:
           name: Server
           token: ${{ secrets.CODECOV_TOKEN }}
-          files: /home/runner/frappe-bench/sites/coverage.xml
+          files: /home/runner/pilot/benches/frappe-bench/sites/coverage.xml
           # Coverage upload is informational; don't hard-fail CI when Codecov's
           # CLI GPG-key fetch flakes or when a fork PR has no CODECOV_TOKEN.
           fail_ci_if_error: false
