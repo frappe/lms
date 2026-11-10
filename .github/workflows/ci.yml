@@ -13,6 +13,15 @@ on:
       - "frontend/src/utils/lessonForm.ts"
       - "frontend/src/directives/safeHtmlLevels.ts"
   workflow_dispatch:
+    inputs:
+      e2e:
+        description: Run the experimental pilot e2e job instead of server tests
+        type: boolean
+        default: false
+      spec:
+        description: Single e2e spec file to run (empty runs the whole suite)
+        required: false
+        default: ""
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
@@ -54,7 +63,8 @@ jobs:
     name: Server Tests
     needs: plan
     if: >-
-      !cancelled() && (github.event_name != 'pull_request' || needs.plan.outputs.run == 'true')
+      !cancelled() && (github.event_name != 'pull_request' || needs.plan.outputs.run == 'true') &&
+      inputs.e2e != true
     runs-on: ubuntu-latest
     timeout-minutes: 30
     services:
@@ -148,3 +158,99 @@ jobs:
           # CLI GPG-key fetch flakes or when a fork PR has no CODECOV_TOKEN.
           fail_ci_if_error: false
           verbose: true
+
+  # EXPERIMENTAL (play branch only): Playwright e2e on pilot. Full init, real
+  # asset build, site served by pilot web on :8000.
+  e2e:
+    name: UI Tests (Playwright on Pilot)
+    if: github.event_name == 'workflow_dispatch' && inputs.e2e == true
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+
+    services:
+      redis:
+        image: redis:alpine
+        ports:
+          - 6379:6379
+      mariadb:
+        image: mariadb:10.8
+        env:
+          MARIADB_ROOT_PASSWORD: 123
+        ports:
+          - 3306:3306
+        options: --health-cmd="mysqladmin ping" --health-interval=5s --health-timeout=2s --health-retries=3
+
+    steps:
+      - name: Clone
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      - name: Cache pip
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cache/pip
+            ~/.cache/uv
+          key: ${{ runner.os }}-pip-${{ hashFiles('**/*requirements.txt', '**/pyproject.toml', '**/setup.py', '**/setup.cfg') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
+            ${{ runner.os }}-
+
+      - name: Add to Hosts
+        run: echo "127.0.0.1 lms.test" | sudo tee -a /etc/hosts
+
+      - name: Setup Pilot bench
+        shell: bash
+        env:
+          FRAPPE_BRANCH: develop
+          SITE: lms.test
+          DB_ROOT_PASSWORD: "123"
+        run: bash ${GITHUB_WORKSPACE}/.github/helper/install-e2e.sh
+
+      - name: Site Setup
+        shell: bash
+        working-directory: /home/runner/pilot/benches/frappe-bench
+        run: |
+          export PATH="$HOME/pilot/bin:$HOME/.local/bin:$PATH"
+          pilot frappe --site lms.test execute frappe.utils.install.complete_setup_wizard
+          pilot frappe --site lms.test execute frappe.tests.ui_test_helpers.create_test_user
+          pilot frappe --site lms.test set-password frappe@example.com admin
+          pilot frappe --site lms.test execute lms.lms.utils.persona_captured
+
+      - name: Cache Playwright browsers
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: ${{ runner.os }}-playwright-${{ hashFiles('yarn.lock') }}
+
+      - name: Install Playwright browsers
+        working-directory: /home/runner/pilot/benches/frappe-bench/apps/lms
+        run: npx playwright install --with-deps chromium
+
+      - name: UI Tests
+        working-directory: /home/runner/pilot/benches/frappe-bench/apps/lms
+        run: |
+          read -ra specs <<< "$SPECS"
+          npx playwright test --project=setup --project=e2e "${specs[@]}"
+        env:
+          PLAYWRIGHT_BASE_URL: http://lms.test:8000
+          CI: "true"
+          SPECS: ${{ inputs.spec }}
+
+      - name: Upload Playwright results if tests fail
+        if: ${{ failure() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-results
+          path: |
+            /home/runner/pilot/benches/frappe-bench/apps/lms/test-results
+            /home/runner/pilot/benches/frappe-bench/apps/lms/playwright-report
+          if-no-files-found: ignore
+
+      - name: Show pilot log
+        if: ${{ always() }}
+        run: cat "$RUNNER_TEMP/pilot.log" || true
