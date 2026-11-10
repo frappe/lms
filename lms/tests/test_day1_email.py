@@ -175,9 +175,7 @@ class TestFirstAdmin(BaseTestUtils):
 		# first_admin reads whoever is on the site; arrange our own admin so this
 		# does not depend on state leaked by whichever modules discovery (unsorted
 		# os.walk order) happened to run first.
-		self._create_user(
-			"day1-real-admin@example.com", "Real", "Admin", ["System Manager"], "System User"
-		)
+		self._create_user("day1-real-admin@example.com", "Real", "Admin", ["System Manager"], "System User")
 		admin = first_admin()
 		self.assertIsNotNone(admin)
 		self.assertNotEqual(admin.name, "Administrator")
