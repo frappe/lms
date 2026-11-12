@@ -1,12 +1,7 @@
 import { test, expect } from "./fixtures";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import {
-	closeOnboardingModal,
-	button,
-	deleteLeftovers,
-	waitForApiCall,
-} from "./helpers";
+import { button, deleteLeftovers, waitForApiCall } from "./helpers";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -49,7 +44,6 @@ test.describe("Course Creation", () => {
 
 	test("creates a new course with settings", async ({ page }) => {
 		await page.goto("/lms/courses");
-		await closeOnboardingModal(page);
 
 		// Open New Course modal
 		await button(page, "New Course").click();
@@ -114,7 +108,6 @@ test.describe("Course Creation", () => {
 			timeout: 10000,
 		});
 		courseSlug = new URL(page.url()).pathname.split("/").pop() as string;
-		await closeOnboardingModal(page);
 
 		// Configure settings
 		await settingsTab(page).click();
@@ -158,7 +151,6 @@ test.describe("Course Creation", () => {
 		// land last, so wait for the save and start publish from a fresh page.
 		await expect(page.getByText("Course updated successfully")).toBeVisible();
 		await page.reload();
-		await closeOnboardingModal(page);
 
 		// Publish
 		await page
@@ -175,7 +167,6 @@ test.describe("Course Creation", () => {
 
 		// Reload and verify published state
 		await page.reload();
-		await closeOnboardingModal(page);
 		await expect(page.locator("header").getByText(/^Published$/)).toBeVisible({
 			timeout: 10000,
 		});
@@ -185,30 +176,19 @@ test.describe("Course Creation", () => {
 	});
 
 	test("adds a chapter and a lesson", async ({ page }) => {
-		const outlineResponse = waitForApiCall(
-			page,
-			"/api/method/lms.lms.utils.get_course_outline",
-			20000
-		);
 		await page.goto(`/lms/courses/${courseSlug}`);
-		await closeOnboardingModal(page);
 		await page
 			.getByRole("button")
 			.or(page.getByRole("tab"))
 			.filter({ hasText: "Course editor" })
 			.click();
-		await closeOnboardingModal(page);
-		await outlineResponse;
-
 		// A course without chapters shows one empty state in place of the
 		// chapters panel and its toolbar; its "Create chapter" is the only way
 		// in, and it waits on the course as well as the outline.
 		const createChapter = page.getByRole("button", { name: "Create chapter" });
 		await expect(createChapter).toBeVisible({ timeout: 20000 });
 
-		// Scope to the chapter dialog by its Title field. The onboarding
-		// "Getting started" panel is also a dismissable layer, but it has no
-		// Title input.
+		// Scope to the chapter dialog by its Title field.
 		await createChapter.click();
 		const chapterDialog = page
 			.locator("[data-dismissable-layer]")
@@ -227,10 +207,6 @@ test.describe("Course Creation", () => {
 		await expect(page.getByText("Test Chapter", { exact: true })).toBeVisible({
 			timeout: 15000,
 		});
-
-		// The onboarding help modal re-expands when the chapter step completes.
-		// Dismiss it before adding a lesson so it can't hijack the editor.
-		await closeOnboardingModal(page);
 
 		// "Add Lesson" opens an empty draft with the title focused; nothing is
 		// created until a title is typed. The lesson is created after 3 s of
@@ -289,7 +265,6 @@ test.describe("Course Creation", () => {
 
 	test("verifies the course overview", async ({ page }) => {
 		await page.goto(`/lms/courses/${courseSlug}`);
-		await closeOnboardingModal(page);
 
 		await expect(page).toHaveURL(new RegExp(`/lms/courses/${courseSlug}`), {
 			timeout: 10000,
@@ -317,7 +292,6 @@ test.describe("Course Creation", () => {
 
 	test("deletes the course", async ({ page }) => {
 		await page.goto(`/lms/courses/${courseSlug}`);
-		await closeOnboardingModal(page);
 
 		await settingsTab(page).click();
 
