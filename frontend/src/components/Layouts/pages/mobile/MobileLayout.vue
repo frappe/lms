@@ -15,7 +15,7 @@
 			<slot />
 		</main>
 
-		<div v-if="!isSidebarHidden" class="relative z-20 shrink-0">
+		<div class="relative z-20 shrink-0">
 			<nav
 				v-if="!isSignedIn || sidebarSettings.data"
 				:aria-label="__('Primary')"
@@ -77,7 +77,6 @@ import * as icons from 'lucide-vue-next'
 import { Avatar } from 'frappe-ui'
 import { ensureMobileNavLinks, sidebarLinks } from '@/stores/mobileNavLinks'
 import { pickPrimaryTabs, tabLabel } from '@/utils/mobileNav'
-import { isSidebarHidden } from '@/stores/sidebar'
 
 const { isLoggedIn } = storeToRefs(sessionStore())
 const settingsStore = useSettings()

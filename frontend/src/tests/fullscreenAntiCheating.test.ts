@@ -35,8 +35,6 @@ vi.hoisted(() => {
 })
 import { flushPromises, mount } from '@vue/test-utils'
 import ProctoringMonitor from '@/components/ProctoringMonitor.vue'
-import DesktopLayout from '@/components/Layouts/pages/desktop/DesktopLayout.vue'
-import { isSidebarHidden } from '@/stores/sidebar'
 import {
 	currentFullscreenElement,
 	FULLSCREEN_EXIT_GRACE_MS,
@@ -798,63 +796,6 @@ describe('Anti-Cheating & Full-Screen Enforcement Test Suite', () => {
 
 		it('serialises an empty log as an empty array', () => {
 			expect(serialiseViolationLog([])).toBe('[]')
-		})
-	})
-
-	// ─── 12. Fullscreen Sidebar Hiding ─────────────────────────────────────────
-	describe('12. Fullscreen and Proctoring Sidebar Hiding', () => {
-		it('hides sidebar when isSidebarHidden is set', async () => {
-			expect(isSidebarHidden.value).toBe(false)
-
-			const wrapper = mount(DesktopLayout, {
-				global: {
-					stubs: { AppSidebar: true },
-					mocks: { __: (s: string) => s },
-				},
-			})
-
-			expect(wrapper.findComponent({ name: 'AppSidebar' }).exists()).toBe(true)
-
-			isSidebarHidden.value = true
-			await flushPromises()
-
-			expect(wrapper.findComponent({ name: 'AppSidebar' }).exists()).toBe(false)
-
-			isSidebarHidden.value = false
-			await flushPromises()
-
-			expect(wrapper.findComponent({ name: 'AppSidebar' }).exists()).toBe(true)
-			wrapper.unmount()
-		})
-
-		it('hides sidebar when document enters fullscreen', async () => {
-			const wrapper = mount(DesktopLayout, {
-				global: {
-					stubs: { AppSidebar: true },
-					mocks: { __: (s: string) => s },
-				},
-			})
-
-			expect(wrapper.findComponent({ name: 'AppSidebar' }).exists()).toBe(true)
-
-			Object.defineProperty(document, 'fullscreenElement', {
-				value: document.documentElement,
-				configurable: true,
-			})
-			document.dispatchEvent(new Event('fullscreenchange'))
-			await flushPromises()
-
-			expect(wrapper.findComponent({ name: 'AppSidebar' }).exists()).toBe(false)
-
-			Object.defineProperty(document, 'fullscreenElement', {
-				value: null,
-				configurable: true,
-			})
-			document.dispatchEvent(new Event('fullscreenchange'))
-			await flushPromises()
-
-			expect(wrapper.findComponent({ name: 'AppSidebar' }).exists()).toBe(true)
-			wrapper.unmount()
 		})
 	})
 })

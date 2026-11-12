@@ -1,8 +1,5 @@
 <template>
-	<PageHeader
-		v-if="!fromLesson && !isSidebarHidden"
-		:breadcrumbs="breadcrumbs"
-	/>
+	<PageHeader v-if="!fromLesson" :breadcrumbs="breadcrumbs" />
 	<div
 		class="md:w-7/12 md:mx-auto mx-4 py-6 flex grow flex-col"
 		:class="{ 'pt-4 md:w-full': fromLesson }"
@@ -17,7 +14,6 @@ import PageHeader from '@/components/Layouts/pages/PageHeader.vue'
 import { computed, inject, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { sessionStore } from '../stores/session'
-import { isSidebarHidden } from '@/stores/sidebar'
 
 const { brand } = sessionStore()
 const user = inject('$user')
