@@ -4,11 +4,12 @@
 # (frontend toolchain included), real asset build, site served by pilot's
 # web on :8000. Fresh provision every run; nothing is cached.
 #
-# Expects from the caller: FRAPPE_BRANCH, SITE.
+# Expects from the caller: FRAPPE_BRANCH, SITE. PAYMENTS_BRANCH defaults to develop.
 
 set -eo pipefail
 
 FRAPPE_BRANCH="${FRAPPE_BRANCH:-develop}"
+PAYMENTS_BRANCH="${PAYMENTS_BRANCH:-develop}"
 SITE="${SITE:-lms.test}"
 BENCH_NAME="frappe-bench"
 BENCH_PATH="$HOME/pilot/benches/$BENCH_NAME"
@@ -43,7 +44,7 @@ mariadb --host "$DB_HOST" --port "$DB_PORT" -u root -p"$DB_ROOT_PASSWORD" -e "SE
 mariadb --host "$DB_HOST" --port "$DB_PORT" -u root -p"$DB_ROOT_PASSWORD" -e "SET GLOBAL collation_server = 'utf8mb4_unicode_ci'"
 
 # shellcheck disable=SC2086
-pilot get-app https://github.com/frappe/payments --skip-assets
+pilot get-app https://github.com/frappe/payments --branch "$PAYMENTS_BRANCH" --skip-assets
 # shellcheck disable=SC2086
 pilot get-app "${GITHUB_WORKSPACE}" --branch "${GITHUB_SHA}" --skip-assets
 # shellcheck disable=SC2086

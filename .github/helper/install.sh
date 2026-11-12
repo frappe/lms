@@ -3,11 +3,12 @@
 # Backend-only CI bench: framework + payments, no frontend assets, external
 # MariaDB. Fresh provision every run; the app under test is installed per-run.
 #
-# Expects from the caller: FRAPPE_BRANCH, SITE.
+# Expects from the caller: FRAPPE_BRANCH, SITE. PAYMENTS_BRANCH defaults to develop.
 
 set -eo pipefail
 
 FRAPPE_BRANCH="${FRAPPE_BRANCH:-develop}"
+PAYMENTS_BRANCH="${PAYMENTS_BRANCH:-develop}"
 SITE="${SITE:-frappe.local}"
 BENCH_NAME="frappe-bench"
 BENCH_PATH="$HOME/pilot/benches/$BENCH_NAME"
@@ -43,7 +44,7 @@ mariadb --host "$DB_HOST" --port "$DB_PORT" -u root -p"$DB_ROOT_PASSWORD" -e "SE
 mariadb --host "$DB_HOST" --port "$DB_PORT" -u root -p"$DB_ROOT_PASSWORD" -e "SET GLOBAL collation_server = 'utf8mb4_unicode_ci'"
 
 # shellcheck disable=SC2086
-pilot get-app https://github.com/frappe/payments --skip-assets
+pilot get-app https://github.com/frappe/payments --branch "$PAYMENTS_BRANCH" --skip-assets
 # shellcheck disable=SC2086
 pilot new-site "$SITE" --admin-password admin --apps frappe payments --skip-assets
 config="sites/$SITE/site_config.json"

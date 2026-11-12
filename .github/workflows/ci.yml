@@ -101,19 +101,11 @@ jobs:
           git diff --name-status --no-renames HEAD^1 HEAD \
             | .github/helper/changed-tests.sh server >> "$GITHUB_OUTPUT"
 
-<<<<<<< HEAD
-      - uses: ./.github/actions/setup-bench
-        with:
-          site: frappe.local
-          db-root-password: root
-          frappe-branch: version-16
-          payments-branch: version-16
-          site-config: '{"allow_tests": true, "block_endpoints": 1}'
-=======
       - name: Setup Pilot bench
         shell: bash
         env:
-          FRAPPE_BRANCH: develop
+          FRAPPE_BRANCH: version-16
+          PAYMENTS_BRANCH: version-16
           SITE: frappe.local
         run: bash ${GITHUB_WORKSPACE}/.github/helper/install.sh
 
@@ -124,7 +116,6 @@ jobs:
           export PATH="$HOME/pilot/bin:$HOME/.local/bin:$PATH"
           pilot get-app "${GITHUB_WORKSPACE}" --branch "${GITHUB_SHA}" --skip-assets
           pilot install-app frappe.local lms
->>>>>>> dab6d27 (ci: run backend tests on pilot)
 
       - name: Run tests
         if: steps.select.outputs.mode != 'subset'
