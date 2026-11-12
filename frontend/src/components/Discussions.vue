@@ -107,7 +107,7 @@
 		"
 		:description="__(emptyStateText)"
 	>
-		<Button v-if="!readOnlyMode" variant="solid" @click="openTopicModal()">
+		<Button v-if="!readOnlyMode" variant="subtle" @click="openTopicModal()">
 			<template #prefix>
 				<span class="lucide-plus size-4" />
 			</template>

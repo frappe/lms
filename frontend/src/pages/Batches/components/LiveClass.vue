@@ -138,7 +138,7 @@
 			<Button
 				v-if="canCreateClass()"
 				data-testid="live-class-add"
-				variant="solid"
+				variant="subtle"
 				:label="__('Schedule a Class')"
 				@click="openLiveClassForm"
 			>
@@ -148,7 +148,7 @@
 			</Button>
 			<Button
 				v-else-if="needsProvider"
-				variant="solid"
+				variant="subtle"
 				:label="__('Open Settings')"
 				@click="openSettings"
 			/>
