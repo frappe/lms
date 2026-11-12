@@ -303,3 +303,42 @@ class TestLMSCertificate(BaseTestUtils):
 
 		frappe.set_user(self.member_a)
 		self.assertEqual(is_certified(self.course.name), course_level.name)
+
+	def test_send_mail_includes_batch_details_in_args(self):
+		from unittest.mock import patch
+
+		cert = self.certificate_a
+		with patch("frappe.sendmail") as mock_sendmail:
+			cert.send_mail()
+			self.assertTrue(mock_sendmail.called)
+			args = mock_sendmail.call_args[1].get("args")
+			self.assertEqual(args.get("batch_name"), cert.batch_name)
+			self.assertEqual(args.get("batch_title"), cert.batch_title)
+			self.assertEqual(args.get("doc"), cert)
+
+	def test_send_mail_batch_only_falls_back_course_title_to_batch_title(self):
+		from unittest.mock import patch
+
+		cert = self.certificate_a
+		cert.course = None
+		with patch("frappe.sendmail") as mock_sendmail:
+			cert.send_mail()
+			self.assertTrue(mock_sendmail.called)
+			args = mock_sendmail.call_args[1].get("args")
+			self.assertIsNone(args.get("course_name"))
+			self.assertEqual(args.get("batch_title"), cert.batch_title)
+			self.assertEqual(args.get("course_title"), cert.batch_title)
+
+	def test_send_mail_fetches_batch_title_from_db_when_cleared(self):
+		from unittest.mock import patch
+
+		cert = self.certificate_a
+		cert.batch_title = None
+		expected_title = frappe.db.get_value("LMS Batch", self.batch_a, "title")
+		self.assertTrue(expected_title)
+
+		with patch("frappe.sendmail") as mock_sendmail:
+			cert.send_mail()
+			self.assertTrue(mock_sendmail.called)
+			args = mock_sendmail.call_args[1].get("args")
+			self.assertEqual(args.get("batch_title"), expected_title)
