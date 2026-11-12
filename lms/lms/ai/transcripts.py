@@ -406,9 +406,14 @@ def transcribe_audio(service: str, audio: bytes, hint: str, filename: str = "aud
 	from urllib.parse import quote
 
 	if service == "local":
+		from lms.lms.ai.tts import voice_server_headers
+
 		base = frappe.conf.get("lms_local_tts_url").rstrip("/")
 		response = requests.post(
-			f"{base}/stt", data=audio, headers={"X-Hint": quote(hint[:600])}, timeout=60 * 30
+			f"{base}/stt",
+			data=audio,
+			headers={"X-Hint": quote(hint[:600]), **voice_server_headers()},
+			timeout=60 * 30,
 		)
 		response.raise_for_status()
 		return response.json().get("text", "")

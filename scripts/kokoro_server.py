@@ -4,7 +4,7 @@
 # ///
 # av is pinned: 15 dropped the open() arguments faster-whisper still passes, and the
 # python ceiling keeps us where av 14 ships wheels.
-"""Learning's local voice sidecar: Kokoro-82M speaks, Whisper listens. No API costs.
+"""Learning's voice server: Kokoro-82M speaks, Whisper listens. No API costs, no GPU.
 
 Run it with uv, which keeps its dependencies out of the bench env:
 
@@ -13,12 +13,24 @@ Run it with uv, which keeps its dependencies out of the bench env:
 The first start downloads the models from Hugging Face (~550MB). Then point the site at
 it in site_config.json: "lms_local_tts_url": "http://127.0.0.1:8765".
 
+On a server of its own (see scripts/voice-server/README.md) set these in the environment:
+
+    LMS_VOICE_TOKEN      shared secret; requests must carry "Authorization: Bearer <token>"
+    LMS_VOICE_HOST       address to listen on, 127.0.0.1 by default (put Caddy in front)
+    LMS_VOICE_PORT       8765 by default
+    LMS_VOICE_MAX_MB     largest upload accepted, 25 by default (a 10 minute video piece is ~2.5)
+    LMS_VOICE_WHISPER    Whisper model, small.en by default; medium.en hears better, slower
+    LMS_VOICE_KEEP_LAST  1 keeps the last recording at /tmp/lms_last_turn.webm, for debugging
+
 POST /tts with {"text": ..., "voice": "af_heart"} answers with a WAV.
-POST /stt with recorded audio (any format ffmpeg reads, e.g. webm) answers {"text": ...}.
+POST /stt with recorded audio (any format ffmpeg reads, e.g. webm or mp3) answers {"text": ...}.
+GET  /health answers {"ok": true, "whisper": true} once both models are loaded.
 """
 
+import hmac
 import io
 import json
+import os
 import pathlib
 import threading
 import urllib.parse
@@ -27,7 +39,12 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 import soundfile
 from kokoro import KPipeline
 
-PORT = 8765
+HOST = os.environ.get("LMS_VOICE_HOST", "127.0.0.1")
+PORT = int(os.environ.get("LMS_VOICE_PORT", "8765"))
+TOKEN = os.environ.get("LMS_VOICE_TOKEN", "")
+MAX_BYTES = int(float(os.environ.get("LMS_VOICE_MAX_MB", "25")) * 1024 * 1024)
+WHISPER_MODEL = os.environ.get("LMS_VOICE_WHISPER", "small.en")
+KEEP_LAST = os.environ.get("LMS_VOICE_KEEP_LAST") == "1"
 
 pipeline = KPipeline(lang_code="a")  # American English; British voices still work
 # One model, many worker threads: generation holds the lock, sentence requests queue.
@@ -46,7 +63,7 @@ def load_whisper() -> None:
 
 			# "small" holds up on accented English; int8 keeps CPU latency near realtime.
 			# English only: the same speed as "small", and fewer misheard words for English speakers.
-			whisper = WhisperModel("small.en", device="cpu", compute_type="int8")
+			whisper = WhisperModel(WHISPER_MODEL, device="cpu", compute_type="int8")
 			print("Whisper ready", flush=True)
 
 
@@ -69,8 +86,9 @@ def synthesize(text: str, voice: str, speed: float = 1.0) -> bytes:
 
 
 def transcribe(data: bytes, hint: str = "") -> str:
-	# The last turn stays on disk, so "it heard nothing" can be answered by listening.
-	pathlib.Path("/tmp/lms_last_turn.webm").write_bytes(data)
+	if KEEP_LAST:
+		# The last turn stays on disk, so "it heard nothing" can be answered by listening.
+		pathlib.Path("/tmp/lms_last_turn.webm").write_bytes(data)
 	load_whisper()
 	with whisper_lock:
 		segments, _info = whisper.transcribe(
@@ -88,9 +106,25 @@ def transcribe(data: bytes, hint: str = "") -> str:
 
 
 class Handler(BaseHTTPRequestHandler):
+	def do_GET(self):
+		if self.path != "/health":
+			self.send_error(404)
+			return
+		self.answer(json.dumps({"ok": True, "whisper": whisper is not None}).encode(), "application/json")
+
 	def do_POST(self):
 		try:
-			body = self.rfile.read(int(self.headers["Content-Length"]))
+			if not self.authorised():
+				self.send_error(401, "Missing or wrong token")
+				return
+			length = int(self.headers.get("Content-Length") or 0)
+			if length <= 0:
+				self.send_error(400, "Empty request")
+				return
+			if length > MAX_BYTES:
+				self.send_error(413, f"Larger than {MAX_BYTES // (1024 * 1024)} MB")
+				return
+			body = self.rfile.read(length)
 			if self.path == "/tts":
 				payload = json.loads(body)
 				self.answer(
@@ -110,6 +144,14 @@ class Handler(BaseHTTPRequestHandler):
 		except Exception as error:  # noqa: BLE001 - one bad request must not kill the server
 			self.send_error(500, str(error)[:200])
 
+	def authorised(self) -> bool:
+		"""Without a configured token anyone on the (local) interface may call; with one, the
+		bearer must match. Compared in constant time."""
+		if not TOKEN:
+			return True
+		sent = (self.headers.get("Authorization") or "").removeprefix("Bearer ").strip()
+		return hmac.compare_digest(sent, TOKEN)
+
 	def answer(self, payload: bytes, content_type: str) -> None:
 		self.send_response(200)
 		self.send_header("Content-Type", content_type)
@@ -122,6 +164,8 @@ class Handler(BaseHTTPRequestHandler):
 
 
 if __name__ == "__main__":
+	if HOST != "127.0.0.1" and not TOKEN:
+		raise SystemExit("Set LMS_VOICE_TOKEN before listening on anything but 127.0.0.1.")
 	threading.Thread(target=load_whisper, daemon=True).start()
-	print(f"Kokoro speaking on http://127.0.0.1:{PORT}/tts", flush=True)
-	ThreadingHTTPServer(("127.0.0.1", PORT), Handler).serve_forever()
+	print(f"Kokoro speaking on http://{HOST}:{PORT}/tts", flush=True)
+	ThreadingHTTPServer((HOST, PORT), Handler).serve_forever()

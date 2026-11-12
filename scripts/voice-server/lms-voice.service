@@ -1,0 +1,18 @@
+# /etc/systemd/system/lms-voice.service
+[Unit]
+Description=Learning voice server (Kokoro speaks, Whisper listens)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+User=voice
+WorkingDirectory=/home/voice
+EnvironmentFile=/home/voice/voice.env
+ExecStart=/home/voice/.local/bin/uv run /home/voice/kokoro_server.py
+Restart=always
+RestartSec=5
+# Torch and the two models fit in about 2 GB; stop a runaway before it takes the box.
+MemoryMax=3G
+
+[Install]
+WantedBy=multi-user.target

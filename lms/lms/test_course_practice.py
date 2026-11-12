@@ -360,3 +360,25 @@ def _embed(video: str) -> str:
 			]
 		}
 	)
+
+
+class TestVoiceServer(BaseTestUtils):
+	"""Talking to our own voice server: found by its address, trusted by its token."""
+
+	def test_the_token_travels_with_every_request(self):
+		from lms.lms.ai import tts
+
+		frappe.conf.lms_local_tts_url = "https://voice.example.test/"
+		frappe.conf.lms_voice_token = "secret"
+		try:
+			self.assertEqual(transcripts.speech_service(), "local")
+			with patch("requests.post") as post:
+				post.return_value.json.return_value = {"text": "heard"}
+				self.assertEqual(transcripts.transcribe_audio("local", b"audio", "ERPNext"), "heard")
+			self.assertEqual(post.call_args.args[0], "https://voice.example.test/stt")
+			self.assertEqual(post.call_args.kwargs["headers"]["Authorization"], "Bearer secret")
+			self.assertEqual(tts.voice_server_headers(), {"Authorization": "Bearer secret"})
+		finally:
+			frappe.conf.pop("lms_local_tts_url", None)
+			frappe.conf.pop("lms_voice_token", None)
+		self.assertEqual(tts.voice_server_headers(), {})

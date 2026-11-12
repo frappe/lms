@@ -103,10 +103,17 @@ def _fetch(provider: str, text: str, voice: str, speed: float) -> tuple[bytes, s
 	return _sarvam(text, voice)
 
 
+def voice_server_headers() -> dict[str, str]:
+	"""The shared secret our voice server expects, when it runs on a machine of its own."""
+	token = frappe.conf.get("lms_voice_token")
+	return {"Authorization": f"Bearer {token}"} if token else {}
+
+
 def _local(text: str, voice: str, speed: float) -> tuple[bytes, str]:
 	response = requests.post(
-		f"{_api_key('local')}/tts",
+		f"{_api_key('local').rstrip('/')}/tts",
 		json={"text": text, "voice": voice, "speed": speed},
+		headers=voice_server_headers(),
 		timeout=60,
 	)
 	_raise_for_provider(response, "Local Kokoro")

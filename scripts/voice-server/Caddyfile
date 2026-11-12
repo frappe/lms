@@ -1,0 +1,11 @@
+# /etc/caddy/Caddyfile: HTTPS with an automatic certificate, forwarding to the server.
+voice.example.com {
+	reverse_proxy 127.0.0.1:8765 {
+		transport http {
+			response_header_timeout 30m
+		}
+	}
+	request_body {
+		max_size 30MB
+	}
+}
