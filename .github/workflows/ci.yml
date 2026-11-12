@@ -149,3 +149,12 @@ jobs:
           # CLI GPG-key fetch flakes or when a fork PR has no CODECOV_TOKEN.
           fail_ci_if_error: false
           verbose: true
+
+      # Pilot runs the bench's processes; when a step fails, its log and the ports in use say why.
+      - name: Show pilot log
+        if: ${{ failure() }}
+        run: |
+          cat "$RUNNER_TEMP/pilot.log" || true
+          cat /home/runner/pilot/benches/frappe-bench/sites/common_site_config.json || true
+          tail -n 50 /home/runner/pilot/benches/frappe-bench/logs/*.log || true
+          ss -ltnp || true
