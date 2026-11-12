@@ -34,6 +34,9 @@ pilot -b "$BENCH_NAME" init
 cd "$BENCH_PATH"
 
 uv pip install --python env/bin/python -e "apps/frappe[test]"
+# pilot starts web with --dev, which needs watchdog from frappe[dev]. That extra does not
+# install on every Frappe branch (version-16's pypika-stubs pin), so add watchdog itself.
+uv pip install --python env/bin/python watchdog
 
 pilot -b "$BENCH_NAME" start > "$RUNNER_TEMP/pilot.log" 2>&1 &
 curl --fail --silent --show-error --retry 30 --retry-connrefused --retry-delay 1 \
