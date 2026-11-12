@@ -1,4 +1,3 @@
-// @vitest-environment node
 import { describe, expect, it } from 'vitest'
 
 // A page has one primary (solid) button, and it lives in the page header. The
