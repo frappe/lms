@@ -138,6 +138,7 @@ def apply_plan(goal_name: str, plan: dict) -> None:
 	goal.minutes = sum(cint(a["minutes"]) for a in plan["activities"])
 	goal.status = "Ready"
 	goal.draft_error = None
+	# nosemgrep: lms-unjustified-ignore-permissions - the plan comes back from the Flow worker, which has no admin session; the admin asked for it
 	goal.save(ignore_permissions=True)
 	frappe.publish_realtime("lms_goal_drafted", {"goal": goal.name}, user=goal.owner)
 
@@ -195,6 +196,7 @@ def publish(goal_name: str) -> int:
 	for member in members:
 		if frappe.db.exists("LMS Goal Assignment", {"goal": goal.name, "member": member, "is_preview": 0}):
 			continue
+		# nosemgrep: lms-unjustified-ignore-permissions - publishing gives members an assignment they could not create for themselves
 		frappe.get_doc(
 			{
 				"doctype": "LMS Goal Assignment",
@@ -221,8 +223,9 @@ def _audience(goal) -> list[str]:
 
 def _notify(goal, member: str) -> None:
 	url = frappe.utils.get_url(f"/lms/my-learning/{goal.name}")
-	due = _(" Finish it by {0}.").format(frappe.format(goal.due_date, "Date")) if goal.due_date else ""
+	due = (" " + _("Finish it by {0}.").format(frappe.format(goal.due_date, "Date"))) if goal.due_date else ""
 	subject = _("Ready for you: {0}").format(goal.title)
+	# nosemgrep: lms-unjustified-ignore-permissions - a notification for another user is always written by the system
 	frappe.get_doc(
 		{
 			"doctype": "Notification Log",
@@ -256,8 +259,10 @@ def start_preview(goal_name: str) -> str:
 		"LMS Goal Assignment", filters={"goal": goal_name, "member": user, "is_preview": 1}, pluck="name"
 	):
 		frappe.db.delete("LMS Goal Evidence", {"assignment": name})
+		# nosemgrep: lms-unjustified-ignore-permissions - previews are system records of the admin's own try-out
 		frappe.delete_doc("LMS Goal Assignment", name, ignore_permissions=True)
 	return (
+		# nosemgrep: lms-unjustified-ignore-permissions - previews are system records of the admin's own try-out
 		frappe.get_doc({"doctype": "LMS Goal Assignment", "goal": goal_name, "member": user, "is_preview": 1})
 		.insert(ignore_permissions=True)
 		.name
@@ -388,10 +393,12 @@ def start_teaching(assignment_name: str, index: int) -> str:
 	if activity.activity_type != "Lesson":
 		frappe.throw(_("This activity is not a lesson."), title=_("Wrong Activity"))
 	if not frappe.db.exists("Flow Agent", setup.TEACHER):
+		# nosemgrep: frappe-setuser - agents are created as the system; the learner is put back in finally
 		frappe.set_user("Administrator")
 		try:
 			setup.ensure_agents()
 		finally:
+			# nosemgrep: frappe-setuser - restores the learner after a system step
 			frappe.set_user(assignment.member)
 	goal = frappe.get_doc("LMS Goal", assignment.goal)
 	frappe.db.set_value("LMS Goal Assignment", assignment.name, "tutor_persona", characters.TUTOR_NAME)
@@ -423,6 +430,7 @@ def finish_teaching(session_name: str, user: str, summary: str) -> None:
 		frappe.throw(_("This conversation is not a lesson."), frappe.PermissionError)
 	evidence = frappe.get_doc("LMS Goal Evidence", name)
 	evidence.update({"status": "Graded", "passed": 1, "score": None, "feedback": summary})
+	# nosemgrep: lms-unjustified-ignore-permissions - the tutor's tool call records the learner's own lesson as done
 	evidence.save(ignore_permissions=True)
 	refresh_assignment(evidence.assignment)
 	frappe.publish_realtime("lms_goal_evidence_graded", {"assignment": evidence.assignment}, user=user)
@@ -443,6 +451,7 @@ def finish_roleplay(assignment_name: str, index: int) -> None:
 		)
 	evidence.db_set({"status": "Grading", "response": json.dumps({"transcript": transcript})})
 	learner = frappe.session.user
+	# nosemgrep: frappe-setuser - grading runs as the system; the learner is put back in finally
 	frappe.set_user("Administrator")
 	try:
 		if not frappe.db.exists("Flow Agent", setup.GRADER):
@@ -462,6 +471,7 @@ def finish_roleplay(assignment_name: str, index: int) -> None:
 			)
 		)
 	finally:
+		# nosemgrep: frappe-setuser - restores the learner after a system step
 		frappe.set_user(learner)
 
 
@@ -479,6 +489,7 @@ def record_grade(evidence_name: str, score: int, passed: bool, criteria: list, f
 			"feedback": feedback,
 		}
 	)
+	# nosemgrep: lms-unjustified-ignore-permissions - the grader runs as the system and writes the learner's own evidence
 	evidence.save(ignore_permissions=True)
 	refresh_assignment(evidence.assignment)
 	frappe.publish_realtime(
@@ -532,6 +543,7 @@ def refresh_assignment(assignment_name: str) -> dict:
 	ready = all(requirements.values())
 	assignment.status = "Ready" if ready else ("In Progress" if evidence else "Assigned")
 	assignment.ready_on = (assignment.ready_on or now_datetime()) if ready else None
+	# nosemgrep: lms-unjustified-ignore-permissions - readiness is computed by the system; learners cannot write their assignment
 	assignment.save(ignore_permissions=True)
 	return {
 		"status": assignment.status,
@@ -764,6 +776,7 @@ def _save_evidence(assignment, index: int, activity, **values) -> None:
 			**{k: (json.dumps(v) if k == "response" else v) for k, v in values.items()},
 		}
 	)
+	# nosemgrep: lms-unjustified-ignore-permissions - evidence is the system's record of the learner's own session
 	doc.save(ignore_permissions=True)
 
 
@@ -869,13 +882,12 @@ def _roleplay_brief(content: dict) -> str:
 			"you_play": content.get("character"),
 			"your_role": content.get("character_role"),
 			"personality": " ".join(
-				filter(
-					None,
-					[
-						characters.CAST.get(content.get("cast"), {}).get("personality"),
-						content.get("personality"),
-					],
+				part
+				for part in (
+					characters.CAST.get(content.get("cast"), {}).get("personality"),
+					content.get("personality"),
 				)
+				if part
 			),
 			"scene_as_told_to_the_learner": content.get("setting"),
 			"what_the_learner_must_do": content.get("learner_task"),

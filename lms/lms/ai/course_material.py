@@ -29,6 +29,7 @@ def add_course(goal: str, course: str) -> None:
 	if document in documents(doc):
 		frappe.throw(_("The material already has a document called {0}.").format(document))
 	doc.append("courses", {"course": course, "document": document, "lessons": "{}"})
+	# nosemgrep: lms-unjustified-ignore-permissions - the endpoint checked for a Learning admin; the course table is written through the goal
 	doc.save(ignore_permissions=True)
 	material.set_reading(goal, document, 0, 0)
 	enqueue_sync(goal, course)
@@ -43,6 +44,7 @@ def remove_course(goal: str, document: str) -> bool:
 	if doc.knowledge_base:
 		_drop(doc.knowledge_base, list(_read_lessons(row)))
 	doc.remove(row)
+	# nosemgrep: lms-unjustified-ignore-permissions - the endpoint checked for a Learning admin; the course table is written through the goal
 	doc.save(ignore_permissions=True)
 	return True
 
@@ -77,7 +79,12 @@ def sync_course(goal: str, course: str) -> None:
 				break
 	finally:
 		material.clear_reading(goal, [row.document])
-		frappe.publish_realtime("lms_goal_material", {"goal": goal}, after_commit=True)
+		frappe.publish_realtime(
+			"lms_goal_material",
+			{"goal": goal},
+			user=frappe.db.get_value("LMS Goal", goal, "owner"),
+			after_commit=True,
+		)
 
 
 def _sync_pass(goal: str, row, kb, lessons: list[tuple[str, str, str]]) -> bool:
@@ -261,4 +268,5 @@ def _drop(kb: str, titles: list[str]) -> None:
 	for name in frappe.get_all(
 		material.SOURCE_DOCTYPE, filters={"knowledge_base": kb, "title": ("in", titles)}, pluck="name"
 	):
+		# nosemgrep: lms-unjustified-ignore-permissions - knowledge sources belong to the skill's own knowledge base, not to a user
 		frappe.delete_doc(material.SOURCE_DOCTYPE, name, force=True, ignore_permissions=True)

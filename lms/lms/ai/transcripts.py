@@ -504,6 +504,7 @@ def _remember(video: Video, reading: Reading) -> None:
 	if frappe.db.exists(TRANSCRIPT_DOCTYPE, video.key):
 		frappe.db.set_value(TRANSCRIPT_DOCTYPE, video.key, values, update_modified=False)
 	else:
+		# nosemgrep: lms-unjustified-ignore-permissions - transcripts are site-wide records written by the reading worker
 		frappe.get_doc({"doctype": TRANSCRIPT_DOCTYPE, "video_id": video.key, **values}).insert(
 			ignore_permissions=True
 		)

@@ -208,7 +208,11 @@ def join_skill(goal: str) -> str:
 	)
 	if not open_to_all or open_to_all.status != "Published" or not open_to_all.assign_everyone:
 		frappe.throw(_("This skill is not open to everyone."), frappe.PermissionError)
+	# Two taps on Start at once: the lock on the goal row makes the second one wait and find the first.
+	frappe.db.get_value("LMS Goal", goal, "name", for_update=True)
+	# nosemgrep: lms-exists-then-insert - serialised by the FOR UPDATE lock on the goal above
 	if not frappe.db.exists("LMS Goal Assignment", {"goal": goal, "member": user, "is_preview": 0}):
+		# nosemgrep: lms-unjustified-ignore-permissions - a learner joining an open skill; learners cannot create assignments
 		frappe.get_doc(
 			{
 				"doctype": "LMS Goal Assignment",

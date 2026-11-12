@@ -155,6 +155,7 @@ class TestLearnerSkills(BaseTestUtils):
 		return goal.name
 
 	def _give(self, goal, member):
+		# nosemgrep: lms-unjustified-ignore-permissions - test setup
 		frappe.get_doc({"doctype": "LMS Goal Assignment", "goal": goal, "member": member}).insert(
 			ignore_permissions=True
 		)

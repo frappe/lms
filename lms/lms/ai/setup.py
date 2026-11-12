@@ -145,6 +145,7 @@ def ensure_agents() -> None:
 		agent.sync()
 		doc = frappe.get_doc("Flow Agent", agent.name)
 		doc.set("roles", [{"role": role} for role in roles])
+		# nosemgrep: lms-unjustified-ignore-permissions - agents are set up by the system at migrate and on first use
 		doc.save(ignore_permissions=True)
 
 

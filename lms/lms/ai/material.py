@@ -70,7 +70,12 @@ def read_url(goal: str, url: str, title: str) -> None:
 		frappe.log_error(title="Web page could not be read as material")
 	finally:
 		clear_reading(goal, [title])
-		frappe.publish_realtime("lms_goal_material", {"goal": goal}, after_commit=True)
+		frappe.publish_realtime(
+			"lms_goal_material",
+			{"goal": goal},
+			user=frappe.db.get_value("LMS Goal", goal, "owner"),
+			after_commit=True,
+		)
 
 
 def source_urls(goal: str) -> dict[str, str]:
@@ -159,7 +164,12 @@ def read_sources(goal: str, file_urls: list[str]) -> None:
 			Reader(goal, kb, file).read()
 	finally:
 		clear_reading(goal, [_document_name(file) for file in files])
-		frappe.publish_realtime("lms_goal_material", {"goal": goal}, after_commit=True)
+		frappe.publish_realtime(
+			"lms_goal_material",
+			{"goal": goal},
+			user=frappe.db.get_value("LMS Goal", goal, "owner"),
+			after_commit=True,
+		)
 
 
 class Reader:
@@ -219,6 +229,7 @@ def index_part(kb, title: str, text: str | None = None, file_url: str | None = N
 
 def _drop_title(kb: str, title: str) -> None:
 	for name in frappe.get_all(SOURCE_DOCTYPE, filters={"knowledge_base": kb, "title": title}, pluck="name"):
+		# nosemgrep: lms-unjustified-ignore-permissions - knowledge sources belong to the skill's own knowledge base, not to a user
 		frappe.delete_doc(SOURCE_DOCTYPE, name, force=True, ignore_permissions=True)
 
 
@@ -237,6 +248,7 @@ def remove_source(goal: str, document: str) -> None:
 			SOURCE_DOCTYPE, filters={"knowledge_base": kb}, fields=["name", "title"], as_list=True
 		):
 			if title == document or title.startswith(page_prefix):
+				# nosemgrep: lms-unjustified-ignore-permissions - knowledge sources belong to the skill's own knowledge base, not to a user
 				frappe.delete_doc(SOURCE_DOCTYPE, name, force=True, ignore_permissions=True)
 	files = json.loads(frappe.db.get_value("LMS Goal", goal, "source_files") or "{}")
 	if files.pop(document, None) is not None:

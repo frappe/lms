@@ -70,6 +70,7 @@ def save(goal_name: str, index: int, activity: dict, session: str | None = None)
 		}
 	)
 	goal.minutes = sum(cint(a.minutes) for a in goal.activities)
+	# nosemgrep: lms-unjustified-ignore-permissions - the revision comes back from the Flow worker, which has no admin session
 	goal.save(ignore_permissions=True)
 	if session:
 		frappe.cache.set_value(SAVED.format(session=session), 1, expires_in_sec=60 * 60)
