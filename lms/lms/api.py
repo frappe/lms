@@ -7,6 +7,7 @@ import shutil
 import stat
 import xml.etree.ElementTree as ET
 import zipfile
+from collections import Counter, defaultdict
 from datetime import timedelta
 from xml.dom.minidom import parseString
 
@@ -4203,6 +4204,7 @@ def get_popular_courses():
 def get_my_batches():
 	my_batches = []
 	batches = get_my_latest_batches()
+	progress = get_batch_progress(batches)
 
 	if not len(batches):
 		batches = get_upcoming_batches()
@@ -4210,9 +4212,114 @@ def get_my_batches():
 	for batch in batches:
 		batch_details = get_batch_details(batch)
 		if batch_details:
+			batch_progress = progress.get(batch, {})
+			batch_details.progress = batch_progress.get("progress")
+			batch_details.progress_breakdown = batch_progress.get("breakdown")
 			my_batches.append(batch_details)
 
 	return my_batches
+
+
+def get_batch_progress(batches: list) -> dict:
+	"""The session user's progress in each batch, with a breakdown per part.
+
+	The parts are the batch's courses and, when their attendance is tracked, its
+	live classes. The batch progress is the share of all items across the parts
+	(outline lessons and live classes) that the user finished, so a long course
+	weighs more than a short one.
+	"""
+	if not batches:
+		return {}
+
+	total, finished, breakdown = Counter(), Counter(), defaultdict(list)
+	for batch, title, part_finished, part_total in [
+		*get_batch_course_parts(batches),
+		*get_batch_live_class_parts(batches),
+	]:
+		total[batch] += part_total
+		finished[batch] += part_finished
+		breakdown[batch].append({"title": title, "progress": flt(part_finished / part_total * 100, 2)})
+
+	return {
+		batch: {"progress": flt(finished[batch] / total[batch] * 100, 2), "breakdown": breakdown[batch]}
+		for batch in total
+	}
+
+
+def get_batch_course_parts(batches: list) -> list:
+	"""(batch, course title, lessons completed, lessons) for each batch course with an outline."""
+	batch_courses = frappe.get_all(
+		"Batch Course",
+		{"parent": ("in", batches), "parenttype": "LMS Batch"},
+		["parent", "course"],
+		order_by="idx",
+	)
+	courses = list({row.course for row in batch_courses})
+	if not courses:
+		return []
+
+	chapter = frappe.qb.DocType("Chapter Reference")
+	lesson = frappe.qb.DocType("Lesson Reference")
+	outline = (
+		frappe.qb.from_(chapter)
+		.join(lesson)
+		.on(lesson.parent == chapter.chapter)
+		.where(chapter.parent.isin(courses))
+		.select(chapter.parent, lesson.lesson)
+	).run()
+	completed = frappe.get_all(
+		"LMS Course Progress",
+		{"member": frappe.session.user, "status": "Complete", "course": ("in", courses)},
+		["course", "lesson"],
+		as_list=True,
+	)
+	titles = dict(frappe.get_all("LMS Course", {"name": ("in", courses)}, ["name", "title"], as_list=True))
+
+	lessons, done = defaultdict(set), defaultdict(set)
+	for course, name in outline:
+		lessons[course].add(name)
+	for course, name in completed:
+		done[course].add(name)
+
+	return [
+		(
+			row.parent,
+			titles.get(row.course),
+			len(lessons[row.course] & done[row.course]),
+			len(lessons[row.course]),
+		)
+		for row in batch_courses
+		if lessons[row.course]
+	]
+
+
+def get_batch_live_class_parts(batches: list) -> list:
+	"""(batch, "Live Classes", classes attended, classes) for each batch with tracked attendance.
+
+	Only classes whose attendance was synced count: Google Meet classes and classes
+	that have not happened yet carry no attendance, so the learner could not finish them.
+	"""
+	live_classes = frappe.get_all(
+		"LMS Live Class",
+		{"batch_name": ("in", batches), "attendees": (">", 0)},
+		["name", "batch_name"],
+	)
+	if not live_classes:
+		return []
+
+	attended = set(
+		frappe.get_all(
+			"LMS Live Class Participant",
+			{"member": frappe.session.user, "live_class": ("in", [row.name for row in live_classes])},
+			pluck="live_class",
+		)
+	)
+
+	classes, present = Counter(), Counter()
+	for row in live_classes:
+		classes[row.batch_name] += 1
+		present[row.batch_name] += row.name in attended
+	return [(batch, _("Live Classes"), present[batch], classes[batch]) for batch in classes]
 
 
 def get_my_latest_batches():
