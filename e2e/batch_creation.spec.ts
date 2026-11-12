@@ -20,11 +20,12 @@ const fillMemberField = async (page: Page, label: string, value: string) => {
 };
 
 const openUsersSettings = async (page: Page) => {
-	// The header's title is the site's app name when one is set, so locate
-	// it by frappe-ui's slot marker instead.
+	// version-16's sidebar is not frappe-ui's Sidebar, so it has no slot
+	// markers; match the header's title exactly. An unanchored match also hits
+	// an empty state's "...fresh learning experiences are on the way!".
 	await page
-		.getByRole("navigation", { name: "Main" })
-		.locator('[data-slot="sidebar-header"] button')
+		.locator("span")
+		.filter({ hasText: /^\s*Learning\s*$/ })
 		.click();
 	await page.getByRole("menuitem", { name: "Settings" }).click();
 	await page
