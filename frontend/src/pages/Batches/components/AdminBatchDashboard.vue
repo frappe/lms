@@ -41,7 +41,7 @@
 		>
 			<Button
 				v-if="canAddStudents"
-				variant="solid"
+				variant="subtle"
 				:label="__('Enroll Students')"
 				@click="openStudentForm"
 			>
