@@ -1,9 +1,12 @@
 import { test, expect } from "./fixtures";
 import type { Page } from "@playwright/test";
-import { closeOnboardingModal, button, waitForApiCall } from "./helpers";
+import { button, deleteLeftovers, waitForApiCall } from "./helpers";
 
 const dateNow = Date.now();
 const randomEvaluator = `evaluator${dateNow}@example.com`;
+// Set by the batch test, for afterAll to clean up.
+let randomStudent: string | undefined;
+let batchName: string | undefined;
 
 // Settings > Users renders its own member form, whose placeholders are not
 // the standalone /lms member form's. The label is the stable handle:
@@ -17,13 +20,11 @@ const fillMemberField = async (page: Page, label: string, value: string) => {
 };
 
 const openUsersSettings = async (page: Page) => {
-	// Exact match, not a substring: on a fresh site with zero batches,
-	// EmptyStateLayout's "...fresh learning experiences are on the way!"
-	// also contains "learning" (hasText on a string is case-insensitive),
-	// so an unanchored match resolves to two elements.
+	// The header's title is the site's app name when one is set, so locate
+	// it by frappe-ui's slot marker instead.
 	await page
-		.locator("span")
-		.filter({ hasText: /^\s*Learning\s*$/ })
+		.getByRole("navigation", { name: "Main" })
+		.locator('[data-slot="sidebar-header"] button')
 		.click();
 	await page.getByRole("menuitem", { name: "Settings" }).click();
 	await page
@@ -34,9 +35,26 @@ const openUsersSettings = async (page: Page) => {
 };
 
 test.describe("Batch Creation", () => {
+	// The batch test assigns the evaluator the first test creates, and
+	// randomEvaluator is regenerated in every new worker. Serial retries both
+	// together.
+	test.describe.configure({ mode: "serial" });
+
+	// No UI flow here deletes a batch or a user, so the API does it, links
+	// first: the enrolment holds the batch, and the batch and the evaluator
+	// record hold the users.
+	test.afterAll(async () => {
+		await deleteLeftovers([
+			{ doctype: "LMS Batch Enrollment", filters: { batch: batchName } },
+			{ doctype: "LMS Batch", name: batchName },
+			{ doctype: "Course Evaluator", name: randomEvaluator },
+			{ doctype: "User", name: randomEvaluator },
+			{ doctype: "User", name: randomStudent },
+		]);
+	});
+
 	test("creates an evaluator via Users settings", async ({ page }) => {
 		await page.goto("/lms/batches");
-		await closeOnboardingModal(page);
 
 		await openUsersSettings(page);
 
@@ -89,10 +107,9 @@ test.describe("Batch Creation", () => {
 	test("creates and verifies a new batch", async ({ page }) => {
 		// Unique per attempt: on a retry the previous attempt's user already
 		// exists, and re-adding it leaves the member modal open (insert errors).
-		const randomStudent = `testuser_${Date.now()}@example.com`;
+		randomStudent = `testuser_${Date.now()}@example.com`;
 
 		await page.goto("/lms/batches");
-		await closeOnboardingModal(page);
 
 		// The Enroll Students picker searches existing users, so the student
 		// must exist before we can enrol them.
@@ -113,14 +130,9 @@ test.describe("Batch Creation", () => {
 
 		// Back to the batch list to create the batch.
 		await page.goto("/lms/batches");
-		await closeOnboardingModal(page);
 
-		// Create batch. Scoped to the page header: with no batches yet, the
-		// empty state offers its own New Batch button below it.
-		await page
-			.locator("header")
-			.getByRole("button", { name: "New Batch" })
-			.click();
+		// Create batch
+		await button(page, "New Batch").click();
 
 		const field = (label: string) =>
 			page.locator("label").filter({ hasText: label }).locator("xpath=..");
@@ -173,7 +185,6 @@ test.describe("Batch Creation", () => {
 
 		// Verify redirect to settings
 		await expect(page).toHaveURL(/#settings/, { timeout: 10000 });
-		await closeOnboardingModal(page);
 
 		// Publish
 		await button(page, "Publish").click();
@@ -183,27 +194,30 @@ test.describe("Batch Creation", () => {
 		await expect(button(page, "Unpublish")).toBeVisible();
 
 		// Capture batch slug
-		const batchName = page.url().split("/").pop()!.split("#")[0];
+		batchName = page.url().split("/").pop()!.split("#")[0];
 
 		// View batch card in list
 		await page.goto("/lms/batches");
-		await closeOnboardingModal(page);
 		await expect(page).toHaveURL(/\/lms\/batches/);
 		await page.getByRole("radio", { name: "Upcoming" }).click();
 
+		// The card's title is its link, stretched over the card; the rest of the
+		// card's text sits beside the link, not inside it. The grid around the
+		// cards is an isolate too, so take the innermost match: the card.
 		const batchLink = page.locator(`a[href='/lms/batches/${batchName}']`);
+		const batchCard = page.locator("div.isolate", { has: batchLink }).last();
 		await expect(batchLink).toBeVisible({ timeout: 10000 });
-		await expect(batchLink.getByText("Test Batch").first()).toBeVisible();
+		await expect(batchLink).toHaveText("Test Batch");
 		await expect(
-			batchLink.getByText("Test Batch Short Description to test the UI")
+			batchCard.getByText("Test Batch Short Description to test the UI")
 		).toBeVisible();
 		await expect(
-			batchLink.getByText("01 Oct 2030 - 31 Oct 2030")
+			batchCard.getByText("01 Oct 2030 - 31 Oct 2030")
 		).toBeVisible();
-		await expect(batchLink.getByText("10:00 AM - 11:00 AM")).toBeVisible();
-		await expect(batchLink.getByText("Asia/Kolkata")).toBeVisible();
-		await expect(batchLink.getByText("Evaluator")).toBeVisible();
-		await expect(batchLink.getByText("10 Seats Left")).toBeVisible();
+		await expect(batchCard.getByText("10:00 AM - 11:00 AM")).toBeVisible();
+		await expect(batchCard.getByText("Asia/Kolkata")).toBeVisible();
+		await expect(batchCard.getByText("Evaluator")).toBeVisible();
+		await expect(batchCard.getByText("10 Seats Left")).toBeVisible();
 		await batchLink.click();
 
 		// Batch detail page
@@ -214,18 +228,8 @@ test.describe("Batch Creation", () => {
 			page.getByText("Test Batch Short Description to test the UI")
 		).toBeVisible();
 		await expect(page.getByText("Evaluator")).toBeVisible();
-		// BatchOverview renders BatchOverlay twice for responsive layouts: a
-		// mobile copy (md:hidden, first in the DOM) and a desktop copy (hidden
-		// md:block). A plain text locator matches the first DOM node, i.e. the
-		// mobile copy, which is display:none on the desktop test viewport —
-		// scope these assertions to the visible overlay.
-		const overlay = page
-			.locator(".border-2.rounded-5.lg\\:w-72:visible")
-			.first();
-		await expect(overlay.getByText("01 Oct 2030 - 31 Oct 2030")).toBeVisible();
-		await expect(overlay.getByText("10:00 AM - 11:00 AM")).toBeVisible();
-		await expect(overlay.getByText("Asia/Kolkata")).toBeVisible();
-		await expect(overlay.getByText("10 Seats Left")).toBeVisible();
+		// The dates, times, timezone and seats were checked on the card above;
+		// BatchOverlay formats them with the same helpers as BatchCard.
 		await expect(
 			page.getByText(
 				"Test Batch Description. I need a very big description to test the UI."
@@ -239,7 +243,6 @@ test.describe("Batch Creation", () => {
 			.or(page.getByRole("tab"))
 			.filter({ hasText: "Dashboard" })
 			.click();
-		await closeOnboardingModal(page);
 		// Exact: the empty dashboard also offers "Enroll Students".
 		await button(page, /^Enroll$/).click();
 		// The Enroll Students dialog picks students with a MultiSelect, the same
@@ -269,9 +272,9 @@ test.describe("Batch Creation", () => {
 		await enrollDialog.getByTestId("enroll-submit").click();
 		await enrolled;
 
-		// Verify seat count (scope to the visible overlay; the mobile
-		// md:hidden copy is first in the DOM but display:none on this
-		// viewport).
+		// Enrolling takes a seat. BatchOverview renders BatchOverlay twice for
+		// responsive layouts: a mobile copy (md:hidden, first in the DOM) and a
+		// desktop copy (hidden md:block), so scope to the visible one.
 		await page
 			.getByRole("button")
 			.or(page.getByRole("tab"))
