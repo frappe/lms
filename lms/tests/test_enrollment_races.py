@@ -129,7 +129,7 @@ class TestEnrollmentRaces(BaseTestUtils):
 		log = []
 		stubs = {"LMS Payment": frappe._dict(name=None, source=None)}
 		with self._logging_db(log, stubs=stubs):
-			enroll_in_course(self.course.name, "LMS-PAY-RACE-TEST")
+			enroll_in_course(self.course.name, "LMS-PAY-RACE-TEST", frappe.session.user)
 
 		created = frappe.db.get_value(
 			"LMS Enrollment", {"course": self.course.name, "member": frappe.session.user}

@@ -356,7 +356,7 @@ class TestLockedReadsConcurrency(BaseTestUtils):
 		self.created.append(("LMS Payment", payment.name))
 
 		errors = self._in_parallel(
-			_quietly(lambda _: enroll_in_course(course.name, payment.name)), [member, member]
+			_quietly(lambda m: enroll_in_course(course.name, payment.name, m)), [member, member]
 		)
 		return frappe.db.count("LMS Enrollment", {"course": course.name, "member": member}), errors
 

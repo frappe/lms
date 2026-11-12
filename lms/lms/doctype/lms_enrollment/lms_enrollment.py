@@ -23,8 +23,9 @@ class LMSEnrollment(Document):
 
 	def enforce_member_ownership(self):
 		"""The member is the caller, unless the caller manages the course or the
-		row comes with a batch enrolment, which authorised its member already."""
-		if self.flags.via_batch_enrollment or self.managed_by_caller():
+		row comes with a batch enrolment or a verified payment, which authorised its
+		member already."""
+		if self.flags.via_batch_enrollment or self.flags.via_payment or self.managed_by_caller():
 			return
 		if self.member and self.member != frappe.session.user:
 			frappe.throw(_("You cannot enroll another user."), frappe.PermissionError)

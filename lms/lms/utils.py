@@ -3350,17 +3350,20 @@ def is_payment_for_this_checkout(data: dict, doctype: str, docname: str) -> bool
 		as_dict=True,
 	)
 
-	if (
-		not payment
-		or payment.member != frappe.session.user
-		or payment.payment_for_document_type != doctype
-		or payment.payment_for_document != docname
-	):
-		return refuse_payment(data, "The LMS Payment does not belong to this user and document.")
+	if not payment or payment.payment_for_document_type != doctype or payment.payment_for_document != docname:
+		return refuse_payment(data, "The LMS Payment does not belong to this document.")
 
 	if not data.get("razorpay_payment_id") and data.get("payment_gateway") != "Razorpay":
+		# Nothing from the gateway backs this callback, so only the payment's own
+		# member may complete it.
+		if payment.member != frappe.session.user:
+			return refuse_payment(data, "The LMS Payment does not belong to this user.")
 		return True
 
+	# Razorpay confirms the money arrived for this payment's order, so the callback
+	# completes it whoever's session carries it: the buyer may have been logged out
+	# by then, or the callback may arrive as Guest. complete_enrollment credits
+	# payment.member, never the session.
 	return verify_razorpay_payment(data, payment)
 
 
@@ -3480,12 +3483,15 @@ def complete_enrollment(payment_name: str, doctype: str, docname: str):
 		)
 		frappe.throw(_("We could not find your payment record. Please contact the administrator."))
 
+	# The payment's member, not the session: a callback can arrive as Guest or from
+	# another session, and would otherwise enrol whoever carried it.
+	member = payment_doc.member
 	if payment_doc.payment_for_certificate:
-		update_certificate_purchase(docname, payment_name)
+		update_certificate_purchase(docname, payment_name, member)
 	elif doctype == "LMS Course":
-		enroll_in_course(docname, payment_name)
+		enroll_in_course(docname, payment_name, member)
 	else:
-		enroll_in_batch(docname, payment_name)
+		enroll_paid_member_in_batch(docname, get_payment_details(payment_name), member)
 
 	# Counted last: it locks the coupon row until the request commits, and
 	# enrolling is the slower half of this transaction.
@@ -3510,7 +3516,7 @@ def get_payment_doc(payment_name: str) -> dict:
 	return frappe.db.get_value(
 		"LMS Payment",
 		payment_name,
-		["name", "coupon", "payment_for_certificate", "amount", "amount_with_gst"],
+		["name", "member", "coupon", "payment_for_certificate", "amount", "amount_with_gst"],
 		as_dict=True,
 	)
 
@@ -3595,23 +3601,27 @@ def get_payment_total(payment_doc: dict) -> float:
 	return flt(payment_doc.amount_with_gst) or flt(payment_doc.amount)
 
 
-def enroll_in_course(course: str, payment_name: str):
+def enroll_in_course(course: str, payment_name: str, member: str):
 	# A repeated payment callback is a no-op. The second of two concurrent callbacks
 	# waits on the course lock and misses the first's row in its snapshot, so the
 	# check below passes it; save_unless_enrolled then skips the duplicate.
 	frappe.db.get_value("LMS Course", course, "name", for_update=True)
 
-	if not frappe.db.exists("LMS Enrollment", {"member": frappe.session.user, "course": course}):
+	if not frappe.db.exists("LMS Enrollment", {"member": member, "course": course}):
 		enrollment = frappe.new_doc("LMS Enrollment")
 		payment = frappe.db.get_value("LMS Payment", payment_name, ["name", "source"], as_dict=True)
 
 		enrollment.update(
 			{
-				"member": frappe.session.user,
+				"member": member,
 				"course": course,
 				"payment": payment.name,
 			}
 		)
+		# The member paid for this course, so it is theirs whoever's session the
+		# callback arrived in.
+		enrollment.flags.via_payment = True
+		# nosemgrep: lms-unjustified-ignore-permissions - the gateway verified this member's payment for this course
 		save_unless_enrolled(enrollment, ignore_permissions=True)
 
 
@@ -3634,34 +3644,36 @@ def get_payment_details(payment_name: str) -> dict:
 
 
 def create_enrollment(batch: str, payment_doc: dict = None):
-	new_student = frappe.new_doc("LMS Batch Enrollment")
-	new_student.update(
-		{
-			"member": frappe.session.user,
-			"batch": batch,
-		}
-	)
-
-	if payment_doc:
-		new_student.update(
-			{
-				"payment": payment_doc.name,
-				"source": payment_doc.source,
-			}
-		)
 	# Enrolling twice, as two concurrent clicks do, is a no-op.
-	save_unless_enrolled(new_student)
+	save_unless_enrolled(_new_batch_enrollment(batch, frappe.session.user, payment_doc))
 
 
-def update_certificate_purchase(course: str, payment_name: str):
+def enroll_paid_member_in_batch(batch: str, payment_doc: dict, member: str):
+	"""Enroll the member a verified payment is for, whoever's session the callback
+	arrived in; see LMS Batch Enrollment's validate_owner."""
+	enrollment = _new_batch_enrollment(batch, member, payment_doc)
+	enrollment.flags.via_payment = True
+	# nosemgrep: lms-unjustified-ignore-permissions - the gateway verified this member's payment for this batch
+	save_unless_enrolled(enrollment, ignore_permissions=True)
+
+
+def _new_batch_enrollment(batch: str, member: str, payment_doc: dict | None):
+	enrollment = frappe.new_doc("LMS Batch Enrollment")
+	enrollment.update({"member": member, "batch": batch})
+	if payment_doc:
+		enrollment.update({"payment": payment_doc.name, "source": payment_doc.source})
+	return enrollment
+
+
+def update_certificate_purchase(course: str, payment_name: str, member: str):
 	# The purchase is recorded on the enrollment, so a learner who bought
 	# certification without enrolling first would otherwise pay for nothing:
 	# set_value with filters updates no rows and reports no error.
-	enroll_in_course(course, payment_name)
+	enroll_in_course(course, payment_name, member)
 
 	frappe.db.set_value(
 		"LMS Enrollment",
-		{"member": frappe.session.user, "course": course},
+		{"member": member, "course": course},
 		{
 			"purchased_certificate": 1,
 			"payment": payment_name,

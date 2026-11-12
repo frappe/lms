@@ -38,7 +38,9 @@ class LMSBatchEnrollment(Document):
 		messages = len(frappe.local.message_log)
 		frappe.db.savepoint("confirmation_email")
 		try:
-			send_confirmation_email(self)
+			# The enrolment itself is authorised, and a paid one is often saved from a
+			# Guest payment callback, so this skips the resend endpoint's session check.
+			queue_confirmation_email(self)
 		except Exception:
 			frappe.db.rollback(save_point="confirmation_email")
 			del frappe.local.message_log[messages:]
@@ -59,6 +61,10 @@ class LMSBatchEnrollment(Document):
 		self.validate_course_enrollment()
 
 	def validate_owner(self):
+		if self.flags.via_payment and self.is_new():
+			# A verified payment enrolls the member who paid, as if they had enrolled
+			# themselves, whoever's session (often Guest) carried the callback.
+			self.owner = self.member
 		if self.owner == self.member:
 			return
 
@@ -180,6 +186,10 @@ def send_confirmation_email(doc: Document | str):
 			frappe.PermissionError,
 		)
 
+	queue_confirmation_email(doc)
+
+
+def queue_confirmation_email(doc: Document):
 	if not doc.confirmation_email_sent:
 		outgoing_email_account = frappe.get_cached_value(
 			"Email Account", {"default_outgoing": 1, "enable_outgoing": 1}, "name"
