@@ -233,6 +233,7 @@ import type { Router } from 'vue-router'
 import {
 	Badge,
 	Button,
+	call,
 	createResource,
 	Dropdown,
 	Tooltip,
@@ -364,7 +365,10 @@ const publishToggle = createResource({
 // On a phone the publish toggle joins the ... menu, where it keeps a written
 // label. An icon-only globe gave no hint that it publishes the course.
 const courseOptions = computed<CourseMenuItem[]>(() => {
-	const menu = courseFormRef.value?.courseMenu ?? []
+	const menu = [
+		...practiceOption.value,
+		...(courseFormRef.value?.courseMenu ?? []),
+	]
 	if (!isMobile.value || !user.data?.is_moderator) return menu
 	return [
 		{
@@ -377,6 +381,38 @@ const courseOptions = computed<CourseMenuItem[]>(() => {
 		...menu,
 	]
 })
+
+// Skill builders can turn a course into practice: a new skill that teaches from its lessons,
+// offered on the course to learners who finish it once it is published for everyone.
+const practiceOption = computed<CourseMenuItem[]>(() =>
+	user.data?.is_moderator || user.data?.is_system_manager
+		? [
+				{
+					label: __('Make a practice skill'),
+					icon: 'lucide-sparkles',
+					onClick: () => makePracticeSkill(),
+				},
+		  ]
+		: []
+)
+
+async function makePracticeSkill() {
+	try {
+		const goal: string = await call('lms.lms.ai.api.create_goal', {
+			title: course.data?.title,
+		})
+		await call('lms.lms.ai.api.add_course', {
+			goal,
+			course: props.courseName,
+		})
+		router.push({ name: 'GoalBuilder', params: { goal } })
+	} catch (error) {
+		toast.error(
+			(error as FrappeResourceError).messages?.[0] ??
+				__('Could not make the practice skill. Try again.')
+		)
+	}
+}
 
 function togglePublishCourse() {
 	publishToggle.submit()

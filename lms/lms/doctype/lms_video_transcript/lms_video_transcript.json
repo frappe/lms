@@ -1,0 +1,135 @@
+{
+ "actions": [],
+ "autoname": "field:video_id",
+ "creation": "2026-11-12 21:00:00.000000",
+ "description": "What a video lesson says, as text, read once and kept so a skill can teach from the video.",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "video_id",
+  "provider",
+  "source",
+  "status",
+  "method",
+  "column_break_main",
+  "language",
+  "source_language",
+  "is_generated",
+  "fetched_on",
+  "section_break_text",
+  "text",
+  "error"
+ ],
+ "fields": [
+  {
+   "fieldname": "video_id",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Video",
+   "reqd": 1,
+   "unique": 1,
+   "description": "The provider and the video's id, like youtube/dQw4w9WgXcQ or file//private/files/intro.mp4."
+  },
+  {
+   "fieldname": "provider",
+   "fieldtype": "Select",
+   "label": "Provider",
+   "options": "youtube\nvimeo\ncloudflare\nbunny\nfile"
+  },
+  {
+   "fieldname": "source",
+   "fieldtype": "Data",
+   "label": "Source",
+   "read_only": 1,
+   "description": "The address the lesson embeds, or the uploaded file."
+  },
+  {
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Status",
+   "options": "Ready\nUnavailable"
+  },
+  {
+   "fieldname": "method",
+   "fieldtype": "Select",
+   "label": "Read From",
+   "options": "\nCaptions\nSpeech",
+   "read_only": 1,
+   "in_list_view": 1,
+   "description": "Captions the platform had, or speech recognition on the audio."
+  },
+  {
+   "fieldname": "column_break_main",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "language",
+   "fieldtype": "Data",
+   "label": "Language"
+  },
+  {
+   "description": "The language YouTube tagged the captions with, when the text was rewritten into English from it.",
+   "fieldname": "source_language",
+   "fieldtype": "Data",
+   "label": "Source Language",
+   "read_only": 1
+  },
+  {
+   "default": "0",
+   "description": "Made by speech recognition rather than written by a person.",
+   "fieldname": "is_generated",
+   "fieldtype": "Check",
+   "label": "Auto-generated"
+  },
+  {
+   "fieldname": "fetched_on",
+   "fieldtype": "Datetime",
+   "label": "Fetched On"
+  },
+  {
+   "fieldname": "section_break_text",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "text",
+   "fieldtype": "Long Text",
+   "label": "Text"
+  },
+  {
+   "fieldname": "error",
+   "fieldtype": "Small Text",
+   "label": "Error"
+  }
+ ],
+ "links": [],
+ "modified": "2026-11-12 21:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "LMS",
+ "name": "LMS Video Transcript",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "read": 1,
+   "role": "Moderator",
+   "write": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

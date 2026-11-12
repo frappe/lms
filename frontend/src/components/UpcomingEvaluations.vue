@@ -37,7 +37,9 @@
 		<div v-if="upcoming_evals.data?.length">
 			<div
 				class="grid gap-4"
-				:class="forHome ? 'grid-cols-1 md:grid-cols-4' : 'grid-cols-1'"
+				:class="
+					forHome && !stacked ? 'grid-cols-1 md:grid-cols-4' : 'grid-cols-1'
+				"
 			>
 				<div v-for="evl in upcoming_evals.data" :key="evl.name">
 					<div
@@ -155,6 +157,11 @@ const props = defineProps({
 		default: null,
 	},
 	forHome: {
+		type: Boolean,
+		default: false,
+	},
+	/** One card per row, for a narrow column. */
+	stacked: {
 		type: Boolean,
 		default: false,
 	},

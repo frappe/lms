@@ -1,35 +1,5 @@
 <template>
-	<div class="w-full p-5">
-		<div class="space-y-2">
-			<div class="flex items-center justify-between">
-				<h1 class="text-2xl-bold text-ink-gray-9">
-					{{ __('Hey') }}, {{ user.data?.full_name }} 👋
-				</h1>
-				<div>
-					<button
-						v-if="!isAdmin"
-						type="button"
-						@click="showStreakModal = true"
-						:aria-label="
-							__('View learning streak: {0} days').format(
-								streakInfo.data?.current_streak || 0
-							)
-						"
-						class="bg-surface-amber-2 px-2 py-1 rounded-5 cursor-pointer"
-					>
-						<span> 🔥 </span>
-						<span class="text-ink-gray-9">
-							{{ streakInfo.data?.current_streak }}
-						</span>
-					</button>
-				</div>
-			</div>
-
-			<div class="text-lg text-ink-gray-6 leading-6">
-				{{ subtitle }}
-			</div>
-		</div>
-
+	<div class="w-full p-5 sm:px-12 sm:py-10">
 		<div
 			v-if="isHomeLoading"
 			class="flex flex-1 items-center justify-center py-20"
@@ -44,6 +14,9 @@
 		<StudentHome
 			v-else-if="currentTab === 'student'"
 			:myLiveClasses="myLiveClasses"
+			:streakInfo="streakInfo"
+			:evalCount="evalCount"
+			@streak="showStreakModal = true"
 		/>
 	</div>
 	<Streak v-model="showStreakModal" :streakInfo="streakInfo" />
@@ -120,57 +93,6 @@ const adminEvals = createResource({
 const streakInfo = createResource({
 	url: 'lms.lms.api.get_streak_info',
 	auto: true,
-})
-
-const subtitle = computed(() => {
-	if (isAdmin.value) {
-		let liveClassSuffix =
-			adminLiveClasses.data?.length > 1 ? __('live classes') : __('live class')
-		let evalSuffix =
-			adminEvals.data?.length > 1 ? __('evaluations') : __('evaluation')
-		if (adminLiveClasses.data?.length > 0 && adminEvals.data?.length > 0) {
-			return __('You have {0} upcoming {1} and {2} {3} scheduled.').format(
-				adminLiveClasses.data.length,
-				liveClassSuffix,
-				adminEvals.data.length,
-				evalSuffix
-			)
-		} else if (adminLiveClasses.data?.length > 0) {
-			return __('You have {0} upcoming {1}.').format(
-				adminLiveClasses.data.length,
-				liveClassSuffix
-			)
-		} else if (adminEvals.data?.length > 0) {
-			return __('You have {0} {1} scheduled.').format(
-				adminEvals.data.length,
-				evalSuffix
-			)
-		}
-		return __('Manage your courses and batches at a glance')
-	} else {
-		let liveClassSuffix =
-			myLiveClasses.data?.length > 1 ? __('live classes') : __('live class')
-		let evalSuffix = evalCount.value > 1 ? __('evaluations') : __('evaluation')
-		if (myLiveClasses.data?.length > 0 && evalCount.value > 0) {
-			return __('You have {0} upcoming {1} and {2} {3} scheduled.').format(
-				myLiveClasses.data.length,
-				liveClassSuffix,
-				evalCount.value,
-				evalSuffix
-			)
-		} else if (myLiveClasses.data?.length > 0) {
-			return __('You have {0} upcoming {1}.').format(
-				myLiveClasses.data.length,
-				liveClassSuffix
-			)
-		} else if (evalCount.value > 0) {
-			return __('You have {0} {1} scheduled.').format(
-				evalCount.value,
-				evalSuffix
-			)
-		}
-		return __('Resume where you left off')
-	}
 })
 
 usePageMeta(() => {

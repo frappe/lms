@@ -54,10 +54,23 @@ describe('pickPrimaryTabs', () => {
 		])
 	})
 
-	it('never exceeds five tabs', () => {
-		// Four PRIMARY_LABELS plus You, and You is pushed last — a fifth primary
-		// would cost it its place.
+	it('never exceeds five tabs, and You always keeps its place', () => {
 		expect(pickPrimaryTabs(sidebarLinks, true)).toHaveLength(5)
+		const withSkills = [link('Skills'), ...sidebarLinks]
+		const tabs = pickPrimaryTabs(withSkills, true).map((t) => t.label)
+		expect(tabs).toHaveLength(5)
+		expect(tabs.at(-1)).toBe('You')
+	})
+
+	it('gives Skills the slot Programs had when a site has them', () => {
+		const withSkills = [link('Skills'), ...sidebarLinks]
+		expect(pickPrimaryTabs(withSkills, true).map((t) => t.label)).toEqual([
+			'Home',
+			'Skills',
+			'Courses',
+			'Batches',
+			'You',
+		])
 	})
 
 	it('falls back to You alone when the links have not loaded yet', () => {

@@ -1,193 +1,263 @@
 <template>
-	<div>
-		<div class="mt-10 space-y-10">
-			<div v-if="evals?.data?.length">
-				<div class="text-lg-semibold text-ink-gray-9 mb-3">
-					{{ __('Upcoming Evaluations') }}
+	<AdminWelcome
+		v-if="home.fetched && !items.length"
+		:example="home.data?.example"
+	/>
+	<div v-else class="mx-auto flex max-w-[1080px] flex-col gap-8">
+		<header>
+			<h1 class="text-2xl-semibold text-ink-gray-9">
+				{{ greeting(user.data?.full_name) }}
+			</h1>
+			<p v-if="home.fetched" class="mt-1.5 text-base text-ink-gray-6">
+				{{ subtitle }}
+			</p>
+		</header>
+
+		<ResumeCard
+			v-if="resume"
+			:title="resume.title"
+			:meta="resume.meta"
+			:action="__('Continue editing')"
+			:route="resume.route"
+			draft
+		/>
+
+		<div class="flex flex-wrap items-start gap-8">
+			<section
+				aria-labelledby="created-by-you"
+				class="min-w-0 flex-[999_1_520px]"
+			>
+				<div class="mb-2 flex items-center justify-between gap-3">
+					<h2 id="created-by-you" class="text-lg-semibold text-ink-gray-9">
+						{{ __('Created by you') }}
+					</h2>
+					<TabButtons v-model="tab" :options="tabs" />
 				</div>
-				<div class="grid grid-cols-1 md:grid-cols-4 gap-5">
-					<component
-						:is="user.data?.username ? 'router-link' : 'div'"
-						v-for="evaluation in evals?.data"
-						:key="evaluation.name"
-						:to="profileRoute(user.data?.username, 'ProfileEvaluationSchedule')"
-						class="border rounded-5 p-3 flex flex-col h-full"
-						:class="
-							user.data?.username
-								? 'cursor-pointer hover:border-outline-gray-3'
-								: ''
-						"
-					>
-						<div class="text-ink-gray-9 text-lg-semibold leading-5 mb-3">
-							{{ evaluation.course_title }}
-						</div>
-						<div class="text-ink-gray-7">
-							<div class="flex items-center mb-3">
-								<span class="lucide-calendar size-4" />
-								<span class="ms-2">
-									{{ dayjs(evaluation.date).format('DD MMMM YYYY') }}
-								</span>
+				<div
+					v-if="shown.length"
+					class="divide-y divide-outline-gray-2 border-t border-outline-gray-2"
+				>
+					<div v-for="item in shown" :key="item.type + item.name">
+						<router-link
+							:to="item.route"
+							class="-mx-2.5 flex items-center gap-3.5 rounded-5 px-2.5 py-3.5 hover:bg-surface-gray-1"
+						>
+							<div class="min-w-0 flex-1">
+								<div class="truncate text-base font-medium text-ink-gray-9">
+									{{ item.title }}
+								</div>
+								<div class="mt-0.5 truncate text-p-sm text-ink-gray-6">
+									{{ item.meta }}
+								</div>
 							</div>
-							<div class="flex items-center mb-3">
-								<span class="lucide-clock size-4" />
-								<span class="ms-2">
-									{{ formatTime(evaluation.start_time) }}
-								</span>
-							</div>
-							<div v-if="evaluation.timezone" class="flex items-center mb-3">
-								<span class="lucide-globe size-4" />
-								<span class="ms-2">
-									{{ formatTimezone(evaluation.timezone, evaluation.date) }}
-								</span>
-							</div>
-							<div class="flex items-center">
-								<span class="lucide-graduation-cap size-4" />
-								<span class="ms-2">
-									{{ evaluation.member_name }}
-								</span>
-							</div>
-						</div>
-					</component>
-				</div>
-			</div>
-			<div v-if="liveClasses?.data?.length">
-				<div class="text-lg-semibold text-ink-gray-9 mb-3">
-					{{ __('Upcoming Live Classes') }}
-				</div>
-				<div class="grid grid-cols-1 md:grid-cols-4 gap-5">
-					<div
-						v-for="cls in liveClasses?.data"
-						:key="cls.name"
-						class="border hover:border-outline-gray-3 rounded-5 p-3"
-					>
-						<div class="text-ink-gray-9 text-lg-semibold leading-5 mb-1">
-							{{ cls.title }}
-						</div>
-						<div class="text-ink-gray-7 leading-5 mb-4">
-							{{ cls.description }}
-						</div>
-						<LiveClassCard
-							:cls="cls"
-							class="space-y-3"
-							ended-class="text-ink-amber-5"
-						/>
+							<Badge
+								:label="kindLabel(item.type)"
+								:theme="kindTheme(item.type)"
+								size="md"
+							/>
+						</router-link>
 					</div>
 				</div>
-			</div>
-		</div>
-
-		<div v-if="createdCourses.data?.length" class="mt-10">
-			<div class="flex items-center justify-between mb-3">
-				<span class="text-lg-semibold text-ink-gray-9">
-					{{ __('Courses Created') }}
-				</span>
-				<router-link
-					:to="{
-						name: 'Courses',
-					}"
+				<p
+					v-else-if="home.fetched"
+					class="border-t border-outline-gray-2 pt-4 text-p-base text-ink-gray-6"
 				>
-					<span class="flex items-center gap-x-1 text-ink-gray-6 text-xs">
-						<span>
-							{{ __('See all') }}
-						</span>
-						<span class="lucide-move-right size-3 rtl:rotate-180" />
-					</span>
-				</router-link>
-			</div>
-			<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-				<CourseCard
-					v-for="course in createdCourses.data"
-					:key="course.name"
-					:course="course"
-					:to="{ name: 'CourseDetail', params: { courseName: course.name } }"
-				/>
-			</div>
-		</div>
+					{{
+						tab === 'drafts'
+							? __('No drafts. Everything you made is published.')
+							: __(
+									'Nothing published yet. Publish a draft and it shows up here.'
+							  )
+					}}
+				</p>
+			</section>
 
-		<div v-if="createdBatches.data?.length" class="mt-10">
-			<div class="flex items-center justify-between mb-3">
-				<span class="text-lg-semibold text-ink-gray-9">
-					{{ __('Upcoming Batches') }}
-				</span>
-				<router-link
-					:to="{
-						name: 'Batches',
-					}"
-				>
-					<span class="flex items-center gap-x-1 text-ink-gray-6 text-xs">
-						<span>
-							{{ __('See all') }}
-						</span>
-						<span class="lucide-move-right size-3 rtl:rotate-180" />
-					</span>
-				</router-link>
-			</div>
-			<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-				<BatchCard
-					v-for="batch in createdBatches.data"
-					:key="batch.name"
-					:batch="batch"
-					:to="{ name: 'BatchDetail', params: { batchName: batch.name } }"
-				/>
-			</div>
-		</div>
+			<aside
+				v-if="liveClasses?.data?.length || evals?.data?.length"
+				class="flex flex-[1_1_280px] flex-col gap-7"
+			>
+				<section v-if="liveClasses?.data?.length" aria-labelledby="admin-live">
+					<h2
+						id="admin-live"
+						class="mb-2 flex h-7 items-center text-lg-semibold text-ink-gray-9"
+					>
+						{{ __('Upcoming Live Classes') }}
+					</h2>
+					<div class="flex flex-col gap-4">
+						<div
+							v-for="cls in liveClasses.data"
+							:key="cls.name"
+							class="rounded-5 border border-outline-gray-2 p-3 hover:border-outline-gray-3"
+						>
+							<div class="mb-1 font-semibold leading-5 text-ink-gray-9">
+								{{ cls.title }}
+							</div>
+							<div
+								v-if="cls.description"
+								class="mb-4 leading-5 text-ink-gray-6"
+							>
+								{{ cls.description }}
+							</div>
+							<LiveClassCard
+								:cls="cls"
+								class="space-y-3"
+								ended-class="text-ink-amber-7"
+							/>
+						</div>
+					</div>
+				</section>
 
-		<div
-			v-if="!createdCourses.data?.length && !createdBatches.data?.length"
-			class="flex flex-col items-center justify-center mt-60"
-		>
-			<span class="lucide-graduation-cap size-10 mx-auto text-ink-gray-5" />
-			<div class="text-lg-semibold text-ink-gray-7 mb-1.5">
-				{{ __('No courses created') }}
-			</div>
-			<div
-				class="leading-5 text-base w-full md:w-2/5 text-base text-center text-ink-gray-7"
-			>
-				{{
-					__(
-						'There are no courses currently. Create your first course to get started!'
-					)
-				}}
-			</div>
-			<Button
-				:route="{ name: 'NewCourse' }"
-				class="mt-4"
-				@click="setFormSource('admin_home')"
-			>
-				<template #prefix>
-					<span class="lucide-plus size-4" />
-				</template>
-				{{ __('New Course') }}
-			</Button>
+				<section v-if="evals?.data?.length" aria-labelledby="admin-evals">
+					<h2
+						id="admin-evals"
+						class="mb-2 flex h-7 items-center text-lg-semibold text-ink-gray-9"
+					>
+						{{ __('Upcoming Evaluations') }}
+					</h2>
+					<div class="flex flex-col gap-4">
+						<component
+							:is="user.data?.username ? 'router-link' : 'div'"
+							v-for="evaluation in evals.data"
+							:key="evaluation.name"
+							:to="
+								user.data?.username
+									? profileRoute(
+											user.data.username,
+											'ProfileEvaluationSchedule'
+									  )
+									: undefined
+							"
+							class="rounded-5 border border-outline-gray-2 p-3 text-ink-gray-7 hover:border-outline-gray-3"
+						>
+							<div class="mb-3 font-semibold leading-5 text-ink-gray-9">
+								{{ evaluation.course_title }}
+							</div>
+							<div class="flex flex-col gap-3">
+								<div class="flex items-center gap-2">
+									<span class="lucide-calendar size-4" aria-hidden="true" />
+									{{ dayjs(evaluation.date).format('DD MMMM YYYY') }}
+								</div>
+								<div class="flex items-center gap-2">
+									<span class="lucide-clock size-4" aria-hidden="true" />
+									{{ formatTime(evaluation.start_time) }}
+								</div>
+								<div v-if="evaluation.timezone" class="flex items-center gap-2">
+									<span class="lucide-globe size-4" aria-hidden="true" />
+									{{ formatTimezone(evaluation.timezone, evaluation.date) }}
+								</div>
+								<div
+									v-if="evaluation.member_name"
+									class="flex items-center gap-2"
+								>
+									<span
+										class="lucide-graduation-cap size-4"
+										aria-hidden="true"
+									/>
+									{{ evaluation.member_name }}
+								</div>
+							</div>
+						</component>
+					</div>
+				</section>
+			</aside>
 		</div>
 	</div>
 </template>
 <script setup lang="ts">
-import { Button, createResource } from 'frappe-ui'
-import { inject } from 'vue'
+import { computed, inject, ref } from 'vue'
+import { Badge, createResource, TabButtons } from 'frappe-ui'
 import { formatTime } from '@/utils'
 import { formatTimezone } from '@/utils/timezone'
 import { profileRoute } from '@/utils/routes'
-import CourseCard from '@/components/CourseCard.vue'
-import { setFormSource } from '@/composables/formTracking'
-import BatchCard from '@/pages/Batches/components/BatchCard.vue'
+import AdminWelcome from '@/pages/Home/AdminWelcome.vue'
 import LiveClassCard from '@/pages/Home/LiveClassCard.vue'
+import ResumeCard from '@/pages/Home/ResumeCard.vue'
+import { greeting } from '@/pages/Home/greeting'
 
-const user = inject<any>('$user')
-const dayjs = inject<any>('$dayjs')
+type Kind = 'Skill' | 'Course' | 'Batch'
+type MadeItem = {
+	type: Kind
+	name: string
+	title: string
+	meta: string
+	published: boolean
+	route: Record<string, unknown>
+}
 
 const props = defineProps<{
 	liveClasses?: { data?: any[] }
 	evals?: { data?: any[] }
 }>()
 
-const createdCourses = createResource({
-	url: 'lms.lms.api.get_created_courses',
+const user = inject<any>('$user')
+const dayjs = inject<any>('$dayjs')
+
+const home = createResource({
+	url: 'lms.lms.home.admin_home',
 	auto: true,
 })
 
-const createdBatches = createResource({
-	url: 'lms.lms.api.get_created_batches',
-	auto: true,
+const items = computed<MadeItem[]>(() => home.data?.items || [])
+const resume = computed<MadeItem | null>(() => home.data?.resume || null)
+const drafts = computed(() => items.value.filter((item) => !item.published))
+
+const tab = ref<'published' | 'drafts'>('published')
+const tabs = [
+	{ label: __('Published'), value: 'published' },
+	{ label: __('Drafts'), value: 'drafts' },
+]
+const shown = computed(() =>
+	items.value.filter((item) => item.published === (tab.value === 'published'))
+)
+
+const withinWeek = (date: string) =>
+	dayjs(date).diff(dayjs().startOf('day'), 'day') < 7
+
+const when = (date: string) => {
+	const days = dayjs(date).startOf('day').diff(dayjs().startOf('day'), 'day')
+	if (days === 0) return __('today')
+	if (days === 1) return __('tomorrow')
+	return dayjs(date).format('dddd')
+}
+
+// Remind them of what is coming up this week; otherwise, what is waiting on them.
+const subtitle = computed(() => {
+	const cls = props.liveClasses?.data?.find((row) => withinWeek(row.date))
+	const evaluation = props.evals?.data?.find((row) => withinWeek(row.date))
+	const parts: string[] = []
+	if (cls)
+		parts.push(
+			__('Live class {0} at {1}: {2}.').format(
+				when(cls.date),
+				formatTime(cls.time),
+				cls.title
+			)
+		)
+	if (evaluation)
+		parts.push(
+			__('Evaluation for {0} {1} at {2}.').format(
+				evaluation.course_title,
+				when(evaluation.date),
+				formatTime(evaluation.start_time)
+			)
+		)
+	if (parts.length) return parts.join(' ')
+
+	if (drafts.value.length)
+		parts.push(
+			drafts.value.length === 1
+				? __('One draft is waiting for you to publish.')
+				: __('{0} drafts are waiting for you to publish.').format(
+						drafts.value.length
+				  )
+		)
+	return parts.length
+		? parts.join(' ')
+		: __('Everything you made is published. Share it and watch people learn.')
 })
+
+const kindLabel = (kind: Kind) =>
+	kind === 'Batch' ? __('Batch') : kind === 'Skill' ? __('Skill') : __('Course')
+const kindTheme = (kind: Kind) =>
+	kind === 'Batch' ? 'amber' : kind === 'Skill' ? 'blue' : 'green'
 </script>

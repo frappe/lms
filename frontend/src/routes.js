@@ -154,6 +154,33 @@ export const routes = [
 		component: () => import('@/pages/Statistics.vue'),
 	},
 	{
+		path: '/skills',
+		name: 'Goals',
+		component: () => import('@/pages/Goals/Goals.vue'),
+	},
+	{
+		path: '/skills/:goal',
+		name: 'GoalBuilder',
+		component: () => import('@/pages/Goals/GoalBuilder.vue'),
+		props: true,
+	},
+	{
+		path: '/readiness',
+		name: 'Readiness',
+		component: () => import('@/pages/Goals/Readiness.vue'),
+	},
+	// Home lists what someone is learning; old links to the list land there.
+	{
+		path: '/my-learning',
+		redirect: { name: 'Home' },
+	},
+	{
+		path: '/my-learning/:goal',
+		name: 'GoalSession',
+		component: () => import('@/pages/Goals/GoalSession.vue'),
+		props: true,
+	},
+	{
 		path: '/user/:username',
 		name: 'Profile',
 		component: () => import('@/pages/Profile.vue'),

@@ -1,0 +1,286 @@
+{
+ "actions": [],
+ "allow_bulk_edit": 1,
+ "allow_rename": 1,
+ "creation": "2026-10-28 21:06:41.559307",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "title",
+  "status",
+  "outcome",
+  "instructions",
+  "knowledge_base",
+  "column_break_main",
+  "due_date",
+  "recurrence",
+  "minutes",
+  "published_on",
+  "proof_section",
+  "proof_mastery",
+  "mastery_threshold",
+  "check_questions",
+  "proof_acknowledgement",
+  "acknowledgement_text",
+  "column_break_proof",
+  "proof_sign_off",
+  "proof_certificate",
+  "activities_section",
+  "activities",
+  "audience_section",
+  "assign_everyone",
+  "audience",
+  "ai_section",
+  "drafting_session",
+  "draft_error",
+  "learner_outcome",
+  "tutor_first",
+  "source_files",
+  "source_urls",
+  "courses"
+ ],
+ "fields": [
+  {
+   "fieldname": "title",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Title",
+   "reqd": 1
+  },
+  {
+   "default": "Draft",
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Status",
+   "options": "Draft\nDrafting\nReady\nPublished"
+  },
+  {
+   "description": "What people must be able to do",
+   "fieldname": "outcome",
+   "fieldtype": "Small Text",
+   "label": "Outcome"
+  },
+  {
+   "description": "Anything the plan should cover or avoid",
+   "fieldname": "instructions",
+   "fieldtype": "Small Text",
+   "label": "Notes for the AI"
+  },
+  {
+   "fieldname": "knowledge_base",
+   "fieldtype": "Link",
+   "label": "Knowledge Base",
+   "options": "Flow Knowledge Base"
+  },
+  {
+   "fieldname": "column_break_main",
+   "fieldtype": "Column Break",
+   "label": "Column Break Main"
+  },
+  {
+   "fieldname": "due_date",
+   "fieldtype": "Date",
+   "label": "Due Date"
+  },
+  {
+   "default": "Once",
+   "fieldname": "recurrence",
+   "fieldtype": "Select",
+   "label": "Recurrence",
+   "options": "Once\nYearly"
+  },
+  {
+   "fieldname": "minutes",
+   "fieldtype": "Int",
+   "label": "Estimated Minutes"
+  },
+  {
+   "fieldname": "published_on",
+   "fieldtype": "Datetime",
+   "label": "Published On",
+   "read_only": 1
+  },
+  {
+   "fieldname": "proof_section",
+   "fieldtype": "Section Break",
+   "label": "Proof"
+  },
+  {
+   "default": "1",
+   "fieldname": "proof_mastery",
+   "fieldtype": "Check",
+   "label": "Mastery"
+  },
+  {
+   "default": "80",
+   "depends_on": "proof_mastery",
+   "fieldname": "mastery_threshold",
+   "fieldtype": "Percent",
+   "label": "Mastery Threshold"
+  },
+  {
+   "default": "5",
+   "description": "Every key idea gets at least one question; the rest go to each learner's weak spots.",
+   "fieldname": "check_questions",
+   "fieldtype": "Int",
+   "label": "Questions in the Final Check",
+   "non_negative": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "proof_acknowledgement",
+   "fieldtype": "Check",
+   "label": "Acknowledgement"
+  },
+  {
+   "depends_on": "proof_acknowledgement",
+   "fieldname": "acknowledgement_text",
+   "fieldtype": "Small Text",
+   "label": "Acknowledgement Text"
+  },
+  {
+   "fieldname": "column_break_proof",
+   "fieldtype": "Column Break",
+   "label": "Column Break Proof"
+  },
+  {
+   "default": "0",
+   "fieldname": "proof_sign_off",
+   "fieldtype": "Check",
+   "label": "Sign-off"
+  },
+  {
+   "default": "0",
+   "fieldname": "proof_certificate",
+   "fieldtype": "Check",
+   "label": "Certificate"
+  },
+  {
+   "fieldname": "activities_section",
+   "fieldtype": "Section Break",
+   "label": "Activities"
+  },
+  {
+   "fieldname": "activities",
+   "fieldtype": "Table",
+   "label": "Activities",
+   "options": "LMS Goal Activity"
+  },
+  {
+   "fieldname": "audience_section",
+   "fieldtype": "Section Break",
+   "label": "Audience"
+  },
+  {
+   "default": "0",
+   "fieldname": "assign_everyone",
+   "fieldtype": "Check",
+   "label": "Everyone"
+  },
+  {
+   "depends_on": "eval:!doc.assign_everyone",
+   "fieldname": "audience",
+   "fieldtype": "Table",
+   "label": "Audience",
+   "options": "LMS Goal Audience"
+  },
+  {
+   "collapsible": 1,
+   "fieldname": "ai_section",
+   "fieldtype": "Section Break",
+   "label": "AI"
+  },
+  {
+   "fieldname": "drafting_session",
+   "fieldtype": "Link",
+   "label": "Drafting Session",
+   "options": "Flow Session",
+   "read_only": 1
+  },
+  {
+   "fieldname": "draft_error",
+   "fieldtype": "Small Text",
+   "label": "Draft Error",
+   "read_only": 1
+  },
+  {
+   "description": "Written by the AI for learners; the admin's own words stay in Outcome",
+   "fieldname": "learner_outcome",
+   "fieldtype": "Small Text",
+   "label": "What Learners Will Be Able To Do"
+  },
+  {
+   "default": "1",
+   "description": "Learners first learn with an AI tutor that checks what they know and teaches the gaps. Not graded.",
+   "fieldname": "tutor_first",
+   "fieldtype": "Check",
+   "label": "Start With a Tutor"
+  },
+  {
+   "description": "Each uploaded document's title and file, so citations can open it",
+   "fieldname": "source_files",
+   "fieldtype": "JSON",
+   "label": "Source Files",
+   "read_only": 1
+  },
+  {
+   "description": "Web pages added as material, by the name citations use.",
+   "fieldname": "source_urls",
+   "fieldtype": "JSON",
+   "label": "Source URLs",
+   "hidden": 1
+  },
+  {
+   "description": "Courses the skill teaches from. Their lessons are read into the material, and a published skill open to everyone is offered as practice once a learner finishes the course.",
+   "fieldname": "courses",
+   "fieldtype": "Table",
+   "label": "Courses",
+   "options": "LMS Goal Course"
+  }
+ ],
+ "grid_page_length": 50,
+ "link_display_mode": "Search",
+ "links": [],
+ "modified": "2026-11-12 12:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "LMS",
+ "name": "LMS Goal",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Moderator",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "rows_threshold_for_grid_search": 20,
+ "show_title_field_in_link": 1,
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": [],
+ "title_field": "title",
+ "track_changes": 1
+}

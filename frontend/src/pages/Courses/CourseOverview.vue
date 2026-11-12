@@ -87,6 +87,12 @@
 					</div>
 				</section>
 
+				<CoursePractice
+					v-if="course.data.membership"
+					:course="course.data.name"
+					:finished="(course.data.membership?.progress ?? 0) >= 100"
+				/>
+
 				<section>
 					<div class="flex items-baseline justify-between gap-4 mb-4">
 						<h2 class="text-3xl-semibold text-ink-gray-9">
@@ -160,6 +166,7 @@ import type {
 } from '@/types'
 import CourseCardOverlay from '@/components/CourseCardOverlay.vue'
 import CourseOutline from '@/components/CourseOutline.vue'
+import CoursePractice from '@/components/Goals/CoursePractice.vue'
 import SkeletonLoader from '@/components/SkeletonLoader.vue'
 import CourseReviews from '@/components/CourseReviews.vue'
 import CourseInstructors from '@/components/CourseInstructors.vue'

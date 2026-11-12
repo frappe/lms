@@ -152,6 +152,7 @@ import type { Resource } from '@/types'
 import RichTextEditor from '@/components/RichTextEditor.vue'
 import { InputLabel, useInputLabeling } from 'frappe-ui/experimental'
 import { submitResource } from '@/utils/resource'
+import { useRoute } from 'vue-router'
 import { validateCourse } from '@/utils/courseForm'
 
 interface InstructorOption {
@@ -169,6 +170,7 @@ interface RawUserHit {
 }
 
 const { capture } = useTelemetry()
+const route = useRoute()
 const { updateOnboardingStep } = useOnboarding('learning')
 const user = inject<any>('$user')
 const courseCreated = ref(false)
@@ -214,7 +216,8 @@ type Course = {
 }
 
 const course = ref<Course>({
-	title: '',
+	// Home can hand over the title someone already typed.
+	title: typeof route.query.title === 'string' ? route.query.title : '',
 	short_introduction: '',
 	description: '',
 	// Whoever creates the course usually teaches it, and on a new site they

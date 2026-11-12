@@ -13,6 +13,8 @@ dependencies = [
     "beautifulsoup4>=4.12,<4.16",
     "cairocffi==1.5.1",
     "fuzzywuzzy~=0.18.0",
+    # Learning v3: video lessons become material for Lumi through their captions.
+    "youtube-transcript-api~=1.2.5",
 ]
 
 [build-system]
@@ -31,6 +33,8 @@ indent = "\t"
 packages = [
     "libxml2-dev",
     "libxslt1-dev",
+    # Learning v3 listens to video lessons that have no captions.
+    "ffmpeg",
 ]
 
 [tool.ruff]

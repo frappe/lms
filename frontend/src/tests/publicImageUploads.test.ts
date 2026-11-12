@@ -297,6 +297,7 @@ const MANIFEST: Record<string, Privacy[]> = {
 	// Deliberately not readable by other users.
 	'components/Assignment.vue': ['private', 'private', 'private'],
 	'components/Modals/JobApplicationModal.vue': ['private'],
+	'components/Goals/SourcesPanel.vue': ['private'],
 	'pages/Forms/ChapterForm.vue': ['private'],
 	'components/Notes/Notes.vue': ['private'],
 	// A gateway's attachment keeps the privacy SettingsFields gave it before the

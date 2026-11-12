@@ -76,6 +76,7 @@ before_uninstall = "lms.install.before_uninstall"
 setup_wizard_complete = "lms.demo.demo_data.create_demo_data"
 after_migrate = [
 	"lms.lms.doctype.lms_payment.lms_payment.add_unique_payment_id_constraint",
+	"lms.lms.ai.setup.ensure_learner_access",
 	# Also on migrate, not only after_sync. Both seeders are create-if-absent, and
 	# running the sidebar one on fresh installs alone means a fourteenth built-in
 	# added to `standard_sidebar_items` later never reaches a site that has
@@ -205,7 +206,12 @@ doc_events = {
 	# Product events for Pulse: one per step a site takes (see lms.lms.telemetry).
 	"LMS Course": {"on_update": "lms.lms.telemetry.course_saved"},
 	"Course Chapter": {"after_insert": "lms.lms.telemetry.chapter_created"},
-	"Course Lesson": {"after_insert": "lms.lms.telemetry.lesson_created"},
+	# A skill teaching from a course reads each lesson edit, so Lumi never teaches a stale copy.
+	"Course Lesson": {
+		"after_insert": "lms.lms.telemetry.lesson_created",
+		"on_update": "lms.lms.ai.course_material.lesson_changed",
+		"on_trash": "lms.lms.ai.course_material.lesson_changed",
+	},
 	"LMS Batch": {"on_update": "lms.lms.telemetry.batch_saved"},
 	"LMS Live Class": {"after_insert": "lms.lms.telemetry.live_class_created"},
 	"LMS Enrollment": {"after_insert": "lms.lms.telemetry.enrolled_in_course"},
@@ -389,6 +395,7 @@ standard_sidebar_items = [
 	{"name1": "home", "is_standard": 1, "item_type": "Built-in"},
 	{"name1": "search", "is_standard": 1, "item_type": "Built-in"},
 	{"name1": "notifications", "is_standard": 1, "item_type": "Built-in"},
+	{"name1": "skills", "is_standard": 1, "item_type": "Built-in"},
 	{"name1": "courses", "is_standard": 1, "item_type": "Built-in"},
 	{"name1": "programs", "is_standard": 1, "item_type": "Built-in"},
 	{"name1": "batches", "is_standard": 1, "item_type": "Built-in"},

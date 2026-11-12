@@ -525,7 +525,8 @@ const getSidebarItems = (forMobile = false) => {
 					label: 'Home',
 					icon: 'Home',
 					to: 'Home',
-					activeFor: ['Home'],
+					// Home is where learners see their skills, so a skill session sits under it.
+					activeFor: ['Home', 'GoalSession'],
 					condition: () => {
 						return userResource?.data
 					},
@@ -553,6 +554,21 @@ const getSidebarItems = (forMobile = false) => {
 			label: 'Learning',
 			hideLabel: true,
 			items: [
+				{
+					label: 'Skills',
+					icon: 'Sparkles',
+					to: 'Goals',
+					activeFor: ['Goals', 'GoalBuilder'],
+					// Learning admins build skills. Everyone else sees the list next to
+					// Courses once a skill is open to them, so a site with courses only
+					// sees no change.
+					condition: () => {
+						const user = userResource?.data
+						if (user?.is_moderator || user?.is_system_manager)
+							return true
+						return Boolean(user?.has_skills)
+					},
+				},
 				{
 					label: 'Courses',
 					icon: 'BookOpen',

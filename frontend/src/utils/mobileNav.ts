@@ -11,9 +11,12 @@ export interface NavLink {
 }
 
 // Primaries are picked out of the admin-configured sidebar links, so disabling
-// a link in settings drops its tab too.
+// a link in settings drops its tab too. Four make the bar; the first four found,
+// so on a site with skills they take the slot Programs had, and Programs moves to
+// the You page.
 export const PRIMARY_LABELS: readonly string[] = [
 	'Home',
+	'Skills',
 	'Courses',
 	'Batches',
 	'Programs',
@@ -64,9 +67,8 @@ const YOU_TAB: NavLink = {
 	avatar: true,
 }
 
-// Five slots: the four PRIMARY_LABELS plus YOU_TAB. A ceiling on the whole bar,
-// and YOU_TAB is pushed last, so a fifth primary would cost the You tab its
-// place — widen this and the column widths together, or not at all.
+// Five slots: four primaries plus YOU_TAB, which always keeps its place. Widen
+// this and the column widths together, or not at all.
 const MAX_PRIMARY_TABS = 5
 
 const SECTION_MAP: Record<string, readonly string[]> = {
@@ -185,8 +187,7 @@ export function pickPrimaryTabs(
 		const link = sidebarLinks.find((item) => item.label === label)
 		if (link) picked.push(link)
 	}
-	picked.push(YOU_TAB)
-	return picked.slice(0, MAX_PRIMARY_TABS)
+	return [...picked.slice(0, MAX_PRIMARY_TABS - 1), YOU_TAB]
 }
 
 // Everything that did not make the bottom bar, in the order it arrived.

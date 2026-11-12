@@ -45,6 +45,19 @@ COURSE_RECORD_MEMBER_FIELDS = {
 }
 
 
+LEARNING_ADMIN_ROLES = ("System Manager", "Moderator")
+
+
+def is_learning_admin(user: str | None = None) -> bool:
+	"""Whether the user runs Learning: builds skills, reads readiness, changes AI setup."""
+	return bool(set(LEARNING_ADMIN_ROLES) & set(frappe.get_roles(user or frappe.session.user)))
+
+
+def require_learning_admin(user: str | None = None) -> None:
+	if not is_learning_admin(user):
+		frappe.throw(_("Only Learning admins can do this."), frappe.PermissionError)
+
+
 def can_author_course(course: str, *, user: str | None = None) -> bool:
 	"""``can_modify_course`` for an explicit user: a site administrator, a Moderator, or a
 	Course Instructor row."""

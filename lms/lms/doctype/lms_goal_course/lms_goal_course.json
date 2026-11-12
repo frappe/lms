@@ -1,0 +1,61 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "hash",
+ "creation": "2026-11-12 12:00:00.000000",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "course",
+  "document",
+  "lessons",
+  "videos_unread"
+ ],
+ "fields": [
+  {
+   "fieldname": "course",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Course",
+   "options": "LMS Course",
+   "reqd": 1
+  },
+  {
+   "description": "The name the skill's material and citations use for this course.",
+   "fieldname": "document",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Document",
+   "read_only": 1
+  },
+  {
+   "description": "Each lesson read into the material, with a fingerprint of its text, so an edit re-reads only that lesson.",
+   "fieldname": "lessons",
+   "fieldtype": "JSON",
+   "hidden": 1,
+   "label": "Lessons"
+  },
+  {
+   "default": "0",
+   "description": "Videos in the course that could not be read, by captions or by listening, so Lumi cannot teach from them.",
+   "fieldname": "videos_unread",
+   "fieldtype": "Int",
+   "label": "Videos Not Read",
+   "read_only": 1
+  }
+ ],
+ "grid_page_length": 50,
+ "istable": 1,
+ "links": [],
+ "modified": "2026-11-12 12:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "LMS",
+ "name": "LMS Goal Course",
+ "owner": "Administrator",
+ "permissions": [],
+ "row_format": "Dynamic",
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": []
+}

@@ -1,0 +1,191 @@
+{
+ "actions": [],
+ "allow_bulk_edit": 1,
+ "allow_rename": 1,
+ "autoname": "hash",
+ "creation": "2026-10-28 21:06:41.622229",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "goal",
+  "goal_title",
+  "member",
+  "member_name",
+  "status",
+  "column_break_a",
+  "due_date",
+  "current_step",
+  "progress",
+  "score",
+  "started_on",
+  "ready_on",
+  "acknowledged_on",
+  "signed_off_by",
+  "tutor_session",
+  "is_preview",
+  "tutor_persona",
+  "idea_state",
+  "check_selection"
+ ],
+ "fields": [
+  {
+   "fieldname": "goal",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Goal",
+   "options": "LMS Goal",
+   "reqd": 1
+  },
+  {
+   "fetch_from": "goal.title",
+   "fieldname": "goal_title",
+   "fieldtype": "Data",
+   "label": "Goal Title",
+   "read_only": 1
+  },
+  {
+   "fieldname": "member",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Member",
+   "options": "User",
+   "reqd": 1
+  },
+  {
+   "fetch_from": "member.full_name",
+   "fieldname": "member_name",
+   "fieldtype": "Data",
+   "label": "Member Name",
+   "read_only": 1
+  },
+  {
+   "default": "Assigned",
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Status",
+   "options": "Assigned\nIn Progress\nReady"
+  },
+  {
+   "fieldname": "column_break_a",
+   "fieldtype": "Column Break",
+   "label": "Column Break A"
+  },
+  {
+   "fieldname": "due_date",
+   "fieldtype": "Date",
+   "label": "Due Date"
+  },
+  {
+   "default": "0",
+   "fieldname": "current_step",
+   "fieldtype": "Int",
+   "label": "Current Step"
+  },
+  {
+   "fieldname": "progress",
+   "fieldtype": "Percent",
+   "label": "Progress"
+  },
+  {
+   "fieldname": "score",
+   "fieldtype": "Percent",
+   "label": "Mastery Score"
+  },
+  {
+   "fieldname": "started_on",
+   "fieldtype": "Datetime",
+   "label": "Started On"
+  },
+  {
+   "fieldname": "ready_on",
+   "fieldtype": "Datetime",
+   "label": "Ready On"
+  },
+  {
+   "fieldname": "acknowledged_on",
+   "fieldtype": "Datetime",
+   "label": "Acknowledged On"
+  },
+  {
+   "fieldname": "signed_off_by",
+   "fieldtype": "Link",
+   "label": "Signed Off By",
+   "options": "User"
+  },
+  {
+   "fieldname": "tutor_session",
+   "fieldtype": "Link",
+   "label": "Tutor Session",
+   "options": "Flow Session"
+  },
+  {
+   "default": "0",
+   "description": "An admin trying the goal as a learner; left out of readiness",
+   "fieldname": "is_preview",
+   "fieldtype": "Check",
+   "label": "Is Preview"
+  },
+  {
+   "fieldname": "tutor_persona",
+   "fieldtype": "Data",
+   "label": "Tutor"
+  },
+  {
+   "fieldname": "idea_state",
+   "fieldtype": "JSON",
+   "label": "Key Idea Progress",
+   "read_only": 1
+  },
+  {
+   "fieldname": "check_selection",
+   "fieldtype": "JSON",
+   "label": "Check Questions Picked",
+   "read_only": 1
+  }
+ ],
+ "grid_page_length": 50,
+ "link_display_mode": "Search",
+ "links": [],
+ "modified": "2026-10-30 21:17:33.744922",
+ "modified_by": "Administrator",
+ "module": "LMS",
+ "name": "LMS Goal Assignment",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Moderator",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "rows_threshold_for_grid_search": 20,
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

@@ -97,6 +97,14 @@ from lms.lms.utils import (
 )
 
 
+@frappe.whitelist(methods=["POST"])
+def hide_profile_nudge():
+	"""Stop showing the "Complete your profile" card to the caller."""
+	if frappe.session.user == "Guest":
+		return
+	frappe.defaults.set_user_default("lms_hide_profile_nudge", 1)
+
+
 @frappe.whitelist()
 def get_user_info():
 	if frappe.session.user == "Guest":
@@ -105,16 +113,32 @@ def get_user_info():
 	user = frappe.db.get_value(
 		"User",
 		frappe.session.user,
-		["name", "email", "enabled", "user_image", "full_name", "user_type", "username", "bio", "headline"],
+		[
+			"name",
+			"email",
+			"enabled",
+			"user_image",
+			"full_name",
+			"user_type",
+			"username",
+			"bio",
+			"headline",
+			"last_login",
+		],
 		as_dict=1,
 	)
 	user["roles"] = frappe.get_roles(user.name)
+	user.hide_profile_nudge = cint(frappe.defaults.get_user_default("lms_hide_profile_nudge"))
 	user.is_instructor = "Course Creator" in user.roles
 	user.is_moderator = "Moderator" in user.roles
 	user.is_evaluator = "Batch Evaluator" in user.roles
 	user.is_student = not user.is_instructor and not user.is_moderator and not user.is_evaluator
 	user.is_fc_site = is_fc_site()
 	user.is_system_manager = "System Manager" in user.roles
+	if frappe.db.table_exists("LMS Goal"):
+		from lms.lms.ai.api import has_learner_skills
+
+		user.has_skills = has_learner_skills(user.name)
 	user.sitename = frappe.local.site
 	user.developer_mode = frappe.conf.developer_mode
 	if user.is_fc_site and user.is_system_manager:

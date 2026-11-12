@@ -35,27 +35,77 @@
 			>
 				{{ readOnlyNotice }}
 			</div>
-			<template v-if="isStudent && !profileIsComplete">
+			<template v-if="isStudent && !profileIsComplete && !profileNudgeHidden">
 				<SidebarItem
 					v-if="sidebarStore.isSidebarCollapsed"
-					:label="__('Complete your profile')"
+					:label="__('Fill in your profile')"
 					icon="lucide-user"
 					:route="profileRoute"
 					:active="false"
 				/>
-				<SidebarCard
-					v-else
-					:title="__('Complete your profile')"
-					:description="
-						__('Highlight what makes you unique and show your skills.')
-					"
-					icon="lucide-user"
-					:action="{
-						label: __('My Profile'),
-						route: profileRoute,
-						iconLeft: 'lucide-chevrons-right',
-					}"
-				/>
+				<SidebarCard v-else icon="lucide-user">
+					<template #title>
+						<span class="block pe-7">{{ __('Fill in your profile') }}</span>
+						<div class="absolute end-1.5 top-1.5">
+							<Dropdown
+								:options="[
+									{
+										label: __('Hide for now'),
+										icon: 'lucide-eye-off',
+										onClick: closeProfileNudge,
+									},
+									{
+										label: __('Don\'t show again'),
+										icon: 'lucide-bell-off',
+										onClick: hideProfileNudgeForGood,
+									},
+								]"
+								side="right"
+							>
+								<Button
+									variant="ghost"
+									size="xs"
+									icon="lucide-x"
+									:aria-label="__('Close')"
+								/>
+							</Dropdown>
+						</div>
+					</template>
+					<template #description>
+						{{
+							__('A photo, a headline and a short bio help people know you.')
+						}}
+					</template>
+					<template #actions>
+						<div class="flex flex-col gap-3">
+							<div class="flex items-center gap-2">
+								<div class="flex flex-1 gap-1" aria-hidden="true">
+									<span
+										v-for="(done, index) in profileSteps"
+										:key="index"
+										class="h-1 flex-1 rounded-full"
+										:class="done ? 'bg-surface-gray-7' : 'bg-surface-gray-3'"
+									/>
+								</div>
+								<span class="text-p-xs text-ink-gray-6">
+									{{
+										__('{0} of {1}').format(
+											profileSteps.filter(Boolean).length,
+											profileSteps.length
+										)
+									}}
+								</span>
+							</div>
+							<Button
+								class="w-full"
+								variant="subtle"
+								size="sm"
+								:label="__('Finish my profile')"
+								:route="profileRoute"
+							/>
+						</div>
+					</template>
+				</SidebarCard>
 			</template>
 			<TrialBanner
 				v-if="isV1CloudAdmin()"
@@ -129,7 +179,9 @@ import { seesOnboarding } from '@/utils/onboarding'
 import { useSidebar } from '@/stores/sidebar'
 import { useSettings } from '@/stores/settings'
 import {
+	Button,
 	call,
+	Dropdown,
 	ScrollArea,
 	Sidebar,
 	SidebarCard,
@@ -532,6 +584,50 @@ const profileRoute = computed(() => ({
 	name: 'Profile',
 	params: { username: userResource.data?.username },
 }))
+
+// Closing the card hides it until the next login; "Don't show this again" is
+// saved for the user. The login is told apart by its time.
+const profileNudgeKey = computed(
+	() => `profileNudgeClosed:${userResource.data?.name}`
+)
+const closedForLogin = ref(false)
+const readClosedLogin = () => {
+	try {
+		return localStorage.getItem(profileNudgeKey.value)
+	} catch {
+		return null
+	}
+}
+const profileNudgeHidden = computed(
+	() =>
+		Boolean(userResource.data?.hide_profile_nudge) ||
+		closedForLogin.value ||
+		(Boolean(userResource.data?.last_login) &&
+			readClosedLogin() === String(userResource.data?.last_login))
+)
+const closeProfileNudge = () => {
+	closedForLogin.value = true
+	try {
+		localStorage.setItem(
+			profileNudgeKey.value,
+			String(userResource.data?.last_login || '')
+		)
+	} catch {
+		// Without storage the card still hides for this visit.
+	}
+}
+const hideProfileNudgeForGood = () => {
+	closedForLogin.value = true
+	call('lms.lms.api.hide_profile_nudge').then(() => {
+		if (userResource.data) userResource.data.hide_profile_nudge = 1
+	})
+}
+
+const profileSteps = computed(() => [
+	Boolean(userResource.data?.user_image),
+	Boolean(userResource.data?.headline),
+	Boolean(userResource.data?.bio),
+])
 
 const profileIsComplete = computed(() => {
 	return (
