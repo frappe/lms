@@ -87,7 +87,7 @@
 			"
 		>
 			<Button
-				variant="solid"
+				variant="subtle"
 				:loading="resource.loading"
 				:label="__('Retry')"
 				@click="reload"
