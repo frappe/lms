@@ -38,7 +38,7 @@
 		>
 			<Button
 				v-if="!readOnlyMode"
-				variant="solid"
+				variant="subtle"
 				:label="__('Enroll Students')"
 				@click="openEnrollForm"
 			>
