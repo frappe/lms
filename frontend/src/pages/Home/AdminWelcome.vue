@@ -373,16 +373,9 @@ const pick = (value: 'skill' | 'course') => {
 	composer.value?.scrollIntoView({ behavior: 'smooth', block: 'center' })
 	flash.value = true
 	setTimeout(() => (flash.value = false), 1200)
-	nextTick(() => textareaOf(field.value)?.focus({ preventScroll: true }))
-}
-
-// frappe-ui's Textarea may render the textarea as its root or inside a wrapper.
-const textareaOf = (component: any): HTMLTextAreaElement | null => {
-	const el = component?.$el as HTMLElement | undefined
-	if (!el) return null
-	return el.tagName === 'TEXTAREA'
-		? (el as HTMLTextAreaElement)
-		: el.querySelector?.('textarea')
+	nextTick(() =>
+		composer.value?.querySelector('textarea')?.focus({ preventScroll: true })
+	)
 }
 
 // Whether the site has a chat model and an embedding model. Checked again whenever this tab
