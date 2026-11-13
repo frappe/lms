@@ -152,6 +152,14 @@ describe('Setup', () => {
 		)
 	})
 
+	it('sends a direct visit to the desk wizard while the site is not set up', async () => {
+		setupState.data = { needs_setup: true, setup_url: '/desk/setup-wizard' }
+		const wrapper = await mountPage()
+
+		expect(window.location.href).toBe('/desk/setup-wizard')
+		expect(wrapper.find('.goal').exists()).toBe(false)
+	})
+
 	it('goes home when nothing is left to set up', async () => {
 		setupState.data = {
 			needs_setup: false,
