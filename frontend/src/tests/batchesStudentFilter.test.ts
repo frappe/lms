@@ -105,9 +105,9 @@ beforeEach(() => {
 })
 
 describe('batch list filters for students and guests', () => {
-	it('a student on Upcoming gets the upcoming filter, with no end_date', async () => {
+	it('a signed-in student starts on Enrolled, with no date filter', async () => {
 		await mountAs({ name: 'student@test.com', is_student: true })
-		expect(sent.filters).toEqual(UPCOMING)
+		expect(sent.filters).toEqual({ enrolled: 1 })
 	})
 
 	it('a guest gets the upcoming filter, with no end_date', async () => {
@@ -115,30 +115,30 @@ describe('batch list filters for students and guests', () => {
 		expect(sent.filters).toEqual(UPCOMING)
 	})
 
-	it('a learner without the student flag also gets the upcoming filter', async () => {
+	it('a learner without the student flag also starts on Enrolled', async () => {
 		await mountAs({ name: 'member@test.com' })
-		expect(sent.filters).toEqual(UPCOMING)
-	})
-
-	it('a student moving to Enrolled drops the date filter', async () => {
-		const wrapper = await mountAs({
-			name: 'student@test.com',
-			is_student: true,
-		})
-		await wrapper.find('[data-tab="enrolled"]').trigger('click')
-		await flushPromises()
 		expect(sent.filters).toEqual({ enrolled: 1 })
 	})
 
-	it('a student back on Upcoming gets the upcoming filter again', async () => {
+	it('a student moving to Upcoming gets the upcoming filter, with no end_date', async () => {
 		const wrapper = await mountAs({
 			name: 'student@test.com',
 			is_student: true,
 		})
-		await wrapper.find('[data-tab="enrolled"]').trigger('click')
-		await flushPromises()
 		await wrapper.find('[data-tab="upcoming"]').trigger('click')
 		await flushPromises()
 		expect(sent.filters).toEqual(UPCOMING)
+	})
+
+	it('a student back on Enrolled drops the date filter again', async () => {
+		const wrapper = await mountAs({
+			name: 'student@test.com',
+			is_student: true,
+		})
+		await wrapper.find('[data-tab="upcoming"]').trigger('click')
+		await flushPromises()
+		await wrapper.find('[data-tab="enrolled"]').trigger('click')
+		await flushPromises()
+		expect(sent.filters).toEqual({ enrolled: 1 })
 	})
 })
