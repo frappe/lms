@@ -48,6 +48,15 @@
 				:disabled="sending"
 				@click="emit('skip')"
 			/>
+			<Button
+				v-if="canGoBack"
+				variant="ghost"
+				class="-me-2 ms-auto text-ink-gray-6"
+				icon-left="lucide-arrow-left"
+				:label="__('Back')"
+				:disabled="sending"
+				@click="emit('back')"
+			/>
 		</div>
 	</div>
 </template>
@@ -60,7 +69,8 @@ import { computed, ref } from 'vue'
 import { getLmsBasePath } from '@/utils/basePath'
 import { validateEmail } from '@/utils'
 
-const emit = defineEmits(['done', 'skip'])
+defineProps({ canGoBack: { type: Boolean, default: false } })
+const emit = defineEmits(['done', 'skip', 'back'])
 
 const roles = [
 	{ label: __('Student'), value: 'LMS Student' },

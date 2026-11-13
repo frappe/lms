@@ -72,7 +72,11 @@ vi.mock('@framework/ui/components/SetupFlow/index', () => ({
 				h('button', { class: 'password', onClick: () => emit('done') }),
 	}),
 	SetupFlow: defineComponent({
-		props: { steps: { type: Array, required: true }, labels: Object },
+		props: {
+			steps: { type: Array, required: true },
+			labels: Object,
+			backButton: Boolean,
+		},
 		emits: ['finish'],
 		setup(props: { steps: { type: string }[] }, { slots, emit }) {
 			givenSteps = props.steps as typeof givenSteps
@@ -86,6 +90,8 @@ vi.mock('@framework/ui/components/SetupFlow/index', () => ({
 						flow = { done: () => {}, finish: () => emit('finish', details) }
 					},
 					skip: () => {},
+					back: () => {},
+					canGoBack: false,
 				})
 		},
 	}),
