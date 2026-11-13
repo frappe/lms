@@ -10,14 +10,15 @@ Ubuntu 24.04, 2 vCPU, 4 GB RAM, 20 GB disk. Open ports 80 and 443 only.
 
 ```sh
 sudo apt-get update && sudo apt-get install -y ffmpeg caddy
-sudo adduser --disabled-password --gecos "" voice
-sudo -iu voice bash -c 'curl -LsSf https://astral.sh/uv/install.sh | sh'
+# "lmsvoice", not "voice": Ubuntu already has a system group called voice.
+sudo adduser --disabled-password --gecos "" lmsvoice
+sudo -iu lmsvoice bash -c 'curl -LsSf https://astral.sh/uv/install.sh | sh'
 ```
 
 ## 2. The server
 
 ```sh
-sudo -iu voice
+sudo -iu lmsvoice
 curl -o kokoro_server.py https://raw.githubusercontent.com/frappe/lms/learning-v3-poc/scripts/kokoro_server.py
 cat > voice.env <<ENV
 LMS_VOICE_TOKEN=$(openssl rand -hex 24)
@@ -38,12 +39,23 @@ Keep the token: the site needs it in step 4.
 ```sh
 sudo cp lms-voice.service /etc/systemd/system/
 sudo systemctl enable --now lms-voice
+```
+
+On a machine of its own, Caddy is the front door:
+
+```sh
 sudo cp Caddyfile /etc/caddy/Caddyfile     # change voice.example.com to your name first
 sudo systemctl reload caddy
 curl https://voice.example.com/health       # {"ok": true, "whisper": true}
 ```
 
 Point the DNS name at the machine before reloading Caddy; it fetches the certificate itself.
+
+On a Frappe Cloud server that already runs sites, nginx owns ports 80 and 443, so use it
+instead of Caddy: copy `nginx-lms-voice.conf` to `/etc/nginx/conf.d/10-lms-voice.conf` with
+your name in place of `voice.example.com`, then
+`sudo certbot --nginx -d voice.example.com` fetches the certificate and fills in the TLS lines.
+Pilot writes only `00-pilot.conf` in that folder and leaves other files alone.
 
 ## 4. The site
 
@@ -68,6 +80,6 @@ Whisper, and nothing is billed per use.
 ## Updating
 
 ```sh
-sudo -iu voice curl -o kokoro_server.py https://raw.githubusercontent.com/frappe/lms/learning-v3-poc/scripts/kokoro_server.py
+sudo -iu lmsvoice curl -o kokoro_server.py https://raw.githubusercontent.com/frappe/lms/learning-v3-poc/scripts/kokoro_server.py
 sudo systemctl restart lms-voice
 ```

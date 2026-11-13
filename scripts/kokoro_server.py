@@ -1,9 +1,26 @@
 # /// script
 # requires-python = ">=3.10,<3.13"
-# dependencies = ["kokoro>=0.9", "soundfile", "faster-whisper", "av<15"]
+# dependencies = [
+#     "kokoro>=0.9",
+#     "soundfile",
+#     "faster-whisper>=1.2.1",
+#     "av>=15.1,<17",
+#     "en-core-web-sm @ https://github.com/explosion/spacy-models/releases/download/en_core_web_sm-3.8.0/en_core_web_sm-3.8.0-py3-none-any.whl",
+# ]
+#
+# [tool.uv.sources]
+# torch = { index = "pytorch-cpu", marker = "sys_platform == 'linux'" }
+#
+# [[tool.uv.index]]
+# name = "pytorch-cpu"
+# url = "https://download.pytorch.org/whl/cpu"
+# explicit = true
 # ///
-# av is pinned: 15 dropped the open() arguments faster-whisper still passes, and the
-# python ceiling keeps us where av 14 ships wheels.
+# av: 14's Linux wheels left PyPI, and faster-whisper 1.2.1 works with 15 and 16, which have them.
+# en-core-web-sm: Kokoro's text front end needs spaCy's small English model. Left to itself,
+# spaCy downloads it on first use with pip or uv, which a service under systemd has neither of.
+# On Linux, torch comes from PyTorch's CPU index: the default build drags in 3 GB of CUDA
+# libraries that a server without a GPU never uses.
 """Learning's voice server: Kokoro-82M speaks, Whisper listens. No API costs, no GPU.
 
 Run it with uv, which keeps its dependencies out of the bench env:
