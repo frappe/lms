@@ -6,22 +6,20 @@ import { useSettings } from './stores/settings'
 import { getLmsBasePath } from './utils/basePath'
 import { routes } from './routes'
 
-// Run the fresh-site-admin persona check at most once per app load.
-let personaChecked = false
+// Run the fresh-site-admin setup check at most once per app load.
+let setupChecked = false
 
-async function shouldCapturePersona() {
-	const captured = await call('frappe.client.get_single_value', {
-		doctype: 'LMS Settings',
-		field: 'persona_captured',
-	})
-	if (captured) return false
-	const courseCount = await call('frappe.client.get_count', {
-		doctype: 'LMS Course',
-		filters: {
-			title: ['not like', '%A guide to Frappe Learning%'],
-		},
-	})
-	return !courseCount
+// Learning's setup page, or the desk wizard while the site itself is not set up yet.
+async function setupRoute(developerMode) {
+	const state = await call('lms.lms.onboarding.get_setup_state')
+	if (!state?.needs_setup) return null
+	// A developer's own site skips the questions and the desk wizard, never the password.
+	if (developerMode) return state.needs_password ? { name: 'Setup' } : null
+	if (state.setup_url) {
+		window.location.href = state.setup_url
+		return false
+	}
+	return { name: 'Setup' }
 }
 
 let router = createRouter({
@@ -59,20 +57,23 @@ export async function guardNavigation(to, from, next) {
 		}
 	}
 
+	if (to.name === 'Setup' && !userResource.data?.is_system_manager) {
+		return next({ name: 'Home' })
+	}
+
 	if (
 		isLoggedIn &&
-		!personaChecked &&
-		to.name !== 'PersonaForm' &&
-		userResource.data?.is_system_manager &&
-		!userResource.data?.developer_mode
+		!setupChecked &&
+		to.name !== 'Setup' &&
+		userResource.data?.is_system_manager
 	) {
-		personaChecked = true
 		try {
-			if (await shouldCapturePersona()) {
-				return next({ name: 'PersonaForm' })
-			}
+			const target = await setupRoute(userResource.data?.developer_mode)
+			setupChecked = true
+			if (target === false) return next(false)
+			if (target) return next(target)
 		} catch (_) {
-			// Fail open: a transient API error must not block navigation.
+			// Fail open for this navigation; the next one asks again.
 		}
 	}
 
