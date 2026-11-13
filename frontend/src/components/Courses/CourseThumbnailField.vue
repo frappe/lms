@@ -4,18 +4,35 @@
 		role="group"
 		:aria-labelledby="thumbnailLabelId"
 	>
-		<InputLabel :id="thumbnailLabelId" :label="__('Course thumbnail')" />
+		<div class="flex items-center gap-1">
+			<InputLabel :id="thumbnailLabelId" :label="__('Course thumbnail')" />
+			<Tooltip
+				:text="
+					hasImage
+						? __('Remove the image to pick a color instead.')
+						: __('Upload an image to replace the color.')
+				"
+			>
+				<button
+					type="button"
+					class="inline-grid size-6 place-items-center rounded-4 text-ink-gray-6 hover:text-ink-gray-9"
+					:aria-label="__('Course thumbnail information')"
+				>
+					<span class="lucide-info size-4" aria-hidden="true" />
+				</button>
+			</Tooltip>
+		</div>
 
-		<div v-if="hasImage" class="media-field-layout">
+		<div v-if="hasImage" class="flex flex-col gap-4 sm:flex-row sm:items-start">
 			<div
-				class="relative aspect-[750/422] w-full shrink-0 grid place-items-center overflow-hidden rounded-6 border border-outline-gray-2 bg-surface-gray-2 media-field-preview max-w-full"
+				class="relative aspect-[750/422] w-full shrink-0 grid place-items-center overflow-hidden rounded-6 border border-outline-gray-2 bg-surface-gray-2 sm:w-56"
 			>
 				<img :src="safeUrl(doc.image)" alt="" class="size-full object-cover" />
 			</div>
 
-			<div class="contents">
-				<div class="media-field-details text-sm">
-					<div class="text-ink-gray-9 font-medium break-words leading-5">
+			<div class="min-w-0 space-y-3 sm:flex-1">
+				<div class="space-y-0.5 text-sm">
+					<div class="text-ink-gray-9 font-medium break-all leading-5">
 						{{ filename }}
 						<span
 							class="ms-2 inline-block whitespace-nowrap text-ink-gray-6 font-normal"
@@ -24,7 +41,9 @@
 						</span>
 					</div>
 				</div>
-				<div class="media-field-actions">
+				<div
+					class="flex flex-col items-start gap-2 md:max-xl:flex-row md:max-xl:flex-wrap md:max-xl:items-center"
+				>
 					<FileUploader
 						:fileTypes="['.jpg,.jpeg,.gif,.png']"
 						:private="false"
@@ -51,15 +70,12 @@
 						{{ __('Remove') }}
 					</Button>
 				</div>
-				<p class="media-field-help text-p-xs text-ink-gray-6">
-					{{ __('Remove the image to pick a color instead.') }}
-				</p>
 			</div>
 		</div>
 
 		<FileUploader
 			v-else
-			class="flex flex-col gap-4 sm:flex-row sm:flex-wrap sm:items-start"
+			class="flex flex-col gap-4 sm:flex-row sm:items-start"
 			:fileTypes="['.jpg,.jpeg,.gif,.png']"
 			:private="false"
 			@success="(file) => onUploaded(file.file_url)"
@@ -67,7 +83,7 @@
 		>
 			<template #default="{ openFileSelector, uploading }">
 				<div
-					class="relative aspect-[750/422] w-full shrink-0 grid place-items-center overflow-hidden rounded-6 border border-outline-gray-2 bg-surface-gray-2 sm:w-56 max-w-full"
+					class="relative aspect-[750/422] w-full shrink-0 grid place-items-center overflow-hidden rounded-6 border border-outline-gray-2 bg-surface-gray-2 sm:w-56"
 					:style="
 						doc?.card_gradient ? { backgroundColor: wellColor } : undefined
 					"
@@ -88,7 +104,7 @@
 					</button>
 				</div>
 
-				<div class="min-w-0 space-y-3 sm:flex-[1_1_12rem]">
+				<div class="min-w-0 space-y-3 sm:flex-1">
 					<div class="space-y-2">
 						<div class="text-xs text-ink-gray-6">
 							{{ __('Color') }}
@@ -117,9 +133,6 @@
 							</template>
 							{{ uploading ? __('Uploading') : __('Upload image instead') }}
 						</Button>
-						<p class="text-p-xs text-ink-gray-6">
-							{{ __('Upload an image to replace the color.') }}
-						</p>
 					</div>
 				</div>
 			</template>
@@ -131,6 +144,7 @@
 import {
 	Button,
 	FileUploader,
+	Tooltip,
 	UploadError,
 	createResource,
 	toast,
