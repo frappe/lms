@@ -10,7 +10,12 @@
 			</template>
 			{{ __('New {0}').format(singularize(title)) }}
 		</Button>
-		<div class="text-2xl-semibold text-ink-gray-9">
+		<div
+			class="text-ink-gray-9"
+			:class="
+				doctype === 'LMS Batch' ? 'text-lg-semibold' : 'text-2xl-semibold'
+			"
+		>
 			{{ __(title) }}
 		</div>
 	</div>

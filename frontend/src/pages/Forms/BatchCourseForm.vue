@@ -1,7 +1,7 @@
 <template>
 	<FormShell :title="__('Add Course')" size="lg" @close="close">
 		<template #default>
-			<div v-if="refusal" class="p-4 text-base text-ink-gray-6">
+			<div v-if="refusal" class="text-base text-ink-gray-6">
 				{{ refusal }}
 			</div>
 			<div v-else data-testid="batch-course-fields" class="flex flex-col gap-4">
@@ -16,6 +16,7 @@
 				/>
 				<Link
 					doctype="Course Evaluator"
+					variant="outline"
 					v-model="evaluator"
 					:label="__('Evaluator')"
 				/>
