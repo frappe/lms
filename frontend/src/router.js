@@ -59,13 +59,13 @@ router.beforeEach(async (to, from, next) => {
 		userResource.data?.is_system_manager &&
 		!userResource.data?.developer_mode
 	) {
-		setupChecked = true
 		try {
 			const target = await setupRoute()
+			setupChecked = true
 			if (target === false) return next(false)
 			if (target) return next(target)
 		} catch (_) {
-			// Fail open: a transient API error must not block navigation.
+			// Fail open for this navigation; the next one asks again.
 		}
 	}
 
