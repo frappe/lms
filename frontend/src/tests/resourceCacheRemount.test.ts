@@ -166,7 +166,6 @@ describe('resources that write component state declare no cache', () => {
 		],
 		['pages/Lesson.vue', "doctype: 'LMS Lesson Note'"],
 		['pages/Forms/ProgramForm.vue', "doctype: 'LMS Program Course'"],
-		['pages/Forms/ProgramForm.vue', "doctype: 'LMS Program Member'"],
 	]
 
 	/** The createResource/createListResource call enclosing `marker`. */

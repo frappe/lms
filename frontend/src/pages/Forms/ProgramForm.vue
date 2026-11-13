@@ -118,7 +118,7 @@
 
 						<div class="flex gap-x-2">
 							<Button
-								v-if="(programMembers.data?.length ?? 0) > 0"
+								v-if="savedMembers.length > 0"
 								@click="
 									() => {
 										showProgressDialog = true
@@ -214,7 +214,7 @@
 			<ProgramProgressSummary
 				v-model="showProgressDialog"
 				:programName="programId"
-				:programMembers="programMembers.data || []"
+				:programMembers="savedMembers"
 			/>
 		</template>
 		<template #actions>
@@ -372,17 +372,6 @@ const programCourses = createListResource({
 	},
 })
 
-const programMembers = createListResource({
-	doctype: 'LMS Program Member',
-	pageLength: 99999,
-	fields: ['member', 'full_name', 'progress', 'name'],
-	parent: 'LMS Program',
-	orderBy: 'creation desc',
-	onSuccess(data: ProgramMember[]) {
-		program.value.program_members = data
-	},
-})
-
 const fetchCourses = () => {
 	programCourses.update({
 		filters: {
@@ -394,25 +383,24 @@ const fetchCourses = () => {
 	programCourses.reload()
 }
 
-const fetchMembers = () => {
-	programMembers.update({
-		filters: {
-			parent: programId.value,
-			parenttype: 'LMS Program',
-			parentfield: 'program_members',
-		},
-	})
-	programMembers.reload()
-}
+// The scalar fields and the members. Courses belong to their list resource
+// above, whose response can land either side of this one. Members come from the
+// document: their member and full_name are permission level 1, and the list API
+// checks a child table's level against the child, which has no permissions of
+// its own, so it returned every row without them (frappe/desk/reportview.py
+// validate_fields). The document API checks them against LMS Program.
+const savedMembers = computed<ProgramMember[]>(() =>
+	[...(programDoc?.doc?.program_members ?? [])].sort((a, b) =>
+		String(b.creation).localeCompare(String(a.creation))
+	)
+)
 
-// Only the scalar fields. The two child tables belong to the list resources
-// above, whose responses can land either side of this one — copying them out of
-// the document would let whichever arrived first win.
 const applyDoc = (doc: Program) => {
 	program.value.name = doc.name
 	program.value.title = doc.title
 	program.value.published = Boolean(doc.published)
 	program.value.enforce_course_order = Boolean(doc.enforce_course_order)
+	program.value.program_members = savedMembers.value
 	dirty.value = false
 }
 
@@ -424,7 +412,6 @@ watch(
 	() => {
 		if (isNew.value) return
 		fetchCourses()
-		fetchMembers()
 	},
 	{ immediate: true }
 )
