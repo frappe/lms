@@ -216,7 +216,7 @@
 						/>
 						<Button
 							v-if="example"
-							variant="ghost"
+							variant="subtle"
 							:label="__('See an example course')"
 							:route="example.route"
 						/>
