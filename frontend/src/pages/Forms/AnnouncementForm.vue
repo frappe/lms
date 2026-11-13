@@ -173,7 +173,9 @@ const makeAnnouncement = () => {
 			},
 			onSuccess() {
 				close()
-				toast.success(__('Announcement has been sent successfully'))
+				toast.success(
+					__('Announcement is being sent to the students of this batch')
+				)
 			},
 			onError(err) {
 				toast.error(__(err.messages?.[0] || err))
