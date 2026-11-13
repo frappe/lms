@@ -365,13 +365,23 @@ const stepsFor = (goal) => {
 	return BATCH_FIRST.map((name) => allSteps.find((step) => step.name === name))
 }
 
+// The goal from this browser, else from the server, asked twice so one failed
+// request does not put the checklist in the wrong order for the visit.
 const firstGoal = async () => {
 	const saved = localStorage.getItem('lmsFirstGoal')
 	if (saved) return saved
-	const state = await call('lms.lms.onboarding.get_setup_state').catch(
-		() => null
-	)
-	return state?.first_goal
+	for (const delay of [0, 2000]) {
+		if (delay) await new Promise((resolve) => setTimeout(resolve, delay))
+		try {
+			const goal = (await call('lms.lms.onboarding.get_setup_state'))
+				?.first_goal
+			if (goal) localStorage.setItem('lmsFirstGoal', goal)
+			return goal
+		} catch {
+			// Try once more.
+		}
+	}
+	return null
 }
 
 const articles = ref([
