@@ -260,6 +260,7 @@ export function useMappingList(options: MappingListOptions): MappingList {
 		onError: onError(copy.recreateFailed),
 	})
 	function recreate(row: MappingRow): void {
+		if (recreateRecord.loading) return
 		recreateRecord.submit({ name: row.name })
 	}
 

@@ -207,9 +207,8 @@ const confirmDeletion = (row: SettingsListRow) => {
 				label: __('Delete'),
 				theme: 'red',
 				variant: 'solid',
-				onClick({ close }: { close: () => void }) {
-					deleteCategory(row.name, close)
-				},
+				onClick: ({ close }: { close: () => void }) =>
+					deleteCategory(row.name, close),
 			},
 		],
 	})
@@ -246,8 +245,9 @@ const columns: SettingsListColumn[] = [
 // LMS Category is a Link target on Course and Batch, so the server unlinks
 // before deleting; a plain delete raises LinkExistsError.
 const deleteCategory = (name: string, close: () => void) => {
+	if (deleting.value) return Promise.resolve()
 	deleting.value = true
-	call('lms.lms.api.delete_category', { category: name })
+	return call('lms.lms.api.delete_category', { category: name })
 		.then(() => {
 			list.reload()
 			if (typeof close === 'function') close()

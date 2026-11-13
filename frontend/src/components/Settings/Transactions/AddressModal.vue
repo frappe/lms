@@ -136,7 +136,7 @@ const createAddress = (close: () => void) => {
 		)
 		return
 	}
-	call('frappe.client.insert', {
+	return call('frappe.client.insert', {
 		doc: {
 			doctype: 'Address',
 			...address,

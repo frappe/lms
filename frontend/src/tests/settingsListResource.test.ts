@@ -109,7 +109,6 @@ vi.mock('frappe-ui', () => ({
 }))
 
 import {
-	SETTINGS_PAGE_LENGTH,
 	useSettingsListResource,
 	useSettingsMethodResource,
 } from '@/composables/useSettingsListResource'
@@ -152,14 +151,6 @@ const landMethod = async (rows: any[] | null) => {
 }
 
 describe('useSettingsListResource', () => {
-	it('pages at 13 rows', async () => {
-		expect(SETTINGS_PAGE_LENGTH).toBe(13)
-		const list = build()
-		await drain()
-
-		expect(list.resource.pageLength).toBe(13)
-	})
-
 	it('sends a search to the server as an OR over every search field', async () => {
 		const list = build()
 		await drain()

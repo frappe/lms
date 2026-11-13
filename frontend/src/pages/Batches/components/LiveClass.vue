@@ -236,6 +236,7 @@ const isRetrying = (cls) =>
 	retryInvites.loading && retryInvites.params?.live_class === cls.name
 
 const retryClassInvites = (cls) => {
+	if (retryInvites.loading) return
 	retryInvites.submit(
 		{ live_class: cls.name },
 		{

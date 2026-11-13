@@ -191,6 +191,7 @@ useDirtyGuard(
 const saving = ref(false)
 
 const save = () => {
+	if (saving.value) return
 	if (hasBlockingErrors.value) {
 		toast.error(
 			__('Client ID and Client Secret are required to enable Google API')

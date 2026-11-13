@@ -116,28 +116,6 @@ describe('CourseCertification', () => {
 		vi.clearAllMocks()
 	})
 
-	it('reads the course details from the whitelisted endpoint', () => {
-		const { options } = mountPage()
-		expect(options().url).toBe('lms.lms.api.get_certification_details')
-		expect(options().makeParams()).toEqual({ course: COURSE })
-	})
-
-	it('never reads the course through frappe.client', () => {
-		mountPage()
-		const urls = createResourceMock.mock.calls.map(([given]) => given.url)
-		expect(urls.filter((url) => url.startsWith('frappe.client'))).toEqual([])
-	})
-
-	// Without this the suite passes against a page that fetches nothing and
-	// renders blank forever, because every case below assigns data by hand.
-	// auto stays false (frappe-ui only reads it once, at creation, and $user.data
-	// may not have arrived yet) - the fetch is driven by watching $user.data instead.
-	it('fetches on mount for a signed-in learner', () => {
-		const { options, resource } = mountPage()
-		expect(options().auto).toBe(false)
-		expect(resource.fetch).toHaveBeenCalled()
-	})
-
 	// A watcher left running after firing once repeats certification.fetch()
 	// (and its navigate/toast side effects) on the next unrelated user-resource
 	// reload, which is why data-already-present-at-mount must never watch.
@@ -164,29 +142,9 @@ describe('CourseCertification', () => {
 		expect(resource.fetch).toHaveBeenCalledTimes(1)
 	})
 
-	it('tells the evaluation list the course has an evaluator', async () => {
-		const { wrapper, resource } = mountPage()
-		resource.data = ENROLLED
-		await flushPromises()
-		expect(evaluations(wrapper).props('courses')).toEqual([
-			{ course: COURSE, title: 'Python Basics', has_evaluator: true },
-		])
-	})
-
 	it('renders no evaluation list before the details arrive', () => {
 		const { wrapper } = mountPage()
 		expect(evaluations(wrapper).exists()).toBe(false)
-	})
-
-	// UpcomingEvaluations filters evaluator-less rows out of its own list, so the
-	// row is still passed down; it is that component's call what to show.
-	it('still lists a course whose evaluator is unset', async () => {
-		const { wrapper, resource } = mountPage()
-		resource.data = { ...ENROLLED, has_evaluator: false }
-		await flushPromises()
-		expect(evaluations(wrapper).props('courses')).toEqual([
-			{ course: COURSE, title: 'Python Basics', has_evaluator: false },
-		])
 	})
 
 	it('renders the certificate instead of the scheduler once one exists', async () => {

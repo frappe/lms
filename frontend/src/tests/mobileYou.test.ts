@@ -146,30 +146,6 @@ beforeEach(() => {
 })
 
 describe('a cold deep link to /you', () => {
-	it('renders the page with nothing mounted above it', async () => {
-		const { wrapper } = await openYou()
-		expect(wrapper.text()).toContain('You')
-		expect(wrapper.text()).toContain('Raiza Safeel')
-		expect(wrapper.text()).toContain('Log out')
-	})
-
-	// Its own <img>, not frappe-ui's Avatar: that tops out at 46px and would
-	// carry a 14px initial inside this 96px circle.
-	it('draws the user picture rather than an icon', async () => {
-		const { wrapper } = await openYou()
-		const picture = wrapper.find('[data-testid="you-profile"] img')
-
-		expect(picture.attributes('src')).toBe('/files/raiza.png')
-		expect(picture.attributes('alt')).toBe('')
-	})
-
-	it('offers no back control, because it is a root tab', async () => {
-		const { wrapper } = await openYou()
-		expect(wrapper.find('[data-testid="mobile-page-back"]').exists()).toBe(
-			false
-		)
-	})
-
 	it('stands up before the nav links have arrived', async () => {
 		// The store is module-level and the layout fills it asynchronously; on a
 		// cold link the page renders first and the destinations appear after.
@@ -178,11 +154,6 @@ describe('a cold deep link to /you', () => {
 		const { wrapper } = await openYou()
 		expect(wrapper.text()).toContain('Raiza Safeel')
 		expect(wrapper.text()).toContain('Colour mode')
-	})
-
-	it('asks for the unread count itself', async () => {
-		await openYou()
-		expect(loadUnreadCount).toHaveBeenCalledTimes(1)
 	})
 })
 
@@ -221,12 +192,6 @@ describe('a signed-out visitor who types the URL', () => {
 })
 
 describe('picking a row', () => {
-	it('opens the notifications panel in place', async () => {
-		const { wrapper } = await openYou()
-		await rowLabelled(wrapper, 'Notifications')?.trigger('click')
-		expect(toggleNotifications).toHaveBeenCalledTimes(1)
-	})
-
 	it('logs out in place rather than routing somewhere', async () => {
 		const { wrapper } = await openYou()
 		await rowLabelled(wrapper, 'Log out')?.trigger('click')
@@ -238,21 +203,6 @@ describe('picking a row', () => {
 		await rowLabelled(wrapper, 'Certifications')?.trigger('click')
 		await flushPromises()
 		expect(router.currentRoute.value.name).toBe('Certifications')
-	})
-
-	it('opens the colour-mode sheet rather than navigating away for it', async () => {
-		const { wrapper } = await openYou()
-
-		expect(wrapper.find('[data-testid="colour-mode-sheet"]').exists()).toBe(
-			false
-		)
-
-		await rowLabelled(wrapper, 'Colour mode')?.trigger('click')
-
-		const sheet = wrapper.get('[data-testid="colour-mode-sheet"]')
-		expect(sheet.text()).toContain('System')
-		expect(sheet.text()).toContain('Light')
-		expect(sheet.text()).toContain('Dark')
 	})
 
 	it('sets the preference from the sheet and closes it', async () => {

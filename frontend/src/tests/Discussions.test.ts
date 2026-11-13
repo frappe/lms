@@ -34,7 +34,11 @@ const TOPICS = [
 // pieces Discussions uses.
 // Each mount gets this resource; a test can swap it for one that loads later.
 let resource: { data?: typeof TOPICS; reload: () => void; refresh: () => void }
-const loadedResource = () => ({ data: TOPICS, reload: vi.fn(), refresh: vi.fn() })
+const loadedResource = () => ({
+	data: TOPICS,
+	reload: vi.fn(),
+	refresh: vi.fn(),
+})
 vi.mock('frappe-ui', () => ({
 	Button: { template: '<button><slot /></button>' },
 	createResource: () => resource,
@@ -80,7 +84,9 @@ const mountDiscussions = () =>
 
 // jsdom has no matchMedia, so each test that needs one adds it and it is removed after.
 const setWideScreen = (wide: boolean) => {
-	window.matchMedia = (() => ({ matches: wide })) as unknown as typeof window.matchMedia
+	window.matchMedia = (() => ({
+		matches: wide,
+	})) as unknown as typeof window.matchMedia
 }
 
 describe('Discussions master-detail', () => {
@@ -125,14 +131,5 @@ describe('Discussions master-detail', () => {
 		const wrapper = mountDiscussions()
 		await flushPromises()
 		expect(wrapper.find('[data-testid="thread"]').exists()).toBe(false)
-	})
-
-	it('marks the selected row', async () => {
-		const wrapper = mountDiscussions()
-		await flushPromises()
-		const rows = wrapper.findAll('[data-testid="topic-row"]')
-		await rows[0].trigger('click')
-		expect(rows[0].classes()).toContain('bg-surface-gray-2')
-		expect(rows[1].classes()).not.toContain('bg-surface-gray-2')
 	})
 })

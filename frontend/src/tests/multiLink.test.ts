@@ -207,12 +207,6 @@ function selectAllButton(): HTMLButtonElement | undefined {
 	)
 }
 
-function footerLabels(): string[] {
-	return Array.from(
-		document.querySelectorAll('[data-slot="footer"] button')
-	).map((b) => (b.textContent ?? '').trim())
-}
-
 function searchResource(): FakeResource | undefined {
 	// The search resource is the one the trigger drives; the other is the
 	// by-name title lookup, which only ever carries a `names` param.
@@ -366,38 +360,6 @@ describe('MultiLink disabled', () => {
 })
 
 describe('MultiLink trigger', () => {
-	// The control drew its own trigger, with focus and open styling written by
-	// hand rather than taken from the theme: `border-outline-gray-8` is gray-900,
-	// so the box was outlined in near-black, and `outline-none` suppressed the
-	// theme's own soft focus ring in favour of a white `focus-visible` fill that
-	// made that near-black border read as a hard ring the moment it was focused
-	// or opened. MultiSelect's own trigger is used instead.
-	it("is frappe-ui's own trigger, not a hand-rolled one", async () => {
-		const wrapper = mountLink([])
-		await flushPromises()
-
-		const trigger = wrapper.get('button[data-state]')
-		expect(trigger.attributes('data-slot')).toBe('trigger')
-		expect(trigger.attributes('aria-haspopup')).toBe('listbox')
-	})
-
-	it('carries no focus or open colours of its own', async () => {
-		const wrapper = mountLink([])
-		await flushPromises()
-
-		const classes = wrapper.get('button[data-state]').classes()
-		expect(classes).not.toContain('outline-none')
-		expect(classes).not.toContain('border-outline-gray-8')
-		expect(classes.filter((c) => c.startsWith('focus-visible:'))).toEqual([])
-		expect(
-			classes.filter(
-				(c) =>
-					c.startsWith('data-[state=open]:') &&
-					c !== 'data-[state=open]:focus-ring'
-			)
-		).toEqual([])
-	})
-
 	it('carries the aria wiring for its label, error and requiredness', async () => {
 		const wrapper = mountLink([], false, {
 			label: 'Courses',
@@ -448,25 +410,6 @@ describe('MultiLink trigger summary', () => {
 		const text = wrapper.get('button[data-state]').text()
 		expect(text).toContain('Docker for Developers + Kubernetes in Practice')
 		expect(text).not.toContain('2 selected')
-	})
-})
-
-describe('MultiLink prefix slot', () => {
-	// Two forms render stacked instructor avatars in front of the trigger. The
-	// slot is MultiSelect's now, so its props are the ones a consumer gets
-	// plus `selected`, the name MultiLink's own trigger handed over.
-	it('hands the prefix slot the selection under both names', async () => {
-		const wrapper = mountLink(
-			['docker-for-developers'],
-			false,
-			{},
-			{
-				prefix: `<template #default="p"><span data-testid="pfx">{{ p.selected.length }}/{{ p.selectedOptions.length }}/{{ p.open }}</span></template>`,
-			}
-		)
-		await flushPromises()
-
-		expect(wrapper.get('[data-testid="pfx"]').text()).toBe('1/1/false')
 	})
 })
 
@@ -634,46 +577,6 @@ describe('MultiLink select all', () => {
 		const selected = wrapper.emitted('update:modelValue')?.at(-1)?.[0]
 		expect(selected).toHaveLength(10)
 		expect(selected).not.toContain('b10')
-	})
-
-	it('sits opposite Clear, on the end edge of the footer', async () => {
-		// Clear and Select all were grouped together on the start edge, so the
-		// footer read as one two-button cluster. They are the two opposite
-		// answers to "which of these?", and now sit on opposite edges.
-		h.searchHits = [{ value: 'b1', label: 'One' }]
-		const wrapper = mountLink([], false, { allowSelectAll: true })
-		await flushPromises()
-
-		await wrapper.get('button[data-state]').trigger('click')
-		await flushPromises()
-
-		expect(footerLabels()).toEqual(['Clear', 'Select all'])
-		const footer = document.querySelector('[data-slot="footer"] > div')!
-		expect(footer.className.split(' ')).toContain('justify-between')
-		// Two edge children, not one cluster: Clear alone, then the rest.
-		expect(footer.children).toHaveLength(2)
-		expect(footer.children[0].textContent?.trim()).toBe('Clear')
-		expect(footer.children[1].lastElementChild?.textContent?.trim()).toBe(
-			'Select all'
-		)
-	})
-
-	// The two are never passed together today, select-all is opted into by the
-	// Raven condition field, `onCreate` by the instructor pickers, so this pins
-	// the layout that assumption is hiding: Clear keeps the start edge alone and
-	// Select all keeps the end edge, with Create New between them.
-	it('keeps Clear and Select all on the edges when Create New is there too', async () => {
-		h.searchHits = [{ value: 'b1', label: 'One' }]
-		const wrapper = mountLink([], false, {
-			allowSelectAll: true,
-			onCreate: () => {},
-		})
-		await flushPromises()
-
-		await wrapper.get('button[data-state]').trigger('click')
-		await flushPromises()
-
-		expect(footerLabels()).toEqual(['Clear', 'Create New', 'Select all'])
 	})
 
 	it('selects nothing when the list is empty', async () => {

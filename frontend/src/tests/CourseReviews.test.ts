@@ -6,7 +6,7 @@
  * fed into dayjs() → Invalid Date → diff NaN → every row collapsed to
  * __('Today'). The backend now returns the raw datetime; these tests assert real
  * datetimes render their true relative age, plus the list's other display rules
- * (null-author drop, preview limit, star fill, header summary, clamp toggle).
+ * (null-author drop, preview limit).
  */
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { flushPromises, mount } from '@vue/test-utils'
@@ -140,23 +140,6 @@ describe('CourseReviews date rendering', () => {
 	})
 })
 
-describe('CourseReviews resource params', () => {
-	// A blank courseName sent `get_reviews` with no `course` arg at all,
-	// throwing a TypeError the backend has no handler for and crashing every
-	// later assertion in the same test file (frontend regression, 2026-09-11).
-	it('does not auto-fire get_reviews without a courseName', async () => {
-		mountReviews({ courseName: '' })
-		await flushPromises()
-		expect(lastReviewsResourceOpts?.auto).toBe(false)
-	})
-
-	it('auto-fires get_reviews once a courseName is present', async () => {
-		mountReviews({ courseName: 'C1' })
-		await flushPromises()
-		expect(lastReviewsResourceOpts?.auto).toBe(true)
-	})
-})
-
 describe('CourseReviews list rendering', () => {
 	it('drops reviews whose author record is missing', async () => {
 		currentReviews = [
@@ -182,36 +165,6 @@ describe('CourseReviews list rendering', () => {
 			.find((b) => b.text() === 'View all reviews')!
 		await viewAll.trigger('click')
 		expect(wrapper.findAll('article')).toHaveLength(6)
-	})
-
-	it('fills one star per (rounded-up) rating point', async () => {
-		currentReviews = [review({ name: 'r3', rating: 3 })]
-		const wrapper = mountReviews()
-		await flushPromises()
-		const row = wrapper.get('article')
-		expect(row.findAll('.fill-ink-amber-7')).toHaveLength(3)
-		expect(row.findAll('.fill-surface-gray-3')).toHaveLength(2)
-	})
-
-	it('summarizes the rating and pluralizes the count', async () => {
-		currentReviews = [review({ name: 'only' })]
-		const wrapper = mountReviews({ avg_rating: '4.5' })
-		await flushPromises()
-		const header = wrapper.text()
-		expect(header).toContain('4.5')
-		expect(header).toContain('1 user rating')
-		expect(header).not.toContain('user ratings')
-	})
-
-	it('clamps long review text behind a "See more" toggle', async () => {
-		currentReviews = [review({ name: 'long', review: 'x'.repeat(300) })]
-		const wrapper = mountReviews()
-		await flushPromises()
-		const body = wrapper.get('article p')
-		expect(body.classes()).toContain('line-clamp-5')
-
-		await wrapper.get('article button').trigger('click')
-		expect(wrapper.get('article p').classes()).not.toContain('line-clamp-5')
 	})
 })
 

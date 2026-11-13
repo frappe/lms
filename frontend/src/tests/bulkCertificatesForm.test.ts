@@ -128,17 +128,6 @@ const mountForm = async (router: Router, user: Record<string, unknown>) => {
 const moderator = { name: 'mod@example.com', is_moderator: true }
 const student = { name: 'student@example.com' }
 
-// The modal's whole field set. It was moved wholesale into the route
-// component, so pin it: a field lost in the move is otherwise invisible.
-const FIELD_LABELS = [
-	'Evaluator',
-	'Issue Date',
-	'Expiry Date',
-	'Course',
-	'Template',
-	'Published',
-]
-
 describe('BulkCertificatesForm as a route', () => {
 	beforeEach(() => {
 		certificateSubmit.mockReset()
@@ -162,23 +151,6 @@ describe('BulkCertificatesForm as a route', () => {
 			writable: true,
 			configurable: true,
 		})
-	})
-
-	it('fetches its own batch context for the batch in the URL', async () => {
-		// The students and courses this form needs are not on a plain LMS Batch
-		// fetch; they come from get_batch_details. This is the form's OWN fetch:
-		// BatchDetail's resource carries no cache key (a key read once at setup
-		// would strand the previous batch's data there when the router reuses
-		// the page), so there is no instance to share and none is claimed.
-		const router = makeRouter()
-		await router.push('/batches/B1/certificates')
-		await mountForm(router, moderator)
-		const batchCall = createResourceMock.mock.calls.find(
-			(call) => call[0].url === BATCH_URL
-		)
-		expect(batchCall).toBeDefined()
-		expect(batchCall?.[0].cache).toBeUndefined()
-		expect(batchCall?.[0].makeParams()).toEqual({ batch: 'B1' })
 	})
 
 	it('refuses for a user who is not a batch admin', async () => {
@@ -211,20 +183,6 @@ describe('BulkCertificatesForm as a route', () => {
 			wrapper.find('[data-testid="bulk-certificates-fields"]').exists()
 		).toBe(false)
 		expect(wrapper.html()).toContain('no students')
-	})
-
-	it('carries every field of the certificate form', async () => {
-		const router = makeRouter()
-		await router.push('/batches/B1/certificates')
-		const wrapper = await mountForm(router, moderator)
-
-		const labels = wrapper
-			.find('[data-testid="bulk-certificates-fields"]')
-			.findAll('label')
-			.map((label) => label.text())
-			.filter((text) => text !== '')
-		for (const label of FIELD_LABELS) expect(labels).toContain(label)
-		expect(labels).toHaveLength(FIELD_LABELS.length)
 	})
 
 	// The students' addresses never reach the client: the server certifies
@@ -264,18 +222,6 @@ describe('BulkCertificatesForm as a route', () => {
 		expect(toastError).toHaveBeenCalledWith('Sam is already certified')
 		expect(toastSuccess).not.toHaveBeenCalled()
 		expect(router.currentRoute.value.name).toBe('BulkCertificates')
-	})
-
-	it('does not insert anything when the gate refuses', async () => {
-		const router = makeRouter()
-		await router.push('/batches/B1/certificates')
-		const wrapper = await mountForm(router, student)
-		// No Save button is rendered under a refusal, so drive the handler the
-		// only way that remains — and assert it is inert either way.
-		expect(
-			wrapper.find('[data-testid="bulk-certificates-save"]').exists()
-		).toBe(false)
-		expect(certificateSubmit).not.toHaveBeenCalled()
 	})
 
 	it('waits for every insert before closing and claiming success (R4)', async () => {

@@ -185,9 +185,8 @@ export const confirmMemberDeletion = (
 				label: __('Delete'),
 				theme: 'red',
 				variant: 'solid',
-				onClick({ close }: { close: () => void }) {
-					removeMember(row, close, onDeleted)
-				},
+				onClick: ({ close }: { close: () => void }) =>
+					removeMember(row, close, onDeleted),
 			},
 		],
 	})

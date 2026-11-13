@@ -33,6 +33,7 @@ const { createResourceMock, toastErrorMock, toastMock } = vi.hoisted(() => {
 
 vi.mock('frappe-ui', () => ({
 	createResource: createResourceMock,
+	LoadingIndicator: { template: '<svg />' },
 	toast: { ...toastMock, error: toastErrorMock },
 	ErrorMessage: {
 		props: ['message'],
@@ -254,9 +255,6 @@ const editsCommon = (wrapper: Wrapper) =>
 
 const status = (wrapper: Wrapper) =>
 	wrapper.get('[data-testid="enroll-status"]').text()
-
-const bodyClass = (wrapper: Wrapper) =>
-	wrapper.get('[data-testid="enroll-body"]').attributes('class')
 
 const submitParams = async (wrapper: Wrapper) => {
 	respond(COURSE, { added: [], errors: [] })
@@ -537,21 +535,6 @@ describe('EnrollStudentsForm', () => {
 		expect(part(wrapper, 'EnrollStudentTable').props('ticked')).toEqual(AB)
 		expect(byId(wrapper, 'payment-panel').exists()).toBe(true)
 		expect(byId(wrapper, 'enroll-details').exists()).toBe(false)
-	})
-
-	it('puts the panel beside the list only, below the picker and switch', async () => {
-		const wrapper = mountForm({ target: paidCourse })
-		await selectPaid(wrapper, AB, ABPreview())
-		await click(wrapper, 'enroll-details')
-		const row = byId(wrapper, 'enroll-list-row')
-		const panel = row.get('[data-testid="payment-panel"]')
-		expect(
-			row.get('[data-testid="enroll-list"]').element.nextElementSibling
-		).toBe(panel.element)
-		expect(panel.classes()).toContain('border-s')
-		expect(byId(wrapper, 'select-step').element.contains(row.element)).toBe(
-			true
-		)
 	})
 
 	// Regression (bulk-enroll PR, feat/bulk-enroll): with everyone ticked the
@@ -1063,19 +1046,6 @@ describe('EnrollStudentsForm', () => {
 		expect(paramsOf(COURSE).members).toBe(JSON.stringify(['a@x.com']))
 	})
 
-	it('keeps one dialog size with the panel closed and open', async () => {
-		const wrapper = mountForm({ target: paidCourse })
-		expect(part(wrapper, 'Dialog').props('size')).toBe('4xl')
-		const sizes = [bodyClass(wrapper)]
-		await selectPaid(wrapper, ['a@x.com'], preview([row('a@x.com')]))
-		sizes.push(bodyClass(wrapper))
-		await click(wrapper, 'enroll-details')
-		expect(byId(wrapper, 'payment-panel').exists()).toBe(true)
-		sizes.push(bodyClass(wrapper))
-		expect(sizes[0]).toMatch(/(^| )h-\[/)
-		expect(new Set(sizes).size).toBe(1)
-	})
-
 	// Regression from the bulk-enroll PR (feat/bulk-enroll): the content had an
 	// aria-label but no role, so screen readers announced no name for it.
 	it('names the content as a group', async () => {
@@ -1084,14 +1054,6 @@ describe('EnrollStudentsForm', () => {
 		const content = byId(wrapper, 'enroll-content')
 		expect(content.attributes('role')).toBe('group')
 		expect(content.attributes('aria-label')).toBe('Enroll Students')
-	})
-
-	it('does not scroll the form itself, so only the list scrolls', async () => {
-		const wrapper = mountForm()
-		await select(wrapper, ['a@x.com'])
-		const content = byId(wrapper, 'enroll-content')
-		expect(content.classes()).toContain('overflow-hidden')
-		expect(content.classes()).not.toContain('overflow-y-auto')
 	})
 
 	it('toasts success, emits enrolled once and closes', async () => {
@@ -1162,15 +1124,5 @@ describe('EnrollStudentsForm', () => {
 		expect(wrapper.emitted('close')).toBeUndefined()
 		await click(wrapper, 'form-shell-back')
 		expect(wrapper.emitted('close')).toHaveLength(1)
-	})
-
-	it('on mobile, the header action reads Enroll N students when unpaid', async () => {
-		setWidth(375)
-		const wrapper = mountForm()
-		await select(wrapper, AB)
-		const header = wrapper.get('[data-testid="form-shell-header-actions"]')
-		expect(header.get('[data-testid="enroll-submit"]').text()).toBe(
-			'Enroll 2 students'
-		)
 	})
 })

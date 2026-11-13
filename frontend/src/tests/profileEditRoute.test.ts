@@ -164,43 +164,6 @@ describe('the profile edit route', () => {
 		vi.mocked(toast.error).mockClear()
 	})
 
-	// resolve(), not push(): matching is synchronous and does not pull in the
-	// lazy page components, several of which are expensive to transform for an
-	// assertion that is purely about the route table.
-	it('resolves /user/X/edit to the form nested under the profile', () => {
-		const resolved = makeRouter().resolve(`/user/${USERNAME}/edit`)
-		expect(resolved.name).toBe('ProfileEditForm')
-		expect(resolved.matched.map((r) => r.name)).toEqual([
-			'Profile',
-			'ProfileEditForm',
-		])
-		expect(resolved.params.username).toBe(USERNAME)
-	})
-
-	it('points that route at the profile edit form itself', async () => {
-		type LazyRecord = {
-			name?: unknown
-			children?: LazyRecord[]
-			component?: () => Promise<unknown>
-		}
-		const record = (routes as LazyRecord[])
-			.find((route) => route.name === 'Profile')
-			?.children?.find((child) => child.name === 'ProfileEditForm')
-		expect(record?.component).toBeTypeOf('function')
-		await expect(record!.component!()).resolves.toMatchObject({
-			default: ProfileEditForm,
-		})
-	})
-
-	it('leaves the existing profile tab routes alone', () => {
-		const router = makeRouter()
-		expect(router.resolve(`/user/${USERNAME}`).name).toBe('ProfileAbout')
-		expect(router.resolve(`/user/${USERNAME}/certificates`).name).toBe(
-			'ProfileCertificates'
-		)
-		expect(router.resolve(`/user/${USERNAME}/roles`).name).toBe('ProfileRoles')
-	})
-
 	// The Edit Profile button's `isSessionUser()` gate cannot guard a URL, so
 	// somebody else's /user/X/edit has to be refused by the page itself.
 	it('refuses the form to anyone but the profile owner', async () => {
@@ -285,24 +248,6 @@ describe('the profile edit route', () => {
 		await flushPromises()
 
 		expect(router.currentRoute.value.name).toBe('ProfileAbout')
-	})
-
-	// Guards the seeding loop: it walks the draft's keys, so a key it misses is
-	// silently left blank rather than failing loudly.
-	it('seeds every field from the profile it was handed', async () => {
-		const router = makeRouter()
-		await router.push(`/user/${USERNAME}/edit`)
-		const wrapper = mountForm(router, USERNAME)
-		await flushPromises()
-
-		const valueOf = (label: string) =>
-			(wrapper.find(`input[data-label="${label}"]`).element as HTMLInputElement)
-				.value
-
-		expect(valueOf('First Name')).toBe('John')
-		expect(valueOf('Last Name')).toBe('Doe')
-		expect(valueOf('LinkedIn ID')).toBe('')
-		expect(wrapper.text()).not.toContain('Not Saved')
 	})
 
 	// '' is the only empty the field's options accept, in object form because

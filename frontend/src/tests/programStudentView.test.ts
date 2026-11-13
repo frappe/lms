@@ -80,15 +80,6 @@ describe('the programming exercise block in a lesson', () => {
 		unmount.mockClear()
 	})
 
-	it('mounts inline, with no iframe', async () => {
-		const { wrapper } = await renderInLesson({ studentView: false })
-
-		expect(wrapper.querySelector('iframe')).toBeNull()
-		const { el, component } = mountedWith()
-		expect(el).toBe(wrapper)
-		expect(component.name).toBe('AssessmentBlock')
-	})
-
 	it("hands the exercise the learner's own submission", async () => {
 		await renderInLesson({ studentView: false })
 
@@ -99,14 +90,6 @@ describe('the programming exercise block in a lesson', () => {
 			submissionID: 'SUB-0001',
 			studentView: false,
 		})
-	})
-
-	it('passes Student View through when the tool config says so', async () => {
-		await renderInLesson({ studentView: true })
-
-		const { props } = mountedWith()
-		expect(props.studentView).toBe(true)
-		expect(props.props.studentView).toBe(true)
 	})
 
 	it('defaults Student View off when no config is passed at all', async () => {

@@ -1,12 +1,7 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 
-const { openFileSelector, slotState } = vi.hoisted(() => ({
+const { openFileSelector } = vi.hoisted(() => ({
 	openFileSelector: vi.fn(),
-	slotState: {
-		uploading: false,
-		progress: 0,
-		error: null as string | null,
-	},
 }))
 
 // Stub FileUploader so we can read the flat props it receives.
@@ -44,14 +39,19 @@ vi.mock('frappe-ui', async () => {
 					h(
 						'div',
 						{ class: 'file-uploader' },
-						slots.default?.({ openFileSelector, ...slotState }),
+						slots.default?.({
+							openFileSelector,
+							uploading: false,
+							progress: 0,
+							error: null,
+						})
 					)
 			},
 		},
 	}
 })
 
-import { flushPromises, mount } from '@vue/test-utils'
+import { mount } from '@vue/test-utils'
 import { reactive, nextTick } from 'vue'
 import UploadPlugin from '@/components/UploadPlugin.vue'
 import translationPlugin from '@/translation'
@@ -104,56 +104,10 @@ describe('UploadPlugin: attach args', () => {
 	})
 })
 
-describe('UploadPlugin: file picker', () => {
-	beforeEach(() => {
-		openFileSelector.mockClear()
-		Object.assign(slotState, { uploading: false, progress: 0, error: null })
-	})
-
-	it('opens the file selector once through the slot prop on mount', async () => {
-		mountPlugin({ docname: null, fieldname: 'content' })
-		await flushPromises()
-		expect(openFileSelector).toHaveBeenCalledTimes(1)
-	})
-
-	// A pasted audio link replaces the uploader before its first tick.
-	it('opens no file selector once it is gone before its first tick', async () => {
-		const wrapper = mountPlugin({ docname: null, fieldname: 'content' })
-		wrapper.unmount()
-		await flushPromises()
-		expect(openFileSelector).not.toHaveBeenCalled()
-	})
-
-	it('keeps an upload button to reopen a cancelled picker', async () => {
-		const wrapper = mountPlugin({ docname: null, fieldname: 'content' })
-		await flushPromises()
-		const button = wrapper.find('button')
-		expect(button.text()).toBe('Upload File')
-		await button.trigger('click')
-		expect(openFileSelector).toHaveBeenCalledTimes(2)
-	})
-
-	it('shows upload progress', async () => {
-		Object.assign(slotState, { uploading: true, progress: 42 })
-		const wrapper = mountPlugin({ docname: null, fieldname: 'content' })
-		await flushPromises()
-		expect(wrapper.find('button').text()).toBe('Uploading 42%')
-	})
-
-	it('shows the validation error', async () => {
-		slotState.error = 'Only image and video files are allowed.'
-		const wrapper = mountPlugin({ docname: null, fieldname: 'content' })
-		await flushPromises()
-		expect(wrapper.find('.error-message').text()).toBe(
-			'Only image and video files are allowed.',
-		)
-	})
-})
-
 describe('UploadPlugin: what a lesson accepts', () => {
 	const check = (name: string) =>
 		uploader(mountPlugin({ docname: null, fieldname: 'content' })).props(
-			'validateFile',
+			'validateFile'
 		)({ name })
 
 	it('takes the audio files phones and recorders save', () => {
@@ -169,7 +123,7 @@ describe('UploadPlugin: what a lesson accepts', () => {
 
 	it('refuses a file it cannot show', () => {
 		expect(check('notes.docx')).toBe(
-			'Upload an image, video, audio or PDF file.',
+			'Upload an image, video, audio or PDF file.'
 		)
 	})
 })

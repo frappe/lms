@@ -29,6 +29,7 @@
 				v-if="tab?.key === 'settings' && isAdmin && !isMobile"
 				variant="subtle"
 				:theme="batch.data?.published ? 'red' : 'gray'"
+				:loading="publishToggle.loading"
 				@click="togglePublishBatch"
 			>
 				{{ batch.data?.published ? __('Unpublish') : __('Publish') }}
@@ -39,24 +40,12 @@
 				icon="lucide-plus"
 				@click="openStudentForm"
 			/>
-			<template v-if="tab?.key === 'announcements' && isAdmin && !readOnlyMode">
-				<Tooltip
-					v-if="!batch.data?.student_count"
-					:text="__('Add students to the batch to make an announcement')"
-				>
-					<HeaderButton
-						:label="__('Make Announcement')"
-						icon="lucide-send"
-						disabled
-					/>
-				</Tooltip>
-				<HeaderButton
-					v-else
-					:label="__('Make Announcement')"
-					icon="lucide-send"
-					@click="openAnnouncementModal"
-				/>
-			</template>
+			<HeaderButton
+				v-if="tab?.key === 'announcements' && isAdmin && !readOnlyMode"
+				:label="__('Make Announcement')"
+				icon="lucide-send"
+				@click="openAnnouncementModal"
+			/>
 			<template v-if="tab?.key === 'settings' && isAdmin">
 				<Tooltip
 					v-if="!instance?.isDirty"
@@ -69,6 +58,7 @@
 					<HeaderButton
 						:label="__('Save')"
 						variant="solid"
+						:loading="instance?.isSaving"
 						@click="instance?.submitBatch()"
 					/>
 				</ShortcutTooltip>
@@ -86,6 +76,7 @@
 					doctype="LMS Batch"
 					:docname="batch.data.name"
 					:title="__('Discussions')"
+					heading-size="lg"
 					:key="batch.data.name"
 					:singleThread="true"
 					:scrollToBottom="false"
@@ -238,6 +229,10 @@ const tabs = computed(() => {
 })
 
 const openAnnouncementModal = () => {
+	if (!batch.data?.student_count) {
+		toast.warning(__('Add students to the batch to make an announcement'))
+		return
+	}
 	openBatchForm(router, 'NewAnnouncement', props.batchName, route.hash)
 }
 
@@ -267,6 +262,7 @@ const publishToggle = createResource({
 })
 
 const togglePublishBatch = () => {
+	if (publishToggle.loading) return
 	publishToggle.submit()
 }
 

@@ -20,6 +20,7 @@
 						:placeholder="__('No default set')"
 						:aria-label="__('Default Incoming account')"
 						class="w-56"
+						:disabled="settingDefault"
 						@update:model-value="
 							(value) => pick('incoming', value == null ? null : String(value))
 						"
@@ -42,6 +43,7 @@
 						:placeholder="__('No default set')"
 						:aria-label="__('Default Outgoing account')"
 						class="w-56"
+						:disabled="settingDefault"
 						@update:model-value="
 							(value) => pick('outgoing', value == null ? null : String(value))
 						"
@@ -54,7 +56,7 @@
 
 <script setup lang="ts">
 import { call, Combobox, toast } from 'frappe-ui'
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import { cleanError } from '@/utils'
 import {
 	reloadSettingsLists,
@@ -151,7 +153,11 @@ const defaultOutgoing = currentFor('outgoing')
 // included, so a change made here is reflected on the Email Accounts list
 // too if it happens to be mounted. That call only lands the first page, so
 // the pagination loop continues where loadAll() left off.
+const settingDefault = ref(false)
+
 const pick = async (kind: Kind, value: string | null) => {
+	if (settingDefault.value) return
+	settingDefault.value = true
 	try {
 		await call(EMAIL_ACCOUNT_METHODS.setDefault, {
 			email_account: value ?? '',
@@ -163,6 +169,8 @@ const pick = async (kind: Kind, value: string | null) => {
 		toast.error(
 			cleanError(err.messages?.[0] || err) || __('Could not set the default')
 		)
+	} finally {
+		settingDefault.value = false
 	}
 }
 </script>

@@ -73,7 +73,8 @@
 			<Button
 				variant="ghost"
 				:label="__('Delete')"
-				@click="deleteAssignment(selections, unselectAll)"
+				:loading="deleting"
+				@click="deleteAssignments(selections, unselectAll)"
 			>
 				<template #icon>
 					<span class="lucide-trash-2 size-4" aria-hidden="true" />
@@ -101,6 +102,7 @@ import { computed, inject, onMounted, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { sessionStore } from '../stores/session'
 import { openFormRoute } from '@/composables/useFormRoute'
+import { useBulkDeleteAction } from '@/utils/bulkDelete'
 
 const user = inject('$user')
 const dayjs = inject('$dayjs')
@@ -271,13 +273,28 @@ const assignmentTypes = computed(() => {
 	})
 })
 
-const deleteAssignment = (selections, unselectAll) => {
-	Array.from(selections).forEach(async (assignmentName) => {
-		await assignments.delete.submit(assignmentName)
-	})
-	unselectAll()
-	toast.success(__('Assignments deleted successfully'))
-}
+const { deleting, run: deleteAssignments } = useBulkDeleteAction(
+	'LMS Assignment',
+	{
+		onDeleted: () => {
+			assignments.reload()
+			totalAssignments.reload()
+		},
+		success: (deleted) =>
+			deleted === 1
+				? __('Assignment deleted successfully')
+				: __('{0} assignments deleted successfully').format(deleted),
+		allFailed: ({ total, error }) =>
+			(total === 1
+				? __('Error deleting assignment: {0}')
+				: __('Error deleting assignments: {0}')
+			).format(error),
+		partial: ({ deleted, total, error }) =>
+			__(
+				'{0} of {1} assignments deleted; the rest remain selected: {2}'
+			).format(deleted, total, error),
+	}
+)
 
 const breadcrumbs = computed(() => [
 	{

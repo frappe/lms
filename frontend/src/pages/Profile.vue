@@ -8,6 +8,7 @@
 					variant="ghost"
 					:label="__('Refresh session')"
 					icon="lucide-refresh-ccw"
+					:loading="isRefreshingSession"
 					@click="reloadUser()"
 				/>
 			</template>
@@ -90,7 +91,6 @@
 <script setup>
 import {
 	Button,
-	call,
 	createResource,
 	TabButtons,
 	toast,
@@ -111,6 +111,7 @@ import ProfileCover from '@/components/Profile/ProfileCover.vue'
 import ProfileSocialLinks from '@/components/Profile/ProfileSocialLinks.vue'
 import ChangePasswordDialog from '@/components/Profile/ChangePasswordDialog.vue'
 import { openFormRoute } from '@/composables/useFormRoute'
+import { submitResource } from '@/utils/resource'
 
 const { user, brand } = sessionStore()
 const $user = inject('$user')
@@ -302,18 +303,35 @@ const getTabButtons = () => {
 	return buttons
 }
 
+const clearSession = createResource({ url: 'frappe.sessions.clear' })
+
+const isRefreshingSession = computed(
+	() => clearSession.loading || $user.loading
+)
+
+const reportRefreshFailure = (err) => {
+	toast.error(__('Failed to refresh session'))
+	console.error(err)
+}
+
 const reloadUser = () => {
-	call('frappe.sessions.clear')
-		.then(() => {
-			$user.reload().then(() => {
-				profile.reload()
-				toast.success(__('Session refreshed successfully'))
-			})
-		})
-		.catch((err) => {
-			toast.error(__('Failed to refresh session'))
-			console.error(err)
-		})
+	if (isRefreshingSession.value) return
+	submitResource(
+		clearSession,
+		{},
+		{
+			onSuccess() {
+				return $user
+					.reload()
+					.then(() => {
+						profile.reload()
+						toast.success(__('Session refreshed successfully'))
+					})
+					.catch(reportRefreshFailure)
+			},
+			onError: reportRefreshFailure,
+		}
+	)
 }
 
 const breadcrumbs = computed(() => {

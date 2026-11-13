@@ -132,7 +132,7 @@ function submitEvaluation(close) {
 		})
 		return
 	}
-	call('frappe.client.insert', {
+	return call('frappe.client.insert', {
 		doc: {
 			doctype: 'LMS Certificate Request',
 			batch_name: evaluation.value.batch,

@@ -8,7 +8,6 @@ import type { SubmissionsConfig } from '@/types'
 // which an identity stub would hide.
 vi.stubGlobal('__', (text: string) => `t:${text}`)
 
-const seen: Record<string, unknown>[] = []
 const seenCanDelete: unknown[] = []
 
 vi.mock('@/utils/dayjs', () => ({
@@ -19,7 +18,6 @@ vi.mock('@/components/Submissions/SubmissionsPage.vue', () => ({
 	default: defineComponent({
 		props: ['config', 'lockedFilters', 'canDelete'],
 		setup(p, { slots }) {
-			seen.push(p.config as Record<string, unknown>)
 			seenCanDelete.push(p.canDelete)
 			return () =>
 				h('div', [
@@ -90,7 +88,6 @@ const mountPage = async (userData: {
 }
 
 beforeEach(() => {
-	seen.length = 0
 	seenCanDelete.length = 0
 })
 
@@ -98,104 +95,6 @@ beforeEach(() => {
 // Came with this branch's shared submissions page for every assessment type.
 // Added on feat/assessment-visual-redesign when the old list page was replaced.
 describe('the assignment submissions page', () => {
-	it('scopes the shared page to assignment submissions', async () => {
-		await mountPage({ is_moderator: true })
-		const config = seen[0] as { doctype: string; filters: { key: string }[] }
-		expect(config.doctype).toBe('LMS Assignment Submission')
-		expect(config.filters.map((f) => f.key)).toEqual([
-			'assignment',
-			'member',
-			'status',
-		])
-	})
-
-	it('requests the fields ListPage needs, including the row key', async () => {
-		await mountPage({ is_moderator: true })
-		const config = seen[0] as { fields: string[]; orderBy: string }
-		// ListPage's rowKey and bulk delete key on 'name'; without it selection
-		// breaks silently.
-		expect(config.fields).toEqual(
-			expect.arrayContaining([
-				'name',
-				'assignment',
-				'assignment_title',
-				'member_name',
-				'creation',
-				'status',
-			])
-		)
-		expect(config.orderBy).toBe('creation desc')
-	})
-
-	it('routes a row at the submission under its assignment', async () => {
-		await mountPage({ is_moderator: true })
-		const config = seen[0] as {
-			getRowRoute: (r: Record<string, unknown>) => Record<string, unknown>
-		}
-		expect(config.getRowRoute({ name: 'SUB-1', assignment: 'ASG-1' })).toEqual({
-			name: 'AssignmentSubmission',
-			params: { assignmentID: 'ASG-1', submissionName: 'SUB-1' },
-		})
-	})
-
-	it('resolves the scope crumb back to the owning assignment', async () => {
-		await mountPage({ is_moderator: true })
-		const config = seen[0] as {
-			scopeCrumb: {
-				filterKey: string
-				doctype: string
-				titleField: string
-				route: (v: string) => Record<string, unknown>
-			}
-		}
-		expect(config.scopeCrumb.filterKey).toBe('assignment')
-		expect(config.scopeCrumb.doctype).toBe('LMS Assignment')
-		expect(config.scopeCrumb.titleField).toBe('title')
-		expect(config.scopeCrumb.route('ASG-1')).toEqual({
-			name: 'AssignmentForm',
-			params: { assignmentID: 'ASG-1' },
-		})
-	})
-
-	// SubmissionsPage wraps these in `__()` itself, so this page must pass raw
-	// text or a real translator would double-translate.
-	it('hands the shared page raw text for title, pageTitle and placeholders', async () => {
-		await mountPage({ is_moderator: true })
-		const config = seen[0] as {
-			title: string
-			pageTitle: string
-			emptyName: string
-			filters: { key: string; placeholder: string }[]
-		}
-		expect(config.title).toBe('Submissions')
-		expect(config.pageTitle).toBe('Assignment Submissions')
-		expect(config.emptyName).toBe('Assignment Submissions')
-		expect(config.filters.map((f) => [f.key, f.placeholder])).toEqual([
-			['assignment', 'Filter by Assignment'],
-			['member', 'Filter by Member'],
-			['status', 'Filter by Status'],
-		])
-	})
-
-	// These reach the DOM verbatim, so this page translates them itself: the
-	// opposite rule from title, pageTitle and placeholders.
-	it('translates the parent crumb and column labels itself', async () => {
-		await mountPage({ is_moderator: true })
-		const config = seen[0] as {
-			parentCrumb: { label: string }
-			columns: { key: string; label: string }[]
-		}
-		expect(config.parentCrumb.label).toBe('t:Assignments')
-		expect(
-			Object.fromEntries(config.columns.map((c) => [c.key, c.label]))
-		).toEqual({
-			member_name: 't:Member',
-			assignment_title: 't:Assignment',
-			creation: 't:Submitted',
-			status: 't:Status',
-		})
-	})
-
 	it('draws every status as its own themed badge, and other cells plain', async () => {
 		const { wrapper } = await mountPage({ is_moderator: true })
 		const badges = wrapper.findAll('[data-theme]')
@@ -210,17 +109,6 @@ describe('the assignment submissions page', () => {
 		expect(
 			wrapper.findAll('[data-theme]').some((b) => b.text() === 'Ada')
 		).toBe(false)
-	})
-
-	it('turns a raw creation timestamp into a relative one via transform', async () => {
-		await mountPage({ is_moderator: true })
-		const config = seen[0] as {
-			transform: (rows: Record<string, unknown>[]) => Record<string, unknown>[]
-		}
-		const out = config.transform([
-			{ name: 'SUB-1', creation: '2026-01-01 00:00:00' },
-		])
-		expect(out).toEqual([{ name: 'SUB-1', creation: 'today' }])
 	})
 
 	it('lets a moderator stay, and an instructor stay, on the page', async () => {

@@ -51,6 +51,7 @@
 						:label="__('Save')"
 						icon="lucide-check"
 						variant="solid"
+						:loading="submissionDetails.save.loading"
 						@click="saveSubmission()"
 					/>
 				</ShortcutTooltip>
@@ -531,6 +532,8 @@ const isOwnSubmission = computed(
 
 const saveSubmission = (opts = {}) => {
 	if (isOwnSubmission.value) return
+	// Silent autosaves still run so the unmount flush is never dropped.
+	if (!opts.silent && submissionDetails.save.loading) return
 	submissionDetails.save.submit(
 		{},
 		{

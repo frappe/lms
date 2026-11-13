@@ -3,19 +3,12 @@
 		v-if="show"
 		size="4xl"
 		:title="questionName ? __('Edit question') : __('New question')"
+		:loading
+		:statusClass="bodyHeight"
 		@close="show = false"
 	>
 		<template #default>
 			<div
-				v-if="loading"
-				class="flex items-center justify-center"
-				:class="bodyHeight"
-				data-testid="question-dialog-loading"
-			>
-				<LoadingIndicator class="size-5 text-ink-gray-5" />
-			</div>
-			<div
-				v-else
 				class="overflow-y-auto"
 				:class="bodyHeight"
 				data-testid="question-body"
@@ -35,22 +28,20 @@
 		</template>
 
 		<template #actions>
-			<div class="flex items-center justify-end">
-				<HeaderButton
-					data-testid="question-save"
-					:label="__('Save')"
-					variant="solid"
-					:loading="saving"
-					:disabled="!isValid || saving || loading"
-					@click="save"
-				/>
-			</div>
+			<HeaderButton
+				data-testid="question-save"
+				:label="__('Save')"
+				variant="solid"
+				:loading="saving"
+				:disabled="!isValid || saving"
+				@click="save"
+			/>
 		</template>
 	</FormShell>
 </template>
 
 <script setup>
-import { LoadingIndicator, toast } from 'frappe-ui'
+import { toast } from 'frappe-ui'
 import { computed, ref, watch } from 'vue'
 import FormShell from '@/components/FormShell.vue'
 import HeaderButton from '@/components/HeaderButton.vue'

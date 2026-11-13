@@ -1,36 +1,32 @@
 <template>
-	<FormShell :title="__('New Announcement')" size="xl" @close="close">
+	<FormShell
+		v-if="!hasNoStudents"
+		:title="__('New Announcement')"
+		size="xl"
+		:loading="loadingBatch"
+		:message="refusal"
+		@close="close"
+	>
 		<template #default>
-			<div v-if="loadingBatch" class="p-4 text-base text-ink-gray-6">
-				{{ __('Loading...') }}
-			</div>
-			<div v-else-if="refusal" class="p-4 text-base text-ink-gray-6">
-				{{ refusal }}
-			</div>
-			<div v-else data-testid="announcement-fields">
+			<div data-testid="announcement-fields">
 				<FormLayout v-model:doc="doc" :layout="layout" />
 			</div>
 		</template>
 		<template #actions>
-			<div
-				v-if="!refusal && !loadingBatch"
-				class="flex items-center justify-end"
-			>
-				<HeaderButton
-					data-testid="announcement-save"
-					:label="__('Send')"
-					variant="solid"
-					:loading="announcementResource.loading"
-					@click="makeAnnouncement()"
-				/>
-			</div>
+			<HeaderButton
+				data-testid="announcement-save"
+				:label="__('Send')"
+				variant="solid"
+				:loading="announcementResource.loading"
+				@click="makeAnnouncement()"
+			/>
 		</template>
 	</FormShell>
 </template>
 <script setup>
 import { createResource, toast } from 'frappe-ui'
 import { FormLayout, CommitKey, NO_COMMIT } from '@framework/ui/FormLayout'
-import { computed, inject, provide, ref } from 'vue'
+import { computed, inject, provide, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import FormShell from '@/components/FormShell.vue'
 import HeaderButton from '@/components/HeaderButton.vue'
@@ -92,10 +88,23 @@ const refusal = computed(() => {
 	if (readOnlyMode) return __('This site is in read-only mode.')
 	if (!isAdmin.value)
 		return __('You are not permitted to make an announcement for this batch.')
-	if (!batch.data?.student_count)
-		return __('Add students to the batch to make an announcement')
 	return null
 })
+
+// Nobody to announce to: say so in a toast and leave without opening the dialog.
+const hasNoStudents = computed(
+	() => !refusal.value && Boolean(batch.data) && !batch.data.student_count
+)
+
+watch(
+	hasNoStudents,
+	(noStudents) => {
+		if (!noStudents) return
+		toast.warning(__('Add students to the batch to make an announcement'))
+		close()
+	},
+	{ immediate: true }
+)
 
 const doc = ref({
 	subject: '',
@@ -178,7 +187,9 @@ const makeAnnouncement = () => {
 			},
 			onSuccess() {
 				close()
-				toast.success(__('Announcement has been sent successfully'))
+				toast.success(
+					__('Announcement is being sent to the students of this batch')
+				)
 			},
 			onError(err) {
 				toast.error(__(err.messages?.[0] || err))

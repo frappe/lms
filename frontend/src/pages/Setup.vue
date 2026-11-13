@@ -216,12 +216,18 @@ function chooseGoal(option, done) {
 	done({ choice: option.value })
 }
 
+// Stays set on success: the page is navigating away.
+let finishing = false
+
 async function finish() {
+	if (finishing) return
+	finishing = true
 	try {
 		await call('lms.lms.onboarding.save_setup', {
 			first_goal: answers.first_milestone,
 		})
 	} catch (e) {
+		finishing = false
 		// Stay here, so the answers are kept and the last step can be sent again.
 		toast.error(
 			e?.messages?.[0] || __('Could not save your setup. Please try again.')

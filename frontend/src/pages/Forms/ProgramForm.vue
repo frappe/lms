@@ -2,6 +2,7 @@
 	<FormShell
 		:title="isNew ? __('New Program') : __('Edit Program')"
 		size="2xl"
+		:message="refusal"
 		@close="close"
 	>
 		<template #header-action>
@@ -10,10 +11,7 @@
 			</Badge>
 		</template>
 		<template #default>
-			<div v-if="!canManageProgram" class="p-4 text-base text-ink-gray-6">
-				{{ __('You are not permitted to manage programs.') }}
-			</div>
-			<div v-else data-testid="program-fields" class="text-base">
+			<div data-testid="program-fields" class="text-base">
 				<div class="space-y-5 pb-5">
 					<FormControl
 						v-model="program.name"
@@ -120,7 +118,7 @@
 
 						<div class="flex gap-x-2">
 							<Button
-								v-if="(programMembers.data?.length ?? 0) > 0"
+								v-if="savedMembers.length > 0"
 								@click="
 									() => {
 										showProgressDialog = true
@@ -216,27 +214,26 @@
 			<ProgramProgressSummary
 				v-model="showProgressDialog"
 				:programName="programId"
-				:programMembers="programMembers.data || []"
+				:programMembers="savedMembers"
 			/>
 		</template>
 		<template #actions>
-			<div v-if="canManageProgram" class="flex items-center justify-end gap-2">
-				<HeaderButton
-					v-if="!isNew"
-					data-testid="program-delete"
-					:label="__('Delete program')"
-					icon="lucide-trash-2"
-					variant="outline"
-					theme="red"
-					@click="deleteProgram()"
-				/>
-				<HeaderButton
-					data-testid="program-save"
-					:label="isNew ? __('Create') : __('Save')"
-					variant="solid"
-					@click="saveProgram()"
-				/>
-			</div>
+			<HeaderButton
+				v-if="!isNew"
+				data-testid="program-delete"
+				:label="__('Delete program')"
+				icon="lucide-trash-2"
+				variant="outline"
+				theme="red"
+				@click="deleteProgram()"
+			/>
+			<HeaderButton
+				data-testid="program-save"
+				:label="isNew ? __('Create') : __('Save')"
+				variant="solid"
+				:loading="saving"
+				@click="saveProgram()"
+			/>
 		</template>
 	</FormShell>
 </template>
@@ -322,6 +319,12 @@ const canManageProgram = computed(() => {
 	return Boolean(user.data?.is_moderator || user.data?.is_instructor)
 })
 
+const refusal = computed(() =>
+	canManageProgram.value
+		? null
+		: __('You are not permitted to manage programs.')
+)
+
 const program = ref<Program>({
 	name: '',
 	title: '',
@@ -370,17 +373,6 @@ const programCourses = createListResource({
 	},
 })
 
-const programMembers = createListResource({
-	doctype: 'LMS Program Member',
-	pageLength: 99999,
-	fields: ['member', 'full_name', 'progress', 'name'],
-	parent: 'LMS Program',
-	orderBy: 'creation desc',
-	onSuccess(data: ProgramMember[]) {
-		program.value.program_members = data
-	},
-})
-
 const fetchCourses = () => {
 	programCourses.update({
 		filters: {
@@ -392,25 +384,21 @@ const fetchCourses = () => {
 	programCourses.reload()
 }
 
-const fetchMembers = () => {
-	programMembers.update({
-		filters: {
-			parent: programId.value,
-			parenttype: 'LMS Program',
-			parentfield: 'program_members',
-		},
-	})
-	programMembers.reload()
-}
+// Members come from the doc: the child list API drops permlevel-1 fields.
+const savedMembers = computed<ProgramMember[]>(() =>
+	[...(programDoc?.doc?.program_members ?? [])].sort((a, b) =>
+		String(b.creation).localeCompare(String(a.creation))
+	)
+)
 
-// Only the scalar fields. The two child tables belong to the list resources
-// above, whose responses can land either side of this one — copying them out of
-// the document would let whichever arrived first win.
+// The scalar fields and the members. Courses belong to their list resource
+// above, whose response can land either side of this one.
 const applyDoc = (doc: Program) => {
 	program.value.name = doc.name
 	program.value.title = doc.title
 	program.value.published = Boolean(doc.published)
 	program.value.enforce_course_order = Boolean(doc.enforce_course_order)
+	program.value.program_members = savedMembers.value
 	dirty.value = false
 }
 
@@ -422,7 +410,6 @@ watch(
 	() => {
 		if (isNew.value) return
 		fetchCourses()
-		fetchMembers()
 	},
 	{ immediate: true }
 )
@@ -439,8 +426,12 @@ const validateTitle = () => {
 	program.value.name = sanitizeOnWrite(program.value.name.trim())
 }
 
+const saving = computed(
+	() => programs.insert.loading || programs.setValue.loading
+)
+
 const saveProgram = () => {
-	if (!canManageProgram.value) return
+	if (!canManageProgram.value || saving.value) return
 	validateTitle()
 	if (isNew.value) createNewProgram()
 	else updateProgram()
@@ -596,7 +587,7 @@ const deleteProgram = () => {
 				theme: 'red',
 				variant: 'solid',
 				onClick({ close: closeDialog }: { close: () => void }) {
-					submitResource(programs.delete, programId.value, {
+					return submitResource(programs.delete, programId.value, {
 						onSuccess() {
 							toast.success(__('Program deleted successfully'))
 							emit('saved')

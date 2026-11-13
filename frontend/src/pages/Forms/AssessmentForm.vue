@@ -1,10 +1,12 @@
 <template>
-	<FormShell :title="__('Add Assessment')" size="sm" @close="close">
+	<FormShell
+		:title="__('Add Assessment')"
+		size="sm"
+		:message="refusal"
+		@close="close"
+	>
 		<template #default>
-			<div v-if="refusal" class="p-4 text-base text-ink-gray-6">
-				{{ refusal }}
-			</div>
-			<div v-else data-testid="assessment-fields" class="space-y-4">
+			<div data-testid="assessment-fields" class="space-y-4">
 				<FormControl
 					type="select"
 					:options="assessmentTypes"
@@ -25,7 +27,6 @@
 		</template>
 		<template #actions>
 			<HeaderButton
-				v-if="!refusal"
 				:label="__('Add')"
 				variant="solid"
 				:loading="assessmentResource.loading"
@@ -133,7 +134,7 @@ const createAssessment = () => {
 }
 
 const submit = () => {
-	if (refusal.value) return
+	if (refusal.value || assessmentResource.loading) return
 	submitResource(
 		assessmentResource,
 		{},

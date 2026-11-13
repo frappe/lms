@@ -629,11 +629,32 @@ const removeEmptyBlocks = (outputData) => {
 	return outputData
 }
 
-// submitResource, not a bare submit(): createResource rethrows after onError, so
-// a validation failure or a 500 left a rejected promise nobody handled. It also
-// awaits the chained reference insert, so the create only settles once the
-// lesson is actually in a chapter.
+// A save during the create waits, then saves again through the edit path.
+let createInFlight = null
+let saveAfterCreate = false
+
 const createNewLesson = () => {
+	if (createInFlight) {
+		saveAfterCreate = true
+		return createInFlight
+	}
+	createInFlight = insertLesson().finally(() => {
+		createInFlight = null
+		if (!saveAfterCreate) return
+		saveAfterCreate = false
+		// Re-run only once the edit path is open, or if nothing was created;
+		// re-running the create path after a success would link the lesson twice.
+		return Promise.resolve(lessonDetails.promise).then(() => {
+			if (lessonDetails.data?.lesson || !createdLesson.value) saveLesson()
+		})
+	})
+	return createInFlight
+}
+
+// submitResource, not a bare submit(): createResource rethrows after onError,
+// leaving a rejected promise nobody handled. It also awaits the chained
+// reference insert, so the create settles once the lesson is in a chapter.
+const insertLesson = () => {
 	// A previous attempt created the lesson and failed on the reference; another
 	// insert would leave a second, orphaned lesson behind. Reuse that one, saving
 	// the title the user may have edited before retrying.

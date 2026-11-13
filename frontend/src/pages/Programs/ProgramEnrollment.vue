@@ -1,18 +1,14 @@
 <template>
-	<FormShell :title="title" size="2xl" @close="close">
+	<FormShell
+		:title="title"
+		size="2xl"
+		:loading="!refusal && loadingProgram"
+		:message="refusal"
+		@close="close"
+	>
 		<template #default>
-			<div v-if="refusal" class="p-4 text-base text-ink-gray-6">
-				{{ refusal }}
-			</div>
 			<div
-				v-else-if="loadingProgram"
-				role="status"
-				:aria-label="__('Loading...')"
-			>
-				<LoadingIndicator class="size-5 text-ink-gray-5" />
-			</div>
-			<div
-				v-else-if="program.data"
+				v-if="program.data"
 				data-testid="program-enrollment-summary"
 				class="text-base text-ink-gray-9"
 			>
@@ -87,29 +83,18 @@
 			</div>
 		</template>
 		<template #actions>
-			<div
-				v-if="!refusal && !loadingProgram"
-				class="flex items-center justify-end"
-			>
-				<HeaderButton
-					data-testid="program-enrollment-confirm"
-					:label="__('Save')"
-					variant="solid"
-					:loading="enrollment.loading"
-					@click="enrollInProgram()"
-				/>
-			</div>
+			<HeaderButton
+				data-testid="program-enrollment-confirm"
+				:label="__('Save')"
+				variant="solid"
+				:loading="enrollment.loading"
+				@click="enrollInProgram()"
+			/>
 		</template>
 	</FormShell>
 </template>
 <script setup lang="ts">
-import {
-	createResource,
-	LoadingIndicator,
-	toast,
-	Tooltip,
-	usePageMeta,
-} from 'frappe-ui'
+import { createResource, toast, Tooltip, usePageMeta } from 'frappe-ui'
 import type { FrappeResourceError } from 'frappe-ui'
 import { computed, inject, onBeforeUnmount, onMounted } from 'vue'
 import FormShell from '@/components/FormShell.vue'
@@ -191,7 +176,7 @@ const enrollment = createResource({
 })
 
 const enrollInProgram = () => {
-	if (refusal.value) return
+	if (refusal.value || enrollment.loading) return
 	enrollment.submit(
 		{},
 		{

@@ -57,7 +57,7 @@
 			v-else
 			:missing="missingApp"
 			:loading="enableIntegration.loading"
-			@enable="enableIntegration.submit()"
+			@enable="enable"
 		/>
 	</SettingsLayout>
 </template>
@@ -135,6 +135,11 @@ const enableIntegration = createResource({
 		toast.error(err?.messages?.[0] ?? __('Could not enable the integration'))
 	},
 })
+
+function enable(): void {
+	if (enableIntegration.loading) return
+	enableIntegration.submit()
+}
 
 /** Which of the three screens is showing. A channel always has a workspace behind it. */
 type Screen = 'list' | 'workspace' | 'channel'

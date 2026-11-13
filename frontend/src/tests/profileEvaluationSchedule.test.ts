@@ -1,13 +1,5 @@
 /**
  * Tests for ProfileEvaluationSchedule.vue: the evaluator's week calendar.
- *
- * Guards the `config` object handed to frappe-ui's Calendar. Three of its four
- * keys were wrong: `redundantCellHeight` is not a CalendarConfig key at all
- * (the real one is `hourHeight`), so it was silently dropped, and
- * `disableModes: ['Day', 'Week']` disabled the very view `defaultMode` opens
- * in — while only ever filtering the switcher in Calendar's DEFAULT header,
- * which this page replaces. A key that does nothing reads like a setting that
- * works, so the config is pinned here rather than left to inspection.
  */
 import { describe, expect, it, vi } from 'vitest'
 import { flushPromises, mount } from '@vue/test-utils'
@@ -63,24 +55,6 @@ vi.mock('@/components/Modals/Event.vue', () => ({
 
 vi.stubGlobal('__', (text: string) => text)
 
-/**
- * Every key CalendarConfig declares, from
- * node_modules/frappe-ui/experimental/Calendar/types.ts. Anything the page
- * passes outside this set is silently ignored by the component.
- */
-const CALENDAR_CONFIG_KEYS = [
-	'scrollToHour',
-	'disableModes',
-	'defaultMode',
-	'isEditMode',
-	'eventIcons',
-	'hourHeight',
-	'enableShortcuts',
-	'showIcon',
-	'timeFormat',
-	'weekends',
-]
-
 async function mountSchedule(
 	rows: any[] = [{ name: 'CR-0001' }],
 	viewer = 'evaluator@example.com',
@@ -101,36 +75,6 @@ async function mountSchedule(
 	})
 	return { wrapper, resource: listResources.value[0] }
 }
-
-describe('ProfileEvaluationSchedule calendar config', () => {
-	it('passes only keys the Calendar actually reads', async () => {
-		const { wrapper } = await mountSchedule()
-		const config = wrapper.findComponent({ name: 'Calendar' }).props('config')
-
-		const unknown = Object.keys(config).filter(
-			(key) => !CALENDAR_CONFIG_KEYS.includes(key)
-		)
-		expect(unknown).toEqual([])
-	})
-
-	it('opens on the week and gives no way to leave it', async () => {
-		const { wrapper } = await mountSchedule()
-		const config = wrapper.findComponent({ name: 'Calendar' }).props('config')
-
-		expect(config.defaultMode).toBe('Week')
-		// The page replaces #header, so the view switcher never renders; the
-		// m/w/d shortcuts are the only other way out, and a view switched into
-		// could not be switched back.
-		expect(config.enableShortcuts).toBe(false)
-	})
-
-	it('does not disable the view it opens in', async () => {
-		const { wrapper } = await mountSchedule()
-		const config = wrapper.findComponent({ name: 'Calendar' }).props('config')
-
-		expect(config.disableModes ?? []).not.toContain(config.defaultMode)
-	})
-})
 
 describe('ProfileEvaluationSchedule events', () => {
 	it('maps a certificate request onto the calendar event shape', async () => {

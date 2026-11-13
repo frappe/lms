@@ -29,6 +29,7 @@
 						theme="red"
 						icon="lucide-trash-2"
 						:label="__('Delete')"
+						:loading="exercises.delete.loading"
 						@click="deleteExercise()"
 					/>
 				</template>
@@ -465,6 +466,7 @@ const togglePreview = async () => {
 
 const deleteExercise = () => {
 	if (isNew.value || !canManageExercise.value || !canEdit.value) return
+	if (exercises.delete.loading) return
 	submitResource(exercises.delete, props.exerciseID, {
 		onSuccess() {
 			// delete refetches the list (listResource.js:161); the count was
