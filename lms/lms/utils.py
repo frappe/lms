@@ -3697,6 +3697,9 @@ def get_program_details(program_name: str) -> dict:
 		],
 		as_dict=1,
 	)
+	# The page asks here, not the generic API: a learner can't filter the member
+	# rows by `member`, a field only the program's staff read.
+	program.is_member = bool(is_member)
 	program_courses = frappe.get_all(
 		"LMS Program Course", {"parent": program_name}, ["course"], order_by="idx"
 	)
