@@ -4,8 +4,12 @@
 			<div v-if="refusal" class="p-4 text-base text-ink-gray-6">
 				{{ refusal }}
 			</div>
-			<div v-else-if="loadingProgram" class="p-4 text-base text-ink-gray-6">
-				{{ __('Loading...') }}
+			<div
+				v-else-if="loadingProgram"
+				role="status"
+				:aria-label="__('Loading...')"
+			>
+				<LoadingIndicator class="size-5 text-ink-gray-5" />
 			</div>
 			<div
 				v-else-if="program.data"
@@ -99,7 +103,7 @@
 	</FormShell>
 </template>
 <script setup lang="ts">
-import { createResource, toast, Tooltip } from 'frappe-ui'
+import { createResource, LoadingIndicator, toast, Tooltip } from 'frappe-ui'
 import type { FrappeResourceError } from 'frappe-ui'
 import { computed, inject, onMounted } from 'vue'
 import FormShell from '@/components/FormShell.vue'
