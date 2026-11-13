@@ -3,6 +3,7 @@
 		v-if="setupState.fetched && steps.length"
 		:steps="steps"
 		:labels="labels"
+		:back-button="false"
 		@finish="finish"
 	>
 		<template #brand>
@@ -14,7 +15,7 @@
 			</div>
 		</template>
 
-		<template #step="{ step, done, skip }">
+		<template #step="{ step, done, skip, back, canGoBack }">
 			<div class="flex flex-col">
 				<h1 class="text-2xl-semibold text-ink-gray-9">{{ step.title }}</h1>
 				<p class="mt-1.5 text-p-base text-ink-gray-6">{{ step.subtitle }}</p>
@@ -38,8 +39,10 @@
 					/>
 					<SetupInvite
 						v-else-if="step.type === 'invite'"
+						:can-go-back="canGoBack"
 						@done="done"
 						@skip="skip"
+						@back="back"
 					/>
 					<PasswordStep
 						v-else-if="step.type === 'password'"
@@ -48,13 +51,26 @@
 					/>
 				</div>
 
-				<Button
-					v-if="step.type === 'tags'"
-					variant="ghost"
-					class="-ms-2 mt-6 self-start text-ink-gray-6"
-					:label="__('Skip this question')"
-					@click="skip"
-				/>
+				<div
+					v-if="step.type === 'tags' || step.type === 'outcome'"
+					class="-mx-2 mt-6 flex items-center gap-2"
+				>
+					<Button
+						v-if="step.type === 'tags'"
+						variant="ghost"
+						class="text-ink-gray-6"
+						:label="__('Skip this question')"
+						@click="skip"
+					/>
+					<Button
+						v-if="canGoBack"
+						variant="ghost"
+						class="ms-auto text-ink-gray-6"
+						icon-left="lucide-arrow-left"
+						:label="__('Back')"
+						@click="back"
+					/>
+				</div>
 			</div>
 		</template>
 
