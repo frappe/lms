@@ -1,0 +1,210 @@
+<template>
+	<SetupFlow
+		v-if="(setupState.fetched || setupState.error) && steps.length"
+		:steps="steps"
+		:labels="labels"
+		@finish="finish"
+	>
+		<template #brand>
+			<div
+				class="flex items-center gap-2 text-base font-medium text-ink-gray-9"
+			>
+				<LMSLogo class="size-6" />
+				{{ __('Frappe Learning') }}
+			</div>
+		</template>
+
+		<template #step="{ step, done, skip }">
+			<div class="flex flex-col">
+				<h1 class="text-2xl-semibold text-ink-gray-9">{{ step.title }}</h1>
+				<p class="mt-1.5 text-p-base text-ink-gray-6">{{ step.subtitle }}</p>
+
+				<div class="mt-7">
+					<ChoiceStep
+						v-if="step.type === 'tags'"
+						:options="step.options"
+						:model-value="answers[step.key]"
+						@select="(option) => pick(step, option, done)"
+						@deselect="delete answers[step.key]"
+					>
+						<template #icon="{ option }">
+							<PersonaToolIcon v-if="option.icon" :name="option.icon" />
+						</template>
+					</ChoiceStep>
+					<ListStep
+						v-else-if="step.type === 'outcome'"
+						:options="step.options"
+						@choose="(option) => chooseGoal(option, done)"
+					/>
+					<SetupInvite
+						v-else-if="step.type === 'invite'"
+						@done="done"
+						@skip="skip"
+					/>
+					<PasswordStep
+						v-else-if="step.type === 'password'"
+						:labels="passwordLabels"
+						@done="done"
+					/>
+				</div>
+
+				<Button
+					v-if="step.type === 'tags'"
+					variant="ghost"
+					class="-ms-2 mt-6 self-start text-ink-gray-6"
+					:label="__('Skip this question')"
+					@click="skip"
+				/>
+			</div>
+		</template>
+
+		<template #footer>
+			<TelemetryConsent
+				app-name="lms"
+				class="mx-auto w-full max-w-md"
+				:label="
+					__('Share anonymous usage data to help improve Frappe Learning')
+				"
+				:error-message="__('Could not save your choice. Please try again.')"
+			/>
+		</template>
+
+		<template #preview>
+			<SetupPreview />
+		</template>
+	</SetupFlow>
+</template>
+
+<script setup>
+import { Button, call, createResource, toast, usePageMeta } from 'frappe-ui'
+import {
+	ChoiceStep,
+	ListStep,
+	PasswordStep,
+	SetupFlow,
+	TelemetryConsent,
+} from '@framework/ui/components/SetupFlow/index'
+import { useTelemetry } from '@framework/ui/telemetry/index'
+import { computed, inject, reactive } from 'vue'
+import { useRouter } from 'vue-router'
+import LMSLogo from '@/components/Icons/LMSLogo.vue'
+import PersonaToolIcon from '@/components/PersonaToolIcon.vue'
+import SetupInvite from '@/components/Setup/SetupInvite.vue'
+import SetupPreview from '@/components/Setup/SetupPreview.vue'
+import { setupQuestions } from '@/utils/setupQuestions'
+
+const user = inject('$user')
+const router = useRouter()
+const { capture } = useTelemetry()
+
+const answers = reactive({})
+let goalRoute = { name: 'Home' }
+
+const setupState = createResource({
+	url: 'lms.lms.onboarding.get_setup_state',
+	auto: true,
+	onSuccess(data) {
+		// Nothing left to ask, so an old bookmark or a second visit goes home.
+		if (data?.needs_setup === false) router.replace({ name: 'Home' })
+	},
+})
+
+const steps = computed(() => [
+	// A site owner who arrived without a password sets one first; the rest only when it
+	// was never done.
+	...(setupState.data?.needs_password
+		? [
+				{
+					name: 'password',
+					type: 'password',
+					required: true,
+					title: __('Set your password'),
+					subtitle: __(
+						'You are signed in, but have no password yet. Set one so you can sign in again from any device.'
+					),
+				},
+		  ]
+		: []),
+	...(setupState.data?.needs_questions === false
+		? []
+		: setupQuestions().map((question) => ({
+				...question,
+				name: question.key,
+		  }))),
+	...(setupState.data?.can_send_email === false ||
+	setupState.data?.needs_questions === false
+		? []
+		: [
+				{
+					name: 'invite_team',
+					type: 'invite',
+					title: __('Invite your team'),
+					subtitle: __(
+						'Add the people who will build courses with you, or your first learners.'
+					),
+				},
+		  ]),
+])
+
+const labels = computed(() => ({
+	back: __('Back'),
+	skip: __('Skip setup'),
+	skipTitle: __('Skip setup?'),
+	skipMessage: __(
+		'You can invite people later. The getting started checklist will guide you from here.'
+	),
+	cancel: __('Cancel'),
+	stepOf: (step, total) => __('Step {0} of {1}').format(step, total),
+}))
+
+const passwordLabels = computed(() => ({
+	label: __('Password'),
+	placeholder: __('At least 8 characters'),
+	hint: '',
+	show: __('Show'),
+	hide: __('Hide'),
+	save: __('Save and continue'),
+	failed: __('That password could not be saved. Try another.'),
+}))
+
+function pick(step, option, done) {
+	answers[step.key] = option.value
+	done({ choice: option.value })
+}
+
+function chooseGoal(option, done) {
+	answers.first_milestone = option.value
+	goalRoute = option.route ?? goalRoute
+	try {
+		localStorage.setItem('lmsFirstGoal', option.value)
+	} catch {
+		// The sidebar asks the server instead.
+	}
+	done({ choice: option.value })
+}
+
+async function finish() {
+	if (Object.keys(answers).length) {
+		capture('onboarding_persona', { ...answers })
+		call('lms.lms.api.capture_user_persona', {
+			responses: JSON.stringify({ site: user.data?.sitename, ...answers }),
+		})
+	}
+	try {
+		await call('lms.lms.onboarding.save_setup', {
+			first_goal: answers.first_milestone,
+		})
+	} catch (e) {
+		// Stay here, so the answers are kept and the last step can be sent again.
+		toast.error(
+			e?.messages?.[0] || __('Could not save your setup. Please try again.')
+		)
+		return
+	}
+	// A full load, so the getting-started checklist, set up when the app
+	// first loaded, is built again in the order of the goal just picked.
+	window.location.href = router.resolve(goalRoute).href
+}
+
+usePageMeta(() => ({ title: __('Set up Frappe Learning') }))
+</script>

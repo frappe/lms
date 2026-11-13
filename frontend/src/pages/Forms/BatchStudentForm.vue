@@ -11,8 +11,6 @@
 <script setup lang="ts">
 import { computed, inject } from 'vue'
 import { getCachedListResource, getCachedResource } from 'frappe-ui'
-import { useOnboarding } from '@framework/ui/components/Onboarding/index'
-import { seesOnboarding } from '@/utils/onboarding'
 import { useRoute } from 'vue-router'
 import EnrollStudentsForm from '@/components/Enrollment/EnrollStudentsForm.vue'
 import { paidKindForBatch } from '@/components/Enrollment/enrollment'
@@ -21,7 +19,7 @@ import {
 	useBatchDetails,
 } from '@/composables/useBatchForms'
 import { useFormRoute } from '@/composables/useFormRoute'
-import type { BulkEnrollResult, EnrollTarget, SessionUser } from '@/types'
+import type { EnrollTarget, SessionUser } from '@/types'
 
 const props = defineProps<{
 	batchName: string
@@ -31,7 +29,6 @@ const user = inject<SessionUser>('$user')!
 const route = useRoute()
 const readOnlyMode = (window as Window & { read_only_mode?: boolean })
 	.read_only_mode
-const { updateOnboardingStep } = useOnboarding('learning')
 const batch = useBatchDetails(() => props.batchName)
 
 const { close } = useFormRoute(
@@ -86,9 +83,7 @@ const reloadDashboard = () => {
 	reloadBatchDetails?.()
 }
 
-const onEnrolled = (result: BulkEnrollResult) => {
+const onEnrolled = () => {
 	reloadDashboard()
-	if (!result.added.length) return
-	if (seesOnboarding(user.data)) updateOnboardingStep('add_batch_student')
 }
 </script>

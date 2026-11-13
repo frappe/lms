@@ -241,8 +241,15 @@ import type { FrappeResourceError } from 'frappe-ui'
 import { sessionStore } from '@/stores/session'
 import { useScreenSize } from '@/utils/composables'
 import { useTelemetry } from '@framework/ui/telemetry/index'
+<<<<<<< HEAD
 import TabbedDetailPage from '@/components/Layouts/TabbedDetailPage.vue'
 import type { DetailTab } from '@/components/Layouts/TabbedDetailPage.vue'
+=======
+import { useOnboarding } from '@framework/ui/components/Onboarding/index'
+import { seesOnboarding } from '@/utils/onboarding'
+import TabbedDetailPage from '@/components/Layouts/pages/TabbedDetailPage.vue'
+import type { DetailTab } from '@/components/Layouts/pages/TabbedDetailPage.vue'
+>>>>>>> f72635e (feat: setup page on the framework setup flow, with a first password step)
 import CourseOverview from '@/pages/Courses/CourseOverview.vue'
 import SkeletonLoader from '@/components/SkeletonLoader.vue'
 import CourseDashboard from '@/pages/Courses/CourseDashboard.vue'
@@ -327,6 +334,7 @@ type PublishResponse = {
 }
 
 const { capture } = useTelemetry()
+const onboarding = useOnboarding('learning')
 const publishToggle = createResource({
 	url: 'frappe.client.set_value',
 	makeParams() {
@@ -342,6 +350,8 @@ const publishToggle = createResource({
 		capture(published ? 'course_published' : 'course_unpublished', {
 			course: course.data?.name,
 		})
+		if (published && seesOnboarding(user.data))
+			onboarding?.updateOnboardingStep('publish_first_course')
 		toast.success(published ? __('Course published') : __('Course unpublished'))
 		const emptyQuizzes = data?.__onload?.quizzes_without_questions
 		if (emptyQuizzes?.length) {

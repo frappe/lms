@@ -11,6 +11,9 @@ def create_demo_data(setup_args: dict | None = None):
 	frappe.flags.in_lms_demo = True
 	try:
 		_create_demo_data()
+	except Exception:
+		# Sample content is a nice-to-have; a site whose setup just finished must not fail on it.
+		frappe.log_error(title="Demo course could not be created")
 	finally:
 		frappe.flags.in_lms_demo = False
 
