@@ -4,6 +4,7 @@
 		:example="home.data?.example"
 	/>
 	<div v-else class="mx-auto flex max-w-[1080px] flex-col gap-8">
+		<AISetupNotice class="!mb-0" />
 		<header>
 			<h1 class="text-2xl-semibold text-ink-gray-9">
 				{{ greeting(user.data?.full_name) }}
@@ -170,6 +171,7 @@ import { formatTime } from '@/utils'
 import { formatTimezone } from '@/utils/timezone'
 import { profileRoute } from '@/utils/routes'
 import AdminWelcome from '@/pages/Home/AdminWelcome.vue'
+import AISetupNotice from '@/components/Goals/AISetupNotice.vue'
 import LiveClassCard from '@/pages/Home/LiveClassCard.vue'
 import ResumeCard from '@/pages/Home/ResumeCard.vue'
 import { greeting } from '@/pages/Home/greeting'

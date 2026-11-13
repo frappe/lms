@@ -13,9 +13,72 @@
 			</p>
 		</header>
 
+		<!-- Nothing here works without a model, so connecting one is the first step and takes
+		     the composer's place until both settings are in. -->
 		<section
+			v-if="aiStatus.data && !aiStatus.data.ready"
+			aria-labelledby="connect-ai"
+			class="rounded-8 border border-outline-gray-2 bg-surface-base p-5 shadow-sm"
+		>
+			<h2 id="connect-ai" class="text-lg-semibold text-ink-gray-9">
+				{{ __('First, connect an AI model') }}
+			</h2>
+			<p class="mt-1 text-p-base text-ink-gray-6">
+				{{
+					__(
+						'Lumi drafts your plans, tutors your learners and reviews their role-plays with it. Two settings in Desk, about five minutes.'
+					)
+				}}
+			</p>
+			<ol class="mt-4 divide-y divide-outline-gray-1">
+				<li
+					v-for="(step, index) in setupSteps"
+					:key="step.key"
+					class="flex flex-wrap items-center gap-x-4 gap-y-2 py-3"
+				>
+					<span
+						class="flex size-6 shrink-0 items-center justify-center rounded-full text-p-xs font-medium"
+						:class="
+							step.done
+								? 'bg-surface-green-2 text-ink-green-6'
+								: 'bg-surface-gray-2 text-ink-gray-7'
+						"
+					>
+						<span v-if="step.done" class="lucide-check size-3.5" />
+						<template v-else>{{ index + 1 }}</template>
+					</span>
+					<div class="min-w-0 flex-1">
+						<div class="text-base font-medium text-ink-gray-9">
+							{{ step.title }}
+						</div>
+						<div class="text-p-sm text-ink-gray-6">{{ step.hint }}</div>
+					</div>
+					<span v-if="step.done" class="text-p-sm text-ink-gray-6">
+						{{ __('Done') }}
+					</span>
+					<Button
+						v-else
+						:variant="step.key === firstPending ? 'solid' : 'subtle'"
+						:href="safeUrl(step.href)"
+						:label="step.action"
+					/>
+				</li>
+			</ol>
+			<p class="mt-3 text-p-sm text-ink-gray-6">
+				{{
+					__(
+						'Come back to this tab when both are set. It checks again on its own.'
+					)
+				}}
+			</p>
+		</section>
+
+		<section
+			v-else-if="aiStatus.data"
+			ref="composer"
 			aria-labelledby="teach"
-			class="rounded-8 border border-outline-gray-2 bg-surface-base shadow-sm"
+			class="rounded-8 border border-outline-gray-2 bg-surface-base shadow-sm transition-shadow"
+			:class="flash ? 'ring-2 ring-outline-gray-3' : ''"
 		>
 			<div class="flex flex-wrap items-center justify-between gap-3 px-5 pt-4">
 				<h2 id="teach" class="text-lg-semibold text-ink-gray-9">
@@ -102,7 +165,7 @@
 				class="grid grid-cols-[repeat(auto-fit,minmax(min(340px,100%),1fr))] gap-4"
 			>
 				<article
-					class="flex flex-col gap-4 rounded-7 border border-outline-gray-2 p-5"
+					class="flex flex-col gap-3 rounded-7 border border-outline-gray-2 p-5"
 				>
 					<div class="flex items-center justify-between gap-2">
 						<Badge :label="__('Skill')" theme="blue" size="md" />
@@ -122,58 +185,11 @@
 							}}
 						</p>
 					</div>
-					<div
-						class="grid grid-cols-1 gap-2.5 sm:grid-cols-2"
-						aria-hidden="true"
-					>
-						<div
-							class="flex flex-col gap-1.5 rounded-5 bg-surface-gray-1 p-2.5"
-						>
-							<div class="flex items-start gap-1.5">
-								<CharacterAvatar who="lumi" class="size-5 shrink-0" />
-								<span
-									class="rounded-4 bg-surface-base px-2 py-1 text-p-xs text-ink-gray-8"
-								>
-									{{ __('The alarm rings. What do you do first?') }}
-								</span>
-							</div>
-							<span
-								class="self-end rounded-4 bg-surface-gray-3 px-2 py-1 text-p-xs text-ink-gray-9"
-							>
-								{{ __('Grab my laptop?') }}
-							</span>
-							<span
-								class="mt-auto flex items-center gap-1.5 text-p-xs text-ink-gray-6"
-							>
-								<span class="lucide-mic size-3" />
-								{{ __('Then a role-play with a visitor') }}
-							</span>
-						</div>
-						<div
-							class="flex flex-col gap-1.5 rounded-5 bg-surface-gray-1 p-2.5"
-						>
-							<span class="text-p-xs text-ink-gray-6">{{
-								__('Readiness')
-							}}</span>
-							<div class="flex h-12 items-end gap-1">
-								<span
-									v-for="(bar, index) in bars"
-									:key="index"
-									class="flex-1 rounded-2"
-									:class="bar.tone"
-									:style="{ height: bar.height }"
-								/>
-							</div>
-							<span class="text-p-xs text-ink-gray-8">
-								{{ __('34 of 40 ready') }}
-							</span>
-						</div>
-					</div>
-					<p class="mt-auto text-p-sm text-ink-gray-6">
+					<p class="text-p-sm text-ink-gray-6">
 						{{ __('Good for safety, compliance, customer calls, new tools.') }}
 					</p>
 					<Button
-						class="self-start"
+						class="mt-auto self-start"
 						variant="subtle"
 						:label="__('Build a skill')"
 						@click="pick('skill')"
@@ -181,7 +197,7 @@
 				</article>
 
 				<article
-					class="flex flex-col gap-4 rounded-7 border border-outline-gray-2 p-5"
+					class="flex flex-col gap-3 rounded-7 border border-outline-gray-2 p-5"
 				>
 					<div class="flex items-center justify-between gap-2">
 						<Badge :label="__('Course')" theme="green" size="md" />
@@ -201,37 +217,14 @@
 							}}
 						</p>
 					</div>
-					<div
-						class="flex flex-col gap-0.5 rounded-5 bg-surface-gray-1 px-3 py-2.5 text-p-sm text-ink-gray-8"
-						:aria-hidden="example ? undefined : 'true'"
-					>
-						<span class="mb-1 text-p-xs text-ink-gray-6">
-							{{ example?.title || __('Working with Frappe Books') }}
-						</span>
-						<span
-							v-for="step in shownOutline"
-							:key="step.label"
-							class="flex items-center gap-2 py-1"
-						>
-							<span
-								class="size-3.5 shrink-0"
-								:class="step.icon"
-								aria-hidden="true"
-							/>
-							{{ step.label }}
-							<span v-if="step.meta" class="ms-auto text-p-xs text-ink-gray-6">
-								{{ step.meta }}
-							</span>
-						</span>
-					</div>
-					<p class="mt-auto text-p-sm text-ink-gray-6">
+					<p class="text-p-sm text-ink-gray-6">
 						{{
 							__(
 								'Good for product training, onboarding programmes, courses you sell.'
 							)
 						}}
 					</p>
-					<div class="flex flex-wrap items-center gap-2">
+					<div class="mt-auto flex flex-wrap items-center gap-2">
 						<Button
 							variant="subtle"
 							:label="__('Build a course')"
@@ -282,11 +275,26 @@
 	</div>
 </template>
 <script setup lang="ts">
-import { computed, inject, nextTick, ref } from 'vue'
+import {
+	computed,
+	inject,
+	nextTick,
+	onBeforeUnmount,
+	onMounted,
+	ref,
+} from 'vue'
 import { useRouter } from 'vue-router'
-import { Badge, Button, call, TabButtons, Textarea, toast } from 'frappe-ui'
-import CharacterAvatar from '@/components/Goals/CharacterAvatar.vue'
+import {
+	Badge,
+	Button,
+	call,
+	createResource,
+	TabButtons,
+	Textarea,
+	toast,
+} from 'frappe-ui'
 import { greeting } from '@/pages/Home/greeting'
+import { safeUrl } from '@/utils/safeUrl'
 
 type Example = {
 	name: string
@@ -353,50 +361,60 @@ const buildCourse = () => {
 	router.push({ name: 'NewCourse', query: title ? { title } : {} })
 }
 
+const composer = ref<HTMLElement | null>(null)
+const flash = ref(false)
+
+// The cards' buttons set the composer up; when it already is, the only honest answer is to
+// take the person to it: scroll there, light it up for a moment, put the cursor in the box.
 const pick = (value: 'skill' | 'course') => {
 	if (value === 'course' && kind.value === 'course' && text.value.trim())
 		return buildCourse()
 	kind.value = value
-	nextTick(() => field.value?.$el?.querySelector('textarea')?.focus())
+	composer.value?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+	flash.value = true
+	setTimeout(() => (flash.value = false), 1200)
+	nextTick(() => textareaOf(field.value)?.focus({ preventScroll: true }))
 }
 
-const bars = [
-	{ height: '30%', tone: 'bg-surface-gray-3' },
-	{ height: '48%', tone: 'bg-surface-gray-3' },
-	{ height: '62%', tone: 'bg-surface-gray-4' },
-	{ height: '80%', tone: 'bg-surface-gray-6' },
-	{ height: '100%', tone: 'bg-surface-green-6' },
-]
+// frappe-ui's Textarea may render the textarea as its root or inside a wrapper.
+const textareaOf = (component: any): HTMLTextAreaElement | null => {
+	const el = component?.$el as HTMLElement | undefined
+	if (!el) return null
+	return el.tagName === 'TEXTAREA'
+		? (el as HTMLTextAreaElement)
+		: el.querySelector?.('textarea')
+}
 
-const outline = [
-	{
-		label: __('1. Setting up your company'),
-		icon: 'lucide-check text-ink-green-6',
-	},
-	{
-		label: __('2. Your first invoice'),
-		icon: 'lucide-play',
-		meta: __('Video · 6 min'),
-	},
-	{
-		label: __('3. Quiz: payments'),
-		icon: 'lucide-circle-help',
-		meta: __('8 questions'),
-	},
-	{ label: __('Certificate'), icon: 'lucide-award' },
-]
+// Whether the site has a chat model and an embedding model. Checked again whenever this tab
+// comes back into focus, since the settings are made in Desk in another tab.
+const aiStatus = createResource({ url: 'lms.lms.ai.api.ai_status', auto: true })
+const recheck = () => {
+	if (aiStatus.data && !aiStatus.data.ready) aiStatus.reload()
+}
+onMounted(() => window.addEventListener('focus', recheck))
+onBeforeUnmount(() => window.removeEventListener('focus', recheck))
 
-const shownOutline = computed(() => {
-	if (!props.example) return outline
-	const lessons = props.example.lessons.map((title, index) => ({
-		label: __('{0}. {1}').format(index + 1, title),
-		icon: 'lucide-file-text',
-		meta: '',
-	}))
-	return props.example.certificate
-		? [...lessons, { label: __('Certificate'), icon: 'lucide-award', meta: '' }]
-		: lessons
-})
+const setupSteps = computed(() => [
+	{
+		key: 'chat',
+		title: __('A chat model'),
+		hint: __('Any provider works: Gemini, OpenAI, OpenRouter and more.'),
+		done: Boolean(aiStatus.data?.chat_model),
+		href: '/app/flow-model/new',
+		action: __('Add in Desk'),
+	},
+	{
+		key: 'embedding',
+		title: __('An embedding model'),
+		hint: __('Lets Lumi search the material you add.'),
+		done: Boolean(aiStatus.data?.embedding_model),
+		href: '/app/flow-knowledge-settings',
+		action: __('Choose in Desk'),
+	},
+])
+const firstPending = computed(
+	() => setupSteps.value.find((step) => !step.done)?.key
+)
 
 const steps = [
 	__('Create a skill or course'),

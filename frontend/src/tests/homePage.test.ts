@@ -48,8 +48,15 @@ const dayjs = (await import('dayjs')).default
 
 const stubs = {
 	RouterLink: RouterLinkStub,
-	AdminWelcome: { name: 'AdminWelcome', template: '<div data-test="admin-welcome" />' },
-	LearnerWelcome: { name: 'LearnerWelcome', template: '<div data-test="learner-welcome" />' },
+	AISetupNotice: { template: '<div />' },
+	AdminWelcome: {
+		name: 'AdminWelcome',
+		template: '<div data-test="admin-welcome" />',
+	},
+	LearnerWelcome: {
+		name: 'LearnerWelcome',
+		template: '<div data-test="learner-welcome" />',
+	},
 	LiveClassCard: { template: '<div />' },
 	UpcomingEvaluations: { template: '<div />' },
 }
@@ -117,7 +124,10 @@ describe('SkillCard', () => {
 	})
 
 	it('is a button that asks to open the skill when it has no route', async () => {
-		const wrapper = mountWith(SkillCard, { title: 'Fire Safety', meta: 'About 8 minutes' })
+		const wrapper = mountWith(SkillCard, {
+			title: 'Fire Safety',
+			meta: 'About 8 minutes',
+		})
 		await wrapper.find('button').trigger('click')
 		expect(wrapper.emitted('open')).toHaveLength(1)
 		expect(wrapper.text()).toContain('About 8 minutes')
@@ -137,7 +147,10 @@ describe('AdminHome', () => {
 
 	it('shows the first-time page when the instructor has made nothing', async () => {
 		seeds['lms.lms.home.admin_home'] = { items: [], resume: null }
-		const wrapper = mountWith(AdminHome, { liveClasses: { data: [] }, evals: { data: [] } })
+		const wrapper = mountWith(AdminHome, {
+			liveClasses: { data: [] },
+			evals: { data: [] },
+		})
 		await flushPromises()
 		expect(wrapper.find('[data-test="admin-welcome"]').exists()).toBe(true)
 	})
@@ -150,29 +163,50 @@ describe('AdminHome', () => {
 		}
 		const wrapper = mountWith(AdminHome, {
 			liveClasses: {
-				data: [{ name: 'l1', title: 'Fire drill', date: '2026-11-12', time: '11:00' }],
+				data: [
+					{
+						name: 'l1',
+						title: 'Fire drill',
+						date: '2026-11-12',
+						time: '11:00',
+					},
+				],
 			},
 			evals: { data: [] },
 		})
 		await flushPromises()
-		expect(wrapper.find('header p').text()).toBe('Live class today at 11:00: Fire drill.')
+		expect(wrapper.find('header p').text()).toBe(
+			'Live class today at 11:00: Fire drill.',
+		)
 	})
 
 	it('counts drafts when nothing is coming up', async () => {
 		seeds['lms.lms.home.admin_home'] = {
-			items: [made({ name: 'd1', published: false }), made({ name: 'd2', published: false })],
+			items: [
+				made({ name: 'd1', published: false }),
+				made({ name: 'd2', published: false }),
+			],
 			resume: made({ name: 'd1', published: false }),
 		}
-		const wrapper = mountWith(AdminHome, { liveClasses: { data: [] }, evals: { data: [] } })
+		const wrapper = mountWith(AdminHome, {
+			liveClasses: { data: [] },
+			evals: { data: [] },
+		})
 		await flushPromises()
-		expect(wrapper.find('header p').text()).toBe('2 drafts are waiting for you to publish.')
+		expect(wrapper.find('header p').text()).toBe(
+			'2 drafts are waiting for you to publish.',
+		)
 		// No side column, so the list runs full width.
 		expect(wrapper.find('aside').exists()).toBe(false)
 	})
 })
 
 describe('StudentHome', () => {
-	const props = { myLiveClasses: { data: [] }, streakInfo: { data: {} }, evalCount: 0 }
+	const props = {
+		myLiveClasses: { data: [] },
+		streakInfo: { data: {} },
+		evalCount: 0,
+	}
 
 	it('shows the first-time page when there is nothing to learn yet', async () => {
 		seeds['lms.lms.home.my_learning_home'] = []
@@ -183,14 +217,36 @@ describe('StudentHome', () => {
 
 	it('badges every kind of item, courses included', async () => {
 		seeds['lms.lms.home.my_learning_home'] = [
-			{ type: 'Skill', title: 'Fire Safety', meta: 'Not started', done: false, route: {} },
-			{ type: 'Course', title: 'Frappe Books', meta: '2 of 6 lessons', done: false, progress: 33, route: {} },
-			{ type: 'Batch', title: 'Managers', meta: 'Next live class Tuesday', done: false, route: {} },
+			{
+				type: 'Skill',
+				title: 'Fire Safety',
+				meta: 'Not started',
+				done: false,
+				route: {},
+			},
+			{
+				type: 'Course',
+				title: 'Frappe Books',
+				meta: '2 of 6 lessons',
+				done: false,
+				progress: 33,
+				route: {},
+			},
+			{
+				type: 'Batch',
+				title: 'Managers',
+				meta: 'Next live class Tuesday',
+				done: false,
+				route: {},
+			},
 		]
 		const wrapper = mountWith(StudentHome, props)
 		await flushPromises()
-		const text = wrapper.find('#your-learning').element.closest('section')!.textContent
-		for (const label of ['Skill', 'Course', 'Batch']) expect(text).toContain(label)
+		const text = wrapper
+			.find('#your-learning')
+			.element.closest('section')!.textContent
+		for (const label of ['Skill', 'Course', 'Batch'])
+			expect(text).toContain(label)
 	})
 })
 
@@ -205,7 +261,10 @@ describe('AdminWelcome', () => {
 			},
 		})
 
-	it('shows the demo course as a real example to open', () => {
+	const ready = { chat_model: 'gemini', embedding_model: 'embed', ready: true }
+
+	it('offers the demo course as a real example to open', () => {
+		seeds['lms.lms.ai.api.ai_status'] = ready
 		const wrapper = mountWelcome({
 			name: 'demo',
 			title: 'A guide to Frappe Learning',
@@ -213,14 +272,40 @@ describe('AdminWelcome', () => {
 			certificate: false,
 			route: { name: 'CourseDetail', params: { courseName: 'demo' } },
 		})
-		expect(wrapper.text()).toContain('A guide to Frappe Learning')
-		expect(wrapper.text()).toContain('1. What is Frappe Learning?')
 		expect(wrapper.text()).toContain('See an example course')
+		expect(wrapper.text()).toContain('What do you want to teach?')
 	})
 
-	it('falls back to a sample outline on a site without the demo course', () => {
+	it('has no example link on a site without the demo course', () => {
+		seeds['lms.lms.ai.api.ai_status'] = ready
 		const wrapper = mountWelcome(null)
 		expect(wrapper.text()).not.toContain('See an example course')
-		expect(wrapper.text()).toContain('Working with Frappe Books')
+		expect(wrapper.text()).toContain('A topic that needs depth')
+	})
+
+	it('puts connecting a model first when the site has none', () => {
+		seeds['lms.lms.ai.api.ai_status'] = {
+			chat_model: null,
+			embedding_model: null,
+			ready: false,
+		}
+		const wrapper = mountWelcome(null)
+		expect(wrapper.text()).toContain('First, connect an AI model')
+		expect(wrapper.text()).not.toContain('What do you want to teach?')
+		const links = wrapper.findAll('a').map((a) => a.attributes('href'))
+		expect(links).toContain('/app/flow-model/new')
+	})
+
+	it('shows only the embedding step once the chat model is in', () => {
+		seeds['lms.lms.ai.api.ai_status'] = {
+			chat_model: 'gemini',
+			embedding_model: null,
+			ready: false,
+		}
+		const wrapper = mountWelcome(null)
+		expect(wrapper.text()).toContain('Done')
+		const links = wrapper.findAll('a').map((a) => a.attributes('href'))
+		expect(links).toContain('/app/flow-knowledge-settings')
+		expect(links).not.toContain('/app/flow-model/new')
 	})
 })
