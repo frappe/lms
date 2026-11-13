@@ -33,6 +33,7 @@ const { createResourceMock, toastErrorMock, toastMock } = vi.hoisted(() => {
 
 vi.mock('frappe-ui', () => ({
 	createResource: createResourceMock,
+	LoadingIndicator: { template: '<svg />' },
 	toast: { ...toastMock, error: toastErrorMock },
 	ErrorMessage: {
 		props: ['message'],

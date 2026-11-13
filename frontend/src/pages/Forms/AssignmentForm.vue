@@ -1,11 +1,7 @@
 <template>
-	<FormShell :title="formTitle" size="lg" @close="close">
+	<FormShell :title="formTitle" size="lg" :message="refusal" @close="close">
 		<template #default>
-			<div v-if="!canManageAssignments" class="p-4 text-base text-ink-gray-6">
-				{{ __('You are not permitted to manage assignments.') }}
-			</div>
 			<fieldset
-				v-else
 				:disabled="!canEdit"
 				data-testid="assignment-fields"
 				class="m-0 min-w-0 space-y-4 border-0 p-0 text-base"
@@ -92,28 +88,23 @@
 			</fieldset>
 		</template>
 		<template #actions>
-			<div
-				v-if="canManageAssignments"
-				class="flex items-center justify-end gap-2"
-			>
-				<HeaderButton
-					v-if="assignmentID !== 'new'"
-					:route="{
-						name: 'AssignmentSubmissions',
-						query: { assignment: assignmentID },
-					}"
-					:label="__('Check Submissions')"
-					icon="lucide-clipboard-list"
-				/>
-				<HeaderButton
-					v-if="canEdit"
-					data-testid="assignment-save"
-					:label="isNew ? __('Create') : __('Save')"
-					variant="solid"
-					:loading="saving"
-					@click="saveAssignment"
-				/>
-			</div>
+			<HeaderButton
+				v-if="assignmentID !== 'new'"
+				:route="{
+					name: 'AssignmentSubmissions',
+					query: { assignment: assignmentID },
+				}"
+				:label="__('Check Submissions')"
+				icon="lucide-clipboard-list"
+			/>
+			<HeaderButton
+				v-if="canEdit"
+				data-testid="assignment-save"
+				:label="isNew ? __('Create') : __('Save')"
+				variant="solid"
+				:loading="saving"
+				@click="saveAssignment"
+			/>
 		</template>
 	</FormShell>
 </template>
@@ -176,6 +167,12 @@ const canManageAssignments = computed<boolean>(() => {
 		return false
 	return Boolean(user.data?.is_moderator || user.data?.is_instructor)
 })
+
+const refusal = computed(() =>
+	canManageAssignments.value
+		? null
+		: __('You are not permitted to manage assignments.')
+)
 
 interface AssignmentFields {
 	title: string

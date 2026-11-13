@@ -2,6 +2,7 @@
 	<FormShell
 		:title="isNew ? __('New Program') : __('Edit Program')"
 		size="2xl"
+		:message="refusal"
 		@close="close"
 	>
 		<template #header-action>
@@ -10,10 +11,7 @@
 			</Badge>
 		</template>
 		<template #default>
-			<div v-if="!canManageProgram" class="p-4 text-base text-ink-gray-6">
-				{{ __('You are not permitted to manage programs.') }}
-			</div>
-			<div v-else data-testid="program-fields" class="text-base">
+			<div data-testid="program-fields" class="text-base">
 				<div class="space-y-5 pb-5">
 					<FormControl
 						v-model="program.name"
@@ -220,23 +218,21 @@
 			/>
 		</template>
 		<template #actions>
-			<div v-if="canManageProgram" class="flex items-center justify-end gap-2">
-				<HeaderButton
-					v-if="!isNew"
-					data-testid="program-delete"
-					:label="__('Delete program')"
-					icon="lucide-trash-2"
-					variant="outline"
-					theme="red"
-					@click="deleteProgram()"
-				/>
-				<HeaderButton
-					data-testid="program-save"
-					:label="isNew ? __('Create') : __('Save')"
-					variant="solid"
-					@click="saveProgram()"
-				/>
-			</div>
+			<HeaderButton
+				v-if="!isNew"
+				data-testid="program-delete"
+				:label="__('Delete program')"
+				icon="lucide-trash-2"
+				variant="outline"
+				theme="red"
+				@click="deleteProgram()"
+			/>
+			<HeaderButton
+				data-testid="program-save"
+				:label="isNew ? __('Create') : __('Save')"
+				variant="solid"
+				@click="saveProgram()"
+			/>
 		</template>
 	</FormShell>
 </template>
@@ -321,6 +317,12 @@ const canManageProgram = computed(() => {
 		return false
 	return Boolean(user.data?.is_moderator || user.data?.is_instructor)
 })
+
+const refusal = computed(() =>
+	canManageProgram.value
+		? null
+		: __('You are not permitted to manage programs.')
+)
 
 const program = ref<Program>({
 	name: '',

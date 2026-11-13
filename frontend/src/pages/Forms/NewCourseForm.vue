@@ -1,10 +1,12 @@
 <template>
-	<FormShell :title="__('New Course')" size="3xl" @close="close">
+	<FormShell
+		:title="__('New Course')"
+		size="3xl"
+		:message="refusal"
+		@close="close"
+	>
 		<template #default>
-			<div v-if="!canCreate" class="p-4 text-base text-ink-gray-6">
-				{{ __('You are not permitted to create a course.') }}
-			</div>
-			<div v-else data-testid="new-course-fields" class="text-base">
+			<div data-testid="new-course-fields" class="text-base">
 				<div class="grid grid-cols-1 md:grid-cols-2 gap-5 border-b pb-5 mb-5">
 					<FormControl
 						v-model="course.title"
@@ -107,15 +109,13 @@
 			</div>
 		</template>
 		<template #actions>
-			<div v-if="canCreate" class="flex items-center justify-end">
-				<HeaderButton
-					data-testid="new-course-save"
-					:label="__('Create')"
-					variant="solid"
-					:loading="courses.insert.loading"
-					@click="saveCourse()"
-				/>
-			</div>
+			<HeaderButton
+				data-testid="new-course-save"
+				:label="__('Create')"
+				variant="solid"
+				:loading="courses.insert.loading"
+				@click="saveCourse()"
+			/>
 		</template>
 	</FormShell>
 	<NewMemberModal
@@ -203,6 +203,10 @@ const courses = createListResource({
 // are that. canCreateCourse() reads userResource.data, which is reactive, so
 // the computed settles once the user resource resolves.
 const canCreate = computed(() => canCreateCourse())
+
+const refusal = computed(() =>
+	canCreate.value ? null : __('You are not permitted to create a course.')
+)
 
 type Course = {
 	title: string

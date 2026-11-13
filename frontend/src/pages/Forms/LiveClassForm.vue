@@ -3,16 +3,12 @@
 		:title="__('New Live Class')"
 		size="xl"
 		position="top"
+		:loading="loadingBatch"
+		:message="refusal"
 		@close="close"
 	>
 		<template #default>
-			<div v-if="loadingBatch" class="p-4 text-base text-ink-gray-6">
-				{{ __('Loading...') }}
-			</div>
-			<div v-else-if="refusal" class="text-base text-ink-gray-6">
-				{{ refusal }}
-			</div>
-			<div v-else data-testid="live-class-fields" class="flex flex-col gap-4">
+			<div data-testid="live-class-fields" class="flex flex-col gap-4">
 				<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
 					<div class="space-y-4">
 						<FormControl
@@ -92,20 +88,13 @@
 			</div>
 		</template>
 		<template #actions>
-			<div
-				v-if="!refusal && !loadingBatch"
-				class="flex items-center justify-end"
-			>
-				<HeaderButton
-					data-testid="live-class-save"
-					:label="__('Create')"
-					variant="solid"
-					:loading="
-						createLiveClass.loading || createGoogleMeetLiveClass.loading
-					"
-					@click="submitLiveClass()"
-				/>
-			</div>
+			<HeaderButton
+				data-testid="live-class-save"
+				:label="__('Create')"
+				variant="solid"
+				:loading="createLiveClass.loading || createGoogleMeetLiveClass.loading"
+				@click="submitLiveClass()"
+			/>
 		</template>
 	</FormShell>
 </template>

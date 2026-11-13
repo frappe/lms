@@ -1,10 +1,12 @@
 <template>
-	<FormShell :title="__('Add Course')" size="lg" @close="close">
+	<FormShell
+		:title="__('Add Course')"
+		size="lg"
+		:message="refusal"
+		@close="close"
+	>
 		<template #default>
-			<div v-if="refusal" class="text-base text-ink-gray-6">
-				{{ refusal }}
-			</div>
-			<div v-else data-testid="batch-course-fields" class="flex flex-col gap-4">
+			<div data-testid="batch-course-fields" class="flex flex-col gap-4">
 				<Link
 					doctype="LMS Course"
 					v-model="course"
@@ -24,7 +26,6 @@
 		</template>
 		<template #actions>
 			<HeaderButton
-				v-if="!refusal"
 				:label="__('Add')"
 				variant="solid"
 				:loading="batchCourses.insert.loading"

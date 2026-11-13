@@ -3,6 +3,9 @@
 		:title="__('Enroll Students')"
 		size="4xl"
 		position="top"
+		:loading
+		:message="refusal"
+		:statusClass="bodyHeight"
 		@close="onClose"
 	>
 		<DefinePanel>
@@ -25,16 +28,10 @@
 		<div
 			data-testid="enroll-body"
 			class="flex flex-col gap-5"
-			:class="isMobile ? 'h-full' : 'h-[min(32rem,calc(80dvh-17rem))]'"
+			:class="bodyHeight"
 		>
-			<div v-if="loading" class="text-base text-ink-gray-6">
-				{{ __('Loading...') }}
-			</div>
-			<div v-else-if="refusal" class="text-p-base text-ink-gray-6">
-				{{ refusal }}
-			</div>
 			<div
-				v-else-if="target"
+				v-if="target"
 				data-testid="enroll-content"
 				role="group"
 				tabindex="-1"
@@ -93,7 +90,7 @@
 		</div>
 		<template #actions>
 			<div
-				v-if="target && !refusal && !loading"
+				v-if="target"
 				data-testid="enroll-footer"
 				class="flex w-full items-center justify-between gap-2"
 			>
@@ -225,6 +222,10 @@ const panelOpen = ref<boolean>(false)
 const ticked = ref<string[]>([])
 const previewLoading = ref<boolean>(false)
 const { isMobile } = useScreenSize()
+// Fixed so the dialog keeps its size from the spinner to the loaded list.
+const bodyHeight = computed<string>(() =>
+	isMobile.value ? 'h-full' : 'h-[min(32rem,calc(80dvh-17rem))]'
+)
 
 const NONE = '—'
 

@@ -2,13 +2,11 @@
 	<FormShell
 		:title="isEdit ? __('Edit Chapter') : __('Add Chapter')"
 		size="lg"
+		:message="refusal"
 		@close="close"
 	>
 		<template #default>
-			<div v-if="!canManageChapters" class="p-4 text-p-base text-ink-gray-6">
-				{{ refusal }}
-			</div>
-			<div v-else data-testid="chapter-fields" class="space-y-4 text-base">
+			<div data-testid="chapter-fields" class="space-y-4 text-base">
 				<FormControl
 					label="Title"
 					v-model="chapter.title"
@@ -75,16 +73,14 @@
 			</div>
 		</template>
 		<template #actions>
-			<div v-if="canManageChapters" class="flex items-center justify-end">
-				<HeaderButton
-					data-testid="chapter-save"
-					:label="isEdit ? __('Save') : __('Add')"
-					variant="solid"
-					:loading="chapterResource.loading"
-					:disabled="isEdit && !chapterDetail"
-					@click="saveChapter()"
-				/>
-			</div>
+			<HeaderButton
+				data-testid="chapter-save"
+				:label="isEdit ? __('Save') : __('Add')"
+				variant="solid"
+				:loading="chapterResource.loading"
+				:disabled="isEdit && !chapterDetail"
+				@click="saveChapter()"
+			/>
 		</template>
 	</FormShell>
 </template>
@@ -166,11 +162,11 @@ const { close, saveAndReplace } = useFormRoute(parent)
 // can_modify_course() and throws PermissionError (lms/lms/api.py:1369-1370).
 const canManageChapters = computed(() => Boolean(user.data))
 
-// Built here rather than inline in the template because vue-tsc currently
-// cannot see the `__` augmentation on ComponentCustomProperties, so every
-// template call site is an error; the global `__` declaration works fine from
-// script. Same string either way.
-const refusal = __('You are not permitted to manage chapters.')
+const refusal = computed(() =>
+	canManageChapters.value
+		? null
+		: __('You are not permitted to manage chapters.')
+)
 
 const chapter = reactive<ChapterFields>({
 	title: '',
