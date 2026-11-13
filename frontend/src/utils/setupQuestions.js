@@ -1,7 +1,7 @@
 const HINT = () => __('This helps us personalise your learning experience.')
 
-// The setup questions. The keys are what capture_user_persona has always sent,
-// so the persona data keeps its shape.
+// The setup questions. The keys are the ones capture_user_persona has always sent
+// for these three; the old discovery question was dropped on purpose.
 export function setupQuestions() {
 	return [
 		{
