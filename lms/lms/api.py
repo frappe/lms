@@ -60,10 +60,7 @@ from lms.lms.course_import_export import (
 	import_course_zip,
 	validate_archive,
 )
-from lms.lms.doctype.course_lesson.course_lesson import (
-	cleanup_lesson_backreferences,
-	save_progress,
-)
+from lms.lms.doctype.course_lesson.course_lesson import save_progress
 from lms.lms.doctype.lms_certificate.lms_certificate import evaluates_certificate, get_latest_certificate
 from lms.lms.doctype.lms_certificate_evaluation.lms_certificate_evaluation import can_evaluate
 from lms.lms.html_sanitizer import sanitize_rich_text
@@ -116,6 +113,8 @@ def get_user_info():
 	user.is_student = not user.is_instructor and not user.is_moderator and not user.is_evaluator
 	user.is_fc_site = is_fc_site()
 	user.is_system_manager = "System Manager" in user.roles
+	# Someone signed in without an LMS role is treated as a guest.
+	user.has_lms_role = has_lms_role() or user.is_system_manager
 	user.sitename = frappe.local.site
 	user.developer_mode = frappe.conf.developer_mode
 	if user.is_fc_site and user.is_system_manager:
@@ -143,6 +142,10 @@ PERMISSION_DOCTYPES = (
 	"LMS Assignment",
 	"LMS Program",
 	"Job Opportunity",
+	"LMS Course Review",
+	"LMS Lesson Note",
+	"Discussion Topic",
+	"Discussion Reply",
 )
 
 
@@ -1163,7 +1166,7 @@ def get_owned_slot(doc, slot: str | int):
 	frappe.throw(_("That slot does not belong to this evaluator."), frappe.PermissionError)
 
 
-@frappe.whitelist()
+@frappe.whitelist(methods=["POST"])
 def add_evaluator_slot(evaluator: str, day: str, start_time: str, end_time: str):
 	if day not in EVALUATOR_SLOT_DAYS:
 		frappe.throw(_("{0} is not a valid day.").format(day))
@@ -1180,7 +1183,7 @@ def add_evaluator_slot(evaluator: str, day: str, start_time: str, end_time: str)
 	return doc.schedule[-1].name
 
 
-@frappe.whitelist()
+@frappe.whitelist(methods=["POST"])
 def update_evaluator_slot(evaluator: str, slot: str | int, fieldname: str, value: str):
 	doc = get_owned_evaluator_doc(evaluator)
 	row = get_owned_slot(doc, slot)
@@ -1207,7 +1210,7 @@ def delete_evaluator_slot(evaluator: str, slot: str | int):
 	doc.save(ignore_permissions=True)
 
 
-@frappe.whitelist()
+@frappe.whitelist(methods=["POST"])
 def set_evaluator_unavailability(evaluator: str, fieldname: str, value: str | None = None):
 	doc = get_owned_evaluator_doc(evaluator)
 
@@ -1321,7 +1324,13 @@ def get_certification_query(filters: dict = None):
 					Certificate.course_title.like(f"%{value}%") | Certificate.batch_title.like(f"%{value}%")
 				)
 			if field == "member_name":
-				query = query.where(Certificate.member_name.like(value[1]))
+				# The SPA sends ["like", "%text%"]; anything else is matched as a substring
+				# rather than indexed into.
+				if isinstance(value, list | tuple) and len(value) > 1 and isinstance(value[1], str):
+					pattern = value[1]
+				else:
+					pattern = f"%{cstr(value)}%"
+				query = query.where(Certificate.member_name.like(pattern))
 			if field == "open_to_work":
 				query = query.where(User.open_to == "Work")
 			if field == "hiring":
@@ -1459,7 +1468,7 @@ def get_sidebar_settings():
 	return sidebar_items
 
 
-@frappe.whitelist()
+@frappe.whitelist(methods=["POST"])
 def update_sidebar_item(webpage: str, icon: str | None = None):
 	"""Add a published Web Page to the sidebar, or re-icon one already there.
 
@@ -1487,7 +1496,7 @@ def update_sidebar_item(webpage: str, icon: str | None = None):
 	return get_sidebar_settings()
 
 
-@frappe.whitelist()
+@frappe.whitelist(methods=["POST"])
 def save_sidebar_items(rows: list):
 	"""Replace the sidebar table, and nothing else on LMS Settings.
 
@@ -1546,24 +1555,11 @@ def delete_lesson(lesson: str, chapter: str):
 	lessons.remove(lesson)
 	frappe.db.delete("Lesson Reference", {"parent": chapter, "lesson": lesson})
 	update_index(lessons, chapter)
-
-	frappe.db.delete("LMS Course Progress", {"lesson": lesson})
-	frappe.db.delete("LMS Video Watch Duration", {"lesson": lesson})
-
-	# Discussion topics link to the lesson, so remove them (and their replies) first, else delete_doc raises LinkExistsError.
-	topics = frappe.get_all(
-		"Discussion Topic",
-		{"reference_doctype": "Course Lesson", "reference_docname": lesson},
-		pluck="name",
-	)
-	for topic in topics:
-		frappe.db.delete("Discussion Reply", {"topic": topic})
-		frappe.db.delete("Discussion Topic", topic)
-
+	# Its discussions, progress and watch time go in CourseLesson.on_trash.
 	frappe.delete_doc("Course Lesson", lesson)
 
 
-@frappe.whitelist()
+@frappe.whitelist(methods=["POST"])
 def create_lesson(chapter: str, title: str | None = None, content: str | dict | None = None) -> str:
 	"""Append a lesson to the chapter, titled `title` or "Untitled lesson", atomically via add_lesson() (inserts the Course Lesson + its Lesson Reference in one request that rolls back together; returns the new docname).
 
@@ -1610,7 +1606,7 @@ def _new_lesson_title_max_length() -> int:
 	return 140 - len(f"{next_number:04d} ")
 
 
-@frappe.whitelist()
+@frappe.whitelist(methods=["POST"])
 def update_lesson_index(lesson: str, sourceChapter: str, targetChapter: str, idx: int):
 	source_course = frappe.db.get_value("Course Chapter", sourceChapter, "course")
 	if not can_modify_course(source_course):
@@ -1688,7 +1684,7 @@ def update_index(lessons: list, chapter: str):
 		)
 
 
-@frappe.whitelist()
+@frappe.whitelist(methods=["POST"])
 def update_chapter_index(chapter: str, course: str, idx: int):
 	"""Update the index of a chapter within a course"""
 
@@ -1821,7 +1817,7 @@ def save_evaluation_details(
 	frappe.only_for(["Batch Evaluator", "Moderator"])
 	user = frappe.session.user
 	if has_moderator_role():
-		evaluator = get_evaluator(course, batch_name) or user
+		evaluator = get_evaluator(course, batch_name)
 	elif can_evaluate(user, member, course, batch_name):
 		evaluator = user
 	else:
@@ -1839,6 +1835,12 @@ def save_evaluation_details(
 		"name",
 		for_update=True,
 	)
+	if not evaluator:
+		# A Moderator correcting a row on a course with no assigned evaluator keeps
+		# its grader, who would otherwise lose the row.
+		evaluator = (
+			evaluation and frappe.db.get_value("LMS Certificate Evaluation", evaluation, "evaluator")
+		) or user
 
 	details = {
 		"date": date_value,
@@ -1848,18 +1850,22 @@ def save_evaluation_details(
 		"rating": rating / 5,
 		"summary": summary,
 		"batch_name": batch_name,
+		# Whoever grades now owns the row: a reassigned evaluator regrades their
+		# predecessor's evaluation, and the write check reads this field.
+		"evaluator": evaluator,
 	}
 
 	if evaluation:
-		frappe.db.set_value("LMS Certificate Evaluation", evaluation, details)
-		return evaluation
+		doc = frappe.get_doc("LMS Certificate Evaluation", evaluation, for_update=True)
+		doc.update(details)
+		doc.save()
+		return doc.name
 	else:
 		doc = frappe.new_doc("LMS Certificate Evaluation")
 		details.update(
 			{
 				"member": member,
 				"course": course,
-				"evaluator": evaluator,
 			}
 		)
 		doc.update(details)
@@ -1907,8 +1913,10 @@ def save_certificate_details(
 	}
 
 	if certificate:
-		frappe.db.set_value("LMS Certificate", certificate, details)
-		return certificate
+		doc = frappe.get_doc("LMS Certificate", certificate, for_update=True)
+		doc.update(details)
+		doc.save()
+		return doc.name
 	else:
 		doc = frappe.new_doc("LMS Certificate")
 		details.update(
@@ -2128,80 +2136,32 @@ def _insert_batch_certificate(batch: str, member: str, values: dict) -> str | No
 
 @frappe.whitelist(methods=["POST"])
 def delete_course(course: str):
+	_validate_name_type(course, _("Course"))
 	if not can_modify_course(course):
 		frappe.throw(_("You do not have permission to delete this course."), frappe.PermissionError)
-
-	frappe.db.delete("LMS Enrollment", {"course": course})
-	frappe.db.delete("LMS Course Progress", {"course": course})
-	frappe.db.delete("LMS Video Watch Duration", {"course": course})
-	frappe.db.delete("LMS Certificate", {"course": course})
-	frappe.db.delete("LMS Certificate Request", {"course": course})
-	frappe.db.delete("LMS Certificate Evaluation", {"course": course})
-	frappe.db.delete("LMS Course Interest", {"course": course})
-	frappe.db.delete("LMS Course Mentor Mapping", {"course": course})
-	frappe.db.delete("Batch Course", {"course": course})
-	frappe.db.delete("LMS Course Review", {"course": course})
-	# This course may appear in another parent's child table (another course's related
-	# list, a program's course list); remove those rows so the delete isn't blocked.
-	frappe.db.delete("Related Courses", {"course": course})
-	frappe.db.delete("LMS Program Course", {"course": course})
-	# Preserve authored assessments and graded work. Unlink from the course/lesson rather than delete.
-	frappe.db.set_value("LMS Quiz", {"course": course}, {"course": None, "lesson": None})
-	frappe.db.set_value("LMS Quiz Submission", {"course": course}, "course", None)
-	frappe.db.set_value("LMS Assignment Submission", {"course": course}, {"course": None, "lesson": None})
-	frappe.db.set_value("LMS Assignment", {"course": course}, "course", None)
-
-	chapters = frappe.get_all("Course Chapter", {"course": course}, pluck="name")
-	frappe.db.delete("Chapter Reference", {"parent": course})
-
-	for chapter in chapters:
-		lessons = frappe.get_all("Course Lesson", {"chapter": chapter}, pluck="name")
-
-		frappe.db.delete("Lesson Reference", {"parent": chapter})
-
-		for lesson in lessons:
-			topics = frappe.get_all(
-				"Discussion Topic",
-				{"reference_doctype": "Course Lesson", "reference_docname": lesson},
-				pluck="name",
-			)
-
-			for topic in topics:
-				frappe.db.delete("Discussion Reply", {"topic": topic})
-				frappe.db.delete("Discussion Topic", topic)
-
-			frappe.delete_doc("Course Lesson", lesson)
-
-	for chapter in chapters:
-		frappe.delete_doc("Course Chapter", chapter)
-
+	_require_existing("LMS Course", course)
 	frappe.delete_doc("LMS Course", course)
+
+
+def _validate_name_type(name: str, label: str):
+	if not isinstance(name, str):
+		frappe.throw(_("{0} must be a string.").format(label))
+
+
+def _require_existing(doctype: str, name: str):
+	"""An empty name would reach the delete as no filter at all and match every row."""
+	if not name or not frappe.db.exists(doctype, name):
+		frappe.throw(_("{0} {1} does not exist.").format(_(doctype), name), frappe.DoesNotExistError)
 
 
 @frappe.whitelist(methods=["POST"])
 def delete_batch(batch: str):
+	_validate_name_type(batch, _("Batch"))
 	if not can_modify_batch(batch):
 		frappe.throw(_("You do not have permission to delete this batch."), frappe.PermissionError)
-
-	frappe.db.delete("LMS Batch Enrollment", {"batch": batch})
-	frappe.db.delete("Batch Course", {"parent": batch, "parenttype": "LMS Batch"})
-	frappe.db.delete("LMS Assessment", {"parent": batch, "parenttype": "LMS Batch"})
-	frappe.db.delete("LMS Batch Timetable", {"parent": batch, "parenttype": "LMS Batch"})
-	frappe.db.delete("LMS Batch Feedback", {"batch": batch})
-	delete_batch_discussions(batch)
-	frappe.db.delete("LMS Batch", batch)
-
-
-def delete_batch_discussions(batch: str):
-	topics = frappe.get_all(
-		"Discussion Topic",
-		{"reference_doctype": "LMS Batch", "reference_docname": batch},
-		pluck="name",
-	)
-
-	for topic in topics:
-		frappe.db.delete("Discussion Reply", {"topic": topic})
-		frappe.db.delete("Discussion Topic", topic)
+	_require_existing("LMS Batch", batch)
+	# nosemgrep: lms-unjustified-ignore-permissions - can_modify_batch is the gate; a tagged Course Creator holds no delete DocPerm
+	frappe.delete_doc("LMS Batch", batch, ignore_permissions=True)
 
 
 def give_discussions_permission():
@@ -2488,49 +2448,11 @@ def add_lesson(title: str, chapter: str, course: str, idx: int):
 
 @frappe.whitelist(methods=["POST"])
 def delete_chapter(chapter: str):
-	if not isinstance(chapter, str):
-		frappe.throw(_("chapter must be a string"))
-
-	course = frappe.db.get_value("Course Chapter", chapter, "course")
-	if not can_modify_course(course):
+	_validate_name_type(chapter, _("Chapter"))
+	_require_existing("Course Chapter", chapter)
+	if not can_modify_course(frappe.db.get_value("Course Chapter", chapter, "course")):
 		frappe.throw(_("You do not have permission to delete this chapter."), frappe.PermissionError)
-
-	if frappe.db.get_value("Course Chapter", chapter, "is_scorm_package"):
-		delete_scorm_package(chapter)
-
-	course = frappe.db.get_value("Chapter Reference", {"chapter": chapter}, "parent")
-
-	# Clean up per-lesson dependants before the raw lesson delete below, else discussions/progress orphan at the deleted lessons.
-	lessons = frappe.get_all("Course Lesson", {"chapter": chapter}, pluck="name")
-	for lesson in lessons:
-		topics = frappe.get_all(
-			"Discussion Topic",
-			{"reference_doctype": "Course Lesson", "reference_docname": lesson},
-			pluck="name",
-		)
-		for topic in topics:
-			frappe.db.delete("Discussion Reply", {"topic": topic})
-			frappe.db.delete("Discussion Topic", topic)
-		frappe.db.delete("LMS Course Progress", {"lesson": lesson})
-		frappe.db.delete("LMS Video Watch Duration", {"lesson": lesson})
-		# Raw db.delete below skips the controller's on_trash, so unlink back-references here.
-		cleanup_lesson_backreferences(lesson)
-
-	frappe.db.delete("Chapter Reference", {"chapter": chapter})
-	frappe.db.delete("Lesson Reference", {"parent": chapter})
-	frappe.db.delete("Course Lesson", {"chapter": chapter})
-	frappe.db.delete("Course Chapter", chapter)
-
-	# reset chapter reference index after deletion
-	if course:
-		chapters = frappe.get_all(
-			"Chapter Reference", filters={"parent": course}, fields=["name"], order_by="idx asc"
-		)
-
-		i = 1
-		for chapter in chapters:
-			frappe.db.set_value("Chapter Reference", chapter.name, "idx", i)
-			i += 1
+	frappe.delete_doc("Course Chapter", chapter)
 
 
 def delete_scorm_package(chapter: str):
@@ -2556,9 +2478,16 @@ def delete_scorm_package(chapter: str):
 		if any(package_dir and package_dir == sibling_dirs[root] for root, package_dir in dirs.items()):
 			return
 
-	for package_dir in dirs.values():
-		if package_dir and os.path.isdir(package_dir):
-			shutil.rmtree(package_dir)
+	# Removed once the delete commits, so a delete refused later in this transaction
+	# still finds its package.
+	package_dirs = [package_dir for package_dir in dirs.values() if package_dir]
+	frappe.db.after_commit.add(lambda: _remove_dirs(package_dirs))
+
+
+def _remove_dirs(dirs: list[str]):
+	for path in dirs:
+		if os.path.isdir(path):
+			shutil.rmtree(path)
 
 
 def _scorm_package_dir(root: str, course: str, stored: str) -> str | None:
@@ -2575,13 +2504,21 @@ def _scorm_package_dir(root: str, course: str, stored: str) -> str | None:
 	return package_dir
 
 
-@frappe.whitelist()
+@frappe.whitelist(methods=["POST"])
 def mark_lesson_progress(course: str, chapter_number: int, lesson_number: int):
 	chapter_name = frappe.get_value("Chapter Reference", {"parent": course, "idx": chapter_number}, "chapter")
 	lesson_name = frappe.get_value(
 		"Lesson Reference", {"parent": chapter_name, "idx": lesson_number}, "lesson"
 	)
 	save_progress(lesson_name, course)
+	# save_progress can decline without raising: no enrollment, or the lesson's
+	# requirements are not met yet. Report whether the lesson is now complete.
+	return bool(
+		frappe.db.exists(
+			"LMS Course Progress",
+			{"lesson": lesson_name, "member": frappe.session.user, "status": "Complete"},
+		)
+	)
 
 
 @frappe.whitelist()
@@ -2993,7 +2930,7 @@ def check_can_manage_member(member: str):
 		frappe.throw(_("Only a System Manager can change this account."), frappe.PermissionError)
 
 
-@frappe.whitelist()
+@frappe.whitelist(methods=["POST"])
 def save_role(user: str, role: str, value: int):
 	frappe.only_for("Moderator")
 	if role not in LMS_ROLES:
@@ -3059,7 +2996,7 @@ def delete_member(user: str):
 	return True
 
 
-@frappe.whitelist()
+@frappe.whitelist(methods=["POST"])
 def capture_user_persona(responses: str):
 	frappe.only_for("System Manager")
 	data = frappe.parse_json(responses)
@@ -3089,7 +3026,7 @@ def get_meta_info(type: str, route: str):
 	return []
 
 
-@frappe.whitelist()
+@frappe.whitelist(methods=["POST"])
 def update_meta_info(meta_type: str, route: str, meta_tags: list):
 	frappe.only_for(["Course Creator", "Batch Evaluator", "Moderator"])
 	if not isinstance(meta_type, str) or not isinstance(route, str):
@@ -3343,7 +3280,7 @@ def update_test_cases(test_cases: list, submission: str):
 		test_case.insert()
 
 
-@frappe.whitelist()
+@frappe.whitelist(methods=["POST"])
 def track_video_watch_duration(lesson: str, videos: list):
 	"""
 	Track the watch duration of videos in a lesson.
@@ -3442,6 +3379,46 @@ def get_progress_distribution(progressList: list):
 	return distribution
 
 
+BUNDLED_PWA_ICONS = [
+	{
+		"src": f"/assets/lms/frontend/manifest/manifest-icon-{size}.maskable.png",
+		"sizes": f"{size}x{size}",
+		"type": "image/png",
+		"purpose": "any",
+	}
+	for size in (192, 512)
+]
+
+# The smallest icon a browser accepts for installing a PWA.
+MIN_PWA_ICON_SIZE = 192
+
+
+def get_app_logo_icons() -> list[dict]:
+	"""Website Settings' app_logo as the "any" icon, at the size read from the file. Only a
+	square of at least MIN_PWA_ICON_SIZE: a wide wordmark or a favicon would be stretched
+	or blurred, and it replaces both bundled icons."""
+	logo = frappe.db.get_single_value("Website Settings", "app_logo")
+	if not logo or not logo.startswith("/files/"):
+		return []
+	public_files = os.path.realpath(frappe.get_site_path("public", "files"))
+	path = os.path.realpath(frappe.get_site_path("public", logo.lstrip("/")))
+	if not path.startswith(public_files + os.sep):
+		return []
+
+	from PIL import Image
+
+	try:
+		with Image.open(path) as image:
+			width, height = image.size
+			mime = Image.MIME.get(image.format)
+	except OSError:
+		return []
+	if width != height or width < MIN_PWA_ICON_SIZE or not mime:
+		return []
+	return [{"src": logo, "sizes": f"{width}x{height}", "type": mime, "purpose": "any"}]
+
+
+# nosemgrep: security.guest-whitelisted-method - pre-existing grant; the manifest is public by design and reads only Website Settings branding. Flagged because semgrep ci re-scans the whole function when its body changes.
 @frappe.whitelist(allow_guest=True)
 def get_pwa_manifest():
 	"""Web app manifest for installing the LMS as a PWA."""
@@ -3472,24 +3449,9 @@ def get_pwa_manifest():
 		# Split by purpose rather than the previous combined "maskable any": a
 		# maskable icon is drawn with its edges cropped to the platform's shape,
 		# so reusing one image for both gives a clipped icon wherever the "any"
-		# slot is used. The 512 has been on disk unused.
-		#
-		# Website Settings' banner_image is deliberately NOT a source here. It is
-		# a wide banner, and it was being declared as 192x192, so any site that
-		# set one got a squashed app icon.
+		# slot is used. banner_image is a wide banner, so it is never an icon.
 		"icons": [
-			{
-				"src": "/assets/lms/frontend/manifest/manifest-icon-192.maskable.png",
-				"sizes": "192x192",
-				"type": "image/png",
-				"purpose": "any",
-			},
-			{
-				"src": "/assets/lms/frontend/manifest/manifest-icon-512.maskable.png",
-				"sizes": "512x512",
-				"type": "image/png",
-				"purpose": "any",
-			},
+			*(get_app_logo_icons() or BUNDLED_PWA_ICONS),
 			{
 				"src": "/assets/lms/frontend/manifest/manifest-icon-512.maskable.png",
 				"sizes": "512x512",
@@ -4562,7 +4524,7 @@ def get_user_certificates(username: str) -> list:
 	)
 
 
-@frappe.whitelist()
+@frappe.whitelist(methods=["POST"])
 def clear_demo_data():
 	frappe.only_for("Moderator")
 	quiz_title = "Do you know Frappe Learning?"
@@ -4650,7 +4612,7 @@ def search_users_by_role(
 	]
 
 
-@frappe.whitelist()
+@frappe.whitelist(methods=["POST"])
 def export_course_as_zip(course_name: str):
 	if not can_modify_course(course_name):
 		frappe.throw(_("You do not have permission to export this course."), frappe.PermissionError)
@@ -4715,7 +4677,7 @@ def get_system_preferences():
 	}
 
 
-@frappe.whitelist()
+@frappe.whitelist(methods=["POST"])
 def set_system_preferences(language: str = None, time_zone: str = None):
 	from frappe.core.doctype.user.user import get_timezones
 

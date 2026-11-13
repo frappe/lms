@@ -303,3 +303,133 @@ class TestLMSCertificate(BaseTestUtils):
 
 		frappe.set_user(self.member_a)
 		self.assertEqual(is_certified(self.course.name), course_level.name)
+
+	def _grade(self, status, rating):
+		return save_evaluation_details(
+			member=self.member_a,
+			course=self.course.name,
+			batch_name=self.batch_a,
+			date_value=nowdate(),
+			start_time="10:00:00",
+			end_time="11:00:00",
+			status=status,
+			rating=rating,
+			summary="graded",
+		)
+
+	def test_regrading_an_evaluation_validates_the_rating(self):
+		"""Regression: updates went through db.set_value (#1010), so a Pass could carry rating 0.
+		Added for audit finding #61."""
+		frappe.set_user(self.evaluator_a)
+		name = self._grade("Pending", 0)
+
+		with self.assertRaises(frappe.ValidationError):
+			self._grade("Pass", 0)
+
+		self.assertEqual(frappe.db.get_value("LMS Certificate Evaluation", name, "status"), "Pending")
+
+	def test_updating_a_certificate_validates_its_links(self):
+		"""Regression: certificate updates skipped validation too (#1010).
+		Added for audit finding #61."""
+		frappe.set_user(self.evaluator_a)
+
+		with self.assertRaises(frappe.LinkValidationError):
+			save_certificate_details(
+				member=self.member_a,
+				course=self.course.name,
+				batch_name=self.batch_a,
+				issue_date=nowdate(),
+				template=f"No Such Format {frappe.generate_hash(length=6)}",
+			)
+
+		self.assertEqual(
+			frappe.db.get_value("LMS Certificate", self.certificate_a.name, "template"),
+			get_default_certificate_template(),
+		)
+
+	def _reassign_evaluator(self, batch, evaluator):
+		frappe.db.set_value(
+			"Batch Course", {"parent": batch, "course": self.course.name}, "evaluator", evaluator
+		)
+
+	def test_a_reassigned_evaluator_regrades_their_predecessors_evaluation(self):
+		"""The save endpoint authorises the batch's current evaluator, so the
+		doctype's write check must not demand the row's previous grader."""
+		frappe.set_user(self.evaluator_a)
+		name = self._grade("Pending", 0)
+
+		frappe.set_user("Administrator")
+		self._reassign_evaluator(self.batch_a, self.evaluator_b)
+
+		frappe.set_user(self.evaluator_b)
+		self.assertEqual(self._grade("Pass", 5), name)
+		stored = frappe.db.get_value(
+			"LMS Certificate Evaluation", name, ["status", "evaluator"], as_dict=True
+		)
+		self.assertEqual(stored, {"status": "Pass", "evaluator": self.evaluator_b})
+
+		# The previous grader no longer evaluates the batch and is out.
+		frappe.set_user(self.evaluator_a)
+		with self.assertRaises(frappe.PermissionError):
+			self._grade("Fail", 1)
+
+	def test_a_moderator_correction_keeps_the_grader(self):
+		"""With no evaluator assigned, a Moderator's regrade must not take the row
+		from the evaluator who graded it."""
+		frappe.set_user(self.evaluator_a)
+		name = self._grade("Pending", 0)
+
+		frappe.set_user("Administrator")
+		self._reassign_evaluator(self.batch_a, None)
+		moderator = self._create_user(
+			f"eval-mod-{frappe.generate_hash(length=6).lower()}@example.com",
+			"Eval",
+			"Mod",
+			["Moderator", "Batch Evaluator"],
+		).name
+
+		frappe.set_user(moderator)
+		self.assertEqual(self._grade("Pass", 5), name)
+		self.assertEqual(
+			frappe.db.get_value("LMS Certificate Evaluation", name, "evaluator"), self.evaluator_a
+		)
+
+	def test_a_reassigned_evaluator_cannot_move_the_evaluation_off_their_batch(self):
+		frappe.set_user(self.evaluator_a)
+		name = self._grade("Pending", 0)
+
+		frappe.set_user("Administrator")
+		self._reassign_evaluator(self.batch_a, self.evaluator_b)
+		self._reassign_evaluator(self.batch_b, self.evaluator_a)
+
+		frappe.set_user(self.evaluator_b)
+		evaluation = frappe.get_doc("LMS Certificate Evaluation", name)
+		evaluation.evaluator = self.evaluator_b
+		evaluation.batch_name = self.batch_b
+		with self.assertRaises(frappe.PermissionError):
+			evaluation.save()
+
+	def test_editing_an_issued_certificate_skips_the_eligibility_checks(self):
+		"""Progress or enrolment may change after issue; that must not lock the certificate."""
+		frappe.db.delete("LMS Batch Enrollment", {"batch": self.batch_a, "member": self.member_a})
+
+		frappe.set_user(self.evaluator_a)
+		expiry = add_days(nowdate(), 30)
+		name = save_certificate_details(
+			member=self.member_a,
+			course=self.course.name,
+			batch_name=self.batch_a,
+			issue_date=nowdate(),
+			expiry_date=expiry,
+			template=get_default_certificate_template(),
+			published=True,
+		)
+		self.assertEqual(name, self.certificate_a.name)
+		self.assertEqual(str(frappe.db.get_value("LMS Certificate", name, "expiry_date")), expiry)
+
+		# Re-homing the certificate still checks the new holder.
+		frappe.set_user("Administrator")
+		certificate = frappe.get_doc("LMS Certificate", name)
+		certificate.member = self.instructor
+		with self.assertRaises(frappe.ValidationError):
+			certificate.save()

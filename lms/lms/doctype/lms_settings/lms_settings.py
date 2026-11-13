@@ -68,7 +68,7 @@ class LMSSettings(Document):
 			frappe.throw(_("Please enter a valid Contact Us URL."))
 
 
-@frappe.whitelist()
+@frappe.whitelist(methods=["POST"])
 def check_payments_app():
 	installed_apps = frappe.get_installed_apps()
 	if "payments" not in installed_apps:

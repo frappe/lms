@@ -15,7 +15,13 @@ from lms.lms.utils import get_evaluator
 
 class LMSCertificate(Document):
 	def validate(self):
-		self.validate_criteria()
+		# Eligibility is checked when a certificate is issued or re-homed, not on
+		# every edit: changing the expiry of an issued certificate must not fail
+		# because the member's progress or enrolment has changed since.
+		if self.is_new() or any(
+			self.has_value_changed(field) for field in ("member", "course", "batch_name")
+		):
+			self.validate_criteria()
 		self.validate_duplicate_certificate()
 
 	def autoname(self):
@@ -186,7 +192,7 @@ def is_certified(course, *, for_update=False):
 	return certificate.name if certificate else None
 
 
-@frappe.whitelist()
+@frappe.whitelist(methods=["POST"])
 def create_certificate(course: str):
 	# Serialize requests for the same course before checking for an existing certificate.
 	frappe.db.get_value("LMS Course", course, "name", for_update=True)

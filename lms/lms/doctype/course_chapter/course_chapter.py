@@ -5,6 +5,7 @@ import frappe
 from frappe import _
 from frappe.model.document import Document
 
+from lms.lms.doctype.course_lesson.course_lesson import enqueue_progress_recalculation
 from lms.lms.utils import get_lesson_count
 
 
@@ -15,6 +16,38 @@ class CourseChapter(Document):
 	def update_lesson_count(self):
 		"""Update lesson count in the course"""
 		frappe.db.set_value("LMS Course", self.course, "lessons", get_lesson_count(self.course))
+
+	def on_trash(self):
+		if self.is_scorm_package:
+			from lms.lms.api import delete_scorm_package
+
+			delete_scorm_package(self.name)
+		self._remove_from_course_outline()
+		self._delete_lessons()
+
+	def after_delete(self):
+		# Once for the chapter, not once per lesson it took.
+		enqueue_progress_recalculation(self.course)
+
+	def _remove_from_course_outline(self):
+		frappe.db.delete("Chapter Reference", {"chapter": self.name})
+		remaining = frappe.get_all(
+			"Chapter Reference",
+			{"parent": self.course, "parenttype": "LMS Course"},
+			pluck="name",
+			order_by="idx",
+		)
+		for idx, name in enumerate(remaining, start=1):
+			frappe.db.set_value("Chapter Reference", name, "idx", idx)
+
+	def _delete_lessons(self):
+		# The lesson references link each lesson, so they go before the lessons.
+		frappe.db.delete("Lesson Reference", {"parent": self.name, "parenttype": self.doctype})
+		for lesson in frappe.get_all("Course Lesson", {"chapter": self.name}, pluck="name"):
+			# nosemgrep: lms-unjustified-ignore-permissions - the chapter delete was authorised; its lessons go with it
+			frappe.delete_doc(
+				"Course Lesson", lesson, ignore_permissions=True, flags={"in_chapter_delete": True}
+			)
 
 
 def resolve_scorm_access(course: str, lesson: str | None) -> frappe._dict:

@@ -41,6 +41,7 @@ from lms.lms.doctype.lms_question.lms_question import (
 	QUESTION_OPTION_FIELDS,
 	QUESTION_POSSIBILITY_FIELDS,
 )
+from lms.lms.lesson_assessments import RenamableAssessment
 from lms.lms.schedule_utils import assert_within_schedule, validate_schedule_fields
 from lms.lms.utils import (
 	generate_slug,
@@ -68,7 +69,7 @@ MAX_VIOLATION_FRAME_BYTES = 250 * 1024
 MAX_VIOLATION_FRAMES = 40
 
 
-class LMSQuiz(AuthoredDocument, Document):
+class LMSQuiz(RenamableAssessment, AuthoredDocument, Document):
 	def throw_length_exceeded_error(self, df, max_length, value):
 		if df.fieldname == "title":
 			frappe.throw(
@@ -105,7 +106,9 @@ class LMSQuiz(AuthoredDocument, Document):
 	def calculate_total_marks(self):
 		if len(self.questions) == 0:
 			self.total_marks = 0
-			self.passing_percentage = 100
+			# Fill the required pass mark only when unset; never overwrite the author's.
+			if self.passing_percentage in (None, ""):
+				self.passing_percentage = 100
 			return
 
 		if self.limit_questions_to:
@@ -180,7 +183,7 @@ def _validate_quiz_results(results):
 			frappe.throw(_("Invalid quiz results submitted."), frappe.ValidationError)
 
 
-@frappe.whitelist()
+@frappe.whitelist(methods=["POST"])
 def submit_quiz(
 	quiz: str,
 	results: str | None = None,
@@ -733,7 +736,7 @@ def create_submission(
 		{
 			"doctype": "LMS Quiz Submission",
 			"quiz": quiz,
-			"result": results,
+			"result": _result_rows(results),
 			"score": 0,
 			"score_out_of": score_out_of,
 			"member": frappe.session.user,
@@ -745,6 +748,23 @@ def create_submission(
 	)
 	submission.save(ignore_permissions=True)
 	return submission
+
+
+RESULT_ROW_FIELDS = (
+	"question_name",
+	"question",
+	"question_type",
+	"answer",
+	"is_correct",
+	"marks",
+	"marks_out_of",
+)
+
+
+def _result_rows(results: list) -> list[dict]:
+	"""Copy only the fields process_results derives: the rows are client dicts, and taken
+	verbatim a forged owner, creation or idx stuck to the child row."""
+	return [{field: row.get(field) for field in RESULT_ROW_FIELDS} for row in results]
 
 
 def save_progress_after_quiz(quiz_details: dict):

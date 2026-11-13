@@ -21,7 +21,7 @@
                     {% else %}
                     <div style="width: 20px; height: 20px; border-radius: 50%; background-color: #ccc; display: flex; align-items: center; justify-content: center; margin-right: 5px;">
                         <span style="font-size: 12px; color: #fff;">
-                            {{ instructor.full_name.split("")[0] | upper }}
+                            {{ (instructor.full_name or "?")[0] | upper }}
                         </span>
                     </div>
                     {% endif %}

@@ -46,7 +46,7 @@ def validate_payment_gateway(payment_gateway):
 		)
 
 
-@frappe.whitelist()
+@frappe.whitelist(methods=["POST"])
 def get_payment_link(
 	doctype: str,
 	docname: str,

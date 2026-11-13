@@ -4,7 +4,7 @@
 its staff: the member rows name people by their login email."""
 
 import frappe
-from frappe.client import get, get_value
+from frappe.client import get
 
 from lms.lms.test_helpers import BaseTestUtils
 from lms.lms.utils import get_program_details
@@ -61,15 +61,13 @@ class TestProgramMemberFields(BaseTestUtils):
 		self.assertEqual(details["name"], self.program)
 		self.assertNotIn("program_members", details)
 
-	def test_a_member_still_finds_their_own_row(self):
-		frappe.set_user(self.member)
-		row = get_value(
-			"LMS Program Member",
-			filters={"member": self.member, "parent": self.program},
-			fieldname="name",
-			parent="LMS Program",
-		)
-		self.assertTrue(row and row.get("name"))
+	def test_the_program_page_tells_a_member_from_a_visitor(self):
+		"""The page can't ask the generic API: filtering the member rows by `member`
+		needs a read only the program's staff have."""
+		for user, expected in ((self.member, True), (self.learner, False)):
+			with self.subTest(user=user):
+				frappe.set_user(user)
+				self.assertIs(get_program_details(self.program)["is_member"], expected)
 
 	def test_staff_still_add_a_member(self):
 		frappe.set_user(self.moderator)

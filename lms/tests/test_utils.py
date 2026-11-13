@@ -200,6 +200,48 @@ class TestLMSUtils(BaseTestUtils):
 			review.save()
 		frappe.session.user = "Administrator"
 
+	def test_update_own_review(self):
+		# Editing your own review threw "already reviewed": the duplicate check ran on
+		# every save, not just insert. Guards that an existing review can be updated.
+		reviewer = self._create_user("reviewer@example.com", "Rae", "Viewer", ["LMS Student"])
+		self._create_enrollment(reviewer.email, self.course.name)
+		review = self._add_rating(self.course.name, reviewer.email, 0.8, "First take")
+
+		frappe.session.user = reviewer.email
+		review.review = "Updated my mind, great course"
+		review.rating = 0.6
+		review.save()
+		frappe.session.user = "Administrator"
+
+		review.reload()
+		self.assertEqual(review.review, "Updated my mind, great course")
+
+	def test_second_review_by_same_owner_rejected(self):
+		reviewer = self._create_user("reviewer2@example.com", "Dee", "Duplicate", ["LMS Student"])
+		self._create_enrollment(reviewer.email, self.course.name)
+		self._add_rating(self.course.name, reviewer.email, 0.8, "First take")
+
+		with self.assertRaises(frappe.exceptions.ValidationError):
+			frappe.session.user = reviewer.email
+			duplicate = frappe.new_doc("LMS Course Review")
+			duplicate.update({"course": self.course.name, "rating": 0.5, "review": "Reviewing again"})
+			duplicate.save()
+		frappe.session.user = "Administrator"
+
+	def test_review_cannot_move_onto_a_reviewed_course(self):
+		reviewer = self._create_user("reviewer3@example.com", "Mo", "Ver", ["LMS Student"])
+		other_course = self._create_course("Other Reviewed Course")
+		self._create_enrollment(reviewer.email, self.course.name)
+		self._create_enrollment(reviewer.email, other_course.name)
+		self._add_rating(self.course.name, reviewer.email, 0.8, "First course")
+		review = self._add_rating(other_course.name, reviewer.email, 0.6, "Second course")
+
+		with self.assertRaises(frappe.exceptions.ValidationError):
+			frappe.session.user = reviewer.email
+			review.course = self.course.name
+			review.save()
+		frappe.session.user = "Administrator"
+
 	def test_get_evaluator(self):
 		evaluator_email = get_evaluator(self.course.name, self.batch.name)
 		self.assertEqual(evaluator_email, self.evaluator.evaluator)
@@ -250,6 +292,24 @@ class TestLMSUtils(BaseTestUtils):
 		self.assertEqual(len(batch_details.instructors), len(self.batch.instructors))
 		self.assertEqual(batch_details.student_count, 2)
 		self.assertNotIn("students", batch_details)
+
+	def _accepts_enrollments_at(self, moment):
+		frappe.db.set_value(
+			"LMS Batch", self.batch.name, {"start_date": "2030-01-15", "start_time": "09:30:00"}
+		)
+		# nowtime() and getdate() both read the clock through now_datetime.
+		with patch("frappe.utils.data.now_datetime", return_value=datetime.fromisoformat(moment)):
+			return get_batch_details(self.batch.name).accept_enrollments
+
+	def test_a_morning_batch_accepts_enrollments_until_it_starts(self):
+		"""Control for the test below (audit finding #56)."""
+		self.assertTrue(self._accepts_enrollments_at("2030-01-15 09:29:00"))
+
+	def test_a_morning_batch_stops_accepting_enrollments_once_it_starts(self):
+		"""Regression: 48eb2ff40 compared times as strings, and "9:30:00" > "10:00:00".
+		Added for audit finding #56."""
+		self.assertFalse(self._accepts_enrollments_at("2030-01-15 09:31:00"))
+		self.assertFalse(self._accepts_enrollments_at("2030-01-15 10:00:00"))
 
 	def test_course_categories_list_used_published_ones_with_a_clear_option(self):
 		with self.subTest(case="includes_used_category"):
@@ -786,7 +846,7 @@ class TestEditorJsSanitisation(unittest.TestCase):
 	def test_keeps_a_span_carrying_class_and_style(self):
 		# The align tool carries its whole payload in an attribute, so it is the
 		# one a tag-level allowlist can silently strip.
-		text = '<span class="lms-align" style="text-align: center; ' 'display: block;">mid</span>'
+		text = '<span class="lms-align" style="text-align: center; display: block;">mid</span>'
 		out = self._text(self._payload(text))
 		self.assertIn("lms-align", out)
 		self.assertIn("text-align:center", out.replace(" ;", ";"))
@@ -926,3 +986,22 @@ class TestEditorJsEmbedSources(unittest.TestCase):
 		self.assertTrue(self._kept("QhA4h6qD4wY", service="youtube"))
 		self.assertFalse(self._kept("QhA4h6qD4wY"))
 		self.assertFalse(self._kept("javascript:alert(1)", service="youtube"))
+
+
+class TestGetPaletteOnFips(UnitTestCase):
+	def test_palette_hash_is_declared_non_cryptographic(self):
+		"""On a FIPS host a bare hashlib.md5() raises, taking out every avatar render.
+		Guards that get_palette passes usedforsecurity=False."""
+		import hashlib
+
+		from lms.lms.utils import get_palette
+
+		real_md5 = hashlib.md5
+
+		def fips_md5(data, **kwargs):
+			if kwargs.get("usedforsecurity") is not False:
+				raise ValueError("[digital envelope routines] unsupported")
+			return real_md5(data, **kwargs)
+
+		with patch("lms.lms.utils.hashlib.md5", side_effect=fips_md5):
+			self.assertEqual(len(get_palette("Ada Lovelace")), 2)

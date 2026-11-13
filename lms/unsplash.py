@@ -7,6 +7,9 @@ import frappe
 
 base_url = "https://api.unsplash.com"
 
+# Bounds how long an image search can hold the worker if Unsplash stops responding.
+REQUEST_TIMEOUT_SECONDS = 10
+
 
 def get_by_keyword(keyword):
 	data = make_unsplash_request(f"/search/photos?query={quote(keyword)}")
@@ -38,6 +41,7 @@ def make_unsplash_request(path):
 			"Accept-Version": "v1",
 			"Authorization": f"Client-ID {unsplash_access_key}",
 		},
+		timeout=REQUEST_TIMEOUT_SECONDS,
 	)
 	res.raise_for_status()
 	data = res.json()

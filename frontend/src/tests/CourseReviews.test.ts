@@ -12,6 +12,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { flushPromises, mount } from '@vue/test-utils'
 import dayjs from 'dayjs'
 import CourseReviews from '@/components/CourseReviews.vue'
+import type { DoctypePermissionType, SessionUser } from '@/types'
 
 const fmt = (d: dayjs.Dayjs) => d.format('YYYY-MM-DD HH:mm:ss')
 
@@ -90,12 +91,27 @@ vi.mock('@/utils', () => ({ formatRating: (r: string) => String(r) }))
 
 vi.stubGlobal('__', (s: string) => s)
 
-const mountReviews = (props: Record<string, unknown> = {}) =>
+const REVIEW_PERMS = { read: 1, write: 1, create: 1, delete: 0 } as const
+
+const studentWith = (
+	perms: Record<DoctypePermissionType, 0 | 1>
+): SessionUser => ({
+	data: {
+		name: 'a@b.c',
+		has_lms_role: true,
+		permissions: { 'LMS Course Review': perms },
+	},
+})
+
+const mountReviews = (
+	props: Record<string, unknown> = {},
+	user: unknown = studentWith(REVIEW_PERMS)
+) =>
 	mount(CourseReviews, {
 		props: { courseName: 'C1', ...props },
 		global: {
 			provide: {
-				$user: { data: { name: 'a@b.c' } },
+				$user: user,
 				$dayjs: dayjs,
 			},
 			mocks: { __: (s: string) => s },
@@ -196,5 +212,54 @@ describe('CourseReviews list rendering', () => {
 
 		await wrapper.get('article button').trigger('click')
 		expect(wrapper.get('article p').classes()).not.toContain('line-clamp-5')
+	})
+})
+
+describe('CourseReviews permission gate (#2538)', () => {
+	const membership = { name: 'M1', member: 'a@b.c' }
+
+	it('renders nothing and skips the fetch without read on reviews', async () => {
+		const wrapper = mountReviews(
+			{ membership },
+			studentWith({ ...REVIEW_PERMS, read: 0, create: 0 })
+		)
+		await flushPromises()
+		expect(wrapper.find('article').exists()).toBe(false)
+		expect(wrapper.text()).not.toContain('Write a Review')
+		expect(lastReviewsResourceOpts?.auto).toBe(false)
+	})
+
+	it('hides "Write a Review" without create on reviews', async () => {
+		const wrapper = mountReviews(
+			{ membership },
+			studentWith({ ...REVIEW_PERMS, create: 0 })
+		)
+		await flushPromises()
+		expect(wrapper.findAll('article').length).toBeGreaterThan(0)
+		expect(wrapper.text()).not.toContain('Write a Review')
+	})
+
+	it('offers "Write a Review" to a member with create', async () => {
+		const wrapper = mountReviews({ membership })
+		await flushPromises()
+		expect(wrapper.text()).toContain('Write a Review')
+	})
+
+	it('keeps the public list for someone signed in without an LMS role', async () => {
+		// Treated as a guest: get_reviews decides, by the site's guest access.
+		const wrapper = mountReviews(
+			{},
+			{ data: { name: 'a@b.c', has_lms_role: false, permissions: {} } }
+		)
+		await flushPromises()
+		expect(wrapper.findAll('article').length).toBeGreaterThan(0)
+		expect(lastReviewsResourceOpts?.auto).toBe(true)
+	})
+
+	it('keeps the public list for guests', async () => {
+		const wrapper = mountReviews({}, { data: null })
+		await flushPromises()
+		expect(wrapper.findAll('article').length).toBeGreaterThan(0)
+		expect(lastReviewsResourceOpts?.auto).toBe(true)
 	})
 })
