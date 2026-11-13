@@ -26,7 +26,7 @@
 			<p class="mt-1 text-p-base text-ink-gray-6">
 				{{
 					__(
-						'Lumi drafts your plans, tutors your learners and reviews their role-plays with it. Two settings in Desk, about five minutes.'
+						'Lumi drafts your plans, tutors your learners and reviews their role-plays with it. Two settings, about five minutes.'
 					)
 				}}
 			</p>
@@ -379,7 +379,7 @@ const pick = (value: 'skill' | 'course') => {
 }
 
 // Whether the site has a chat model and an embedding model. Checked again whenever this tab
-// comes back into focus, since the settings are made in Desk in another tab.
+// comes back into focus, since the settings open in another tab.
 const aiStatus = createResource({ url: 'lms.lms.ai.api.ai_status', auto: true })
 const recheck = () => {
 	if (aiStatus.data && !aiStatus.data.ready) aiStatus.reload()
@@ -394,7 +394,7 @@ const setupSteps = computed(() => [
 		hint: __('Any provider works: Gemini, OpenAI, OpenRouter and more.'),
 		done: Boolean(aiStatus.data?.chat_model),
 		href: '/app/flow-model/new',
-		action: __('Add in Desk'),
+		action: __('Add a model'),
 	},
 	{
 		key: 'embedding',
@@ -402,7 +402,7 @@ const setupSteps = computed(() => [
 		hint: __('Lets Lumi search the material you add.'),
 		done: Boolean(aiStatus.data?.embedding_model),
 		href: '/app/flow-knowledge-settings',
-		action: __('Choose in Desk'),
+		action: __('Choose a model'),
 	},
 ])
 const firstPending = computed(
