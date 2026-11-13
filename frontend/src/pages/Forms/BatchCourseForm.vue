@@ -16,6 +16,7 @@
 				/>
 				<Link
 					doctype="Course Evaluator"
+					variant="outline"
 					v-model="evaluator"
 					:label="__('Evaluator')"
 				/>
