@@ -52,10 +52,12 @@ curl https://voice.example.com/health       # {"ok": true, "whisper": true}
 Point the DNS name at the machine before reloading Caddy; it fetches the certificate itself.
 
 On a Frappe Cloud server that already runs sites, nginx owns ports 80 and 443, so use it
-instead of Caddy: copy `nginx-lms-voice.conf` to `/etc/nginx/conf.d/10-lms-voice.conf` with
-your name in place of `voice.example.com`, then
-`sudo certbot --nginx -d voice.example.com` fetches the certificate and fills in the TLS lines.
-Pilot writes only `00-pilot.conf` in that folder and leaves other files alone.
+instead of Caddy. First a plain HTTP block that serves the certificate challenge and proxies
+the rest, then the certificate, then the full `nginx-lms-voice.conf` with your name in place
+of `voice.example.com` at `/etc/nginx/conf.d/10-lms-voice.conf` (the steps are at the top of
+that file). Pilot writes only `00-pilot.conf` in that folder and leaves other files alone.
+The DNS record must point straight at the server: with Cloudflare, "DNS only", not proxied,
+because the proxy cuts requests off after 100 seconds.
 
 ## 4. The site
 

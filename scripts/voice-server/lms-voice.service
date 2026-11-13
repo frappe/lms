@@ -11,8 +11,8 @@ EnvironmentFile=/home/lmsvoice/voice.env
 ExecStart=/home/lmsvoice/.local/bin/uv run /home/lmsvoice/kokoro_server.py
 Restart=always
 RestartSec=5
-# Torch and the two models fit in about 2 GB; stop a runaway before it takes the box.
-MemoryMax=3G
+# Torch and the two models sit at about 2.5 GB; stop a runaway before it takes the box.
+MemoryMax=4G
 
 [Install]
 WantedBy=multi-user.target
