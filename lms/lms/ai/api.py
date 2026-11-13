@@ -7,7 +7,18 @@ from frappe import _
 from frappe.rate_limiter import rate_limit
 from frappe.utils import cint, flt
 
-from lms.lms.ai import course_material, goals, ideas, material, outcome, revise, setup, transcripts, tts
+from lms.lms.ai import (
+	connect,
+	course_material,
+	goals,
+	ideas,
+	material,
+	outcome,
+	revise,
+	setup,
+	transcripts,
+	tts,
+)
 from lms.lms.ai.skill_dashboard import SkillDashboard
 from lms.lms.permissions import require_learning_admin
 
@@ -23,13 +34,21 @@ def _require_admin() -> None:
 def ai_status() -> dict:
 	"""What is still missing before AI works on this site."""
 	_require_admin()
-	embedding = frappe.db.get_single_value("Flow Knowledge Settings", "embedding_model")
-	chat = None
-	try:
-		chat = setup.chat_model()
-	except frappe.ValidationError:
-		frappe.clear_last_message()
-	return {"chat_model": chat, "embedding_model": embedding, "ready": bool(chat and embedding)}
+	return connect.status()
+
+
+@frappe.whitelist()
+def ai_providers() -> list[dict]:
+	"""The services an admin can connect with one key, and which of them also cover search."""
+	_require_admin()
+	return connect.providers()
+
+
+@frappe.whitelist(methods=["POST"])
+@rate_limit(limit=10, seconds=60)
+def connect_ai(provider: str, api_key: str, embedding_only: int = 0) -> dict:
+	"""One key in, chat and search set up: Flow checks the key, Learning picks the models."""
+	return connect.connect(provider, api_key, embedding_only=bool(cint(embedding_only)))
 
 
 # Studio

@@ -7,74 +7,16 @@
 			<p class="mt-1.5 text-base text-ink-gray-6">
 				{{
 					__(
-						'Teach anything in minutes. Tell Lumi what people should learn and it drafts the first version for you.'
+						'Teach anything in minutes. Say what people should learn, and the first version is drafted for you.'
 					)
 				}}
 			</p>
 		</header>
 
-		<!-- Nothing here works without a model, so connecting one is the first step and takes
-		     the composer's place until both settings are in. -->
+		<!-- Nothing here works without a model. The composer waits until one is connected; the
+		     card that connects it sits at the bottom, so the page first shows what Learning is. -->
 		<section
-			v-if="aiStatus.data && !aiStatus.data.ready"
-			aria-labelledby="connect-ai"
-			class="rounded-8 border border-outline-gray-2 bg-surface-base p-5 shadow-sm"
-		>
-			<h2 id="connect-ai" class="text-lg-semibold text-ink-gray-9">
-				{{ __('First, connect an AI model') }}
-			</h2>
-			<p class="mt-1 text-p-base text-ink-gray-6">
-				{{
-					__(
-						'Lumi drafts your plans, tutors your learners and reviews their role-plays with it. Two settings, about five minutes.'
-					)
-				}}
-			</p>
-			<ol class="mt-4 divide-y divide-outline-gray-1">
-				<li
-					v-for="(step, index) in setupSteps"
-					:key="step.key"
-					class="flex flex-wrap items-center gap-x-4 gap-y-2 py-3"
-				>
-					<span
-						class="flex size-6 shrink-0 items-center justify-center rounded-full text-p-xs font-medium"
-						:class="
-							step.done
-								? 'bg-surface-green-2 text-ink-green-6'
-								: 'bg-surface-gray-2 text-ink-gray-7'
-						"
-					>
-						<span v-if="step.done" class="lucide-check size-3.5" />
-						<template v-else>{{ index + 1 }}</template>
-					</span>
-					<div class="min-w-0 flex-1">
-						<div class="text-base font-medium text-ink-gray-9">
-							{{ step.title }}
-						</div>
-						<div class="text-p-sm text-ink-gray-6">{{ step.hint }}</div>
-					</div>
-					<span v-if="step.done" class="text-p-sm text-ink-gray-6">
-						{{ __('Done') }}
-					</span>
-					<Button
-						v-else
-						:variant="step.key === firstPending ? 'solid' : 'subtle'"
-						:href="safeUrl(step.href)"
-						:label="step.action"
-					/>
-				</li>
-			</ol>
-			<p class="mt-3 text-p-sm text-ink-gray-6">
-				{{
-					__(
-						'Come back to this tab when both are set. It checks again on its own.'
-					)
-				}}
-			</p>
-		</section>
-
-		<section
-			v-else-if="aiStatus.data"
+			v-if="aiStatus.data?.ready"
 			ref="composer"
 			aria-labelledby="teach"
 			class="rounded-8 border border-outline-gray-2 bg-surface-base shadow-sm transition-shadow"
@@ -225,37 +167,37 @@
 			</div>
 		</section>
 
-		<section
-			:aria-label="__('Then share it with your learners')"
-			class="flex flex-wrap items-center gap-6 rounded-7 bg-surface-gray-1 px-6 py-5"
-		>
-			<div class="min-w-0 flex-[1_1_260px]">
-				<div class="text-base font-semibold text-ink-gray-9">
-					{{ __('Then share it with your learners') }}
-				</div>
-				<p class="mt-1 text-p-base text-ink-gray-6">
-					{{
-						__(
-							'Add people and set a due date, and Learning reminds them for you. Teaching live? Put a course in a batch with classes and evaluations.'
-						)
-					}}
-				</p>
-			</div>
-			<ol class="flex flex-wrap gap-5 text-p-sm text-ink-gray-8">
-				<li
-					v-for="(step, index) in steps"
-					:key="step"
-					class="flex items-center gap-2"
-				>
+		<!-- What happens after building: three short steps, in the same voice as the cards. -->
+		<section aria-labelledby="next-steps">
+			<h2 id="next-steps" class="sr-only">{{ __('Then') }}</h2>
+			<ol
+				class="grid grid-cols-1 gap-4 rounded-7 bg-surface-gray-1 p-5 sm:grid-cols-3 sm:gap-8"
+			>
+				<li v-for="(step, index) in steps" :key="step.title" class="flex gap-3">
 					<span
-						class="inline-flex size-5 items-center justify-center rounded-full border border-outline-gray-3 bg-surface-base text-p-xs font-semibold"
+						class="mt-0.5 flex size-6 shrink-0 items-center justify-center rounded-full bg-surface-base text-p-xs font-semibold text-ink-gray-8"
 					>
 						{{ index + 1 }}
 					</span>
-					{{ step }}
+					<div>
+						<div class="text-base font-medium text-ink-gray-9">
+							{{ step.title }}
+						</div>
+						<p class="mt-0.5 text-p-sm text-ink-gray-6">{{ step.text }}</p>
+					</div>
 				</li>
 			</ol>
 		</section>
+
+		<AiConnect
+			v-if="aiStatus.data && !aiStatus.data.ready"
+			id="connect-ai"
+			ref="setupCard"
+			:embedding-only="aiStatus.data.embedding_needs_other_key"
+			:chat-provider="aiStatus.data.chat_provider"
+			:flash="flash && !aiStatus.data.ready"
+			@connected="aiStatus.reload()"
+		/>
 	</div>
 </template>
 <script setup lang="ts">
@@ -278,7 +220,7 @@ import {
 	toast,
 } from 'frappe-ui'
 import { greeting } from '@/pages/Home/greeting'
-import { safeUrl } from '@/utils/safeUrl'
+import AiConnect from '@/components/Goals/AiConnect.vue'
 
 type Example = {
 	name: string
@@ -346,20 +288,24 @@ const buildCourse = () => {
 }
 
 const composer = ref<HTMLElement | null>(null)
+const setupCard = ref<{ $el: HTMLElement } | null>(null)
 const flash = ref(false)
 
 // The cards' buttons set the composer up; when it already is, the only honest answer is to
 // take the person to it: scroll there, light it up for a moment, put the cursor in the box.
+// Without a model yet, they lead to the card that connects one instead.
 const pick = (value: 'skill' | 'course') => {
 	if (value === 'course' && kind.value === 'course' && text.value.trim())
 		return buildCourse()
 	kind.value = value
-	composer.value?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+	const target = aiStatus.data?.ready ? composer.value : setupCard.value?.$el
+	target?.scrollIntoView({ behavior: 'smooth', block: 'center' })
 	flash.value = true
 	setTimeout(() => (flash.value = false), 1200)
-	nextTick(() =>
-		composer.value?.querySelector('textarea')?.focus({ preventScroll: true })
-	)
+	if (aiStatus.data?.ready)
+		nextTick(() =>
+			composer.value?.querySelector('textarea')?.focus({ preventScroll: true })
+		)
 }
 
 // Whether the site has a chat model and an embedding model. Checked again whenever this tab
@@ -368,34 +314,28 @@ const aiStatus = createResource({ url: 'lms.lms.ai.api.ai_status', auto: true })
 const recheck = () => {
 	if (aiStatus.data && !aiStatus.data.ready) aiStatus.reload()
 }
-onMounted(() => window.addEventListener('focus', recheck))
+onMounted(() => {
+	window.addEventListener('focus', recheck)
+	if (window.location.hash === '#connect-ai')
+		setTimeout(
+			() => setupCard.value?.$el?.scrollIntoView({ block: 'center' }),
+			300
+		)
+})
 onBeforeUnmount(() => window.removeEventListener('focus', recheck))
 
-const setupSteps = computed(() => [
-	{
-		key: 'chat',
-		title: __('A chat model'),
-		hint: __('Any provider works: Gemini, OpenAI, OpenRouter and more.'),
-		done: Boolean(aiStatus.data?.chat_model),
-		href: '/app/flow-model/new',
-		action: __('Add a model'),
-	},
-	{
-		key: 'embedding',
-		title: __('An embedding model'),
-		hint: __('Lets Lumi search the material you add.'),
-		done: Boolean(aiStatus.data?.embedding_model),
-		href: '/app/flow-knowledge-settings',
-		action: __('Choose a model'),
-	},
-])
-const firstPending = computed(
-	() => setupSteps.value.find((step) => !step.done)?.key
-)
-
 const steps = [
-	__('Create a skill or course'),
-	__('Invite your learners'),
-	__('See how they are doing'),
+	{
+		title: __('Build it'),
+		text: __('A skill in minutes, or a course with chapters.'),
+	},
+	{
+		title: __('Share it'),
+		text: __('Add people and a due date. They get reminded.'),
+	},
+	{
+		title: __('See who is ready'),
+		text: __('And who is stuck, before it matters.'),
+	},
 ]
 </script>

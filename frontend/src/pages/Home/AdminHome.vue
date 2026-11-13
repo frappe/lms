@@ -162,19 +162,29 @@
 				</section>
 			</aside>
 		</div>
+
+		<AiConnect
+			v-if="aiStatus.data && !aiStatus.data.ready"
+			id="connect-ai"
+			:embedding-only="aiStatus.data.embedding_needs_other_key"
+			:chat-provider="aiStatus.data.chat_provider"
+			@connected="aiStatus.reload()"
+		/>
 	</div>
 </template>
 <script setup lang="ts">
-import { computed, inject, ref } from 'vue'
+import { computed, inject, onMounted, ref, watch } from 'vue'
 import { Badge, createResource, TabButtons } from 'frappe-ui'
 import { formatTime } from '@/utils'
 import { formatTimezone } from '@/utils/timezone'
 import { profileRoute } from '@/utils/routes'
 import AdminWelcome from '@/pages/Home/AdminWelcome.vue'
 import AISetupNotice from '@/components/Goals/AISetupNotice.vue'
+import AiConnect from '@/components/Goals/AiConnect.vue'
 import LiveClassCard from '@/pages/Home/LiveClassCard.vue'
 import ResumeCard from '@/pages/Home/ResumeCard.vue'
 import { greeting } from '@/pages/Home/greeting'
+import { useRoute } from 'vue-router'
 
 type Kind = 'Skill' | 'Course' | 'Batch'
 type MadeItem = {
@@ -191,6 +201,21 @@ const props = defineProps<{
 	evals?: { data?: any[] }
 }>()
 
+const aiStatus = createResource({ url: 'lms.lms.ai.api.ai_status', auto: true })
+// The notice's Connect button points at the card further down this same page.
+const route = useRoute()
+const scrollToConnect = () => {
+	if (route.hash === '#connect-ai')
+		setTimeout(
+			() =>
+				document
+					.getElementById('connect-ai')
+					?.scrollIntoView({ behavior: 'smooth', block: 'center' }),
+			300
+		)
+}
+watch(() => route.hash, scrollToConnect)
+onMounted(scrollToConnect)
 const user = inject<any>('$user')
 const dayjs = inject<any>('$dayjs')
 

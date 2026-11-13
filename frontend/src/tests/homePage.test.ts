@@ -41,6 +41,7 @@ import ResumeCard from '@/pages/Home/ResumeCard.vue'
 import SkillCard from '@/components/Goals/SkillCard.vue'
 import AdminHome from '@/pages/Home/AdminHome.vue'
 import AdminWelcome from '@/pages/Home/AdminWelcome.vue'
+import AiConnect from '@/components/Goals/AiConnect.vue'
 import StudentHome from '@/pages/Home/StudentHome.vue'
 
 const user = reactive({ data: { full_name: 'Meera Rao', username: 'meera' } })
@@ -290,22 +291,33 @@ describe('AdminWelcome', () => {
 			ready: false,
 		}
 		const wrapper = mountWelcome(null)
-		expect(wrapper.text()).toContain('First, connect an AI model')
+		expect(wrapper.text()).toContain('Connect an AI provider')
 		expect(wrapper.text()).not.toContain('What do you want to teach?')
-		const links = wrapper.findAll('a').map((a) => a.attributes('href'))
-		expect(links).toContain('/app/flow-model/new')
+		// The card sits last, after the two ways to teach.
+		const sections = wrapper.findAll('section').map((s) => s.attributes('id'))
+		expect(sections.at(-1)).toBe('connect-ai')
 	})
 
-	it('shows only the embedding step once the chat model is in', () => {
+	it('asks for a second key only when the chat provider cannot embed', () => {
 		seeds['lms.lms.ai.api.ai_status'] = {
-			chat_model: 'gemini',
+			chat_model: 'Claude',
+			chat_provider: 'anthropic',
 			embedding_model: null,
 			ready: false,
+			embedding_needs_other_key: true,
 		}
+		seeds['lms.lms.ai.api.ai_providers'] = [
+			{ name: 'gemini', label: 'Google Gemini', embeds: true },
+			{ name: 'anthropic', label: 'Anthropic', embeds: false },
+		]
 		const wrapper = mountWelcome(null)
-		expect(wrapper.text()).toContain('Done')
-		const links = wrapper.findAll('a').map((a) => a.attributes('href'))
-		expect(links).toContain('/app/flow-knowledge-settings')
-		expect(links).not.toContain('/app/flow-model/new')
+		expect(wrapper.text()).toContain('One more key, for search')
+		expect(wrapper.text()).toContain('Anthropic has no embedding model')
+		// frappe-ui's select draws its list only when opened, so read the options it was given.
+		const labels = (
+			wrapper.findComponent(AiConnect).vm as any
+		).providerOptions.map((o: { label: string }) => o.label)
+		expect(labels).toContain('Google Gemini')
+		expect(labels).not.toContain('Anthropic')
 	})
 })
