@@ -14,12 +14,41 @@ import { test as base, expect } from "@playwright/test";
 // dialog, and which test it hits is down to timing.
 const IGNORED = /ResizeObserver loop/;
 
+// Console errors and warnings fail the test too, except these app messages,
+// each a known app bug to fix rather than noise to keep:
+// - CourseDetail renders its Student View link for a lesson just created,
+//   before the outline reload gives it a position (resolveTarget returns an
+//   empty chapterNumber), and vue-router throws resolving it.
+const KNOWN_CONSOLE = [/Missing required param "chapterNumber"/];
+
+// The course's preview video is a YouTube embed. Its player, and Chromium on
+// its behalf (no source URL), warn that headless has no GPU; neither is the
+// app's.
+const THIRD_PARTY = /^https:\/\/www\.youtube\.com\//;
+const HEADLESS_GPU = /Failed to create WebGPU Context Provider/;
+
 export const test = base.extend({
 	page: async ({ page }, use, testInfo) => {
 		const errors: Error[] = [];
 		page.on("pageerror", (error) => {
 			if (IGNORED.test(error.message)) return;
 			errors.push(error);
+		});
+		// frappe's telemetry client loads from the internet, so whether it
+		// arrives depends on the runner's network. Serve it empty instead.
+		await page.route("https://pulse.m.frappe.cloud/**", (route) =>
+			route.fulfill({ contentType: "application/javascript", body: "" })
+		);
+		const consoleMessages: string[] = [];
+		page.on("console", (msg) => {
+			if (msg.type() !== "error" && msg.type() !== "warning") return;
+			const text = msg.text();
+			const source = msg.location().url;
+			if (IGNORED.test(text) || KNOWN_CONSOLE.some((re) => re.test(text))) {
+				return;
+			}
+			if (THIRD_PARTY.test(source) || HEADLESS_GPU.test(text)) return;
+			consoleMessages.push(`[${msg.type()}] ${text} (${source})`);
 		});
 
 		await use(page);
@@ -56,6 +85,9 @@ export const test = base.extend({
 				.map((e) => e.message)
 				.join("; ")}`
 		).toEqual([]);
+		expect(consoleMessages, "Console errors or warnings from the page").toEqual(
+			[]
+		);
 	},
 });
 

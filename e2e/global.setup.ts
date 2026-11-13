@@ -1,14 +1,16 @@
+import fs from "node:fs";
+import path from "node:path";
 import { test as setup } from "@playwright/test";
-import { authFile } from "./config";
+import { authFile, baseURL } from "./config";
 import { csrfToken } from "./helpers";
 
 // Every spec used to call cy.login() before nearly every `it()`, re-
 // authenticating dozens of times per run for no reason — Cypress can only
 // run one spec file at a time anyway, so nothing was ever gained by it. This
-// runs once per shard: the storage state it writes is shared read-only by
+// runs once per run: the storage state it writes is shared read-only by
 // every spec via playwright.config.ts's `e2e` project, and specs that need
-// their own fixtures (a course, a quiz, an instructor) create and tear those
-// down themselves in `test.beforeAll`/`afterAll`.
+// their own fixtures (a course, a quiz, an instructor) create those
+// themselves in `test.beforeAll`.
 setup("authenticate", async ({ request }) => {
 	const user = process.env.PLAYWRIGHT_TEST_USER || "frappe@example.com";
 	const password = process.env.PLAYWRIGHT_ADMIN_PASSWORD || "admin";
@@ -35,5 +37,15 @@ setup("authenticate", async ({ request }) => {
 	// page reuses the same token.
 	await csrfToken(request);
 
-	await request.storageState({ path: authFile });
+	// The onboarding help modal opens on every fresh page until the browser
+	// remembers the checklist as done, and it covers what the specs click.
+	const state = await request.storageState();
+	state.origins.push({
+		origin: new URL(baseURL).origin,
+		localStorage: [
+			{ name: `isOnboardingStepsCompletedlearning${user}`, value: "true" },
+		],
+	});
+	fs.mkdirSync(path.dirname(authFile), { recursive: true });
+	fs.writeFileSync(authFile, JSON.stringify(state));
 });
