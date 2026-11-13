@@ -145,6 +145,11 @@ describe('Setup', () => {
 			'Pick one of the goals shown in setup.'
 		)
 		expect(window.location.href).toBe('')
+		expect(localStorage.getItem('lmsFirstGoal')).toBeNull()
+		expect(callMock).not.toHaveBeenCalledWith(
+			'lms.lms.api.capture_user_persona',
+			expect.anything()
+		)
 	})
 
 	it('goes home when nothing is left to set up', async () => {

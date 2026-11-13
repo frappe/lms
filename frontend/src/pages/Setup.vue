@@ -1,6 +1,6 @@
 <template>
 	<SetupFlow
-		v-if="(setupState.fetched || setupState.error) && steps.length"
+		v-if="setupState.fetched && steps.length"
 		:steps="steps"
 		:labels="labels"
 		@finish="finish"
@@ -73,6 +73,19 @@
 			<SetupPreview />
 		</template>
 	</SetupFlow>
+	<div
+		v-else-if="setupState.error"
+		class="flex min-h-screen flex-col items-center justify-center gap-4 p-6 text-center"
+	>
+		<p class="max-w-sm text-p-base text-ink-gray-7">
+			{{ __('Could not load your setup. Check your connection and try again.') }}
+		</p>
+		<Button
+			variant="solid"
+			:label="__('Try again')"
+			@click="setupState.reload()"
+		/>
+	</div>
 </template>
 
 <script setup>
@@ -175,21 +188,10 @@ function pick(step, option, done) {
 function chooseGoal(option, done) {
 	answers.first_milestone = option.value
 	goalRoute = option.route ?? goalRoute
-	try {
-		localStorage.setItem('lmsFirstGoal', option.value)
-	} catch {
-		// The sidebar asks the server instead.
-	}
 	done({ choice: option.value })
 }
 
 async function finish() {
-	if (Object.keys(answers).length) {
-		capture('onboarding_persona', { ...answers })
-		call('lms.lms.api.capture_user_persona', {
-			responses: JSON.stringify({ site: user.data?.sitename, ...answers }),
-		})
-	}
 	try {
 		await call('lms.lms.onboarding.save_setup', {
 			first_goal: answers.first_milestone,
@@ -200,6 +202,19 @@ async function finish() {
 			e?.messages?.[0] || __('Could not save your setup. Please try again.')
 		)
 		return
+	}
+	if (answers.first_milestone) {
+		try {
+			localStorage.setItem('lmsFirstGoal', answers.first_milestone)
+		} catch {
+			// The sidebar asks the server instead.
+		}
+	}
+	if (Object.keys(answers).length) {
+		capture('onboarding_persona', { ...answers })
+		call('lms.lms.api.capture_user_persona', {
+			responses: JSON.stringify({ site: user.data?.sitename, ...answers }),
+		}).catch(() => {})
 	}
 	// A full load, so the getting-started checklist, set up when the app
 	// first loaded, is built again in the order of the goal just picked.

@@ -55,6 +55,7 @@
 <script setup>
 import { Button, ErrorMessage, FormControl, toast } from 'frappe-ui'
 import { useInviteUser } from '@framework/ui/components/InviteUser/index'
+import { useOnboarding } from '@framework/ui/components/Onboarding/index'
 import { computed, ref } from 'vue'
 import { getLmsBasePath } from '@/utils/basePath'
 import { validateEmail } from '@/utils'
@@ -67,6 +68,8 @@ const roles = [
 	{ label: __('Moderator'), value: 'Moderator' },
 ]
 
+// The checklist is set up after the reload that follows setup; the step waits for it.
+const onboarding = useOnboarding('learning')
 const { invite } = useInviteUser({
 	appName: 'lms',
 	redirectPath: `/${getLmsBasePath()}`,
@@ -103,7 +106,10 @@ async function send() {
 			const result = await invite(emails.join(', '), [role])
 			invited += result.invited_emails.length
 		}
-		if (invited) toast.success(__('{0} invited', [invited]))
+		if (invited) {
+			toast.success(__('{0} invited', [invited]))
+			onboarding?.updateOnboardingStep('invite_students')
+		}
 		emit('done', { invited, roles: Object.keys(byRole) })
 	} catch (e) {
 		error.value =
