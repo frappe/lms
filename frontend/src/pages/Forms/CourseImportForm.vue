@@ -209,7 +209,7 @@ const importZip = () => {
 		{ zip_file_path: zip.value.file_url },
 		{
 			onSuccess(data: any) {
-				toast.success('Course imported successfully!')
+				toast.success(__('Course imported successfully'))
 				deleteFile()
 				// replace, not push: the form's history entry is consumed so Back
 				// reaches the list rather than a stale, empty import form.
@@ -219,16 +219,8 @@ const importZip = () => {
 				})
 			},
 			onError(error: any) {
-				// The request builds error.message as "<method> <exc_type>" and puts
-				// the server's own messages in error.messages. Reporting the former
-				// shows "...import_course_from_zip ValidationError" and hides the
-				// reason the archive was rejected, which is the only actionable part.
-				//
-				// Via resourceErrorMessage rather than messages[0] directly: the
-				// request never leaves `messages` empty — with nothing from the
-				// server it substitutes the untranslated "Internal Server Error" — so
-				// a plain nullish check would treat that placeholder as a real
-				// message and make this fallback unreachable.
+				// error.message is "<method> <exc_type>"; the reason is in
+				// error.messages, so go through resourceErrorMessage.
 				toast.error(
 					resourceErrorMessage(
 						error,

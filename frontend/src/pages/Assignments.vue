@@ -280,7 +280,15 @@ const { deleting, run: deleteAssignments } = useBulkDeleteAction(
 			assignments.reload()
 			totalAssignments.reload()
 		},
-		success: () => __('Assignments deleted successfully'),
+		success: (deleted) =>
+			deleted === 1
+				? __('Assignment deleted successfully')
+				: __('{0} assignments deleted successfully').format(deleted),
+		allFailed: ({ total, error }) =>
+			(total === 1
+				? __('Error deleting assignment: {0}')
+				: __('Error deleting assignments: {0}')
+			).format(error),
 		partial: ({ deleted, total, error }) =>
 			__(
 				'{0} of {1} assignments deleted; the rest remain selected: {2}'
