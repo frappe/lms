@@ -16,8 +16,8 @@ import { defineComponent, h } from 'vue'
 vi.stubGlobal('__', (text: string) => text)
 enableAutoUnmount(afterEach)
 
-const { batchResource, announcementSubmit, createResourceMock } = vi.hoisted(
-	() => ({
+const { batchResource, announcementSubmit, createResourceMock, toastWarning } =
+	vi.hoisted(() => ({
 		batchResource: {
 			data: null as Record<string, unknown> | null,
 			loading: false,
@@ -26,8 +26,8 @@ const { batchResource, announcementSubmit, createResourceMock } = vi.hoisted(
 		},
 		announcementSubmit: vi.fn(),
 		createResourceMock: vi.fn(),
-	})
-)
+		toastWarning: vi.fn(),
+	}))
 
 // HeaderButton wraps frappe-ui's Button in a Tooltip below the mobile
 // breakpoint, and the hand-written frappe-ui mock here has no Tooltip. Stub it
@@ -48,7 +48,7 @@ vi.mock('frappe-ui', async () => {
 	return {
 		...actual,
 		createResource: createResourceMock,
-		toast: { success: vi.fn(), error: vi.fn() },
+		toast: { success: vi.fn(), error: vi.fn(), warning: toastWarning },
 		Dialog: {
 			name: 'Dialog',
 			props: ['open', 'title', 'size'],
@@ -124,7 +124,7 @@ describe('AnnouncementForm as a route', () => {
 		createResourceMock.mockImplementation((options: { url: string }) =>
 			options.url === BATCH_URL
 				? batchResource
-				: { submit: announcementSubmit, loading: false, data: null }
+				: { submit: announcementSubmit, loading: false, data: null },
 		)
 		batchResource.data = { name: 'B1', student_count: 2 }
 		batchResource.loading = false
@@ -156,7 +156,7 @@ describe('AnnouncementForm as a route', () => {
 		await router.push('/batches/B1/announcement/new')
 		await mountForm(router, moderator)
 		const emailCall = createResourceMock.mock.calls.find(
-			(call) => call[0].url === EMAIL_URL
+			(call) => call[0].url === EMAIL_URL,
 		)
 		const params = emailCall?.[0].makeParams()
 		expect(params).toMatchObject({ batch: 'B1' })
@@ -168,20 +168,22 @@ describe('AnnouncementForm as a route', () => {
 		await router.push('/batches/B1/announcement/new')
 		const wrapper = await mountForm(router, student)
 		expect(wrapper.find('[data-testid="announcement-fields"]').exists()).toBe(
-			false
+			false,
 		)
 		expect(wrapper.html()).toContain('not permitted')
 	})
 
-	it('refuses when the batch has no students to announce to', async () => {
+	it('leaves with a toast when the batch has no students', async () => {
+		toastWarning.mockReset()
 		batchResource.data = { name: 'B1', student_count: 0 }
 		const router = makeRouter()
 		await router.push('/batches/B1/announcement/new')
 		const wrapper = await mountForm(router, moderator)
-		expect(wrapper.find('[data-testid="announcement-fields"]').exists()).toBe(
-			false
+		expect(wrapper.find('[role="dialog"]').exists()).toBe(false)
+		expect(toastWarning).toHaveBeenCalledWith(
+			'Add students to the batch to make an announcement',
 		)
-		expect(wrapper.html()).toContain('Add students to the batch')
+		expect(router.currentRoute.value.name).toBe('BatchDetail')
 	})
 
 	it('carries every field of the announcement form', async () => {

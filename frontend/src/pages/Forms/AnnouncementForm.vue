@@ -1,5 +1,6 @@
 <template>
 	<FormShell
+		v-if="!hasNoStudents"
 		:title="__('New Announcement')"
 		size="xl"
 		:loading="loadingBatch"
@@ -25,7 +26,7 @@
 <script setup>
 import { createResource, toast } from 'frappe-ui'
 import { FormLayout, CommitKey, NO_COMMIT } from '@framework/ui/FormLayout'
-import { computed, inject, provide, ref } from 'vue'
+import { computed, inject, provide, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import FormShell from '@/components/FormShell.vue'
 import HeaderButton from '@/components/HeaderButton.vue'
@@ -87,10 +88,23 @@ const refusal = computed(() => {
 	if (readOnlyMode) return __('This site is in read-only mode.')
 	if (!isAdmin.value)
 		return __('You are not permitted to make an announcement for this batch.')
-	if (!batch.data?.student_count)
-		return __('Add students to the batch to make an announcement')
 	return null
 })
+
+// Nobody to announce to: say so in a toast and leave without opening the dialog.
+const hasNoStudents = computed(
+	() => !refusal.value && Boolean(batch.data) && !batch.data.student_count
+)
+
+watch(
+	hasNoStudents,
+	(noStudents) => {
+		if (!noStudents) return
+		toast.warning(__('Add students to the batch to make an announcement'))
+		close()
+	},
+	{ immediate: true }
+)
 
 const doc = ref({
 	subject: '',
