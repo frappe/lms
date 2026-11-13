@@ -115,7 +115,7 @@ const layoutRoute = computed(() => background.value ?? route)
 const noSidebar = computed(
 	() =>
 		Boolean(layoutRoute.value.query.fromLesson) ||
-		layoutRoute.value.path === '/persona'
+		layoutRoute.value.path === '/setup'
 )
 
 const Layout = computed(() => {
