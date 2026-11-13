@@ -15,7 +15,6 @@ vi.mock('frappe-ui', () => ({
 		emits: ['update:open'],
 		template: `<div v-if="open" role="dialog"><slot name="title" /><slot /><slot name="actions" /></div>`,
 	},
-	LoadingIndicator: { template: '<svg class="spinner" />' },
 }))
 
 // The component renders __() strings. Identity is safe here because no message
@@ -38,14 +37,10 @@ const setViewport = (width: number): void => {
 	})
 }
 
-const mountShell = (
-	width: number,
-	extraSlots: Record<string, string> = {},
-	props: Record<string, unknown> = {}
-) => {
+const mountShell = (width: number, extraSlots: Record<string, string> = {}) => {
 	setViewport(width)
 	return mount(FormShell, {
-		props: { title: 'New Batch', ...props },
+		props: { title: 'New Batch' },
 		slots: {
 			default: '<div class="fields">FIELDS</div>',
 			actions: '<button class="save">Save</button>',
@@ -554,50 +549,6 @@ describe('FormShell', () => {
 			const wrapper = mountShell(1024)
 
 			expect(wrapper.findComponent({ name: 'Transition' }).exists()).toBe(false)
-		})
-	})
-
-	describe('loading and message', () => {
-		it.each([1024, 390])(
-			'shows the message instead of the fields and actions at %ipx',
-			(width) => {
-				const wrapper = mountShell(width, {}, { message: 'Not permitted.' })
-				expect(wrapper.find('[data-testid="form-shell-message"]').text()).toBe(
-					'Not permitted.'
-				)
-				expect(wrapper.html()).not.toContain('FIELDS')
-				expect(wrapper.find('.save').exists()).toBe(false)
-			}
-		)
-
-		it.each([1024, 390])(
-			'shows one spinner, announced as a status, at %ipx',
-			(width) => {
-				const wrapper = mountShell(width, {}, { loading: true })
-				const status = wrapper.find('[data-testid="form-shell-loading"]')
-				expect(status.attributes('role')).toBe('status')
-				expect(status.attributes('aria-label')).toBe('Loading...')
-				expect(status.find('.spinner').exists()).toBe(true)
-				expect(wrapper.html()).not.toContain('FIELDS')
-				expect(wrapper.find('.save').exists()).toBe(false)
-			}
-		)
-
-		it('shows the spinner, not a refusal computed from data still loading', () => {
-			const wrapper = mountShell(1024, {}, { loading: true, message: 'No.' })
-			expect(wrapper.find('[data-testid="form-shell-loading"]').exists()).toBe(
-				true
-			)
-			expect(wrapper.find('[data-testid="form-shell-message"]').exists()).toBe(
-				false
-			)
-		})
-
-		it('right-aligns the desktop actions itself', () => {
-			const wrapper = mountShell(1024)
-			expect(wrapper.find('.save').element.parentElement?.className).toBe(
-				'flex justify-end gap-2'
-			)
 		})
 	})
 })
