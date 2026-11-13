@@ -1,4 +1,5 @@
 import { call, toast } from 'frappe-ui'
+import { AUDIO_EXTENSIONS } from '@/utils/audio'
 import { ASSESSMENT_BLOCK_SELECTOR } from '@/utils/blockMount'
 import { Quiz } from '@/utils/quiz'
 import { Program } from '@/utils/program'
@@ -25,7 +26,7 @@ import {
 } from '@/utils/blockTunes/clipboardTunes'
 import dayjs from '@/utils/dayjs'
 import { SafeEmbed } from '@/utils/safeEmbed'
-import SimpleImage from '@editorjs/simple-image'
+import LessonImage from '@/utils/lessonImage'
 import Table from '@editorjs/table'
 import DOMPurify from 'dompurify'
 import { decodeEntities } from './inertHtml'
@@ -190,7 +191,7 @@ export function getEditorTools(
 			class: Markdown,
 			inlineToolbar: INLINE_TOOLBAR_ORDER,
 		},
-		image: SimpleImage,
+		image: LessonImage,
 		stub: {
 			class: UnknownBlock,
 		},
@@ -752,6 +753,10 @@ export const validateFile = async (
 		)
 	} else if (fileType == 'zip' && extension != 'zip') {
 		return error(__('Only ZIP files are allowed.'))
+	} else if (fileType == 'audio' && !AUDIO_EXTENSIONS.includes(extension)) {
+		return error(
+			__('Upload an audio file: {0}.').format(AUDIO_EXTENSIONS.join(', '))
+		)
 	} else if (
 		['image', 'video'].includes(fileType) &&
 		!file.type.startsWith(`${fileType}/`)

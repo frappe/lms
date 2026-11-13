@@ -72,7 +72,10 @@ export function asStudent(data: Record<string, unknown> | null | undefined) {
  * `active` is a getter rather than a boolean so leaving Student View restores
  * the real flags reactively, without remounting the preview.
  */
-export function provideStudentView(user: UserResource, active: () => boolean) {
+export function provideStudentView<T extends UserResource>(
+	user: T,
+	active: () => boolean
+) {
 	const isStudentView = computed(() => Boolean(active()))
 
 	const mockedUser = new Proxy(user, {

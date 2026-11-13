@@ -971,6 +971,10 @@ def _reaches_through_a_course(doctype: str, name: str, user: str, *, include_mem
 	batch_course = frappe.qb.DocType("Batch Course")
 	if placements and _evaluated_courses(user).where(batch_course.course.isin(set(placements))).run():
 		return True
+	# The evaluator of a paid-certificate course grades its students' submissions, so
+	# opens the assessments its student-visible lessons place, as the screens need.
+	if placements and _evaluated_paid_certificate_courses(user, set(placements)):
+		return True
 
 	enrolled = _enrolled_in(set(placements), user)
 	return any(
@@ -1219,21 +1223,22 @@ def _assessment_submission_query_conditions(doctype: str, user: str | None = Non
 
 def _reviewable_submissions(doctype: str, assessment_doctype: str, field: str, user: str) -> list:
 	"""One subquery of submission names per way a placement reaches the submitting
-	member: through a course `user` teaches, or a batch `user` instructs or evaluates."""
+	member: through a course `user` teaches or evaluates, or a batch `user` instructs
+	or evaluates."""
 	queries = [_through_a_lesson_placement(doctype, assessment_doctype, field, user)]
 	if assessment_doctype == "LMS Quiz":
 		queries.append(_through_a_quiz_id_placement(doctype, user))
 	if assessment_doctype in LEGACY_STAMP_DOCTYPES:
 		queries.append(_through_a_legacy_stamp(doctype, assessment_doctype, field, user))
 	queries.append(_through_a_batch(doctype, assessment_doctype, field, user))
-	evaluated = _evaluated_batch_course_submissions
-	queries.append(
-		_through_a_lesson_placement(
-			doctype, assessment_doctype, field, user, staff=evaluated, student_visible_only=True
+	for evaluated in (_evaluated_batch_course_submissions, _evaluated_course_submissions):
+		queries.append(
+			_through_a_lesson_placement(
+				doctype, assessment_doctype, field, user, staff=evaluated, student_visible_only=True
+			)
 		)
-	)
-	if assessment_doctype == "LMS Quiz":
-		queries.append(_through_a_quiz_id_placement(doctype, user, staff=evaluated))
+		if assessment_doctype == "LMS Quiz":
+			queries.append(_through_a_quiz_id_placement(doctype, user, staff=evaluated))
 	return queries
 
 
@@ -1275,6 +1280,27 @@ def _evaluated_batch_course_submissions(doctype: str, user: str):
 		.select(reviewed.name)
 	)
 	return query, reviewed, batch_course.course
+
+
+def _evaluated_course_submissions(doctype: str, user: str):
+	"""The submissions whose member is enrolled in a paid-certificate course `user`
+	is the evaluator of, with the enrolment's course for the placement joins."""
+	reviewed = frappe.qb.DocType(doctype).as_("reviewed")
+	enrollment = frappe.qb.DocType("LMS Enrollment")
+	course = frappe.qb.DocType("LMS Course")
+	query = (
+		frappe.qb.from_(reviewed)
+		.join(enrollment)
+		.on(enrollment.member == reviewed.member)
+		.join(course)
+		.on(
+			(course.name == enrollment.course)
+			& (course.evaluator == LiteralValue(frappe.db.escape(user)))
+			& (course.paid_certificate == 1)
+		)
+		.select(reviewed.name)
+	)
+	return query, reviewed, enrollment.course
 
 
 def _through_a_lesson_placement(
@@ -1467,6 +1493,7 @@ def can_review_submission(doctype: str, name: str, member: str, *, user: str | N
 		_course_staff_reach(doctype, name, member, user)
 		or _batch_staff_reach(doctype, name, member, user)
 		or _batch_course_evaluator_reach(doctype, name, member, user)
+		or _course_evaluator_reach(doctype, name, member, user)
 	)
 
 
@@ -1500,6 +1527,28 @@ def _batch_course_evaluator_reach(doctype: str, name: str, member: str, user: st
 		)
 		.limit(1)
 		.run()
+	)
+
+
+def _course_evaluator_reach(doctype: str, name: str, member: str, user: str) -> bool:
+	"""`user` evaluates a paid-certificate course `member` is enrolled in whose
+	student-visible lesson places this assessment."""
+	courses = set(_course_placements(doctype, name))
+	if not courses:
+		return False
+	return bool(_enrolled_in(_evaluated_paid_certificate_courses(user, courses), member))
+
+
+def _evaluated_paid_certificate_courses(user: str, courses: set) -> set:
+	"""Which of `courses` are paid-certificate courses `user` is the evaluator of."""
+	if not courses:
+		return set()
+	return set(
+		frappe.get_all(
+			"LMS Course",
+			filters={"name": ("in", list(courses)), "evaluator": user, "paid_certificate": 1},
+			pluck="name",
+		)
 	)
 
 

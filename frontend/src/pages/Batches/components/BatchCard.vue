@@ -60,6 +60,38 @@
 				</span>
 			</div>
 		</div>
+		<Tooltip v-if="batch.progress != null" :disabled="!breakdown.length">
+			<div
+				class="relative z-10 flex flex-col gap-1.5 mt-4 rounded-4 outline-none focus-visible:ring-2 focus-visible:ring-outline-gray-5"
+				:tabindex="breakdown.length ? 0 : undefined"
+			>
+				<div class="flex items-center justify-between text-sm">
+					<span class="text-ink-gray-7">{{ __('Progress') }}</span>
+					<span class="font-medium tabular-nums text-ink-gray-9">
+						{{ percent(batch.progress) }}
+					</span>
+				</div>
+				<ProgressBar
+					:progress="batch.progress"
+					:label="__('Batch progress')"
+					:tooltip="false"
+				/>
+			</div>
+			<template #content>
+				<div class="flex flex-col gap-1 py-0.5">
+					<div
+						v-for="(part, index) in breakdown"
+						:key="index"
+						class="flex items-center gap-4"
+					>
+						<span class="max-w-[200px] truncate">{{ part.title }}</span>
+						<span class="w-9 shrink-0 ms-auto text-end tabular-nums">
+							{{ percent(part.progress) }}
+						</span>
+					</div>
+				</div>
+			</template>
+		</Tooltip>
 		<div
 			v-if="batch.instructors?.length"
 			class="flex avatar-group overlap mt-4"
@@ -79,12 +111,14 @@
 	</div>
 </template>
 <script setup>
-import { Badge } from 'frappe-ui'
+import { computed } from 'vue'
+import { Badge, Tooltip } from 'frappe-ui'
 import { formatTime, getFormattedDateRange } from '@/utils'
 import { formatTimezone, nextOccurrence } from '@/utils/timezone'
 import CardLink from '@/components/CardLink.vue'
 import CourseInstructors from '@/components/CourseInstructors.vue'
 import UserAvatar from '@/components/UserAvatar.vue'
+import ProgressBar from '@/components/ProgressBar.vue'
 
 const props = defineProps({
 	batch: {
@@ -96,6 +130,10 @@ const props = defineProps({
 		default: null,
 	},
 })
+
+const breakdown = computed(() => props.batch.progress_breakdown || [])
+
+const percent = (value) => `${Math.round(value)}%`
 </script>
 <style>
 .short-introduction {

@@ -82,3 +82,24 @@ class TestQuizSubmissionAccess(BaseTestUtils):
 		finally:
 			frappe.db.set_value("LMS Quiz", self.quiz.name, "max_attempts", 0)
 			self._cleanup_submissions(self.enrolled.email)
+
+	def test_forged_row_metadata_does_not_reach_the_submission(self):
+		# Result dicts went into the child table verbatim, so a forged owner/creation/idx
+		# stuck to the row. Guards that only the scored fields are copied (5936c5a4d).
+		forged = [
+			{**row, "owner": self.outsider.email, "creation": "2000-01-01 00:00:00", "idx": 99}
+			for row in self.results
+		]
+		frappe.session.user = self.enrolled.email
+		try:
+			result = submit_quiz(self.quiz.name, json.dumps(forged))
+		finally:
+			frappe.session.user = "Administrator"
+		try:
+			rows = frappe.get_doc("LMS Quiz Submission", result["submission"]).result
+			self.assertEqual({row.question_name for row in rows}, {q.name for q in self.questions})
+			self.assertNotIn(self.outsider.email, {row.owner for row in rows})
+			self.assertNotIn("2000", {str(row.creation)[:4] for row in rows})
+			self.assertEqual([row.idx for row in rows], list(range(1, len(rows) + 1)))
+		finally:
+			self._cleanup_submissions(self.enrolled.email)

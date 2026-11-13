@@ -10,24 +10,45 @@ on:
       # Read from disk by frontend/src/tests/a11y-forms.test.ts.
       - "lms/www/new-sign-up.html"
       - ".github/workflows/frontend-tests.yml"
-  push:
-    branches: [main, develop, main-hotfix]
-    paths:
-      - "frontend/**"
-      - "package.json"
-      # Read from disk by frontend/src/tests/ravenRuleModel.test.ts.
-      - "lms/raven_provider.py"
-      # Read from disk by frontend/src/tests/a11y-forms.test.ts.
-      - "lms/www/new-sign-up.html"
-      - ".github/workflows/frontend-tests.yml"
+  workflow_dispatch:
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
+  plan:
+    name: Plan
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      run: ${{ steps.plan.outputs.run }}
+    steps:
+      # Pull requests into develop and the hotfix branches skip this suite: it runs every hour
+      # on the branch instead (branch-status.yml on develop), and on the release pull request.
+      # A label runs it on one pull request. Labels are read live, so a re-run sees a new one.
+      - id: plan
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR: ${{ github.event.pull_request.number }}
+          BASE: ${{ github.base_ref }}
+        run: |
+          labels=$(gh pr view "$PR" --repo "$GITHUB_REPOSITORY" --json labels --jq '[.labels[].name]')
+          has() { jq -e --arg l "$1" 'index($l) != null' <<<"$labels" >/dev/null; }
+          run=true
+          if [ "$BASE" = develop ] || [[ "$BASE" == *-hotfix ]]; then
+            run=false
+            if has "Run Frontend Tests" || has fixes-develop; then run=true; fi
+          fi
+          echo "run=$run" >> "$GITHUB_OUTPUT"
+          echo "Base $BASE, labels $labels: run=$run"
+
   vitest:
     name: Vitest
+    needs: plan
+    if: >-
+      !cancelled() && (github.event_name != 'pull_request' || needs.plan.outputs.run == 'true')
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
@@ -70,7 +91,8 @@ jobs:
         id: select
         if: >-
           github.event_name == 'pull_request' &&
-          !contains(github.event.pull_request.labels.*.name, 'all-tests')
+          !contains(github.event.pull_request.labels.*.name, 'all-tests') &&
+          !contains(github.event.pull_request.labels.*.name, 'fixes-develop')
         working-directory: apps/lms
         run: |
           set -euo pipefail

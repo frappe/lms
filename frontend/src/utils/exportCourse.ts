@@ -7,9 +7,13 @@ import { toast } from 'frappe-ui'
 export async function exportCourseAsZip(courseName: string): Promise<void> {
 	try {
 		const response = await fetch(
-			'/api/method/lms.lms.api.export_course_as_zip?course_name=' +
-				encodeURIComponent(courseName),
-			{ method: 'GET', credentials: 'include' }
+			'/api/method/lms.lms.api.export_course_as_zip',
+			{
+				method: 'POST',
+				credentials: 'include',
+				headers: { 'X-Frappe-CSRF-Token': window.csrf_token || '' },
+				body: new URLSearchParams({ course_name: courseName }),
+			}
 		)
 		if (!response.ok) throw new Error('Download failed')
 		const blob = await response.blob()

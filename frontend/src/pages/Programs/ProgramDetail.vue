@@ -6,7 +6,7 @@
 				{{ program.data?.name }}
 
 				<Badge
-					v-if="program.data"
+					v-if="program.data?.is_member"
 					:theme="program.data.progress < 100 ? 'amber' : 'green'"
 				>
 					{{ program.data.progress }}% {{ __('completed') }}
@@ -24,7 +24,7 @@
 			</span>
 		</template>
 
-		<div v-if="program.data" class="px-5 pb-10">
+		<div v-if="program.data?.is_member" class="px-5 pb-10">
 			<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 mb-5">
 				<div
 					v-for="(course, index) in program.data.courses"
@@ -61,10 +61,10 @@
 	</PageBody>
 </template>
 <script setup lang="ts">
-import { computed, inject, onMounted, useId } from 'vue'
+import { computed, useId } from 'vue'
 import PageHeader from '@/components/Layouts/pages/PageHeader.vue'
 import PageBody from '@/components/Layouts/pages/PageBody.vue'
-import { Badge, call, createResource, Tooltip, usePageMeta } from 'frappe-ui'
+import { Badge, createResource, Tooltip, usePageMeta } from 'frappe-ui'
 import { sessionStore } from '@/stores/session'
 
 import { useRouter } from 'vue-router'
@@ -73,38 +73,23 @@ import type { CourseDetails } from '@/types/api'
 
 const { brand } = sessionStore()
 const router = useRouter()
-const user = inject<any>('$user')
 
 const props = defineProps<{
 	programName: string
 }>()
 
-onMounted(() => {
-	checkIfEnrolled()
-})
-
-const checkIfEnrolled = () => {
-	call('frappe.client.get_value', {
-		doctype: 'LMS Program Member',
-		filters: {
-			member: user.data.name,
-			parent: props.programName,
-		},
-		parent: 'LMS Program',
-		fieldname: 'name',
-	}).then((data: { name: string }) => {
-		if (data.name) {
-			program.reload()
-		} else {
-			router.push({ name: 'Programs' })
-		}
-	})
-}
-
+// Members only: get_program_details says whether the viewer is one.
 const program = createResource({
 	url: 'lms.lms.utils.get_program_details',
 	params: {
 		program_name: props.programName,
+	},
+	auto: true,
+	onSuccess(data: { is_member?: boolean }) {
+		if (!data.is_member) router.push({ name: 'Programs' })
+	},
+	onError() {
+		router.push({ name: 'Programs' })
 	},
 })
 

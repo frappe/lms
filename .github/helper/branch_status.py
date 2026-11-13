@@ -1,5 +1,5 @@
 """
-Run the full server and UI suites on develop and version-16 every hour, and post a status on the
+Run the full server, UI and frontend suites on develop and version-16 every hour, and post a status on the
 pull requests waiting to land there. Pull requests skip those suites, so this status is how they
 see the branch: failing while the latest full run on it failed, unless the pull request carries
 the fix label and the failing suites passed on it.
@@ -28,11 +28,17 @@ FIX_LABEL = "fixes-develop"
 # Each tested branch, and the bases of the pull requests that land on it.
 BRANCHES = {"develop": ("develop",), "version-16": ("version-16-hotfix",)}
 # Each suite's workflow and its one test job.
-SUITES = {"ci.yml": "Server Tests", "ui-tests.yml": "UI Tests (Playwright)"}
+SUITES = {
+	"ci.yml": "Server Tests",
+	"ui-tests.yml": "UI Tests (Playwright)",
+	"frontend-tests.yml": "Vitest",
+}
 
 # Files the server suite cannot see, as in ci.yml's paths, except the two a server test reads.
 SERVER_BLIND = (".md", ".vue", ".ts", ".js", ".css")
 SERVER_READS = ("frontend/src/utils/lessonForm.ts", "frontend/src/directives/safeHtmlLevels.ts")
+# Files outside frontend/ that the frontend suite reads, as in frontend-tests.yml's paths.
+FRONTEND_READS = ("package.json", "lms/raven_provider.py", "lms/www/new-sign-up.html")
 
 
 API = "https://api.github.com"
@@ -201,6 +207,8 @@ def needs_suite(workflow, files):
 			f in SERVER_READS or not (f.endswith(SERVER_BLIND) or f.startswith(("frontend/", "lms/locale/")))
 			for f in files
 		)
+	if workflow == "frontend-tests.yml":
+		return any(f.startswith("frontend/") or f in FRONTEND_READS for f in files)
 	return any(not (f.endswith(".md") or f.startswith("lms/locale/")) for f in files)
 
 
@@ -219,7 +227,17 @@ def start(force):
 				if not needs_suite(workflow, None if len(changes) >= 300 else files):
 					print(f"{workflow} on {branch}: no changes it can see since {last['head_sha'][:7]}")
 					continue
-			gh(f"repos/{REPO}/actions/workflows/{workflow}/dispatches", method="POST", body={"ref": branch})
+			try:
+				gh(
+					f"repos/{REPO}/actions/workflows/{workflow}/dispatches",
+					method="POST",
+					body={"ref": branch},
+					attempts=1,
+				)
+			except urllib.error.HTTPError as e:
+				# A branch whose copy of the workflow cannot be dispatched yet; the others still run.
+				print(f"{workflow} on {branch}: could not start ({e.code})")
+				continue
 			print(f"{workflow} on {branch}: started on {head[:7]}")
 
 

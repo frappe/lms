@@ -282,6 +282,7 @@ describe('ProgramDetail', () => {
 		})
 		seeds['lms.lms.utils.get_program_details'] = {
 			name: 'P1',
+			is_member: true,
 			progress: 50,
 			enforce_course_order: 1,
 			courses: [course('open', true), course('locked', false)],

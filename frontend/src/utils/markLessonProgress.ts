@@ -5,6 +5,28 @@ import { call } from 'frappe-ui'
 // module rather than through provide/inject.
 let heldLessonPath: string | null = null
 
+export type MarkedLesson = {
+	course: string
+	chapterNumber: string
+	lessonNumber: string
+	// Whether the server now has the lesson as complete. It can decline without
+	// an error, e.g. when the lesson's requirements are not met yet.
+	completed: boolean
+}
+
+type MarkedLessonListener = (lesson: MarkedLesson) => void
+
+// Lets the lesson page hear about a quiz or assignment completion without
+// depending on the realtime update_lesson_progress event.
+const listeners = new Set<MarkedLessonListener>()
+
+export function onLessonProgressMarked(
+	listener: MarkedLessonListener
+): () => void {
+	listeners.add(listener)
+	return () => listeners.delete(listener)
+}
+
 export function holdLessonCompletion(): void {
 	heldLessonPath = window.location.pathname
 }
@@ -20,9 +42,23 @@ export function markLessonProgress(): void {
 	if (pathname[2] != 'courses') return
 	const lessonIndex = (pathname.pop() ?? '').split('-')
 	if (lessonIndex.length != 2) return
+	const course = pathname[3]
+	const [chapterNumber, lessonNumber] = lessonIndex
 	call('lms.lms.api.mark_lesson_progress', {
-		course: pathname[3],
-		chapter_number: lessonIndex[0],
-		lesson_number: lessonIndex[1],
+		course,
+		chapter_number: chapterNumber,
+		lesson_number: lessonNumber,
 	})
+		.then((completed: boolean) => {
+			const lesson: MarkedLesson = {
+				course,
+				chapterNumber,
+				lessonNumber,
+				completed: Boolean(completed),
+			}
+			listeners.forEach((listener) => listener(lesson))
+		})
+		// A locked lesson is refused with a PermissionError; the quiz or
+		// assignment has already been saved, so there is nothing to undo.
+		.catch((err: unknown) => console.error(err))
 }

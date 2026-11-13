@@ -10,7 +10,12 @@ from frappe.model.document import Document
 from frappe.query_builder import Bracket
 from pypika.terms import LiteralValue
 
-from lms.lms.doctype.lms_enrollment.lms_enrollment import validate_identity_unchanged
+from lms.lms.doctype.lms_enrollment.lms_enrollment import (
+	AlreadyEnrolledError,
+	save_unless_enrolled,
+	validate_identity_unchanged,
+)
+from lms.lms.locking import locked_count
 from lms.lms.permissions import authored_batch_condition, can_author_batch, is_site_administrator
 from lms.lms.utils import has_moderator_role
 
@@ -20,10 +25,32 @@ UNSCOPED_ROLES = ("Moderator", "Batch Evaluator")
 
 class LMSBatchEnrollment(Document):
 	def after_insert(self):
-		send_confirmation_email(self)
+		self.validate_against_committed_rows()
+		self.send_confirmation_email_or_log()
 		from lms.lms.doctype.lms_live_class.lms_live_class import add_learner_to_live_classes
 
 		add_learner_to_live_classes(self.batch)
+
+	def send_confirmation_email_or_log(self):
+		"""A failed email must not roll back the enrolment; the flag stays 0 for a resend.
+		Anything the attempt wrote or said is undone with it. Any exception, since
+		rendering a template can raise anything."""
+		messages = len(frappe.local.message_log)
+		frappe.db.savepoint("confirmation_email")
+		try:
+			# The enrolment itself is authorised, and a paid one is often saved from a
+			# Guest payment callback, so this skips the resend endpoint's session check.
+			queue_confirmation_email(self)
+		except Exception:
+			frappe.db.rollback(save_point="confirmation_email")
+			del frappe.local.message_log[messages:]
+			frappe.log_error(
+				title="Batch enrollment confirmation email failed",
+				reference_doctype=self.doctype,
+				reference_name=self.name,
+			)
+		else:
+			frappe.db.release_savepoint("confirmation_email")
 
 	def validate(self):
 		validate_identity_unchanged(self, ("batch", "member"))
@@ -31,10 +58,13 @@ class LMSBatchEnrollment(Document):
 		self.validate_duplicate_members()
 		self.validate_payment()
 		self.validate_self_enrollment()
-		self.validate_seat_availability()
 		self.validate_course_enrollment()
 
 	def validate_owner(self):
+		if self.flags.via_payment and self.is_new():
+			# A verified payment enrolls the member who paid, as if they had enrolled
+			# themselves, whoever's session (often Guest) carried the callback.
+			self.owner = self.member
 		if self.owner == self.member:
 			return
 
@@ -86,35 +116,43 @@ class LMSBatchEnrollment(Document):
 		return is_site_administrator() or bool(has_moderator_role())
 
 	def validate_duplicate_members(self):
-		# Lock the batch row for the rest of this transaction before reading. The
-		# check below is a read of a row a concurrent request has not inserted
-		# yet, so without the lock both requests see "absent" and both insert —
-		# and a duplicate row also consumes a seat in validate_seat_availability,
-		# which turns a double-click into "no seats available" for someone else.
-		# Same shape as the payment and coupon locks in lms/lms/utils.py.
+		# Enrolments into one batch run one after the other from here. The check below
+		# reads this request's snapshot and can miss a row committed while it waited;
+		# validate_against_committed_rows catches that.
 		frappe.db.get_value("LMS Batch", self.batch, "name", for_update=True)
 
-		if frappe.db.exists(
-			"LMS Batch Enrollment",
-			{"batch": self.batch, "member": self.member, "name": ["!=", self.name]},
-		):
-			frappe.throw(_("Member already enrolled in this batch"))
+		if frappe.db.exists("LMS Batch Enrollment", {**self.duplicate_filters(), "name": ["!=", self.name]}):
+			self.throw_duplicate()
 
-	def validate_seat_availability(self):
+	def validate_against_committed_rows(self):
+		"""validate() reads this request's snapshot, which misses an enrolment that another
+		request committed while this one waited on the batch lock. Recount, now that this
+		row is in, with a read that sees it."""
+		if locked_count("LMS Batch Enrollment", self.duplicate_filters()) > 1:
+			self.throw_duplicate()
+
 		seat_count = frappe.db.get_value("LMS Batch", self.batch, "seat_count")
-		enrolled_count = frappe.db.count("LMS Batch Enrollment", {"batch": self.batch})
-		if seat_count and enrolled_count >= seat_count:
+		if seat_count and locked_count("LMS Batch Enrollment", {"batch": self.batch}) > seat_count:
 			frappe.throw(_("There are no seats available in this batch."))
 
+	def duplicate_filters(self):
+		return {"batch": self.batch, "member": self.member}
+
+	def throw_duplicate(self):
+		frappe.throw(_("Member already enrolled in this batch"), AlreadyEnrolledError)
+
 	def validate_course_enrollment(self):
-		courses = frappe.get_all("Batch Course", filters={"parent": self.batch}, fields=["course"])
+		# Sorted, so two batches that share courses lock them in the same order.
+		courses = frappe.get_all(
+			"Batch Course", filters={"parent": self.batch}, fields=["course"], order_by="course asc"
+		)
 
 		for course in courses:
 			# Same reasoning as validate_duplicate_members, one level down: without
 			# the lock, two batches sharing a course can both read "absent" for the
 			# same member and the loser's inner insert throws, failing an enrolment
 			# that should have skipped. Batch row first, then course row, in that
-			# order everywhere — the reverse order exists nowhere, so no cycle.
+			# order everywhere, and the courses in name order, so no cycle.
 			frappe.db.get_value("LMS Course", course.course, "name", for_update=True)
 
 			if not frappe.db.exists(
@@ -129,10 +167,10 @@ class LMSBatchEnrollment(Document):
 				# its courses come with it, whoever added them.
 				enrollment.flags.via_batch_enrollment = True
 				# nosemgrep: lms-unjustified-ignore-permissions - the batch enrolment saving this was already authorised; the course enrolment is part of it
-				enrollment.save(ignore_permissions=True)
+				save_unless_enrolled(enrollment, ignore_permissions=True)
 
 
-@frappe.whitelist()
+@frappe.whitelist(methods=["POST"])
 def send_confirmation_email(doc: Document | str):
 	if isinstance(doc, str):
 		name = frappe.parse_json(doc).get("name")
@@ -148,6 +186,10 @@ def send_confirmation_email(doc: Document | str):
 			frappe.PermissionError,
 		)
 
+	queue_confirmation_email(doc)
+
+
+def queue_confirmation_email(doc: Document):
 	if not doc.confirmation_email_sent:
 		outgoing_email_account = frappe.get_cached_value(
 			"Email Account", {"default_outgoing": 1, "enable_outgoing": 1}, "name"

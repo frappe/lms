@@ -23,27 +23,43 @@ class LMSBadge(Document):
 			except Exception:
 				frappe.throw(_("Condition must be valid python code."))
 
+		self.clear_badge_map()
+
+	def on_trash(self):
+		self.clear_badge_map()
+
+	def clear_badge_map(self):
+		doctypes = {self.reference_doctype}
+		if before := self.get_doc_before_save():
+			doctypes.add(before.reference_doctype)
+		for doctype in doctypes:
+			frappe.cache_manager.clear_doctype_map("LMS Badge", doctype)
+
 	def apply(self, doc):
-		if self.rule_condition_satisfied(doc):
-			award(self, doc.get(self.user_field))
+		member = doc.get(self.user_field)
+		if member and self.rule_condition_satisfied(doc):
+			award(self, member)
 
 	def rule_condition_satisfied(self, doc):
-		if self.event == "Manual Assignment":
+		if self.event == "Manual Assignment" or not self.condition:
 			return False
 
 		doc_before_save = doc.get_doc_before_save()
-
 		if self.event == "New" and doc_before_save is not None:
 			return False
 
-		if self.condition:
-			return eval_condition(doc, self.condition)
+		if not eval_condition(doc, self.condition):
+			return False
 
-		return False
+		if self.event == "Value Change" and doc_before_save is not None:
+			return not eval_condition(doc_before_save, self.condition)
+
+		return True
 
 
 def award(doc, member):
-	if doc.grant_only_once:
+	if doc.grant_only_once or doc.event == "Value Change":
+		frappe.db.get_value("LMS Badge", doc.name, "name", for_update=True)
 		if frappe.db.exists(
 			"LMS Badge Assignment",
 			{"badge": doc.name, "member": member},
@@ -67,7 +83,7 @@ def eval_condition(doc, condition):
 	return condition and frappe.safe_eval(condition, None, {"doc": doc.as_dict()})
 
 
-@frappe.whitelist()
+@frappe.whitelist(methods=["POST"])
 def assign_badge(badge_name: str):
 	frappe.only_for(["Moderator", "Course Creator", "Batch Evaluator"])
 	assignments = []
@@ -108,4 +124,25 @@ def process_badges(doc, state):
 	for d in frappe.cache_manager.get_doctype_map(
 		"LMS Badge", doc.doctype, dict(reference_doctype=doc.doctype, enabled=1)
 	):
-		frappe.get_doc("LMS Badge", d.get("name")).apply(doc)
+		apply_badge(d.get("name"), doc)
+
+
+def apply_badge(badge_name, doc):
+	"""Award one badge for `doc` without letting a badge error fail the save of `doc`."""
+	savepoint = f"lms_badge_{frappe.generate_hash(length=10)}"
+	messages = len(frappe.local.message_log)
+	frappe.db.savepoint(savepoint)
+	try:
+		badge = frappe.get_doc("LMS Badge", badge_name)
+		if badge.enabled:
+			badge.apply(doc)
+	except Exception:
+		frappe.db.rollback(save_point=savepoint)
+		del frappe.local.message_log[messages:]
+		frappe.log_error(
+			title=f"Could not award badge {badge_name} for {doc.doctype} {doc.name}",
+			reference_doctype=doc.doctype,
+			reference_name=doc.name,
+		)
+	else:
+		frappe.db.release_savepoint(savepoint)

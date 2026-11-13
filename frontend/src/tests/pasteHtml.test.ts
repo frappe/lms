@@ -313,3 +313,71 @@ describe('pasted code block language detection', () => {
 		expect(blocks[0].data.language).toBe(language)
 	})
 })
+
+describe('_checkMarkdownAfterEnter: markdown image syntax', () => {
+	// `![alt](url)` + Enter converted to an image block with `{file: {url}}`,
+	// which SimpleImage never reads, so the block rendered blank (dfb9e2e7b).
+	it('converts to an image block in the shape SimpleImage reads', () => {
+		const block = newBlock()
+		block.wrapper = document.createElement('div')
+		block.wrapper.textContent = '![The gut](https://example.test/gut.png)'
+		const convert = vi
+			.spyOn(block, '_replaceWithImage')
+			.mockReturnValue(undefined)
+
+		block._checkMarkdownAfterEnter()
+
+		expect(convert).toHaveBeenCalledWith({
+			url: 'https://example.test/gut.png',
+			caption: 'The gut',
+		})
+	})
+
+	// The caption is HTML to SimpleImage, as on the paste path.
+	it('escapes the alt text it carries into the caption', () => {
+		const block = newBlock()
+		block.wrapper = document.createElement('div')
+		block.wrapper.textContent = '![<b>bold</b>](https://example.test/a.png)'
+		const convert = vi
+			.spyOn(block, '_replaceWithImage')
+			.mockReturnValue(undefined)
+
+		block._checkMarkdownAfterEnter()
+
+		expect(convert).toHaveBeenCalledWith({
+			url: 'https://example.test/a.png',
+			caption: '&lt;b&gt;bold&lt;/b&gt;',
+		})
+	})
+})
+
+describe('_replaceWithImage', () => {
+	// Enter has already moved the caret to a new block, so the image replaces the
+	// block holding the markdown, not the current one.
+	it('replaces the block that holds the markdown, not the current block', () => {
+		const block = newBlock()
+		block.wrapper = document.createElement('div')
+		const holders = [document.createElement('div'), document.createElement('div')]
+		holders[0].appendChild(block.wrapper)
+		const insert = vi.fn()
+		block.api = {
+			blocks: {
+				getBlocksCount: () => 2,
+				getBlockByIndex: (i) => ({ holder: holders[i] }),
+				getCurrentBlockIndex: () => 1,
+				insert,
+			},
+		}
+
+		block._replaceWithImage({ url: 'https://example.test/a.png', caption: '' })
+
+		expect(insert).toHaveBeenCalledWith(
+			'image',
+			{ url: 'https://example.test/a.png', caption: '' },
+			{},
+			0,
+			false,
+			true
+		)
+	})
+})

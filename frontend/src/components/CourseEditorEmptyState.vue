@@ -18,14 +18,14 @@
 				<p class="text-p-base text-ink-gray-6">{{ state.description }}</p>
 			</div>
 			<div class="flex flex-wrap items-center justify-center gap-2">
-				<Button variant="solid" :label="state.action" @click="state.onAction">
+				<Button variant="subtle" :label="state.action" @click="state.onAction">
 					<template #prefix>
 						<span class="lucide-plus size-4" />
 					</template>
 				</Button>
 				<!-- An href makes the Button an anchor that opens in a new tab. -->
 				<Button
-					variant="subtle"
+					variant="ghost"
 					:href="state.docs"
 					:label="__('Read the docs')"
 					@click="openDocs"

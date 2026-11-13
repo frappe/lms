@@ -55,7 +55,7 @@
 			:description="__('The list did not come through. Try again in a moment.')"
 		>
 			<Button
-				variant="solid"
+				variant="subtle"
 				:loading="resource.loading"
 				:label="__('Retry')"
 				@click="load(workspace)"
