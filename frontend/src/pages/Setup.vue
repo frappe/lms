@@ -78,7 +78,9 @@
 		class="flex min-h-screen flex-col items-center justify-center gap-4 p-6 text-center"
 	>
 		<p class="max-w-sm text-p-base text-ink-gray-7">
-			{{ __('Could not load your setup. Check your connection and try again.') }}
+			{{
+				__('Could not load your setup. Check your connection and try again.')
+			}}
 		</p>
 		<Button
 			variant="solid"
