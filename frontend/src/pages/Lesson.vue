@@ -68,6 +68,7 @@
 					</div>
 					<Button
 						v-if="user.data && !lesson.data.disable_self_learning"
+						:loading="enrollment.loading"
 						@click="enrollStudent()"
 						variant="solid"
 					>
@@ -1302,6 +1303,7 @@ const enrollment = createResource({
 })
 
 const enrollStudent = () => {
+	if (enrollment.loading) return
 	enrollment.submit(
 		{},
 		{

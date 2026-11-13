@@ -58,6 +58,7 @@
 			<Button
 				variant="ghost"
 				:label="__('Delete')"
+				:loading="deleting"
 				@click="deleteSubmissions(selections, unselectAll)"
 			>
 				<template #prefix>
@@ -174,18 +175,21 @@ watch(
 	{ deep: true }
 )
 
-const { run: deleteSubmissions } = useBulkDeleteAction('LMS Quiz Submission', {
-	onDeleted: () => {
-		submissions.reload()
-	},
-	success: () => __('Submissions deleted successfully'),
-	partial: ({ failed, total, error }) =>
-		__('{0} of {1} submissions could not be deleted: {2}').format(
-			failed,
-			total,
-			error
-		),
-})
+const { deleting, run: deleteSubmissions } = useBulkDeleteAction(
+	'LMS Quiz Submission',
+	{
+		onDeleted: () => {
+			submissions.reload()
+		},
+		success: () => __('Submissions deleted successfully'),
+		partial: ({ failed, total, error }) =>
+			__('{0} of {1} submissions could not be deleted: {2}').format(
+				failed,
+				total,
+				error
+			),
+	}
+)
 
 const listOptions: ListViewOptions = {
 	selectable: true,

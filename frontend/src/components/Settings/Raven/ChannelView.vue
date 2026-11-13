@@ -16,7 +16,7 @@
 				size="sm"
 				:label="__('Enabled')"
 				:model-value="enabled"
-				:disabled="locked"
+				:disabled="locked || setEnabled.loading"
 				@update:model-value="toggleEnabled"
 			/>
 			<Button
@@ -216,6 +216,7 @@ const setEnabled = createResource({
 })
 
 function toggleEnabled(): void {
+	if (setEnabled.loading) return
 	setEnabled.submit({ name: props.name, enabled: !enabled.value })
 }
 </script>

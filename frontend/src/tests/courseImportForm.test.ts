@@ -43,26 +43,35 @@ vi.mock('@/stores/settings', () => ({ useSettings: () => ({}) }))
 vi.mock('@/stores/user', () => ({ usersStore: () => ({ userResource }) }))
 
 // Stubbed so tests control call/resource responses without a network.
-vi.mock('frappe-ui', () => ({
-	call: callMock,
-	toast: { success: vi.fn(), error: vi.fn() },
-	FileUploadHandler: class {
-		on() {}
-		upload(...args: unknown[]) {
-			return uploadMock(...args)
-		}
-	},
-	Dialog: {
-		name: 'Dialog',
-		props: ['open', 'title', 'size'],
-		emits: ['update:open'],
-		template: `<div v-if="open" role="dialog"><h2>{{ title }}</h2><slot /><slot name="actions" /></div>`,
-	},
-	Button: {
-		inheritAttrs: false,
-		template: `<button v-bind="$attrs"><slot name="icon" /><slot /></button>`,
-	},
-}))
+// The real createResource, fetching through callMock, so `loading` behaves.
+vi.mock('frappe-ui', async () => {
+	const actual = await vi.importActual<typeof import('frappe-ui')>('frappe-ui')
+	return {
+		createResource: (options: { url: string }) =>
+			actual.createResource({
+				...options,
+				resourceFetcher: ({ params }: { params: unknown }) =>
+					callMock(options.url, params),
+			}),
+		toast: { success: vi.fn(), error: vi.fn() },
+		FileUploadHandler: class {
+			on() {}
+			upload(...args: unknown[]) {
+				return uploadMock(...args)
+			}
+		},
+		Dialog: {
+			name: 'Dialog',
+			props: ['open', 'title', 'size'],
+			emits: ['update:open'],
+			template: `<div v-if="open" role="dialog"><h2>{{ title }}</h2><slot /><slot name="actions" /></div>`,
+		},
+		Button: {
+			inheritAttrs: false,
+			template: `<button v-bind="$attrs"><slot name="icon" /><slot /></button>`,
+		},
+	}
+})
 
 import CourseImportForm from '@/pages/Forms/CourseImportForm.vue'
 

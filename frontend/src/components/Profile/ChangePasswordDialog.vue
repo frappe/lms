@@ -91,6 +91,7 @@ function reset() {
 }
 
 async function save() {
+	if (saving.value) return
 	error.value = ''
 	if (next.value !== confirm.value) {
 		error.value = __('The new passwords do not match.')
@@ -113,6 +114,7 @@ async function save() {
 }
 
 async function sendReset() {
+	if (sendingReset.value) return
 	error.value = ''
 	sendingReset.value = true
 	try {

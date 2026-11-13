@@ -13,6 +13,7 @@ export type Notes = {
 	data: Note[] | null
 	reload: () => void
 	insert: {
+		loading: boolean
 		submit: (
 			data: Note,
 			options: {
@@ -22,6 +23,7 @@ export type Notes = {
 		) => void
 	}
 	setValue: {
+		loading: boolean
 		submit: (
 			data: Note,
 			options: {
@@ -31,6 +33,7 @@ export type Notes = {
 		) => void
 	}
 	delete: {
+		loading: boolean
 		submit: (
 			data: Note | string,
 			options?: {

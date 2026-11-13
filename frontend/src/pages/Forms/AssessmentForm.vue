@@ -134,7 +134,7 @@ const createAssessment = () => {
 }
 
 const submit = () => {
-	if (refusal.value) return
+	if (refusal.value || assessmentResource.loading) return
 	submitResource(
 		assessmentResource,
 		{},

@@ -166,7 +166,7 @@ const reloadTemplateList = () => {
 }
 
 const submit = () => {
-	if (refusal.value) return
+	if (refusal.value || createTemplate.loading) return
 	submitResource(
 		createTemplate,
 		{},

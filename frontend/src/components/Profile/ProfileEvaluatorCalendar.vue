@@ -318,6 +318,7 @@ const updateCalendar = createResource({
 }) as Resource<Calendar>
 
 const setEnabled = async (on: boolean) => {
+	if (updateCalendar.loading) return
 	try {
 		let calendar = await updateCalendar.submit({
 			fieldname: 'enable',

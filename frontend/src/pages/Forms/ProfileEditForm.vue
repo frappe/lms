@@ -173,7 +173,7 @@ const validateMandatoryFields = () => {
 }
 
 const saveProfile = () => {
-	if (refusal.value || !profileData.value) return
+	if (refusal.value || !profileData.value || updateProfile.loading) return
 	if (validateMandatoryFields()) return
 
 	// Read before submitting: the computed is live against the parent resource,

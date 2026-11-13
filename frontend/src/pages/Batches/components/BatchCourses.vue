@@ -24,6 +24,7 @@
 					<Button
 						variant="ghost"
 						:label="__('Delete selected courses')"
+						:loading="courses.delete.loading"
 						@click="removeCourses(selections, unselectAll)"
 					>
 						<template #icon>
@@ -104,7 +105,10 @@ const listOptions = computed(() => ({
 	}),
 }))
 
+// One delete resource runs the deletes back to back. Its loading drops only
+// between microtasks, so no click lands between two deletes.
 const removeCourses = async (selections, unselectAll) => {
+	if (courses.delete.loading) return
 	for (const course of selections) {
 		await courses.delete.submit(course)
 	}

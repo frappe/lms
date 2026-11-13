@@ -496,7 +496,7 @@ const deleteQuiz = () => {
 				theme: 'red',
 				variant: 'solid',
 				onClick({ close }) {
-					quizDetails.value.delete
+					return quizDetails.value.delete
 						.submit()
 						.then(() => {
 							toast.success(__('Quiz deleted successfully'))
@@ -505,7 +505,7 @@ const deleteQuiz = () => {
 						.catch((err) => {
 							toast.error(err.messages?.[0] || __('Could not delete the quiz'))
 						})
-					close()
+						.finally(close)
 				},
 			},
 		],
@@ -974,7 +974,7 @@ watch(
 )
 
 // Resolves to whether the quiz reached the server, which is what lets autosave re-arm.
-let saveInFlight = false
+let saveInFlight = null
 
 // One id for every save failure, so a quiz the server keeps rejecting says so once
 // rather than stacking a toast per attempt. A save that lands clears it.
@@ -983,11 +983,11 @@ const SAVE_FAILED_TOAST = 'quiz-save-failed'
 const submitQuiz = ({ notify = true } = {}) => {
 	// Nothing to save once the quiz is deleted, and no side effect may re-insert it.
 	if (!quizDetails.value.doc) return Promise.resolve(false)
+	if (saveInFlight) return saveInFlight
 	if (!canSave.value) return Promise.resolve(false)
 	validateTitle()
 	let saved = false
-	saveInFlight = true
-	return submitResource(
+	saveInFlight = submitResource(
 		quizDetails.value.setValue,
 		{
 			...quizDetails.value.doc,
@@ -1019,10 +1019,11 @@ const submitQuiz = ({ notify = true } = {}) => {
 	)
 		.then(() => saved)
 		.finally(() => {
-			saveInFlight = false
+			saveInFlight = null
 			// The doc is already replaced, so nothing is left to unmount these cards.
 			flushPendingCardOpens()
 		})
+	return saveInFlight
 }
 
 // One gate, canSave, because replacing the doc under an open card is the thing to avoid.

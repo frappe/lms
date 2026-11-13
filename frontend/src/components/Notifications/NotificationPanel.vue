@@ -27,7 +27,8 @@
 							<Button
 								variant="ghost"
 								:label="__('Mark all as read')"
-								@click="markAllAsRead.submit"
+								:loading="markAllAsRead.loading"
+								@click="markAllRead"
 							>
 								<template #icon>
 									<span class="lucide-check-check size-4 text-ink-gray-7" />
@@ -165,6 +166,11 @@ const hasUnread = computed(() => notifications.data?.some((n) => !n.read))
 watch(panelVisible, (open) => {
 	if (open) notifications.reload()
 })
+
+const markAllRead = () => {
+	if (markAllAsRead.loading) return
+	markAllAsRead.submit()
+}
 
 const onSelect = (n) => {
 	if (!n.read) markAsRead.submit({ name: n.name })

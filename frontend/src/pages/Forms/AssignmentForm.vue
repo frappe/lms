@@ -332,6 +332,7 @@ const updateAssignment = (): void => {
 }
 
 const saveAssignment = (): void => {
+	if (saving.value) return
 	if (!canManageAssignments.value || !canEdit.value) return
 	if (!validateFields()) return
 	if (isNew.value) newAssignment.submit()

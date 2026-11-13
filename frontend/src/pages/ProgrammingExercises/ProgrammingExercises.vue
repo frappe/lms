@@ -216,8 +216,7 @@ const showDeleteConfirmation = (
 				theme: 'red',
 				variant: 'solid',
 				onClick({ close }: { close: () => void }) {
-					deleteExercises(selections, unselectAll)
-					close()
+					return deleteExercises(selections, unselectAll).then(close)
 				},
 			},
 		],
@@ -225,7 +224,7 @@ const showDeleteConfirmation = (
 }
 
 const deleteExercises = (selections: Set<string>, unselectAll: () => void) => {
-	Array.from(selections).forEach(async (exerciseName) => {
+	const deletions = Array.from(selections).map((exerciseName) =>
 		call('lms.lms.api.delete_programming_exercise', {
 			exercise: exerciseName,
 		})
@@ -237,8 +236,9 @@ const deleteExercises = (selections: Set<string>, unselectAll: () => void) => {
 				toast.error(__(error.message || error))
 				console.error('Error deleting exercise:', error)
 			})
-	})
+	)
 	unselectAll()
+	return Promise.all(deletions)
 }
 
 // Watch, not a listener. TextInput emits on both input and change.

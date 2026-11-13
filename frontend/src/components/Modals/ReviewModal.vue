@@ -60,7 +60,7 @@ const createReview = createResource({
 })
 
 function submitReview(close: () => void) {
-	submitResource(createReview, review, {
+	return submitResource(createReview, review, {
 		validate() {
 			if (!review.rating) {
 				return 'Please enter a rating.'

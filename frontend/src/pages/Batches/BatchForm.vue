@@ -528,6 +528,7 @@ const formatTime = (timeStr: string): string => {
 }
 
 const submitBatch = (): void => {
+	if (isSaving.value) return
 	const error = validateForm()
 	if (error) {
 		toast.error(error)
@@ -579,16 +580,15 @@ const deleteBatch = (): void => {
 				theme: 'red',
 				variant: 'solid',
 				onClick({ close }) {
-					trashBatch(close)
-					close()
+					return trashBatch(close)
 				},
 			},
 		],
 	})
 }
 
-const trashBatch = (close: () => void): void => {
-	call('lms.lms.api.delete_batch', {
+const trashBatch = (close: () => void): Promise<void> => {
+	return call('lms.lms.api.delete_batch', {
 		batch: props.batch.data?.name,
 	}).then(() => {
 		toast.success(__('Batch deleted successfully'))
@@ -660,9 +660,12 @@ const mediumOptions = computed(() => {
 	]
 })
 
+const isSaving = computed(() => batchDetail.setValue.loading)
+
 defineExpose({
 	submitBatch,
 	deleteBatch,
 	isDirty,
+	isSaving,
 })
 </script>

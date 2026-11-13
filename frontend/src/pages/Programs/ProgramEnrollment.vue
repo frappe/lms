@@ -176,7 +176,7 @@ const enrollment = createResource({
 })
 
 const enrollInProgram = () => {
-	if (refusal.value) return
+	if (refusal.value || enrollment.loading) return
 	enrollment.submit(
 		{},
 		{

@@ -19,7 +19,10 @@ export interface Resource<T = unknown> {
 	submit(params?: unknown, opts?: unknown): Promise<T>
 	update(opts: unknown): void
 	setData(data: T): void
-	setValue: { submit(values: unknown, opts?: unknown): Promise<T> }
+	setValue: {
+		submit(values: unknown, opts?: unknown): Promise<T>
+		loading: boolean
+	}
 }
 
 export interface UserInfo {

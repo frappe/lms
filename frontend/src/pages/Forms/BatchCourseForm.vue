@@ -107,7 +107,7 @@ const openNewCourse = () => {
 // Step, when onboarding is not registered) would be toasted as a failed request
 // even though the row was inserted.
 const submit = () => {
-	if (refusal.value) return
+	if (refusal.value || batchCourses.insert.loading) return
 	return submitResource(
 		batchCourses.insert,
 		{

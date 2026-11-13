@@ -29,6 +29,7 @@
 				v-if="tab?.key === 'settings' && isAdmin && !isMobile"
 				variant="subtle"
 				:theme="batch.data?.published ? 'red' : 'gray'"
+				:loading="publishToggle.loading"
 				@click="togglePublishBatch"
 			>
 				{{ batch.data?.published ? __('Unpublish') : __('Publish') }}
@@ -69,6 +70,7 @@
 					<HeaderButton
 						:label="__('Save')"
 						variant="solid"
+						:loading="instance?.isSaving"
 						@click="instance?.submitBatch()"
 					/>
 				</ShortcutTooltip>
@@ -268,6 +270,7 @@ const publishToggle = createResource({
 })
 
 const togglePublishBatch = () => {
+	if (publishToggle.loading) return
 	publishToggle.submit()
 }
 

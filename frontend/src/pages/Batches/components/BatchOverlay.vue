@@ -98,6 +98,7 @@
 						hasSeatsLeft &&
 						batch.data.accept_enrollments
 					"
+					:loading="enroll.loading"
 					@click="enrollInBatch()"
 				>
 					<template #prefix>
@@ -156,6 +157,7 @@ const enroll = createResource({
 })
 
 const enrollInBatch = () => {
+	if (enroll.loading) return
 	if (!user.data) {
 		redirectToLogin()
 		return

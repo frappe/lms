@@ -342,7 +342,7 @@ const onInstructorCreated = (newUser: any) => {
 }
 
 const saveCourse = () => {
-	if (!canCreate.value) return
+	if (!canCreate.value || courses.insert.loading) return
 	sanitizeStringFields(course.value as Record<string, unknown>)
 	const error = validateCourse({
 		doc: course.value,

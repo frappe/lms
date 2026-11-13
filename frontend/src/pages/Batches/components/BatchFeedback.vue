@@ -57,7 +57,11 @@
 						:rows="9"
 						:readonly="readOnly"
 					/>
-					<Button v-if="!readOnly" @click="submitFeedback">
+					<Button
+						v-if="!readOnly"
+						:loading="feedbackList.insert.loading"
+						@click="submitFeedback"
+					>
 						{{ __('Submit Feedback') }}
 					</Button>
 				</div>
@@ -176,6 +180,7 @@ watch(
 )
 
 const submitFeedback = () => {
+	if (feedbackList.insert.loading) return
 	ratingKeys.forEach((key) => {
 		feedback[key] = feedback[key] / 5
 	})
