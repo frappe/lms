@@ -167,27 +167,20 @@
 				<article
 					class="flex flex-col gap-3 rounded-7 border border-outline-gray-2 p-5"
 				>
-					<div class="flex items-center justify-between gap-2">
-						<Badge :label="__('Skill')" theme="blue" size="md" />
-						<span class="text-p-sm text-ink-gray-6">
-							{{ __('About 10 minutes each') }}
-						</span>
-					</div>
+					<Badge
+						class="self-start"
+						:label="__('Skill')"
+						theme="blue"
+						size="md"
+					/>
 					<div>
 						<h3 class="text-lg-semibold text-ink-gray-9">
 							{{ __('One thing people must be able to do') }}
 						</h3>
-						<p class="mt-1.5 text-p-base text-ink-gray-6">
-							{{
-								__(
-									'A lesson that adapts to each person, a practice conversation, and a check that proves they are ready.'
-								)
-							}}
+						<p class="mt-1 text-p-base text-ink-gray-6">
+							{{ __('Ten minutes with Lumi: a lesson, a practice, a check.') }}
 						</p>
 					</div>
-					<p class="text-p-sm text-ink-gray-6">
-						{{ __('Good for safety, compliance, customer calls, new tools.') }}
-					</p>
 					<Button
 						class="mt-auto self-start"
 						variant="subtle"
@@ -199,31 +192,22 @@
 				<article
 					class="flex flex-col gap-3 rounded-7 border border-outline-gray-2 p-5"
 				>
-					<div class="flex items-center justify-between gap-2">
-						<Badge :label="__('Course')" theme="green" size="md" />
-						<span class="text-p-sm text-ink-gray-6">
-							{{ __('Hours, at their own pace') }}
-						</span>
-					</div>
+					<Badge
+						class="self-start"
+						:label="__('Course')"
+						theme="green"
+						size="md"
+					/>
 					<div>
 						<h3 class="text-lg-semibold text-ink-gray-9">
 							{{ __('A topic that needs depth') }}
 						</h3>
-						<p class="mt-1.5 text-p-base text-ink-gray-6">
+						<p class="mt-1 text-p-base text-ink-gray-6">
 							{{
-								__(
-									'Chapters of video and reading, quizzes and assignments along the way, and a certificate at the end.'
-								)
+								__('Chapters, quizzes and a certificate, at their own pace.')
 							}}
 						</p>
 					</div>
-					<p class="text-p-sm text-ink-gray-6">
-						{{
-							__(
-								'Good for product training, onboarding programmes, courses you sell.'
-							)
-						}}
-					</p>
 					<div class="mt-auto flex flex-wrap items-center gap-2">
 						<Button
 							variant="subtle"
