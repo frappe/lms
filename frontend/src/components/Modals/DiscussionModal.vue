@@ -84,7 +84,7 @@ const submitTopic = (close) => {
 		return
 	}
 	// Returned so the Dialog keeps Post loading, and so disabled, until the
-	// topic and its first reply are saved: a second click posted it twice.
+	// topic and its first reply are saved.
 	return call('frappe.client.insert', {
 		doc: {
 			doctype: 'Discussion Topic',

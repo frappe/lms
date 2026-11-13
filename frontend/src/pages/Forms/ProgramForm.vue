@@ -384,18 +384,15 @@ const fetchCourses = () => {
 	programCourses.reload()
 }
 
-// The scalar fields and the members. Courses belong to their list resource
-// above, whose response can land either side of this one. Members come from the
-// document: their member and full_name are permission level 1, and the list API
-// checks a child table's level against the child, which has no permissions of
-// its own, so it returned every row without them (frappe/desk/reportview.py
-// validate_fields). The document API checks them against LMS Program.
+// Members come from the doc: the child list API drops permlevel-1 fields.
 const savedMembers = computed<ProgramMember[]>(() =>
 	[...(programDoc?.doc?.program_members ?? [])].sort((a, b) =>
 		String(b.creation).localeCompare(String(a.creation))
 	)
 )
 
+// The scalar fields and the members. Courses belong to their list resource
+// above, whose response can land either side of this one.
 const applyDoc = (doc: Program) => {
 	program.value.name = doc.name
 	program.value.title = doc.title

@@ -172,7 +172,6 @@ const props = defineProps({
 		type: Boolean,
 		default: false,
 	},
-	// The page that places this decides how prominent its heading is.
 	headingSize: {
 		type: String,
 		default: '2xl',
