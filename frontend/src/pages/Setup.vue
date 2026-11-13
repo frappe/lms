@@ -119,8 +119,10 @@ const setupState = createResource({
 	url: 'lms.lms.onboarding.get_setup_state',
 	auto: true,
 	onSuccess(data) {
+		// The site itself is not set up yet: the desk wizard comes first.
+		if (data?.setup_url) window.location.href = data.setup_url
 		// Nothing left to ask, so an old bookmark or a second visit goes home.
-		if (data?.needs_setup === false) router.replace({ name: 'Home' })
+		else if (data?.needs_setup === false) router.replace({ name: 'Home' })
 	},
 })
 
