@@ -126,7 +126,12 @@ const setupState = createResource({
 	},
 })
 
-const steps = computed(() => [
+const steps = computed(() => {
+	if (setupState.data?.setup_url) return []
+	return allSteps.value
+})
+
+const allSteps = computed(() => [
 	// A site owner who arrived without a password sets one first; the rest only when it
 	// was never done.
 	...(setupState.data?.needs_password
