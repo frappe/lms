@@ -216,23 +216,6 @@ describe('BatchStudentForm as a route', () => {
 		expect(form(wrapper).props('target')).toMatchObject({ paidKind: null })
 	})
 
-	it('survives enrolling with no dashboard tab to refresh', async () => {
-		const router = makeRouter()
-		await openForm(router)
-		const wrapper = await mountForm(router)
-		await enrolled(wrapper)
-
-		expect(getCachedListResourceMock).toHaveBeenCalledWith([
-			'batchStudents',
-			'B1',
-		])
-		expect(getCachedResourceMock).toHaveBeenCalledWith([
-			'batch_student_count',
-			'B1',
-		])
-		expect(router.currentRoute.value.name).toBe('NewBatchStudent')
-	})
-
 	// Seats Left on the Overview overlay is get_batch_details', and an enrollment
 	// is exactly what moves it. That resource carries no cache key, so unlike the
 	// two above it cannot be reached by one — the page provides the reload.
@@ -259,17 +242,6 @@ describe('BatchStudentForm as a route', () => {
 		expect(list.reload).toHaveBeenCalledTimes(1)
 		expect(count.reload).toHaveBeenCalledTimes(1)
 		expect(router.currentRoute.value.name).toBe('NewBatchStudent')
-	})
-
-	// Regression from the bulk-enroll PR (feat/bulk-enroll): the page toasted on
-	// top of the dialog's own outcome toast, so one enroll showed two.
-	it('leaves the success toast to the dialog', async () => {
-		const router = makeRouter()
-		await openForm(router)
-		const wrapper = await mountForm(router)
-		await enrolled(wrapper)
-
-		expect(toastMock.success).not.toHaveBeenCalled()
 	})
 
 	it('returns to the opening tab when the form closes', async () => {

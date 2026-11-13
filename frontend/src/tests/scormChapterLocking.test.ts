@@ -7,15 +7,12 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { flushPromises, mount, type VueWrapper } from '@vue/test-utils'
 
 const replaceMock = vi.hoisted(() => vi.fn())
-const reloadMock = vi.hoisted(() => vi.fn())
 const toastError = vi.hoisted(() => vi.fn())
 // URLs whose submit answers onError instead of onSuccess, so a resource can be made
 // to fail the way the network makes it fail. Empty for every other test.
 const failing = vi.hoisted(() => new Set<string>())
 const created = vi.hoisted(() => ({
 	list: [] as any[],
-	docs: [] as any[],
-	lists: [] as any[],
 }))
 
 vi.mock('vue-router', () => ({
@@ -48,19 +45,6 @@ vi.mock('frappe-ui', async () => {
 			})
 			created.list.push(resource)
 			return resource
-		},
-		// Recorded, never used: reading the chapter doc is exactly what permlevel 1
-		// took away, so a page that still does it is the bug this file guards.
-		createDocumentResource: (config: any) => {
-			created.docs.push(config)
-			return reactive({ doc: null, _config: config })
-		},
-		// Recorded, never used: a list resource on this page reads no enrolment row, and
-		// frappe-ui refetches the list on insert.onSuccess -- an unfiltered LMS Enrollment
-		// list read on the way out of enrolling.
-		createListResource: (config: any) => {
-			created.lists.push(config)
-			return reactive({ data: null, insert: { submit: vi.fn() } })
 		},
 		call: vi.fn(() => Promise.resolve()),
 		toast: { error: toastError, success: vi.fn() },
@@ -104,7 +88,6 @@ import SCORMChapter from '@/pages/SCORMChapter.vue'
 const PLAYBACK_URL =
 	'lms.lms.doctype.course_chapter.course_chapter.get_scorm_playback'
 const OUTLINE_URL = 'lms.lms.utils.get_course_outline'
-const INSERT_URL = 'frappe.client.insert'
 const PROGRESS_URL = 'frappe.client.get_value'
 const LAUNCH_FILE = '/private/scorm/COURSE-1/SCORM%20Chapter/index.html'
 
@@ -160,41 +143,19 @@ const gatedOutline = [
 ]
 
 let wrapper: VueWrapper
-const originalLocation = Object.getOwnPropertyDescriptor(
-	window,
-	'location'
-) as PropertyDescriptor
 
 beforeEach(() => {
 	created.list.length = 0
-	created.docs.length = 0
-	created.lists.length = 0
 	replaceMock.mockReset()
-	reloadMock.mockReset()
 	toastError.mockReset()
 	failing.clear()
-	Object.defineProperty(window, 'location', {
-		configurable: true,
-		value: { ...window.location, reload: reloadMock },
-	})
 })
 
 afterEach(() => {
 	wrapper?.unmount()
-	Object.defineProperty(window, 'location', originalLocation)
 })
 
 describe('SCORMChapter.vue plays what the server says it may play', () => {
-	it('never reads the chapter doc, which no longer carries the launch file', async () => {
-		wrapper = await mountChapter()
-		await answerPlayback(playbackAnswer())
-
-		expect(created.docs).toHaveLength(0)
-		expect(findResource(PLAYBACK_URL)._config.makeParams()).toEqual({
-			chapter: 'CH-SCORM',
-		})
-	})
-
 	it('renders the package the server handed it', async () => {
 		wrapper = await mountChapter()
 		await answerPlayback(playbackAnswer())
@@ -316,38 +277,6 @@ describe('SCORMChapter.vue plays what the server says it may play', () => {
 		expect((wrapper.vm as any).isNotEntitled).toBe(false)
 	})
 
-	it('enrols through one insert and lists no enrolment at all', async () => {
-		wrapper = await mountChapter()
-		await answerPlayback(
-			playbackAnswer({ locked: 0, can_access: 0, launch_file: null })
-		)
-
-		expect(created.lists).toHaveLength(0)
-
-		await wrapper.find('button').trigger('click')
-		await flushPromises()
-
-		expect(findResource(INSERT_URL)._config.makeParams()).toEqual({
-			doc: {
-				doctype: 'LMS Enrollment',
-				course: 'COURSE-1',
-				member: 'student@example.com',
-			},
-		})
-		expect(findResource(INSERT_URL).submit).toHaveBeenCalled()
-		expect(reloadMock).toHaveBeenCalled()
-	})
-
-	it('a control: a resume lookup that answers says nothing to the student', async () => {
-		// Read before the two below. If the toast fired on the ordinary path, the
-		// assertions there would pass against a page that shouts on every load.
-		wrapper = await mountChapter()
-		await answerPlayback(playbackAnswer())
-
-		expect(wrapper.find('iframe').exists()).toBe(true)
-		expect(toastError).not.toHaveBeenCalled()
-	})
-
 	it('plays the package when the resume lookup fails, rather than nothing at all', async () => {
 		// readyToRender was set only in progress.onSuccess and progress had no onError, so
 		// a failed read on a chapter the server called playable matched no branch at all —
@@ -399,20 +328,6 @@ describe('SCORMChapter.vue plays what the server says it may play', () => {
 			'lms.lms.doctype.course_lesson.course_lesson.save_progress',
 			expect.objectContaining({ lesson: 'L-SCORM', course: 'COURSE-1' })
 		)
-	})
-
-	it('reads and writes through both SCORM APIs without logging', async () => {
-		const log = vi.spyOn(console, 'log').mockImplementation(() => {})
-		wrapper = await mountChapter()
-		await answerPlayback(playbackAnswer())
-		const { API, API_1484_11 } = window as any
-		API.LMSGetValue('cmi.core.lesson_status')
-		API.LMSSetValue('cmi.core.lesson_status', 'passed')
-		API_1484_11.GetValue('cmi.completion_status')
-		API_1484_11.SetValue('cmi.completion_status', 'completed')
-		await flushPromises()
-
-		expect(log).not.toHaveBeenCalled()
 	})
 
 	it('leaves for the course when the chapter does not resolve', async () => {

@@ -95,7 +95,7 @@
 
 <script setup lang="ts">
 import { validateFile } from '@/utils'
-import { Button, FileUploader, UploadError, toast } from 'frappe-ui'
+import { Button, FileUploader, toast } from 'frappe-ui'
 import {
 	InputDescription,
 	InputError,
@@ -105,6 +105,7 @@ import {
 import { Image, Video } from 'lucide-vue-next'
 import { computed } from 'vue'
 import { safeUrl } from '@/utils/safeUrl'
+import { uploadErrorMessage } from '@/utils/uploadErrorMessage'
 
 const emit = defineEmits<{
 	(e: 'update:modelValue', value: string): void
@@ -155,12 +156,6 @@ const saveFile = (file: { file_url: string }) => {
 
 const removeImage = () => {
 	emit('update:modelValue', '')
-}
-
-const uploadErrorMessage = (error: unknown): string => {
-	if (typeof error === 'string') return error
-	if (error instanceof UploadError) return error.messages[0] || error.message
-	return __('Error Uploading File')
 }
 
 const onUploadFailure = (error: unknown) => {

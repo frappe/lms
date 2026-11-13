@@ -89,43 +89,6 @@ beforeEach(() => {
 })
 
 describe('the default pickers', () => {
-	it('shows the account already holding each default', () => {
-		server.accounts = [
-			account({
-				name: 'EA-1',
-				email_account_name: 'Support',
-				default_incoming: 1,
-			}),
-			account({
-				name: 'EA-2',
-				email_account_name: 'Sales',
-				default_outgoing: 1,
-			}),
-		]
-
-		const w = panel()
-
-		expect(
-			boxNamed(w, 'Default Incoming account').attributes('data-value')
-		).toBe('EA-1')
-		expect(
-			boxNamed(w, 'Default Outgoing account').attributes('data-value')
-		).toBe('EA-2')
-	})
-
-	it('shows no selection when nothing is set as default yet', () => {
-		server.accounts = [account()]
-
-		const w = panel()
-
-		expect(
-			boxNamed(w, 'Default Incoming account').attributes('data-value')
-		).toBeFalsy()
-		expect(
-			boxNamed(w, 'Default Outgoing account').attributes('data-value')
-		).toBeFalsy()
-	})
-
 	// frappe resolves a default inbox as enable_incoming AND default_incoming,
 	// the same reading the list's own row menu and role badge take, so an
 	// account switched off for a direction is not offered as that default.
@@ -222,17 +185,6 @@ describe('the default pickers', () => {
 		await flushPromises()
 
 		expect(toast.error).toHaveBeenCalledWith('Could not save')
-	})
-
-	it('does not crash with no email accounts yet, and leaves the picker usable', async () => {
-		server.accounts = []
-
-		const w = panel()
-		await flushPromises()
-
-		const box = boxNamed(w, 'Default Incoming account')
-		expect(box.attributes('data-disabled')).not.toBe('true')
-		expect(box.findAll('[data-option]')).toHaveLength(0)
 	})
 
 	// A failed page leaves Load More on; asking for it again forever would

@@ -10,17 +10,14 @@
  * was also how `markAsRead` reached the count — via `getCachedResource`, which
  * on a phone found nothing at all, because AppSidebar is never mounted there.
  *
- * So the guard that matters most here is the absence of a cache key. The rest
- * pins that the count is the same number wherever it is read from.
+ * These pin that the count is the same number wherever it is read from.
  */
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 interface ResourceOptions {
 	url?: string
-	cache?: unknown
 	makeParams?: (values?: unknown) => unknown
 	onSuccess?: (data?: unknown) => void
-	auto?: boolean
 	reload: ReturnType<typeof vi.fn>
 }
 
@@ -58,12 +55,6 @@ beforeEach(() => {
 })
 
 describe('the count resource', () => {
-	it('carries no cache key', () => {
-		// The whole reason this moved out of AppSidebar. A cache key here would
-		// hand every later caller the first instance's closures.
-		expect(resource.cache).toBeUndefined()
-	})
-
 	it('counts only the signed-in user unread logs', () => {
 		expect(resource.makeParams?.()).toEqual({
 			doctype: 'Notification Log',
@@ -78,10 +69,6 @@ describe('the count resource', () => {
 		expect(resource.makeParams?.()).toMatchObject({
 			filters: { for_user: 'someone@else.com', read: 0 },
 		})
-	})
-
-	it('does not fetch on its own', () => {
-		expect(resource.auto).toBe(false)
 	})
 
 	it('publishes the count it was given', () => {

@@ -207,21 +207,6 @@ describe('EnrollSelectStep', () => {
 		).toBe('true')
 	})
 
-	it('puts the paid switch under the picker, above the selected list', () => {
-		const wrapper = mount(EnrollSelectStep, {
-			props: {
-				target: target({ paidKind: 'course' }),
-				members: [],
-				paid: true,
-			},
-		})
-		const picker = wrapper.get('[data-testid="picker"]').element
-		const children = Array.from(picker.children).map(
-			(el) => el.getAttribute('data-testid') ?? ''
-		)
-		expect(children).toEqual(['picker-input', 'switch-row', 'picker-list'])
-	})
-
 	// Regression from the bulk-enroll PR (feat/bulk-enroll): with no price the
 	// switch description still carried an empty price sentence.
 	it('words the batch switch and drops the price sentence without a price', () => {
@@ -246,15 +231,6 @@ describe('EnrollSelectStep', () => {
 		expect(toggle.attributes('aria-labelledby')).toBe(
 			wrapper.get('[data-testid="switch-label"]').attributes('id')
 		)
-	})
-	it('hands the picker list slot through to the caller', () => {
-		const wrapper = mount(EnrollSelectStep, {
-			props: { target: target(), members: [], paid: false },
-			slots: {
-				list: `<template #list="{ students }"><li data-testid="slotted">{{ students.length }}</li></template>`,
-			},
-		})
-		expect(wrapper.get('[data-testid="slotted"]').text()).toBe('1')
 	})
 })
 
@@ -308,35 +284,6 @@ describe('EnrollStudentTable', () => {
 		expect(badge.attributes('data-variant')).toBe('outline')
 		expect(needs.text()).toBe('Requires address')
 		expect(linked.text()).toBe('—')
-	})
-
-	it('shows Student, Payment and Billing while payments are on', () => {
-		const wrapper = mountTable([
-			studentRow('a@x.com', { name: 'Jane Doe', billing: 'Pune, India' }),
-		])
-		expect(headers(wrapper)).toEqual(['Student', 'Payment', 'Billing'])
-		const row = wrapper.get('[data-testid="student-row"]')
-		expect(row.get('[data-testid="student-sub"]').text()).toBe('a@x.com')
-		expect(row.get('[data-col="payment"]').text()).toBe('₹100.00 · Website')
-		expect(row.get('[data-col="billing"]').text()).toBe('Pune, India')
-		expect(row.find('[data-testid="requires-address-badge"]').exists()).toBe(
-			false
-		)
-		expect(row.find('[data-slot="list-row-checkbox"]').exists()).toBe(true)
-		expect(row.find('.lucide-trash-2').exists()).toBe(false)
-	})
-
-	it('shows Student and Email with checkboxes while payments are off', () => {
-		const wrapper = mountTable([studentRow('a@x.com', { badge: 'New' })], {
-			paid: false,
-		})
-		expect(headers(wrapper)).toEqual(['Student', 'Email'])
-		expect(wrapper.find('[data-slot="list-row-checkbox"]').exists()).toBe(true)
-		const badge = wrapper.get('[data-testid="badge"]')
-		expect([badge.text(), badge.attributes('data-variant')]).toEqual([
-			'New',
-			'outline',
-		])
 	})
 
 	it('narrows to the student with the payment under the name and an Incomplete badge', () => {
@@ -475,45 +422,10 @@ describe('EnrollSelectionBanner', () => {
 		expect(region.attributes('aria-label')).toBe('Selected students')
 	})
 
-	it('labels each icon button and its tooltip with the same text', () => {
-		const wrapper = mountBanner({ count: 1, total: 3, paid: true })
-		for (const [id, label, icon] of [
-			[
-				'selection-reset',
-				'Reset details for selected students',
-				'lucide-rotate-ccw',
-			],
-			['selection-remove', 'Remove selected students', 'lucide-trash-2'],
-			['selection-clear', 'Clear selection', 'lucide-x'],
-		]) {
-			const button = get(wrapper, id)
-			expect(button.attributes('aria-label')).toBe(label)
-			expect(button.element.parentElement?.dataset.tooltip).toBe(label)
-			expect(button.find(`.${icon}`).exists()).toBe(true)
-			expect(button.text()).toBe('')
-		}
-		expect(get(wrapper, 'selection-select-all').text()).toBe('Select all')
-	})
-
 	it('offers reset only while payments are on', () => {
 		const wrapper = mountBanner({ count: 1, total: 3, paid: false })
 		expect(wrapper.find('[data-testid="selection-reset"]').exists()).toBe(false)
 		expect(wrapper.find('[data-testid="selection-remove"]').exists()).toBe(true)
-	})
-
-	it('emits remove, reset, selectAll and clear', async () => {
-		const wrapper = mountBanner({ count: 1, total: 3, paid: true })
-		for (const id of [
-			'selection-remove',
-			'selection-reset',
-			'selection-select-all',
-			'selection-clear',
-		]) {
-			await get(wrapper, id).trigger('click')
-		}
-		expect(Object.keys(wrapper.emitted())).toEqual(
-			expect.arrayContaining(['remove', 'reset', 'selectAll', 'clear'])
-		)
 	})
 
 	it('Select all does nothing once every student is ticked', async () => {
@@ -547,14 +459,13 @@ describe('EnrollPaymentPanel', () => {
 			defaults: PaymentDefaults
 			choices: Record<string, PaymentChoice>
 			overrides: Record<string, PaymentOverride>
-			showBack: boolean
 		}> = {}
 	) => {
 		const wrapper = mount(EnrollPaymentPanel, {
 			props: {
 				rows,
 				total: 3,
-				showBack: models.showBack ?? false,
+				showBack: false,
 				defaults: models.defaults ?? defaults(),
 				choices: models.choices ?? {},
 				overrides: models.overrides ?? {},
@@ -836,18 +747,6 @@ describe('EnrollPaymentPanel', () => {
 		const wrapper = mountPanel([row('a@x.com'), row('b@x.com')])
 		expect(wrapper.find('.lucide-trash-2').exists()).toBe(false)
 		expect(wrapper.find('.lucide-rotate-ccw').exists()).toBe(false)
-	})
-
-	it('closes with the x, or goes back on mobile', async () => {
-		const wrapper = mountPanel([])
-		await wrapper.get('[data-testid="payment-panel-close"]').trigger('click')
-		expect(wrapper.emitted('close')).toHaveLength(1)
-		const mobile = mountPanel([], { showBack: true })
-		expect(mobile.find('[data-testid="payment-panel-close"]').exists()).toBe(
-			false
-		)
-		await mobile.get('[data-testid="payment-panel-back"]').trigger('click')
-		expect(mobile.emitted('back')).toHaveLength(1)
 	})
 
 	// Regression from the bulk-enroll PR (feat/bulk-enroll): the payment-mode

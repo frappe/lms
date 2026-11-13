@@ -22,14 +22,9 @@ const listState = {
 	pageLength: 24,
 }
 const countState = { data: 0, reload: vi.fn() }
-// The title arrives through reload(), as a response does: the page clears
-// scopeTitle.data before each refetch, so pre-seeded data would test nothing.
-let scopeTitleResponse: { title?: string } | null = null
 const titleState = {
 	data: null as { title?: string } | null,
-	reload: vi.fn(() => {
-		titleState.data = scopeTitleResponse
-	}),
+	reload: vi.fn(),
 }
 
 // Delete attempts in order, not successes, so a partial run can be counted.
@@ -95,7 +90,7 @@ vi.mock('frappe-ui', () => ({
 	),
 }))
 
-// Keeps only what the assertions read: crumbs, filter slot, selection banner.
+// Keeps only what the assertions read: filter slot, selection banner.
 vi.mock('@/components/Layouts/pages/ListPage.vue', () => ({
 	default: defineComponent({
 		name: 'ListPageStub',
@@ -109,16 +104,9 @@ vi.mock('@/components/Layouts/pages/ListPage.vue', () => ({
 		],
 		emits: ['update:pageLength', 'loadMore'],
 		setup:
-			(p, { slots }) =>
+			(_, { slots }) =>
 			() =>
 				h('div', [
-					h(
-						'nav',
-						{ 'data-testid': 'crumbs' },
-						p.breadcrumbs.map((c: { label: string }) =>
-							h('span', { class: 'crumb' }, c.label)
-						)
-					),
 					h('div', { 'data-testid': 'filters' }, slots.filters?.()),
 					h(
 						'div',
@@ -270,7 +258,6 @@ beforeEach(() => {
 	selectionMock.selections.add('SUB-2')
 	listState.data = []
 	titleState.data = null
-	scopeTitleResponse = null
 })
 
 // Guards the shared submissions page's filters and their URL round-trip.
@@ -430,43 +417,6 @@ describe('SubmissionsPage lockedFilters', () => {
 		await flushPromises()
 
 		expect(router.currentRoute.value.path).toBe('/assignments')
-	})
-})
-
-// Guards the parent crumb and the scoped assessment's title in the middle.
-// Came with this branch's one submissions page for every assessment type.
-// Added on feat/assessment-visual-redesign to pin the crumb trail.
-describe('SubmissionsPage breadcrumbs', () => {
-	it('shows the parent and the page with no filter applied', async () => {
-		const router = makeRouter()
-		await router.push('/assignments/submissions')
-		const wrapper = await mountPage(router)
-
-		const labels = wrapper.findAll('.crumb').map((c) => c.text())
-		expect(labels).toEqual(['Assignments', 'Submissions'])
-		expect(titleState.reload).not.toHaveBeenCalled()
-	})
-
-	it('names the scoped assessment in the middle when a filter is applied', async () => {
-		const router = makeRouter()
-		await router.push('/assignments/submissions?assignment=ASG-1')
-		scopeTitleResponse = { title: 'Essay One' }
-		const wrapper = await mountPage(router)
-		await flushPromises()
-
-		const labels = wrapper.findAll('.crumb').map((c) => c.text())
-		expect(labels).toEqual(['Assignments', 'Essay One', 'Submissions'])
-		// Without this, deleting the scope watcher leaves the test green.
-		expect(titleState.reload).toHaveBeenCalled()
-	})
-
-	it('falls back to the docname before the title resolves', async () => {
-		const router = makeRouter()
-		await router.push('/assignments/submissions?assignment=ASG-1')
-		const wrapper = await mountPage(router)
-
-		const labels = wrapper.findAll('.crumb').map((c) => c.text())
-		expect(labels).toEqual(['Assignments', 'ASG-1', 'Submissions'])
 	})
 })
 

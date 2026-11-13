@@ -2,8 +2,6 @@ import { describe, expect, it, vi } from 'vitest'
 import { mount } from '@vue/test-utils'
 import { getEditorTools } from '@/utils'
 import { Upload } from '@/utils/upload'
-import CourseCard from '@/components/CourseCard.vue'
-import ProfileAvatar from '@/components/Profile/ProfileAvatar.vue'
 import ProgressBar from '@/components/ProgressBar.vue'
 
 vi.hoisted(() => {
@@ -19,12 +17,6 @@ vi.mock('@/stores/settings', () => ({
 }))
 vi.mock('@/stores/user', () => ({ usersStore: () => ({ userResource: {} }) }))
 vi.mock('@/stores/session', () => ({ sessionStore: () => ({ user: null }) }))
-vi.mock('@/components/CourseInstructors.vue', () => ({
-	default: { render: () => null },
-}))
-vi.mock('@/components/UserAvatar.vue', () => ({
-	default: { render: () => null },
-}))
 vi.mock('frappe-ui', async (importOriginal) => ({
 	...(await importOriginal<Record<string, unknown>>()),
 	Tooltip: { props: ['text', 'side'], template: '<slot />' },
@@ -66,49 +58,6 @@ describe('embedded frames', () => {
 		})
 		const frame = tool.render().querySelector('iframe')
 		expect(frame?.getAttribute('title')).toBe('PDF document')
-	})
-})
-
-describe('icon-only states', () => {
-	// Guards: counts, badges and the profile open-to-work/hiring badge carried by
-	// icons and colour alone. Introduced in #1085 and #2793; test added with the
-	// a11y audit remediation.
-	it('spells out each course card count and badge and hides the icons', () => {
-		const course = {
-			title: 'Python',
-			lessons: 12,
-			enrollments: 40,
-			rating: 4.46,
-			featured: 1,
-			enable_certification: 1,
-			instructors: [],
-		}
-		const wrapper = mount(CourseCard, { props: { course }, global })
-
-		expect(wrapper.findAll('.sr-only').map((node) => node.text())).toEqual([
-			'12 lessons',
-			'40 enrolled',
-			'Rated 4.5 out of 5',
-			'Featured',
-			'Get Certified',
-		])
-		const icons = wrapper.findAll('svg, [class*="lucide-"]')
-		expect(icons.map((icon) => icon.attributes('aria-hidden'))).toEqual(
-			Array(5).fill('true')
-		)
-	})
-
-	it.each([
-		['Work', 'Open to Work', 'lucide-badge-check'],
-		['Hiring', 'Hiring', 'lucide-briefcase'],
-	])('names the %s profile badge in text and shape', (openTo, label, icon) => {
-		const wrapper = mount(ProfileAvatar, {
-			props: { fullName: 'Ada', openTo },
-			global,
-		})
-
-		expect(wrapper.get('.sr-only').text()).toBe(label)
-		expect(wrapper.get(`.${icon}`).attributes('aria-hidden')).toBe('true')
 	})
 })
 

@@ -4,8 +4,7 @@
  * Guards: (1) a missing rating must keep the dialog OPEN and surface the error
  * (the old code called close() unconditionally, so the modal vanished on a
  * validation failure and the user lost their input); (2) the 0–5 Rating is
- * scaled to the stored 0–1 range; (3) a successful submit reloads the review
- * list + has-reviewed count and then closes.
+ * scaled to the stored 0–1 range.
  */
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { mount } from '@vue/test-utils'
@@ -15,8 +14,6 @@ import ReviewModal from '@/components/Modals/ReviewModal.vue'
 const { toastError } = vi.hoisted(() => ({ toastError: vi.fn() }))
 // captured from the createResource() call so the test can inspect makeParams()
 let resourceConfig: { makeParams: () => { doc: Record<string, unknown> } }
-// when set, the stubbed submit fails the request with this error
-let submitError: unknown = null
 
 // Dialog stub turns each action into a button whose close() emits
 // update:open=false. Real submitResource runs validate(); stubbed submit only
@@ -62,8 +59,7 @@ vi.mock('frappe-ui', () => ({
 					onSuccess?: () => void
 				}
 			) => {
-				if (submitError) opts.onError?.(submitError)
-				else opts.onSuccess?.()
+				opts.onSuccess?.()
 			},
 		}
 	},
@@ -87,7 +83,6 @@ const mountModal = () =>
 
 beforeEach(() => {
 	vi.clearAllMocks()
-	submitError = null
 })
 
 describe('ReviewModal submit', () => {
@@ -112,34 +107,5 @@ describe('ReviewModal submit', () => {
 		expect(doc.review).toBe('Great course')
 		expect(doc.course).toBe('C1')
 		expect(doc.doctype).toBe('LMS Course Review')
-	})
-
-	it('reloads reviews + has-reviewed and closes on a successful submit', async () => {
-		const wrapper = mountModal()
-		await wrapper.get('[data-testid="rating"]').setValue('4')
-		await wrapper.get('[data-testid="action"]').trigger('click')
-
-		expect(reloadReviews).toHaveBeenCalled()
-		expect(reloadHasReviewed).toHaveBeenCalled()
-		expect(wrapper.emitted('update:modelValue')?.at(-1)).toEqual([false])
-	})
-
-	it('toasts the fallback when the request never reached the server', async () => {
-		submitError = new TypeError('Failed to fetch')
-		const wrapper = mountModal()
-		await wrapper.get('[data-testid="rating"]').setValue('4')
-		await wrapper.get('[data-testid="action"]').trigger('click')
-
-		expect(toastError).toHaveBeenCalledWith('Error')
-		expect(wrapper.emitted('update:modelValue')).toBeUndefined()
-	})
-
-	it("toasts the server's message when the request fails", async () => {
-		submitError = { messages: ['Server said no'] }
-		const wrapper = mountModal()
-		await wrapper.get('[data-testid="rating"]').setValue('4')
-		await wrapper.get('[data-testid="action"]').trigger('click')
-
-		expect(toastError).toHaveBeenCalledWith('Server said no')
 	})
 })

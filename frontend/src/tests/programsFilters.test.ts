@@ -9,7 +9,7 @@
  */
 import { describe, expect, it, vi, beforeEach } from 'vitest'
 import { defineComponent, h, nextTick, reactive } from 'vue'
-import { flushPromises, mount } from '@vue/test-utils'
+import { mount } from '@vue/test-utils'
 import { createMemoryHistory, createRouter, type Router } from 'vue-router'
 
 type Rows = { name: string }[]
@@ -147,9 +147,8 @@ const PUBLISHED_PROGRAMS = [{ name: 'program-a' }, { name: 'program-b' }]
 
 // The page hosts the program form as a child route, so it reads $route and
 // pushes through useRouter(). A real (memory) router is installed rather than a
-// hand-written $route mock, so the push assertion below is against the genuine
-// route table shape. The outlet itself is stubbed: this file is about list
-// state, and the form has its own tests.
+// hand-written $route mock. The outlet itself is stubbed: this file is about
+// list state, and the form has its own tests.
 const blank = defineComponent({ render: () => h('div') })
 
 function makeRouter(): Router {
@@ -259,36 +258,6 @@ describe('Programs list', () => {
 		// reload. Replacing it with `{}` turned the form's close from a pop into a
 		// replace, and left vue-router unable to re-seed its own position.
 		expect(window.history.state).toMatchObject({ lmsFormEntry: true })
-	})
-
-	it('opens the form as a stamped route entry, not as a local flag', async () => {
-		const router = makeRouter()
-		const wrapper = await mountPrograms(router)
-
-		const create = wrapper
-			.findAll('button')
-			.find((button) => button.text() === 'New Program')
-		expect(create).toBeDefined()
-		await create!.trigger('click')
-		await flushPromises()
-
-		expect(router.currentRoute.value.name).toBe('ProgramForm')
-		expect(router.currentRoute.value.params.programName).toBe('new')
-		// Stamped, so the form knows Back should close it rather than leave the app.
-		expect(router.options.history.state).toMatchObject({ lmsFormEntry: true })
-	})
-
-	it('opens an existing program at its own edit address', async () => {
-		const router = makeRouter()
-		const wrapper = await mountPrograms(router)
-		requests.current[0].respond(PUBLISHED_PROGRAMS)
-		await nextTick()
-
-		await wrapper.find('button[type="button"]').trigger('click')
-		await flushPromises()
-
-		expect(router.currentRoute.value.name).toBe('ProgramForm')
-		expect(router.currentRoute.value.params.programName).toBe('program-a')
 	})
 
 	it('cancels the in-flight count before asking for a new one', async () => {

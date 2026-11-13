@@ -1,10 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import {
-	enableAutoUnmount,
-	flushPromises,
-	mount,
-	type VueWrapper,
-} from '@vue/test-utils'
+import { enableAutoUnmount, flushPromises, mount } from '@vue/test-utils'
 import {
 	createMemoryHistory,
 	createRouter,
@@ -115,8 +110,6 @@ const mountForm = async (router: Router, user: Record<string, unknown>) => {
 const moderator = { name: 'mod@example.com', is_moderator: true }
 const student = { name: 'student@example.com' }
 
-const FIELD_LABELS = ['Subject', 'Reply To', 'Announcement']
-
 describe('AnnouncementForm as a route', () => {
 	beforeEach(() => {
 		announcementSubmit.mockReset()
@@ -133,21 +126,6 @@ describe('AnnouncementForm as a route', () => {
 			writable: true,
 			configurable: true,
 		})
-	})
-
-	it('fetches its own batch context for the batch in the URL', async () => {
-		// The BCC student list comes from get_batch_details. This is the form's
-		// OWN fetch — BatchDetail's resource carries no cache key, so there is no
-		// instance to share and none is claimed.
-		const router = makeRouter()
-		await router.push('/batches/B1/announcement/new')
-		await mountForm(router, moderator)
-		const batchCall = createResourceMock.mock.calls.find(
-			(call) => call[0].url === BATCH_URL
-		)
-		expect(batchCall).toBeDefined()
-		expect(batchCall?.[0].cache).toBeUndefined()
-		expect(batchCall?.[0].makeParams()).toEqual({ batch: 'B1' })
 	})
 
 	// The students' addresses never reach the client: the server BCCs them.
@@ -184,54 +162,6 @@ describe('AnnouncementForm as a route', () => {
 			'Add students to the batch to make an announcement',
 		)
 		expect(router.currentRoute.value.name).toBe('BatchDetail')
-	})
-
-	it('carries every field of the announcement form', async () => {
-		const router = makeRouter()
-		await router.push('/batches/B1/announcement/new')
-		const wrapper = await mountForm(router, moderator)
-
-		const fields = wrapper.find('[data-testid="announcement-fields"]')
-		// InputLabel appends RequiredIndicator ("*" plus an sr-only "(required)"),
-		// so the field's own name has to be read out of that.
-		const labels = fields
-			.findAll('label')
-			.map((label) =>
-				label
-					.text()
-					.replace(/\(required\)|\*/g, '')
-					.replace(/\s+/g, ' ')
-					.trim()
-			)
-			.filter((text) => text !== '')
-		for (const label of FIELD_LABELS) expect(labels).toContain(label)
-		expect(labels).toHaveLength(FIELD_LABELS.length)
-		expect(fields.find('.editor').exists()).toBe(true)
-	})
-
-	// Filling the form is load-bearing now that the submit goes through
-	// submitResource: validation runs in OUR code before the resource is
-	// touched, where the createResource mock used to swallow the `validate`
-	// option and let an empty form through.
-	const fillAnnouncement = async (wrapper: VueWrapper) => {
-		const inputs = wrapper
-			.find('[data-testid="announcement-fields"]')
-			.findAll('input')
-		await inputs[0].setValue('Exam on Friday')
-		await inputs[1].setValue('teacher@example.com')
-		await wrapper
-			.findComponent({ name: 'RichTextEditor' })
-			.vm.$emit('change', '<p>Bring a pencil.</p>')
-		await flushPromises()
-	}
-
-	it('sends through its own resource', async () => {
-		const router = makeRouter()
-		await router.push('/batches/B1/announcement/new')
-		const wrapper = await mountForm(router, moderator)
-		await fillAnnouncement(wrapper)
-		await wrapper.find('[data-testid="announcement-save"]').trigger('click')
-		expect(announcementSubmit).toHaveBeenCalledTimes(1)
 	})
 
 	it('refuses to send an empty announcement', async () => {

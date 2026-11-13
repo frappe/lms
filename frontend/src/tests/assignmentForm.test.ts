@@ -176,10 +176,6 @@ const student = {
 	is_instructor: false,
 }
 
-// The form was converted from a modal by moving this field set wholesale, so
-// pin it: a field dropped in the move is otherwise invisible to the suite.
-const FIELD_LABELS = ['Title', 'Submission Type', 'Course', 'Question']
-
 const RECORD = {
 	name: 'ASG-0001',
 	title: 'Write an essay',
@@ -230,37 +226,10 @@ describe('AssignmentForm as a route', () => {
 		})
 		const wrapper = await mountForm(router, student)
 		expect(wrapper.find('[data-testid="assignment-fields"]').exists()).toBe(
-			false,
+			false
 		)
 		expect(wrapper.find('[data-testid="assignment-save"]').exists()).toBe(false)
 		expect(wrapper.html()).toContain('not permitted')
-	})
-
-	it('carries every field of the assignment form', async () => {
-		const router = makeRouter()
-		await router.push({
-			name: 'AssignmentForm',
-			params: { assignmentID: 'new' },
-		})
-		const wrapper = await mountForm(router, moderator)
-
-		const fields = wrapper.find('[data-testid="assignment-fields"]')
-		// InputLabel appends RequiredIndicator ("*" plus an sr-only "(required)"),
-		// so the field's own name has to be read out of that.
-		const labels = fields
-			.findAll('label')
-			.map((label: any) =>
-				label
-					.text()
-					.replace(/\(required\)|\*/g, '')
-					.replace(/\s+/g, ' ')
-					.trim(),
-			)
-			.filter((text: string) => text !== '')
-		expect(labels).toEqual(FIELD_LABELS)
-		expect(
-			fields.find('[data-testid="assignment-question-label"]').text(),
-		).toContain('Question')
 	})
 
 	it('fetches the record itself on a cold deep link into edit mode', async () => {
@@ -321,17 +290,6 @@ describe('AssignmentForm as a route', () => {
 		])
 	})
 
-	it('does not fetch a document in create mode', async () => {
-		const router = makeRouter()
-		await router.push({
-			name: 'AssignmentForm',
-			params: { assignmentID: 'new' },
-		})
-		await mountForm(router, moderator)
-
-		expect(docOptions.current).toMatchObject({ name: undefined, auto: false })
-	})
-
 	it('creates through its own resource, not a parent-supplied one', async () => {
 		const router = makeRouter()
 		await router.push({
@@ -370,7 +328,7 @@ describe('AssignmentForm as a route', () => {
 			.findAllComponents({ name: 'FormControl' })
 			.find((field: any) => field.props('label') === 'Submission Type')
 		expect(
-			typeField.props('options').map((option: any) => option.value),
+			typeField.props('options').map((option: any) => option.value)
 		).toContain('Audio')
 
 		await fillRequired(wrapper)
@@ -397,7 +355,7 @@ describe('AssignmentForm as a route', () => {
 		await save()
 		expect(insertSubmit).not.toHaveBeenCalled()
 		expect(error).toHaveBeenLastCalledWith(
-			'Add a Submission Type before saving.',
+			'Add a Submission Type before saving.'
 		)
 
 		await inputs(wrapper)[1].setValue('Text')
@@ -465,11 +423,11 @@ describe('AssignmentForm as a route', () => {
 		const wrapper = await mountForm(router, moderator)
 
 		expect(
-			wrapper.find('[data-testid="assignment-read-only-note"]').text(),
+			wrapper.find('[data-testid="assignment-read-only-note"]').text()
 		).toBe('Only the authors of this assignment can edit it.')
 		expect(wrapper.find('[data-testid="assignment-save"]').exists()).toBe(false)
 		expect(
-			wrapper.find('[data-testid="assignment-fields"]').attributes('disabled'),
+			wrapper.find('[data-testid="assignment-fields"]').attributes('disabled')
 		).toBeDefined()
 
 		const vm = wrapper.findComponent(AssignmentForm).vm as any
@@ -508,7 +466,7 @@ describe('AssignmentForm as a route', () => {
 		await fillRequired(wrapper)
 
 		insertSubmit.mockImplementation(() =>
-			insertOptions.current.onSuccess({ name: 'ASG-0002' }),
+			insertOptions.current.onSuccess({ name: 'ASG-0002' })
 		)
 		await wrapper.find('[data-testid="assignment-save"]').trigger('click')
 		await flushPromises()

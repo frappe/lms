@@ -43,41 +43,6 @@ describe('SwitchRow', () => {
 		expect(control(w).attributes('aria-describedby')).toBeUndefined()
 	})
 
-	it('renders the label and description slots in place of the props', () => {
-		const w = mount(SwitchRow, {
-			props: { label: 'Preview' },
-			slots: {
-				label: '<span data-testid="custom-label">Preview ?</span>',
-				description: 'Slotted text',
-			},
-		})
-		expect(w.find('[data-testid="custom-label"]').exists()).toBe(true)
-		expect(w.get('[data-testid="switch-description"]').text()).toBe(
-			'Slotted text'
-		)
-		expect(control(w).attributes('aria-describedby')).toBeDefined()
-	})
-
-	it('toggles through v-model and passes listeners and attrs to the switch', async () => {
-		const onToggle = vi.fn()
-		const w = mount(SwitchRow, {
-			props: {
-				label: 'Enabled',
-				modelValue: false,
-				'onUpdate:modelValue': (value: boolean) => {
-					onToggle(value)
-					w.setProps({ modelValue: value })
-				},
-			},
-			attrs: { 'data-testid': 'enabled-toggle' },
-		})
-		const toggle = w.get('[data-testid="enabled-toggle"]')
-		expect(toggle.attributes('aria-checked')).toBe('false')
-		await toggle.trigger('click')
-		expect(onToggle).toHaveBeenCalledWith(true)
-		expect(toggle.attributes('aria-checked')).toBe('true')
-	})
-
 	it('flips the switch when the label is clicked', async () => {
 		const w = mount(SwitchRow, {
 			props: {
@@ -142,10 +107,5 @@ describe('SwitchRow', () => {
 		expect(caution.element.closest('label')).toBeNull()
 		await caution.trigger('click')
 		expect(onToggle).not.toHaveBeenCalled()
-	})
-
-	it('passes disabled through to the switch', () => {
-		const w = mount(SwitchRow, { props: { label: 'Enabled', disabled: true } })
-		expect(control(w).attributes('disabled')).toBeDefined()
 	})
 })

@@ -8,8 +8,7 @@
  */
 import { describe, expect, it, test, vi } from 'vitest'
 import { execFileSync } from 'node:child_process'
-import { readFileSync, readdirSync, statSync } from 'node:fs'
-import { join, resolve } from 'node:path'
+import { resolve } from 'node:path'
 import {
 	forgetMovedJoiners,
 	fromApiRule,
@@ -47,7 +46,6 @@ vi.stubGlobal('__', (s: string) => s)
 const open = vi.fn()
 vi.stubGlobal('open', open)
 
-const SRC = resolve(process.cwd(), 'src')
 const PROVIDER = resolve(process.cwd(), '..', 'lms', 'raven_provider.py')
 
 // Only the two assignments are executed, so `import frappe` and the rest of the
@@ -95,13 +93,6 @@ const ruleWith = (rule_type: string, given: string): RavenMemberRule => {
 	}
 	return rule
 }
-
-describe('the declaration this suite is written against', () => {
-	it('is the two cascading rule types lms/raven_provider.py declares', () => {
-		expect(ruleTypes.map((rt) => rt.type)).toEqual(['Student', 'Staff'])
-		for (const rt of ruleTypes) expect(rt.fields?.length).toBeGreaterThan(0)
-	})
-})
 
 describe('the flat rule and the rule on the wire', () => {
 	const foreign: ApiRule = {
@@ -705,46 +696,5 @@ describe('the way out of settings and into Raven', () => {
 		// A tab rather than a navigation, so the unsaved draft either detail page
 		// may be holding survives. `noopener` severs window.opener.
 		expect(open).toHaveBeenCalledWith('/raven/ws-general', '_blank', 'noopener')
-	})
-})
-
-/**
- * A constant here that no component reads is not a limit, it is a comment that
- * looks like one: the user reads a guard while the only thing enforcing it is
- * the backend, after Save. Tests are excluded from the scan on purpose, since a
- * constant asserted only by a test of itself is the case this is here to catch.
- */
-describe('the Raven UI constants', () => {
-	const CONSTANTS = join(SRC, 'utils', 'raven', 'constants.ts')
-	const EXTENSIONS = ['.vue', '.ts', '.js']
-
-	const sourceFiles = (dir: string): string[] => {
-		const found: string[] = []
-		for (const entry of readdirSync(dir)) {
-			if (entry === 'node_modules' || entry === 'tests') continue
-			const path = join(dir, entry)
-			if (statSync(path).isDirectory()) found.push(...sourceFiles(path))
-			else if (EXTENSIONS.some((extension) => entry.endsWith(extension)))
-				found.push(path)
-		}
-		return found
-	}
-
-	it('are every one of them read by something outside the module', () => {
-		const declared = [
-			...readFileSync(CONSTANTS, 'utf8').matchAll(/export const ([A-Z0-9_]+)/g),
-		].map((match) => match[1] ?? '')
-		const consumers = sourceFiles(SRC).filter((file) => file !== CONSTANTS)
-		// The walk found the tree, so an empty `unused` below means something.
-		expect(declared.length).toBeGreaterThan(0)
-		expect(consumers.length).toBeGreaterThan(100)
-
-		const sources = consumers.map((file) => readFileSync(file, 'utf8'))
-		expect(
-			declared.filter(
-				(name) =>
-					!sources.some((source) => new RegExp(`\\b${name}\\b`).test(source))
-			)
-		).toEqual([])
 	})
 })

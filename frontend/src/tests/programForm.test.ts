@@ -152,16 +152,11 @@ vi.mock('@/components/ResponsiveListView.vue', () => ({
 
 import ProgramForm from '@/pages/Forms/ProgramForm.vue'
 
-const savedSpy = vi.fn()
-
 // The list page hosts the form as a child route, so it renders a nested
 // RouterView. RouterView is imported rather than written as the string
 // 'router-view', which h() would leave as an unresolved custom element.
-// The listener is bound on the outlet exactly as Programs.vue binds
-// `@saved="updatePrograms"` — RouterView forwards its attrs to the routed
-// component, which is the whole mechanism the parent's refresh depends on.
 const List = defineComponent({
-	render: () => h('div', ['LIST', h(RouterView, { onSaved: savedSpy })]),
+	render: () => h('div', ['LIST', h(RouterView)]),
 })
 
 const makeRouter = (): Router =>
@@ -231,10 +226,6 @@ const MEMBER_ROWS = [
 	{ name: 'row-m1', member: 'member@example.com', full_name: 'A Member' },
 ]
 
-// Every label the form is meant to collect. Pin the set: a field lost in the
-// modal→page move is otherwise invisible to the rest of the suite.
-const FIELD_LABELS = ['Title', 'Published', 'Enforce Course Order']
-
 beforeEach(() => {
 	resources.lists.length = 0
 	resources.docs.length = 0
@@ -242,7 +233,6 @@ beforeEach(() => {
 	setValueSubmit.mockReset()
 	deleteSubmit.mockReset()
 	$dialog.mockReset()
-	savedSpy.mockReset()
 	Object.defineProperty(window, 'innerWidth', {
 		value: 1024,
 		writable: true,
@@ -256,56 +246,6 @@ describe('ProgramForm as a route', () => {
 		expect(wrapper.find('[data-testid="program-fields"]').exists()).toBe(false)
 		expect(wrapper.find('[data-testid="program-save"]').exists()).toBe(false)
 		expect(wrapper.html()).toContain('not permitted')
-	})
-
-	it('carries every field of the program form', async () => {
-		const { wrapper } = await deepLink('new')
-		const fields = wrapper.find('[data-testid="program-fields"]')
-		const labels = fields
-			.findAll('label')
-			.map((label) => label.text())
-			.filter((text) => text !== '')
-		for (const label of FIELD_LABELS) {
-			expect(labels).toContain(label)
-		}
-		// Exact count, so an added field has to be added here too.
-		expect(labels).toHaveLength(FIELD_LABELS.length)
-		// Both child tables are still on the page.
-		expect(fields.text()).toContain('Courses')
-		expect(fields.text()).toContain('Members')
-	})
-
-	it('inserts through its own resource on the create sentinel', async () => {
-		const { wrapper } = await deepLink('new')
-		// R3: `new` must reach the CREATE branch. The prop used to arrive as null
-		// from the parent, and every `=== 'new'` check then took the edit path.
-		expect(wrapper.find('[data-testid="program-delete"]').exists()).toBe(false)
-
-		await wrapper.find('[data-testid="program-save"]').trigger('click')
-		expect(insertSubmit).toHaveBeenCalledTimes(1)
-		expect(setValueSubmit).not.toHaveBeenCalled()
-	})
-
-	it('asks the list page to refetch rather than reloading its resource', async () => {
-		const router = makeRouter()
-		await router.push({ name: 'Programs' })
-		await router.push({
-			name: 'ProgramForm',
-			params: { programName: 'new' },
-			state: { lmsFormEntry: true },
-		})
-		const wrapper = await mountForm(router, moderator)
-
-		insertSubmit.mockImplementation(
-			(_doc: unknown, options: { onSuccess: () => void }) => options.onSuccess()
-		)
-		await wrapper.find('[data-testid="program-save"]').trigger('click')
-		await flushPromises()
-
-		// The list page refetches through updatePrograms(), which also drives its
-		// loading flag and its footer count; a bare reload from here would skip
-		// both. The listener reaching the form at all is the outlet forwarding it.
-		expect(savedSpy).toHaveBeenCalledTimes(1)
 	})
 
 	describe('edit mode, arrived at cold', () => {

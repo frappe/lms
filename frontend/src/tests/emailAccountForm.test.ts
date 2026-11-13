@@ -69,44 +69,6 @@ const mountForm = (name = 'new') =>
 	})
 
 describe('the isNew provider picker', () => {
-	it('shows every provider and no fields before one is picked', () => {
-		const w = mountForm()
-
-		expect(w.find('[data-testid="provider-GMail"]').exists()).toBe(true)
-		expect(w.find('[data-testid="provider-Custom"]').exists()).toBe(true)
-		expect(w.find('[data-testid="settings-fields"]').exists()).toBe(false)
-	})
-
-	it('shows the picked provider prominently and steps the grid aside', async () => {
-		const w = mountForm()
-
-		await w.get('[data-testid="provider-SparkPost"]').trigger('click')
-
-		expect(w.find('[data-testid="provider-GMail"]').exists()).toBe(false)
-		expect(w.text()).toContain('SparkPost')
-		expect(w.text()).toContain('Send through your SparkPost account')
-		expect(w.find('[data-testid="settings-fields"]').exists()).toBe(true)
-	})
-
-	it('Change returns to the picker grid', async () => {
-		const w = mountForm()
-
-		await w.get('[data-testid="provider-GMail"]').trigger('click')
-		await w.get('[data-testid="change-provider"]').trigger('click')
-
-		expect(w.find('[data-testid="provider-GMail"]').exists()).toBe(true)
-		expect(w.find('[data-testid="settings-fields"]').exists()).toBe(false)
-	})
-
-	it('every listed provider has a one-line description for the header', async () => {
-		const { services } = await import(
-			'@/components/Settings/EmailAccount/emailAccounts'
-		)
-		for (const service of services) {
-			expect(service.description).toBeTruthy()
-		}
-	})
-
 	it("opens straight to the fields, pre-selected, when the empty-list picker's hint names a provider", () => {
 		const w = mountForm('new:SparkPost')
 

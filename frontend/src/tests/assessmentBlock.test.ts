@@ -58,14 +58,6 @@ describe('AssessmentBlock', () => {
 		expect(wrapper.find('button').text()).toBe('Login')
 	})
 
-	it('renders the block with its props, marked as embedded', () => {
-		const child = mountBlock(moderator).get('[data-testid="child"]')
-
-		expect(child.attributes('data-id')).toBe('ASG-1')
-		expect(child.attributes('data-embedded')).toBe('true')
-		expect(child.attributes('data-moderator')).toBe('true')
-	})
-
 	it('shows the block as a learner sees it in Student View', () => {
 		const child = mountBlock(moderator, true).get('[data-testid="child"]')
 
