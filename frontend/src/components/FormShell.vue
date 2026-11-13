@@ -33,7 +33,9 @@
 			</div>
 		</template>
 		<template #actions>
-			<slot name="actions" />
+			<div class="flex justify-end gap-2">
+				<slot name="actions" />
+			</div>
 		</template>
 	</Dialog>
 
