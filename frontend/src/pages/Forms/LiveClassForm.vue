@@ -9,7 +9,7 @@
 			<div v-if="loadingBatch" class="p-4 text-base text-ink-gray-6">
 				{{ __('Loading...') }}
 			</div>
-			<div v-else-if="refusal" class="p-4 text-base text-ink-gray-6">
+			<div v-else-if="refusal" class="text-base text-ink-gray-6">
 				{{ refusal }}
 			</div>
 			<div v-else data-testid="live-class-fields" class="flex flex-col gap-4">
