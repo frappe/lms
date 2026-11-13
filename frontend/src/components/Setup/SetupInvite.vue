@@ -105,6 +105,10 @@ async function send() {
 		for (const [role, emails] of Object.entries(byRole)) {
 			const result = await invite(emails.join(', '), [role])
 			invited += result.invited_emails.length
+			// Sent rows go, so a retry after a later failure does not send them again.
+			rows.value = rows.value.filter(
+				(row) => !(row.role === role && row.email.trim())
+			)
 		}
 		if (invited) {
 			toast.success(__('{0} invited', [invited]))

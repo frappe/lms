@@ -10,9 +10,11 @@ import { routes } from './routes'
 let setupChecked = false
 
 // Learning's setup page, or the desk wizard while the site itself is not set up yet.
-async function setupRoute() {
+async function setupRoute(developerMode) {
 	const state = await call('lms.lms.onboarding.get_setup_state')
 	if (!state?.needs_setup) return null
+	// A developer's own site skips the questions and the desk wizard, never the password.
+	if (developerMode) return state.needs_password ? { name: 'Setup' } : null
 	if (state.setup_url) {
 		window.location.href = state.setup_url
 		return false
@@ -63,11 +65,10 @@ export async function guardNavigation(to, from, next) {
 		isLoggedIn &&
 		!setupChecked &&
 		to.name !== 'Setup' &&
-		userResource.data?.is_system_manager &&
-		!userResource.data?.developer_mode
+		userResource.data?.is_system_manager
 	) {
 		try {
-			const target = await setupRoute()
+			const target = await setupRoute(userResource.data?.developer_mode)
 			setupChecked = true
 			if (target === false) return next(false)
 			if (target) return next(target)
