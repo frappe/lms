@@ -17,6 +17,7 @@
 		<ResumeCard
 			v-if="resume"
 			:title="resume.title"
+			:kind="resume.type"
 			:meta="resume.meta"
 			:action="__('Continue editing')"
 			:route="resume.route"
@@ -43,19 +44,15 @@
 							:to="item.route"
 							class="-mx-2.5 flex items-center gap-3.5 rounded-5 px-2.5 py-3.5 hover:bg-surface-gray-1"
 						>
-							<div class="min-w-0 flex-1">
+							<div class="flex min-w-0 flex-1 flex-col gap-1">
 								<div class="truncate text-base font-medium text-ink-gray-9">
 									{{ item.title }}
 								</div>
-								<div class="mt-0.5 truncate text-p-sm text-ink-gray-6">
+								<div class="truncate text-p-sm text-ink-gray-6">
 									{{ item.meta }}
 								</div>
 							</div>
-							<Badge
-								:label="kindLabel(item.type)"
-								:theme="kindTheme(item.type)"
-								size="md"
-							/>
+							<KindBadge class="shrink-0" :kind="item.type" size="sm" />
 						</router-link>
 					</div>
 				</div>
@@ -174,7 +171,8 @@
 </template>
 <script setup lang="ts">
 import { computed, inject, onMounted, ref, watch } from 'vue'
-import { Badge, createResource, TabButtons } from 'frappe-ui'
+import { createResource, TabButtons } from 'frappe-ui'
+import KindBadge from '@/components/Home/KindBadge.vue'
 import { formatTime } from '@/utils'
 import { formatTimezone } from '@/utils/timezone'
 import { profileRoute } from '@/utils/routes'
@@ -282,9 +280,4 @@ const subtitle = computed(() => {
 		? parts.join(' ')
 		: __('Everything you made is published. Share it and watch people learn.')
 })
-
-const kindLabel = (kind: Kind) =>
-	kind === 'Batch' ? __('Batch') : kind === 'Skill' ? __('Skill') : __('Course')
-const kindTheme = (kind: Kind) =>
-	kind === 'Batch' ? 'amber' : kind === 'Skill' ? 'blue' : 'green'
 </script>

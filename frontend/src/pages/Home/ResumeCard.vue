@@ -11,6 +11,7 @@
 				class="flex flex-wrap items-center gap-2 text-base font-semibold text-ink-gray-9"
 			>
 				{{ title }}
+				<KindBadge v-if="kind" :kind="kind" size="sm" />
 				<Badge v-if="draft" :label="__('Draft')" theme="amber" size="sm" />
 			</h2>
 			<div class="flex items-center gap-3">
@@ -32,6 +33,7 @@
 </template>
 <script setup lang="ts">
 import { Badge, Button, Progress } from 'frappe-ui'
+import KindBadge from '@/components/Home/KindBadge.vue'
 
 defineProps<{
 	title: string
@@ -40,5 +42,6 @@ defineProps<{
 	route: Record<string, unknown>
 	progress?: number
 	draft?: boolean
+	kind?: 'Skill' | 'Course' | 'Batch'
 }>()
 </script>

@@ -20,6 +20,7 @@
 		<ResumeCard
 			v-if="next"
 			:title="next.title"
+			:kind="next.type"
 			:meta="next.meta"
 			:progress="next.progress || 0"
 			:action="__('Continue')"
@@ -46,19 +47,15 @@
 							:to="item.route"
 							class="-mx-2.5 flex items-center gap-3.5 rounded-5 px-2.5 py-3.5 hover:bg-surface-gray-1"
 						>
-							<div class="min-w-0 flex-1">
+							<div class="flex min-w-0 flex-1 flex-col gap-1">
 								<div class="truncate text-base font-medium text-ink-gray-9">
 									{{ item.title }}
 								</div>
-								<div class="mt-0.5 truncate text-p-sm text-ink-gray-6">
+								<div class="truncate text-p-sm text-ink-gray-6">
 									{{ item.meta }}
 								</div>
 							</div>
-							<Badge
-								:label="kindLabel(item.type)"
-								:theme="kindTheme(item.type)"
-								size="md"
-							/>
+							<KindBadge class="shrink-0" :kind="item.type" size="sm" />
 						</router-link>
 					</div>
 				</div>
@@ -114,7 +111,8 @@
 </template>
 <script setup lang="ts">
 import { computed, inject, ref } from 'vue'
-import { Badge, createResource, TabButtons } from 'frappe-ui'
+import { createResource, TabButtons } from 'frappe-ui'
+import KindBadge from '@/components/Home/KindBadge.vue'
 import UpcomingEvaluations from '@/components/UpcomingEvaluations.vue'
 import LiveClassCard from '@/pages/Home/LiveClassCard.vue'
 import LearnerWelcome from '@/pages/Home/LearnerWelcome.vue'
@@ -172,10 +170,4 @@ const streakLine = computed(() =>
 		  )
 		: __('Ten minutes today starts a new streak.')
 )
-
-const kindTheme = (kind: HomeItem['type']) =>
-	kind === 'Batch' ? 'amber' : kind === 'Skill' ? 'blue' : 'green'
-
-const kindLabel = (kind: HomeItem['type']) =>
-	kind === 'Batch' ? __('Batch') : kind === 'Skill' ? __('Skill') : __('Course')
 </script>
