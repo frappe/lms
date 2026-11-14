@@ -203,7 +203,15 @@ def get_goal(goal: str) -> dict:
 		row.content = json.loads(row.content or "{}")
 	data.sources = material.goal_sources(doc.name)
 	data.documents = goals.documents(doc)
+	data.learners = frappe.db.count("LMS Goal Assignment", {"goal": doc.name, "is_preview": 0})
 	return data
+
+
+@frappe.whitelist(methods=["POST"])
+def delete_goal(goal: str) -> None:
+	"""Remove a skill with its plan, material and its learners' progress."""
+	_require_admin()
+	frappe.delete_doc("LMS Goal", goal)
 
 
 @frappe.whitelist(methods=["POST"])
