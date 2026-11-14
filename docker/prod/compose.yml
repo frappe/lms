@@ -1,0 +1,69 @@
+# Production stack. Deploys replace only the lms-* application containers.
+# The database and Redis are never recreated by a deploy: see scripts/deploy/deploy.sh.
+name: lms-prod
+
+x-app: &app
+  image: ${LMS_IMAGE:?set LMS_IMAGE in .env}
+  restart: unless-stopped
+  env_file: .env
+  volumes:
+    - sites:/home/frappe/frappe-bench/sites
+    - logs:/home/frappe/frappe-bench/logs
+  depends_on:
+    - mariadb
+    - redis
+
+services:
+  mariadb:
+    image: mariadb:11.8
+    restart: unless-stopped
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+      - --skip-character-set-client-handshake
+      - --innodb-buffer-pool-size=${DB_BUFFER_POOL:-512M}
+    environment:
+      MARIADB_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:?set DB_ROOT_PASSWORD in .env}
+    volumes:
+      - db-data:/var/lib/mysql
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    command: ["redis-server", "--appendonly", "yes"]
+    volumes:
+      - redis-data:/data
+
+  app:
+    <<: *app
+    command: >-
+      gunicorn --chdir /home/frappe/frappe-bench/sites
+      -b 0.0.0.0:8000 -w 4 --timeout 120
+      --preload frappe.app:application
+    ports:
+      - "127.0.0.1:8000:8000"
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://127.0.0.1:8000/api/method/ping"]
+      interval: 20s
+      timeout: 5s
+      retries: 6
+
+  worker:
+    <<: *app
+    command: bench worker --queue short,default,long
+
+  scheduler:
+    <<: *app
+    command: bench schedule
+
+  socketio:
+    <<: *app
+    command: node /home/frappe/frappe-bench/apps/frappe/socketio.js
+    ports:
+      - "127.0.0.1:9000:9000"
+
+volumes:
+  db-data:
+  redis-data:
+  sites:
+  logs:

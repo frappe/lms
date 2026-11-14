@@ -1,0 +1,31 @@
+# Production image for Frappe LMS, built on the laptop from a clean export of a git ref.
+# The build context is the exported tree (see scripts/deploy/deploy.sh build).
+#
+# frappe/bench provides bench, Python and Node. Frappe is installed by bench init.
+FROM frappe/bench:latest
+
+USER frappe
+WORKDIR /home/frappe
+
+ARG FRAPPE_BRANCH=develop
+ARG LMS_VERSION=unknown
+
+COPY --chown=frappe:frappe lms-src /home/frappe/lms-src
+
+# Frappe develop needs the Node version the base image provides for it (as in docker/init.sh).
+ENV PATH="${NVM_DIR}/versions/node/v${NODE_VERSION_DEVELOP}/bin/:${PATH}"
+
+RUN bench init --skip-redis-config-generation --skip-assets --frappe-branch "${FRAPPE_BRANCH}" frappe-bench \
+ && cd frappe-bench \
+ && bench get-app payments \
+ && cp -a /home/frappe/lms-src apps/lms \
+ && ./env/bin/python -m pip install --quiet -e apps/lms \
+ && (grep -qx lms sites/apps.txt || echo lms >> sites/apps.txt) \
+ && (cd apps/lms && yarn install --check-files) \
+ && bench build \
+ && rm -rf /home/frappe/lms-src \
+ && echo "${LMS_VERSION}" > /home/frappe/frappe-bench/.lms-version
+
+WORKDIR /home/frappe/frappe-bench
+ENV PATH="/home/frappe/frappe-bench/env/bin:${PATH}"
+EXPOSE 8000 9000
