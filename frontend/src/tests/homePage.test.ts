@@ -284,6 +284,54 @@ describe('AdminWelcome', () => {
 		expect(wrapper.text()).toContain('A topic that needs depth')
 	})
 
+	it('opens the builder for material without creating a skill', async () => {
+		seeds['lms.lms.ai.api.ai_status'] = ready
+		const { call } = await import('frappe-ui')
+		vi.mocked(call).mockClear()
+		pushMock.mockClear()
+		const wrapper = mountWelcome(null)
+		await wrapper.find('textarea').setValue('Calm an angry customer')
+		const material = wrapper
+			.findAll('button')
+			.find((b) => b.text().includes('Add a PDF, slides or documentation'))!
+		await material.trigger('click')
+
+		expect(call).not.toHaveBeenCalled()
+		expect(pushMock).toHaveBeenCalledWith({
+			name: 'GoalBuilder',
+			params: { goal: 'new' },
+			query: { outcome: 'Calm an angry customer' },
+		})
+	})
+
+	it('builds only once there is an outcome, and drafts it at once', async () => {
+		seeds['lms.lms.ai.api.ai_status'] = ready
+		const { call } = await import('frappe-ui')
+		vi.mocked(call).mockClear()
+		pushMock.mockClear()
+		const wrapper = mountWelcome(null)
+		const build = wrapper
+			.findAll('button')
+			.find((b) => b.text().includes('Build it with Lumi'))!
+		expect(build.attributes('disabled')).toBeDefined()
+
+		await wrapper.find('textarea').setValue('Calm an angry customer')
+		expect(build.attributes('disabled')).toBeUndefined()
+		await build.trigger('click')
+		await flushPromises()
+
+		expect(call).toHaveBeenCalledWith('lms.lms.ai.api.create_goal', {
+			outcome: 'Calm an angry customer',
+		})
+		expect(call).toHaveBeenCalledWith('lms.lms.ai.api.draft_plan', {
+			goal: 'new-skill',
+		})
+		expect(pushMock).toHaveBeenCalledWith({
+			name: 'GoalBuilder',
+			params: { goal: 'new-skill' },
+		})
+	})
+
 	it('puts connecting a model first when the site has none', () => {
 		seeds['lms.lms.ai.api.ai_status'] = {
 			chat_model: null,

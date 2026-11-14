@@ -33,7 +33,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { inject, ref } from 'vue'
 import { createResource, ErrorMessage, FormControl } from 'frappe-ui'
 import FormShell from '@/components/FormShell.vue'
 import HeaderButton from '@/components/HeaderButton.vue'
@@ -42,6 +42,12 @@ const props = defineProps<{ goal: string }>()
 const emit = defineEmits<{ close: []; added: [sources: unknown[]] }>()
 
 const url = ref('')
+// On /skills/new the skill exists only once a course or page is confirmed, so closing
+// the dialog leaves nothing behind.
+const ensureGoal = inject<() => Promise<string>>('ensureGoal', () =>
+	Promise.resolve(props.goal)
+)
+
 const addUrl = createResource({
 	url: 'lms.lms.ai.api.add_url',
 	onSuccess: (sources: unknown[]) => {
@@ -52,6 +58,6 @@ const addUrl = createResource({
 
 const submit = () => {
 	if (url.value.trim())
-		addUrl.submit({ goal: props.goal, url: url.value.trim() })
+		ensureGoal().then((goal) => addUrl.submit({ goal, url: url.value.trim() }))
 }
 </script>

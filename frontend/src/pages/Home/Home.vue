@@ -48,8 +48,11 @@ const fetchEvalCount = () => {
 	})
 }
 
+// The same people the server counts as running Learning (LEARNING_ADMIN_ROLES), plus
+// instructors and evaluators, who get the instructor view of home.
 const isAdmin = computed(() => {
 	return (
+		user.data?.is_system_manager ||
 		user.data?.is_moderator ||
 		user.data?.is_instructor ||
 		user.data?.is_evaluator

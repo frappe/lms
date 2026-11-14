@@ -8,7 +8,7 @@
 			:placeholder="placeholder"
 			:aria-label="label"
 			:class="textClass"
-			class="inline-edit -mx-1.5 block w-[calc(100%+0.75rem)] resize-none rounded-4 border-0 bg-transparent px-1.5 py-0.5 placeholder:text-ink-gray-6 hover:bg-surface-gray-2 focus:bg-surface-gray-2 focus:outline-none focus:ring-0"
+			class="inline-edit -mx-1.5 block w-[calc(100%+0.75rem)] resize-none rounded-4 border-0 bg-transparent px-1.5 py-0.5 placeholder:text-ink-gray-4 hover:bg-surface-gray-2 focus:bg-surface-gray-2 focus:outline-none focus:ring-0"
 			@input="draft = ($event.target as HTMLInputElement).value"
 			@keydown.enter.exact.prevent=";($event.target as HTMLElement).blur()"
 			@keydown.esc.prevent="cancel"

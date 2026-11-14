@@ -7,7 +7,7 @@
 			<p class="mt-1.5 text-base text-ink-gray-6">
 				{{
 					__(
-						'Teach anything in minutes. Say what people should learn, and the first version is drafted for you.'
+						'Say what people should learn, and the first version is drafted for you. You shape it from there.'
 					)
 				}}
 			</p>
@@ -28,7 +28,7 @@
 				</h2>
 				<TabButtons v-model="kind" :options="kinds" />
 			</div>
-			<div class="px-2 pt-2">
+			<div class="px-2 pt-2" @focusin="focused = true">
 				<Textarea
 					ref="field"
 					v-model="text"
@@ -49,9 +49,8 @@
 			<div class="flex flex-wrap items-center gap-2 px-5 pb-4 pt-2">
 				<Button
 					v-if="kind === 'skill'"
-					:label="__('Add a policy, slides or notes')"
-					:loading="busy === 'material'"
-					@click="buildSkill(false)"
+					:label="__('Add a PDF, slides or documentation')"
+					@click="openBuilder"
 				>
 					<template #prefix>
 						<span class="lucide-paperclip size-4" aria-hidden="true" />
@@ -70,7 +69,8 @@
 					variant="solid"
 					:label="__('Build it with Lumi')"
 					:loading="busy === 'build'"
-					@click="buildSkill(true)"
+					:disabled="!text.trim()"
+					@click="buildSkill"
 				>
 					<template #prefix>
 						<span class="lucide-sparkles size-4" aria-hidden="true" />
@@ -84,7 +84,9 @@
 					@click="buildCourse"
 				/>
 			</div>
+			<!-- Ideas wait until the person is in the box, so the page opens quiet. -->
 			<div
+				v-if="focused"
 				class="flex flex-wrap gap-2 border-t border-outline-gray-1 px-5 py-3"
 			>
 				<Button
@@ -109,12 +111,7 @@
 				<article
 					class="flex flex-col gap-3 rounded-7 border border-outline-gray-2 p-5"
 				>
-					<Badge
-						class="self-start"
-						:label="__('Skill')"
-						theme="blue"
-						size="md"
-					/>
+					<KindBadge class="self-start" kind="skill" />
 					<div>
 						<h3 class="text-lg-semibold text-ink-gray-9">
 							{{ __('One thing people must be able to do') }}
@@ -134,12 +131,7 @@
 				<article
 					class="flex flex-col gap-3 rounded-7 border border-outline-gray-2 p-5"
 				>
-					<Badge
-						class="self-start"
-						:label="__('Course')"
-						theme="green"
-						size="md"
-					/>
+					<KindBadge class="self-start" kind="course" />
 					<div>
 						<h3 class="text-lg-semibold text-ink-gray-9">
 							{{ __('A topic that needs depth') }}
@@ -220,7 +212,9 @@ import {
 	toast,
 } from 'frappe-ui'
 import { greeting } from '@/pages/Home/greeting'
+import { NEW } from '@/utils/goals'
 import AiConnect from '@/components/Goals/AiConnect.vue'
+import KindBadge from '@/components/Home/KindBadge.vue'
 
 type Example = {
 	name: string
@@ -243,7 +237,8 @@ const kinds = [
 	{ label: __('A course'), value: 'course' },
 ]
 const text = ref('')
-const busy = ref<'' | 'build' | 'material'>('')
+const focused = ref(false)
+const busy = ref<'' | 'build'>('')
 const field = ref<any>(null)
 
 const ideas = computed(() =>
@@ -261,18 +256,15 @@ const ideas = computed(() =>
 		  ]
 )
 
-// A skill starts as what people should be able to do. With "Build it with
-// Lumi" the plan starts drafting straight away; otherwise the editor opens for
-// material first.
-const buildSkill = async (draft: boolean) => {
-	busy.value = draft ? 'build' : 'material'
+// Build is the one action here that makes a skill: it needs an outcome to draft from.
+const buildSkill = async () => {
+	const outcome = text.value.trim()
+	if (!outcome || busy.value) return
+	busy.value = 'build'
 	try {
-		const outcome = text.value.trim()
-		const goal = await call('lms.lms.ai.api.create_goal', {
-			outcome: outcome || undefined,
-		})
-		if (draft && outcome) await call('lms.lms.ai.api.draft_plan', { goal })
-		router.push({ name: 'GoalBuilder', params: { goal } })
+		const goal = await call('lms.lms.ai.api.create_goal', { outcome })
+		await call('lms.lms.ai.api.draft_plan', { goal })
+		await router.push({ name: 'GoalBuilder', params: { goal } })
 	} catch (error: any) {
 		toast.error(
 			error?.messages?.[0] || __('Could not start the skill. Try again.')
@@ -280,6 +272,16 @@ const buildSkill = async (draft: boolean) => {
 	} finally {
 		busy.value = ''
 	}
+}
+
+// Material is added in the builder; the skill is created there on the first thing done.
+const openBuilder = () => {
+	const outcome = text.value.trim()
+	router.push({
+		name: 'GoalBuilder',
+		params: { goal: NEW },
+		query: outcome ? { outcome } : {},
+	})
 }
 
 const buildCourse = () => {

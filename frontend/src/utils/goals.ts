@@ -97,6 +97,8 @@ export const activityLabel = (type: ActivityType): string =>
 /** What a Flow tool call is doing, in words a learner or admin understands. */
 /** The title a skill keeps until the admin or the AI names it. Matches goals.UNTITLED. */
 export const UNTITLED = 'Untitled skill'
+// /skills/new: a builder for a skill that is created on the first thing done in it.
+export const NEW = 'new'
 
 export const toolLabels = (): Record<string, string> => ({
 	search_goal_sources: __('Reading your material…'),

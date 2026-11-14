@@ -25,23 +25,29 @@
 				variant="solid"
 				:disabled="!course"
 				:loading="addCourse.loading"
-				@click="addCourse.submit({ goal, course })"
+				@click="add(course)"
 			/>
 		</template>
 	</FormShell>
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { inject, ref } from 'vue'
 import { createResource, ErrorMessage } from 'frappe-ui'
 import Link from '@/components/Controls/Link.vue'
 import FormShell from '@/components/FormShell.vue'
 import HeaderButton from '@/components/HeaderButton.vue'
 
-defineProps<{ goal: string }>()
+const props = defineProps<{ goal: string }>()
 const emit = defineEmits<{ close: []; added: [sources: unknown[]] }>()
 
 const course = ref('')
+// On /skills/new the skill exists only once a course or page is confirmed, so closing
+// the dialog leaves nothing behind.
+const ensureGoal = inject<() => Promise<string>>('ensureGoal', () =>
+	Promise.resolve(props.goal)
+)
+
 const addCourse = createResource({
 	url: 'lms.lms.ai.api.add_course',
 	onSuccess: (sources: unknown[]) => {
@@ -49,4 +55,7 @@ const addCourse = createResource({
 		emit('close')
 	},
 })
+
+const add = (course: string) =>
+	ensureGoal().then((goal) => addCourse.submit({ goal, course }))
 </script>

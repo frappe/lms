@@ -16,7 +16,12 @@
 			<FileUploader
 				:fileTypes="['.pdf', '.docx', '.txt', '.md']"
 				:private="true"
-				@success="(file) => addSource.submit({ goal, file_url: file.file_url })"
+				@success="
+					(file) =>
+						ensureGoal().then((goal) =>
+							addSource.submit({ goal, file_url: file.file_url })
+						)
+				"
 			>
 				<template #default="{ openFileSelector, uploading, progress }">
 					<span v-if="uploading" class="text-p-xs text-ink-gray-6">
@@ -156,7 +161,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, inject } from 'vue'
 import {
 	Button,
 	createResource,
@@ -194,6 +199,11 @@ const props = withDefaults(
 	}
 )
 const emit = defineEmits<{ changed: [sources: Source[]] }>()
+
+// The builder creates a new skill on its first action; material is one of those actions.
+const ensureGoal = inject<() => Promise<string>>('ensureGoal', () =>
+	Promise.resolve(props.goal)
+)
 
 const addSource = createResource({
 	url: 'lms.lms.ai.api.add_source',

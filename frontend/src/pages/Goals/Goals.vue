@@ -4,11 +4,7 @@
 			:breadcrumbs="[{ label: __('Skills'), route: { name: 'Goals' } }]"
 		>
 			<template v-if="canBuild" #actions>
-				<Button
-					variant="solid"
-					:loading="create.loading"
-					@click="create.submit()"
-				>
+				<Button variant="solid" @click="openNew()">
 					<template #prefix><span class="lucide-plus size-4" /></template>
 					{{ __('New skill') }}
 				</Button>
@@ -59,9 +55,22 @@
 					</div>
 				</div>
 
-				<p v-if="!shown.length" class="mt-6 text-p-base text-ink-gray-6">
-					{{ emptyText }}
-				</p>
+				<EmptyStateLayout
+					v-if="!shown.length"
+					name="Skills"
+					icon="lucide-sparkles"
+					width="md"
+					:title="emptyState.title"
+					:description="emptyState.description"
+				>
+					<EmptyStateActions
+						v-if="canBuild && !search.trim()"
+						list="skills"
+						:tab="tab"
+						:create-label="__('New skill')"
+						@create="openNew()"
+					/>
+				</EmptyStateLayout>
 				<div
 					v-else
 					class="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4"
@@ -106,17 +115,18 @@ import {
 	createResource,
 	FormControl,
 	TabButtons,
-	toast,
 	usePageMeta,
 } from 'frappe-ui'
 import PageHeader from '@/components/Layouts/pages/PageHeader.vue'
 import EmptyStateLayout from '@/components/Layouts/EmptyStateLayout.vue'
+import EmptyStateActions from '@/components/EmptyStateActions.vue'
 import AISetupNotice from '@/components/Goals/AISetupNotice.vue'
 import SkillCard from '@/components/Goals/SkillCard.vue'
 import dayjs from '@/utils/dayjs'
 import {
 	learnerCard,
 	type LearnerSkill,
+	NEW,
 	type Readiness,
 	UNTITLED,
 } from '@/utils/goals'
@@ -151,12 +161,10 @@ const goals = createResource({
 	},
 })
 
-const create = createResource({
-	url: 'lms.lms.ai.api.create_goal',
-	onSuccess: (goal: string) =>
-		router.push({ name: 'GoalBuilder', params: { goal } }),
-	onError: (err: Error) => toast.error(err.message),
-})
+// The builder creates the skill on the first thing done in it, so looking and leaving
+// leaves nothing behind.
+const openNew = () =>
+	router.push({ name: 'GoalBuilder', params: { goal: NEW } })
 
 const skills = createResource({
 	url: 'lms.lms.ai.api.learner_skills',
@@ -205,16 +213,39 @@ const shown = computed(() =>
 	canBuild.value ? shownGoals.value : shownSkills.value
 )
 
-const emptyText = computed(() => {
-	if (search.value.trim())
-		return __('No skills match "{0}".').format(search.value.trim())
+// The empty state for one tab or search, in the shape the Courses and Batches lists use.
+const emptyState = computed(() => {
+	const query = search.value.trim()
+	if (query)
+		return {
+			title: __('No skills match "{0}"').format(query),
+			description: __('Check the spelling, or try a shorter word.'),
+		}
 	if (!canBuild.value)
 		return tab.value === 'enrolled'
-			? __('Nothing enrolled yet. Start a skill from Published.')
-			: __('No skills are open to everyone yet.')
+			? {
+					title: __('Nothing enrolled yet'),
+					description: __('Start a skill from Published and it shows up here.'),
+			  }
+			: {
+					title: __('No skills open to everyone yet'),
+					description: __(
+						'Skills shared with you show up here as soon as they are published.'
+					),
+			  }
 	return tab.value === 'published'
-		? __('Nothing published yet. Publish a skill to send it to your people.')
-		: __('Every skill you made is published.')
+		? {
+				title: __('Nothing published yet'),
+				description: __(
+					'Publish a skill to send it to your people. Your drafts are under Created.'
+				),
+		  }
+		: {
+				title: __('Every skill you made is published'),
+				description: __(
+					'Start a new one here, and it waits in this tab until you publish it.'
+				),
+		  }
 })
 
 const isUntitled = (goal: GoalRow) => goal.title === UNTITLED

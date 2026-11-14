@@ -3,7 +3,7 @@
 		<PageHeader
 			:breadcrumbs="breadcrumbs"
 			:published="goal?.status === 'Published'"
-			:loading="!goal"
+			:loading="!goal && !loadError"
 		>
 			<template #actions>
 				<span
@@ -29,6 +29,15 @@
 					<template #prefix><span class="lucide-rocket size-4" /></template>
 					{{ __('Publish') }}
 				</Button>
+				<Dropdown
+					v-if="goal && !isNew"
+					:options="goalOptions"
+					:button="{
+						icon: 'lucide-ellipsis',
+						variant: 'ghost',
+						label: __('Skill options'),
+					}"
+				/>
 			</template>
 		</PageHeader>
 
@@ -56,11 +65,9 @@
 					>
 						<div class="flex flex-col gap-5 px-4 py-6 sm:px-6">
 							<AISetupNotice />
-							<!-- The input's box adds 5px under the text; -mb-1 keeps the 20px rhythm. -->
 							<InlineEdit
 								v-model="goal.title"
-								class="-mb-1"
-								text-class="text-2xl-semibold text-ink-gray-9"
+								text-class="text-xl-semibold text-ink-gray-9"
 								:label="__('Title')"
 								:placeholder="__('Name this skill')"
 								@save="save()"
@@ -103,13 +110,6 @@
 									v-if="goal.draft_error || draft.error"
 									:message="goal.draft_error || draft.error"
 								/>
-								<!-- Build needs no explaining unless it is held back. -->
-								<p
-									v-else-if="buildHint"
-									class="text-center text-p-xs text-ink-gray-6"
-								>
-									{{ buildHint }}
-								</p>
 							</div>
 						</div>
 					</aside>
@@ -130,7 +130,11 @@
 							<Tabs v-model="section">
 								<TabList class="!px-0">
 									<TabTrigger value="plan" :label="__('Plan')" />
-									<TabTrigger value="settings" :label="__('Settings')" />
+									<TabTrigger
+										v-if="!isNew"
+										value="settings"
+										:label="__('Settings')"
+									/>
 								</TabList>
 								<TabPanel value="settings">
 									<GoalSettings :goal="goal" @change="save()" />
@@ -213,6 +217,17 @@
 				</div>
 			</template>
 		</Tabs>
+
+		<EmptyStateLayout
+			v-else-if="loadError"
+			name="Skills"
+			icon="lucide-sparkles"
+			width="md"
+			:title="__('This skill is no longer here')"
+			:description="__('It was deleted, or the link is out of date.')"
+		>
+			<Button :route="{ name: 'Goals' }" :label="__('Back to Skills')" />
+		</EmptyStateLayout>
 	</div>
 </template>
 
@@ -224,6 +239,7 @@ import {
 	Button,
 	call,
 	createResource,
+	Dropdown,
 	ErrorMessage,
 	LoadingIndicator,
 	TabList,
@@ -244,20 +260,25 @@ import ActivityCard from '@/components/Goals/ActivityCard.vue'
 import GoalSettings from '@/components/Goals/GoalSettings.vue'
 import FlowChat from '@/components/Goals/FlowChat.vue'
 import SkillDashboard from '@/components/Goals/SkillDashboard.vue'
-import { sourceLinkFor, toolLabels, UNTITLED } from '@/utils/goals'
+import { NEW, sourceLinkFor, toolLabels, UNTITLED } from '@/utils/goals'
+import { createDialog } from '@/utils/dialogs'
 
 const props = defineProps<{ goal: string }>()
 const goalName = computed(() => props.goal)
 const router = useRouter()
 const route = useRoute()
 
-const tabs = [
+const tabs = computed(() => [
 	{ value: 'build', data: { label: __('Editor'), icon: 'lucide-sparkles' } },
-	{
-		value: 'dashboard',
-		data: { label: __('Dashboard'), icon: 'lucide-trending-up' },
-	},
-]
+	...(isNew.value
+		? []
+		: [
+				{
+					value: 'dashboard',
+					data: { label: __('Dashboard'), icon: 'lucide-trending-up' },
+				},
+		  ]),
+])
 // The tab lives in the hash, as on a course, so a link can open the dashboard.
 // Any other hash is not ours: Settings opens through it, and must not be cleared.
 const isTabHash = (hash: string) => hash === '' || hash === '#dashboard'
@@ -279,6 +300,8 @@ const section = ref<'plan' | 'settings'>('plan')
 const socket = inject<Socket>('$socket')
 
 const goal = ref<Record<string, any> | null>(null)
+// A skill that is gone, or a wrong link, is said so instead of a skeleton forever.
+const loadError = ref('')
 
 const parseFiles = (files: unknown): Record<string, string> =>
 	typeof files === 'string'
@@ -306,10 +329,68 @@ const normalise = (data: Record<string, any>) => {
 	return data
 }
 
+// /skills/new is a skill that does not exist yet: it is created on the first thing you
+// do in it (a title, an outcome, material, Build), with whatever you typed so far.
+const isNew = computed(() => goalName.value === NEW)
+let creating: Promise<string> | null = null
+// The route changes to the created skill, which would reload it over what was typed meanwhile.
+let justCreated: string | null = null
+const ensureGoal = (): Promise<string> => {
+	if (!isNew.value) return Promise.resolve(goalName.value)
+	creating ??= call('lms.lms.ai.api.create_goal', {
+		title: goal.value?.title || undefined,
+		outcome: goal.value?.outcome || undefined,
+	})
+		.then(async (name: string) => {
+			justCreated = name
+			if (goal.value) goal.value.name = name
+			await router.replace({ name: 'GoalBuilder', params: { goal: name } })
+			return name
+		})
+		.catch((error: any) => {
+			// The next action tries again instead of waiting on this failure forever.
+			creating = null
+			toast.error(
+				error?.messages?.[0] || __('Could not create the skill. Try again.')
+			)
+			throw error
+		})
+	return creating
+}
+provide('ensureGoal', ensureGoal)
+
 const load = async () => {
-	const data = normalise(
-		await call('lms.lms.ai.api.get_goal', { goal: goalName.value })
-	)
+	if (goalName.value && goalName.value === justCreated) {
+		justCreated = null
+		return
+	}
+	if (isNew.value) {
+		goal.value = normalise({
+			name: '',
+			title: '',
+			outcome: String(route.query.outcome || ''),
+			status: 'Draft',
+			activities: [],
+			sources: [],
+			documents: [],
+			source_files: '{}',
+			audience: [],
+			learners: 0,
+		})
+		return
+	}
+	let fetched: Record<string, any>
+	try {
+		fetched = await call('lms.lms.ai.api.get_goal', { goal: goalName.value })
+	} catch (error: any) {
+		loadError.value =
+			error?.messages?.[0] || __('Could not load this skill. Try again.')
+		if (timer) clearInterval(timer)
+		timer = null
+		return
+	}
+	loadError.value = ''
+	const data = normalise(fetched)
 	if (data.title === UNTITLED) data.title = ''
 	goal.value = data
 }
@@ -322,6 +403,11 @@ const reading = computed(() =>
 
 const save = async (withActivities = false) => {
 	if (!goal.value) return
+	if (isNew.value) {
+		if (!goal.value.title?.trim() && !goal.value.outcome?.trim()) return
+		// Created with what was typed first; what was typed since is saved below.
+		await ensureGoal()
+	}
 	saving.value = true
 	const values: Record<string, any> = {
 		title: goal.value.title,
@@ -390,14 +476,6 @@ const revise = async (row: string, index: number, request: string) => {
 	}
 }
 
-// Says what Build is waiting for, so a disabled button is never a mystery. Once it can
-// build, the button speaks for itself.
-const buildHint = computed(() => {
-	if (reading.value) return __('Ready once your material finishes reading')
-	if (!canBuild.value)
-		return __('Say what people should be able to do, or add your material')
-	return ''
-})
 const hasMaterial = computed(() =>
 	(goal.value?.sources || []).some((source) => source.status === 'Completed')
 )
@@ -412,7 +490,7 @@ const draft = createResource({
 // The outcome saves on blur, which can still be in flight when Build is pressed.
 const build = async () => {
 	await save()
-	draft.submit({ goal: goalName.value })
+	draft.submit({ goal: await ensureGoal() })
 }
 
 const publish = createResource({
@@ -434,6 +512,52 @@ const publish = createResource({
 	},
 	onError: (err: Error) => toast.error(err.message),
 })
+
+const deleteSkill = createResource({
+	url: 'lms.lms.ai.api.delete_goal',
+	onSuccess() {
+		toast.success(__('Skill deleted'))
+		router.replace({ name: 'Goals' })
+	},
+	onError(error: any) {
+		toast.error(
+			error?.messages?.[0] || __('Could not delete the skill. Try again.')
+		)
+	},
+})
+
+// The dialog says what goes with the skill: for a published one, its people's progress.
+const confirmDelete = () => {
+	const learners = goal.value?.learners || 0
+	createDialog({
+		title: __('Delete {0}?').format(goal.value?.title || __('this skill')),
+		message:
+			learners === 1
+				? __(
+						'One person has this skill. Their progress goes with it. This cannot be undone.'
+				  )
+				: learners
+				? __(
+						'{0} people have this skill. Their progress goes with it. This cannot be undone.'
+				  ).format(learners)
+				: __('Its plan and material go with it. This cannot be undone.'),
+		actions: [
+			{
+				label: __('Delete'),
+				theme: 'red',
+				variant: 'solid',
+				onClick({ close }: { close: () => void }) {
+					close()
+					deleteSkill.submit({ goal: goalName.value })
+				},
+			},
+		],
+	})
+}
+
+const goalOptions = computed(() => [
+	{ label: __('Delete'), icon: 'lucide-trash-2', onClick: confirmDelete },
+])
 
 const preview = createResource({
 	url: 'lms.lms.ai.api.try_as_learner',
@@ -475,10 +599,14 @@ watch(goalName, load, { immediate: true })
 
 const breadcrumbs = computed(() => [
 	{ label: __('Skills'), route: { name: 'Goals' } },
-	{
-		label: goal.value ? goal.value.title || __('New skill') : '',
-		route: { name: 'GoalBuilder', params: { goal: goalName.value } },
-	},
+	...(loadError.value
+		? []
+		: [
+				{
+					label: goal.value ? goal.value.title || __('New skill') : '',
+					route: { name: 'GoalBuilder', params: { goal: goalName.value } },
+				},
+		  ]),
 ])
 
 usePageMeta(() => ({ title: goal.value?.title || __('New skill') }))
