@@ -74,6 +74,7 @@ export interface LMSSettings {
 	payment_gateway?: string
 	/**	Allow Guest Access : Check	*/
 	allow_guest_access?: 0 | 1
+	show_guest_landing?: 0 | 1
 	/**	Payment Reminder Template : Link - Email Template	*/
 	payment_reminder_template?: string
 	/**	Disable Signup : Check	*/
