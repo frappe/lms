@@ -15,6 +15,11 @@ COPY --chown=frappe:frappe lms-src /home/frappe/lms-src
 # Frappe develop needs the Node version the base image provides for it (as in docker/init.sh).
 ENV PATH="${NVM_DIR}/versions/node/v${NODE_VERSION_DEVELOP}/bin/:${PATH}"
 
+# Python package index for uv (bench installs Frappe's dependencies with it). Pass a
+# closer mirror with --build-arg UV_DEFAULT_INDEX=... when pypi.org is slow.
+ARG UV_DEFAULT_INDEX=https://pypi.org/simple
+ENV UV_DEFAULT_INDEX=${UV_DEFAULT_INDEX}
+
 RUN bench init --skip-redis-config-generation --skip-assets --frappe-branch "${FRAPPE_BRANCH}" frappe-bench \
  && cd frappe-bench \
  && bench get-app payments \
