@@ -25,7 +25,7 @@
    "fieldtype": "Select",
    "in_list_view": 1,
    "label": "Event Type",
-   "options": "tab_switch\nno_face\nmultiple_faces\nfocus_loss\ncamera_disconnect",
+   "options": "tab_switch\nno_face\nmultiple_faces\nfocus_loss\ncamera_disconnect\nfullscreen_exit\nside_panel_detected",
    "reqd": 1
   },
   {

@@ -23,6 +23,8 @@ from frappe.utils import add_to_date, convert_utc_to_system_timezone, get_dateti
 
 from lms.lms.doctype.lms_quiz.lms_quiz import (
 	MAX_VIOLATION_EVENTS,
+	MAX_VIOLATION_FRAMES,
+	_attach_violation_frames,
 	_normalise_violation_events,
 	_save_violation_events,
 	get_quiz_violation_logs,
@@ -240,8 +242,16 @@ class TestViolationEventNormalization(unittest.TestCase):
 		with self.assertRaises(frappe.ValidationError):
 			_normalise_violation_events(json.dumps({"eventType": "tab_switch"}))
 
-	def test_all_five_valid_event_types_are_accepted(self):
-		valid_types = ["tab_switch", "no_face", "multiple_faces", "focus_loss", "camera_disconnect"]
+	def test_all_valid_event_types_are_accepted(self):
+		valid_types = [
+			"tab_switch",
+			"no_face",
+			"multiple_faces",
+			"focus_loss",
+			"camera_disconnect",
+			"fullscreen_exit",
+			"side_panel_detected",
+		]
 		events = _normalise(
 			*[
 				{"eventType": t, "severity": "violation", "timestamp": "2026-01-01T00:00:00Z"}
@@ -249,6 +259,32 @@ class TestViolationEventNormalization(unittest.TestCase):
 			]
 		)
 		self.assertCountEqual([e["event_type"] for e in events], valid_types)
+
+	def test_fullscreen_and_side_panel_events_survive_normalisation(self):
+		events = _normalise(
+			{
+				"eventType": "fullscreen_exit",
+				"severity": "violation",
+				"timestamp": "2026-01-01T00:00:00Z",
+			},
+			{
+				"eventType": "side_panel_detected",
+				"severity": "violation",
+				"timestamp": "2026-01-01T00:00:01Z",
+			},
+		)
+		self.assertCountEqual(
+			[e["event_type"] for e in events],
+			["fullscreen_exit", "side_panel_detected"],
+		)
+
+	def test_only_the_frame_cap_is_attached(self):
+		events = [{"frame": f"data:image/jpeg;base64,frame-{i}"} for i in range(MAX_VIOLATION_FRAMES + 3)]
+		with patch(
+			"lms.lms.doctype.lms_quiz.lms_quiz._save_violation_frame", return_value=True
+		) as save_frame:
+			_attach_violation_frames([f"log-{i}" for i in range(len(events))], events)
+		self.assertEqual(save_frame.call_count, MAX_VIOLATION_FRAMES)
 
 
 # ---------------------------------------------------------------------------
