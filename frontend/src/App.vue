@@ -32,10 +32,12 @@ import ContinueCoursePanel from '@/components/ContinueCoursePanel.vue'
 import { showHelpModal } from '@framework/ui/components/Onboarding/index'
 import { seesOnboarding } from '@/utils/onboarding'
 import { usersStore } from '@/stores/user'
+import { sessionStore } from '@/stores/session'
 
 const { isMobile } = useScreenSize()
 const route = useRoute()
 const { userResource } = usersStore()
+const session = sessionStore()
 
 // The panel lives here, not in the sidebar, so it shows on every layout: the
 // mobile one and the pages without a sidebar have no AppSidebar. Only people
@@ -115,7 +117,9 @@ const layoutRoute = computed(() => background.value ?? route)
 const noSidebar = computed(
 	() =>
 		Boolean(layoutRoute.value.query.fromLesson) ||
-		layoutRoute.value.path === '/setup'
+		layoutRoute.value.path === '/setup' ||
+		// The guest landing page is a public site, not the app, so it has no app shell.
+		(layoutRoute.value.name === 'Home' && !session.isLoggedIn)
 )
 
 const Layout = computed(() => {

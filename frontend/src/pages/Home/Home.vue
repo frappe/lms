@@ -1,4 +1,6 @@
 <template>
+	<Landing v-if="isGuest" />
+	<template v-else>
 	<div class="w-full p-5">
 		<div class="space-y-2">
 			<div class="flex items-center justify-between">
@@ -47,6 +49,7 @@
 		/>
 	</div>
 	<Streak v-model="showStreakModal" :streakInfo="streakInfo" />
+	</template>
 </template>
 <script setup lang="ts">
 import { computed, inject, onMounted, ref } from 'vue'
@@ -55,9 +58,11 @@ import { sessionStore } from '@/stores/session'
 import StudentHome from '@/pages/Home/StudentHome.vue'
 import AdminHome from '@/pages/Home/AdminHome.vue'
 import Streak from '@/pages/Home/Streak.vue'
+import Landing from '@/pages/Landing/Landing.vue'
 
 const user = inject<any>('$user')
 const { brand } = sessionStore()
+const isGuest = !sessionStore().isLoggedIn
 const evalCount = ref(0)
 const currentTab = ref<'student' | 'instructor'>('student')
 const showStreakModal = ref(false)
@@ -94,6 +99,7 @@ const isHomeLoading = computed(() => {
 })
 
 onMounted(() => {
+	if (isGuest) return
 	if (isAdmin.value) {
 		currentTab.value = 'instructor'
 	} else {
@@ -104,22 +110,22 @@ onMounted(() => {
 
 const myLiveClasses = createResource({
 	url: 'lms.lms.api.get_my_live_classes',
-	auto: !isAdmin.value ? true : false,
+	auto: !isGuest && !isAdmin.value,
 })
 
 const adminLiveClasses = createResource({
 	url: 'lms.lms.api.get_admin_live_classes',
-	auto: isAdmin.value ? true : false,
+	auto: !isGuest && isAdmin.value,
 })
 
 const adminEvals = createResource({
 	url: 'lms.lms.api.get_admin_evals',
-	auto: isAdmin.value ? true : false,
+	auto: !isGuest && isAdmin.value,
 })
 
 const streakInfo = createResource({
 	url: 'lms.lms.api.get_streak_info',
-	auto: true,
+	auto: !isGuest,
 })
 
 const subtitle = computed(() => {

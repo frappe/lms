@@ -1,6 +1,8 @@
 # Copyright (c) 2021, FOSS United and contributors
 # For license information, please see license.txt
 
+import re
+
 import frappe
 from frappe import _
 from frappe.model.document import Document
@@ -18,6 +20,19 @@ class LMSSettings(Document):
 		self.validate_lesson_dwell_time()
 		self.validate_passing_needs_completion()
 		validate_sidebar_items(self)
+		self.validate_landing_page()
+
+	def validate_landing_page(self):
+		colour = (self.landing_primary_colour or "").strip()
+		if colour and not re.fullmatch(r"#[0-9a-fA-F]{6}", colour):
+			frappe.throw(_("Primary colour must be a 6-digit hex value, for example #0266da."))
+
+		for row in self.landing_slides or []:
+			link = (row.cta_link or "").strip()
+			if link and not (link.startswith(("/", "#")) or link.startswith("https://")):
+				frappe.throw(
+					_("Slide button link must start with / or #, or be an https:// URL: {0}").format(link)
+				)
 
 	def validate_lesson_dwell_time(self):
 		if cint(self.lesson_dwell_time) < 1:

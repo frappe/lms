@@ -39,3 +39,18 @@ class TestPassingNeedsCompletion(IntegrationTestCase):
 		self.assertEqual(settings.enforce_quiz_passing, 0)
 		self.assertEqual(settings.enforce_open_ended_quiz_passing, 0)
 		self.assertEqual(settings.enforce_assignment_passing, 1)
+
+
+class TestShowGuestLanding(IntegrationTestCase):
+	def test_field_exists_and_defaults_to_off(self):
+		field = frappe.get_meta("LMS Settings").get_field("show_guest_landing")
+		self.assertIsNotNone(field)
+		self.assertEqual(field.fieldtype, "Check")
+		self.assertEqual(str(field.default), "0")
+
+	def test_guest_reads_the_flag_from_get_lms_settings(self):
+		from lms.lms.api import get_lms_settings
+
+		frappe.set_user("Guest")
+		self.addCleanup(frappe.set_user, "Administrator")
+		self.assertIn("show_guest_landing", get_lms_settings())

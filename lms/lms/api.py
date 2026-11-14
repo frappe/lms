@@ -2674,10 +2674,115 @@ def get_notifications(filters: dict = None):
 	return hide_user_emails(notifications, "from_user")
 
 
+@frappe.whitelist(allow_guest=True)  # nosemgrep: frappe-semgrep-rules.rules.security.guest-whitelisted-method
+@rate_limit(limit=500, seconds=60 * 60)
+def get_landing_content() -> dict:
+	"""Brand, hero, slides, branches and contact for the guest landing page.
+
+	Returns only the configured landing values from LMS Settings. Nothing is
+	returned while the landing page is switched off.
+	"""
+	settings = frappe.get_cached_doc("LMS Settings")
+	if not cint(settings.show_guest_landing):
+		return {"enabled": False}
+
+	brand_name = (settings.landing_brand_name or "").strip() or frappe.get_cached_value(
+		"Website Settings", None, "app_name"
+	)
+	logo = settings.landing_brand_logo or None
+
+	return {
+		"enabled": True,
+		"brand": {
+			"name": brand_name or "",
+			"logo": logo,
+			"primary_colour": (settings.landing_primary_colour or "").strip(),
+		},
+		"promo": settings.landing_promo or "",
+		"hero": {
+			"eyebrow": settings.landing_hero_eyebrow or "",
+			"headline": settings.landing_hero_headline or "",
+			"lede": settings.landing_hero_lede or "",
+		},
+		"slides": [
+			{
+				"eyebrow": row.eyebrow or "",
+				"title": row.title or "",
+				"text": row.text or "",
+				"cta": {"label": row.cta_label or "", "href": row.cta_link or ""},
+			}
+			for row in settings.landing_slides or []
+		],
+		"branches": [
+			{
+				"label": row.label or "",
+				"name": row.branch_name or "",
+				"address": row.address or "",
+				"phone": row.phone or "",
+			}
+			for row in settings.landing_branches or []
+		],
+		"contact": {
+			"phone": settings.landing_contact_phone or "",
+			"email": settings.landing_contact_email or "",
+			"website": settings.landing_contact_website or "",
+		},
+	}
+
+
+@frappe.whitelist(allow_guest=True)  # nosemgrep: frappe-semgrep-rules.rules.security.guest-whitelisted-method
+@rate_limit(limit=500, seconds=60 * 60)
+def get_landing_courses(limit: int | str = 6) -> list:
+	"""Published courses for the guest landing page, each labelled offline or self-paced.
+
+	A course is "offline" when a published Offline batch teaches it. Every other
+	course is self-paced online. Only published courses are returned.
+	"""
+	from lms.lms.utils import get_courses
+
+	courses = get_courses(limit_page_length=max(cint(limit), 1))
+	if not courses:
+		return []
+
+	names = [course.name for course in courses]
+	links = frappe.get_all(
+		"Batch Course",
+		filters={"parenttype": "LMS Batch", "course": ["in", names]},
+		fields=["course", "parent"],
+	)
+	offline_batches = set()
+	if links:
+		offline_batches = set(
+			frappe.get_all(
+				"LMS Batch",
+				filters={
+					"name": ["in", list({link.parent for link in links})],
+					"medium": "Offline",
+					"published": 1,
+				},
+				pluck="name",
+			)
+		)
+	offline_courses = {link.course for link in links if link.parent in offline_batches}
+
+	return [
+		{
+			"name": course.name,
+			"title": course.title,
+			"image": course.image,
+			"short_introduction": course.short_introduction,
+			"paid_course": course.paid_course,
+			"delivery": "offline" if course.name in offline_courses else "online",
+		}
+		for course in courses
+	]
+
+
 @frappe.whitelist(allow_guest=True)
 def get_lms_settings():
 	allowed_fields = [
 		"allow_guest_access",
+		"show_guest_landing",
 		"prevent_skipping_videos",
 		"contact_us_email",
 		"contact_us_url",

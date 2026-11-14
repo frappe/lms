@@ -7,6 +7,7 @@
 	"field_order": [
 		"general_tab",
 		"allow_guest_access",
+		"show_guest_landing",
 		"text_direction",
 		"prevent_skipping_videos",
 		"send_calendar_invite_for_evaluations",
@@ -93,7 +94,27 @@
 		"column_break_gcgv",
 		"contact_us_url",
 		"jobs_tab",
-		"allow_job_posting"
+		"allow_job_posting",
+		"landing_page_tab",
+		"landing_brand_section",
+		"landing_brand_name",
+		"landing_brand_logo",
+		"landing_primary_colour",
+		"landing_brand_column",
+		"landing_promo",
+		"landing_hero_section",
+		"landing_hero_eyebrow",
+		"landing_hero_headline",
+		"landing_hero_lede",
+		"landing_slides_section",
+		"landing_slides",
+		"landing_branches_section",
+		"landing_branches",
+		"landing_contact_section",
+		"landing_contact_phone",
+		"landing_contact_email",
+		"landing_contact_column",
+		"landing_contact_website"
 	],
 	"fields": [
 		{
@@ -374,6 +395,12 @@
 			"label": "Allow Guest Access"
 		},
 		{
+			"default": "0",
+			"fieldname": "show_guest_landing",
+			"fieldtype": "Check",
+			"label": "Show landing page to guests"
+		},
+		{
 			"default": "Auto",
 			"fieldname": "text_direction",
 			"fieldtype": "Select",
@@ -596,6 +623,108 @@
 			"fieldname": "enforce_programming_exercise_passing",
 			"fieldtype": "Check",
 			"label": "Enforce Programming Exercise Passing"
+		},
+		{
+			"fieldname": "landing_page_tab",
+			"fieldtype": "Tab Break",
+			"label": "Landing page"
+		},
+		{
+			"fieldname": "landing_brand_section",
+			"fieldtype": "Section Break",
+			"label": "Brand"
+		},
+		{
+			"fieldname": "landing_brand_name",
+			"fieldtype": "Data",
+			"label": "Brand name",
+			"description": "Blank uses the site name"
+		},
+		{
+			"fieldname": "landing_brand_logo",
+			"fieldtype": "Attach Image",
+			"label": "Brand logo"
+		},
+		{
+			"fieldname": "landing_primary_colour",
+			"fieldtype": "Data",
+			"label": "Primary colour",
+			"description": "A 6-digit hex value, for example #0266da"
+		},
+		{
+			"fieldname": "landing_brand_column",
+			"fieldtype": "Column Break"
+		},
+		{
+			"fieldname": "landing_promo",
+			"fieldtype": "Small Text",
+			"label": "Promo strip text"
+		},
+		{
+			"fieldname": "landing_hero_section",
+			"fieldtype": "Section Break",
+			"label": "Hero"
+		},
+		{
+			"fieldname": "landing_hero_eyebrow",
+			"fieldtype": "Data",
+			"label": "Eyebrow"
+		},
+		{
+			"fieldname": "landing_hero_headline",
+			"fieldtype": "Data",
+			"label": "Headline"
+		},
+		{
+			"fieldname": "landing_hero_lede",
+			"fieldtype": "Small Text",
+			"label": "Lede"
+		},
+		{
+			"fieldname": "landing_slides_section",
+			"fieldtype": "Section Break",
+			"label": "Carousel"
+		},
+		{
+			"fieldname": "landing_slides",
+			"fieldtype": "Table",
+			"label": "Slides",
+			"options": "LMS Landing Slide"
+		},
+		{
+			"fieldname": "landing_branches_section",
+			"fieldtype": "Section Break",
+			"label": "Branches"
+		},
+		{
+			"fieldname": "landing_branches",
+			"fieldtype": "Table",
+			"label": "Branches",
+			"options": "LMS Landing Branch"
+		},
+		{
+			"fieldname": "landing_contact_section",
+			"fieldtype": "Section Break",
+			"label": "Contact"
+		},
+		{
+			"fieldname": "landing_contact_phone",
+			"fieldtype": "Data",
+			"label": "Phone"
+		},
+		{
+			"fieldname": "landing_contact_email",
+			"fieldtype": "Data",
+			"label": "Email"
+		},
+		{
+			"fieldname": "landing_contact_column",
+			"fieldtype": "Column Break"
+		},
+		{
+			"fieldname": "landing_contact_website",
+			"fieldtype": "Data",
+			"label": "Website"
 		}
 	],
 	"grid_page_length": 50,

@@ -283,6 +283,7 @@ website_route_rules = [
 
 website_redirects = [
 	{"source": "/update-profile", "target": "/edit-profile"},
+	{"source": "/", "target": f"/{get_lms_path()}"},
 	{"source": "/courses", "target": f"/{get_lms_path()}/courses"},
 	{
 		"source": r"^/courses/.*$",

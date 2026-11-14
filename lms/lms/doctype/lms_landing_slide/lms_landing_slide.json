@@ -1,0 +1,60 @@
+{
+	"actions": [],
+	"allow_rename": 0,
+	"creation": "2026-11-14 00:00:00.000000",
+	"doctype": "DocType",
+	"engine": "InnoDB",
+	"field_order": [
+		"eyebrow",
+		"title",
+		"text",
+		"cta_label",
+		"cta_link"
+	],
+	"fields": [
+		{
+			"fieldname": "eyebrow",
+			"fieldtype": "Data",
+			"label": "Eyebrow",
+			"in_list_view": 1
+		},
+		{
+			"fieldname": "title",
+			"fieldtype": "Data",
+			"label": "Title",
+			"reqd": 1,
+			"in_list_view": 1
+		},
+		{
+			"fieldname": "text",
+			"fieldtype": "Small Text",
+			"label": "Text"
+		},
+		{
+			"fieldname": "cta_label",
+			"fieldtype": "Data",
+			"label": "Button label"
+		},
+		{
+			"fieldname": "cta_link",
+			"fieldtype": "Data",
+			"label": "Button link",
+			"description": "A path starting with / or #, or an https:// URL"
+		}
+	],
+	"index_web_pages_for_search": 0,
+	"istable": 1,
+	"links": [],
+	"modified": "2026-11-14 00:00:00.000000",
+	"modified_by": "Administrator",
+	"module": "LMS",
+	"name": "LMS Landing Slide",
+	"naming_rule": "Random",
+	"owner": "Administrator",
+	"permissions": [],
+	"row_format": "Dynamic",
+	"sort_field": "modified",
+	"sort_order": "DESC",
+	"states": [],
+	"track_changes": 0
+}
