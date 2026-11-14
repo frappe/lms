@@ -1,0 +1,289 @@
+/* Landing page styling, rebuilt from the Crypgo template's design (dark theme,
+   DM Sans, mint accent, dark cards, teal glow). Scoped to .lp-root so the rest of
+   the app is untouched. The brand colour from LMS Settings sets --lp-accent. */
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&display=swap');
+
+.lp-root {
+	--lp-font: 'DM Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
+	--lp-bg: #000510;
+	--lp-surface: #1e2229;
+	--lp-surface-deep: #282c36;
+	--lp-border: #2f3543;
+	--lp-border-strong: #959595;
+	--lp-title: #ffffff;
+	--lp-body: #d8dbdb;
+	--lp-caption: #8a9099;
+	--lp-accent: #99e39e;
+	--lp-accent-2: #1dc8cd;
+	--lp-on-accent: #000510;
+
+	position: relative;
+	overflow: hidden;
+	font-family: var(--lp-font);
+	background: var(--lp-bg);
+	color: var(--lp-body);
+	min-height: 100vh;
+}
+
+.lp-root h1,
+.lp-root h2,
+.lp-root h3 {
+	color: var(--lp-title);
+	font-weight: 500;
+	letter-spacing: -0.01em;
+}
+
+/* Teal glow behind the hero, as in the template */
+.lp-glow {
+	position: absolute;
+	top: -10rem;
+	right: -6rem;
+	width: 28rem;
+	height: 28rem;
+	border-radius: 999px;
+	background: linear-gradient(to bottom left, #477e70 50%, #666c78 60%);
+	filter: blur(120px);
+	opacity: 0.55;
+	pointer-events: none;
+	z-index: 0;
+}
+
+/* Navigation bar */
+.lp-menu-button {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 44px;
+	height: 44px;
+	border-radius: 8px;
+	border: 1px solid var(--lp-border-strong);
+	background: transparent;
+	color: var(--lp-title);
+	font-size: 1.1rem;
+	cursor: pointer;
+	flex-shrink: 0;
+}
+.lp-mobile-menu {
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+	padding: 12px 16px 20px;
+	border-top: 1px solid var(--lp-border);
+	background: var(--lp-bg);
+}
+.lp-mobile-link {
+	padding: 12px 4px;
+	color: var(--lp-body);
+	text-decoration: none;
+	border-bottom: 1px solid var(--lp-border);
+}
+.lp-mobile-link:hover {
+	color: var(--lp-accent);
+}
+.lp-nav {
+	position: sticky;
+	top: env(safe-area-inset-top, 0px);
+	z-index: 5;
+	background: var(--lp-bg);
+	border-bottom: 1px solid var(--lp-border);
+}
+.lp-nav-link {
+	color: var(--lp-body);
+	font-size: 1rem;
+	text-decoration: none;
+	white-space: nowrap;
+	padding: 6px 0;
+	border-bottom: 2px solid transparent;
+}
+.lp-nav-link:hover,
+.lp-nav-link:focus-visible {
+	color: var(--lp-accent);
+	border-bottom-color: var(--lp-accent);
+}
+
+/* Buttons. Primary is a solid accent button; secondary is an outline, as in the template. */
+.lp-btn-primary,
+.lp-btn-secondary {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	min-height: 44px;
+	padding: 10px 24px;
+	border-radius: 8px;
+	font-size: 1.05rem;
+	font-weight: 500;
+	text-decoration: none;
+	cursor: pointer;
+	transition:
+		background-color 150ms,
+		color 150ms;
+}
+.lp-btn-primary {
+	background: var(--lp-accent);
+	color: var(--lp-on-accent);
+	border: 1px solid var(--lp-accent);
+}
+.lp-btn-primary:hover {
+	background: transparent;
+	color: var(--lp-accent);
+}
+.lp-btn-secondary {
+	background: transparent;
+	color: var(--lp-accent);
+	border: 1px solid var(--lp-accent);
+}
+.lp-btn-secondary:hover {
+	background: var(--lp-accent);
+	color: var(--lp-on-accent);
+}
+
+/* Cards and section pieces */
+.lp-card {
+	background: var(--lp-surface);
+	border: 1px solid var(--lp-border);
+	border-radius: 12px;
+	min-width: 0;
+}
+.lp-eyebrow {
+	font-size: 0.8rem;
+	font-weight: 700;
+	letter-spacing: 0.1em;
+	text-transform: uppercase;
+	color: var(--lp-accent);
+}
+.lp-section-title {
+	font-size: clamp(1.6rem, 3.2vw, 2.25rem);
+	font-weight: 500;
+	color: var(--lp-title);
+}
+.lp-muted {
+	color: var(--lp-caption);
+}
+
+/* Filter tabs. The active tab uses the accent with dark text. */
+.lp-tab {
+	padding: 6px 16px;
+	border-radius: 8px;
+	border: 1px solid var(--lp-border-strong);
+	background: transparent;
+	color: var(--lp-body);
+	font-size: 0.9rem;
+	font-weight: 500;
+	cursor: pointer;
+}
+.lp-tab:hover {
+	border-color: var(--lp-accent);
+	color: var(--lp-accent);
+}
+.lp-tab[aria-pressed='true'] {
+	background: var(--lp-accent);
+	border-color: var(--lp-accent);
+	color: var(--lp-on-accent);
+}
+
+/* Numbered steps in "How we teach" */
+.lp-step-number {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 26px;
+	height: 26px;
+	border-radius: 999px;
+	background: var(--lp-accent);
+	color: var(--lp-on-accent);
+	font-size: 0.8rem;
+	font-weight: 700;
+	flex-shrink: 0;
+}
+
+/* Carousel */
+.lp-carousel {
+	position: relative;
+	overflow: hidden;
+	border-radius: 16px;
+	background: var(--lp-surface);
+	border: 1px solid var(--lp-border);
+}
+.lp-slide {
+	display: none;
+	padding: 52px 56px;
+	min-height: 260px;
+	flex-direction: column;
+	justify-content: center;
+	gap: 14px;
+}
+.lp-slide.is-active {
+	display: flex;
+}
+.lp-slide-eyebrow {
+	font-size: 0.8rem;
+	font-weight: 700;
+	letter-spacing: 0.08em;
+	text-transform: uppercase;
+	color: var(--lp-accent);
+}
+.lp-slide-title {
+	font-size: clamp(1.8rem, 4.5vw, 2.8rem);
+	font-weight: 500;
+	line-height: 1.15;
+	color: var(--lp-title);
+}
+.lp-slide-text {
+	max-width: 56ch;
+	color: var(--lp-body);
+}
+.lp-carousel-bar {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 16px;
+	padding: 16px 24px;
+	border-top: 1px solid var(--lp-border);
+}
+.lp-dots {
+	display: flex;
+	gap: 8px;
+	align-items: center;
+}
+.lp-dot {
+	width: 10px;
+	height: 10px;
+	border-radius: 999px;
+	border: 0;
+	padding: 0;
+	background: var(--lp-border-strong);
+	cursor: pointer;
+}
+.lp-dot[aria-current='true'] {
+	background: var(--lp-accent);
+	width: 28px;
+}
+.lp-arrow {
+	width: 40px;
+	height: 40px;
+	border-radius: 999px;
+	border: 1px solid var(--lp-accent);
+	background: transparent;
+	color: var(--lp-accent);
+	cursor: pointer;
+	font-size: 18px;
+	line-height: 1;
+}
+.lp-arrow:hover {
+	background: var(--lp-accent);
+	color: var(--lp-on-accent);
+}
+
+@media (max-width: 640px) {
+	.lp-slide {
+		padding: 36px 24px;
+		min-height: 300px;
+	}
+}
+@media (prefers-reduced-motion: reduce) {
+	.lp-slide,
+	.lp-btn-primary,
+	.lp-btn-secondary {
+		transition: none;
+	}
+}

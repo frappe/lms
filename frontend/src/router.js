@@ -48,12 +48,15 @@ export async function guardNavigation(to, from, next) {
 	}
 
 	if (!isLoggedIn) {
-		if (to.name == 'Home') router.push({ name: 'Courses' })
-
 		await settings.promise
-		if (!settings.data.allow_guest_access) {
+		if (!settings.data?.allow_guest_access) {
 			window.location.href = '/login'
 			return
+		}
+		// The landing page at / is for guests when the site turns it on. Otherwise
+		// a guest at / goes to the course catalog, as before.
+		if (to.name === 'Home' && !settings.data?.show_guest_landing) {
+			return next({ name: 'Courses' })
 		}
 	}
 
