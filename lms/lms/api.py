@@ -2087,10 +2087,7 @@ def send_batch_announcement(batch: str, subject: str, content: str, reply_to: st
 	if not get_batch_members(batch):
 		frappe.throw(_("No students in this batch"))
 
-	# Saving the Communication looks up a Contact and links the timeline for every
-	# address, which for a large batch outlasts the proxy's timeout: the author saw
-	# an error, the email still went out, and a retry sent it again. The job runs as
-	# the author, and the same announcement is not queued twice while one is pending.
+	# Queued: saving the Communication for a large batch outlasts the proxy timeout.
 	digest = hashlib.sha256(f"{subject}\n{content}".encode()).hexdigest()[:16]
 	frappe.enqueue(
 		_send_batch_announcement,
