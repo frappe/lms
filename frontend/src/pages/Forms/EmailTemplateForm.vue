@@ -1,10 +1,12 @@
 <template>
-	<FormShell :title="__('New Email Template')" size="lg" @close="close">
+	<FormShell
+		:title="__('New Email Template')"
+		size="lg"
+		:message="refusal"
+		@close="close"
+	>
 		<template #default>
-			<div v-if="refusal" class="p-4 text-base text-ink-gray-6">
-				{{ refusal }}
-			</div>
-			<div v-else data-testid="email-template-fields" class="space-y-4">
+			<div data-testid="email-template-fields" class="space-y-4">
 				<FormControl
 					v-model="template.name"
 					type="text"
@@ -59,7 +61,6 @@
 		</template>
 		<template #actions>
 			<HeaderButton
-				v-if="!refusal"
 				data-testid="email-template-save"
 				:label="__('Create')"
 				variant="solid"

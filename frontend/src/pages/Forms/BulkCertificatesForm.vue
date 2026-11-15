@@ -1,13 +1,13 @@
 <template>
-	<FormShell :title="__('Generate Certificates')" size="lg" @close="close">
+	<FormShell
+		:title="__('Generate Certificates')"
+		size="lg"
+		:loading="loadingBatch"
+		:message="refusal"
+		@close="close"
+	>
 		<template #default>
-			<div v-if="loadingBatch" class="p-4 text-base text-ink-gray-6">
-				{{ __('Loading...') }}
-			</div>
-			<div v-else-if="refusal" class="text-base text-ink-gray-6">
-				{{ refusal }}
-			</div>
-			<div v-else data-testid="bulk-certificates-fields" class="space-y-4">
+			<div data-testid="bulk-certificates-fields" class="space-y-4">
 				<Link
 					v-model="details.evaluator"
 					:label="__('Evaluator')"
@@ -52,18 +52,13 @@
 			</div>
 		</template>
 		<template #actions>
-			<div
-				v-if="!refusal && !loadingBatch"
-				class="flex items-center justify-end"
-			>
-				<HeaderButton
-					data-testid="bulk-certificates-save"
-					:label="__('Generate')"
-					variant="solid"
-					:loading="generating"
-					@click="generateCertificates()"
-				/>
-			</div>
+			<HeaderButton
+				data-testid="bulk-certificates-save"
+				:label="__('Generate')"
+				variant="solid"
+				:loading="generating"
+				@click="generateCertificates()"
+			/>
 		</template>
 	</FormShell>
 </template>

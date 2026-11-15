@@ -1,10 +1,12 @@
 <template>
-	<FormShell :title="__('Import Course from ZIP')" size="lg" @close="close">
+	<FormShell
+		:title="__('Import Course from ZIP')"
+		size="lg"
+		:message="refusal"
+		@close="close"
+	>
 		<template #default>
-			<div v-if="!canCreate" class="p-4 text-base text-ink-gray-6">
-				{{ __('You are not permitted to create a course.') }}
-			</div>
-			<div v-else data-testid="course-import-fields" class="text-p-base">
+			<div data-testid="course-import-fields" class="text-p-base">
 				<div
 					v-if="!zip"
 					@dragover.prevent
@@ -81,14 +83,12 @@
 			</div>
 		</template>
 		<template #actions>
-			<div v-if="canCreate" class="flex items-center justify-end">
-				<HeaderButton
-					data-testid="course-import-submit"
-					:label="__('Import')"
-					variant="solid"
-					@click="importZip"
-				/>
-			</div>
+			<HeaderButton
+				data-testid="course-import-submit"
+				:label="__('Import')"
+				variant="solid"
+				@click="importZip"
+			/>
 		</template>
 	</FormShell>
 </template>
@@ -121,6 +121,10 @@ const { close, saveAndReplace } = useFormRoute({ name: 'Courses' })
 // here. UX gate only — lms.lms.api.import_course_from_zip's own server-side
 // permission check is the authorization boundary.
 const canCreate = computed(() => canCreateCourse())
+
+const refusal = computed(() =>
+	canCreate.value ? null : __('You are not permitted to create a course.')
+)
 
 const openFileSelector = () => {
 	fileInput.value?.click()
