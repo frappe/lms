@@ -120,7 +120,6 @@
 				hide-first-message
 				voice
 				:message-actions="['simpler', 'replay', 'source']"
-				:quick-replies="quickReplies"
 				:commands="commands"
 				:waiting-text="__('{0} is reading your answer', [TUTOR_NAME])"
 				:done="ready"
@@ -212,11 +211,6 @@ const confirmed = computed(
 // The intro and the conversation share one full-width page, so starting doesn't jump.
 emit('live', true)
 
-const quickReplies = [
-	__("I'm not sure"),
-	__('Give me an example'),
-	__("Let's practise"),
-]
 const commands = [
 	{
 		name: 'explain',
