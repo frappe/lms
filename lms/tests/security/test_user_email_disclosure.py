@@ -428,6 +428,21 @@ class TestUserEmailDisclosure(BaseTestUtils):
 		self.assertEqual(bcc, {self.student, self.other})
 		self.assertEqual(make.call_args.kwargs["recipients"], "reply@example.com")
 
+	def test_announcement_is_queued_once_while_pending(self):
+		"""Sent in the background, so a big batch cannot time the request out, and
+		keyed on its content, so a second click does not queue it again."""
+		with patch("frappe.enqueue") as enqueue:
+			for _ in range(2):
+				self._as(
+					self.moderator,
+					lambda: api.send_batch_announcement(self.batch, "Hi", "Body", "reply@example.com"),
+				)
+		first, second = (call.kwargs for call in enqueue.call_args_list)
+		self.assertTrue(first["deduplicate"])
+		self.assertEqual(first["job_id"], second["job_id"])
+		self.assertIn(self.batch, first["job_id"])
+		self.assertEqual(first["queue"], "long")
+
 	def test_a_student_cannot_send_an_announcement(self):
 		with patch("frappe.core.doctype.communication.email.make") as make:
 			with self.assertRaises(frappe.PermissionError):
