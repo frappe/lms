@@ -1,6 +1,6 @@
 <template>
 	<Badge :label="label" :theme="tone.theme" :size="size">
-		<template #prefix>
+		<template v-if="icon" #prefix>
 			<span :class="tone.icon" class="size-3.5" aria-hidden="true" />
 		</template>
 	</Badge>
@@ -10,14 +10,16 @@
 import { Badge } from 'frappe-ui'
 import { computed } from 'vue'
 
-// What a thing on the home page is, as a pill with its icon: a skill, a course or
+// What a thing on the home page is, as a pill: a skill, a course or
 // a batch. The home lists send the kind as the server names it (Skill, Course, Batch).
 const props = withDefaults(
 	defineProps<{
 		kind: 'skill' | 'course' | 'batch' | 'Skill' | 'Course' | 'Batch'
 		size?: 'sm' | 'md' | 'lg'
+		/** The icon suits the large cards on the welcome page; lists and the resume card stay text only. */
+		icon?: boolean
 	}>(),
-	{ size: 'md' }
+	{ size: 'md', icon: false }
 )
 type Kind = 'skill' | 'course' | 'batch'
 const kind = computed(() => props.kind.toLowerCase() as Kind)

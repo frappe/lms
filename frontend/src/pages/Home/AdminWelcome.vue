@@ -111,7 +111,7 @@
 				<article
 					class="flex flex-col gap-3 rounded-7 border border-outline-gray-2 p-5"
 				>
-					<KindBadge class="self-start" kind="skill" />
+					<KindBadge class="self-start" icon kind="skill" />
 					<div>
 						<h3 class="text-lg-semibold text-ink-gray-9">
 							{{ __('One thing people must be able to do') }}
@@ -131,7 +131,7 @@
 				<article
 					class="flex flex-col gap-3 rounded-7 border border-outline-gray-2 p-5"
 				>
-					<KindBadge class="self-start" kind="course" />
+					<KindBadge class="self-start" icon kind="course" />
 					<div>
 						<h3 class="text-lg-semibold text-ink-gray-9">
 							{{ __('A topic that needs depth') }}
