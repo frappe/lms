@@ -12,9 +12,7 @@
 		</Button>
 		<div
 			class="text-ink-gray-9"
-			:class="
-				doctype === 'LMS Batch' ? 'text-lg-semibold' : 'text-2xl-semibold'
-			"
+			:class="headingSize === 'lg' ? 'text-lg-semibold' : 'text-2xl-semibold'"
 		>
 			{{ __(title) }}
 		</div>
@@ -173,6 +171,12 @@ const props = defineProps({
 	scrollToBottom: {
 		type: Boolean,
 		default: false,
+	},
+	// The page that places this decides how prominent its heading is.
+	headingSize: {
+		type: String,
+		default: '2xl',
+		validator: (size) => ['lg', '2xl'].includes(size),
 	},
 })
 
