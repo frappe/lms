@@ -6,11 +6,10 @@
 			:loading="!goal && !loadError"
 		>
 			<template #actions>
-				<span
-					v-if="saving"
-					class="hidden text-p-sm text-ink-gray-6 sm:inline"
-					>{{ __('Saving…') }}</span
-				>
+				<!-- Always in the tree, so screen readers announce the text when it changes. -->
+				<span class="text-p-sm text-ink-gray-6" aria-live="polite">{{
+					saving ? __('Saving…') : justSaved ? __('Saved') : ''
+				}}</span>
 				<Button
 					v-if="goal?.activities?.length"
 					:loading="preview.loading"
@@ -63,7 +62,7 @@
 					<aside
 						class="flex w-full shrink-0 flex-col border-b border-outline-gray-1 bg-surface-base lg:min-h-0 lg:w-[24rem] lg:overflow-y-auto lg:border-b-0 lg:border-e"
 					>
-						<div class="flex flex-col gap-5 px-4 py-6 sm:px-6">
+						<div class="flex flex-col gap-4 px-4 py-4 sm:px-6">
 							<AISetupNotice />
 							<InlineEdit
 								v-model="goal.title"
@@ -140,14 +139,14 @@
 									<GoalSettings :goal="goal" @change="save()" />
 								</TabPanel>
 								<TabPanel value="plan">
-									<section
+									<!-- While Lumi drafts, the plan's shape shows where the parts will land, and the
+									     drafter's steps appear below it as they happen. -->
+									<div
 										v-if="goal.status === 'Drafting' && goal.drafting_session"
-										class="mt-4 flex h-80 flex-col overflow-hidden rounded-7 border border-outline-gray-2 bg-surface-base"
+										class="pt-4"
 									>
-										<div
-											class="flex items-center gap-2 border-b border-outline-gray-1 px-4 py-3"
-										>
-											<LoadingIndicator class="size-4" />
+										<div class="flex items-start gap-2.5">
+											<LoadingIndicator class="mt-0.5 size-4 shrink-0" />
 											<div>
 												<div class="text-base-medium text-ink-gray-9">
 													{{ __('Building your plan') }}
@@ -161,14 +160,38 @@
 												</div>
 											</div>
 										</div>
+										<ul
+											v-if="!goal.activities.length"
+											class="mt-4"
+											:aria-busy="true"
+										>
+											<li
+												v-for="n in 4"
+												:key="n"
+												class="flex gap-3.5 border-b border-outline-gray-2 py-4 last:border-b-0"
+											>
+												<div
+													class="size-8 shrink-0 animate-pulse rounded-full bg-surface-gray-2"
+												/>
+												<div class="flex-1 space-y-2.5 pt-1.5">
+													<div
+														class="h-3.5 w-1/2 animate-pulse rounded bg-surface-gray-2"
+													/>
+													<div
+														class="h-3 w-1/3 animate-pulse rounded bg-surface-gray-1"
+													/>
+												</div>
+											</li>
+										</ul>
 										<FlowChat
+											class="mt-4"
 											:session="goal.drafting_session"
 											:assistant-name="__('AI')"
 											:tool-labels="toolLabels()"
 											hide-first-message
 											read-only
 										/>
-									</section>
+									</div>
 									<template v-if="goal.activities.length">
 										<p class="pt-4 text-p-base text-ink-gray-6">
 											{{
@@ -315,6 +338,14 @@ provide('goalSourceLink', (source: string) =>
 	)(source)
 )
 const saving = ref(false)
+// "Saved" shows for a moment after each save, in the header beside the actions.
+const justSaved = ref(false)
+let savedTimer: ReturnType<typeof setTimeout> | null = null
+const flashSaved = () => {
+	justSaved.value = true
+	if (savedTimer) clearTimeout(savedTimer)
+	savedTimer = setTimeout(() => (justSaved.value = false), 1500)
+}
 const CHECKS = [
 	'proof_mastery',
 	'proof_acknowledgement',
@@ -429,6 +460,7 @@ const save = async (withActivities = false) => {
 		)
 		goal.value.minutes = fresh.minutes
 		goal.value.status = fresh.status
+		flashSaved()
 	} finally {
 		saving.value = false
 	}
@@ -500,7 +532,7 @@ const publish = createResource({
 		toast.success(
 			count
 				? __(
-						'Published and sent to {0} people. You can follow their progress in Readiness.'
+						'Published and sent to {0} people. Their progress shows in the Dashboard tab.'
 				  ).format(count)
 				: firstTime
 				? __(
@@ -593,6 +625,7 @@ onBeforeUnmount(() => {
 	socket?.off('lms_goal_drafted', onDrafted)
 	socket?.off('lms_goal_material', onDrafted)
 	if (timer) clearInterval(timer)
+	if (savedTimer) clearTimeout(savedTimer)
 })
 
 watch(goalName, load, { immediate: true })

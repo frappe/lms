@@ -1,5 +1,5 @@
 <template>
-	<div class="relative">
+	<div>
 		<component
 			:is="multiline ? 'textarea' : 'input'"
 			ref="field"
@@ -8,18 +8,12 @@
 			:placeholder="placeholder"
 			:aria-label="label"
 			:class="textClass"
-			class="inline-edit -mx-1.5 block w-[calc(100%+0.75rem)] resize-none rounded-4 border-0 bg-transparent px-1.5 py-0.5 placeholder:text-ink-gray-4 hover:bg-surface-gray-2 focus:bg-surface-gray-2 focus:outline-none focus:ring-0"
+			class="inline-edit -mx-1.5 block w-[calc(100%+0.75rem)] resize-none rounded-4 border-0 bg-transparent px-1.5 py-0.5 placeholder:text-ink-gray-4 hover:bg-surface-gray-2 focus:bg-surface-base focus:outline-none focus:ring-1 focus:ring-outline-gray-2"
 			@input="draft = ($event.target as HTMLInputElement).value"
 			@keydown.enter.exact.prevent=";($event.target as HTMLElement).blur()"
 			@keydown.esc.prevent="cancel"
 			@blur="commit"
 		/>
-		<span
-			v-if="saved"
-			class="absolute -bottom-5 start-0 text-p-xs text-ink-gray-6"
-			aria-live="polite"
-			>{{ __('Saved') }}</span
-		>
 	</div>
 </template>
 
@@ -44,9 +38,7 @@ const emit = defineEmits<{
 
 const field = ref<HTMLInputElement | null>(null)
 const draft = ref(props.modelValue || '')
-const saved = ref(false)
 let cancelling = false
-let timer: ReturnType<typeof setTimeout> | null = null
 
 watch(
 	() => props.modelValue,
@@ -65,9 +57,6 @@ const commit = () => {
 	if (value === (props.modelValue || '').trim()) return
 	emit('update:modelValue', value)
 	emit('save')
-	saved.value = true
-	if (timer) clearTimeout(timer)
-	timer = setTimeout(() => (saved.value = false), 1500)
 }
 
 const cancel = () => {
