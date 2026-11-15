@@ -9,6 +9,10 @@ import {
 import { defineComponent, h } from 'vue'
 
 vi.stubGlobal('__', (text: string) => text)
+// @ts-expect-error frappe's translation layer patches format in at runtime
+String.prototype.format = function (...args: unknown[]) {
+	return this.replace(/\{(\d+)\}/g, (_: string, i: number) => String(args[i]))
+}
 
 // FormShell registers a document-level keydown listener and moves DOM focus, so
 // wrappers left mounted by earlier tests would keep listening.
@@ -264,6 +268,31 @@ describe('BulkCertificatesForm as a route', () => {
 		expect(toastError).toHaveBeenCalledWith('Sam is already certified')
 		expect(toastSuccess).not.toHaveBeenCalled()
 		expect(router.currentRoute.value.name).toBe('BulkCertificates')
+	})
+
+	it('sums up many failures in one toast, not one per student', async () => {
+		certificateSubmit.mockImplementation(
+			(_params: unknown, options: { onSuccess: (r: unknown) => void }) => {
+				options.onSuccess({
+					created: 0,
+					errors: ['Sam is already certified', 'Ana is already certified'],
+				})
+				return Promise.resolve()
+			}
+		)
+		const router = makeRouter()
+		await router.push('/batches/B1/certificates')
+		const wrapper = await mountForm(router, moderator)
+		await wrapper
+			.find('[data-testid="bulk-certificates-save"]')
+			.trigger('click')
+		await flushPromises()
+
+		expect(toastError).toHaveBeenCalledTimes(1)
+		expect(String(toastError.mock.calls[0][0])).toContain('2')
+		expect(String(toastError.mock.calls[0][0])).toContain(
+			'Sam is already certified'
+		)
 	})
 
 	it('does not insert anything when the gate refuses', async () => {

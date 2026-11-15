@@ -182,7 +182,15 @@ const generateCertificates = async () => {
 	} finally {
 		generating.value = false
 	}
-	errors.forEach((message) => toast.error(message))
+	// One toast for the batch, not one per student.
+	if (errors.length === 1) toast.error(errors[0])
+	else if (errors.length > 1)
+		toast.error(
+			__('{0} certificates could not be generated. First error: {1}').format(
+				errors.length,
+				errors[0]
+			)
+		)
 	if (failed || errors.length) return
 	toast.success(__('Certificates generated successfully'))
 	close()
