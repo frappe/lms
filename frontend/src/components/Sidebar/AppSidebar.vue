@@ -93,6 +93,7 @@
 					)
 				}}
 			</div>
+<<<<<<< HEAD
 			<div
 				v-if="
 					isStudent && !profileIsComplete && !sidebarStore.isSidebarCollapsed
@@ -116,6 +117,50 @@
 						params: {
 							username: userResource.data?.username,
 						},
+=======
+			<template v-if="!isLoggedIn">
+				<SidebarItem
+					v-if="sidebarStore.isSidebarCollapsed"
+					:label="__('Log in')"
+					icon="lucide-log-in"
+					:active="false"
+					:onClick="() => redirectToLogin()"
+				/>
+				<SidebarCard
+					v-else
+					data-testid="sidebar-log-in"
+					:title="__('Log in')"
+					:description="
+						__('Log in or sign up to enroll and keep track of your progress.')
+					"
+					icon="lucide-log-in"
+					:action="{
+						label: __('Log in'),
+						variant: 'solid',
+						onClick: () => redirectToLogin(),
+					}"
+				/>
+			</template>
+			<template v-if="isStudent && !profileIsComplete">
+				<SidebarItem
+					v-if="sidebarStore.isSidebarCollapsed"
+					:label="__('Complete your profile')"
+					icon="lucide-user"
+					:route="profileRoute"
+					:active="false"
+				/>
+				<SidebarCard
+					v-else
+					:title="__('Complete your profile')"
+					:description="
+						__('Highlight what makes you unique and show your skills.')
+					"
+					icon="lucide-user"
+					:action="{
+						label: __('My Profile'),
+						route: profileRoute,
+						iconLeft: 'lucide-chevrons-right',
+>>>>>>> e1e0766 (feat(sidebar): show visitors a Log in card that returns them to the page)
 					}"
 				>
 					<Button :label="__('My Profile')" class="w-full">
@@ -241,7 +286,10 @@
 <script setup>
 import { getSidebarLinks } from '@/utils'
 import { usersStore } from '@/stores/user'
+import { storeToRefs } from 'pinia'
+import { sessionStore } from '@/stores/session'
 import { seesOnboarding } from '@/utils/onboarding'
+import { redirectToLogin } from '@/utils/login'
 import { useSidebar } from '@/stores/sidebar'
 import { useSettings } from '@/stores/settings'
 import { Button, call, Tooltip, toast } from 'frappe-ui'
@@ -685,6 +733,16 @@ const isStudent = computed(() => {
 	return userResource.data?.is_student
 })
 
+<<<<<<< HEAD
+=======
+const { isLoggedIn } = storeToRefs(sessionStore())
+
+const profileRoute = computed(() => ({
+	name: 'Profile',
+	params: { username: userResource.data?.username },
+}))
+
+>>>>>>> e1e0766 (feat(sidebar): show visitors a Log in card that returns them to the page)
 const profileIsComplete = computed(() => {
 	return (
 		userResource.data?.user_image &&

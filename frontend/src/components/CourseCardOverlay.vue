@@ -158,6 +158,7 @@ import CertificationLinks from '@/components/CertificationLinks.vue'
 import ProgressBar from '@/components/ProgressBar.vue'
 import VideoPreview from '@/components/VideoPreview.vue'
 import { openExternal } from '@/utils/openExternal'
+import { redirectToLogin } from '@/utils/login'
 import type { CourseDetails, Resource, SessionUser } from '@/types'
 import { isInstructorOf } from '@/utils/instructors'
 
@@ -177,7 +178,7 @@ function enrollStudent() {
 	if (!user.data) {
 		toast.warning(__('You need to login first to enroll for this course'))
 		setTimeout(() => {
-			window.location.href = `/login?redirect-to=${window.location.pathname}`
+			redirectToLogin()
 		}, 500)
 		return
 	}

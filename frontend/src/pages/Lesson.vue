@@ -81,7 +81,10 @@
 					>
 						{{ __('Contact the Administrator to enroll for this course.') }}
 					</Badge>
-					<Button v-else @click="redirectToLogin()">
+					<Button
+						v-else
+						@click="redirectToLogin(getLmsRoute(`courses/${courseName}`))"
+					>
 						<template #prefix>
 							<span class="lucide-log-in size-4" />
 						</template>
@@ -404,6 +407,14 @@ import InlineLessonMenu from '@/components/Notes/InlineLessonMenu.vue'
 import { parseStoredEditorJs } from '@/utils/lessonForm'
 import { isLessonSelection } from '@/utils/lessonSelection'
 import { getLmsRoute } from '@/utils/basePath'
+<<<<<<< HEAD
+=======
+import { redirectToLogin } from '@/utils/login'
+import {
+	canReadDiscussions,
+	hasDoctypePermission,
+} from '@/utils/doctypePermissions'
+>>>>>>> e1e0766 (feat(sidebar): show visitors a Log in card that returns them to the page)
 import { provideStudentView } from '@/composables/useStudentView'
 import type { UserResource } from '@/composables/useStudentView'
 import type { Note, Notes as NotesResource } from '@/types'
@@ -1359,12 +1370,6 @@ watch(
 	},
 	{ immediate: true }
 )
-
-const redirectToLogin = () => {
-	window.location.href = `/login?redirect-to=${getLmsRoute(
-		`courses/${props.courseName}`
-	)}`
-}
 
 usePageMeta(() => {
 	return {

@@ -133,6 +133,7 @@ import {
 	getFormattedDateRange,
 } from '@/utils'
 import { formatTimezone, nextOccurrence } from '@/utils/timezone'
+import { redirectToLogin } from '@/utils/login'
 import VideoPreview from '@/components/VideoPreview.vue'
 
 const user = inject('$user')
@@ -156,7 +157,7 @@ const enroll = createResource({
 
 const enrollInBatch = () => {
 	if (!user.data) {
-		window.location.href = `/login?redirect-to=${window.location.pathname}`
+		redirectToLogin()
 		return
 	}
 	enroll.submit(
