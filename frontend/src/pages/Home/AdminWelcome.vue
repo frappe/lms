@@ -19,7 +19,7 @@
 			v-if="aiStatus.data?.ready"
 			ref="composer"
 			aria-labelledby="teach"
-			class="rounded-8 border border-outline-gray-2 bg-surface-base shadow-sm transition-shadow"
+			class="rounded-8 border border-outline-gray-2 bg-surface-base transition-shadow focus-within:shadow-md"
 			:class="flash ? 'ring-2 ring-outline-gray-3' : ''"
 		>
 			<div class="flex flex-wrap items-center justify-between gap-3 px-5 pt-4">
