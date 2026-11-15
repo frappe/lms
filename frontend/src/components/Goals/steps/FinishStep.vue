@@ -109,21 +109,197 @@
 			</li>
 		</ul>
 
-		<div class="mt-7 flex flex-wrap gap-2.5">
-			<Button
-				v-if="ready && goal.proof_certificate"
-				variant="solid"
-				size="md"
-				@click="showCertificate = true"
-			>
+		<!-- Alpha: the finish is the one moment every tester reaches, so the team's questions live here. -->
+		<section
+			v-if="ready"
+			class="mt-7 flex flex-col gap-8 border-t border-outline-gray-1 pt-7"
+			aria-labelledby="alpha-feedback"
+		>
+			<div v-if="feedbackGiven || sent" class="flex items-center gap-2.5">
+				<span class="lucide-check size-4 text-ink-green-7" aria-hidden="true" />
+				<p class="text-p-sm text-ink-gray-7">
+					{{ __('Thank you. Your answers are with the Frappe Learning team.') }}
+				</p>
+			</div>
+			<template v-else>
+				<div class="flex flex-col gap-1.5">
+					<h2 id="alpha-feedback" class="text-lg-semibold text-ink-gray-9">
+						{{ __("You're one of the first people to learn this way.") }}
+					</h2>
+					<p class="text-p-base text-ink-gray-7">
+						{{
+							__(
+								'We would like to know how was your experience with this new way of learning.'
+							)
+						}}
+					</p>
+				</div>
+
+				<fieldset class="flex flex-col">
+					<legend class="mb-4 text-p-base font-medium text-ink-gray-9">
+						{{ __('1. Is this how learning should feel in the future?') }}
+					</legend>
+					<div class="flex flex-wrap gap-2">
+						<Button
+							v-for="option in FUTURE"
+							:key="option"
+							size="md"
+							variant="outline"
+							:class="optionClass(answers.future === option)"
+							:aria-pressed="answers.future === option"
+							@click="answers.future = option"
+						>
+							{{ __(option) }}
+						</Button>
+					</div>
+				</fieldset>
+
+				<fieldset class="flex flex-col">
+					<legend class="mb-4 text-p-base font-medium text-ink-gray-9">
+						{{
+							__(
+								'2. Compared with traditional courses and training you usually get, this was'
+							)
+						}}
+					</legend>
+					<div class="grid grid-cols-2 gap-2 sm:grid-cols-4">
+						<Button
+							v-for="option in COMPARED"
+							:key="option"
+							size="md"
+							variant="outline"
+							:class="optionClass(answers.compared === option)"
+							:aria-pressed="answers.compared === option"
+							@click="answers.compared = option"
+						>
+							{{ __(option) }}
+						</Button>
+					</div>
+				</fieldset>
+
+				<div class="flex flex-col gap-4">
+					<div class="text-p-base font-medium text-ink-gray-9">
+						{{ __('3. Rate the parts') }}
+					</div>
+					<ul
+						class="divide-y divide-outline-gray-1 rounded-7 border border-outline-gray-2"
+					>
+						<li
+							v-for="part in PARTS"
+							:key="part.key"
+							class="flex flex-wrap items-center justify-between gap-3 px-3.5 py-3"
+						>
+							<div class="min-w-0">
+								<div class="text-p-base text-ink-gray-9">{{ part.label }}</div>
+								<div class="text-p-xs text-ink-gray-6">{{ part.hint }}</div>
+							</div>
+							<Rating
+								v-model="answers[part.key]"
+								:max="5"
+								size="md"
+								:aria-label="part.label"
+							/>
+						</li>
+					</ul>
+					<div class="flex flex-col gap-2">
+						<span class="text-p-sm text-ink-gray-6">{{
+							__('About the voices')
+						}}</span>
+						<div class="flex flex-wrap gap-2">
+							<Button
+								v-for="note in VOICE_NOTES"
+								:key="note"
+								size="sm"
+								variant="outline"
+								:class="[
+									'!rounded-full',
+									optionClass(answers.voice_notes.includes(note)),
+								]"
+								:aria-pressed="answers.voice_notes.includes(note)"
+								@click="toggleNote(note)"
+							>
+								{{ __(note) }}
+							</Button>
+						</div>
+					</div>
+				</div>
+
+				<fieldset class="flex flex-col">
+					<legend class="mb-4 text-p-base font-medium text-ink-gray-9">
+						{{
+							__(
+								'4. Did Lumi get anything wrong, or say something you did not trust?'
+							)
+						}}
+					</legend>
+					<div class="grid grid-cols-1 gap-2 sm:grid-cols-3">
+						<Button
+							v-for="option in TRUST"
+							:key="option"
+							size="md"
+							variant="outline"
+							:class="optionClass(answers.trust === option)"
+							:aria-pressed="answers.trust === option"
+							@click="answers.trust = option"
+						>
+							{{ __(option) }}
+						</Button>
+					</div>
+				</fieldset>
+
+				<fieldset class="flex flex-col">
+					<legend class="mb-4 text-p-base font-medium text-ink-gray-9">
+						{{
+							__(
+								'5. If your next mandatory training came both ways, which would you pick?'
+							)
+						}}
+					</legend>
+					<div class="grid grid-cols-1 gap-2 sm:grid-cols-3">
+						<Button
+							v-for="option in NEXT"
+							:key="option"
+							size="md"
+							variant="outline"
+							:class="optionClass(answers.next_training === option)"
+							:aria-pressed="answers.next_training === option"
+							@click="answers.next_training = option"
+						>
+							{{ __(option) }}
+						</Button>
+					</div>
+				</fieldset>
+
+				<FormControl
+					v-model="answers.words"
+					type="textarea"
+					variant="outline"
+					:rows="4"
+					:label="
+						__(
+							'6. In your own words: what should we keep, and what should we change?'
+						)
+					"
+				/>
+
+				<div>
+					<Button
+						variant="solid"
+						size="md"
+						:disabled="!answered"
+						:loading="sending"
+						@click="send"
+					>
+						{{ __('Submit') }}
+					</Button>
+				</div>
+				<ErrorMessage :message="sendError" />
+			</template>
+		</section>
+
+		<div v-if="ready && goal.proof_certificate" class="mt-7">
+			<Button variant="solid" size="md" @click="showCertificate = true">
 				{{ __('Get your certificate') }}
-			</Button>
-			<Button
-				size="md"
-				:variant="ready && goal.proof_certificate ? 'subtle' : 'solid'"
-				@click="router.push({ name: 'Home' })"
-			>
-				{{ __('Back to home') }}
 			</Button>
 		</div>
 
@@ -151,9 +327,16 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue'
-import { useRouter } from 'vue-router'
-import { Button, call, Checkbox, Dialog } from 'frappe-ui'
+import { computed, reactive, ref } from 'vue'
+import {
+	Button,
+	call,
+	Checkbox,
+	Dialog,
+	ErrorMessage,
+	FormControl,
+	Rating,
+} from 'frappe-ui'
 import CharacterAvatar from '@/components/Goals/CharacterAvatar.vue'
 import { TUTOR_NAME } from '@/utils/characters'
 import dayjs from '@/utils/dayjs'
@@ -173,17 +356,109 @@ const props = defineProps<{
 	memberName: string
 	activities: Record<string, any>[]
 	ideas: Record<string, any>[]
+	/** Whether this tester already sent the team their answers. */
+	feedbackGiven?: boolean
 }>()
 const emit = defineEmits<{
 	changed: [state: Record<string, unknown>]
 	open: [index: number]
 }>()
 
-const router = useRouter()
 const agreed = ref(false)
 const saving = ref(false)
 const showCertificate = ref(false)
 const ready = computed(() => props.assignment.status === 'Ready')
+
+// The alpha questions. The stored values are these English strings, which match the
+// doctype's Select options; the screen shows them translated.
+const FUTURE = [
+	'Yes, this is it',
+	'Right idea, rough edges',
+	'Not sure yet',
+	'No, I like traditional courses',
+]
+const COMPARED = ['Worse', 'About the same', 'Better', 'Much better']
+const PARTS = [
+	{
+		key: 'teaching',
+		label: __("Lumi's teaching"),
+		hint: __('The lesson, the way it explained and checked'),
+	},
+	{
+		key: 'roleplay',
+		label: __('The role-play'),
+		hint: __('Did the other person feel real?'),
+	},
+	{
+		key: 'voices',
+		label: __('The voices'),
+		hint: __('Lumi and the role-play speaking out loud'),
+	},
+] as const
+const VOICE_NOTES = [
+	'Sounded natural',
+	'Too slow',
+	'Hard to hear',
+	'Very robotic',
+	"I'd rather read",
+]
+const TRUST = ['No, all of it held up', 'Once or twice', 'Often']
+const NEXT = ['This, with Lumi', 'The usual course', 'Not sure yet']
+
+const answers = reactive({
+	future: '',
+	compared: '',
+	teaching: 0,
+	roleplay: 0,
+	voices: 0,
+	voice_notes: [] as string[],
+	trust: '',
+	next_training: '',
+	words: '',
+})
+const optionClass = (on: boolean) =>
+	on
+		? '!font-normal !border-outline-gray-4 !text-ink-gray-9'
+		: '!font-normal !border-outline-gray-1'
+const sending = ref(false)
+const sent = ref(false)
+const sendError = ref('')
+// One answer is enough to send; the rest can stay blank.
+const answered = computed(
+	() =>
+		Boolean(
+			answers.future ||
+				answers.compared ||
+				answers.trust ||
+				answers.next_training
+		) ||
+		answers.teaching + answers.roleplay + answers.voices > 0 ||
+		Boolean(answers.words.trim())
+)
+const toggleNote = (note: string) => {
+	const at = answers.voice_notes.indexOf(note)
+	if (at === -1) answers.voice_notes.push(note)
+	else answers.voice_notes.splice(at, 1)
+}
+const send = async () => {
+	sending.value = true
+	sendError.value = ''
+	try {
+		await call('lms.lms.ai.api.submit_alpha_feedback', {
+			assignment: props.assignment.name,
+			values: {
+				...answers,
+				voice_notes: answers.voice_notes.join(', '),
+			},
+		})
+		sent.value = true
+	} catch (error) {
+		console.error(error)
+		sendError.value = __('Could not send your answers. Try again.')
+	} finally {
+		sending.value = false
+	}
+}
 const left = computed(() => props.activities.filter((a) => !a.done))
 const score = computed(() => Math.round(props.assignment.score || 0))
 

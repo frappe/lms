@@ -1,0 +1,157 @@
+{
+ "actions": [],
+ "autoname": "hash",
+ "creation": "2026-11-15 22:40:00.000000",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "member",
+  "goal",
+  "assignment",
+  "column_break_a",
+  "future",
+  "compared",
+  "next_training",
+  "trust",
+  "parts_section",
+  "teaching",
+  "roleplay",
+  "voices",
+  "voice_notes",
+  "words_section",
+  "words"
+ ],
+ "fields": [
+  {
+   "fieldname": "member",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Member",
+   "options": "User",
+   "read_only": 1,
+   "reqd": 1
+  },
+  {
+   "fieldname": "goal",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Skill",
+   "options": "LMS Goal",
+   "read_only": 1,
+   "reqd": 1
+  },
+  {
+   "fieldname": "assignment",
+   "fieldtype": "Link",
+   "label": "Assignment",
+   "options": "LMS Goal Assignment",
+   "read_only": 1,
+   "reqd": 1,
+   "unique": 1
+  },
+  {
+   "fieldname": "column_break_a",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "future",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Is this how learning should feel in the future?",
+   "options": "\nYes, this is it\nRight idea, rough edges\nNot sure yet\nNo, I like traditional courses"
+  },
+  {
+   "fieldname": "compared",
+   "fieldtype": "Select",
+   "in_standard_filter": 1,
+   "label": "Compared with traditional training",
+   "options": "\nWorse\nAbout the same\nBetter\nMuch better"
+  },
+  {
+   "fieldname": "next_training",
+   "fieldtype": "Select",
+   "label": "Next mandatory training",
+   "options": "\nThis, with Lumi\nThe usual course\nNot sure yet"
+  },
+  {
+   "fieldname": "trust",
+   "fieldtype": "Select",
+   "label": "Did Lumi get anything wrong?",
+   "options": "\nNo, all of it held up\nOnce or twice\nOften"
+  },
+  {
+   "fieldname": "parts_section",
+   "fieldtype": "Section Break",
+   "label": "The parts, 1 to 5"
+  },
+  {
+   "fieldname": "teaching",
+   "fieldtype": "Int",
+   "label": "Lumi's teaching"
+  },
+  {
+   "fieldname": "roleplay",
+   "fieldtype": "Int",
+   "label": "The role-play"
+  },
+  {
+   "fieldname": "voices",
+   "fieldtype": "Int",
+   "label": "The voices"
+  },
+  {
+   "fieldname": "voice_notes",
+   "fieldtype": "Small Text",
+   "label": "About the voices",
+   "read_only": 1
+  },
+  {
+   "fieldname": "words_section",
+   "fieldtype": "Section Break",
+   "label": "In their own words"
+  },
+  {
+   "fieldname": "words",
+   "fieldtype": "Text",
+   "label": "Keep and change"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2026-11-15 22:40:00.000000",
+ "modified_by": "Administrator",
+ "module": "LMS",
+ "name": "LMS Alpha Feedback",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Moderator",
+   "share": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

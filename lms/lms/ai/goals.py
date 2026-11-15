@@ -306,7 +306,40 @@ def learner_state(assignment_name: str) -> dict:
 			_learner_view(index, row, evidence.get(index)) for index, row in enumerate(goal.activities)
 		],
 		"ideas": ideas.learner_ideas(assignment, goal),
+		"feedback_given": bool(frappe.db.exists("LMS Alpha Feedback", {"assignment": assignment.name})),
 	}
+
+
+ALPHA_FEEDBACK_KEYS = ("member", "goal", "assignment")
+
+
+def save_alpha_feedback(assignment_name: str, values: dict) -> None:
+	"""What a tester tells the Learning team on the finish page: one record per assignment,
+	their own only, once the skill is finished, rewritten if they answer again."""
+	assignment = get_assignment(assignment_name)
+	if assignment.status != "Ready":
+		frappe.throw(_("Finish the skill first, then tell us how it went."), frappe.ValidationError)
+	meta = frappe.get_meta("LMS Alpha Feedback")
+	answers = {
+		field: value
+		for field, value in values.items()
+		if field not in ALPHA_FEEDBACK_KEYS and meta.has_field(field)
+	}
+	try:
+		_write_alpha_feedback(assignment, answers)
+	except frappe.DuplicateEntryError:
+		# Two submits raced for the first row; the second one updates it.
+		_write_alpha_feedback(assignment, answers)
+
+
+def _write_alpha_feedback(assignment, answers: dict) -> None:
+	name = frappe.db.exists("LMS Alpha Feedback", {"assignment": assignment.name})
+	doc = frappe.get_doc("LMS Alpha Feedback", name) if name else frappe.new_doc("LMS Alpha Feedback")
+	doc.update({"member": assignment.member, "goal": assignment.goal, "assignment": assignment.name})
+	doc.update(answers)
+	# nosemgrep: lms-unjustified-ignore-permissions - a learner has no role on this doctype; the
+	# assignment check above proves the feedback is their own, and only the team can read it.
+	doc.save(ignore_permissions=True)
 
 
 def submit_activity(assignment_name: str, index: int, response: dict) -> dict:

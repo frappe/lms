@@ -473,6 +473,12 @@ def session_state(assignment: str) -> dict:
 
 
 @frappe.whitelist(methods=["POST"])
+def submit_alpha_feedback(assignment: str, values: dict | str) -> None:
+	"""An alpha tester's answers from the finish page, kept for the Learning team."""
+	goals.save_alpha_feedback(assignment, frappe.parse_json(values) or {})
+
+
+@frappe.whitelist(methods=["POST"])
 def submit_activity(assignment: str, index: int, response: dict | str) -> dict:
 	return goals.submit_activity(assignment, int(index), frappe.parse_json(response))
 

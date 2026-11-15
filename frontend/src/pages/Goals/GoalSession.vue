@@ -186,7 +186,7 @@
 						<template #icon><span class="lucide-minimize-2 size-4" /></template>
 					</Button>
 				</div>
-				<main class="flex flex-1 flex-col overflow-y-auto">
+				<main ref="pane" class="flex flex-1 flex-col overflow-y-auto">
 					<div
 						class="w-full"
 						:class="
@@ -289,6 +289,7 @@
 								:member-name="memberName"
 								:activities="state.activities"
 								:ideas="state.ideas || []"
+								:feedback-given="Boolean(state.feedback_given)"
 								@changed="load"
 								@open="(index) => (current = index)"
 							/>
@@ -359,6 +360,7 @@ import {
 	provide,
 	ref,
 	watch,
+	nextTick,
 } from 'vue'
 import { TUTOR_NAME } from '@/utils/characters'
 import { useSidebar } from '@/stores/sidebar'
@@ -470,7 +472,14 @@ const stepOptions = computed(() =>
 )
 // A live conversation (the lesson with Lumi, a role-play) fills the page and brings its own header.
 const stepLive = ref(false)
-watch(current, () => (stepLive.value = false))
+const pane = ref<HTMLElement | null>(null)
+// A new step starts at its top: the check's last question leaves the page scrolled down,
+// and the finish page must not open on its lower half.
+watch(current, async () => {
+	stepLive.value = false
+	await nextTick()
+	pane.value?.scrollTo({ top: 0 })
+})
 const fullBleed = computed(() => isChatStep.value && stepLive.value)
 const stepLabel = computed(() =>
 	__('step {0} of {1}', [current.value + 1, steps.value.length])
