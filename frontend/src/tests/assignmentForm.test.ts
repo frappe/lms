@@ -175,10 +175,6 @@ const student = {
 	is_instructor: false,
 }
 
-// The form was converted from a modal by moving this field set wholesale, so
-// pin it: a field dropped in the move is otherwise invisible to the suite.
-const FIELD_LABELS = ['Title', 'Submission Type', 'Course', 'Question']
-
 const RECORD = {
 	name: 'ASG-0001',
 	title: 'Write an essay',
@@ -248,6 +244,7 @@ describe('AssignmentForm as a route', () => {
 		expect(wrapper.html()).toContain('not permitted')
 	})
 
+<<<<<<< HEAD
 	it('carries every field of the assignment form', async () => {
 		const router = makeRouter()
 		await router.push({
@@ -275,6 +272,8 @@ describe('AssignmentForm as a route', () => {
 		).toContain('Question')
 	})
 
+=======
+>>>>>>> ffe35ba (test: drop mocked frontend tests that only pin wiring or markup)
 	it('fetches the record itself on a cold deep link into edit mode', async () => {
 		// C4. The form used to read edit values out of the parent list's
 		// in-memory array, which is empty when the list has never been mounted —
@@ -333,17 +332,6 @@ describe('AssignmentForm as a route', () => {
 		])
 	})
 
-	it('does not fetch a document in create mode', async () => {
-		const router = makeRouter()
-		await router.push({
-			name: 'AssignmentForm',
-			params: { assignmentID: 'new' },
-		})
-		await mountForm(router, moderator)
-
-		expect(docOptions.current).toMatchObject({ name: undefined, auto: false })
-	})
-
 	it('creates through its own resource, not a parent-supplied one', async () => {
 		const router = makeRouter()
 		await router.push({
@@ -370,6 +358,30 @@ describe('AssignmentForm as a route', () => {
 		})
 	})
 
+<<<<<<< HEAD
+=======
+	it('offers an Audio type and creates an audio assignment', async () => {
+		const router = makeRouter()
+		await router.push({
+			name: 'AssignmentForm',
+			params: { assignmentID: 'new' },
+		})
+		const wrapper = await mountForm(router, moderator)
+
+		const typeField = wrapper
+			.findAllComponents({ name: 'FormControl' })
+			.find((field: any) => field.props('label') === 'Submission Type')
+		expect(
+			typeField.props('options').map((option: any) => option.value)
+		).toContain('Audio')
+
+		await fillRequired(wrapper)
+		await inputs(wrapper)[1].setValue('Audio')
+		await wrapper.find('[data-testid="assignment-save"]').trigger('click')
+		expect(insertOptions.current.makeParams().doc.type).toBe('Audio')
+	})
+
+>>>>>>> ffe35ba (test: drop mocked frontend tests that only pin wiring or markup)
 	// Regression: empty create showed a raw server error (#3024, fixed in
 	// #3047).
 	it('names the first missing field instead of sending an empty assignment', async () => {

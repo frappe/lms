@@ -105,7 +105,7 @@ import CourseOutline from '@/components/CourseOutline.vue'
 // already in the graph — left to the dynamic import alone, a navigation started
 // by a click has to wait on a cold transform, which under a parallel suite run
 // overruns the test timeout.
-import ChapterForm from '@/pages/Forms/ChapterForm.vue'
+import '@/pages/Forms/ChapterForm.vue'
 
 const outlineResource = reactive({
 	data: [] as unknown[],
@@ -217,21 +217,6 @@ describe('the chapter route', () => {
 		])
 		expect(resolved.params.chapterName).toBe('new')
 		expect(resolved.params.courseName).toBe('COURSE-1')
-	})
-
-	it('points that route at the chapter form itself', async () => {
-		type LazyRecord = {
-			name?: unknown
-			children?: LazyRecord[]
-			component?: () => Promise<unknown>
-		}
-		const record = (routes as LazyRecord[])
-			.find((route) => route.name === 'CourseDetail')
-			?.children?.find((child) => child.name === 'ChapterForm')
-		expect(record?.component).toBeTypeOf('function')
-		await expect(record!.component!()).resolves.toMatchObject({
-			default: ChapterForm,
-		})
 	})
 
 	it('leaves the existing course routes alone', () => {

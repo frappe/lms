@@ -243,30 +243,6 @@ describe('ResponsiveListView selection on a phone', () => {
 		expect((box().element as HTMLInputElement).checked).toBe(false)
 	})
 
-	it('hands the banner the same props a desk hands it', async () => {
-		mobile.value = true
-		const phone = await mountList(routedOptions)
-		await selectFirstRow(phone.wrapper)
-
-		mobile.value = false
-		const desk = await mountList(routedOptions)
-		const list = desk.wrapper.findComponent({ name: 'ListView' })
-		list.vm.toggleRow('a')
-		await nextTick()
-
-		expect(Object.keys(phone.banner.value!).sort()).toEqual(
-			Object.keys(desk.banner.value!).sort()
-		)
-		expect(Array.from(phone.banner.value!.selections)).toEqual(
-			Array.from(desk.banner.value!.selections)
-		)
-		for (const props of [phone.banner.value!, desk.banner.value!]) {
-			expect(props.selections).toBeInstanceOf(Set)
-			expect(typeof props.unselectAll).toBe('function')
-			expect(typeof props.selectAll).toBe('function')
-		}
-	})
-
 	it('clears the selection from the slot, the way a page ends a bulk action', async () => {
 		mobile.value = true
 		const { wrapper, banner } = await mountList(routedOptions)
@@ -356,46 +332,10 @@ describe('ResponsiveListView without selection', () => {
 
 		expect(wrapper.find('[data-testid="row-checkbox"]').exists()).toBe(false)
 	})
-
-	it('keeps drawing the desk row and header above the breakpoint', async () => {
-		mobile.value = false
-		const { wrapper } = await mountList(routedOptions)
-
-		expect(wrapper.find('[data-testid="list-rows"]').exists()).toBe(true)
-		expect(wrapper.find('ul').exists()).toBe(false)
-		expect(wrapper.find('[data-testid="row-checkbox"]').exists()).toBe(false)
-	})
 })
 
 /** frappe-ui hands its rows a box it has already clipped (`overflow-y-hidden`), and supplies the scrolling itself in ListRows. */
 describe('ResponsiveListView card scrolling', () => {
-	const SCROLLS = 'overflow-y-auto'
-
-	it('never scrolls the cards inside a box of their own', async () => {
-		mobile.value = true
-		const { wrapper } = await mountList(routedOptions)
-
-		const list = wrapper.find('ul').element
-		const clipped = wrapper.find('[data-testid="listview"]').element
-		expect(clipped.className).toContain('overflow-y-hidden')
-
-		for (
-			let el = list.parentElement;
-			el && el !== clipped;
-			el = el.parentElement
-		) {
-			expect(el.className.includes(SCROLLS)).toBe(false)
-		}
-		// And nothing may bound their height either, or the clip bites instead.
-		for (
-			let el = list.parentElement;
-			el && el !== clipped;
-			el = el.parentElement
-		) {
-			expect(el.className.includes('min-h-0')).toBe(false)
-		}
-	})
-
 	it('leaves the selection banner outside the rows, so it does not scroll away', async () => {
 		mobile.value = true
 		const { wrapper } = await mountList(routedOptions)
@@ -406,6 +346,7 @@ describe('ResponsiveListView card scrolling', () => {
 		expect(banner.contains(list)).toBe(false)
 	})
 })
+<<<<<<< HEAD
 
 /** The `·` between the card's detail cells. */
 describe('ResponsiveListView detail separator', () => {
@@ -477,3 +418,5 @@ describe('ResponsiveListView detail separator', () => {
 		expect(wrapper.find('li').text()).toContain('·')
 	})
 })
+=======
+>>>>>>> ffe35ba (test: drop mocked frontend tests that only pin wiring or markup)

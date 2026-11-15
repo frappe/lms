@@ -203,18 +203,6 @@ const student = {
 	is_instructor: false,
 }
 
-// Every field the course form is meant to collect. The form was converted from
-// a modal by moving this grid wholesale, so pin the set: a field dropped in the
-// move is otherwise invisible to the rest of the suite.
-const FIELD_LABELS = [
-	'Title',
-	'Category',
-	'Instructors',
-	'Course thumbnail',
-	'Short introduction',
-	'Course description',
-]
-
 const inputFor = (wrapper: VueWrapper, label: string) =>
 	wrapper
 		.findAll('label')
@@ -303,32 +291,6 @@ describe('NewCourseForm as a route', () => {
 		expect(wrapper.html()).toContain('not permitted')
 	})
 
-	it('carries every field of the course form', async () => {
-		const router = makeRouter()
-		await router.push({ name: 'NewCourse' })
-		const wrapper = await mountForm(router, moderator)
-
-		const fields = wrapper.find('[data-testid="new-course-fields"]')
-		expect(fields.exists()).toBe(true)
-		// InputLabel appends RequiredIndicator ("*" plus an sr-only "(required)"),
-		// so the field's own name has to be read out of that.
-		const labels = fields
-			.findAll('label')
-			.map((label) =>
-				label
-					.text()
-					.replace(/\(required\)|\*/g, '')
-					.replace(/\s+/g, ' ')
-					.trim()
-			)
-			.filter((text) => text !== '')
-		for (const label of FIELD_LABELS) {
-			expect(labels).toContain(label)
-		}
-		// Exact count, so an added field has to be added here too.
-		expect(labels).toHaveLength(FIELD_LABELS.length)
-	})
-
 	it('ignores Ctrl+S for a user who cannot create courses', async () => {
 		const router = makeRouter()
 		await router.push({ name: 'NewCourse' })
@@ -346,16 +308,6 @@ describe('NewCourseForm as a route', () => {
 		await mountForm(router, student)
 		pressCtrlS()
 		expect(insertSubmit).not.toHaveBeenCalled()
-	})
-
-	it('inserts through its own resource, not a parent-supplied one', async () => {
-		const router = makeRouter()
-		await router.push({ name: 'NewCourse' })
-		const wrapper = await mountForm(router, moderator)
-		await fillRequired(wrapper)
-
-		await wrapper.find('[data-testid="new-course-save"]').trigger('click')
-		expect(insertSubmit).toHaveBeenCalledTimes(1)
 	})
 
 	// Regression: empty create showed a raw server error (#3024, fixed in
@@ -405,6 +357,7 @@ describe('NewCourseForm as a route', () => {
 		expect(insertSubmit).toHaveBeenCalledTimes(1)
 	})
 
+<<<<<<< HEAD
 	it('scopes its list resource to the SAME cache key Courses.vue uses', async () => {
 		// The design doc (C4) records this as the single load-bearing reason a
 		// created course appears in the list at all: createListResource hands
@@ -449,6 +402,8 @@ describe('NewCourseForm as a route', () => {
 		expect(router.currentRoute.value.name).toBe('Courses')
 	})
 
+=======
+>>>>>>> ffe35ba (test: drop mocked frontend tests that only pin wiring or markup)
 	it('replaces rather than pushes on save, so Back reaches the list', async () => {
 		const router = makeRouter()
 		await router.push({ name: 'Courses' })

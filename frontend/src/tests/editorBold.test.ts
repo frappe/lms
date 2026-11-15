@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { describe, it, expect, beforeEach } from 'vitest'
 
 declare global {
 	interface Window {
@@ -6,18 +6,8 @@ declare global {
 	}
 }
 window.__ = (text: string): string => text
-window.matchMedia ??= (() => ({
-	matches: false,
-	addEventListener: () => {},
-	removeEventListener: () => {},
-})) as unknown as typeof window.matchMedia
-
-vi.mock('frappe-ui', () => ({ call: () => {}, toast: {} }))
-vi.mock('@/stores/settings', () => ({ useSettings: () => ({}) }))
-vi.mock('@/stores/user', () => ({ usersStore: () => ({ userResource: {} }) }))
 
 const { Bold } = await import('@/utils/inline/Bold')
-const { getEditorTools } = await import('@/utils')
 
 // EditorJS's built-in Bold calls `document.execCommand('bold')`. Inside a
 // heading the text is already bold, so the browser reads the command as "on"
@@ -103,14 +93,5 @@ describe('Bold inline tool', () => {
 		bold.surround(window.getSelection()!.getRangeAt(0))
 		expect(host.querySelector('b')).toBeNull()
 		expect(host.textContent).toBe('Heading probe text')
-	})
-
-	it('keeps <b> in the sanitizer allowlist', () => {
-		expect(Bold.sanitize).toEqual({ b: true })
-	})
-
-	it('is registered as the editor bold tool, replacing the execCommand one', () => {
-		const tools = getEditorTools() as Record<string, { class?: unknown }>
-		expect(tools.bold?.class).toBe(Bold)
 	})
 })

@@ -152,16 +152,11 @@ vi.mock('@/components/ResponsiveListView.vue', () => ({
 
 import ProgramForm from '@/pages/Forms/ProgramForm.vue'
 
-const savedSpy = vi.fn()
-
 // The list page hosts the form as a child route, so it renders a nested
 // RouterView. RouterView is imported rather than written as the string
 // 'router-view', which h() would leave as an unresolved custom element.
-// The listener is bound on the outlet exactly as Programs.vue binds
-// `@saved="updatePrograms"` — RouterView forwards its attrs to the routed
-// component, which is the whole mechanism the parent's refresh depends on.
 const List = defineComponent({
-	render: () => h('div', ['LIST', h(RouterView, { onSaved: savedSpy })]),
+	render: () => h('div', ['LIST', h(RouterView)]),
 })
 
 const makeRouter = (): Router =>
@@ -231,10 +226,6 @@ const MEMBER_ROWS = [
 	{ name: 'row-m1', member: 'member@example.com', full_name: 'A Member' },
 ]
 
-// Every label the form is meant to collect. Pin the set: a field lost in the
-// modal→page move is otherwise invisible to the rest of the suite.
-const FIELD_LABELS = ['Title', 'Published', 'Enforce Course Order']
-
 beforeEach(() => {
 	resources.lists.length = 0
 	resources.docs.length = 0
@@ -242,7 +233,6 @@ beforeEach(() => {
 	setValueSubmit.mockReset()
 	deleteSubmit.mockReset()
 	$dialog.mockReset()
-	savedSpy.mockReset()
 	Object.defineProperty(window, 'innerWidth', {
 		value: 1024,
 		writable: true,
@@ -264,6 +254,7 @@ describe('ProgramForm as a route', () => {
 		expect(wrapper.html()).toContain('not permitted')
 	})
 
+<<<<<<< HEAD
 	it('carries every field of the program form', async () => {
 		const { wrapper } = await deepLink('new')
 		const fields = wrapper.find('[data-testid="program-fields"]')
@@ -375,6 +366,8 @@ describe('ProgramForm as a route', () => {
 		expect(router.currentRoute.value.name).toBe('Programs')
 	})
 
+=======
+>>>>>>> ffe35ba (test: drop mocked frontend tests that only pin wiring or markup)
 	describe('edit mode, arrived at cold', () => {
 		it('fetches its own record instead of reading a parent array (C4)', async () => {
 			const { wrapper } = await deepLink('data-science')

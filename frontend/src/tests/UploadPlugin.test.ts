@@ -1,12 +1,7 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 
-const { openFileSelector, slotState } = vi.hoisted(() => ({
+const { openFileSelector } = vi.hoisted(() => ({
 	openFileSelector: vi.fn(),
-	slotState: {
-		uploading: false,
-		progress: 0,
-		error: null as string | null,
-	},
 }))
 
 // Stub FileUploader so we can read the flat props it receives.
@@ -44,14 +39,23 @@ vi.mock('frappe-ui', async () => {
 					h(
 						'div',
 						{ class: 'file-uploader' },
+<<<<<<< HEAD
 						slots.default?.({ openFileSelector, ...slotState })
+=======
+						slots.default?.({
+							openFileSelector,
+							uploading: false,
+							progress: 0,
+							error: null,
+						})
+>>>>>>> ffe35ba (test: drop mocked frontend tests that only pin wiring or markup)
 					)
 			},
 		},
 	}
 })
 
-import { flushPromises, mount } from '@vue/test-utils'
+import { mount } from '@vue/test-utils'
 import { reactive, nextTick } from 'vue'
 import UploadPlugin from '@/components/UploadPlugin.vue'
 import translationPlugin from '@/translation'
@@ -104,6 +108,7 @@ describe('UploadPlugin: attach args', () => {
 	})
 })
 
+<<<<<<< HEAD
 describe('UploadPlugin: file picker', () => {
 	beforeEach(() => {
 		openFileSelector.mockClear()
@@ -138,6 +143,28 @@ describe('UploadPlugin: file picker', () => {
 		await flushPromises()
 		expect(wrapper.find('.error-message').text()).toBe(
 			'Only image and video files are allowed.'
+=======
+describe('UploadPlugin: what a lesson accepts', () => {
+	const check = (name: string) =>
+		uploader(mountPlugin({ docname: null, fieldname: 'content' })).props(
+			'validateFile'
+		)({ name })
+
+	it('takes the audio files phones and recorders save', () => {
+		for (const name of [
+			'talk.mp3',
+			'memo.M4A',
+			'clip.wav',
+			'clip.ogg',
+			'clip.aac',
+		])
+			expect(check(name)).toBeUndefined()
+	})
+
+	it('refuses a file it cannot show', () => {
+		expect(check('notes.docx')).toBe(
+			'Upload an image, video, audio or PDF file.'
+>>>>>>> ffe35ba (test: drop mocked frontend tests that only pin wiring or markup)
 		)
 	})
 })

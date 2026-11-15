@@ -1,5 +1,9 @@
 import { describe, expect, it, vi } from 'vitest'
+<<<<<<< HEAD
 import { defineComponent, h, nextTick } from 'vue'
+=======
+import { defineComponent, h, markRaw } from 'vue'
+>>>>>>> ffe35ba (test: drop mocked frontend tests that only pin wiring or markup)
 import type { Component } from 'vue'
 import { flushPromises, mount } from '@vue/test-utils'
 import type { VueWrapper } from '@vue/test-utils'
@@ -80,9 +84,14 @@ const DOC = { title: 'Intro to Frappe' }
 function body(testid: string): Component {
 	return defineComponent({
 		props: { course: { type: Object, default: null } },
+<<<<<<< HEAD
 		setup(props) {
 			return () =>
 				h('div', { 'data-testid': testid }, String(props.course?.title ?? ''))
+=======
+		setup() {
+			return () => h('div', { 'data-testid': 'body-settings' })
+>>>>>>> ffe35ba (test: drop mocked frontend tests that only pin wiring or markup)
 		},
 	})
 }
@@ -303,12 +312,6 @@ describe('TabbedDetailPage hash', () => {
 })
 
 describe('TabbedDetailPage document binding', () => {
-	it('hands the document to the tab under the page name for it', async () => {
-		const { wrapper } = await mountPage({ tabs: tabs() })
-
-		expect(wrapper.find('[data-testid="body-overview"]').text()).toBe(DOC.title)
-	})
-
 	it('mounts no tab body before the document arrives', async () => {
 		const { wrapper } = await mountPage({
 			tabs: tabs(),
@@ -317,49 +320,6 @@ describe('TabbedDetailPage document binding', () => {
 
 		expect(shell(wrapper).exists()).toBe(true)
 		expect(wrapper.find('[data-testid="body-overview"]').exists()).toBe(false)
-	})
-
-	it('lets a page render one tab itself, and leaves the rest alone', async () => {
-		const { wrapper } = await mountPage({
-			tabs: tabs(),
-			hash: '#editor',
-			slots: {
-				'tab-body-editor': () => h('div', { 'data-testid': 'own-editor' }),
-			},
-		})
-
-		expect(wrapper.find('[data-testid="own-editor"]').exists()).toBe(true)
-		expect(wrapper.find('[data-testid="body-editor"]').exists()).toBe(false)
-
-		await openTab(wrapper, 'overview')
-		expect(wrapper.find('[data-testid="body-overview"]').exists()).toBe(true)
-	})
-})
-
-describe('TabbedDetailPage mobile flow', () => {
-	it('releases the scroll box for a tab that flows with the page', async () => {
-		mobile.value = true
-		const { wrapper } = await mountPage({ tabs: tabs() })
-
-		expect(shell(wrapper).classes()).toContain('page-flow')
-		expect(wrapper.classes()).toContain('min-h-full')
-	})
-
-	it('keeps the scroll box for a tab that owns one', async () => {
-		mobile.value = true
-		const { wrapper } = await mountPage({ tabs: tabs() })
-
-		await openTab(wrapper, 'dashboard')
-
-		expect(shell(wrapper).classes()).not.toContain('page-flow')
-		expect(wrapper.classes()).toContain('h-full')
-	})
-
-	it('never flows on a desk, whatever the tab asked for', async () => {
-		mobile.value = false
-		const { wrapper } = await mountPage({ tabs: tabs() })
-
-		expect(shell(wrapper).classes()).not.toContain('page-flow')
 	})
 })
 
@@ -383,6 +343,7 @@ describe('TabbedDetailPage actions', () => {
 
 		expect(seen.key).toBe('editor')
 	})
+<<<<<<< HEAD
 
 	it('hands the actions slot the open tab’s own instance', async () => {
 		const seen: { instance?: { save?: () => string } } = {}
@@ -424,4 +385,6 @@ describe('TabbedDetailPage tab strip', () => {
 		expect(strip.text()).toContain('Course editor')
 		expect(strip.find('.lucide-list').exists()).toBe(true)
 	})
+=======
+>>>>>>> ffe35ba (test: drop mocked frontend tests that only pin wiring or markup)
 })

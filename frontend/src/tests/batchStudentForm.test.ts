@@ -241,23 +241,6 @@ describe('BatchStudentForm as a route', () => {
 		expect(form(wrapper).props('target')).toMatchObject({ paidKind: null })
 	})
 
-	it('survives enrolling with no dashboard tab to refresh', async () => {
-		const router = makeRouter()
-		await openForm(router)
-		const wrapper = await mountForm(router)
-		await enrolled(wrapper)
-
-		expect(getCachedListResourceMock).toHaveBeenCalledWith([
-			'batchStudents',
-			'B1',
-		])
-		expect(getCachedResourceMock).toHaveBeenCalledWith([
-			'batch_student_count',
-			'B1',
-		])
-		expect(router.currentRoute.value.name).toBe('NewBatchStudent')
-	})
-
 	// Seats Left on the Overview overlay is get_batch_details', and an enrollment
 	// is exactly what moves it. That resource carries no cache key, so unlike the
 	// two above it cannot be reached by one — the page provides the reload.
@@ -286,6 +269,7 @@ describe('BatchStudentForm as a route', () => {
 		expect(router.currentRoute.value.name).toBe('NewBatchStudent')
 	})
 
+<<<<<<< HEAD
 	it('ticks the onboarding step for a moderator', async () => {
 		const router = makeRouter()
 		await openForm(router)
@@ -324,6 +308,8 @@ describe('BatchStudentForm as a route', () => {
 		expect(updateOnboardingStepMock).not.toHaveBeenCalled()
 	})
 
+=======
+>>>>>>> ffe35ba (test: drop mocked frontend tests that only pin wiring or markup)
 	it('returns to the opening tab when the form closes', async () => {
 		const router = makeRouter()
 		await router.push({

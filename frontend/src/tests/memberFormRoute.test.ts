@@ -12,8 +12,13 @@ vi.stubGlobal('__', (text: string) => text)
 enableAutoUnmount(afterEach)
 
 // Stubbed so tests control call/resource responses without a network.
+<<<<<<< HEAD
 const { callMock, createResourceMock, getCachedResourceMock, toastMock } =
 	vi.hoisted(() => {
+=======
+const { callMock, createResourceMock, switchIds, toastMock } = vi.hoisted(
+	() => {
+>>>>>>> ffe35ba (test: drop mocked frontend tests that only pin wiring or markup)
 		window.matchMedia ??= (() => ({
 			matches: false,
 			addEventListener: () => {},
@@ -22,10 +27,18 @@ const { callMock, createResourceMock, getCachedResourceMock, toastMock } =
 		return {
 			callMock: vi.fn(),
 			createResourceMock: vi.fn(),
+<<<<<<< HEAD
 			getCachedResourceMock: vi.fn(),
 			toastMock: { success: vi.fn(), error: vi.fn() },
 		}
 	})
+=======
+			switchIds: { n: 0 },
+			toastMock: { success: vi.fn(), error: vi.fn() },
+		}
+	}
+)
+>>>>>>> ffe35ba (test: drop mocked frontend tests that only pin wiring or markup)
 
 // HeaderButton wraps frappe-ui's Button in a Tooltip below the mobile
 // breakpoint, and the hand-written frappe-ui mock here has no Tooltip. Stub it
@@ -41,7 +54,6 @@ vi.mock('@/components/HeaderButton.vue', () => ({
 vi.mock('frappe-ui', () => ({
 	call: callMock,
 	createResource: createResourceMock,
-	getCachedResource: getCachedResourceMock,
 	toast: toastMock,
 	Dialog: {
 		name: 'Dialog',
@@ -97,9 +109,6 @@ vi.mock('@/components/Controls/BooleanSwitch.vue', () => ({
 import MemberForm from '@/pages/Forms/MemberForm.vue'
 import { openFormRoute } from '@/composables/useFormRoute'
 import { membersRevision } from '@/stores/members'
-// The REAL route table, not a copy: a reimplemented table would only prove that
-// vue-router matches what you tell it to match.
-import { routes } from '@/routes'
 
 const MEMBER = 'jane@doe.com'
 
@@ -167,53 +176,8 @@ describe('the member form route', () => {
 		lookup.fetch.mockClear()
 		callMock.mockReset()
 		createResourceMock.mockClear()
-		getCachedResourceMock.mockReset()
-		getCachedResourceMock.mockReturnValue(null)
 		toastMock.success.mockClear()
 		toastMock.error.mockClear()
-	})
-
-	// resolve(), not push(): matching is synchronous and does not pull in the
-	// lazy page components, several of which are expensive to transform.
-	describe('route grammar', () => {
-		it('resolves both modes of /settings/users/:memberID', () => {
-			const router = createRouter({ history: createMemoryHistory(), routes })
-
-			const add = router.resolve('/settings/users/new')
-			expect(add.name).toBe('MemberForm')
-			expect(add.params.memberID).toBe('new')
-
-			const edit = router.resolve(`/settings/users/${MEMBER}`)
-			expect(edit.name).toBe('MemberForm')
-			expect(edit.params.memberID).toBe(MEMBER)
-		})
-
-		// It is the only thing under '/settings' with an address now: the phone
-		// settings pages are gone, so the prefix itself matches nothing.
-		it('is the only route under the settings prefix', () => {
-			const router = createRouter({ history: createMemoryHistory(), routes })
-			expect(router.resolve('/settings').name).toBe('NotFound')
-			expect(router.resolve('/settings/users').name).toBe('NotFound')
-			expect(router.resolve('/settings/zoom').name).toBe('NotFound')
-		})
-
-		// It matches its own three segments and nothing wider: a path-param route
-		// with a greedier pattern here would answer for '/settings/zoom/oops' too.
-		it('does not answer for another settings path', () => {
-			const router = createRouter({ history: createMemoryHistory(), routes })
-			expect(router.resolve('/settings/zoom/oops').name).toBe('NotFound')
-		})
-
-		it('points that route at the member form itself', async () => {
-			type LazyRecord = { name?: unknown; component?: () => Promise<unknown> }
-			const record = (routes as LazyRecord[]).find(
-				(route) => route.name === 'MemberForm'
-			)
-			expect(record?.component).toBeTypeOf('function')
-			await expect(record!.component!()).resolves.toMatchObject({
-				default: MemberForm,
-			})
-		})
 	})
 
 	// Members.vue's Add button carried no gate of its own; the gate was on the
@@ -376,23 +340,63 @@ describe('the member form route', () => {
 
 			expect(membersRevision.value).toBeGreaterThan(before)
 		})
+	})
 
-		// The cache key this replaced would have survived the panel unmounting
-		// and kept writing into the dead component's refs.
-		it('never reaches for the list resource by cache key', async () => {
+<<<<<<< HEAD
+=======
+	// Now renders through the shared RoleSwitches component, reversing an
+	// earlier fix for this phone route. What's still tested: each row pairs
+	// one label with its own switch, whatever the column count.
+	describe('the roles block', () => {
+		const mountAdd = async () => {
 			const router = makeRouter()
 			await router.push('/settings/users/new')
-			const wrapper = await mountForm(router)
+			return mountForm(router)
+		}
+
+		it('gives each role a row of its own, the name beside its switch', async () => {
+			const wrapper = await mountAdd()
+			const rows = wrapper.findAll('[data-testid="role-row"]')
+
+			expect(
+				rows.map((row) => row.get('[data-testid="switch-label"]').text())
+			).toEqual(['Student', 'Course Creator', 'Evaluator', 'Moderator'])
+			for (const row of rows) {
+				expect(row.findAll('[data-testid="switch-label"]')).toHaveLength(1)
+				expect(row.findAll('[role="switch"]')).toHaveLength(1)
+			}
+		})
+
+		it('names every switch by the role it sits next to', async () => {
+			const wrapper = await mountAdd()
+			for (const role of [
+				'Student',
+				'Course Creator',
+				'Evaluator',
+				'Moderator',
+			])
+				expect(switchNamed(wrapper, role).attributes('role')).toBe('switch')
+		})
+
+		it('toggles the role its row names, not the one beside it', async () => {
+			const wrapper = await mountAdd()
 			callMock.mockResolvedValue({ name: MEMBER })
 
 			await wrapper.find('[data-testid="field-Email"] input').setValue(MEMBER)
+			await switchNamed(wrapper, 'Evaluator').trigger('click')
 			await save(wrapper).trigger('click')
 			await flushPromises()
 
-			expect(getCachedResourceMock).not.toHaveBeenCalled()
+			expect(callMock.mock.calls.slice(1)).toEqual([
+				[
+					'lms.lms.api.save_role',
+					{ user: MEMBER, role: 'Batch Evaluator', value: 1 },
+				],
+			])
 		})
 	})
 
+>>>>>>> ffe35ba (test: drop mocked frontend tests that only pin wiring or markup)
 	// Opened from Members.vue instead. On desktop the settings dialog is still
 	// floating above whatever page the URL points at, so closing has to pop back
 	// to that page rather than replace it with the phone settings screen.

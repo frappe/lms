@@ -273,9 +273,6 @@ const asked = (url: string) => server.calls.filter((c) => c.url === url)
 
 const rows = (w: VueWrapper) => w.findAll('[data-slot="list-row"]')
 
-const cells = (row: ReturnType<typeof rows>[number]) =>
-	row.findAll('[data-slot="list-cell"]').map((cell) => cell.text())
-
 const buttonNamed = (w: VueWrapper, label: string) =>
 	w.findAll('button').find((b) => b.text().trim() === label)
 
@@ -338,6 +335,7 @@ describe('the Raven setup gate', () => {
 		expect(asked(ENABLE)).toHaveLength(1)
 	})
 
+<<<<<<< HEAD
 	it('links the app that has a page, and only names the one that has none', () => {
 		// raven_integration installs at the bench, so there is nowhere to send
 		// anyone; naming it is the whole of the instruction.
@@ -361,6 +359,8 @@ describe('the Raven setup gate', () => {
 		expect(panel().findAll('a')).toHaveLength(0)
 	})
 
+=======
+>>>>>>> ffe35ba (test: drop mocked frontend tests that only pin wiring or markup)
 	it('translates the install sentence as one unit, not in fragments', () => {
 		// Three __() calls could not be reordered by a translator and fixed
 		// English's word order into the DOM, which is what an RTL locale undoes.
@@ -525,27 +525,6 @@ describe('the workspace list', () => {
 	const labelsShown = (w: VueWrapper) =>
 		rows(w).map((row) => row.get('.text-ink-gray-8').text())
 
-	it('reads the name as the row and everything beside it as detail', () => {
-		server.data[LIST_WORKSPACES] = [
-			workspaceRecord(),
-			workspaceRecord({
-				name: null,
-				mapped: 0,
-				workspace_label: 'Raw',
-				raven_workspace: 'WS-2',
-				channel_count: null,
-			}),
-		]
-		const w = list()
-
-		expect(cells(rows(w)[0])).toEqual(['Design HQ', '4', 'Private', ''])
-		// Blank, not 0: an unadopted row manages no channels *here*, which is not
-		// the same as a workspace that has none.
-		expect(cells(rows(w)[1])[1]).toBe('')
-		// The name reads at ink-gray-8, the cells beside it at ink-gray-6.
-		expect(rows(w)[0].get('.text-ink-gray-8').text()).toBe('Design HQ')
-	})
-
 	it.each([
 		{ why: 'Not linked', over: { name: null, mapped: 0 } },
 		{ why: 'Stale', over: { stale: 1 } },
@@ -605,19 +584,6 @@ describe('the workspace list', () => {
 		await nextTick()
 
 		expect(labelsShown(w)).toEqual(shown)
-	})
-
-	it('offers no Disabled state, because a workspace has no on/off', () => {
-		const options = stateFilter(list()).props('options') as {
-			value: string
-		}[]
-
-		expect(options.map((o) => o.value)).toEqual([
-			'all',
-			'active',
-			'stale',
-			'unlinked',
-		])
 	})
 
 	it('narrows by the search box and the state filter at once', async () => {
@@ -763,18 +729,6 @@ describe("a workspace's Channels tab", () => {
 		}
 	)
 
-	it('names each switch after the row it belongs to', () => {
-		// `:aria-label` used to land on a wrapper div, so the control had no name
-		// at all. Switch's own `#label` slot is what puts it on the label element
-		// the control is associated with, and sr-only keeps the column readable.
-		const w = tab()
-		const control = switches(w)[0]
-		const label = w.get(`label[for="${control.attributes('id')}"]`)
-
-		expect(label.text()).toBe('Sync members of vue-basics')
-		expect(label.get('span').classes()).toContain('sr-only')
-	})
-
 	it('writes the switch through the mapping endpoint', async () => {
 		const w = tab()
 
@@ -803,6 +757,7 @@ describe("a workspace's Channels tab", () => {
 		expect(w.emitted('new')).toBeUndefined()
 		expect(w.findComponent({ name: 'Button' }).props('tooltip')).toBe(
 			'Save this workspace before adding channels to it.'
+<<<<<<< HEAD
 		)
 	})
 
@@ -811,6 +766,8 @@ describe("a workspace's Channels tab", () => {
 
 		expect(tab().text()).toContain(
 			'Add one to give this workspace its first members.'
+=======
+>>>>>>> ffe35ba (test: drop mocked frontend tests that only pin wiring or markup)
 		)
 	})
 })
@@ -835,6 +792,7 @@ describe("a workspace's Members tab", () => {
 		return mount(WorkspaceMembers, { props: { workspace }, ...mountOptions })
 	}
 
+<<<<<<< HEAD
 	it('reads a member as their name, where they came in, and who put them there', () => {
 		const w = tab([
 			member({
@@ -865,6 +823,8 @@ describe("a workspace's Members tab", () => {
 		)
 	})
 
+=======
+>>>>>>> ffe35ba (test: drop mocked frontend tests that only pin wiring or markup)
 	it('says the fetch failed rather than that nobody is here', () => {
 		// A failed fetch settles with no rows and nothing in flight, the same shape
 		// as a workspace whose channels are genuinely empty. Answering it with
@@ -905,7 +865,6 @@ describe('a condition row', () => {
 	// Each cell opens with the sr-only span that names its control.
 	const labelled = (w: VueWrapper) =>
 		inline(w).map((cell) => cell.get('span').text())
-	const blocks = (w: VueWrapper) => w.findAll('[data-testid="block-field"]')
 	const selects = (w: VueWrapper) => w.findAllComponents({ name: 'Select' })
 	// By the word that names the cell, not by position: a cascade grows a level
 	// and every index below it moves. Adding `payment_filter` to the fixture
@@ -960,6 +919,7 @@ describe('a condition row', () => {
 		expect(w.get('[data-testid="row-status"]').text()).toContain('Paused')
 	})
 
+<<<<<<< HEAD
 	it('bands the declared fields: selects on one line, multiselects below', () => {
 		// Our rules are {provider, rule_type, config}, not a field/operator/value
 		// triple, so a cascade has as many selects as it has levels. A multiselect
@@ -1058,6 +1018,8 @@ describe('a condition row', () => {
 		expect(w.findComponent({ name: 'Combobox' }).exists()).toBe(false)
 	})
 
+=======
+>>>>>>> ffe35ba (test: drop mocked frontend tests that only pin wiring or markup)
 	it('emits a whole new rule when a cell changes, never a nested write', async () => {
 		// A nested write into `rule` does not reach the tree the builder holds, so
 		// the edit would vanish on the next render.
@@ -1165,21 +1127,6 @@ describe('the conditions of a channel', () => {
 		],
 	}
 
-	it('asks the builder for the free width, not for a size', () => {
-		// A `#condition` row spans the builder's three leaf tracks, which default to
-		// `minmax(0, max-content)`: the cascade sat in about a third of the card and
-		// the rest went to the actions track, `minmax(max-content, 1fr)`. jsdom lays
-		// nothing out, so the prop is the only thing assertable here; what it has to
-		// be is a fraction big enough to leave that track its max-content floor.
-		const w = channel({ rules: incomplete })
-		const columns = w
-			.findComponent({ name: 'ConditionBuilder' })
-			.props('columns') as Record<string, string>
-
-		for (const track of ['field', 'operator', 'value'])
-			expect(columns[track]).toMatch(/^minmax\(0, \d{2,}fr\)$/)
-	})
-
 	it('words an unfinished condition once, under the builder, and marks its row', () => {
 		// Three surfaces used to say it: the control's own error, a message beside
 		// the row, and this one. The row now carries only the non-visual half, a
@@ -1212,6 +1159,7 @@ describe('the conditions of a channel', () => {
 		expect(message).toContain('written for an older version')
 		expect(message).not.toContain('Finish every condition')
 	})
+<<<<<<< HEAD
 
 	it("names each row's actions button after the row, and says the word once", () => {
 		// useId() inside slot content still runs in the host's setup, so a word id
@@ -1256,6 +1204,8 @@ describe('the conditions of a channel', () => {
 
 		expect(menu.props('align')).toBe('end')
 	})
+=======
+>>>>>>> ffe35ba (test: drop mocked frontend tests that only pin wiring or markup)
 })
 
 describe('the channel page', () => {

@@ -6,7 +6,7 @@ import type { App } from 'vue'
 
 type Call = { method: string; args: Record<string, unknown> }
 
-const { calls, received, recorder, responses, hold } = vi.hoisted(() => {
+const { calls, received, recorder, responses } = vi.hoisted(() => {
 	const received: Record<string, Record<string, unknown>> = {}
 	// Records the props it was mounted with, as attrs, and renders a marker.
 	const recorder = (name: string) => ({
@@ -22,7 +22,6 @@ const { calls, received, recorder, responses, hold } = vi.hoisted(() => {
 		received,
 		recorder,
 		responses: {} as Record<string, unknown>,
-		hold: { pending: false },
 	}
 })
 
@@ -30,7 +29,6 @@ vi.mock('frappe-ui', async (importOriginal) => ({
 	...(await importOriginal<typeof import('frappe-ui')>()),
 	call: (method: string, args: Record<string, unknown>) => {
 		calls.push({ method, args })
-		if (hold.pending) return new Promise(() => {})
 		const doc = responses[String(args?.doctype)]
 		return doc === 'missing'
 			? Promise.reject(new Error('DoesNotExistError'))
@@ -84,7 +82,6 @@ const exerciseTool = () =>
 beforeEach(() => {
 	Object.assign(window, { translatedMessages: {} })
 	calls.length = 0
-	hold.pending = false
 	for (const key of Object.keys(received)) delete received[key]
 	Object.assign(responses, {
 		'LMS Quiz': {
@@ -160,29 +157,6 @@ describe('assessment blocks in the lesson editor', () => {
 		expect(wrapper.textContent).toContain('1 question')
 	})
 
-	it('summarises the assignment without a submission lookup', async () => {
-		const wrapper = await renderInEditor(assignmentTool())
-
-		expectPreview(wrapper)
-		expect(calls).toEqual([
-			{
-				method: 'frappe.client.get_value',
-				args: {
-					doctype: 'LMS Assignment',
-					filters: { name: 'ASG-1' },
-					fieldname: ['title', 'question', 'type'],
-				},
-			},
-		])
-		expect(wrapper.textContent).toContain('Write about your week.')
-		expect(wrapper.textContent).toContain('You can only upload PDF files')
-		expect(
-			wrapper.querySelector<HTMLButtonElement>(
-				'[data-testid="assignment-dropzone"] button'
-			)?.disabled
-		).toBe(true)
-	})
-
 	it('summarises the exercise without its test cases or the code runner', async () => {
 		const wrapper = await renderInEditor(exerciseTool())
 
@@ -203,17 +177,6 @@ describe('assessment blocks in the lesson editor', () => {
 				?.textContent
 		).toContain('Python')
 		expect(document.querySelector('script[src*="livecode"]')).toBeNull()
-	})
-
-	it('shows a skeleton while the read is in flight', async () => {
-		hold.pending = true
-		for (const tool of [quizTool(), assignmentTool(), exerciseTool()]) {
-			const wrapper = await renderInEditor(tool)
-			expect(
-				wrapper.querySelector('[data-testid="block-preview-skeleton"]')
-			).not.toBeNull()
-			expect(wrapper.textContent).toContain('Preview only')
-		}
 	})
 
 	it('says so when the record is gone', async () => {

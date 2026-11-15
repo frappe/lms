@@ -149,6 +149,7 @@ beforeEach(() => {
 })
 
 describe('the assignment card', () => {
+<<<<<<< HEAD
 	it('shows a skeleton card while the assignment loads', async () => {
 		state.loading = true
 		const wrapper = await mountAssignment()
@@ -195,6 +196,8 @@ describe('the assignment card', () => {
 		expect(zone.classes()).toContain('border-outline-gray-2')
 	})
 
+=======
+>>>>>>> ffe35ba (test: drop mocked frontend tests that only pin wiring or markup)
 	it('renders only the URL input for a URL assignment', async () => {
 		state.assignment = {
 			title: 'Portfolio',
@@ -224,6 +227,23 @@ describe('the assignment card', () => {
 		)
 	})
 
+<<<<<<< HEAD
+=======
+	it("lets an evaluator listen to a learner's audio answer", async () => {
+		state.assignment = { title: 'Pitch', type: 'Audio', question: '<p>Q</p>' }
+		const wrapper = await mountAssignment(
+			evaluator,
+			learnerSubmission({ assignment_attachment: '/private/files/pitch.m4a' })
+		)
+
+		expect(
+			wrapper.get('[data-testid="assignment-attachment"]').text()
+		).toContain('pitch.m4a')
+		const player = wrapper.get('[data-testid="assignment-audio"]')
+		expect(player.find('source').attributes('type')).toBe('audio/mp4')
+	})
+
+>>>>>>> ffe35ba (test: drop mocked frontend tests that only pin wiring or markup)
 	it('shows an evaluator no empty drop zone when nothing was attached', async () => {
 		state.assignment = { title: 'Report', type: 'PDF', question: '<p>Q</p>' }
 		const wrapper = await mountAssignment(evaluator, learnerSubmission({}))
