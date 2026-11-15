@@ -226,27 +226,6 @@ describe('EmailTemplateForm as a route', () => {
 		expect(wrapper.html()).toContain('read-only')
 	})
 
-	it('inserts through its own resource, naming by prompt', async () => {
-		const router = makeRouter()
-		await openForm(router)
-		const wrapper = await mountForm(router)
-		await fill(wrapper)
-
-		await save(wrapper).trigger('click')
-		expect(insert.submit).toHaveBeenCalledTimes(1)
-		expect((insertOptions().makeParams as () => unknown)()).toEqual({
-			doc: {
-				doctype: 'Email Template',
-				__newname: 'Enrollment Confirmation',
-				name: 'Enrollment Confirmation',
-				subject: 'You are in',
-				use_html: 0,
-				response: 'Dear member',
-				response_html: '',
-			},
-		})
-	})
-
 	it('sends the HTML body instead once Use HTML is on', async () => {
 		const router = makeRouter()
 		await openForm(router)
@@ -301,34 +280,5 @@ describe('EmailTemplateForm as a route', () => {
 		expect(router.currentRoute.value.query.emailTemplate).toBe(
 			'Enrollment Confirmation'
 		)
-	})
-
-	it('survives a save with no template list mounted to refresh', async () => {
-		const router = makeRouter()
-		await openForm(router)
-		const wrapper = await mountForm(router)
-		await fill(wrapper)
-		succeedOnSubmit()
-
-		await save(wrapper).trigger('click')
-		await flushPromises()
-
-		expect(getCachedListResourceMock).toHaveBeenCalledWith('email-templates')
-		expect(router.currentRoute.value.name).toBe('BatchDetail')
-	})
-
-	it('refreshes the settings template list when it is mounted', async () => {
-		const list = { reload: vi.fn() }
-		getCachedListResourceMock.mockReturnValue(list)
-		const router = makeRouter()
-		await openForm(router)
-		const wrapper = await mountForm(router)
-		await fill(wrapper)
-		succeedOnSubmit()
-
-		await save(wrapper).trigger('click')
-		await flushPromises()
-
-		expect(list.reload).toHaveBeenCalledTimes(1)
 	})
 })

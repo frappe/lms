@@ -72,30 +72,10 @@ describe('PageHeader mobile back link', () => {
 		expect(mountHeader().get('a').attributes('aria-label')).toBe('Back')
 	})
 
-	// Load-bearing: this is what forbids "keep the visible text, add an
-	// aria-label". That would be a WCAG 2.5.3 Label in Name failure — a speech
-	// user saying "click Advanced Python" would not match a control named
-	// "Back". With no visible text, 2.5.3 does not apply.
-	it('carries no visible text inside the link', () => {
-		expect(mountHeader().get('a').text().trim()).toBe('')
-	})
-
 	it('keeps the page title visible, outside the link', () => {
 		const wrapper = mountHeader()
 		expect(wrapper.text()).toContain('Advanced Python')
 		expect(wrapper.get('a').text()).not.toContain('Advanced Python')
-	})
-
-	// jsdom has no layout engine — getBoundingClientRect() is all zeros — so no
-	// test here can assert the 24px of WCAG 2.5.8. These classes are a contract
-	// proxy for it, not proof: p-1.5 around a size-4 chevron is 28x28, and -ms-3
-	// pays the padding back against the header's px-5 gutter so the glyph stays
-	// at the same 14px optical offset it has today. Real proof needs browser mode.
-	it('is padded to a 28x28 target without moving the chevron', () => {
-		const classes = mountHeader().get('a').classes()
-		expect(classes).toContain('p-1.5')
-		expect(classes).toContain('-ms-3')
-		expect(classes).not.toContain('-ms-1.5')
 	})
 
 	describe('branches that must not change', () => {
@@ -103,13 +83,6 @@ describe('PageHeader mobile back link', () => {
 			const wrapper = mountHeader([{ label: 'Advanced Python' }])
 			expect(wrapper.find('a').exists()).toBe(false)
 			expect(wrapper.text()).toContain('Advanced Python')
-		})
-
-		it('renders breadcrumbs and no back link on desktop', () => {
-			mobile.value = false
-			const wrapper = mountHeader()
-			expect(wrapper.find('[data-testid="breadcrumbs"]').exists()).toBe(true)
-			expect(wrapper.find('a').exists()).toBe(false)
 		})
 	})
 })

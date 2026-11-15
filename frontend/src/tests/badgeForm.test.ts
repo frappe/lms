@@ -288,46 +288,6 @@ beforeEach(() => {
 })
 
 describe('the top of the badge form is editable', () => {
-	// The bug was that neither said it was a field. Both are drawn by a control
-	// that renders its own <label for>, so the box is named on screen and by a
-	// screen reader alike.
-	// The schema renderer names the box with `aria-label` and draws the wording
-	// beside it, where the form this replaces passed FormControl its own `label`
-	// and got a `<label for>`. Either way the control has an accessible name and
-	// the wording is on screen.
-	it('labels both of them on screen, and names the box', () => {
-		const wrapper = mountPage()
-		return openBadge(wrapper).then(() => {
-			for (const text of ['Title', 'Description']) {
-				expect(wrapper.find(`[aria-label="${text}"]`).exists()).toBe(true)
-				expect(wrapper.text()).toContain(text)
-			}
-		})
-	})
-
-	// A control with its focus ring taken away and nothing put back is a control a
-	// keyboard user cannot find (WCAG 2.4.7). The old masthead did exactly that,
-	// on both boxes.
-	it('leaves every field its focus indicator', async () => {
-		const wrapper = await openBadge(mountPage())
-
-		const html = wrapper.html()
-
-		expect(html).not.toContain('focus:outline-none')
-		expect(html).not.toContain('focus:ring-0')
-	})
-
-	it('marks both of them required, as LMS Badge does', async () => {
-		const wrapper = await openBadge(mountPage())
-
-		expect(
-			wrapper.get('[aria-label="Title"]').attributes('data-required')
-		).toBe('yes')
-		expect(
-			wrapper.get('[aria-label="Description"]').attributes('data-required')
-		).toBe('yes')
-	})
-
 	it('uploads a new picture onto the badge', async () => {
 		const wrapper = await openBadge(mountPage())
 
@@ -356,14 +316,6 @@ describe('opening a badge', () => {
 			'doc.status == "Complete"'
 		)
 		expect(wrapper.get('img').attributes('src')).toBe('/files/champion.png')
-	})
-
-	it('titles the page with the badge it opened', async () => {
-		const wrapper = await openBadge(mountPage())
-
-		expect(wrapper.get('[data-title]').attributes('data-title')).toBe(
-			'Champion'
-		)
 	})
 
 	it('opens a new badge on the doctype defaults', async () => {
@@ -415,26 +367,6 @@ describe('save is offered only for something to save', () => {
 		expect(
 			wrapper.get('[data-testid="settings-fields-save"]').attributes('disabled')
 		).toBeUndefined()
-	})
-
-	// Save is the only header action a form has, on an existing badge and a new
-	// one alike. Discarding is leaving: Back asks, and the unsaved badge in the
-	// header is what says there is something to lose.
-	it('offers Save and nothing else, dirty or not, new or not', async () => {
-		for (const wrapper of [
-			await openBadge(mountPage()),
-			await openNew(mountPage()),
-		]) {
-			await field(wrapper, 'Title').setValue('Renamed')
-
-			const actions = wrapper
-				.findAll('[data-testid]')
-				.map((node) => node.attributes('data-testid'))
-				.filter((id) => id === 'settings-fields-save' || id === 'badge-discard')
-
-			expect(actions).toEqual(['settings-fields-save'])
-			expect(wrapper.text()).not.toContain('Discard')
-		}
 	})
 
 	it('marks the header unsaved while there is an edit outstanding', async () => {

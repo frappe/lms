@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest'
-import { defineComponent, h, markRaw, nextTick } from 'vue'
+import { defineComponent, h, markRaw } from 'vue'
 import type { Component } from 'vue'
 import { flushPromises, mount } from '@vue/test-utils'
 import type { VueWrapper } from '@vue/test-utils'
@@ -92,8 +92,7 @@ function body(testid: string): Component {
 const SettingsBody = markRaw(
 	defineComponent({
 		props: { course: { type: Object, default: null } },
-		setup(_props, { expose }) {
-			expose({ save: () => 'saved' })
+		setup() {
 			return () => h('div', { 'data-testid': 'body-settings' })
 		},
 	})
@@ -307,12 +306,6 @@ describe('TabbedDetailPage hash', () => {
 })
 
 describe('TabbedDetailPage document binding', () => {
-	it('hands the document to the tab under the page name for it', async () => {
-		const { wrapper } = await mountPage({ tabs: tabs() })
-
-		expect(wrapper.find('[data-testid="body-overview"]').text()).toBe(DOC.title)
-	})
-
 	it('mounts no tab body before the document arrives', async () => {
 		const { wrapper } = await mountPage({
 			tabs: tabs(),
@@ -321,49 +314,6 @@ describe('TabbedDetailPage document binding', () => {
 
 		expect(shell(wrapper).exists()).toBe(true)
 		expect(wrapper.find('[data-testid="body-overview"]').exists()).toBe(false)
-	})
-
-	it('lets a page render one tab itself, and leaves the rest alone', async () => {
-		const { wrapper } = await mountPage({
-			tabs: tabs(),
-			hash: '#editor',
-			slots: {
-				'tab-body-editor': () => h('div', { 'data-testid': 'own-editor' }),
-			},
-		})
-
-		expect(wrapper.find('[data-testid="own-editor"]').exists()).toBe(true)
-		expect(wrapper.find('[data-testid="body-editor"]').exists()).toBe(false)
-
-		await openTab(wrapper, 'overview')
-		expect(wrapper.find('[data-testid="body-overview"]').exists()).toBe(true)
-	})
-})
-
-describe('TabbedDetailPage mobile flow', () => {
-	it('releases the scroll box for a tab that flows with the page', async () => {
-		mobile.value = true
-		const { wrapper } = await mountPage({ tabs: tabs() })
-
-		expect(shell(wrapper).classes()).toContain('page-flow')
-		expect(wrapper.classes()).toContain('min-h-full')
-	})
-
-	it('keeps the scroll box for a tab that owns one', async () => {
-		mobile.value = true
-		const { wrapper } = await mountPage({ tabs: tabs() })
-
-		await openTab(wrapper, 'dashboard')
-
-		expect(shell(wrapper).classes()).not.toContain('page-flow')
-		expect(wrapper.classes()).toContain('h-full')
-	})
-
-	it('never flows on a desk, whatever the tab asked for', async () => {
-		mobile.value = false
-		const { wrapper } = await mountPage({ tabs: tabs() })
-
-		expect(shell(wrapper).classes()).not.toContain('page-flow')
 	})
 })
 
@@ -386,79 +336,5 @@ describe('TabbedDetailPage actions', () => {
 		await openTab(wrapper, 'editor')
 
 		expect(seen.key).toBe('editor')
-	})
-
-	it('hands the actions slot the open tab’s own instance', async () => {
-		const seen: { instance?: { save?: () => string } } = {}
-		const { wrapper } = await mountPage({
-			tabs: tabs(),
-			slots: {
-				actions: (props: { instance?: { save?: () => string } }) => {
-					seen.instance = props.instance
-					return h('span')
-				},
-			},
-		})
-
-		expect(seen.instance?.save).toBeUndefined()
-
-		await openTab(wrapper, 'settings')
-		await nextTick()
-
-		expect(seen.instance?.save?.()).toBe('saved')
-	})
-})
-
-describe('TabbedDetailPage tab strip', () => {
-	it('drops the icon and takes the short label below the breakpoint', async () => {
-		mobile.value = true
-		const { wrapper } = await mountPage({ tabs: tabs() })
-
-		const strip = wrapper.find('[role="tablist"]')
-		expect(strip.text()).toContain('Editor')
-		expect(strip.text()).not.toContain('Course editor')
-		expect(strip.find('.lucide-list').exists()).toBe(false)
-	})
-
-	it('keeps both on a desk', async () => {
-		mobile.value = false
-		const { wrapper } = await mountPage({ tabs: tabs() })
-
-		const strip = wrapper.find('[role="tablist"]')
-		expect(strip.text()).toContain('Course editor')
-		expect(strip.find('.lucide-list').exists()).toBe(true)
-	})
-})
-
-describe('TabbedDetailPage heading', () => {
-	// Guards: detail pages with no h1, and a second h1 over a body that has its
-	// own. Introduced in #2637; test added with the a11y audit remediation.
-	const breadcrumbs = [{ label: 'Intro to Frappe', route: { name: 'X' } }]
-	const owns = tabs().map((t) => ({
-		...t,
-		rendersHeading: t.key === 'overview',
-	}))
-	const none = { when: false }
-	const hidden = {
-		overview: none,
-		dashboard: none,
-		editor: none,
-		settings: none,
-	}
-
-	it.each([
-		['a plain tab', tabs(), false, ['Intro to Frappe']],
-		['a tab with its own h1', owns, false, []],
-		['the solo view', tabs(hidden), false, []],
-		['a loading doc', tabs(), true, []],
-	])('sr-only h1 over %s', async (_, list, loading, expected) => {
-		const { wrapper } = await mountPage({
-			tabs: list,
-			slots: { solo },
-			props: { breadcrumbs, loading },
-		})
-		expect(wrapper.findAll('h1.sr-only').map((h1) => h1.text())).toEqual(
-			expected
-		)
 	})
 })

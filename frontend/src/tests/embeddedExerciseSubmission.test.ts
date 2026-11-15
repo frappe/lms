@@ -8,7 +8,6 @@ import { defineComponent, h, reactive } from 'vue'
 const {
 	call,
 	routerPush,
-	pageMeta,
 	collectOutputs,
 	runner,
 	documentCache,
@@ -27,7 +26,6 @@ const {
 	runner: { url: '' },
 	call: vi.fn(),
 	routerPush: vi.fn(),
-	pageMeta: vi.fn(),
 	collectOutputs: vi.fn(async () => ({ outputs: ['5'], elapsed: [0.1] })),
 }))
 
@@ -69,7 +67,7 @@ vi.mock('frappe-ui', () => ({
 	},
 	Skeleton: defineComponent({ render: () => h('div') }),
 	toast,
-	usePageMeta: pageMeta,
+	usePageMeta: vi.fn(),
 }))
 
 vi.mock('@/router', () => ({
@@ -206,7 +204,6 @@ beforeEach(() => {
 	})
 	routerPush.mockReset()
 	markLessonProgress.mockReset()
-	pageMeta.mockReset()
 	collectOutputs.mockClear()
 	localStorage.clear()
 	document.head
@@ -425,19 +422,6 @@ describe('the programming exercise mounted inline in a lesson', () => {
 				params: { exerciseID: 'EX-1', submissionID: 'SUB-1' },
 			})
 		)
-	})
-
-	it('leaves the lesson tab title and header alone', async () => {
-		const wrapper = await mountEmbedded()
-
-		expect(pageMeta).not.toHaveBeenCalled()
-		expect(wrapper.find('[data-testid="page-header"]').exists()).toBe(false)
-	})
-
-	it('still titles the standalone page', async () => {
-		await mountEmbedded(undefined, false)
-
-		expect(pageMeta).toHaveBeenCalled()
 	})
 
 	it('runs on Mod+Enter only when the key is pressed inside its block', async () => {

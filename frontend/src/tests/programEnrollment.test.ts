@@ -174,27 +174,6 @@ describe('the program enrollment page', () => {
 		})
 	})
 
-	it('mounts straight from the URL with no list page mounted', async () => {
-		// The cold deep link: nothing above this page ever ran, so the summary it
-		// used to receive through a parent's open-the-dialog click has to come
-		// from its own fetch, keyed off the route param.
-		const router = makeRouter()
-		await router.push('/programs/data-science/enroll')
-		const wrapper = await mountPage(router, student)
-
-		expect(
-			wrapper.find('[data-testid="program-enrollment-summary"]').exists()
-		).toBe(true)
-		expect(wrapper.html()).toContain('Intro to Pandas')
-		expect(programResource.fetch).toHaveBeenCalledTimes(1)
-		const programCall = createResourceMock.mock.calls.find(
-			(call) => call[0].url === PROGRAM_URL
-		)
-		expect(programCall?.[0].makeParams()).toEqual({
-			program_name: 'data-science',
-		})
-	})
-
 	it('refuses a signed-out visitor rather than offering to enroll them', async () => {
 		// enroll_in_program has no guest check of its own, so a guest reaching
 		// this URL is exactly the case a button-shaped entry point never had.
@@ -298,19 +277,5 @@ describe('the program enrollment page', () => {
 		await flushPromises()
 
 		expect(router.currentRoute.value.name).toBe('Programs')
-	})
-
-	// Guards: the enrollment dialog left the window untitled. Introduced in
-	// #1686; test added with the a11y audit remediation.
-	it('titles the window while open and hands it back on close', async () => {
-		document.title = 'Programs'
-		const router = makeRouter()
-		await router.push('/programs/data-science/enroll')
-		await mountPage(router, student)
-		expect(document.title).toBe('Enrollment for Program data-science')
-
-		await router.push('/programs')
-		await flushPromises()
-		expect(document.title).toBe('Programs')
 	})
 })

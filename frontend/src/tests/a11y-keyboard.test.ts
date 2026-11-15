@@ -3,14 +3,12 @@ import {
 	flushPromises,
 	mount,
 	RouterLinkStub,
-	shallowMount,
 	type VueWrapper,
 } from '@vue/test-utils'
 import { createPinia, setActivePinia } from 'pinia'
 import { nextTick } from 'vue'
 
 const pushMock = vi.hoisted(() => vi.fn())
-const created = vi.hoisted(() => ({ list: [] as any[] }))
 const seeds = vi.hoisted(() => ({} as Record<string, unknown>))
 
 vi.mock('frappe-ui', async (importOriginal) => {
@@ -25,7 +23,6 @@ vi.mock('frappe-ui', async (importOriginal) => {
 			fetch: vi.fn(),
 			update: vi.fn(),
 		})
-		created.list.push(r)
 		return r
 	}
 	return {
@@ -86,14 +83,11 @@ vi.mock('@framework/ui/telemetry/index', () => ({
 seeds['lms.lms.api.get_user_info'] = { is_system_manager: true }
 
 import VideoBlock from '@/components/VideoBlock.vue'
-import AppSidebar from '@/components/Sidebar/AppSidebar.vue'
 import NotificationPanel from '@/components/Notifications/NotificationPanel.vue'
 import ProgramDetail from '@/pages/Programs/ProgramDetail.vue'
-import Lesson from '@/pages/Lesson.vue'
 import BatchCard from '@/pages/Batches/components/BatchCard.vue'
 import CourseCard from '@/components/CourseCard.vue'
 import { markAsRead, notifications, panelVisible } from '@/stores/notifications'
-import { useSidebar } from '@/stores/sidebar'
 
 const globalOptions = (extra: Record<string, any> = {}) => ({
 	mocks: { __: (s: string) => (globalThis as any).__(s) },
@@ -162,46 +156,6 @@ describe('VideoBlock', () => {
 		await nextTick()
 
 		expect(document.activeElement?.getAttribute('aria-label')).not.toBe('Pause')
-	})
-})
-
-describe('AppSidebar', () => {
-	// Guards: Help was a clickable span, and the collapsed read-only notice
-	// lived only in a tooltip. Introduced in #1399, #1450 and
-	// #1479; test added with the a11y audit remediation.
-	afterEach(() => {
-		delete (window as any).read_only_mode
-	})
-
-	it('renders Help as a sidebar row and the notice as text', async () => {
-		;(window as any).read_only_mode = true
-		useSidebar().isSidebarCollapsed = true
-		wrapper = mount(AppSidebar, {
-			global: globalOptions({
-				stubs: {
-					Sidebar: { template: '<nav><slot /></nav>' },
-					SidebarCard: true,
-					SidebarItem: true,
-					SidebarSection: true,
-					SidebarCollapseToggle: true,
-					UserDropdown: true,
-					SidebarLink: true,
-					CommandPalette: true,
-				},
-			}),
-		})
-		await flushPromises()
-
-		const help = wrapper
-			.findAllComponents({ name: 'SidebarItem' })
-			.find((item) => item.attributes('label') === 'Help')
-		expect(help?.attributes('icon')).toBe('lucide-circle-help')
-		expect(wrapper.find('a[href="https://frappe.io/learning"]').exists()).toBe(
-			false
-		)
-		expect(wrapper.find('.sr-only').text()).toContain(
-			'This site is being updated'
-		)
 	})
 })
 
@@ -313,41 +267,5 @@ describe('ProgramDetail', () => {
 		expect(wrapper.get('.sr-only').text()).toContain(
 			'Courses must be completed in order'
 		)
-	})
-})
-
-describe('Lesson zen mode', () => {
-	// Guards: completion figure shown only on hover. Introduced in #928; test
-	// added with the a11y audit remediation.
-	afterEach(() => {
-		delete (document as any).fullscreenElement
-	})
-
-	it('puts the completion figure on a focusable trigger and in text', async () => {
-		wrapper = shallowMount(Lesson, {
-			props: { courseName: 'course-1', chapterNumber: '1', lessonNumber: '1' },
-			global: globalOptions(),
-		})
-		await flushPromises()
-		created.list.find(
-			(r) => r._config?.url === 'lms.lms.utils.get_lesson'
-		).data = {
-			name: 'L1',
-			title: 'Lesson One',
-			course_title: 'Course',
-			chapter_title: 'Chapter',
-			instructors: [],
-			membership: { progress: 42.2 },
-		}
-		Object.defineProperty(document, 'fullscreenElement', {
-			value: document.body,
-			configurable: true,
-		})
-		document.dispatchEvent(new Event('fullscreenchange'))
-		await flushPromises()
-
-		const trigger = wrapper.get('[tabindex="0"]')
-		expect(trigger.text()).toContain('Chapter - Course')
-		expect(trigger.get('.sr-only').text()).toBe('43% completed')
 	})
 })

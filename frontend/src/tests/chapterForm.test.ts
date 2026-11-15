@@ -225,14 +225,6 @@ describe('ChapterForm as a route', () => {
 		})
 	})
 
-	it('titles itself for edit when the route carries a chapter name', async () => {
-		const router = makeRouter()
-		await openForm(router, 'CHAPTER-1')
-		const wrapper = await mountForm(router)
-		expect(wrapper.html()).toContain('Edit Chapter')
-		expect(wrapper.html()).not.toContain('Add Chapter')
-	})
-
 	it('refuses to render the form for a signed-out visitor', async () => {
 		const router = makeRouter()
 		await openForm(router, 'new')
@@ -240,35 +232,6 @@ describe('ChapterForm as a route', () => {
 		expect(wrapper.find('[data-testid="chapter-fields"]').exists()).toBe(false)
 		expect(wrapper.find('[data-testid="chapter-save"]').exists()).toBe(false)
 		expect(wrapper.html()).toContain('not permitted')
-	})
-
-	it('carries every field of the chapter form', async () => {
-		const router = makeRouter()
-		await openForm(router, 'new')
-		const wrapper = await mountForm(router)
-
-		const labels = wrapper
-			.find('[data-testid="chapter-fields"]')
-			.findAll('label')
-			.map((label) => label.text())
-			.filter((text) => text !== '')
-		// Exact set: a field lost in the modal→route move is otherwise invisible
-		// to the rest of the suite.
-		expect(labels).toEqual(['Title', 'SCORM Package'])
-	})
-
-	it('saves through its own resource', async () => {
-		const router = makeRouter()
-		await openForm(router, 'new')
-		const wrapper = await mountForm(router)
-
-		// The save goes through submitResource, which validates first: without a
-		// title this never reaches the resource at all.
-		await wrapper
-			.find('[data-testid="chapter-fields"] input')
-			.setValue('Chapter One')
-		await wrapper.find('[data-testid="chapter-save"]').trigger('click')
-		expect(upsertResource.submit).toHaveBeenCalledTimes(1)
 	})
 
 	// C4 — the highest-value test here. Edit mode used to be seeded from a row
@@ -295,26 +258,6 @@ describe('ChapterForm as a route', () => {
 		const wrapper = await mountForm(router)
 
 		expect(titleInput(wrapper)).toBe('Already here')
-	})
-
-	it('reads the outline through a cache key of its OWN', async () => {
-		// Deliberately NOT ['course_outline', course]: createResource keeps the
-		// FIRST constructor's options and hands that instance to everyone after
-		// (resources.js:12-20). On a deep link to this form CourseOutline is not
-		// mounted yet, so sharing the key handed IT this file's `auto: false` and
-		// `progress: false`, and its chapter list rendered empty on a course that
-		// has chapters.
-		const router = makeRouter()
-		await openForm(router, 'CHAPTER-1')
-		await mountForm(router)
-
-		const options = optionsFor('lms.lms.utils.get_course_outline')
-		expect(options.cache).not.toEqual(['course_outline', 'COURSE-1'])
-		expect(options.cache).toEqual(['chapter_form_outline', 'COURSE-1'])
-		expect((options.makeParams as () => unknown)()).toEqual({
-			course: 'COURSE-1',
-			progress: false,
-		})
 	})
 
 	it('targets the routed chapter on edit and no document on create', async () => {

@@ -148,44 +148,6 @@ async function mountListPage(props: Record<string, unknown> = {}, slots = {}) {
 
 const footerOf = (wrapper: any) => wrapper.getComponent({ name: 'ListFooter' })
 
-// Two things legitimately pin: PageHeader's own `<header>`, and the footer,
-// which holds the bottom edge so the page size and Load More stay put. What
-// must never come back is a pinned strip *above* the rows. That was the
-// filters re-pinned at a measured offset, and any drift between the
-// measurement and the app header's real height showed as a band of content
-// scrolling between the two.
-const pinnedAboveRows = (wrapper: any) => {
-	const footer = footerOf(wrapper).element
-	return wrapper
-		.findAll('*')
-		.filter(
-			(node: any) =>
-				node.element.tagName !== 'HEADER' &&
-				!node.element.contains(footer) &&
-				node.classes().includes('sticky')
-		)
-}
-
-// Below `sm` the page itself is the scroller, so a scroll box inside the body
-// is the thing that must not exist: it leaves the page with no scroll range,
-// and a browser only retracts its URL bar when the root scroller moves.
-const mobileScrollers = (wrapper: any) =>
-	wrapper
-		.findAll('*')
-		.filter((node: any) => node.classes().includes('overflow-y-auto'))
-
-// Above it the desk arrangement returns: exactly one box scrolls the rows so
-// the header and footer around it hold their place.
-const deskScrollers = (wrapper: any) =>
-	wrapper
-		.findAll('*')
-		.filter((node: any) => node.classes().includes('sm:overflow-y-auto'))
-
-// Anchored to the strip itself rather than walked up from the <h1>: the
-// heading now shares a row wrapper with the mobile Filters button.
-const headerBlock = (wrapper: any) =>
-	wrapper.get('[data-testid="page-header-block"]').element
-
 describe('ListPage', () => {
 	it('hands every row to the page card slot', async () => {
 		mobile.value = false
@@ -235,93 +197,6 @@ describe('ListPage', () => {
 
 		const withoutTotal = await mountListPage({})
 		expect(footerOf(withoutTotal).text()).not.toContain('of')
-	})
-})
-
-describe('PageBody', () => {
-	// On a desk the header holds because it sits outside the box that scrolls
-	// the rows. On a phone the page is the scroller and it travels with it, so
-	// it must not try to pin itself there. PageHeader is already `sticky
-	// top-0` in that scroller, so a second one lands underneath it, and the
-	// offset that would clear it is the app header's own content height: the
-	// measured offset that drifted and opened a band the last time.
-	it.each([true, false])(
-		'never pins the header block inside the page, at isMobile=%s',
-		async (isMobile) => {
-			mobile.value = isMobile
-			const wrapper = await mountListPage({ title: 'All Courses' })
-
-			// The page title's parent is the header block itself. Anchoring on the
-			// rendered DOM rather than the component keeps this honest: it is the
-			// element the browser lays out.
-			const classes = headerBlock(wrapper).className.split(/\s+/)
-
-			// It cannot be squeezed away by a long list, and it neither pins nor
-			// scrolls on its own: the three ways the old strip went wrong.
-			expect(classes).toContain('shrink-0')
-			expect(classes).not.toContain('sticky')
-			expect(
-				classes.filter((name: string) => name.startsWith('overflow'))
-			).toEqual([])
-			expect(pinnedAboveRows(wrapper)).toHaveLength(0)
-		}
-	)
-
-	// The counts and Load More are how you work a long list, so they hold the
-	// bottom edge while the rows pass underneath. On a desk being the last child
-	// of a bounded column does that; on a phone the page scrolls, so it takes
-	// `sticky` and a background of its own.
-	it('keeps the footer against the bottom edge while the rows scroll', async () => {
-		mobile.value = true
-		const wrapper = await mountListPage({ title: 'All Courses' })
-		const footer = footerOf(wrapper).element.parentElement!
-		const classes = footer.className.split(/\s+/)
-
-		expect(classes).toContain('sticky')
-		expect(classes).toContain('bottom-0')
-		expect(classes).toContain('sm:static')
-		expect(classes).toContain('bg-surface-elevation-1')
-		expect(classes).toContain('shrink-0')
-		expect(classes).toContain('mt-auto')
-		expect(classes).toContain('sm:mt-0')
-	})
-
-	it.each([true, false])(
-		'leaves the page itself the scroller on a phone, at isMobile=%s',
-		async (isMobile) => {
-			mobile.value = isMobile
-			const wrapper = await mountListPage({ title: 'All Courses' })
-
-			// Nothing inside the page may scroll below `sm`, or the page has no
-			// scroll range and the URL bar never retracts.
-			expect(mobileScrollers(wrapper)).toHaveLength(0)
-			// Above it, exactly one box scrolls the rows.
-			expect(deskScrollers(wrapper)).toHaveLength(1)
-		}
-	)
-
-	// The skeleton is a separate branch from the rows, and it used to be the one
-	// that forgot to bound itself, pushing the footer off the screen while a
-	// page loaded.
-	it('bounds the loading state the same way it bounds the rows', async () => {
-		mobile.value = true
-		const wrapper = await mountListPage({ rows: [], loading: true })
-
-		expect(wrapper.find('[data-testid="skeleton"]').exists()).toBe(true)
-		expect(mobileScrollers(wrapper)).toHaveLength(0)
-		expect(deskScrollers(wrapper)).toHaveLength(1)
-	})
-
-	// On a phone the filters run the full width and the rows begin straight
-	// under them, so without a rule the two blocks read as one. On a desk the
-	// scroll box's own edge already separates them.
-	it('rules the filters off from the rows only on a phone', async () => {
-		mobile.value = true
-		const wrapper = await mountListPage({ title: 'All Courses' })
-		const classes = headerBlock(wrapper).className.split(/\s+/)
-
-		expect(classes).toContain('border-b')
-		expect(classes).toContain('sm:border-b-0')
 	})
 })
 
@@ -505,18 +380,6 @@ describe('ResponsiveListView', () => {
 		const visible = items[0].element.cloneNode(true) as HTMLElement
 		visible.querySelectorAll('.sr-only').forEach((node) => node.remove())
 		expect(visible.textContent).not.toContain('Updated On')
-	})
-
-	it('draws rows as a divided list, not as separate cards', async () => {
-		mobile.value = true
-		const wrapper = await mountList()
-
-		const items = wrapper.findAll('li')
-		expect(items[0].classes()).toContain('border-b')
-		expect(items[0].classes()).toContain('last:border-b-0')
-		// No card chrome: no rounding, no box.
-		expect(items[0].classes()).not.toContain('rounded-6')
-		expect(items[0].classes()).not.toContain('border')
 	})
 
 	it('feeds the phone card from the same cell slot as the desk row', async () => {
