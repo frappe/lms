@@ -71,6 +71,7 @@ import router from '@/router'
 import { openSettings } from '@/utils'
 import { useSettings } from '@/stores/settings'
 import { getLmsRoute } from '@/utils/basePath'
+import { redirectToLogin } from '@/utils/login'
 import { markLessonProgress } from '@/utils/markLessonProgress'
 import { provideStudentView } from '@/composables/useStudentView'
 import type { UserResource } from '@/composables/useStudentView'
@@ -372,10 +373,11 @@ const writeDraft = useDebounceFn(
 const checkIfUserIsPermitted = (doc: any = null) => {
 	if (props.embedded) return
 	if (!user.data) {
-		const redirectPath = getLmsRoute(
-			`programming-exercise-submission/${props.exerciseID}/${props.submissionID}`
+		redirectToLogin(
+			getLmsRoute(
+				`programming-exercise-submission/${props.exerciseID}/${props.submissionID}`
+			)
 		)
-		window.location.href = `/login?redirect-to=${redirectPath}`
 	}
 
 	if (!doc) return

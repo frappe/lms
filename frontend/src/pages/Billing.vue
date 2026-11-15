@@ -236,9 +236,7 @@
 		<div v-else-if="!user.data?.name">
 			<NotPermitted
 				:text="__('Please login to access this page.')"
-				:buttonLink="`/login?redirect-to=${getLmsRoute(
-					`billing/${type}/${name}`
-				)}`"
+				:buttonLink="loginUrl(getLmsRoute(`billing/${type}/${name}`))"
 			/>
 		</div>
 	</PageBody>
@@ -260,6 +258,7 @@ import Link from '@/components/Controls/Link.vue'
 import NotPermitted from '@/components/NotPermitted.vue'
 import { useTelemetry } from '@framework/ui/telemetry/index'
 import { getLmsRoute } from '@/utils/basePath'
+import { loginUrl } from '@/utils/login'
 import {
 	INDIAN_STATE_OPTIONS,
 	canonicalIndianState,
