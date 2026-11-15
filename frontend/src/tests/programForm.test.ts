@@ -333,20 +333,57 @@ describe('ProgramForm as a route', () => {
 			).toBe('data-science')
 		})
 
-		it('loads both child tables on mount, with no prop change to trigger it (C3)', async () => {
+		it('loads the courses on mount, with no prop change to trigger it (C3)', async () => {
 			await deepLink('data-science')
 
-			for (const doctype of ['LMS Program Course', 'LMS Program Member']) {
-				const resource = listFor(doctype)
-				expect(resource, doctype).toBeDefined()
-				expect(resource.update).toHaveBeenCalledWith({
-					filters: expect.objectContaining({
-						parent: 'data-science',
-						parenttype: 'LMS Program',
-					}),
-				})
-				expect(resource.reload).toHaveBeenCalledTimes(1)
-			}
+			const resource = listFor('LMS Program Course')
+			expect(resource).toBeDefined()
+			expect(resource.update).toHaveBeenCalledWith({
+				filters: expect.objectContaining({
+					parent: 'data-science',
+					parenttype: 'LMS Program',
+				}),
+			})
+			expect(resource.reload).toHaveBeenCalledTimes(1)
+		})
+
+		it('reads the members from the program, with their names', async () => {
+			// member and full_name are permission level 1. The list API checked
+			// that level against the child table, which has no permissions of its
+			// own, and returned every row without them: blank member rows.
+			const { wrapper } = await deepLink('data-science')
+			expect(listFor('LMS Program Member')).toBeUndefined()
+
+			resources.docs[0].answer({
+				name: 'data-science',
+				title: 'data-science',
+				published: 1,
+				enforce_course_order: 0,
+				program_members: [
+					{
+						name: 'm1',
+						member: 'old@example.com',
+						full_name: 'Old',
+						creation: '2026-01-01',
+					},
+					{
+						name: 'm2',
+						member: 'new@example.com',
+						full_name: 'New',
+						creation: '2026-02-01',
+					},
+				],
+			})
+			await flushPromises()
+
+			await wrapper.find('[data-testid="program-save"]').trigger('click')
+			const payload = setValueSubmit.mock.calls[0][0]
+			expect(
+				payload.program_members.map((row: any) => [row.member, row.full_name])
+			).toEqual([
+				['new@example.com', 'New'],
+				['old@example.com', 'Old'],
+			])
 		})
 
 		it('does not wipe the child tables when saved straight after a deep link', async () => {
@@ -356,12 +393,12 @@ describe('ProgramForm as a route', () => {
 			const { wrapper } = await deepLink('data-science')
 
 			listFor('LMS Program Course').answer(COURSE_ROWS)
-			listFor('LMS Program Member').answer(MEMBER_ROWS)
 			resources.docs[0].answer({
 				name: 'data-science',
 				title: 'data-science',
 				published: 1,
 				enforce_course_order: 0,
+				program_members: MEMBER_ROWS,
 			})
 			await flushPromises()
 
@@ -377,12 +414,12 @@ describe('ProgramForm as a route', () => {
 		const loadProgram = async (courses: any[], members: any[]) => {
 			const { wrapper } = await deepLink('data-science')
 			listFor('LMS Program Course').answer(courses)
-			listFor('LMS Program Member').answer(members)
 			resources.docs[0].answer({
 				name: 'data-science',
 				title: 'data-science',
 				published: 1,
 				enforce_course_order: 0,
+				program_members: members,
 			})
 			await flushPromises()
 			return wrapper
