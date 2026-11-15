@@ -1,29 +1,24 @@
 <template>
-	<FormShell :title="__('New Announcement')" size="xl" @close="close">
+	<FormShell
+		:title="__('New Announcement')"
+		size="xl"
+		:loading="loadingBatch"
+		:message="refusal"
+		@close="close"
+	>
 		<template #default>
-			<div v-if="loadingBatch" class="p-4 text-base text-ink-gray-6">
-				{{ __('Loading...') }}
-			</div>
-			<div v-else-if="refusal" class="p-4 text-base text-ink-gray-6">
-				{{ refusal }}
-			</div>
-			<div v-else data-testid="announcement-fields">
+			<div data-testid="announcement-fields">
 				<FormLayout v-model:doc="doc" :layout="layout" />
 			</div>
 		</template>
 		<template #actions>
-			<div
-				v-if="!refusal && !loadingBatch"
-				class="flex items-center justify-end"
-			>
-				<HeaderButton
-					data-testid="announcement-save"
-					:label="__('Send')"
-					variant="solid"
-					:loading="announcementResource.loading"
-					@click="makeAnnouncement()"
-				/>
-			</div>
+			<HeaderButton
+				data-testid="announcement-save"
+				:label="__('Send')"
+				variant="solid"
+				:loading="announcementResource.loading"
+				@click="makeAnnouncement()"
+			/>
 		</template>
 	</FormShell>
 </template>

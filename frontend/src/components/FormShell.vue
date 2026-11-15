@@ -29,10 +29,16 @@
 						: 'max-h-[calc(100dvh-17rem)]'
 				"
 			>
-				<slot />
+				<FormShellStatus
+					v-if="!showsForm"
+					:class="statusClass"
+					:loading
+					:message
+				/>
+				<slot v-else />
 			</div>
 		</template>
-		<template #actions>
+		<template v-if="showsForm" #actions>
 			<div class="flex justify-end gap-2">
 				<slot name="actions" />
 			</div>
@@ -75,7 +81,7 @@
 						class="ms-auto flex shrink-0 items-center gap-2"
 					>
 						<slot name="header-action" />
-						<slot name="actions" />
+						<slot v-if="showsForm" name="actions" />
 					</div>
 				</header>
 
@@ -83,7 +89,13 @@
 					data-testid="form-shell-body"
 					class="flex-1 overflow-y-auto overscroll-contain px-5 py-4"
 				>
-					<slot />
+					<FormShellStatus
+						v-if="!showsForm"
+						:class="statusClass"
+						:loading
+						:message
+					/>
+					<slot v-else />
 				</div>
 			</div>
 		</Transition>
@@ -99,11 +111,20 @@
 // `lucide-`, which a plain `<span class="lucide-save">` does not satisfy.
 import { Dialog } from 'frappe-ui'
 import type { DialogPosition, DialogSize } from 'frappe-ui'
-import { nextTick, onBeforeUnmount, onMounted, ref, useId, watch } from 'vue'
+import {
+	computed,
+	nextTick,
+	onBeforeUnmount,
+	onMounted,
+	ref,
+	useId,
+	watch,
+} from 'vue'
 import { useEventListener, useMediaQuery } from '@vueuse/core'
 import { useScreenSize } from '@/utils/composables'
 import { useInertBackground } from '@/composables/useInertBackground'
 import { focusedElementOwnsLayer, trapTab } from '@/composables/useFocusTrap'
+import FormShellStatus from '@/components/FormShellStatus.vue'
 
 // The transition wraps the teleported node and must never move onto
 // <router-view>: a transform on any ancestor would establish a containing block
@@ -115,17 +136,31 @@ const reduceMotion = useMediaQuery('(prefers-reduced-motion: reduce)')
 
 // `position="top"` keeps a form whose height changes (a message appearing above
 // Save) from shifting the whole dialog, as a centred one does.
-withDefaults(
+//
+// `loading` and `message` replace the fields and hide the actions: one place
+// for every form's loading spinner and its refusal ("not permitted",
+// "read-only") text. Loading wins, so a form whose refusal reads data that is
+// still loading shows the spinner, not a premature refusal.
+// `statusClass` sizes that box for a form whose body has a fixed height.
+const props = withDefaults(
 	defineProps<{
 		title: string
 		size?: DialogSize
 		position?: DialogPosition
+		loading?: boolean
+		message?: string | null
+		statusClass?: string
 	}>(),
 	{
 		size: '3xl',
 		position: 'center',
+		loading: false,
+		message: null,
+		statusClass: '',
 	}
 )
+
+const showsForm = computed(() => !props.loading && !props.message)
 
 const emit = defineEmits<{ close: [] }>()
 const { isMobile } = useScreenSize()
