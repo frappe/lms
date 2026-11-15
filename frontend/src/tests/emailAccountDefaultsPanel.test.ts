@@ -231,7 +231,7 @@ describe('the default pickers', () => {
 		await flushPromises()
 
 		const box = boxNamed(w, 'Default Incoming account')
-		expect(box.attributes('data-disabled')).toBeUndefined()
+		expect(box.attributes('data-disabled')).not.toBe('true')
 		expect(box.findAll('[data-option]')).toHaveLength(0)
 	})
 

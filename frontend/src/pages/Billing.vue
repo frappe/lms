@@ -203,6 +203,7 @@
 							variant="solid"
 							size="md"
 							class="ms-auto text-p-base-medium"
+							:loading="paymentLink.loading"
 							@click="generatePaymentLink()"
 						>
 							{{
@@ -358,6 +359,7 @@ const paymentLink = createResource({
 })
 
 const generatePaymentLink = () => {
+	if (paymentLink.loading) return
 	paymentLink.submit(
 		{},
 		{

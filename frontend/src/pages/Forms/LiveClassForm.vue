@@ -264,6 +264,7 @@ const reloadLiveClassList = () => {
 
 const submitLiveClass = () => {
 	if (refusal.value) return
+	if (createLiveClass.loading || createGoogleMeetLiveClass.loading) return
 	const resource =
 		conferencingProvider.value === 'Google Meet'
 			? createGoogleMeetLiveClass

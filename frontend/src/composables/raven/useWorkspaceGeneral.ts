@@ -173,6 +173,7 @@ export function useWorkspaceGeneral(
 	// so a rename moves the docname, and a visibility write issued in parallel
 	// could land after it and address a doc that is gone.
 	async function save(): Promise<void> {
+		if (saving.value) return
 		if (isNew.value) return create()
 		const current = detail.value
 		if (!current || !dirty.value) return
