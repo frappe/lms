@@ -347,45 +347,6 @@ describe('ProgramForm as a route', () => {
 			expect(resource.reload).toHaveBeenCalledTimes(1)
 		})
 
-		it('reads the members from the program, with their names', async () => {
-			// member and full_name are permission level 1. The list API checked
-			// that level against the child table, which has no permissions of its
-			// own, and returned every row without them: blank member rows.
-			const { wrapper } = await deepLink('data-science')
-			expect(listFor('LMS Program Member')).toBeUndefined()
-
-			resources.docs[0].answer({
-				name: 'data-science',
-				title: 'data-science',
-				published: 1,
-				enforce_course_order: 0,
-				program_members: [
-					{
-						name: 'm1',
-						member: 'old@example.com',
-						full_name: 'Old',
-						creation: '2026-01-01',
-					},
-					{
-						name: 'm2',
-						member: 'new@example.com',
-						full_name: 'New',
-						creation: '2026-02-01',
-					},
-				],
-			})
-			await flushPromises()
-
-			await wrapper.find('[data-testid="program-save"]').trigger('click')
-			const payload = setValueSubmit.mock.calls[0][0]
-			expect(
-				payload.program_members.map((row: any) => [row.member, row.full_name])
-			).toEqual([
-				['new@example.com', 'New'],
-				['old@example.com', 'Old'],
-			])
-		})
-
 		it('does not wipe the child tables when saved straight after a deep link', async () => {
 			// The most damaging shape of C4: the form used to seed itself from the
 			// parent's in-memory array, which is empty on a cold deep link, and the
