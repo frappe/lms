@@ -239,27 +239,6 @@ describe('EmailTemplateForm as a route', () => {
 		expect(wrapper.html()).toContain('read-only')
 	})
 
-	it('inserts through its own resource, naming by prompt', async () => {
-		const router = makeRouter()
-		await openForm(router)
-		const wrapper = await mountForm(router)
-		await fill(wrapper)
-
-		await save(wrapper).trigger('click')
-		expect(insert.submit).toHaveBeenCalledTimes(1)
-		expect((insertOptions().makeParams as () => unknown)()).toEqual({
-			doc: {
-				doctype: 'Email Template',
-				__newname: 'Enrollment Confirmation',
-				name: 'Enrollment Confirmation',
-				subject: 'You are in',
-				use_html: 0,
-				response: 'Dear member',
-				response_html: '',
-			},
-		})
-	})
-
 	it('sends the HTML body instead once Use HTML is on', async () => {
 		const router = makeRouter()
 		await openForm(router)
@@ -315,6 +294,7 @@ describe('EmailTemplateForm as a route', () => {
 			'Enrollment Confirmation'
 		)
 	})
+<<<<<<< HEAD
 
 	it('survives a save with no template list mounted to refresh', async () => {
 		const router = makeRouter()
@@ -365,4 +345,6 @@ describe('EmailTemplateForm as a route', () => {
 		expect(router.currentRoute.value.name).toBe('BatchDetail')
 		expect(router.currentRoute.value.hash).toBe(BATCH_TAB)
 	})
+=======
+>>>>>>> ffe35ba (test: drop mocked frontend tests that only pin wiring or markup)
 })

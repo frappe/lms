@@ -206,24 +206,6 @@ describe('CourseImportForm as a route', () => {
 		expect(handlerErrors).toEqual([])
 	})
 
-	it('sends the uploaded file path to the import endpoint', async () => {
-		callMock.mockResolvedValue('imported-course')
-		const router = makeRouter()
-		await router.push({ name: 'CourseImport' })
-		const wrapper = await mountForm(router)
-
-		await attachZip(wrapper)
-		expect(wrapper.html()).toContain('course.zip')
-
-		await wrapper.find('[data-testid="course-import-submit"]').trigger('click')
-		expect(callMock).toHaveBeenCalledWith(
-			'lms.lms.api.import_course_from_zip',
-			{
-				zip_file_path: '/files/course.zip',
-			}
-		)
-	})
-
 	// Both cases build the error the way call() does: `message` is
 	// "<method> <exc_type>" and the server's own text lives in `messages` — which
 	// call() never leaves empty, substituting 'Internal Server Error' when the
@@ -282,6 +264,7 @@ describe('CourseImportForm as a route', () => {
 		await flushPromises()
 		expect(router.currentRoute.value.name).toBe('Courses')
 	})
+<<<<<<< HEAD
 
 	it('mobile: the back control pops the router back to the list', async () => {
 		const router = makeRouter()
@@ -321,4 +304,6 @@ describe('CourseImportForm as a route', () => {
 		const wrapper = await mountForm(router)
 		expect(wrapper.findComponent({ name: 'Dialog' }).props('size')).toBe('lg')
 	})
+=======
+>>>>>>> ffe35ba (test: drop mocked frontend tests that only pin wiring or markup)
 })

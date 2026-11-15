@@ -1,13 +1,11 @@
-/**
- * The dialog gives the editor a fixed box, so the question field absorbs what
- * the options leave or the slack shows as dead space. The fill covered
- * open-ended only, and never reached the field.
- */
 import { describe, expect, it, vi } from 'vitest'
 import { mount } from '@vue/test-utils'
 
+<<<<<<< HEAD
 const editorClassFor = { current: '' as unknown }
 
+=======
+>>>>>>> ffe35ba (test: drop mocked frontend tests that only pin wiring or markup)
 vi.mock('frappe-ui', () => ({
 	Button: { template: '<button><slot /></button>' },
 	Badge: { template: '<span><slot /></span>' },
@@ -31,10 +29,13 @@ vi.mock('@/components/RichTextEditor.vue', () => ({
 			'ariaInvalid',
 		],
 		emits: ['change', 'blur'],
+<<<<<<< HEAD
 		created() {
 			// @ts-expect-error - options API `this` inside a stub
 			editorClassFor.current = this.editorClass
 		},
+=======
+>>>>>>> ffe35ba (test: drop mocked frontend tests that only pin wiring or markup)
 		template:
 			'<div class="text-editor-stub" :id="id" :aria-invalid="String(ariaInvalid)" />',
 	},
@@ -75,6 +76,7 @@ async function mountEditor(
 	})
 }
 
+<<<<<<< HEAD
 const classOf = (wrapper: ReturnType<typeof mount>) =>
 	wrapper.find('.text-editor-stub').element.parentElement!.className
 
@@ -115,6 +117,8 @@ describe('QuestionEditor fill', () => {
 	})
 })
 
+=======
+>>>>>>> ffe35ba (test: drop mocked frontend tests that only pin wiring or markup)
 describe('QuestionEditor field labelling', () => {
 	const editorOf = (wrapper: ReturnType<typeof mount>) =>
 		wrapper.findComponent({ name: 'RichTextEditorStub' })

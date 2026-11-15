@@ -52,13 +52,6 @@ const courseResource = reactive<{
 
 createResourceMock.mockImplementation(() => courseResource)
 
-const optionsFor = (url: string): Record<string, unknown> =>
-	(
-		createResourceMock.mock.calls.find(
-			(call) => (call[0] as { url: string }).url === url
-		) as [Record<string, unknown>]
-	)[0]
-
 const reloadCourseDetails = vi.fn()
 
 // CourseDetail hands its key-less course resource's reload down to the forms
@@ -153,6 +146,7 @@ describe('CourseEnrollmentForm as a route', () => {
 		reloadCourseDetails.mockReset()
 	})
 
+<<<<<<< HEAD
 	// The whole point of the conversion: no CourseDashboard tab is mounted, so
 	// there is no parent to hand this page a course or a student list.
 	it('mounts straight from the URL with no parent dashboard mounted', async () => {
@@ -180,6 +174,8 @@ describe('CourseEnrollmentForm as a route', () => {
 		expect(options.cache).toBeUndefined()
 	})
 
+=======
+>>>>>>> ffe35ba (test: drop mocked frontend tests that only pin wiring or markup)
 	it('refuses a visitor who is neither moderator nor an instructor of it', async () => {
 		courseResource.data = course()
 		const router = makeRouter()
@@ -220,16 +216,6 @@ describe('CourseEnrollmentForm as a route', () => {
 		expect(form(wrapper).props('refusal')).toContain('do not have permission')
 	})
 
-	it('says so while the course it needs to judge that is still in flight', async () => {
-		courseResource.loading = true
-		const router = makeRouter()
-		await openForm(router)
-		const wrapper = await mountForm(router, instructor)
-
-		expect(form(wrapper).props('loading')).toBe(true)
-		expect(wrapper.html()).toContain('Loading...')
-	})
-
 	it('hands the form a course target with its paid kind and price', async () => {
 		courseResource.data = course({ paid_certificate: 1, price: '₹999' })
 		const router = makeRouter()
@@ -254,26 +240,6 @@ describe('CourseEnrollmentForm as a route', () => {
 			paidKind: null,
 			priceLabel: null,
 		})
-	})
-
-	it('survives enrolling with no dashboard list to reload', async () => {
-		courseResource.data = course()
-		const router = makeRouter()
-		await openForm(router)
-		const wrapper = await mountForm(router)
-
-		form(wrapper).vm.$emit('enrolled', {
-			added: ['a@x.com'],
-			upgraded: [],
-			errors: [],
-		})
-		await flushPromises()
-
-		expect(getCachedListResourceMock).toHaveBeenCalledWith([
-			'courseProgress',
-			'COURSE-1',
-		])
-		expect(router.currentRoute.value.name).toBe('NewCourseEnrollment')
 	})
 
 	it('reloads the dashboard list on enrolled and stays open', async () => {

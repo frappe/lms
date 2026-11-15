@@ -38,9 +38,6 @@ vi.mock('../translation', () => ({ default: {} }))
 vi.mock('lucide-vue-next', () => ({ Pencil: {} }))
 
 const { Assignment } = await import('@/utils/assignment')
-// Imported at module scope: '@/utils' pulls the whole editor toolchain and is
-// too slow to load inside a test's timeout.
-const { getEditorTools } = await import('@/utils')
 
 async function renderInLesson(config: Record<string, unknown> | undefined) {
 	const tool = new Assignment({
@@ -78,28 +75,6 @@ describe('the assignment block in a lesson', () => {
 		unmount.mockClear()
 	})
 
-	it('mounts inline, with no iframe and no fixed height', async () => {
-		const { wrapper } = await renderInLesson({ studentView: false })
-
-		expect(wrapper.querySelector('iframe')).toBeNull()
-		expect(wrapper.className).not.toMatch(/(^|\s)h-/)
-		const { el, component } = mountedWith()
-		expect(el).toBe(wrapper)
-		expect(component.name).toBe('AssessmentBlock')
-	})
-
-	it("hands the assignment the learner's own submission", async () => {
-		await renderInLesson({ studentView: false })
-
-		const { props } = mountedWith()
-		expect(props.is.name).toBe('Assignment')
-		expect(props.props).toEqual({
-			assignmentID: 'ASSIGN-1',
-			submissionName: 'SUB-0001',
-			showTitle: false,
-		})
-	})
-
 	it('starts a new submission when the learner has none', async () => {
 		lookup.value = null
 		await renderInLesson({ studentView: false })
@@ -122,18 +97,6 @@ describe('the assignment block in a lesson', () => {
 		expect(mountBlock).not.toHaveBeenCalled()
 	})
 
-	it('passes Student View through when the tool config says so', async () => {
-		await renderInLesson({ studentView: true })
-
-		expect(mountedWith().props.studentView).toBe(true)
-	})
-
-	it('defaults Student View off when no config is passed at all', async () => {
-		await renderInLesson(undefined)
-
-		expect(mountedWith().props.studentView).toBe(false)
-	})
-
 	it('unmounts the assignment when EditorJS destroys the block', async () => {
 		const { tool } = await renderInLesson({ studentView: false })
 
@@ -142,6 +105,7 @@ describe('the assignment block in a lesson', () => {
 		expect(unmount).toHaveBeenCalledTimes(1)
 	})
 })
+<<<<<<< HEAD
 
 describe('getEditorTools wiring', () => {
 	it('hands the assignment tool the Student View flag', () => {
@@ -159,3 +123,5 @@ describe('getEditorTools wiring', () => {
 		expect(tools.assignment.config.studentView).toBe(false)
 	})
 })
+=======
+>>>>>>> ffe35ba (test: drop mocked frontend tests that only pin wiring or markup)

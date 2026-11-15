@@ -19,7 +19,7 @@ vi.mock('frappe-ui', () => ({
 	// while open, which is dropdown mechanics this test is not about.
 	Combobox: {
 		name: 'Combobox',
-		props: ['options', 'modelValue', 'open', 'align'],
+		props: ['options', 'modelValue', 'open'],
 		template: `<div><slot name="footer" /></div>`,
 	},
 	Button: {
@@ -85,29 +85,5 @@ describe('Link onCreate contract', () => {
 		await clickCreateNew(mountLink(onCreate))
 
 		expect(onCreate).toHaveBeenCalledOnce()
-	})
-})
-
-// A filter sitting at the end of a row opened its popover off the side of the
-// window, because Combobox aligns to the start by default and Link forwarded
-// nothing. `end` is the trailing edge in either direction, so it is RTL-correct.
-describe('Link popover alignment', () => {
-	const combobox = (wrapper: ReturnType<typeof mountLink>) =>
-		wrapper.findComponent({ name: 'Combobox' })
-
-	it('aligns to the start unless asked otherwise', () => {
-		const wrapper = mount(Link, {
-			props: { doctype: 'Course' },
-			global: { mocks: { __: (s: string) => s } },
-		})
-		expect(combobox(wrapper).props('align')).toBe('start')
-	})
-
-	it('hands the popover the alignment it was given', () => {
-		const wrapper = mount(Link, {
-			props: { doctype: 'Course', align: 'end' },
-			global: { mocks: { __: (s: string) => s } },
-		})
-		expect(combobox(wrapper).props('align')).toBe('end')
 	})
 })

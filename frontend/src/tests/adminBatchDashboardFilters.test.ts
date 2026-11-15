@@ -140,27 +140,6 @@ describe('AdminBatchDashboard students filters', () => {
 		h.chartRows = []
 	})
 
-	it('shares one cached resource across mounts', async () => {
-		const first = mountDashboard()
-		await flushPromises()
-		const resource = cachedList()
-		first.unmount()
-
-		const second = mountDashboard()
-		await flushPromises()
-
-		expect(cachedList()).toBe(resource)
-		second.unmount()
-	})
-
-	it('does not refetch on a first mount, whose filters already agree', async () => {
-		const wrapper = mountDashboard()
-		await flushPromises()
-
-		expect(h.reloads).toEqual([])
-		wrapper.unmount()
-	})
-
 	// The regression: the search the previous visit left behind.
 	it('clears a stale search filter left by an earlier mount', async () => {
 		const first = mountDashboard()

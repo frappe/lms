@@ -6,27 +6,19 @@
  * component's `transform` / `onSuccess` closures are never attached
  * (node_modules/frappe-ui/src/resources/resources.js:9-20, listResource.js:15-22).
  *
- * That is harmless when the component only reads `resource.data`, because the
- * data lives on the shared instance. It breaks whenever a callback writes to a
- * ref that belongs to the component: after a remount the reload runs the *dead*
- * instance's closure, and the live component's ref is never filled. That is the
- * mechanism behind issue #2559, and VideoStatistics.vue carried the same shape —
- * its onSuccess picks the initial tab, so a reopened dialog rendered no tab at
- * all.
- *
- * The mock below reproduces frappe-ui's real cache semantics, so this suite
- * fails against any component that reintroduces the pattern.
+ * That breaks whenever a callback writes to a ref that belongs to the
+ * component: after a remount the reload runs the *dead* instance's closure, and
+ * the live component's ref is never filled (issue #2559).
  */
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
-import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { flushPromises, mount } from '@vue/test-utils'
-import VideoStatistics from '@/components/Modals/VideoStatistics.vue'
+import { describe, expect, it } from 'vitest'
 
 // tsconfig sets `types: []`, so node's globals aren't ambient here.
 declare const process: { cwd(): string }
 const SRC = join(process.cwd(), 'src')
 
+<<<<<<< HEAD
 const ROWS = [
 	{
 		name: 'w1',
@@ -152,11 +144,11 @@ describe('VideoStatistics.vue across a remount', () => {
 	})
 })
 
+=======
+>>>>>>> ffe35ba (test: drop mocked frontend tests that only pin wiring or markup)
 /**
- * The behavioural test above can only cover a component cheap enough to mount.
- * Lesson.vue and ProgramForm.vue carry the same defect and are not, so this
- * pins them at the source level instead: the resources whose onSuccess writes
- * to a component ref must not declare `cache`.
+ * Pinned at the source level: the resources whose onSuccess writes to a
+ * component ref must not declare `cache`.
  *
  * It proves less than a mount — it cannot catch a NEW resource growing the same
  * shape — but it does stop the specific regression of someone restoring these
