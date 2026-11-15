@@ -13,6 +13,7 @@ import { flushPromises, mount } from '@vue/test-utils'
 import dayjs from 'dayjs'
 import CourseReviews from '@/components/CourseReviews.vue'
 import type { DoctypePermissionType, SessionUser } from '@/types'
+import { translate } from './helpers/translate'
 
 const fmt = (d: dayjs.Dayjs) => d.format('YYYY-MM-DD HH:mm:ss')
 
@@ -89,7 +90,7 @@ vi.mock('@/components/Modals/ReviewModal.vue', () => ({
 }))
 vi.mock('@/utils', () => ({ formatRating: (r: string) => String(r) }))
 
-vi.stubGlobal('__', (s: string) => s)
+vi.stubGlobal('__', translate)
 
 const REVIEW_PERMS = { read: 1, write: 1, create: 1, delete: 0 } as const
 
@@ -114,7 +115,7 @@ const mountReviews = (
 				$user: user,
 				$dayjs: dayjs,
 			},
-			mocks: { __: (s: string) => s },
+			mocks: { __: translate },
 			stubs: { LucideStar: true, RouterLink: true },
 		},
 	})

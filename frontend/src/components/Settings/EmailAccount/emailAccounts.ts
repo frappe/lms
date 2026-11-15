@@ -386,7 +386,7 @@ export const services: EmailService[] = [
 			return __('Send and receive through Frappe Mail')
 		},
 		info: __(
-			`Setting up Frappe Mail requires you to have an API key and API Secret of your email account. Read more`
+			'Setting up Frappe Mail requires you to have an API key and API Secret of your email account. Read more'
 		),
 		link: 'https://github.com/frappe/mail',
 		custom: true,
@@ -398,7 +398,7 @@ export const services: EmailService[] = [
 			return __('Connect any IMAP/POP3 and SMTP server')
 		},
 		info: __(
-			`Any IMAP/POP3 and SMTP server your provider gives you the host and port for. Read more`
+			'Any IMAP/POP3 and SMTP server your provider gives you the host and port for. Read more'
 		),
 		link: 'https://docs.frappe.io/framework/user/en/setting-up-email',
 		custom: true,

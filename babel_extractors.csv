@@ -1,0 +1,2 @@
+frontend/src/tests/**,ignore
+frontend/src/**.ts,frappe.gettext.extractors.html_template.extract

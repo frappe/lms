@@ -10,7 +10,7 @@
 		:has-next-page="applications.hasNextPage"
 		:list-options="{ showTooltip: false, selectable: false }"
 		v-model:page-length="pageLength"
-		empty-name="Job Applications"
+		:empty-name="__('Job Applications')"
 		empty-icon="lucide-briefcase"
 		:empty-title="emptyState?.title"
 		:empty-description="emptyState?.description"
@@ -280,7 +280,9 @@ const breadcrumbs = computed(() => [
 
 const applicationCountLabel = computed(() => {
 	const count = totalApplications.data ?? 0
-	return `${count} ${count === 1 ? __('Application') : __('Applications')}`
+	return count === 1
+		? __('1 application')
+		: __('{0} applications').format(count)
 })
 
 const applicationColumns = computed(() => {
@@ -325,7 +327,7 @@ const applicantRows = computed(() => {
 
 usePageMeta(() => {
 	return {
-		title: `Applications - ${applications.data?.[0]?.job_title}`,
+		title: __('Applications - {0}').format(applications.data?.[0]?.job_title),
 		icon: brand.favicon,
 	}
 })

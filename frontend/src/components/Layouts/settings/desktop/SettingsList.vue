@@ -84,8 +84,8 @@
 				:title="__('No results')"
 				:description="
 					search
-						? __('No {0} match {1}').format(emptyName.toLowerCase(), search)
-						: __('No {0} match this filter').format(emptyName.toLowerCase())
+						? __('No {0} match {1}').format(__(emptyName).toLowerCase(), search)
+						: __('No {0} match this filter').format(__(emptyName).toLowerCase())
 				"
 				:icon="emptyIcon"
 			/>

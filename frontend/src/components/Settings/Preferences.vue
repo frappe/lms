@@ -244,27 +244,30 @@ const directionOptions = computed(() => [
 
 const accessSections = [
 	{
-		label: 'Access & Availability',
+		label: __('Access & Availability'),
 		fields: [
 			{
-				label: 'Allow Guest Access',
+				label: __('Allow Guest Access'),
 				name: 'allow_guest_access',
-				description:
-					'If enabled, users can access the course and batch lists without logging in.',
+				description: __(
+					'If enabled, users can access the course and batch lists without logging in.'
+				),
 				type: 'checkbox',
 			},
 			{
-				label: 'Disable PWA',
+				label: __('Disable PWA'),
 				name: 'disable_pwa',
-				description:
-					'If checked, users will not be able to install the application as a Progressive Web App.',
+				description: __(
+					'If checked, users will not be able to install the application as a Progressive Web App.'
+				),
 				type: 'checkbox',
 			},
 			{
-				label: 'Allow Job Posting',
+				label: __('Allow Job Posting'),
 				name: 'allow_job_posting',
-				description:
-					'If enabled, users can post job openings on the job board. Else only admins can post jobs.',
+				description: __(
+					'If enabled, users can post job openings on the job board. Else only admins can post jobs.'
+				),
 				type: 'checkbox',
 			},
 		],
@@ -272,33 +275,34 @@ const accessSections = [
 	// Not a notification gate. It decides whether a booking carries a calendar
 	// invite, not whether the evaluation mail is sent.
 	{
-		label: 'Evaluations',
+		label: __('Evaluations'),
 		fields: [
 			{
-				label: 'Send calendar invite for evaluations',
+				label: __('Send calendar invite for evaluations'),
 				name: 'send_calendar_invite_for_evaluations',
 				type: 'checkbox',
-				description:
-					'If enabled, it sends google calendar invite to the student for evaluations.',
+				description: __(
+					'If enabled, it sends google calendar invite to the student for evaluations.'
+				),
 			},
 		],
 	},
 	{
-		label: 'Notifications',
+		label: __('Notifications'),
 		fields: [
 			{
-				label: 'Send Notification for Published Courses',
+				label: __('Send Notification for Published Courses'),
 				name: 'send_notification_for_published_courses',
 				type: 'select',
 				options: [' ', 'Email', 'In-app'],
-				description: 'Notify members when a new course is published.',
+				description: __('Notify members when a new course is published.'),
 			},
 			{
-				label: 'Send Notification for Published Batches',
+				label: __('Send Notification for Published Batches'),
 				name: 'send_notification_for_published_batches',
 				type: 'select',
 				options: [' ', 'Email', 'In-app'],
-				description: 'Notify members when a new batch is published.',
+				description: __('Notify members when a new batch is published.'),
 			},
 		],
 	},

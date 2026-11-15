@@ -13,7 +13,7 @@
 		:loading="programs.list.loading || reloading"
 		:has-next-page="programs.hasNextPage"
 		v-model:page-length="pageLength"
-		empty-name="Programs"
+		:empty-name="__('Programs')"
 		empty-icon="lucide-graduation-cap"
 		:empty-title="emptyState?.title"
 		:empty-description="emptyState?.description"
@@ -75,15 +75,21 @@
 				<div class="flex items-center gap-x-2 text-ink-gray-7">
 					<span class="lucide-book-open size-4" />
 					<span>
-						{{ row.course_count }}
-						{{ row.course_count == 1 ? __('Course') : __('Courses') }}
+						{{
+							row.course_count == 1
+								? __('1 course')
+								: __('{0} courses').format(row.course_count)
+						}}
 					</span>
 				</div>
 				<div class="flex items-center gap-x-2 text-ink-gray-7">
 					<span class="lucide-user size-4" />
 					<span>
-						{{ row.member_count || 0 }}
-						{{ row.member_count == 1 ? __('member') : __('members') }}
+						{{
+							row.member_count == 1
+								? __('1 member')
+								: __('{0} members').format(row.member_count || 0)
+						}}
 					</span>
 				</div>
 			</button>

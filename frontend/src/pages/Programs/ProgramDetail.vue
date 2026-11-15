@@ -9,7 +9,7 @@
 					v-if="program.data?.is_member"
 					:theme="program.data.progress < 100 ? 'amber' : 'green'"
 				>
-					{{ program.data.progress }}% {{ __('completed') }}
+					{{ __('{0}% completed').format(program.data.progress) }}
 				</Badge>
 
 				<template v-if="program.data?.enforce_course_order">

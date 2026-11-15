@@ -7,7 +7,7 @@
 		:total-count="batchCount"
 		:has-next-page="batches.hasNextPage"
 		v-model:page-length="pageLength"
-		empty-name="Batches"
+		:empty-name="__('Batches')"
 		empty-icon="lucide-users"
 		:empty-title="emptyState?.title"
 		:empty-description="emptyState?.description"
@@ -339,15 +339,33 @@ watch(currentTab, () => {
 const batchTabs = computed(() => {
 	if (isAdmin.value) {
 		return [
-			{ label: __('Active'), value: 'active' },
-			{ label: __('Upcoming'), value: 'upcoming' },
-			{ label: __('Archived'), value: 'archived' },
-			{ label: __('Unpublished'), value: 'unpublished' },
+			{ label: __('Active'), title: __('Active Batches'), value: 'active' },
+			{
+				label: __('Upcoming'),
+				title: __('Upcoming Batches'),
+				value: 'upcoming',
+			},
+			{
+				label: __('Archived'),
+				title: __('Archived Batches'),
+				value: 'archived',
+			},
+			{
+				label: __('Unpublished'),
+				title: __('Unpublished Batches'),
+				value: 'unpublished',
+			},
 		]
 	}
-	const tabs = [{ label: __('Upcoming'), value: 'upcoming' }]
+	const tabs = [
+		{ label: __('Upcoming'), title: __('Upcoming Batches'), value: 'upcoming' },
+	]
 	if (user.data) {
-		tabs.push({ label: __('Enrolled'), value: 'enrolled' })
+		tabs.push({
+			label: __('Enrolled'),
+			title: __('Enrolled Batches'),
+			value: 'enrolled',
+		})
 	}
 	return tabs
 })
@@ -361,7 +379,7 @@ watch(batchTabs, (tabs) => {
 
 const pageTitle = computed(() => {
 	const tab = batchTabs.value.find((t) => t.value === currentTab.value)
-	return __('{0} Batches').format(tab?.label)
+	return tab?.title
 })
 
 const canCreateBatch = () => {

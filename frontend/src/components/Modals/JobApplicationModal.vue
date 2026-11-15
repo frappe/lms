@@ -1,11 +1,11 @@
 <template>
 	<Dialog
 		v-model:open="show"
-		title="Apply for this job"
+		:title="__('Apply for this job')"
 		size="lg"
 		:actions="[
 			{
-				label: 'Submit',
+				label: __('Submit'),
 				variant: 'solid',
 				onClick: ({ close }) => submitResume(close),
 			},

@@ -72,11 +72,15 @@ const tally = computed(() => {
 	const parts: string[] = []
 	if (violations) {
 		parts.push(
-			`${violations} ${violations == 1 ? __('violation') : __('violations')}`
+			violations == 1
+				? __('1 violation')
+				: __('{0} violations').format(violations)
 		)
 	}
 	if (warnings) {
-		parts.push(`${warnings} ${warnings == 1 ? __('warning') : __('warnings')}`)
+		parts.push(
+			warnings == 1 ? __('1 warning') : __('{0} warnings').format(warnings)
+		)
 	}
 	return parts.join(', ')
 })

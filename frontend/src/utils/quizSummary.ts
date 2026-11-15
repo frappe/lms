@@ -13,7 +13,7 @@ export const formatQuizSubtitle = (
 		parts.push(__('Open ended'))
 	}
 	const count = types.length
-	parts.push(`${count} ${count == 1 ? __('question') : __('questions')}`)
+	parts.push(count == 1 ? __('1 question') : __('{0} questions').format(count))
 	if (passingPercentage) {
 		parts.push(__('pass at {0}%').format(passingPercentage))
 	}
@@ -23,13 +23,11 @@ export const formatQuizSubtitle = (
 }
 
 export const attemptsLeftLabel = (attemptsLeft: number): string =>
-	__('{0} {1} left').format(
-		attemptsLeft,
-		attemptsLeft == 1 ? __('attempt') : __('attempts')
-	)
+	attemptsLeft == 1
+		? __('1 attempt left')
+		: __('{0} attempts left').format(attemptsLeft)
 
 export const attemptsAllowedLabel = (maxAttempts: number): string =>
-	__('{0} {1} allowed').format(
-		maxAttempts,
-		maxAttempts == 1 ? __('attempt') : __('attempts')
-	)
+	maxAttempts == 1
+		? __('1 attempt allowed')
+		: __('{0} attempts allowed').format(maxAttempts)

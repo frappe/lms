@@ -5,7 +5,7 @@
 		size="2xl"
 		:actions="[
 			{
-				label: 'Post',
+				label: __('Post'),
 				variant: 'solid',
 				onClick: ({ close }) => submitTopic(close),
 			},

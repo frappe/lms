@@ -8,7 +8,7 @@
 		:list-resource="imports"
 		:loading="imports.list.loading"
 		:has-next-page="imports.hasNextPage"
-		empty-name="Imports"
+		:empty-name="__('Imports')"
 		empty-icon="lucide-arrow-down-to-line"
 		:empty-title="emptyState?.title"
 		:empty-description="emptyState?.description"

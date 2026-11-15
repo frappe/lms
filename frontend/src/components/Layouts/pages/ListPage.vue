@@ -303,7 +303,7 @@ const loadedMessage = () => {
 	// Matches the empty state's wording deliberately, so it doesn't read as a
 	// second, different event. A failed first fetch also lands here: the
 	// resource leaves `rows` empty and reports failure only via `error`.
-	if (!props.rows.length) return __('No {0} Found').format(props.emptyName)
+	if (!props.rows.length) return __('No {0} Found').format(__(props.emptyName))
 	// Counted rather than named. `emptyName` is a plural noun passed untranslated
 	// ("Courses"), so a translated frame around it reads half-English, and there
 	// is no singular of it to reach for when the count is one.

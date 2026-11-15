@@ -24,7 +24,8 @@ vi.mock('frappe-ui', () => ({
 	Tooltip: { template: `<div><slot /></div>` },
 	Sidebar: { template: `<nav><slot /></nav>` },
 	SidebarCard: { template: `<div />` },
-	SidebarCollapseToggle: { template: `<button />` },
+	sidebarCollapsedKey: Symbol('sidebarCollapsed'),
+	sidebarToggleKey: Symbol('sidebarToggle'),
 	SidebarItem: { template: `<div />` },
 	SidebarSection: { template: `<div><slot /></div>` },
 }))

@@ -1,9 +1,11 @@
-import { createResource } from 'frappe-ui'
+import { call } from 'frappe-ui'
+
+// Set on import, so module-scope `__()` calls in later imports don't throw.
+window.__ = translate
 
 export default function translationPlugin(app) {
 	app.config.globalProperties.__ = translate
-	window.__ = translate
-	if (!window.translatedMessages) fetchTranslations()
+	loadTranslations()
 }
 
 function fill(message, args) {
@@ -31,13 +33,20 @@ function translate(message, replace) {
 	}
 }
 
-function fetchTranslations(lang) {
-	createResource({
-		url: 'lms.lms.api.get_translations',
-		cache: 'translations',
-		auto: true,
-		transform: (data) => {
-			window.translatedMessages = data
-		},
-	})
+let loading = null
+
+// Strings built in setup() are translated once, so main.js mounts the app only
+// after the messages are in.
+export function loadTranslations() {
+	if (window.translatedMessages) return Promise.resolve()
+	loading ||= fetchTranslations()
+	return loading
+}
+
+async function fetchTranslations() {
+	try {
+		window.translatedMessages = await call('lms.lms.api.get_translations')
+	} catch (error) {
+		console.error('Could not load translations', error)
+	}
 }

@@ -5,7 +5,7 @@
 		v-model:query="query"
 		:options="mergedOptions"
 		:placeholder="placeholder"
-		:emptyText="emptyText"
+		:emptyText="__(emptyText)"
 		:variant="variant"
 		:disabled="disabled"
 		:loading="loading"

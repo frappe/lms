@@ -25,7 +25,7 @@
 					v-model="member.first_name"
 					:label="__('First Name')"
 					type="text"
-					placeholder="Ada"
+					:placeholder="__('Ada')"
 					required
 					autocomplete="off"
 				/>
@@ -33,7 +33,7 @@
 					v-model="member.last_name"
 					:label="__('Last Name')"
 					type="text"
-					placeholder="Lovelace"
+					:placeholder="__('Lovelace')"
 					autocomplete="off"
 				/>
 				<FormControl
@@ -70,7 +70,7 @@
 					v-model="member.location"
 					:label="__('Location')"
 					type="text"
-					placeholder="London"
+					:placeholder="__('London')"
 					autocomplete="off"
 				/>
 			</div>

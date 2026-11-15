@@ -13,7 +13,7 @@
 				<div class="flex items-center gap-x-1 text-sm text-ink-gray-7">
 					<span class="lucide-map-pin size-3" />
 					<span>
-						{{ job.location }}{{ job.country ? `, ${job.country}` : '' }}
+						{{ job.location }}{{ job.country ? `, ${__(job.country)}` : '' }}
 					</span>
 				</div>
 				<div
@@ -22,18 +22,21 @@
 				>
 					<span class="lucide-user size-3" />
 					<span>
-						{{ job.applicants }}
-						{{ job.applicants > 1 ? __('applicants') : __('applicant') }}
+						{{
+							job.applicants > 1
+								? __('{0} applicants').format(job.applicants)
+								: __('1 applicant')
+						}}
 					</span>
 				</div>
 			</div>
 		</div>
 		<div class="flex gap-x-2 items-center mt-auto">
 			<Badge>
-				{{ job.type }}
+				{{ __(job.type) }}
 			</Badge>
 			<Badge v-if="job.work_mode">
-				{{ job.work_mode }}
+				{{ __(job.work_mode) }}
 			</Badge>
 			<Badge>
 				{{ serverTime(job.creation).fromNow() }}

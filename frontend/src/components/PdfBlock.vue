@@ -6,7 +6,7 @@
 					type="button"
 					class="pdf-btn"
 					:disabled="loading || !!error || currentPage <= 1"
-					aria-label="Previous page"
+					:aria-label="__('Previous page')"
 					@click="goToPage(currentPage - 1)"
 				>
 					<ChevronLeft :size="18" :stroke-width="1.5" />
@@ -18,7 +18,7 @@
 					type="button"
 					class="pdf-btn"
 					:disabled="loading || !!error || currentPage >= numPages"
-					aria-label="Next page"
+					:aria-label="__('Next page')"
 					@click="goToPage(currentPage + 1)"
 				>
 					<ChevronRight :size="18" :stroke-width="1.5" />
@@ -29,7 +29,7 @@
 					type="button"
 					class="pdf-btn"
 					:disabled="loading || !!error"
-					aria-label="Zoom out"
+					:aria-label="__('Zoom out')"
 					@click="zoomOut"
 				>
 					<ZoomOut :size="18" :stroke-width="1.5" />
@@ -38,7 +38,7 @@
 					type="button"
 					class="pdf-btn"
 					:disabled="loading || !!error"
-					aria-label="Fit width"
+					:aria-label="__('Fit width')"
 					@click="fitWidth"
 				>
 					<Maximize2 :size="16" :stroke-width="1.5" />
@@ -47,7 +47,7 @@
 					type="button"
 					class="pdf-btn"
 					:disabled="loading || !!error"
-					aria-label="Zoom in"
+					:aria-label="__('Zoom in')"
 					@click="zoomIn"
 				>
 					<ZoomIn :size="18" :stroke-width="1.5" />
@@ -56,7 +56,7 @@
 					class="pdf-btn"
 					:href="safeUrl(file)"
 					v-external
-					aria-label="Open in new tab"
+					:aria-label="__('Open in new tab')"
 				>
 					<ExternalLink :size="16" :stroke-width="1.5" />
 				</a>
@@ -66,12 +66,12 @@
 		<div ref="scrollEl" class="pdf-scroll" @scroll.passive="scheduleUpdate">
 			<div v-if="loading" class="pdf-status">
 				<Loader2 :size="20" :stroke-width="1.5" class="pdf-spin" />
-				<span>Loading PDF…</span>
+				<span>{{ __('Loading PDF…') }}</span>
 			</div>
 			<div v-else-if="error" class="pdf-status pdf-error">
 				<span>{{ error }}</span>
 				<a class="pdf-fallback-link" :href="safeUrl(file)" v-external>
-					Open the PDF in a new tab
+					{{ __('Open the PDF in a new tab') }}
 				</a>
 			</div>
 			<div

@@ -224,7 +224,7 @@ const importZip = () => {
 				toast.error(
 					resourceErrorMessage(
 						error,
-						__('Error importing course') + ': ' + error.message
+						__('Error importing course: {0}').format(error.message)
 					)
 				)
 				console.error('Error importing course:', error)

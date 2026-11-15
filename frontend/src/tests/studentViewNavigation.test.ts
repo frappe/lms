@@ -8,6 +8,7 @@
 import { mount, RouterLinkStub } from '@vue/test-utils'
 import { describe, expect, it, vi } from 'vitest'
 import StudentLessonSidebar from '@/components/StudentLessonSidebar.vue'
+import { translate } from './helpers/translate'
 
 const query = vi.hoisted(() => ({ current: {} as Record<string, unknown> }))
 
@@ -40,13 +41,13 @@ vi.mock('@headlessui/vue', () => ({
 	DisclosurePanel: { template: `<div><slot /></div>` },
 }))
 
-vi.stubGlobal('__', (s: string) => s)
+vi.stubGlobal('__', translate)
 
 function mountSidebar() {
 	return mount(StudentLessonSidebar, {
 		props: { courseName: 'course-1', courseTitle: 'Course 1' },
 		global: {
-			mocks: { __: (s: string) => s },
+			mocks: { __: translate },
 			stubs: { 'router-link': RouterLinkStub },
 		},
 	})
