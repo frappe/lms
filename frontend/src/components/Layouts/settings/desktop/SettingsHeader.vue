@@ -15,11 +15,14 @@
 						v-if="showBack"
 						variant="ghost"
 						size="md"
-						icon-left="lucide-chevron-left"
 						:label="title"
 						class="-ms-3.5 !max-w-96 !justify-start !pe-0 text-p-lg-semibold cursor-pointer hover:bg-transparent hover:opacity-70 focus:bg-transparent active:bg-transparent active:text-ink-gray-6"
 						@click="emit('back')"
-					/>
+					>
+						<template #prefix>
+							<span class="lucide-chevron-left size-4.5 rtl:rotate-180" />
+						</template>
+					</Button>
 					<h2 v-else-if="title" class="text-p-lg-semibold text-ink-gray-8">
 						{{ title }}
 					</h2>

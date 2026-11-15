@@ -50,15 +50,17 @@
 							<Button
 								@click="decrement()"
 								variant="ghost"
-								icon="lucide-chevron-left"
 								:label="__('Previous')"
-							/>
-							<Button
-								@click="increment()"
-								variant="ghost"
-								icon="lucide-chevron-right"
-								:label="__('Next')"
-							/>
+							>
+								<template #icon>
+									<span class="lucide-chevron-left size-4 rtl:rotate-180" />
+								</template>
+							</Button>
+							<Button @click="increment()" variant="ghost" :label="__('Next')">
+								<template #icon>
+									<span class="lucide-chevron-right size-4 rtl:rotate-180" />
+								</template>
+							</Button>
 						</div>
 					</div>
 				</template>

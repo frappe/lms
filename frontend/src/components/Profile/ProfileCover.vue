@@ -8,7 +8,7 @@
 		/>
 		<div v-else class="bg-surface-gray-2 h-[130px] w-full"></div>
 		<div
-			class="absolute bottom-[30%] md:bottom-0 start-[50%] mb-4 flex -translate-x-1/2 gap-x-2 opacity-0 transition-opacity focus-within:opacity-100 group-hover:opacity-100 [@media(hover:none)]:opacity-100"
+			class="absolute bottom-[30%] md:bottom-0 start-[50%] mb-4 flex -translate-x-1/2 rtl:translate-x-1/2 gap-x-2 opacity-0 transition-opacity focus-within:opacity-100 group-hover:opacity-100 [@media(hover:none)]:opacity-100"
 			v-if="isSessionUser"
 		>
 			<EditCoverImage @select="(imageUrl: string) => emit('select', imageUrl)">

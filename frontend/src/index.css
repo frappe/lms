@@ -13,6 +13,21 @@ svg.lucide {
 	stroke-width: 1.5;
 }
 
+/* Icons that always point along the line. Mirrored here, not per use, because
+   most arrive as a lucide-* string in a menu or settings item, which cannot
+   carry an rtl: class. `scale` composes with any Tailwind transform on the
+   same element. */
+[dir='rtl'] .lucide-chevrons-right,
+[dir='rtl'] .lucide-external-link,
+[dir='rtl'] .lucide-log-in,
+[dir='rtl'] .lucide-log-out,
+[dir='rtl'] .lucide-panel-left,
+[dir='rtl'] .lucide-send,
+[dir='rtl'] .lucide-send-horizonal,
+[dir='rtl'] .lucide-square-arrow-out-up-right {
+	scale: -1 1;
+}
+
 /* 48px, the desk header's height. The property is the single source so the
    scroll containers below clear exactly the header (WCAG 2.4.11). */
 :root {

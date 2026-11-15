@@ -32,7 +32,7 @@
 		/>
 		<span
 			v-else-if="tag !== 'div' && chevron"
-			class="lucide-chevron-right size-4.5 shrink-0 text-ink-gray-5"
+			class="lucide-chevron-right size-4.5 shrink-0 text-ink-gray-5 rtl:rotate-180"
 			aria-hidden="true"
 		/>
 	</component>

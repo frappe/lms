@@ -52,11 +52,14 @@
 				v-if="canGoBack"
 				variant="ghost"
 				class="-me-2 ms-auto text-ink-gray-6"
-				icon-left="lucide-arrow-left"
 				:label="__('Back')"
 				:disabled="sending"
 				@click="emit('back')"
-			/>
+			>
+				<template #prefix>
+					<span class="lucide-arrow-left size-4 rtl:rotate-180" />
+				</template>
+			</Button>
 		</div>
 	</div>
 </template>

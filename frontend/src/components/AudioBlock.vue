@@ -159,6 +159,15 @@ const formatTime = (time) => {
 	cursor: pointer;
 }
 
+/* A range input runs right to left in RTL; the played fill has to follow it. */
+[dir='rtl'] .audio-seek {
+	background: linear-gradient(
+		to left,
+		var(--ink-gray-9) var(--played),
+		var(--surface-gray-4) var(--played)
+	);
+}
+
 .audio-seek::-webkit-slider-thumb {
 	-webkit-appearance: none;
 	width: 12px;

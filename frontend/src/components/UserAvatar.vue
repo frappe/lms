@@ -8,7 +8,7 @@
 		v-bind="$attrs"
 	>
 		<template v-if="user.open_to === 'Work'" #indicator>
-			<Tooltip :text="__('Open to Work')" side="right">
+			<Tooltip :text="__('Open to Work')" :side="inlineEndSide()">
 				<div class="rounded-full bg-surface-green-7 w-fit">
 					<span
 						class="lucide-badge-check"
@@ -20,7 +20,7 @@
 			</Tooltip>
 		</template>
 		<template v-else-if="user.open_to === 'Hiring'" #indicator>
-			<Tooltip :text="__('Hiring')" side="right">
+			<Tooltip :text="__('Hiring')" :side="inlineEndSide()">
 				<div class="rounded-full bg-surface-violet-7 w-fit">
 					<span
 						class="lucide-briefcase"
@@ -35,6 +35,7 @@
 </template>
 <script setup lang="ts">
 import { Avatar, Tooltip } from 'frappe-ui'
+import { inlineEndSide } from '@/utils/textDirection'
 import { computed } from 'vue'
 import type { UserInfo } from '@/types'
 

@@ -29,7 +29,7 @@
 				@click="goPrev()"
 			>
 				<template #icon>
-					<span class="lucide-chevron-left size-4" />
+					<span class="lucide-chevron-left size-4 rtl:rotate-180" />
 				</template>
 			</Button>
 			<div
@@ -45,7 +45,7 @@
 				@click="goNext()"
 			>
 				<template #icon>
-					<span class="lucide-chevron-right size-4" />
+					<span class="lucide-chevron-right size-4 rtl:rotate-180" />
 				</template>
 			</Button>
 		</div>

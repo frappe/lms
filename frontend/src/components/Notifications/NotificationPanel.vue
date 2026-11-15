@@ -9,11 +9,11 @@
 				isMobile
 					? {}
 					: {
-							left: sidebarLeft,
+							insetInlineStart: sidebarWidth,
 							width: '400px',
 							// A cast shadow is black alpha in either theme, the same way
 							// frappe-ui's own --elevation-* values are.
-							boxShadow: '8px 0px 8px rgba(0, 0, 0, 0.1)', // token-exempt: shadow
+							boxShadow: `${isRtl() ? -8 : 8}px 0px 8px rgba(0, 0, 0, 0.1)`, // token-exempt: shadow
 					  }
 			"
 		>
@@ -109,6 +109,7 @@ import { decodeEntities } from '@/utils'
 import { assignmentSubmissionFromLink } from '@/utils/notificationLinks'
 import { useSidebar } from '@/stores/sidebar'
 import { useScreenSize } from '@/utils/composables'
+import { isRtl } from '@/utils/textDirection'
 import EmptyStateLayout from '@/components/Layouts/EmptyStateLayout.vue'
 import { serverTime } from '@/utils/dayjs'
 import {
@@ -156,7 +157,7 @@ const emptyDescription = computed(() =>
 		: __('Notifications you have read will appear here.')
 )
 
-const sidebarLeft = computed(() =>
+const sidebarWidth = computed(() =>
 	sidebarStore.isSidebarCollapsed ? '3rem' : '14rem'
 )
 

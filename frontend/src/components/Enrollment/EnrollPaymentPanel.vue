@@ -6,10 +6,13 @@
 					v-if="showBack"
 					data-testid="payment-panel-back"
 					variant="ghost"
-					icon="lucide-chevron-left"
 					:aria-label="__('Back')"
 					@click="emit('back')"
-				/>
+				>
+					<template #icon>
+						<span class="lucide-chevron-left size-4 rtl:rotate-180" />
+					</template>
+				</Button>
 				<h3
 					data-testid="panel-title"
 					class="truncate text-base font-semibold text-ink-gray-9"

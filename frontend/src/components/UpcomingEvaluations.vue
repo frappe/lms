@@ -58,7 +58,7 @@
 										},
 									},
 								]"
-								side="left"
+								:side="inlineStartSide()"
 							>
 								<template v-slot="{ open }">
 									<Button variant="ghost" :label="__('Options')">
@@ -122,6 +122,7 @@
 </template>
 <script setup>
 import { inject, ref, getCurrentInstance, computed } from 'vue'
+import { inlineStartSide } from '@/utils/textDirection'
 import { formatTime } from '@/utils'
 import { formatTimezone } from '@/utils/timezone'
 import {
