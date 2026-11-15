@@ -19,11 +19,12 @@
 
 		<ResumeCard
 			v-if="next"
+			:label="next.progress ? undefined : __('Ready when you are')"
 			:title="next.title"
 			:kind="next.type"
-			:meta="next.meta"
-			:progress="next.progress || 0"
-			:action="__('Continue')"
+			:meta="next.progress ? next.meta : next.start_line || next.meta"
+			:progress="next.progress || undefined"
+			:action="next.progress ? __('Continue') : __('Start')"
 			:route="next.route"
 		/>
 
@@ -125,6 +126,8 @@ type HomeItem = {
 	meta: string
 	done: boolean
 	progress?: number
+	/** What an untouched skill asks of the learner, and who asks it. */
+	start_line?: string
 	route: Record<string, unknown>
 }
 
@@ -152,12 +155,12 @@ const items = computed<HomeItem[]>(() => learning.data || [])
 const shown = computed(() =>
 	items.value.filter((item) => item.done === (tab.value === 'done'))
 )
-// Batches have no progress of their own, so the card picks up a skill or course.
-const next = computed(() =>
-	items.value.find(
-		(item) => !item.done && item.type !== 'Batch' && item.progress
-	)
-)
+// Batches have no progress of their own, so the card picks up a skill or course: the one
+// in progress, or else the first one still waiting, so the page always leads with a next step.
+const next = computed(() => {
+	const open = items.value.filter((item) => !item.done && item.type !== 'Batch')
+	return open.find((item) => item.progress) || open[0]
+})
 
 const streak = computed(() => props.streakInfo.data?.current_streak || 0)
 

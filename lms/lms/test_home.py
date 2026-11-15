@@ -180,6 +180,15 @@ class TestLearnerSkills(BaseTestUtils):
 		self.assertFalse(rows[open_skill]["enrolled"])
 		self.assertEqual(rows[mine]["enrolled_count"], 1)
 
+	def test_an_unstarted_skill_on_home_says_what_it_asks_and_who_asks(self):
+		skill = self._skill("Skills Unstarted")
+		frappe.db.set_value("LMS Goal", skill, "minutes", 17)
+		self._give(skill, self.learner)
+
+		frappe.set_user(self.learner)
+		row = next(item for item in home.my_learning_home() if item["title"] == "Skills Unstarted")
+		self.assertEqual(row["start_line"], "About 17 minutes · assigned by Administrator")
+
 	def test_the_sidebar_shows_skills_only_when_there_are_some(self):
 		from lms.lms.ai.api import has_learner_skills
 

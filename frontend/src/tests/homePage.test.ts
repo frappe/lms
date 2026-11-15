@@ -108,9 +108,12 @@ describe('ResumeCard', () => {
 		expect(links[0].classes()).toContain('after:inset-0')
 	})
 
-	it('marks a draft and leaves out progress it does not have', () => {
-		const wrapper = mountWith(ResumeCard, { ...props, draft: true })
-		expect(wrapper.text()).toContain('Draft')
+	it('says what the card is for and leaves out progress it does not have', () => {
+		const wrapper = mountWith(ResumeCard, {
+			...props,
+			label: 'Finish your draft',
+		})
+		expect(wrapper.text()).toContain('Finish your draft')
 		expect(wrapper.find('[role="progressbar"]').exists()).toBe(false)
 	})
 })
@@ -248,6 +251,56 @@ describe('StudentHome', () => {
 			.element.closest('section')!.textContent
 		for (const label of ['Skill', 'Course', 'Batch'])
 			expect(text).toContain(label)
+	})
+
+	it('leads with the first untouched item as Ready when you are', async () => {
+		seeds['lms.lms.home.my_learning_home'] = [
+			{
+				type: 'Skill',
+				title: 'POSH Policy',
+				meta: 'Not started · about 17 minutes',
+				done: false,
+				progress: 0,
+				start_line: 'About 17 minutes · 5 parts · assigned by Jannat Patel',
+				route: { name: 'GoalSession', params: { goal: 'posh' } },
+			},
+		]
+		const wrapper = mountWith(StudentHome, props)
+		await flushPromises()
+		const card = wrapper.findComponent(ResumeCard)
+		expect(card.props('label')).toBe('Ready when you are')
+		expect(card.props('action')).toBe('Start')
+		expect(card.props('meta')).toBe(
+			'About 17 minutes · 5 parts · assigned by Jannat Patel',
+		)
+		expect(card.find('[role="progressbar"]').exists()).toBe(false)
+	})
+
+	it('keeps Continue for an item already in progress', async () => {
+		seeds['lms.lms.home.my_learning_home'] = [
+			{
+				type: 'Skill',
+				title: 'POSH Policy',
+				meta: 'Not started',
+				done: false,
+				progress: 0,
+				route: {},
+			},
+			{
+				type: 'Course',
+				title: 'Frappe Books',
+				meta: '2 of 6 lessons',
+				done: false,
+				progress: 33,
+				route: {},
+			},
+		]
+		const wrapper = mountWith(StudentHome, props)
+		await flushPromises()
+		const card = wrapper.findComponent(ResumeCard)
+		expect(card.props('title')).toBe('Frappe Books')
+		expect(card.props('action')).toBe('Continue')
+		expect(card.props('label')).toBeUndefined()
 	})
 })
 

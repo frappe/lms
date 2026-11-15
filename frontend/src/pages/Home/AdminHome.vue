@@ -16,12 +16,12 @@
 
 		<ResumeCard
 			v-if="resume"
+			:label="__('Finish your draft')"
 			:title="resume.title"
 			:kind="resume.type"
 			:meta="resume.meta"
 			:action="__('Continue editing')"
 			:route="resume.route"
-			draft
 		/>
 
 		<div class="flex flex-wrap items-start gap-8">

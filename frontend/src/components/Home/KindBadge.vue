@@ -17,7 +17,7 @@ const props = withDefaults(
 		kind: 'skill' | 'course' | 'batch' | 'Skill' | 'Course' | 'Batch'
 		size?: 'sm' | 'md' | 'lg'
 	}>(),
-	{ size: 'md' },
+	{ size: 'md' }
 )
 type Kind = 'skill' | 'course' | 'batch'
 const kind = computed(() => props.kind.toLowerCase() as Kind)

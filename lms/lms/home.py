@@ -22,17 +22,43 @@ def _skills(user: str) -> list[dict]:
 	rows = frappe.get_all(
 		"LMS Goal Assignment",
 		filters={"member": user, "is_preview": 0},
-		fields=["goal", "goal_title", "status", "due_date", "progress", "score", "ready_on", "modified"],
+		fields=[
+			"goal",
+			"goal_title",
+			"status",
+			"due_date",
+			"progress",
+			"score",
+			"ready_on",
+			"modified",
+			"owner",
+		],
+	)
+	goals = [row.goal for row in rows] or [""]
+	minutes_of = dict(frappe.get_all("LMS Goal", {"name": ["in", goals]}, ["name", "minutes"], as_list=True))
+	parts_of = dict(
+		frappe.get_all(
+			"LMS Goal Activity",
+			filters={"parent": ["in", goals], "parenttype": "LMS Goal"},
+			fields=["parent", {"COUNT": "*", "as": "count"}],
+			group_by="parent",
+			as_list=True,
+		)
+	)
+	names = dict(
+		frappe.get_all(
+			"User", {"name": ["in", [row.owner for row in rows] or [""]]}, ["name", "full_name"], as_list=True
+		)
 	)
 	items = []
 	for row in rows:
-		parts = frappe.db.count("LMS Goal Activity", {"parent": row.goal, "parenttype": "LMS Goal"})
+		parts = cint(parts_of.get(row.goal))
+		minutes = cint(minutes_of.get(row.goal))
 		done = round(flt(row.progress) * parts / 100) if parts else 0
 		finished = row.status == "Ready"
 		if finished:
 			meta = _("Finished {0}").format(_when(row.ready_on)) if row.ready_on else _("Finished")
 		elif not done:
-			minutes = cint(frappe.db.get_value("LMS Goal", row.goal, "minutes"))
 			meta = _("Not started · about {0} minutes").format(minutes) if minutes else _("Not started")
 		else:
 			meta = _("{0} of {1} parts").format(done, parts)
@@ -48,6 +74,8 @@ def _skills(user: str) -> list[dict]:
 				progress=row.progress,
 				summary=_("{0} of {1} parts").format(done, parts),
 				due_date=row.due_date,
+				# The home card for a skill not yet started says what it asks and who asks it.
+				start_line=_start_line(minutes, parts, names.get(row.owner), row.due_date),
 				route={"name": "GoalSession", "params": {"goal": row.goal}},
 			)
 		)
@@ -172,6 +200,16 @@ def _when(date) -> str:
 	if 1 < days < 7:
 		return formatdate(date, "EEEE")
 	return formatdate(date, "d MMM")
+
+
+def _start_line(minutes: int, parts: int, assigned_by: str | None, due_date) -> str:
+	bits = [
+		_("About {0} minutes").format(minutes) if minutes else "",
+		_("{0} parts").format(parts) if parts else "",
+		_("assigned by {0}").format(assigned_by) if assigned_by else "",
+		_("due {0}").format(_when(due_date)) if due_date else "",
+	]
+	return " · ".join(bit for bit in bits if bit)
 
 
 def _item(kind, title, meta, finished, modified, **extra) -> dict:
