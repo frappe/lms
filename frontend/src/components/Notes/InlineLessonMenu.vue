@@ -17,6 +17,7 @@
 					:key="color"
 					type="button"
 					class="w-full flex items-center gap-x-2 px-3 py-2 cursor-pointer hover:bg-surface-gray-2"
+					:disabled="saving"
 					@click="saveHighLight(color)"
 				>
 					<span
@@ -32,6 +33,7 @@
 		<div class="border-t">
 			<button
 				type="button"
+				:disabled="saving"
 				@click="addToNotes()"
 				class="w-full flex items-center gap-x-2 hover:bg-surface-gray-2 cursor-pointer rounded-b-5 py-2 px-3"
 			>
@@ -43,6 +45,7 @@
 			<button
 				v-if="highlightExists()"
 				type="button"
+				:disabled="saving"
 				@click="deleteHighlight"
 				class="w-full flex items-center gap-x-2 hover:bg-surface-gray-2 cursor-pointer rounded-b-5 py-2 px-3"
 			>
@@ -67,6 +70,13 @@ const top = ref(0)
 const left = ref(0)
 const currentSelection = ref<Selection | null>(null)
 const selectedText = ref('')
+const saving = computed(() =>
+	Boolean(
+		notes.value?.insert.loading ||
+			notes.value?.setValue.loading ||
+			notes.value?.delete.loading
+	)
+)
 const emit = defineEmits<{
 	(e: 'updateNotes'): void
 }>()
@@ -120,7 +130,7 @@ const highlightExists = () => {
 }
 
 const saveHighLight = (color: string) => {
-	if (!selectedText.value) return
+	if (saving.value || !selectedText.value) return
 
 	notes.value?.insert.submit(
 		{
@@ -145,6 +155,7 @@ const saveHighLight = (color: string) => {
 }
 
 const deleteHighlight = () => {
+	if (saving.value) return
 	let notesToDelete = notes.value?.data?.find(
 		(note: Note) => note.highlighted_text === selectedText.value
 	)
@@ -167,7 +178,7 @@ const deleteHighlight = () => {
 }
 
 const addToNotes = () => {
-	if (!selectedText.value) return
+	if (saving.value || !selectedText.value) return
 	let noteToUpdate = notes.value?.data?.find((note: Note) => {
 		return !note.highlighted_text && note.note !== ''
 	})
