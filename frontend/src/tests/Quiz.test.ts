@@ -50,10 +50,6 @@ vi.mock('frappe-ui', async () => {
 				options.onSuccess?.(raw)
 			}
 
-			if (options.url === 'lms.lms.doctype.lms_quiz.lms_quiz.check_answer') {
-				options.onSuccess?.(resourceState.checkAnswer)
-			}
-
 			resource.loading = false
 			return resource.data
 		})
@@ -65,8 +61,11 @@ vi.mock('frappe-ui', async () => {
 			loading: false,
 			reload,
 			fetch: reload,
-			submit: vi.fn(() => {
+			submit: vi.fn(async (_params: unknown, submitOptions?: any) => {
 				resourceState.submits.push(options.url)
+				if (options.url === 'lms.lms.doctype.lms_quiz.lms_quiz.check_answer') {
+					submitOptions?.onSuccess?.(resourceState.checkAnswer)
+				}
 			}),
 			reset: vi.fn(() => {
 				resource.data = null
@@ -232,9 +231,9 @@ describe('Quiz that fails to load', () => {
 		expect(wrapper.find('[data-testid="quiz-unavailable"]').exists()).toBe(true)
 		expect(wrapper.text()).toContain("You don't have access to this quiz")
 		expect(wrapper.text()).toContain('Ask your instructor to add you.')
-		expect(wrapper.findAll('button').some((b) => b.text() === 'Try again')).toBe(
-			false
-		)
+		expect(
+			wrapper.findAll('button').some((b) => b.text() === 'Try again')
+		).toBe(false)
 	})
 
 	it('offers a retry when the quiz fails for another reason', async () => {
@@ -243,7 +242,9 @@ describe('Quiz that fails to load', () => {
 		await flushPromises()
 
 		expect(wrapper.text()).toContain("This quiz couldn't load")
-		const retry = wrapper.findAll('button').find((b) => b.text() === 'Try again')
+		const retry = wrapper
+			.findAll('button')
+			.find((b) => b.text() === 'Try again')
 		expect(retry).toBeTruthy()
 
 		resourceState.quizError = null
@@ -621,7 +622,7 @@ describe('Quiz closed while submitting', () => {
 	const beaconReason = () => {
 		const [, body] = sendBeacon.mock.calls[0] as unknown as [
 			string,
-			URLSearchParams,
+			URLSearchParams
 		]
 		return body.get('submission_reason')
 	}
@@ -683,7 +684,6 @@ describe('Quiz closed while submitting', () => {
 		const submitButton = () =>
 			wrapper.findAll('button').find((button) => button.text() === 'Submit')!
 		expect(submitButton().attributes('disabled')).toBeUndefined()
-
 		;(wrapper.vm as any).submitQuiz()
 		await wrapper.vm.$nextTick()
 

@@ -117,6 +117,7 @@ watch(
 const saving = ref(false)
 
 const save = () => {
+	if (saving.value) return
 	saving.value = true
 	const wasNew = source.isNew
 	source
@@ -141,7 +142,7 @@ const save = () => {
 const authorizing = ref(false)
 
 const authorize = () => {
-	if (source.isNew || !source.name) return
+	if (authorizing.value || source.isNew || !source.name) return
 	authorizing.value = true
 	call(
 		'frappe.integrations.doctype.google_calendar.google_calendar.authorize_access',

@@ -231,6 +231,7 @@
 				data-testid="program-save"
 				:label="isNew ? __('Create') : __('Save')"
 				variant="solid"
+				:loading="saving"
 				@click="saveProgram()"
 			/>
 		</template>
@@ -428,8 +429,12 @@ const validateTitle = () => {
 	program.value.name = sanitizeOnWrite(program.value.name.trim())
 }
 
+const saving = computed(
+	() => programs.insert.loading || programs.setValue.loading
+)
+
 const saveProgram = () => {
-	if (!canManageProgram.value) return
+	if (!canManageProgram.value || saving.value) return
 	validateTitle()
 	if (isNew.value) createNewProgram()
 	else updateProgram()
@@ -585,7 +590,7 @@ const deleteProgram = () => {
 				theme: 'red',
 				variant: 'solid',
 				onClick({ close: closeDialog }: { close: () => void }) {
-					submitResource(programs.delete, programId.value, {
+					return submitResource(programs.delete, programId.value, {
 						onSuccess() {
 							toast.success(__('Program deleted successfully'))
 							emit('saved')

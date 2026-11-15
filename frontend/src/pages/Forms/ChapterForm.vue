@@ -263,7 +263,7 @@ const validateChapter = (): string | undefined => {
 }
 
 const saveChapter = () => {
-	if (!canManageChapters.value) return
+	if (!canManageChapters.value || chapterResource.loading) return
 	// Edit mode before the outline lands would post a blank title over a real
 	// chapter; the button is disabled for the same reason.
 	if (isEdit.value && !chapterDetail.value) return

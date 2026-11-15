@@ -272,23 +272,22 @@ const clearDemoDataConfirmation = () => {
 				theme: 'red',
 				variant: 'solid',
 				onClick({ close }) {
-					clearDemoData()
-					close()
+					return clearDemoData(close)
 				},
 			},
 		],
 	})
 }
 
-const clearDemoData = () => {
+const clearDemoData = (close) =>
 	call('lms.lms.api.clear_demo_data')
 		.then(() => {
 			window.location.href = '/lms'
 			toast.success(__('Demo data cleared successfully'))
 		})
 		.catch((error) => {
+			close()
 			toast.error(__(error.message || 'Error clearing demo data'))
 			console.error('Error clearing demo data:', error)
 		})
-}
 </script>

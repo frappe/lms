@@ -12,36 +12,47 @@ const { callMock, toastMock, closeMock } = vi.hoisted(() => {
 		removeEventListener: () => {},
 	})) as unknown as typeof window.matchMedia
 	return {
-		callMock: vi.fn(() => Promise.resolve('COMM-0001')),
+		callMock: vi.fn((_url: string, _params: unknown) =>
+			Promise.resolve('COMM-0001')
+		),
 		toastMock: { success: vi.fn(), error: vi.fn() },
 		closeMock: vi.fn(),
 	}
 })
 
-vi.mock('frappe-ui', () => ({
-	call: callMock,
-	toast: toastMock,
-	Button: {
-		inheritAttrs: false,
-		template: '<button v-bind="$attrs"><slot /></button>',
-	},
-	FormControl: {
-		props: ['modelValue', 'label', 'type', 'required'],
-		emits: ['update:modelValue'],
-		template: `<input :value="modelValue" @input="$emit('update:modelValue', $event.target.value)" />`,
-	},
-	Dialog: {
-		name: 'Dialog',
-		props: ['open', 'title', 'size'],
-		emits: ['update:open'],
-		methods: {
-			close() {
-				closeMock()
-			},
+// The real createResource, fetching through callMock, so `loading` behaves.
+vi.mock('frappe-ui', async () => {
+	const actual = await vi.importActual<typeof import('frappe-ui')>('frappe-ui')
+	return {
+		createResource: (options: { url: string }) =>
+			actual.createResource({
+				...options,
+				resourceFetcher: ({ params }: { params: unknown }) =>
+					callMock(options.url, params),
+			}),
+		toast: toastMock,
+		Button: {
+			inheritAttrs: false,
+			template: '<button v-bind="$attrs"><slot /></button>',
 		},
-		template: `<div v-if="open"><slot /><slot name="actions" :close="close" /></div>`,
-	},
-}))
+		FormControl: {
+			props: ['modelValue', 'label', 'type', 'required'],
+			emits: ['update:modelValue'],
+			template: `<input :value="modelValue" @input="$emit('update:modelValue', $event.target.value)" />`,
+		},
+		Dialog: {
+			name: 'Dialog',
+			props: ['open', 'title', 'size'],
+			emits: ['update:open'],
+			methods: {
+				close() {
+					closeMock()
+				},
+			},
+			template: `<div v-if="open"><slot /><slot name="actions" :close="close" /></div>`,
+		},
+	}
+})
 
 // Kept so this file still exercises the component if the recipient ever moves
 // back to the client: without it the old settings-store read dies at setup and
