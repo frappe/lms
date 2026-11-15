@@ -86,6 +86,7 @@
 					doctype="LMS Batch"
 					:docname="batch.data.name"
 					:title="__('Discussions')"
+					heading-size="lg"
 					:key="batch.data.name"
 					:singleThread="true"
 					:scrollToBottom="false"

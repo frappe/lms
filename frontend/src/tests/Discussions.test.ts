@@ -34,7 +34,11 @@ const TOPICS = [
 // pieces Discussions uses.
 // Each mount gets this resource; a test can swap it for one that loads later.
 let resource: { data?: typeof TOPICS; reload: () => void; refresh: () => void }
-const loadedResource = () => ({ data: TOPICS, reload: vi.fn(), refresh: vi.fn() })
+const loadedResource = () => ({
+	data: TOPICS,
+	reload: vi.fn(),
+	refresh: vi.fn(),
+})
 vi.mock('frappe-ui', () => ({
 	Button: { template: '<button><slot /></button>' },
 	createResource: () => resource,
@@ -66,9 +70,14 @@ String.prototype.format = function (...args: unknown[]) {
 	return this.replace(/\{(\d+)\}/g, (_: string, i: number) => String(args[i]))
 }
 
-const mountDiscussions = () =>
+const mountDiscussions = (props: Record<string, unknown> = {}) =>
 	mount(Discussions, {
-		props: { title: 'Questions', doctype: 'Course Lesson', docname: 'L1' },
+		props: {
+			title: 'Questions',
+			doctype: 'Course Lesson',
+			docname: 'L1',
+			...props,
+		},
 		global: {
 			provide: {
 				$socket: { on: vi.fn(), off: vi.fn() },
@@ -80,7 +89,9 @@ const mountDiscussions = () =>
 
 // jsdom has no matchMedia, so each test that needs one adds it and it is removed after.
 const setWideScreen = (wide: boolean) => {
-	window.matchMedia = (() => ({ matches: wide })) as unknown as typeof window.matchMedia
+	window.matchMedia = (() => ({
+		matches: wide,
+	})) as unknown as typeof window.matchMedia
 }
 
 describe('Discussions master-detail', () => {
@@ -134,5 +145,12 @@ describe('Discussions master-detail', () => {
 		await rows[0].trigger('click')
 		expect(rows[0].classes()).toContain('bg-surface-gray-2')
 		expect(rows[1].classes()).not.toContain('bg-surface-gray-2')
+	})
+
+	it('takes its heading size from the page, not from the doctype', async () => {
+		const heading = (props: Record<string, unknown>) =>
+			mountDiscussions(props).find('.text-ink-gray-9').classes()
+		expect(heading({ doctype: 'LMS Batch' })).toContain('text-2xl-semibold')
+		expect(heading({ headingSize: 'lg' })).toContain('text-lg-semibold')
 	})
 })
