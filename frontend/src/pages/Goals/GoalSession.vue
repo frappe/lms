@@ -154,7 +154,7 @@
 							class="size-4 shrink-0"
 							:class="
 								step.done
-									? 'lucide-circle-check text-ink-gray-9'
+									? 'lucide-circle-check text-ink-green-6'
 									: step.icon + ' text-ink-gray-6'
 							"
 						/>

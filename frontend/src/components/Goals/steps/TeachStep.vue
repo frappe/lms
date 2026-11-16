@@ -64,16 +64,31 @@
 			>
 				<CharacterAvatar who="lumi" mood="happy" class="size-24 sm:size-28" />
 				<h2 class="mt-4 text-lg-semibold text-ink-gray-9">
-					{{ __("Hi, I'm {0}").format(TUTOR_NAME) }}
+					{{
+						ready
+							? __("You've finished this lesson")
+							: __("Hi, I'm {0}").format(TUTOR_NAME)
+					}}
 				</h2>
 				<p class="mt-2 max-w-md text-p-base text-ink-gray-7">
 					{{
-						__(
-							"I'll be your tutor for this session. We'll start from what you already know and spend our time on what's new to you. Nothing here is graded, so think out loud."
-						)
+						ready
+							? __(
+									'Move on to the next step whenever you like, or go through it with {0} again.'
+							  ).format(TUTOR_NAME)
+							: __(
+									"I'll be your tutor for this session. We'll start from what you already know and spend our time on what's new to you. Nothing here is graded, so think out loud."
+							  )
 					}}
 				</p>
-				<template v-if="canListen">
+				<Button
+					v-if="ready"
+					class="mt-6"
+					variant="solid"
+					:label="__('Next step')"
+					@click="emit('next')"
+				/>
+				<template v-if="canListen && !ready">
 					<p class="mt-6 text-p-sm text-ink-gray-7">
 						{{ __('How would you like to talk?') }}
 					</p>
@@ -104,7 +119,21 @@
 						{{ __('You can switch any time while you talk.') }}
 					</p>
 				</template>
-				<Button class="mt-6" variant="solid" :loading="starting" @click="start">
+				<Button
+					v-if="ready"
+					class="mt-2"
+					variant="ghost"
+					:loading="starting"
+					:label="__('Go through it again')"
+					@click="start"
+				/>
+				<Button
+					v-else
+					class="mt-6"
+					variant="solid"
+					:loading="starting"
+					@click="start"
+				>
 					<template #prefix><span class="lucide-sparkles size-4" /></template>
 					{{ __('Start learning with {0}').format(TUTOR_NAME) }}
 				</Button>
@@ -163,7 +192,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, inject, onBeforeUnmount, ref, watch } from 'vue'
+import { computed, inject, onBeforeUnmount, ref } from 'vue'
 import { Button, call, toast } from 'frappe-ui'
 import type { Socket } from 'socket.io-client'
 import FlowChat from '@/components/Goals/FlowChat.vue'
@@ -200,9 +229,9 @@ const modes = [
 
 const starting = ref(false)
 const showIdeas = ref(false)
-const session = ref<string | null>(
-	props.activity.evidence?.flow_session || null
-)
+// A lesson always opens on its start screen. Leaving mid-conversation counts as not done,
+// so coming back starts Lumi again; only a conversation started on this visit is shown.
+const session = ref<string | null>(null)
 const ready = computed(() => props.activity.evidence?.status === 'Graded')
 const confirmed = computed(
 	() => props.ideas.filter((idea) => idea.confirmed).length
@@ -233,13 +262,6 @@ const commands = [
 		message: __('I already know this one. Can we move on?'),
 	},
 ]
-
-watch(
-	() => props.activity.evidence?.flow_session,
-	(value) => {
-		if (value) session.value = value
-	}
-)
 
 const start = async () => {
 	if (canListen) rememberMode(mode.value)

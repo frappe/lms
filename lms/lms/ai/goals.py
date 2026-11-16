@@ -487,7 +487,16 @@ def start_teaching(assignment_name: str, index: int) -> str:
 			}
 		)
 	)
-	_save_evidence(assignment, index, activity, status="Recorded", flow_session=session.name, passed=0)
+	# A lesson left before it was finished counts for nothing: the new conversation starts
+	# clean, key ideas unticked. A finished lesson taken again stays finished.
+	finished = frappe.db.get_value(
+		"LMS Goal Evidence", {"assignment": assignment.name, "activity_index": index, "status": "Graded"}
+	)
+	if finished:
+		_save_evidence(assignment, index, activity, flow_session=session.name)
+	else:
+		ideas.forget_confirmations(assignment.name)
+		_save_evidence(assignment, index, activity, status="Recorded", flow_session=session.name, passed=0)
 	return session.name
 
 

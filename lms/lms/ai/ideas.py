@@ -200,6 +200,17 @@ def _extra_allowed(idea: int, picked: list[int], questions: list[dict], weak: di
 	return asked <= weak.get(idea, 0)
 
 
+def forget_confirmations(assignment_name: str) -> None:
+	"""Untick every key idea for a lesson started again from the beginning. What the learner
+	missed stays, so the final check can still come back to it."""
+	assignment = frappe.get_doc("LMS Goal Assignment", assignment_name)
+	state = json.loads(assignment.idea_state or "{}")
+	for entry in state.values():
+		entry.pop("confirmed", None)
+		entry.pop("taught", None)
+	assignment.db_set("idea_state", json.dumps(state), update_modified=False)
+
+
 def _update(assignment, idea: int, **values) -> None:
 	state = json.loads(assignment.idea_state or "{}")
 	entry = state.get(str(idea), {})
