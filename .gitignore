@@ -19,3 +19,5 @@ test-results
 playwright-report
 blob-report
 playwright/.auth
+# Local deploy settings (see scripts/deploy/deploy.env.example)
+scripts/deploy/deploy.env
