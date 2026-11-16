@@ -33,7 +33,7 @@
 							:aria-label="__('Cancel')"
 							@click="creating = false"
 						>
-							<span class="lucide-arrow-left size-4" />
+							<span class="lucide-arrow-left size-4 rtl:rotate-180" />
 						</button>
 						<FormControl
 							v-model="newItemName"

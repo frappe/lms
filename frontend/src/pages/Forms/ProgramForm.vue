@@ -83,7 +83,7 @@
 								</template>
 							</Draggable>
 						</ListRows>
-						<ListSelectBanner>
+						<ListSelectBanner class="lms-select-banner">
 							<template #actions="{ unselectAll, selections }">
 								<div class="flex gap-2">
 									<Button

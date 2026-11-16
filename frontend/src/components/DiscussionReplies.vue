@@ -8,7 +8,9 @@
 				@click="showTopics = true"
 			>
 				<template #icon>
-					<span class="lucide-chevron-left size-5 text-ink-gray-7" />
+					<span
+						class="lucide-chevron-left size-5 text-ink-gray-7 rtl:rotate-180"
+					/>
 				</template>
 			</Button>
 			<span class="text-lg-semibold ms-2 text-ink-gray-9">

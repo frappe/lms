@@ -9,7 +9,7 @@
 					aria-label="Previous page"
 					@click="goToPage(currentPage - 1)"
 				>
-					<ChevronLeft :size="18" :stroke-width="1.5" />
+					<ChevronLeft :size="18" :stroke-width="1.5" class="rtl:rotate-180" />
 				</button>
 				<span class="pdf-page-indicator">{{
 					numPages ? currentPage + ' / ' + numPages : '-'
@@ -21,7 +21,7 @@
 					aria-label="Next page"
 					@click="goToPage(currentPage + 1)"
 				>
-					<ChevronRight :size="18" :stroke-width="1.5" />
+					<ChevronRight :size="18" :stroke-width="1.5" class="rtl:rotate-180" />
 				</button>
 			</div>
 			<div class="pdf-toolbar-group">
@@ -58,7 +58,11 @@
 					v-external
 					aria-label="Open in new tab"
 				>
-					<ExternalLink :size="16" :stroke-width="1.5" />
+					<ExternalLink
+						:size="16"
+						:stroke-width="1.5"
+						class="rtl:-scale-x-100"
+					/>
 				</a>
 			</div>
 		</div>

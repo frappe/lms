@@ -9,7 +9,7 @@
 					:aria-label="__('Back')"
 					class="-ms-3 shrink-0 rounded-4 p-1.5 text-ink-gray-9 transition-colors hover:bg-surface-gray-2"
 				>
-					<span class="lucide-chevron-left size-4 block" />
+					<span class="lucide-chevron-left size-4 block rtl:rotate-180" />
 				</router-link>
 				<span class="min-w-0 truncate text-lg-medium text-ink-gray-9">
 					{{ currentLabel }}
