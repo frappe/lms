@@ -17,6 +17,7 @@
 				</div>
 			</router-link>
 			<div
+				v-if="hasBio(instructors[0].bio)"
 				v-safe-html:bio="decodeEntities(instructors[0].bio || '')"
 				class="ProseMirror prose prose-sm max-w-none text-p-sm text-ink-gray-7 leading-6 mt-4 line-clamp-3"
 			></div>
@@ -36,7 +37,7 @@
 				</div>
 			</router-link>
 			<div
-				v-if="focused"
+				v-if="hasBio(focused?.bio)"
 				v-safe-html:bio="decodeEntities(focused?.bio || '')"
 				class="ProseMirror prose prose-sm max-w-none text-p-sm text-ink-gray-7 leading-6 mt-4 line-clamp-3"
 			></div>
@@ -88,10 +89,6 @@ const props = defineProps<{
 	instructors: CourseInstructorInfo[]
 }>()
 
-const instructors = computed(() =>
-	props.instructors.filter((instructor) => hasBio(instructor.bio))
-)
-
 const focusedKey = ref<string | null>(null)
 
 const instructorKey = (i: CourseInstructorInfo) =>
@@ -101,7 +98,7 @@ const firstName = (i: CourseInstructorInfo) =>
 	(i.first_name || i.full_name || '').split(' ')[0]
 
 watch(
-	instructors,
+	() => props.instructors,
 	(list) => {
 		if (!list?.length) {
 			focusedKey.value = null
@@ -116,14 +113,14 @@ watch(
 )
 
 const focused = computed<CourseInstructorInfo | null>(() => {
-	const list = instructors.value
+	const list = props.instructors || []
 	return (
 		list.find((i) => instructorKey(i) === focusedKey.value) || list[0] || null
 	)
 })
 
 const peers = computed<CourseInstructorInfo[]>(() =>
-	instructors.value.filter((i) => instructorKey(i) !== focusedKey.value)
+	(props.instructors || []).filter((i) => instructorKey(i) !== focusedKey.value)
 )
 
 const MAX_VISIBLE_PEERS = 2
@@ -138,7 +135,7 @@ const hiddenPeerCount = computed<number>(() =>
 )
 
 const headerLabel = computed<string>(() => {
-	const n = instructors.value.length
+	const n = props.instructors?.length || 0
 	if (n <= 1) return __('Course creator')
 	if (n <= 4) return __('Taught by')
 	return __('Taught by a team of {0}').format(String(n))
