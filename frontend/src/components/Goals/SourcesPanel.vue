@@ -41,8 +41,8 @@
 								onClick: () => (addingCourse = true),
 							},
 							{
-								label: __('Add a web page'),
-								icon: 'lucide-globe',
+								label: __('Add a link'),
+								icon: 'lucide-link',
 								onClick: () => (addingLink = true),
 							},
 						]"

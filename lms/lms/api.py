@@ -3598,8 +3598,22 @@ def fetch_activity_dates(user: str):
 	all_dates = []
 	for dt in doctypes:
 		all_dates.extend(frappe.get_all(dt, {"member": user}, pluck="creation"))
+	all_dates.extend(_skill_activity_dates(user))
 
 	return sorted({d.date() if hasattr(d, "date") else d for d in all_dates})
+
+
+def _skill_activity_dates(user: str) -> list:
+	"""A lesson, role-play or check in a skill is a day of learning too. One row stands for an
+	activity and is reused on a retry, so its last touch is the day that counts; an admin's own
+	preview of a draft is not learning."""
+	if not frappe.db.table_exists("LMS Goal Evidence"):
+		return []
+	previews = frappe.get_all("LMS Goal Assignment", {"member": user, "is_preview": 1}, pluck="name")
+	filters = {"member": user}
+	if previews:
+		filters["assignment"] = ["not in", previews]
+	return frappe.get_all("LMS Goal Evidence", filters, pluck="modified")
 
 
 def calculate_streaks(all_dates: list):

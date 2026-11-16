@@ -18,6 +18,14 @@ class LMSGoal(Document):
 		if self.name == "new":
 			self.name = generate_slug(f"{self.title} skill", self._DOCTYPE_NAME)
 
+	def on_update(self):
+		# Assignments copy the title when they are made; a rename must reach them too, or the
+		# learner's home keeps showing the old name.
+		if not self.is_new() and self.has_value_changed("title"):
+			frappe.db.set_value(
+				"LMS Goal Assignment", {"goal": self.name}, "goal_title", self.title, update_modified=False
+			)
+
 	def on_trash(self):
 		# Everything the skill owns goes with it: what its learners did and the AI sessions
 		# behind it, then the knowledge base Lumi taught from, source by source so each

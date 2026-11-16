@@ -111,7 +111,7 @@
 	</div>
 </template>
 <script setup lang="ts">
-import { computed, inject, ref } from 'vue'
+import { computed, inject, ref, watch } from 'vue'
 import { createResource, TabButtons } from 'frappe-ui'
 import KindBadge from '@/components/Home/KindBadge.vue'
 import UpcomingEvaluations from '@/components/UpcomingEvaluations.vue'
@@ -154,6 +154,19 @@ const learning = createResource({
 const items = computed<HomeItem[]>(() => learning.data || [])
 const shown = computed(() =>
 	items.value.filter((item) => item.done === (tab.value === 'done'))
+)
+// Never open on an empty list while the other tab has rows: someone whose every skill is
+// finished lands on what they did, not on a line saying nothing is here. Decided once, from
+// the first load, whether the data is already there or arrives later.
+let tabDecided = false
+watch(
+	items,
+	(all) => {
+		if (tabDecided || !all.length) return
+		tabDecided = true
+		if (all.every((item) => item.done)) tab.value = 'done'
+	},
+	{ immediate: true }
 )
 // Batches have no progress of their own, so the card picks up a skill or course: the one
 // in progress, or else the first one still waiting, so the page always leads with a next step.

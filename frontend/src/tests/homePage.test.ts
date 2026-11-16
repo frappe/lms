@@ -219,6 +219,25 @@ describe('StudentHome', () => {
 		expect(wrapper.find('[data-test="learner-welcome"]').exists()).toBe(true)
 	})
 
+	it('opens on Done when everything is finished', async () => {
+		seeds['lms.lms.home.my_learning_home'] = [
+			{
+				type: 'Skill',
+				title: 'Fire Alarm Response',
+				meta: 'Finished today',
+				done: true,
+				route: {},
+			},
+		]
+		const wrapper = mountWith(StudentHome, props)
+		await flushPromises()
+		const text = wrapper
+			.find('#your-learning')
+			.element.closest('section')!.textContent
+		expect(text).toContain('Fire Alarm Response')
+		expect(text).not.toContain('Nothing in progress')
+	})
+
 	it('badges every kind of item, courses included', async () => {
 		seeds['lms.lms.home.my_learning_home'] = [
 			{

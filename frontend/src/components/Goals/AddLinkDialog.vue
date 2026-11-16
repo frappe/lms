@@ -1,19 +1,19 @@
 <template>
-	<FormShell :title="__('Add a web page')" size="lg" @close="emit('close')">
+	<FormShell :title="__('Add a link')" size="lg" @close="emit('close')">
 		<template #default>
 			<form class="flex flex-col gap-2" @submit.prevent="submit">
 				<FormControl
 					v-model="url"
 					type="url"
 					variant="outline"
-					:label="__('Address')"
-					placeholder="https://docs.example.com/guides/sales-invoice"
+					:label="__('Link')"
+					placeholder="https://intranet.example.com/policies/posh"
 					autofocus
 				/>
 				<p class="text-p-sm text-ink-gray-6">
 					{{
 						__(
-							'Lumi reads this one page and cites it by its title. For a guide with many pages, add the pages people need most.'
+							'Paste a page Lumi can open without logging in: a policy on your site, a help article, a Google Doc shared with anyone who has the link. Lumi reads that one page and cites it by its title, so for a guide with many pages add the ones people need most.'
 						)
 					}}
 				</p>
