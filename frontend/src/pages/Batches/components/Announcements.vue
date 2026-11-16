@@ -28,25 +28,53 @@
 			</li>
 		</ul>
 		<EmptyStateLayout
+			v-else-if="communications.data && canAnnounce && !hasStudents"
+			class="min-h-[60vh]"
+			name="Announcements"
+			icon="lucide-users"
+			width="lg"
+			:title="__('No one to announce to yet')"
+			:description="
+				__(
+					'Announcements reach everyone enrolled in this batch. Enroll students first, then send them updates like a schedule change or a class reminder.'
+				)
+			"
+		>
+			<Button
+				variant="subtle"
+				:label="__('Enroll Students')"
+				@click="enrollStudents"
+			>
+				<template #prefix>
+					<span class="lucide-plus size-4" />
+				</template>
+			</Button>
+		</EmptyStateLayout>
+		<EmptyStateLayout
 			v-else-if="communications.data"
 			class="min-h-[60vh]"
 			name="Announcements"
 			icon="lucide-mail"
 			width="lg"
 			:title="__('No announcements yet')"
-			:description="emptyDescription"
+			:description="
+				canAnnounce
+					? __(
+							'Send everyone in this batch a message, like a schedule change or a reminder before a live class.'
+					  )
+					: __('Messages from your instructors about this batch show up here.')
+			"
 		>
 			<Button
 				v-if="canAnnounce"
 				variant="subtle"
-				:label="hasStudents ? __('Make Announcement') : __('Enroll Students')"
-				@click="openForm"
+				:label="__('Make Announcement')"
+				@click="
+					openBatchForm(router, 'NewAnnouncement', batch.data.name, route.hash)
+				"
 			>
 				<template #prefix>
-					<span
-						:class="hasStudents ? 'lucide-send' : 'lucide-plus'"
-						class="size-4"
-					/>
+					<span class="lucide-send size-4" />
 				</template>
 			</Button>
 		</EmptyStateLayout>
@@ -82,25 +110,11 @@ const canAnnounce = computed(
 		)
 )
 
-// A batch with no students has nobody to announce to, so the first step is students.
 const hasStudents = computed(() => Boolean(props.batch.data?.student_count))
 
-const emptyDescription = computed(() => {
-	if (!canAnnounce.value) {
-		return __('Messages from your instructors about this batch show up here.')
-	}
-	return hasStudents.value
-		? __(
-				'Send everyone in this batch a message, like a schedule change or a reminder before a live class.'
-		  )
-		: __(
-				'Enroll students in the batch, then send them messages like a schedule change or a class reminder.'
-		  )
-})
-
-function openForm() {
-	const form = hasStudents.value ? 'NewAnnouncement' : 'NewBatchStudent'
-	openBatchForm(router, form, props.batch.data.name, route.hash)
+// Students are enrolled from the dashboard, so open the form over that tab.
+function enrollStudents() {
+	openBatchForm(router, 'NewBatchStudent', props.batch.data.name, '#dashboard')
 }
 
 const communications = createResource({
