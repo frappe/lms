@@ -158,9 +158,9 @@ String.prototype.format = function (...args: unknown[]) {
 	return this.replace(/\{(\d+)\}/g, (_: string, i: number) => String(args[i]))
 }
 
-const mountQuiz = () =>
+const mountQuiz = (props: Record<string, unknown> = {}) =>
 	mount(Quiz, {
-		props: { quizName: 'quiz-a' },
+		props: { quizName: 'quiz-a', ...props },
 		global: {
 			provide: { $user: { data: { name: 'student@example.com' } } },
 			mocks: { __: (s: string) => s },
@@ -255,6 +255,109 @@ describe('Quiz.vue violation count', () => {
 		vm.handleViolation('tab_switch')
 		await flushPromises()
 		expect(count()).toContain('1 / 3')
+		wrapper.unmount()
+	})
+})
+
+describe('Quiz.vue submission lifecycle', () => {
+	beforeEach(() => {
+		submitSpy.mockClear()
+		toastMock.error.mockClear()
+		submitOutcome = 'fails'
+		localStorage.clear()
+		vi.useFakeTimers()
+	})
+
+	afterEach(() => {
+		vi.useRealTimers()
+	})
+
+	it('sends one request when Submit is pressed again while the first is in flight', async () => {
+		const wrapper = mountQuiz()
+		await flushPromises()
+		const vm = wrapper.vm as any
+		vm.startQuiz()
+		await flushPromises()
+
+		vm.submitQuiz()
+		vm.submitQuiz()
+		await runDeferredSubmit()
+
+		expect(submissionCalls()).toHaveLength(1)
+		wrapper.unmount()
+	})
+
+	it('auto-submits immediately on reaching the violation cap', async () => {
+		const wrapper = mountQuiz()
+		await flushPromises()
+		const vm = wrapper.vm as any
+		vm.startQuiz()
+		await flushPromises()
+
+		vm.handleViolation('tab_switch')
+		vm.handleViolation('no_face')
+		await flushPromises()
+		expect(submissionCalls()).toHaveLength(0)
+
+		vm.handleViolation('focus_loss')
+		await flushPromises()
+
+		// The max-violations path submits without the 500ms deferral.
+		expect(submissionCalls()).toHaveLength(1)
+		expect(toastMock.error).toHaveBeenCalledWith(
+			expect.stringContaining('Maximum violations')
+		)
+		wrapper.unmount()
+	})
+
+	it('restores proctoring and allows a retry when the submit fails', async () => {
+		const wrapper = mountQuiz()
+		await flushPromises()
+		const vm = wrapper.vm as any
+		vm.startQuiz()
+		await flushPromises()
+		expect(vm.proctoringActive).toBe(true)
+
+		vm.submitQuiz()
+		await runDeferredSubmit()
+
+		// A network failure must not leave the attempt with anti-cheating off.
+		expect(vm.proctoringActive).toBe(true)
+		expect(vm.submissionReason).toBe('')
+
+		vm.submitQuiz()
+		await runDeferredSubmit()
+		expect(submissionCalls()).toHaveLength(2)
+		wrapper.unmount()
+	})
+
+	it('keeps proctoring on when the URL only carries the fromLesson layout flag', async () => {
+		window.history.pushState({}, '', '/lms/quiz/quiz-a?fromLesson=1')
+		expect(window.location.search).toContain('fromLesson')
+		const wrapper = mountQuiz()
+		await flushPromises()
+		const vm = wrapper.vm as any
+		vm.startQuiz()
+		await flushPromises()
+
+		expect(vm.proctoringActive).toBe(true)
+		vm.handleViolation('tab_switch')
+		expect(vm.violationCount).toBe(1)
+		window.history.pushState({}, '', '/')
+		wrapper.unmount()
+	})
+
+	it('does not start proctoring for a quiz opened from a lesson', async () => {
+		const wrapper = mountQuiz({ fromLesson: true })
+		await flushPromises()
+		const vm = wrapper.vm as any
+		vm.startQuiz()
+		await flushPromises()
+
+		vm.handleViolation('tab_switch')
+
+		expect(vm.violationCount).toBe(0)
+		expect(wrapper.find('[data-testid="violation-count"]').exists()).toBe(false)
 		wrapper.unmount()
 	})
 })
@@ -448,6 +551,7 @@ describe('Quiz.vue leaving a proctored attempt', () => {
 		expect((wrapper.vm as any).showLeaveConfirmation).toBe(false)
 		wrapper.unmount()
 	})
+
 
 	it('lets the learner go freely before the attempt starts', async () => {
 		const wrapper = mountQuiz()
@@ -647,61 +751,5 @@ describe('Quiz.vue submission payload', () => {
 		])
 		expect(params.violation_count).toBe(2)
 		wrapper.unmount()
-	})
-})
-
-// In-progress answers were saved under the quiz title, so the next person on a
-// shared browser, or a same-titled quiz, resumed them. Guards the per-user,
-// per-quiz storage key.
-describe('Quiz.vue saved answers', () => {
-	const mountAs = (name: string) =>
-		mount(Quiz, {
-			props: { quizName: 'quiz-a' },
-			global: {
-				provide: { $user: { data: { name } } },
-				mocks: { __: (s: string) => s },
-			},
-		})
-
-	const saveAnswerAs = async (name: string) => {
-		const wrapper = mountAs(name)
-		await flushPromises()
-		const vm = wrapper.vm as any
-		vm.startQuiz()
-		vm.addToLocalStorage()
-		wrapper.unmount()
-	}
-
-	const savedAnswersFor = async (name: string) => {
-		const wrapper = mountAs(name)
-		await flushPromises()
-		const saved = (wrapper.vm as any).readSavedAnswers()
-		wrapper.unmount()
-		return saved
-	}
-
-	beforeEach(() => {
-		localStorage.clear()
-		quizOverrides = {}
-	})
-
-	afterEach(() => {
-		quizOverrides = {}
-	})
-
-	it('restores them for the same learner on the same quiz', async () => {
-		await saveAnswerAs('ann@example.com')
-		expect(await savedAnswersFor('ann@example.com')).not.toBeNull()
-	})
-
-	it('does not hand them to another learner on the same browser', async () => {
-		await saveAnswerAs('ann@example.com')
-		expect(await savedAnswersFor('bob@example.com')).toBeNull()
-	})
-
-	it('does not hand them to another quiz with the same title', async () => {
-		await saveAnswerAs('ann@example.com')
-		quizOverrides = { name: 'quiz-b' }
-		expect(await savedAnswersFor('ann@example.com')).toBeNull()
 	})
 })

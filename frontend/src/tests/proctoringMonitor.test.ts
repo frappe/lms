@@ -29,6 +29,20 @@ vi.mock('face-api.js', () => ({
 	TinyFaceDetectorOptions: vi.fn(),
 }))
 
+vi.mock('frappe-ui', () => {
+	const passthrough = { template: '<div><slot /></div>' }
+	return {
+		Spinner: {
+			template: '<div role="status" class="fui-spinner"><slot /></div>',
+		},
+		Dialog: { props: ['open'], template: '<div v-if="open"><slot /></div>' },
+		Button: { template: '<button><slot /></button>' },
+		Alert: passthrough,
+		Badge: passthrough,
+		toast: { warning: vi.fn(), error: vi.fn(), success: vi.fn() },
+	}
+})
+
 vi.stubGlobal('__', (s: string) => s)
 
 // ─── Camera / stream helpers ──────────────────────────────────────────────────
@@ -136,6 +150,58 @@ describe('ProctoringMonitor — monitoring phase', () => {
 		trackEndedHandler!()
 
 		expect(emittedTypes(wrapper, 'violation')).toContain('camera_disconnect')
+	})
+
+
+	it('blocks copy and cut events silently without emitting violations or warnings', async () => {
+		const wrapper = mountMonitor({ active: true })
+		await flushPromises()
+
+		const copyEvent = new Event('copy', { cancelable: true })
+		document.dispatchEvent(copyEvent)
+
+		expect(copyEvent.defaultPrevented).toBe(true)
+		expect(emittedTypes(wrapper, 'warning')).not.toContain('copy_attempt')
+		expect(emittedTypes(wrapper, 'violation')).not.toContain('copy_attempt')
+	})
+
+	it('blocks paste events silently without emitting violations or warnings', async () => {
+		const wrapper = mountMonitor({ active: true })
+		await flushPromises()
+
+		const pasteEvent = new Event('paste', { cancelable: true })
+		document.dispatchEvent(pasteEvent)
+
+		expect(pasteEvent.defaultPrevented).toBe(true)
+		expect(emittedTypes(wrapper, 'warning')).not.toContain('paste_attempt')
+		expect(emittedTypes(wrapper, 'violation')).not.toContain('paste_attempt')
+	})
+
+	it('silently blocks contextmenu without recording false violations', async () => {
+		const wrapper = mountMonitor({ active: true })
+		await flushPromises()
+
+		const menuEvent = new Event('contextmenu', { cancelable: true })
+		document.dispatchEvent(menuEvent)
+
+		expect(menuEvent.defaultPrevented).toBe(true)
+		expect(emittedTypes(wrapper, 'violation')).not.toContain('context_menu')
+		expect(emittedTypes(wrapper, 'warning')).not.toContain('context_menu')
+	})
+
+	it('blocks restricted shortcuts (F12, Ctrl+C, Ctrl+Shift+I) silently', async () => {
+		const wrapper = mountMonitor({ active: true })
+		await flushPromises()
+
+		const f12Event = new KeyboardEvent('keydown', { key: 'F12', cancelable: true })
+		window.dispatchEvent(f12Event)
+		expect(f12Event.defaultPrevented).toBe(true)
+		expect(emittedTypes(wrapper, 'warning')).not.toContain('restricted_key')
+
+		const ctrlCEvent = new KeyboardEvent('keydown', { key: 'c', ctrlKey: true, cancelable: true })
+		window.dispatchEvent(ctrlCEvent)
+		expect(ctrlCEvent.defaultPrevented).toBe(true)
+		expect(emittedTypes(wrapper, 'warning')).not.toContain('copy_attempt')
 	})
 })
 
