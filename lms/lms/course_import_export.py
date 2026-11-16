@@ -1,3 +1,4 @@
+import hashlib
 import json
 import os
 import re
@@ -49,7 +50,7 @@ MIN_RATIO_CHECK_BYTES = 1024 * 1024
 MAX_ARCHIVE_JSON_BYTES = 10 * 1024 * 1024
 
 
-def export_course_zip(course_name):
+def export_course_zip(course_name, as_file=False):
 	course = frappe.get_doc("LMS Course", course_name)
 	chapters = get_chapters_for_export(course.chapters)
 	lessons = get_lessons_for_export(course_name)
@@ -59,7 +60,7 @@ def export_course_zip(course_name):
 	assessments, questions, test_cases = get_course_assessments(lessons)
 	safe_time = frappe.utils.now_datetime().strftime("%Y%m%d_%H%M%S")
 	zip_filename = f"{course.name}_{safe_time}_{secrets.token_hex(4)}.zip"
-	create_course_zip(
+	return create_course_zip(
 		zip_filename,
 		course,
 		chapters,
@@ -70,6 +71,7 @@ def export_course_zip(course_name):
 		test_cases,
 		instructors,
 		evaluator,
+		as_file,
 	)
 
 
@@ -245,6 +247,7 @@ def create_course_zip(
 	test_cases,
 	instructors,
 	evaluator,
+	as_file=False,
 ):
 	try:
 		tmp_path = os.path.join(tempfile.gettempdir(), zip_filename)
@@ -261,6 +264,13 @@ def create_course_zip(
 			evaluator,
 		)
 		final_path = move_zip_to_private(tmp_path, zip_filename)
+		if as_file:
+			try:
+				return keep_export_as_file(zip_filename)
+			except Exception:
+				# No File row points at the ZIP, so nothing would ever delete it.
+				delete_file(final_path)
+				raise
 		schedule_file_deletion(final_path, delay_seconds=600)  # 10 minutes
 		serve_zip(final_path, zip_filename)
 	except Exception:
@@ -339,6 +349,26 @@ def write_assets(zip_file, assets):
 			zip_file.write(file_path, asset_member_path(file_doc.file_url))
 
 
+def keep_export_as_file(zip_filename):
+	"""Keep the exported ZIP as a private File owned by the exporter, and return its file_url. It is
+	attached to nothing: attached to the course, anyone who can read the course could open it."""
+	file_path = frappe.get_site_path("private", "files", zip_filename)
+	file_doc = frappe.get_doc(
+		{
+			"doctype": "File",
+			"file_name": zip_filename,
+			"file_url": f"/private/files/{zip_filename}",
+			"is_private": 1,
+			"file_size": os.path.getsize(file_path),
+			"content_hash": get_file_md5(file_path),
+		}
+	)
+	# Without it version-16 re-reads the ZIP as text and keeps a corrupted copy instead.
+	file_doc.flags.copy_from_existing_file = True
+	file_doc.insert()
+	return file_doc.file_url
+
+
 def move_zip_to_private(tmp_path, zip_filename):
 	final_path = os.path.join(frappe.get_site_path("private", "files"), zip_filename)
 	shutil.move(tmp_path, final_path)
@@ -404,6 +434,46 @@ def frappe_json_dumps(data):
 	return json.dumps(data, indent=4, default=default)
 
 
+def get_uploaded_zip_path(file_url):
+	"""The path on disk of the uploaded course ZIP at file_url, if the caller may read it.
+
+	Any File row naming this url exactly will do, as for Frappe's own /private/files route. A user
+	who uploads bytes that are already stored gets a row under the earlier upload's url."""
+	rows = frappe.get_all(
+		"File",
+		filters={"file_url": file_url, "is_folder": 0},
+		fields=["name", "file_url"],
+		order_by="creation asc",
+	)
+	matching = [frappe.get_doc("File", row.name) for row in rows if row.file_url == file_url]
+	file_doc = next((doc for doc in matching if frappe.has_permission("File", "read", doc=doc)), None)
+	if not file_doc:
+		frappe.throw(_("Upload the course ZIP again and import it from there."), frappe.PermissionError)
+
+	file_path = get_local_file_path(file_doc)
+	if not file_path:
+		frappe.throw(_("Invalid ZIP file"))
+	# A row's owner can edit its content_hash, which decides whose url an upload of the same bytes
+	# gets. Every row at this url must still describe the bytes on disk, the caller's own included.
+	on_disk = get_file_md5(file_path)
+	if any(doc.content_hash and doc.content_hash != on_disk for doc in matching):
+		frappe.throw(
+			_("This ZIP can't be imported. Ask your System Manager to check the file."),
+			frappe.PermissionError,
+		)
+	return file_path
+
+
+def get_file_md5(file_path):
+	"""The md5 Frappe stores as File.content_hash, read in chunks so a large ZIP is not held in memory."""
+	digest = hashlib.md5(usedforsecurity=False)
+	# nosemgrep: frappe-security-file-traversal - file_path comes from get_local_file_path, inside the site's files folders
+	with open(file_path, "rb") as f:
+		for chunk in iter(lambda: f.read(1024 * 1024), b""):
+			digest.update(chunk)
+	return digest.hexdigest()
+
+
 def import_course_zip(zip_file_path):
 	zip_file_path = zip_file_path.lstrip("/")
 	actual_path = frappe.get_site_path(zip_file_path)
@@ -461,6 +531,9 @@ def read_json_from_zip(zip_file, filename):
 		return json.loads(read_zip_member(zip_file, filename, MAX_ARCHIVE_JSON_BYTES))
 	except frappe.ValidationError:
 		raise
+	except KeyError:
+		# No such member: optional ones like instructors.json may be absent.
+		return None
 	except Exception as e:
 		frappe.log_error(f"Error reading {filename} from ZIP: {e}")
 		return None
@@ -723,7 +796,7 @@ def replace_assessment_names(zip_file, content):
 	except (TypeError, ValueError):
 		return content
 	if not isinstance(content, dict):
-		return json.dumps(content)
+		return json.dumps(content, ensure_ascii=False)
 	for block in content.get("blocks") or []:
 		# Raw iteration (this mutates data in place and re-dumps, so it can't go through
 		# get_editorjs_blocks); guard the same shape the helper does.
@@ -738,7 +811,7 @@ def replace_assessment_names(zip_file, content):
 			current_assessment_name = frappe.db.get_value(doctype, {"title": assessment_title}, "name")
 			if current_assessment_name:
 				data[data_field] = current_assessment_name
-	return json.dumps(content)
+	return json.dumps(content, ensure_ascii=False)
 
 
 def replace_assets(content):

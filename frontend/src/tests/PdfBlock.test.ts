@@ -131,8 +131,13 @@ describe('PdfBlock', () => {
 	})
 
 	it('shows an error state with a fallback link when the PDF fails to load', async () => {
+		const logged = vi.spyOn(console, 'error').mockImplementation(() => {})
 		state.shouldReject = true
 		const wrapper = await mountPdf()
+		expect(logged).toHaveBeenCalledWith(
+			'PdfBlock: failed to load PDF',
+			expect.any(Error)
+		)
 		expect(wrapper.find('.pdf-error').exists()).toBe(true)
 		expect(wrapper.find('.pdf-fallback-link').attributes('href')).toBe(
 			'/files/x.pdf'

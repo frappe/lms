@@ -12,6 +12,8 @@
 		v-model:page-length="pageLength"
 		:empty-name="config.emptyName"
 		:empty-icon="config.emptyIcon"
+		:empty-title="config.emptyTitle"
+		:empty-description="config.emptyDescription"
 		@load-more="submissions.next()"
 	>
 		<template #filters>

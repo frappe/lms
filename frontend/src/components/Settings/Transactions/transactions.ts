@@ -5,7 +5,7 @@ import router from '@/router'
 // @ts-expect-error utils/dialogs.js is still plain JS, so it has no declarations
 import { createDialog } from '@/utils/dialogs'
 import Transactions from '@/components/Settings/Transactions/Transactions.vue'
-import { usePermissions } from '@/composables/usePermissions'
+import { canOnDocument } from '@/composables/usePermissions'
 import {
 	reloadSettingsLists,
 	type SettingsListFilters,
@@ -88,7 +88,7 @@ const CURRENCY_SYMBOLS: Record<string, string> = {
 /** The row's money, drawn identically in the list cell and on the record page. */
 export const formatAmount = (
 	amount: unknown,
-	currency: string | undefined
+	currency: string | undefined,
 ): string => {
 	if (amount === null || amount === undefined || amount === '') return ''
 	const symbol = currency ? CURRENCY_SYMBOLS[currency] || currency : ''
@@ -159,26 +159,14 @@ const OPENERS: Record<
 	},
 }
 
-// One handle per record, because usePermissions registers a watcher and this is
-// called from a render. Answers are cached inside the composable and batched
-// per tick, so a page of rows costs one round trip.
-const handles = new Map<string, ReturnType<typeof usePermissions>>()
-
 /**
  * Whether the server says this user may delete this payment: the doctype's own
  * permission, not a role guess, so a site that has changed it is answered
- * correctly. `can()` reads false until the answer arrives, so the option
- * appears rather than disappears.
+ * correctly. It reads false until the answer arrives, so the option appears
+ * rather than disappears; a page of rows costs one batched round trip.
  */
-const canDelete = (name: string): boolean => {
-	if (!name) return false
-	let handle = handles.get(name)
-	if (!handle) {
-		handle = usePermissions(DOCTYPE, name)
-		handles.set(name, handle)
-	}
-	return handle.can('delete')
-}
+const canDelete = (name: string): boolean =>
+	canOnDocument(DOCTYPE, name, 'delete')
 
 const removeTransaction = (name: string, close: () => void) => {
 	call('frappe.client.delete', { doctype: DOCTYPE, name })
@@ -198,7 +186,7 @@ const confirmDeletion = (row: SettingsListRow) => {
 	createDialog({
 		title: __('Delete this transaction?'),
 		message: __(
-			'This will permanently delete this payment record, including its billing details. This cannot be undone.'
+			'This will permanently delete this payment record, including its billing details. This cannot be undone.',
 		),
 		actions: [
 			{
@@ -271,7 +259,7 @@ export const columns: SettingsListColumn[] = [
 			badges.push(
 				row.payment_received
 					? { label: __('Paid'), theme: 'green' as const }
-					: { label: __('Unpaid'), theme: 'amber' as const }
+					: { label: __('Unpaid'), theme: 'amber' as const },
 			)
 			if (row.payment_for_certificate)
 				badges.push({ label: __('Certificate'), theme: 'blue' as const })

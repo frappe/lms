@@ -1,0 +1,34 @@
+name: Cancel Closed PR Runs
+
+on:
+  pull_request_target:
+    types: [closed]
+
+permissions:
+  actions: write
+
+jobs:
+  cancel:
+    name: Cancel runs of the closed pull request
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      # No checkout: this job runs with write access, so it never touches PR code.
+      # By branch, not by the last commit: an earlier commit's run is still
+      # queued when a later commit skipped that workflow.
+      - name: Cancel unfinished runs of the pull request
+        env:
+          GH_TOKEN: ${{ github.token }}
+          HEAD_REF: ${{ github.event.pull_request.head.ref }}
+          HEAD_REPO: ${{ github.event.pull_request.head.repo.full_name }}
+        run: |
+          for status in queued in_progress waiting pending requested; do
+            gh api -X GET "repos/$GITHUB_REPOSITORY/actions/runs" \
+              -f branch="$HEAD_REF" -f status="$status" -f per_page=100 \
+              | jq -r --arg repo "$HEAD_REPO" --argjson self "$GITHUB_RUN_ID" \
+                '.workflow_runs[]
+                  | select((.event | startswith("pull_request"))
+                    and .head_repository.full_name == $repo
+                    and .id != $self)
+                  | .id'
+          done | sort -u | xargs -r -n1 gh run cancel --repo "$GITHUB_REPOSITORY"

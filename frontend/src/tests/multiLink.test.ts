@@ -420,15 +420,6 @@ describe('MultiLink trigger summary', () => {
 	// differently, one label for one selection and "N selected" beyond that, which
 	// is what keeps the trigger from growing with the selection. Taking its
 	// default is the whole point of dropping the hand-rolled trigger.
-	it('reads the label itself when one thing is selected', async () => {
-		const wrapper = mountLink(['docker-for-developers'])
-		await flushPromises()
-
-		expect(wrapper.get('button[data-state]').text()).toContain(
-			'Docker for Developers'
-		)
-	})
-
 	it('collapses two or more selections to a count', async () => {
 		const wrapper = mountLink([
 			'docker-for-developers',

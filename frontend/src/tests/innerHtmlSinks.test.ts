@@ -1,3 +1,4 @@
+// @vitest-environment node
 import { describe, expect, it } from 'vitest'
 
 // The JavaScript-side counterpart of the template gates. v-safe-html, the

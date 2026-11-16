@@ -84,6 +84,13 @@ describe('FormShell', () => {
 		expect(wrapper.emitted('close')).toHaveLength(1)
 	})
 
+	it('emits close when the desktop Dialog is dismissed', async () => {
+		const wrapper = mountShell(1024)
+		wrapper.findComponent(Dialog).vm.$emit('update:open', false)
+		await nextTick()
+		expect(wrapper.emitted('close')).toHaveLength(1)
+	})
+
 	it('covers the parent list as a fixed full-screen surface on mobile', () => {
 		const wrapper = mountShell(390)
 		const page = wrapper.find('[data-testid="form-shell-page"]')

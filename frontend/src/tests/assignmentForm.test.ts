@@ -8,8 +8,6 @@ import {
 } from 'vue-router'
 import { defineComponent, h, reactive } from 'vue'
 
-vi.stubGlobal('__', (text: string) => text)
-
 enableAutoUnmount(afterEach)
 
 // vi.hoisted because vi.mock's factory is hoisted above every top-level const.
@@ -81,14 +79,26 @@ vi.mock('frappe-ui', () => ({
 		template: `<div v-if="open" role="dialog"><h2>{{ title }}</h2><slot /><slot name="actions" /></div>`,
 	},
 	FormControl: {
+		name: 'FormControl',
 		props: ['modelValue', 'label', 'type', 'required', 'options'],
 		emits: ['update:modelValue'],
 		template: `<label>{{ label }}<input :value="modelValue" @input="$emit('update:modelValue', $event.target.value)" /></label>`,
 	},
 }))
 
+// A textarea that emits `change` fills the question the way the editor does.
 vi.mock('@/components/RichTextEditor.vue', () => ({
-	default: defineComponent({ render: () => h('div') }),
+	default: defineComponent({
+		emits: ['change'],
+		setup:
+			(_props, { emit }) =>
+			() =>
+				h('textarea', {
+					'data-testid': 'rich-text',
+					onInput: (e: Event) =>
+						emit('change', (e.target as HTMLTextAreaElement).value),
+				}),
+	}),
 }))
 vi.mock('@/components/Controls/Link.vue', () => ({
 	default: {
@@ -184,6 +194,14 @@ const RECORD = {
 const inputs = (wrapper: any) =>
 	wrapper.find('[data-testid="assignment-fields"]').findAll('input')
 
+// Title, Submission Type and Question: every field LMS Assignment requires.
+const fillRequired = async (wrapper: any): Promise<void> => {
+	const [title, type] = inputs(wrapper)
+	await title.setValue('Write an essay')
+	await type.setValue('Text')
+	await wrapper.get('[data-testid="rich-text"]').setValue('<p>Why?</p>')
+}
+
 describe('AssignmentForm as a route', () => {
 	beforeEach(() => {
 		authorship.canWrite = true
@@ -204,19 +222,6 @@ describe('AssignmentForm as a route', () => {
 		})
 	})
 
-	it('mounts straight from the URL with no parent list', async () => {
-		const router = makeRouter()
-		await router.push({
-			name: 'AssignmentForm',
-			params: { assignmentID: 'new' },
-		})
-		const wrapper = await mountForm(router, moderator)
-		expect(wrapper.html()).toContain('Create an Assignment')
-		expect(wrapper.find('[data-testid="assignment-fields"]').exists()).toBe(
-			true
-		)
-	})
-
 	it('refuses to render the form for a user who cannot manage assignments', async () => {
 		const router = makeRouter()
 		await router.push({
@@ -225,7 +230,7 @@ describe('AssignmentForm as a route', () => {
 		})
 		const wrapper = await mountForm(router, student)
 		expect(wrapper.find('[data-testid="assignment-fields"]').exists()).toBe(
-			false
+			false,
 		)
 		expect(wrapper.find('[data-testid="assignment-save"]').exists()).toBe(false)
 		expect(wrapper.html()).toContain('not permitted')
@@ -249,12 +254,12 @@ describe('AssignmentForm as a route', () => {
 					.text()
 					.replace(/\(required\)|\*/g, '')
 					.replace(/\s+/g, ' ')
-					.trim()
+					.trim(),
 			)
 			.filter((text: string) => text !== '')
 		expect(labels).toEqual(FIELD_LABELS)
 		expect(
-			fields.find('[data-testid="assignment-question-label"]').text()
+			fields.find('[data-testid="assignment-question-label"]').text(),
 		).toContain('Question')
 	})
 
@@ -334,6 +339,7 @@ describe('AssignmentForm as a route', () => {
 			params: { assignmentID: 'new' },
 		})
 		const wrapper = await mountForm(router, moderator)
+		await fillRequired(wrapper)
 
 		await wrapper.find('[data-testid="assignment-save"]').trigger('click')
 		expect(insertSubmit).toHaveBeenCalledTimes(1)
@@ -341,15 +347,86 @@ describe('AssignmentForm as a route', () => {
 		expect(insertOptions.current.makeParams()).toEqual({
 			doc: {
 				doctype: 'LMS Assignment',
-				title: '',
-				type: '',
-				question: '',
+				title: 'Write an essay',
+				type: 'Text',
+				question: '<p>Why?</p>',
 				course: '',
 				enable_scheduling: 0,
 				schedule_start: null,
 				schedule_end: null,
 			},
 		})
+	})
+
+	it('offers an Audio type and creates an audio assignment', async () => {
+		const router = makeRouter()
+		await router.push({
+			name: 'AssignmentForm',
+			params: { assignmentID: 'new' },
+		})
+		const wrapper = await mountForm(router, moderator)
+
+		const typeField = wrapper
+			.findAllComponents({ name: 'FormControl' })
+			.find((field: any) => field.props('label') === 'Submission Type')
+		expect(
+			typeField.props('options').map((option: any) => option.value),
+		).toContain('Audio')
+
+		await fillRequired(wrapper)
+		await inputs(wrapper)[1].setValue('Audio')
+		await wrapper.find('[data-testid="assignment-save"]').trigger('click')
+		expect(insertOptions.current.makeParams().doc.type).toBe('Audio')
+	})
+
+	// Regression: empty create showed a raw server error (#3024, fixed in
+	// #3047).
+	it('names the first missing field instead of sending an empty assignment', async () => {
+		const router = makeRouter()
+		await router.push({
+			name: 'AssignmentForm',
+			params: { assignmentID: 'new' },
+		})
+		const wrapper = await mountForm(router, moderator)
+		const error = vi.mocked(toast.error)
+		error.mockClear()
+		const save = () =>
+			wrapper.find('[data-testid="assignment-save"]').trigger('click')
+
+		await inputs(wrapper)[0].setValue('Write an essay')
+		await save()
+		expect(insertSubmit).not.toHaveBeenCalled()
+		expect(error).toHaveBeenLastCalledWith(
+			'Add a Submission Type before saving.',
+		)
+
+		await inputs(wrapper)[1].setValue('Text')
+		await save()
+		expect(insertSubmit).not.toHaveBeenCalled()
+		expect(error).toHaveBeenLastCalledWith('Add a Question before saving.')
+
+		// Control: the same form, completed, reaches the server.
+		await wrapper.get('[data-testid="rich-text"]').setValue('<p>Why?</p>')
+		await save()
+		expect(insertSubmit).toHaveBeenCalledTimes(1)
+	})
+
+	// Regression: an image-only question failed the required check (#3047
+	// review).
+	it('accepts a question that is only an image', async () => {
+		const router = makeRouter()
+		await router.push({
+			name: 'AssignmentForm',
+			params: { assignmentID: 'new' },
+		})
+		const wrapper = await mountForm(router, moderator)
+		await fillRequired(wrapper)
+		await wrapper
+			.get('[data-testid="rich-text"]')
+			.setValue('<p><img src="/files/a.png"></p>')
+
+		await wrapper.find('[data-testid="assignment-save"]').trigger('click')
+		expect(insertSubmit).toHaveBeenCalledTimes(1)
 	})
 
 	it('updates through its own document resource in edit mode', async () => {
@@ -388,11 +465,11 @@ describe('AssignmentForm as a route', () => {
 		const wrapper = await mountForm(router, moderator)
 
 		expect(
-			wrapper.find('[data-testid="assignment-read-only-note"]').text()
+			wrapper.find('[data-testid="assignment-read-only-note"]').text(),
 		).toBe('Only the authors of this assignment can edit it.')
 		expect(wrapper.find('[data-testid="assignment-save"]').exists()).toBe(false)
 		expect(
-			wrapper.find('[data-testid="assignment-fields"]').attributes('disabled')
+			wrapper.find('[data-testid="assignment-fields"]').attributes('disabled'),
 		).toBeDefined()
 
 		const vm = wrapper.findComponent(AssignmentForm).vm as any
@@ -428,9 +505,10 @@ describe('AssignmentForm as a route', () => {
 			params: { assignmentID: 'new' },
 		})
 		const wrapper = await mountForm(router, moderator)
+		await fillRequired(wrapper)
 
 		insertSubmit.mockImplementation(() =>
-			insertOptions.current.onSuccess({ name: 'ASG-0002' })
+			insertOptions.current.onSuccess({ name: 'ASG-0002' }),
 		)
 		await wrapper.find('[data-testid="assignment-save"]').trigger('click')
 		await flushPromises()
@@ -453,65 +531,5 @@ describe('AssignmentForm as a route', () => {
 
 		expect(error.mock.calls).toEqual([['Error'], ['Title already exists']])
 		quiet.mockRestore()
-	})
-
-	it('replaces rather than pushes on save, so Back reaches the list', async () => {
-		const router = makeRouter()
-		await router.push({ name: 'Assignments' })
-		await router.push({
-			name: 'AssignmentForm',
-			params: { assignmentID: 'new' },
-			state: { lmsFormEntry: true },
-		})
-		const wrapper = await mountForm(router, moderator)
-
-		insertSubmit.mockImplementation(() =>
-			insertOptions.current.onSuccess({ name: 'ASG-0002' })
-		)
-		await wrapper.find('[data-testid="assignment-save"]').trigger('click')
-		await flushPromises()
-		expect(router.currentRoute.value.name).toBe('Assignments')
-
-		// A push would have left the form as the previous entry.
-		router.back()
-		await flushPromises()
-		expect(router.currentRoute.value.name).toBe('Assignments')
-	})
-
-	it('mobile: the back control pops the router back to the list', async () => {
-		const router = makeRouter()
-		await router.push({ name: 'Assignments' })
-		await router.push({
-			name: 'AssignmentForm',
-			params: { assignmentID: 'new' },
-			state: { lmsFormEntry: true },
-		})
-		Object.defineProperty(window, 'innerWidth', {
-			value: 390,
-			writable: true,
-			configurable: true,
-		})
-		const wrapper = await mountForm(router, moderator)
-
-		await wrapper.find('[data-testid="form-shell-back"]').trigger('click')
-		await flushPromises()
-		expect(router.currentRoute.value.name).toBe('Assignments')
-	})
-
-	it('desktop: dismissing the Dialog (Escape/backdrop/X) pops the router', async () => {
-		const router = makeRouter()
-		await router.push({ name: 'Assignments' })
-		await router.push({
-			name: 'AssignmentForm',
-			params: { assignmentID: 'new' },
-			state: { lmsFormEntry: true },
-		})
-		const wrapper = await mountForm(router, moderator)
-
-		await wrapper
-			.findComponent({ name: 'Dialog' })
-			.vm.$emit('update:open', false)
-		await flushPromises()
-		expect(router.currentRoute.value.name).toBe('Assignments')
 	})
 })

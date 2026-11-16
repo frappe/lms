@@ -3,6 +3,7 @@ import unittest
 import frappe
 
 from lms.lms import payments as payments_module
+from lms.lms.payments import record_payment
 from lms.lms.test_helpers import BaseTestUtils
 
 
@@ -118,6 +119,51 @@ class TestPaymentLink(BaseTestUtils):
 
 		self.assertEqual(self.controller.get_payment_url_calls[0]["amount"], 500)
 
+	def test_order_receipt_names_the_lms_payment(self):
+		"""The payment callback accepts a Razorpay payment only when its order's
+		receipt is the LMS Payment being credited."""
+		self._buy_course()
+
+		receipt = self.controller.create_order_calls[0]["receipt"]
+		self.assertEqual(
+			frappe.db.get_value("LMS Payment", receipt, "payment_for_document"), self.course.name
+		)
+
+	def _buy_course_billed_to(self, billing_country, country):
+		for field, value in (("apply_gst", 1), ("show_usd_equivalent", 0)):
+			original = frappe.db.get_single_value("LMS Settings", field)
+			frappe.db.set_single_value("LMS Settings", field, value)
+			self.addCleanup(frappe.db.set_single_value, "LMS Settings", field, original)
+
+		frappe.call(
+			payments_module.get_payment_link,
+			doctype="LMS Course",
+			docname=self.course.name,
+			address={
+				"billing_name": "Test Buyer",
+				"address_line1": "1 Test Street",
+				"city": "Test City",
+				"country": billing_country,
+				"source": "Website",
+				"member_consent": 1,
+			},
+			payment_for_certificate=0,
+			country=country,
+		)
+		return frappe.get_last_doc("LMS Payment", filters={"member": frappe.session.user})
+
+	def test_gst_follows_the_billing_address_not_the_country_argument(self):
+		payment = self._buy_course_billed_to("India", country="Nepal")
+
+		self.assertEqual(self.controller.get_payment_url_calls[0]["amount"], 590)
+		self.assertEqual(payment.amount_with_gst, 590)
+
+	def test_no_gst_for_a_billing_address_outside_india(self):
+		payment = self._buy_course_billed_to("Nepal", country="India")
+
+		self.assertEqual(self.controller.get_payment_url_calls[0]["amount"], 500)
+		self.assertEqual(payment.amount_with_gst, 0)
+
 	def test_the_request_carrying_the_order_id_is_written_last(self):
 		"""The controller writes two Integration Requests per attempt: the paise
 		order payload, then the checkout payload with the `order_id`.
@@ -139,4 +185,75 @@ class TestPaymentsModuleShape(unittest.TestCase):
 		self.assertFalse(
 			hasattr(payments_module, "create_order"),
 			"lms.lms.payments.create_order duplicates the payments app controller",
+		)
+
+
+class TestRecordPaymentAddress(BaseTestUtils):
+	@classmethod
+	def setUpClass(cls):
+		super().setUpClass()
+		cls.hash = frappe.generate_hash(length=6).lower()
+		cls.student = cls._create_user(
+			f"pay-addr-{cls.hash}@example.com", "Pay", "Student", ["LMS Student"]
+		).name
+		instructor = cls._create_user(
+			f"pay-addr-ins-{cls.hash}@example.com", "Pay", "Instructor", ["Course Creator"]
+		).name
+		cls.course = cls._create_course(f"Pay Addr Course {cls.hash}", instructor=instructor).name
+		frappe.db.set_value(
+			"LMS Course",
+			cls.course,
+			{"paid_course": 1, "course_price": 100, "currency": "INR"},
+		)
+		cls.source = (
+			frappe.get_doc({"doctype": "LMS Source", "source": f"Test Source {cls.hash}"}).insert().name
+		)
+
+	def _as(self, user):
+		frappe.set_user(user)
+		self.addCleanup(frappe.set_user, "Administrator")
+
+	def _address(self):
+		return {
+			"billing_name": "Bulk Student",
+			"address_line1": "1 Main St",
+			"city": "Pune",
+			"country": "India",
+			"phone": "9999999999",
+			"source": self.source,
+		}
+
+	def test_the_doctype_no_longer_requires_an_address(self):
+		self.assertFalse(frappe.get_meta("LMS Payment").get_field("address").reqd)
+
+	def test_an_admin_payment_saves_without_an_address(self):
+		payment = frappe.get_doc(
+			{
+				"doctype": "LMS Payment",
+				"member": self.student,
+				"billing_name": "Bulk Student",
+				"amount": 100,
+				"currency": "INR",
+				"source": self.source,
+				"payment_for_document_type": "LMS Course",
+				"payment_for_document": self.course,
+				"payment_received": 1,
+			}
+		).insert()
+		self.assertFalse(payment.address)
+
+	def test_checkout_still_saves_and_links_the_address(self):
+		self._as(self.student)
+		payment = record_payment(self._address(), "LMS Course", self.course, 100, 100, "INR")
+		self.assertTrue(payment.address)
+		self.assertEqual(frappe.db.get_value("Address", payment.address, "email_id"), self.student)
+
+	# Regression guard from the bulk-enroll PR (feat/bulk-enroll): LMS Payment.address
+	# lost reqd, so checkout must still refuse a payment without one on its own.
+	def test_checkout_refuses_a_blank_address(self):
+		self._as(self.student)
+		with self.assertRaises(frappe.MandatoryError):
+			record_payment({"billing_name": "Student"}, "LMS Course", self.course, 100, 100, "INR")
+		self.assertFalse(
+			frappe.db.exists("LMS Payment", {"member": self.student, "payment_for_document": self.course})
 		)

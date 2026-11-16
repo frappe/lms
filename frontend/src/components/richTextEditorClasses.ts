@@ -27,10 +27,12 @@ const TOOLBAR: Record<RichTextEditorVariant, string> = {
 	ghost: 'flex-wrap pb-1',
 }
 
+// Outline and subtle boxes show focus on their own border; a ghost editor has
+// no box, so its content carries the focus ring.
 const CONTENT: Record<RichTextEditorVariant, string> = {
 	outline: 'px-2 py-1',
 	subtle: 'px-2 py-1',
-	ghost: '',
+	ghost: 'focus-visible:ring-2 focus-visible:ring-outline-gray-5',
 }
 
 export const MIN_HEIGHT = {

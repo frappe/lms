@@ -1,11 +1,13 @@
 {% set color = get_palette(member.full_name) %}
-<span class="avatar {{ avatar_class }}" title="{{ member.full_name }}">
-    <a class="button-links" href="{{ get_lms_route('users/' ~ member.username) }}">
+{# full_name is stored with &, < and > already escaped, but not quotes. #}
+{% set name_attr = (member.full_name or "") | replace('"', "&quot;") %}
+<span class="avatar {{ avatar_class }}" title="{{ name_attr }}">
+    <a class="button-links" href="{{ get_lms_route('users/' ~ member.username) | e }}">
         {% if member.user_image %}
-        <img class="avatar-frame standard-image" style="object-fit: cover;" src="{{ member.user_image }}"
-            title="{{ member.full_name }}">
+        <img class="avatar-frame standard-image" style="object-fit: cover;" src="{{ member.user_image | e }}"
+            title="{{ name_attr }}">
         {% else %}
-        <span class="avatar-frame standard-image" title="{{ member.full_name }}"
+        <span class="avatar-frame standard-image" title="{{ name_attr }}"
             style="background-color: var({{color[0]}}); color: var({{color[1]}});">
             {{ frappe.utils.get_abbr(member.full_name) }}
         </span>

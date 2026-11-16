@@ -112,6 +112,7 @@
 								/>
 								<Link
 									doctype="Currency"
+									query="lms.lms.api.search_currencies"
 									v-model="batchDetail.doc.currency"
 									:filters="{ enabled: 1 }"
 									:label="__('Currency')"
@@ -153,6 +154,7 @@
 							:label="__('Instructors')"
 							:placeholder="__('Select instructors')"
 							:required="true"
+							:disabled="!batch.data?.can_change_instructors"
 							variant="outline"
 							:onCreate="() => (showMemberModal = true)"
 						>

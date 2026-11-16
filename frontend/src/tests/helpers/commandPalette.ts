@@ -7,6 +7,7 @@
 import { mount, type VueWrapper } from '@vue/test-utils'
 import { nextTick } from 'vue'
 import CommandPalette from '@/components/CommandPalette/CommandPalette.vue'
+import dayjs from '@/utils/dayjs'
 
 if (!Element.prototype.scrollIntoView) {
 	Element.prototype.scrollIntoView = () => {}
@@ -27,7 +28,10 @@ export async function mountPalette(props: Record<string, unknown> = {}) {
 	current = mount(CommandPalette, {
 		attachTo: document.body,
 		props: { modelValue: true, ...props },
-		global: { mocks: { __: (globalThis as any).__ ?? ((t: string) => t) } },
+		global: {
+			mocks: { __: (globalThis as any).__ ?? ((t: string) => t) },
+			provide: { $dayjs: dayjs },
+		},
 	})
 	await flush()
 	return current

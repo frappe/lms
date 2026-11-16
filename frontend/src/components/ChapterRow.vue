@@ -52,12 +52,14 @@
 					{{ chapter.lessons.length }}
 				</span>
 				<template v-if="isScormChapterLocked">
-					<span
-						class="lucide-lock-keyhole size-4 text-ink-gray-4"
-						:title="__('Complete the previous lessons to unlock this one')"
-						aria-hidden="true"
-					/>
+					<Tooltip :text="lockReason">
+						<span
+							class="lucide-lock-keyhole size-4 text-ink-gray-4"
+							aria-hidden="true"
+						/>
+					</Tooltip>
 					<span class="sr-only">{{ __('Locked') }}</span>
+					<span class="sr-only">{{ lockReason }}</span>
 				</template>
 				<template
 					v-else-if="chapter.is_scorm_package && isScormChapterComplete"
@@ -106,6 +108,7 @@
 				:disabled="!allowEdit"
 				item-key="name"
 				group="items"
+				v-bind="outlineDragOptions"
 				@end="(e: DraggableEvent) => emit('move-lesson', e)"
 				:data-chapter="chapter.name"
 			>
@@ -158,14 +161,14 @@
 								/>
 								{{ lesson.title }}
 								<template v-if="lesson.locked">
-									<span
-										class="lucide-lock-keyhole h-4 w-4 text-ink-gray-4 ms-2"
-										:title="
-											__('Complete the previous lesson to unlock this one')
-										"
-										aria-hidden="true"
-									/>
+									<Tooltip :text="lockReason">
+										<span
+											class="lucide-lock-keyhole h-4 w-4 text-ink-gray-4 ms-2"
+											aria-hidden="true"
+										/>
+									</Tooltip>
 									<span class="sr-only">{{ __('Locked') }}</span>
+									<span class="sr-only">{{ lockReason }}</span>
 								</template>
 								<template v-else-if="lesson.is_complete">
 									<span
@@ -225,7 +228,7 @@ import { useRoute } from 'vue-router'
 import type { RouteLocationRaw } from 'vue-router'
 import type { InputExposed } from 'frappe-ui'
 import type { OutlineChapter, OutlineLesson, SessionUser } from '@/types'
-import { draftLessonNumber } from '@/utils/courseOutline'
+import { draftLessonNumber, outlineDragOptions } from '@/utils/courseOutline'
 
 interface DraggableEvent {
 	item: { __draggable_context: { element: OutlineChapter | OutlineLesson } }
@@ -317,6 +320,10 @@ const isScormChapterComplete = computed<boolean>(() =>
 			props.chapter.lessons.every((l) => l.is_complete)
 	)
 )
+
+// Lessons unlock in course order: one stays locked while any earlier lesson is
+// incomplete (compute_locked_lessons).
+const lockReason = __('Complete the previous lessons to unlock this one')
 
 // A SCORM chapter has no DisclosurePanel, so it never reaches the per-lesson lock
 // affordance below: without this it looks identical to an open one and the student

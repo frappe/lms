@@ -1,6 +1,7 @@
 <template>
 	<dl
-		class="grid grid-cols-2 gap-px overflow-hidden rounded-6 border border-outline-gray-2 bg-surface-gray-3 sm:grid-cols-4"
+		class="grid grid-cols-2 gap-px overflow-hidden rounded-6 border border-outline-gray-2 bg-surface-gray-3"
+		:class="questions ? 'sm:grid-cols-4' : 'sm:grid-cols-3'"
 	>
 		<div class="space-y-0.5 bg-surface-base px-3 py-2">
 			<dt class="text-xs text-ink-gray-6">{{ __('Questions') }}</dt>
@@ -14,7 +15,7 @@
 				{{ duration ? `${duration} ${__('min')}` : __('None') }}
 			</dd>
 		</div>
-		<div class="space-y-0.5 bg-surface-base px-3 py-2">
+		<div v-if="questions" class="space-y-0.5 bg-surface-base px-3 py-2">
 			<dt class="text-xs text-ink-gray-6">{{ __('Pass mark') }}</dt>
 			<dd class="text-base font-medium text-ink-gray-9">
 				{{ passingPercentage || 0 }}%
@@ -23,13 +24,15 @@
 		<div class="space-y-0.5 bg-surface-base px-3 py-2">
 			<dt class="text-xs text-ink-gray-6">{{ __('Attempts') }}</dt>
 			<dd class="text-base font-medium text-ink-gray-9">
-				{{ attemptsValue }}
+				<Skeleton v-if="attemptsLoading" class="mt-1 h-4 w-12 rounded-4" />
+				<template v-else>{{ attemptsValue }}</template>
 			</dd>
 		</div>
 	</dl>
 </template>
 
 <script setup lang="ts">
+import { Skeleton } from 'frappe-ui'
 import { computed } from 'vue'
 
 // The learner card counts down attempts left; the editor preview has no
@@ -40,6 +43,8 @@ const props = defineProps<{
 	passingPercentage?: number
 	attemptsLeft?: number | null
 	maxAttempts?: number | null
+	// The learner's attempts are still loading, so their count is not known yet.
+	attemptsLoading?: boolean
 }>()
 
 const attemptsValue = computed(() => {

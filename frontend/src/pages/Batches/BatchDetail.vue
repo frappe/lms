@@ -1,9 +1,11 @@
 <template>
+	<NotFound v-if="(batch.fetched || batch.error) && !batch.data?.name" />
 	<TabbedDetailPage
+		v-else
 		ref="page"
 		:tabs="tabs"
 		:breadcrumbs="breadcrumbs"
-		:published="Boolean(batch.data?.published)"
+		:published="isAdmin && Boolean(batch.data?.published)"
 		:loading="!batch.data"
 		:doc="batch"
 		doc-prop="batch"
@@ -25,7 +27,7 @@
 			/>
 			<Button
 				v-if="tab?.key === 'settings' && isAdmin && !isMobile"
-				:variant="batch.data?.published ? 'subtle' : 'solid'"
+				variant="subtle"
 				:theme="batch.data?.published ? 'red' : 'gray'"
 				@click="togglePublishBatch"
 			>
@@ -55,17 +57,22 @@
 					@click="openAnnouncementModal"
 				/>
 			</template>
-			<ShortcutTooltip
-				v-if="tab?.key === 'settings' && isAdmin"
-				:label="__('Save')"
-				combo="Mod+S"
-			>
-				<HeaderButton
-					:label="__('Save')"
-					variant="solid"
-					@click="instance?.submitBatch()"
-				/>
-			</ShortcutTooltip>
+			<template v-if="tab?.key === 'settings' && isAdmin">
+				<Tooltip
+					v-if="!instance?.isDirty"
+					:text="__('No changes to save')"
+					:hoverDelay="100"
+				>
+					<HeaderButton :label="__('Save')" variant="solid" disabled />
+				</Tooltip>
+				<ShortcutTooltip v-else :label="__('Save')" combo="Mod+S">
+					<HeaderButton
+						:label="__('Save')"
+						variant="solid"
+						@click="instance?.submitBatch()"
+					/>
+				</ShortcutTooltip>
+			</template>
 		</template>
 
 		<template #solo>
@@ -114,7 +121,9 @@ import HeaderButton from '@/components/HeaderButton.vue'
 import ShortcutTooltip from '@/components/ShortcutTooltip.vue'
 import SkeletonLoader from '@/components/SkeletonLoader.vue'
 import TabbedDetailPage from '@/components/Layouts/pages/TabbedDetailPage.vue'
+import NotFound from '@/pages/NotFound.vue'
 import { openBatchForm } from '@/composables/useBatchForms'
+import { canReadDiscussions } from '@/utils/doctypePermissions'
 
 const router = useRouter()
 // Read by every form opener below. TabbedDetailPage still keeps the active tab
@@ -140,11 +149,6 @@ const batch = createResource({
 		batch: props.batchName,
 	}),
 	auto: true,
-	onSuccess: (data) => {
-		if (!data) {
-			router.push({ name: 'Batches' })
-		}
-	},
 })
 
 // The router reuses this component when you go straight from one batch to
@@ -220,7 +224,7 @@ const tabs = computed(() => {
 			label: __('Discussions'),
 			component: markRaw(Discussions),
 			icon: 'lucide-message-circle',
-			when: enrolled,
+			when: enrolled && canReadDiscussions(user),
 		},
 		{
 			key: 'settings',

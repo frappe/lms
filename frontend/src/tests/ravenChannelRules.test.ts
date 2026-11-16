@@ -1,3 +1,4 @@
+// @vitest-environment node
 /**
  * The three composables behind Settings > Raven, with no component mounted: the
  * channel draft and the gate between it and a membership change, the mapping

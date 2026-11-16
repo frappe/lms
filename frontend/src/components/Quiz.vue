@@ -40,7 +40,13 @@
 				</Badge>
 				<!-- After a submit the result says it beside Try again. -->
 				<span
-					v-if="attemptsLeft !== null && !quizSubmission.data"
+					v-if="
+						!preview &&
+						attemptsReady &&
+						attemptsLeft !== null &&
+						!quizSubmission.data &&
+						!scheduleBlocked
+					"
 					class="hidden text-xs text-ink-gray-6 sm:inline"
 				>
 					{{ attemptsLeftLabel(attemptsLeft) }}
@@ -75,53 +81,44 @@
 
 			<div v-if="activeQuestion == 0">
 				<!-- What the quiz is comes first, then the rules for taking it. -->
-				<div class="space-y-3.5 border-b border-outline-gray-1 p-3.5">
+				<!-- Before it opens and after it closes the quiz can't be taken, so its
+				     numbers and rules stay hidden and the notice says when. -->
+				<div
+					class="space-y-3.5 p-3.5"
+					:class="{
+						'border-b border-outline-gray-1': !scheduleBlocked || inVideo,
+					}"
+				>
 					<div class="text-base-semibold text-ink-gray-9">
 						{{ quiz.data.title }}
 					</div>
 					<QuizStats
+						v-if="!scheduleBlocked"
 						:questions="questions.length"
 						:duration="quiz.data.duration"
 						:passingPercentage="quiz.data.passing_percentage"
-						:attemptsLeft="attemptsLeft"
+						:attemptsLeft="preview ? null : attemptsLeft"
+						:maxAttempts="preview ? quiz.data.max_attempts : null"
+						:attemptsLoading="!attemptsReady"
 					/>
-
-					<div
-						v-if="
-							quiz.data.enable_scheduling &&
-							(quiz.data.schedule_start || quiz.data.schedule_end)
-						"
-						class="flex flex-wrap gap-x-4 gap-y-1 text-sm text-ink-gray-6"
-					>
-						<span
-							v-if="quiz.data.schedule_start"
-							class="inline-flex items-center gap-1.5"
-						>
-							<span class="lucide-calendar size-3.5" />
-							{{ __('Opens') }}:
-							{{
-								formatScheduleDate(
-									quiz.data.schedule_start_iso || quiz.data.schedule_start
-								)
-							}}
-						</span>
-						<span
-							v-if="quiz.data.schedule_end"
-							class="inline-flex items-center gap-1.5"
-						>
-							<span class="lucide-calendar-x size-3.5" />
-							{{ __('Closes') }}:
-							{{
-								formatScheduleDate(
-									quiz.data.schedule_end_iso || quiz.data.schedule_end
-								)
-							}}
-						</span>
-					</div>
+					<Alert
+						v-if="scheduleNotice"
+						data-testid="quiz-schedule-notice"
+						:data-state="scheduleNotice.state"
+						:theme="scheduleNotice.theme"
+						:icon="SCHEDULE_ICONS[scheduleNotice.state]"
+						:title="scheduleNotice.title"
+						:description="scheduleNotice.description"
+					/>
 				</div>
 
 				<div
-					v-if="introTips.length && questions.length && !attemptsExhausted"
+					v-if="
+						introTips.length &&
+						questions.length &&
+						!attemptsExhausted &&
+						!scheduleBlocked
+					"
 					class="space-y-2 border-b border-outline-gray-1 p-3.5"
 				>
 					<div class="text-sm text-ink-gray-6">
@@ -141,14 +138,36 @@
 					</ol>
 				</div>
 
-				<div class="space-y-3.5 p-3.5">
-					<template v-if="!questions.length">
+				<div v-if="!scheduleBlocked || inVideo" class="space-y-3.5 p-3.5">
+					<template v-if="scheduleBlocked">
+						<Button @click="props.backToVideo()">{{
+							__('Resume Video')
+						}}</Button>
+					</template>
+					<template v-else-if="!questions.length">
 						<p class="text-p-base text-ink-gray-6">
 							{{ __('This quiz has no questions available yet.') }}
 						</p>
 						<Button v-if="inVideo" @click="props.backToVideo()">{{
 							__('Resume Video')
 						}}</Button>
+					</template>
+					<template v-else-if="attemptsUnknown">
+						<p class="text-p-base text-ink-gray-6">
+							{{
+								__(
+									"Your past attempts didn't load. Try again to start the quiz."
+								)
+							}}
+						</p>
+						<div class="flex items-center gap-2">
+							<Button v-if="inVideo" @click="props.backToVideo()">
+								{{ __('Resume Video') }}
+							</Button>
+							<Button :loading="attempts.loading" @click="attempts.reload()">
+								{{ __('Try again') }}
+							</Button>
+						</div>
 					</template>
 					<template v-else-if="attemptsExhausted">
 						<FeedbackBanner :correct="false">
@@ -165,20 +184,10 @@
 							__('Resume Video')
 						}}</Button>
 					</template>
-					<template v-else-if="scheduleBlocked">
-						<div
-							data-testid="quiz-schedule-blocked"
-							class="rounded-6 bg-surface-amber-1 px-4 py-3 text-p-base text-ink-amber-5"
-						>
-							{{ scheduleMessage }}
-						</div>
-						<Button v-if="inVideo" @click="props.backToVideo()">{{
-							__('Resume Video')
-						}}</Button>
-					</template>
 					<div
 						v-if="
 							quiz.data.enable_proctoring &&
+							attemptsReady &&
 							!attemptsExhausted &&
 							!scheduleBlocked
 						"
@@ -253,7 +262,12 @@
 					<!-- Last, after the camera and the rules: the learner reads them and sees the
 					     camera turn ready on the way to the button it unlocks. -->
 					<div
-						v-if="questions.length && !attemptsExhausted && !scheduleBlocked"
+						v-if="
+							questions.length &&
+							attemptsReady &&
+							!attemptsExhausted &&
+							!scheduleBlocked
+						"
 						class="flex flex-wrap items-center justify-between gap-3"
 					>
 						<span class="text-sm text-ink-gray-6">
@@ -500,6 +514,8 @@
 									<Button
 										v-else-if="!preview"
 										variant="solid"
+										:loading="isSubmitting"
+										:disabled="isSubmitting"
 										@click="handleSubmitClick()"
 									>
 										<span>{{ __('Submit') }}</span>
@@ -691,6 +707,29 @@
 			/>
 		</div>
 	</div>
+	<EmptyStateLayout
+		v-else-if="quiz.error"
+		data-testid="quiz-unavailable"
+		name="quiz"
+		:icon="noQuizAccess ? 'lucide-lock' : 'lucide-circle-alert'"
+		width="lg"
+		:title="
+			noQuizAccess
+				? __('You don\'t have access to this quiz')
+				: __('This quiz couldn\'t load')
+		"
+		:description="
+			noQuizAccess
+				? __(
+						'Only students in a course or batch that uses this quiz can take it. Ask your instructor to add you.'
+				  )
+				: __('Check your connection and try again.')
+		"
+	>
+		<Button v-if="!noQuizAccess" :loading="quiz.loading" @click="quiz.reload()">
+			{{ __('Try again') }}
+		</Button>
+	</EmptyStateLayout>
 	<Dialog
 		v-model:open="showSubmissionConfirmation"
 		:title="__('Are you sure you want to submit the quiz?')"
@@ -797,6 +836,7 @@
 </template>
 <script setup lang="ts">
 import {
+	Alert,
 	Badge,
 	Button,
 	Checkbox,
@@ -808,7 +848,8 @@ import {
 	toast,
 } from 'frappe-ui'
 import type { FrappeResourceError } from 'frappe-ui'
-import { CircleCheck } from 'lucide-vue-next'
+import { CalendarClock, CircleCheck, Lock, Timer } from 'lucide-vue-next'
+import { quizAnswerStorageKey } from '@/utils/quizStorage'
 import {
 	computed,
 	inject,
@@ -822,16 +863,15 @@ import {
 } from 'vue'
 import { timeAgo } from '@/utils/format'
 import { violationLabel } from '@/utils/proctoring'
-import {
-	formatScheduleDate,
-	useAssessmentSchedule,
-} from '@/composables/useAssessmentSchedule'
+import { useAssessmentSchedule } from '@/composables/useAssessmentSchedule'
+import { quizScheduleNotice } from '@/utils/quizSchedule'
 import { markLessonProgress } from '@/utils/markLessonProgress'
 import ResponsiveListView from '@/components/ResponsiveListView.vue'
 import RichTextEditor from '@/components/RichTextEditor.vue'
 import router from '@/router'
 import QuizActivityLog from '@/components/Quiz/QuizActivityLog.vue'
 import ProctoringMonitor from '@/components/ProctoringMonitor.vue'
+import EmptyStateLayout from '@/components/Layouts/EmptyStateLayout.vue'
 import AssessmentCard from '@/components/Assessment/AssessmentCard.vue'
 import AssessmentCardHeader from '@/components/Assessment/AssessmentCardHeader.vue'
 import OptionRow from '@/components/Assessment/OptionRow.vue'
@@ -969,9 +1009,9 @@ onUnmounted(() => {
 // Oldest first. violationLog is built newest-first for the on-screen activity
 // list, but the server derives the stored violation count from this payload, so
 // it ships in the order the events actually happened.
-// withFrames=false for the pagehide beacon: that goes out as a query string, and a
-// handful of base64 stills would push it past the URL limit and drop the log
-// entirely. The events matter more there than the pictures of them.
+// withFrames=false for the pagehide beacon: browsers cap beacon payloads at
+// ~64KB, and a handful of base64 stills would push it over and drop the
+// submission entirely. The events matter more there than the pictures of them.
 const serialiseViolationLog = (withFrames = true): string =>
 	JSON.stringify(
 		[...violationLog.value]
@@ -984,25 +1024,36 @@ const handlePageHide = (): void => {
 }
 
 // A beacon, not a resource call: it still goes out when the page, or the quiz
-// with it, is going away, which is exactly when this is sent.
+// with it, is going away, which is exactly when this is sent. A request already
+// in flight is this attempt's, so no beacon. A submit still in its 500ms wait
+// would die with the page: the beacon takes it over, with its reason.
 const sendSubmitBeacon = (reason: SubmissionReason): void => {
 	if (props.preview) return
-	if (activeQuestion.value > 0 && !quizSubmission.data && quiz.data) {
+	if (submitTimeout) {
+		clearTimeout(submitTimeout)
+		submitTimeout = undefined
+		reason = submissionReason.value || reason
+	}
+	if (
+		activeQuestion.value > 0 &&
+		!quizSubmission.loading &&
+		!quizSubmission.data &&
+		quiz.data
+	) {
 		const params = new URLSearchParams({
 			quiz: quiz.data.name,
-			results: localStorage.getItem(quiz.data.title) || '[]',
+			results: localStorage.getItem(answerStorageKey.value) || '[]',
 			violation_count: String(violationCount.value),
 			submission_reason: reason,
 		})
-		// Beacons go out as a query string, so only spend the URL budget on the
-		// log when there is one.
+		if (window.csrf_token) params.set('csrf_token', window.csrf_token)
 		if (violationLog.value.length) {
 			params.set('violation_events', serialiseViolationLog(false))
 		}
 
 		navigator.sendBeacon(
-			'/api/method/lms.lms.doctype.lms_quiz.lms_quiz.submit_quiz?' +
-				params.toString()
+			'/api/method/lms.lms.doctype.lms_quiz.lms_quiz.submit_quiz',
+			params
 		)
 	}
 }
@@ -1044,6 +1095,17 @@ const quiz = createResource<QuizDetails>({
 		setupTimer()
 	},
 })
+
+const answerStorageKey = computed(() =>
+	quizAnswerStorageKey(user.data?.name, quiz.data?.name)
+)
+
+// A shared link reaches students who are not in a course or batch that uses the
+// quiz. The server refuses them, and without this the page rendered nothing.
+const noQuizAccess = computed(
+	() =>
+		(quiz.error as FrappeResourceError | null)?.exc_type === 'PermissionError'
+)
 
 const populateQuestions = () => {
 	const data = quiz.data
@@ -1220,17 +1282,46 @@ const choiceCorrect = computed(
 	() => !showAnswers.some((answer) => answer == 0 || answer == 2)
 )
 
+// Start and the count wait for the learner's attempts, or a used-up quiz would offer
+// Start until they load. A preview loads the author's own, which say nothing.
+const attemptsReady = computed(
+	() => props.preview || !quiz.data?.max_attempts || attempts.data != null
+)
+const attemptsUnknown = computed(() => !attemptsReady.value && !!attempts.error)
+
+// A preview submits nothing, so the author's own attempts never use it up.
 const attemptsExhausted = computed(
 	() =>
+		!props.preview &&
 		!!quiz.data?.max_attempts &&
 		(attempts.data?.length ?? 0) >= quiz.data.max_attempts
 )
 
-const { scheduleBlockReason, scheduleBlocked, scheduleMessage } =
-	useAssessmentSchedule(() => quiz.data, {
+const { now, scheduleBlockReason, scheduleBlocked } = useAssessmentSchedule(
+	() => quiz.data,
+	{
 		opensOn: (date) => __('This quiz opens on {0}.').format(date),
 		ended: () => __('The schedule for this quiz has ended.'),
-	})
+	}
+)
+
+const SCHEDULE_ICONS = {
+	not_started: CalendarClock,
+	open: CalendarClock,
+	closing_soon: Timer,
+	ended: Lock,
+}
+
+// While the quiz is open the notice sits beside Start, so it goes when there
+// is nothing to start.
+const scheduleNotice = computed(() => {
+	if (
+		!scheduleBlocked.value &&
+		(!questions.value.length || attemptsExhausted.value)
+	)
+		return null
+	return quizScheduleNotice(quiz.data, now.value)
+})
 
 watch(scheduleBlockReason, (reason, previous) => {
 	// Questions are withheld while blocked; once the window opens, refetch so
@@ -1297,7 +1388,7 @@ const quizSubmission = createResource<QuizSubmissionResult>({
 	}) {
 		return {
 			quiz: quiz.data?.name,
-			results: localStorage.getItem(quiz.data?.title ?? '') || '[]',
+			results: localStorage.getItem(answerStorageKey.value) || '[]',
 			violation_count: values?.violation_count ?? violationCount.value,
 			submission_reason: values?.submission_reason ?? 'manual',
 			violation_events: serialiseViolationLog(),
@@ -1342,7 +1433,7 @@ const switchQuestion = (questionNumber: number): void => {
 }
 
 const readSavedAnswers = (): SavedAnswer[] | null =>
-	JSON.parse(localStorage.getItem(quiz.data?.title ?? '') ?? 'null')
+	JSON.parse(localStorage.getItem(answerStorageKey.value) ?? 'null')
 
 const loadSavedAnswers = (): void => {
 	const details = questionDetails.data
@@ -1398,7 +1489,7 @@ const startQuiz = () => {
 	if (!quiz.data || !questions.value.length) return
 	activeQuestion.value = 1
 	attemptStartedAt = Date.now()
-	localStorage.removeItem(quiz.data.title)
+	localStorage.removeItem(answerStorageKey.value)
 	// Neither in an author preview. Nothing may be submitted there, so a countdown
 	// would reach zero with no way to end the attempt and the camera would stay on
 	// with it, and a violation cap would do the same.
@@ -1641,7 +1732,7 @@ const addToLocalStorage = (): void => {
 	} else {
 		quizData = [questionData]
 	}
-	localStorage.setItem(quiz.data.title, JSON.stringify(quizData))
+	localStorage.setItem(answerStorageKey.value, JSON.stringify(quizData))
 }
 
 const nextQuestion = (): void => {
@@ -1669,16 +1760,20 @@ const resetQuestion = () => {
 // can defer the request by 500ms) until the server answers: true once saved.
 let submitting: Promise<boolean> | null = null
 let settleSubmitting: ((saved: boolean) => void) | null = null
+// The template's view of `submitting`, which is not reactive.
+const isSubmitting = ref(false)
 
 const beginSubmitting = (): void => {
 	if (submitting) return
 	submitting = new Promise((resolve) => (settleSubmitting = resolve))
+	isSubmitting.value = true
 }
 
 const endSubmitting = (saved: boolean): void => {
 	settleSubmitting?.(saved)
 	submitting = null
 	settleSubmitting = null
+	isSubmitting.value = false
 }
 
 const submitQuiz = (reason: SubmissionReason = 'manual'): void => {

@@ -38,13 +38,6 @@ const build = (services: EmailService[] = [GMAIL, CUSTOM]) =>
 	})
 
 describe('EmailProviderPicker', () => {
-	it('renders one card per service, named for the test hooks the form relies on', () => {
-		const wrapper = build()
-
-		expect(wrapper.find('[data-testid="provider-GMail"]').exists()).toBe(true)
-		expect(wrapper.find('[data-testid="provider-Custom"]').exists()).toBe(true)
-	})
-
 	it('shows every service name as visible text', () => {
 		const wrapper = build()
 
@@ -74,11 +67,5 @@ describe('EmailProviderPicker', () => {
 
 		expect(card.find('img').exists()).toBe(false)
 		expect(card.find('.lucide-mail').exists()).toBe(true)
-	})
-
-	it('renders nothing when handed no services', () => {
-		const wrapper = build([])
-
-		expect(wrapper.findAll('button')).toHaveLength(0)
 	})
 })

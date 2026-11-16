@@ -164,8 +164,15 @@ vi.mock('@/components/Controls/ClearableCombobox.vue', () => stub('<div />'))
 // Stands in for the whole page shell, so this file stays about filter state.
 vi.mock('@/components/Layouts/pages/ListPage.vue', () => ({
 	default: {
-		props: ['rows', 'breadcrumbs', 'title'],
+		props: ['rows', 'breadcrumbs', 'title', 'searchQuery', 'filtered'],
+		emits: ['clearFilters'],
 		template: `<div>
+			<button
+				data-testid="clear-filters"
+				:data-query="searchQuery"
+				:data-filtered="String(filtered)"
+				@click="$emit('clearFilters')"
+			/>
 			<slot name="actions" />
 			<slot name="tabs" />
 			<slot name="filters" />
@@ -338,6 +345,26 @@ describe('Courses list filters', () => {
 		})
 		// and it did rewrite: the query survived the round trip.
 		expect(window.location.search).toBe('?title=vue')
+	})
+
+	it('tells the empty state what is narrowing it, and clears it in one fetch', async () => {
+		window.history.replaceState(
+			{},
+			'',
+			'/lms/courses?title=zzzz&certification=true'
+		)
+		const wrapper = await mountCourses({ data: { ...MODERATOR } })
+		const clear = wrapper.find('[data-testid="clear-filters"]')
+		expect(clear.attributes('data-query')).toBe('zzzz')
+		expect(clear.attributes('data-filtered')).toBe('true')
+
+		await clear.trigger('click')
+		await nextTick()
+
+		expect(requests.current).toHaveLength(2)
+		expect(requests.current[1].filters).not.toHaveProperty('title')
+		expect(requests.current[1].filters).not.toHaveProperty('certification')
+		expect(window.location.search).toBe('')
 	})
 
 	it('reads certification=false from the query string as off', async () => {

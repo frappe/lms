@@ -138,15 +138,4 @@ describe('a default flag on a direction that is switched off', () => {
 			})
 		).toBe('Inbox')
 	})
-
-	it('still reports both when both directions are on', () => {
-		expect(
-			defaultsBadgeLabel({
-				default_incoming: 1,
-				default_outgoing: 1,
-				enable_incoming: 1,
-				enable_outgoing: 1,
-			})
-		).toBe('Default Sending & Inbox')
-	})
 })

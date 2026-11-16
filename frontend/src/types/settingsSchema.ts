@@ -14,11 +14,24 @@ export interface SelectOption {
 
 export type FieldOptions = string[] | SelectOption[]
 
+/** One Check field drawn as a switch inside a `checkboxGroup`. */
+export interface CheckboxOption {
+	/** Fieldname on the page's source document. */
+	name: string
+	label: string
+	description?: string
+	caution?: string
+	/** Another Check field on the page; this switch shows only while that one is on. */
+	requires?: string
+}
+
 interface FieldBase {
 	/** Fieldname on the page's source document. */
 	name: string
 	label: string
 	description?: string
+	/** A limitation of the setting, shown behind an alert icon beside the label. */
+	caution?: string
 	placeholder?: string
 	reqd?: boolean
 	/**
@@ -96,9 +109,16 @@ export type SettingsField =
 				 * appends `enabled = 1` unless the caller sends `include_disabled`.
 				 */
 				filters?: Record<string, unknown>
+				/** A whitelisted search_link `query`, for doctypes the user cannot read. */
+				query?: string
 				onCreate?: (value: string, close: () => void) => void
 			})
 	| (FieldBase & { type: 'checkbox'; default?: 0 | 1 })
+	/**
+	 * Several Check fields under one label. `name` only keys the row; each
+	 * option writes its own fieldname.
+	 */
+	| (FieldBase & { type: 'checkboxGroup'; options: CheckboxOption[] })
 	| (FieldBase & { type: 'date' })
 	| (FieldBase & {
 			type: 'code'
@@ -315,5 +335,7 @@ export interface SettingsItem extends SettingsRoutableItem {
 }
 
 export interface SettingsGroup extends SettingsRoutableGroup {
+	/** Who may open the group, in place of the default: Moderators only. */
+	audience?: () => boolean
 	items: SettingsItem[]
 }

@@ -51,7 +51,9 @@ RESULT_FIELDS = ("doctype", "name", "title", "modified")
 
 @frappe.whitelist()
 def search_sqlite(query: str, category: str | None = None):
-	from lms.sqlite import LearningSearch, LearningSearchIndexMissingError
+	from frappe.search.sqlite_search import SQLiteSearchIndexMissingError
+
+	from lms.sqlite import LearningSearch
 
 	if not isinstance(query, str):
 		frappe.throw(_("Search query must be text."))
@@ -72,7 +74,8 @@ def search_sqlite(query: str, category: str | None = None):
 		# nothing else, the reason for the match was invisible and the hit read as
 		# unrelated. 53 matches across 10 titles became 6 across 4 on the dev site.
 		result = search.search(query, title_only=True, filters=filters)
-	except LearningSearchIndexMissingError:
+	except SQLiteSearchIndexMissingError:
+		# The scheduler's `all` event rebuilds a missing index.
 		return []
 
 	return prepare_search_results(result)

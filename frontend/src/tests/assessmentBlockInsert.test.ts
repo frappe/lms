@@ -8,7 +8,17 @@ vi.mock('@/stores/user', () => ({
 		userResource: { data: { name: 'author@example.com' } },
 	}),
 }))
-vi.mock('@/router', () => ({ default: { install: () => {} } }))
+// The block's sub-app installs the real router, and AssessmentPlugin reads
+// the current route from it.
+vi.mock('@/router', async () => {
+	const { createMemoryHistory, createRouter } = await import('vue-router')
+	return {
+		default: createRouter({
+			history: createMemoryHistory(),
+			routes: [{ path: '/:path(.*)*', component: { render: () => null } }],
+		}),
+	}
+})
 vi.mock('@/components/Controls/Link.vue', () => ({
 	default: {
 		emits: ['update:modelValue'],

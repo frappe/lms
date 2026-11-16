@@ -12,6 +12,13 @@ on:
       - 'crowdin.yml'
       - '.mergify.yml'
   workflow_dispatch:
+  # Only seeds the apt cache: a cache saved in a pull request is visible to that
+  # pull request alone, one saved on a base branch to every pull request. The
+  # key follows the runner image, so every push keeps it current.
+  push:
+    branches:
+      - develop
+      - main-hotfix
 
 permissions:
   contents: read
@@ -21,8 +28,20 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  seed-apt-cache:
+    name: Seed apt cache
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v6
+      - uses: ./.github/actions/apt-install
+        with:
+          packages: libcups2-dev mariadb-client libmariadb-dev
+
   test:
     name: Patch Test
+    if: github.event_name != 'push'
     runs-on: ubuntu-latest
     timeout-minutes: 60
 
@@ -81,10 +100,9 @@ jobs:
         run: echo "127.0.0.1 $SITE" | sudo tee -a /etc/hosts
 
       - name: Install system dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y --no-install-recommends \
-            libcups2-dev mariadb-client libmariadb-dev
+        uses: ./.github/actions/apt-install
+        with:
+          packages: libcups2-dev mariadb-client libmariadb-dev
 
       - name: Build the oldest bench and seed the fixture
         run: |
@@ -131,6 +149,11 @@ jobs:
             echo "expected lms at v2.0.0 ($want), got $on"
             exit 1
           fi
+
+          # payments version-15 pins setuptools 83, which has no pkg_resources,
+          # but the razorpay 1.4 that LMS v2.0.0 pins still imports it. The hops
+          # rebuild the env, so this only holds for the seed.
+          bench pip install "setuptools<82"
 
           bench set-config -g db_host 127.0.0.1
           bench new-site "$SITE" \

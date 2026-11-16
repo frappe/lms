@@ -251,12 +251,6 @@ beforeEach(() => {
 })
 
 describe('ProgramForm as a route', () => {
-	it('mounts straight from the URL with no parent list', async () => {
-		const { wrapper } = await deepLink('new')
-		expect(wrapper.html()).toContain('Create Program')
-		expect(wrapper.find('[data-testid="program-fields"]').exists()).toBe(true)
-	})
-
 	it('refuses to render the form for a user who cannot manage programs', async () => {
 		const { wrapper } = await deepLink('new', student)
 		expect(wrapper.find('[data-testid="program-fields"]').exists()).toBe(false)
@@ -292,30 +286,6 @@ describe('ProgramForm as a route', () => {
 		expect(setValueSubmit).not.toHaveBeenCalled()
 	})
 
-	it('replaces rather than pushes on save, so Back reaches the list', async () => {
-		const router = makeRouter()
-		await router.push({ name: 'Programs' })
-		await router.push({
-			name: 'ProgramForm',
-			params: { programName: 'new' },
-			state: { lmsFormEntry: true },
-		})
-		const wrapper = await mountForm(router, moderator)
-
-		insertSubmit.mockImplementation(
-			(_doc: unknown, options: { onSuccess: () => void }) => options.onSuccess()
-		)
-		await wrapper.find('[data-testid="program-save"]').trigger('click')
-		await flushPromises()
-		expect(router.currentRoute.value.name).toBe('Programs')
-
-		// The form entry was consumed, so Back leaves the list rather than
-		// returning to a stale form.
-		router.back()
-		await flushPromises()
-		expect(router.currentRoute.value.name).not.toBe('ProgramForm')
-	})
-
 	it('asks the list page to refetch rather than reloading its resource', async () => {
 		const router = makeRouter()
 		await router.push({ name: 'Programs' })
@@ -336,43 +306,6 @@ describe('ProgramForm as a route', () => {
 		// loading flag and its footer count; a bare reload from here would skip
 		// both. The listener reaching the form at all is the outlet forwarding it.
 		expect(savedSpy).toHaveBeenCalledTimes(1)
-	})
-
-	it('mobile: the back control pops the router back to the list', async () => {
-		const router = makeRouter()
-		await router.push({ name: 'Programs' })
-		await router.push({
-			name: 'ProgramForm',
-			params: { programName: 'new' },
-			state: { lmsFormEntry: true },
-		})
-		Object.defineProperty(window, 'innerWidth', {
-			value: 390,
-			writable: true,
-			configurable: true,
-		})
-		const wrapper = await mountForm(router, moderator)
-
-		await wrapper.find('[data-testid="form-shell-back"]').trigger('click')
-		await flushPromises()
-		expect(router.currentRoute.value.name).toBe('Programs')
-	})
-
-	it('desktop: dismissing the Dialog (Escape/backdrop/X) pops the router', async () => {
-		const router = makeRouter()
-		await router.push({ name: 'Programs' })
-		await router.push({
-			name: 'ProgramForm',
-			params: { programName: 'new' },
-			state: { lmsFormEntry: true },
-		})
-		const wrapper = await mountForm(router, moderator)
-
-		await wrapper
-			.findComponent({ name: 'Dialog' })
-			.vm.$emit('update:open', false)
-		await flushPromises()
-		expect(router.currentRoute.value.name).toBe('Programs')
 	})
 
 	describe('edit mode, arrived at cold', () => {

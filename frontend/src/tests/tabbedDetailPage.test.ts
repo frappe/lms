@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest'
-import { defineComponent, h, nextTick } from 'vue'
+import { defineComponent, h, markRaw, nextTick } from 'vue'
 import type { Component } from 'vue'
 import { flushPromises, mount } from '@vue/test-utils'
 import type { VueWrapper } from '@vue/test-utils'
@@ -78,22 +78,26 @@ vi.stubGlobal('__', (text: string) => text)
 const DOC = { title: 'Intro to Frappe' }
 
 function body(testid: string): Component {
-	return defineComponent({
-		props: { course: { type: Object, default: null } },
-		setup(props) {
-			return () =>
-				h('div', { 'data-testid': testid }, String(props.course?.title ?? ''))
-		},
-	})
+	return markRaw(
+		defineComponent({
+			props: { course: { type: Object, default: null } },
+			setup(props) {
+				return () =>
+					h('div', { 'data-testid': testid }, String(props.course?.title ?? ''))
+			},
+		})
+	)
 }
 
-const SettingsBody = defineComponent({
-	props: { course: { type: Object, default: null } },
-	setup(_props, { expose }) {
-		expose({ save: () => 'saved' })
-		return () => h('div', { 'data-testid': 'body-settings' })
-	},
-})
+const SettingsBody = markRaw(
+	defineComponent({
+		props: { course: { type: Object, default: null } },
+		setup(_props, { expose }) {
+			expose({ save: () => 'saved' })
+			return () => h('div', { 'data-testid': 'body-settings' })
+		},
+	})
+)
 
 type Tab = {
 	key: string

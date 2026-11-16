@@ -97,7 +97,17 @@ const source = useSettingsMethodResource<EmailAccountRow>({
 // nothing here offers a Load More of its own.
 async function loadAll(): Promise<void> {
 	await source.reload()
-	while (source.hasNextPage) await source.loadMore()
+	await loadRemaining()
+}
+
+// A page that fails leaves Load More on, so it stops at the first page that
+// adds nothing instead of asking for it again forever.
+async function loadRemaining(): Promise<void> {
+	while (source.hasNextPage) {
+		const before = source.rows.length
+		await source.loadMore()
+		if (source.rows.length === before) return
+	}
 }
 loadAll()
 
@@ -148,7 +158,7 @@ const pick = async (kind: Kind, value: string | null) => {
 			kind,
 		})
 		await reloadSettingsLists(DOCTYPE)
-		while (source.hasNextPage) await source.loadMore()
+		await loadRemaining()
 	} catch (err: any) {
 		toast.error(
 			cleanError(err.messages?.[0] || err) || __('Could not set the default')

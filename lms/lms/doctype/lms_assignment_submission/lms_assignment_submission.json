@@ -105,7 +105,7 @@
    "fieldtype": "Select",
    "in_list_view": 1,
    "label": "Type",
-   "options": "Document\nPDF\nURL\nImage\nText"
+   "options": "Document\nPDF\nURL\nImage\nText\nAudio"
   },
   {
    "fetch_from": "assignment.question",
@@ -156,7 +156,7 @@
  "index_web_pages_for_search": 1,
  "links": [],
  "make_attachments_public": 1,
- "modified": "2026-04-06 18:24:11.837953",
+ "modified": "2026-11-06 12:00:00.000000",
  "modified_by": "sayali@frappe.io",
  "module": "LMS",
  "name": "LMS Assignment Submission",

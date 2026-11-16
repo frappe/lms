@@ -40,5 +40,8 @@ export interface SubmissionsConfig {
 	/** Raw English, and left untranslated — ListPage frames it. */
 	emptyName: string
 	emptyIcon: string
+	/** Empty-state heading and sentence when nothing is filtered. Translated by the caller. */
+	emptyTitle?: string
+	emptyDescription?: string
 	transform?: (rows: ListRow[]) => ListRow[]
 }

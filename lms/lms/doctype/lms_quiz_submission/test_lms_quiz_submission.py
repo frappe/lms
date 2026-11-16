@@ -29,6 +29,25 @@ class TestSetPercentage(unittest.TestCase):
 		self.assertEqual(self.percentage(0, 4), 0)
 
 
+class TestValidateMarks(unittest.TestCase):
+	def submission(self, marks, percentage=0):
+		rows = [SimpleNamespace(idx=i, marks=m, marks_out_of=1) for i, m in enumerate(marks, 1)]
+		return SimpleNamespace(result=rows, score=None, score_out_of=len(rows), percentage=percentage)
+
+	def test_score_is_the_sum_of_the_marks(self):
+		submission = self.submission([1, -1, 1])
+		LMSQuizSubmission.validate_marks(submission)
+		self.assertEqual(submission.score, 1)
+
+	def test_negative_marking_never_takes_the_score_below_zero(self):
+		# Regression: negative marking showed a "-3 / 4" score (#3022, fixed in #3043).
+		# Re-marking a saved submission must also reset its old percentage.
+		submission = self.submission([1, -1, -1, -1, -1], percentage=80)
+		LMSQuizSubmission.validate_marks(submission)
+		LMSQuizSubmission.set_percentage(submission)
+		self.assertEqual((submission.score, submission.percentage), (0, 0))
+
+
 class TestQuizResultSanitization(BaseTestUtils):
 	"""Ticket 68647 finding 3. An open-ended answer is stored as the learner typed it.
 

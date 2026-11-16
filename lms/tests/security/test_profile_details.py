@@ -54,7 +54,6 @@ class TestProfileDetails(BaseTestUtils):
 				setattr(cls, attr, frappe._dict(email=email, username=username))
 		finally:
 			frappe.flags.in_import = original_in_import
-		frappe.db.commit()
 
 	def setUp(self):
 		super().setUp()

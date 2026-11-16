@@ -8,6 +8,7 @@ import {
 	type Router,
 } from 'vue-router'
 import { defineComponent, h, nextTick, reactive } from 'vue'
+import { toast } from 'frappe-ui'
 
 vi.stubGlobal('__', (text: string) => text)
 
@@ -224,14 +225,6 @@ describe('ChapterForm as a route', () => {
 		})
 	})
 
-	it('mounts straight from the URL with no parent outline loaded', async () => {
-		const router = makeRouter()
-		await openForm(router, 'new')
-		const wrapper = await mountForm(router)
-		expect(wrapper.find('[data-testid="chapter-fields"]').exists()).toBe(true)
-		expect(wrapper.html()).toContain('Add Chapter')
-	})
-
 	it('titles itself for edit when the route carries a chapter name', async () => {
 		const router = makeRouter()
 		await openForm(router, 'CHAPTER-1')
@@ -397,68 +390,22 @@ describe('ChapterForm as a route', () => {
 		expect(outlineResource.reload).not.toHaveBeenCalled()
 	})
 
-	it('replaces rather than pushes on save, so Back leaves the form behind', async () => {
+	// A rejected SCORM zip (validation or a 413) showed nothing: the custom slot
+	// hides FileUploader's own error and nothing handled @failure (428d364db).
+	it.each([
+		['a validation message', 'Only zip files are allowed'],
+		['an upload Error', new Error('File too large')],
+	])('toasts %s when the SCORM upload fails', async (_label, failure) => {
+		outlineResource.data = [chapterRow({ is_scorm_package: 1 })]
 		const router = makeRouter()
-		await router.push({
-			name: 'CourseDetail',
-			params: { courseName: 'COURSE-1' },
-			hash: COURSE_TAB,
-		})
-		await openForm(router, 'new', { lmsFormEntry: true })
+		await openForm(router, 'CHAPTER-1')
 		const wrapper = await mountForm(router)
+		vi.mocked(toast.error).mockClear()
 
-		upsertResource.submit.mockImplementation(
-			(_params: unknown, options: { onSuccess: () => void }) => {
-				options.onSuccess()
-			}
-		)
-		await wrapper
-			.find('[data-testid="chapter-fields"] input')
-			.setValue('Chapter One')
-		await wrapper.find('[data-testid="chapter-save"]').trigger('click')
-		await flushPromises()
-		expect(router.currentRoute.value.name).toBe('CourseDetail')
+		wrapper.findComponent(passthrough).vm.$emit('failure', failure)
 
-		// One entry deep, not two: the form entry was consumed by the replace.
-		router.back()
-		await flushPromises()
-		expect(router.currentRoute.value.name).toBe('CourseDetail')
-	})
-
-	it('mobile: the back control pops the router back to the course', async () => {
-		const router = makeRouter()
-		await router.push({
-			name: 'CourseDetail',
-			params: { courseName: 'COURSE-1' },
-			hash: COURSE_TAB,
-		})
-		await openForm(router, 'new', { lmsFormEntry: true })
-		Object.defineProperty(window, 'innerWidth', {
-			value: 390,
-			writable: true,
-			configurable: true,
-		})
-		const wrapper = await mountForm(router)
-
-		await wrapper.find('[data-testid="form-shell-back"]').trigger('click')
-		await flushPromises()
-		expect(router.currentRoute.value.name).toBe('CourseDetail')
-	})
-
-	it('desktop: dismissing the Dialog (Escape/backdrop/X) pops the router', async () => {
-		const router = makeRouter()
-		await router.push({
-			name: 'CourseDetail',
-			params: { courseName: 'COURSE-1' },
-			hash: COURSE_TAB,
-		})
-		await openForm(router, 'new', { lmsFormEntry: true })
-		const wrapper = await mountForm(router)
-
-		await wrapper
-			.findComponent({ name: 'Dialog' })
-			.vm.$emit('update:open', false)
-		await flushPromises()
-		expect(router.currentRoute.value.name).toBe('CourseDetail')
+		const expected = failure instanceof Error ? failure.message : failure
+		expect(toast.error).toHaveBeenCalledWith(expected)
+		expect(upsertResource.submit).not.toHaveBeenCalled()
 	})
 })

@@ -17,7 +17,7 @@ on:
     types: [released]
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   regen-notes:
@@ -35,5 +35,5 @@ jobs:
         RELEASE_ID=$(gh api -H "Accept: application/vnd.github+json" /repos/frappe/lms/releases/tags/$RELEASE_TAG | jq -r '.id')
         gh api --method PATCH -H "Accept: application/vnd.github+json" /repos/frappe/lms/releases/$RELEASE_ID -f body="$NEW_NOTES"
       env:
-        GH_TOKEN: ${{ secrets.RELEASE_TOKEN }}
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         RELEASE_TAG: ${{ github.event.inputs.tag_name || github.event.release.tag_name }}

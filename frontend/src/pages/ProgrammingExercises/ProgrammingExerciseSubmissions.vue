@@ -32,14 +32,12 @@
 
 <script setup lang="ts">
 import { Avatar, Badge } from 'frappe-ui'
-import type dayjsType from 'dayjs'
-import type {} from 'dayjs/plugin/relativeTime'
 import { computed, inject } from 'vue'
 import SubmissionsPage from '@/components/Submissions/SubmissionsPage.vue'
 import type { ListRow, SessionUser, SubmissionsConfig } from '@/types'
+import { serverTime } from '@/utils/dayjs'
 
 const user = inject<SessionUser>('$user')!
-const dayjs = inject<typeof dayjsType>('$dayjs')!
 
 const isStudent = computed<boolean>(
 	() =>
@@ -130,10 +128,14 @@ const config: SubmissionsConfig = {
 	pageTitle: 'Programming Exercise Submissions',
 	emptyName: 'Programming Exercise Submissions',
 	emptyIcon: 'lucide-file-code',
+	emptyTitle: __('No submissions yet'),
+	emptyDescription: __(
+		'Code that learners submit for your programming exercises shows up here, with test results.'
+	),
 	transform: (rows: ListRow[]) =>
 		rows.map((row) => ({
 			...row,
-			modified: dayjs(row.modified as string).fromNow(),
+			modified: serverTime(row.modified as string).fromNow(),
 		})),
 }
 </script>

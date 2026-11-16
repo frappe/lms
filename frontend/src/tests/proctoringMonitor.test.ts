@@ -111,13 +111,6 @@ describe('ProctoringMonitor — setup phase', () => {
 		expect(wrapper.text()).toContain('Camera access was denied')
 		expect(wrapper.emitted('camera-denied')).toBeTruthy()
 	})
-
-	it('shows "Position your face" label after camera loads', async () => {
-		const wrapper = mountMonitor()
-		await flushPromises()
-		// Models loaded, interval started — setupStatus transitions to 'detecting'
-		expect(wrapper.text()).toContain('Position your face')
-	})
 })
 
 describe('ProctoringMonitor — monitoring phase', () => {

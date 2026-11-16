@@ -1,20 +1,26 @@
 # Copyright (c) 2021, FOSS United and Contributors
 # See license.txt
 
+import html
 import json
+import re
 from contextlib import contextmanager
 from datetime import date, datetime, timedelta
+from pathlib import Path
 from unittest.mock import patch
 
 import frappe
 from frappe.tests import UnitTestCase
-from frappe.utils import get_system_timezone, getdate, to_timedelta
+from frappe.utils import escape_html, get_system_timezone, getdate, to_timedelta
 
+import lms
 from lms.lms.doctype.lms_certificate.lms_certificate import is_certified
 from lms.lms.test_helpers import BaseTestUtils
 from lms.lms.utils import (
 	DEFAULT_PAGE_LENGTH,
+	MAX_EDITORJS_DEPTH,
 	MAX_PAGE_LENGTH,
+	SANITISER_ARTEFACTS,
 	convert_from_system_timezone,
 	create_user,
 	format_timezone,
@@ -194,6 +200,48 @@ class TestLMSUtils(BaseTestUtils):
 			review.save()
 		frappe.session.user = "Administrator"
 
+	def test_update_own_review(self):
+		# Editing your own review threw "already reviewed": the duplicate check ran on
+		# every save, not just insert. Guards that an existing review can be updated.
+		reviewer = self._create_user("reviewer@example.com", "Rae", "Viewer", ["LMS Student"])
+		self._create_enrollment(reviewer.email, self.course.name)
+		review = self._add_rating(self.course.name, reviewer.email, 0.8, "First take")
+
+		frappe.session.user = reviewer.email
+		review.review = "Updated my mind, great course"
+		review.rating = 0.6
+		review.save()
+		frappe.session.user = "Administrator"
+
+		review.reload()
+		self.assertEqual(review.review, "Updated my mind, great course")
+
+	def test_second_review_by_same_owner_rejected(self):
+		reviewer = self._create_user("reviewer2@example.com", "Dee", "Duplicate", ["LMS Student"])
+		self._create_enrollment(reviewer.email, self.course.name)
+		self._add_rating(self.course.name, reviewer.email, 0.8, "First take")
+
+		with self.assertRaises(frappe.exceptions.ValidationError):
+			frappe.session.user = reviewer.email
+			duplicate = frappe.new_doc("LMS Course Review")
+			duplicate.update({"course": self.course.name, "rating": 0.5, "review": "Reviewing again"})
+			duplicate.save()
+		frappe.session.user = "Administrator"
+
+	def test_review_cannot_move_onto_a_reviewed_course(self):
+		reviewer = self._create_user("reviewer3@example.com", "Mo", "Ver", ["LMS Student"])
+		other_course = self._create_course("Other Reviewed Course")
+		self._create_enrollment(reviewer.email, self.course.name)
+		self._create_enrollment(reviewer.email, other_course.name)
+		self._add_rating(self.course.name, reviewer.email, 0.8, "First course")
+		review = self._add_rating(other_course.name, reviewer.email, 0.6, "Second course")
+
+		with self.assertRaises(frappe.exceptions.ValidationError):
+			frappe.session.user = reviewer.email
+			review.course = self.course.name
+			review.save()
+		frappe.session.user = "Administrator"
+
 	def test_get_evaluator(self):
 		evaluator_email = get_evaluator(self.course.name, self.batch.name)
 		self.assertEqual(evaluator_email, self.evaluator.evaluator)
@@ -244,6 +292,24 @@ class TestLMSUtils(BaseTestUtils):
 		self.assertEqual(len(batch_details.instructors), len(self.batch.instructors))
 		self.assertEqual(batch_details.student_count, 2)
 		self.assertNotIn("students", batch_details)
+
+	def _accepts_enrollments_at(self, moment):
+		frappe.db.set_value(
+			"LMS Batch", self.batch.name, {"start_date": "2030-01-15", "start_time": "09:30:00"}
+		)
+		# nowtime() and getdate() both read the clock through now_datetime.
+		with patch("frappe.utils.data.now_datetime", return_value=datetime.fromisoformat(moment)):
+			return get_batch_details(self.batch.name).accept_enrollments
+
+	def test_a_morning_batch_accepts_enrollments_until_it_starts(self):
+		"""Control for the test below (audit finding #56)."""
+		self.assertTrue(self._accepts_enrollments_at("2030-01-15 09:29:00"))
+
+	def test_a_morning_batch_stops_accepting_enrollments_once_it_starts(self):
+		"""Regression: 48eb2ff40 compared times as strings, and "9:30:00" > "10:00:00".
+		Added for audit finding #56."""
+		self.assertFalse(self._accepts_enrollments_at("2030-01-15 09:31:00"))
+		self.assertFalse(self._accepts_enrollments_at("2030-01-15 10:00:00"))
 
 	def test_course_categories_list_used_published_ones_with_a_clear_option(self):
 		with self.subTest(case="includes_used_category"):
@@ -780,7 +846,7 @@ class TestEditorJsSanitisation(unittest.TestCase):
 	def test_keeps_a_span_carrying_class_and_style(self):
 		# The align tool carries its whole payload in an attribute, so it is the
 		# one a tag-level allowlist can silently strip.
-		text = '<span class="lms-align" style="text-align: center; ' 'display: block;">mid</span>'
+		text = '<span class="lms-align" style="text-align: center; display: block;">mid</span>'
 		out = self._text(self._payload(text))
 		self.assertIn("lms-align", out)
 		self.assertIn("text-align:center", out.replace(" ;", ";"))
@@ -805,15 +871,137 @@ class TestEditorJsSanitisation(unittest.TestCase):
 		self.assertNotIn("onerror", out)
 		self.assertIn("ok", out)
 
-	def test_returns_invalid_json_unchanged(self):
-		"""Byte-for-byte, markup or not.
-
-		A corrupted row still repairs on read, and rewriting it here breaks that:
-		one title-only save turned a recoverable lesson into an unrecoverable one.
-		"""
-		for raw in (
-			'{"blocks":[{"da',
-			'{"blocks":[{"data":{"text":"hi<b data-x="\\&quot;1\\&quot;">there"}}]}',
-		):
+	def test_keeps_text_without_markup_that_is_not_json(self):
+		for raw in ('{"blocks":[{"da', "https://frappe.io/lesson", None):
 			with self.subTest(raw=raw):
 				self.assertEqual(sanitize_editorjs(raw), raw)
+
+	def test_escapes_markup_that_is_not_json(self):
+		raw = "<img src=x onerror=alert(1)> & <script>alert(1)</script>"
+		out = sanitize_editorjs(raw)
+		self.assertEqual(out, escape_html(raw))
+		self.assertEqual(html.unescape(out), raw)
+
+	def test_escapes_a_row_the_repair_cannot_fix(self):
+		raw = '{"blocks":[{"data":{"text":"<img src=x onerror=alert(1)>'
+		self.assertEqual(sanitize_editorjs(raw), escape_html(raw))
+
+	def test_escaped_text_is_not_escaped_again(self):
+		once = sanitize_editorjs("<b>a</b> &amp; b")
+		self.assertEqual(sanitize_editorjs(once), once)
+
+	def test_drops_a_key_with_markup(self):
+		self.assertEqual(json.loads(sanitize_editorjs('{"<svg onload=alert(1)>": "x", "a": 1}')), {"a": 1})
+
+	def test_a_key_with_markup_cannot_replace_a_real_one(self):
+		real = [{"type": "paragraph", "data": {"text": "real"}}]
+		raw = json.dumps({"blocks": real, "blocks<script></script>": [{"type": "paragraph"}]})
+		self.assertEqual(json.loads(sanitize_editorjs(raw))["blocks"], real)
+
+	def test_escapes_content_that_nests_too_deeply(self):
+		for depth in (MAX_EDITORJS_DEPTH + 5, 1500):
+			raw = "[" * depth + '"<b>x</b>"' + "]" * depth
+			with self.subTest(depth=depth):
+				self.assertEqual(sanitize_editorjs(raw), escape_html(raw))
+
+	def test_repair_rules_match_the_frontend(self):
+		"""`SANITISER_ARTEFACTS` is kept twice, here and in lessonForm.ts, which
+		repairs on read. The two must undo exactly the same patterns."""
+		source = (Path(lms.__file__).parent.parent / "frontend/src/utils/lessonForm.ts").read_text()
+		block = source[source.index("const SANITISER_ARTEFACTS") :].split("\n]\n", 1)[0]
+		frontend = [
+			# JS string literal to its value, then `$1` to Python's `\1`.
+			(pattern, replacement.replace("\\\\", "\\").replace("$1", "\\1"))
+			for pattern, replacement in re.findall(r"\[/(.+?)/g, '(.+?)'\]", block)
+		]
+		backend = [
+			(pattern.pattern, replacement.replace("\\\\", "\\"))
+			for pattern, replacement in SANITISER_ARTEFACTS
+		]
+		self.assertTrue(frontend, "could not read SANITISER_ARTEFACTS from lessonForm.ts")
+		self.assertEqual(frontend, backend)
+
+	def test_repairs_a_row_the_old_sanitiser_mangled(self):
+		"""Rows saved before `ignore_xss_filter` had their attribute quotes rewritten
+		to `\\&quot;`. They are repaired, not cleaned as HTML, so a title-only save
+		keeps the lesson readable."""
+		raw = (
+			'{"blocks":[{"data":{"text":"<a href="\\&quot;https://frappe.io/\\&quot;" '
+			'rel="noopener noreferrer">here</a>"}}]}'
+		)
+		self.assertEqual(self._text(raw), '<a href="https://frappe.io/" rel="noopener noreferrer">here</a>')
+
+
+class TestEditorJsEmbedSources(unittest.TestCase):
+	"""An embed block's `data.embed` becomes an iframe `src`, so only external http(s) URLs are kept."""
+
+	def _kept(self, embed, service="drive"):
+		block = {"type": "embed", "data": {"service": service, "source": "x", "embed": embed}}
+		raw = json.dumps({"blocks": [{"type": "paragraph", "data": {"text": "a"}}, block]})
+		return [b["type"] for b in json.loads(sanitize_editorjs(raw))["blocks"]] == ["paragraph", "embed"]
+
+	def test_drops_non_http_schemes(self):
+		for embed in (
+			"javascript:alert(document.domain)//x",
+			"JaVaScRiPt:alert(1)",
+			" javascript:alert(1)",
+			"java\tscript:alert(1)",
+			"javascript&colon;alert(1)",
+			"data:text/html,%3Cscript%3Ealert(1)%3C/script%3E",
+			"vbscript:msgbox(1)",
+			"https&#58;//evil.example",
+			"https:\t//evil.example",
+			"/files/page.html",
+			"//evil.example/x",
+			"https://[broken",
+			"",
+			None,
+		):
+			with self.subTest(embed=embed):
+				self.assertFalse(self._kept(embed))
+
+	def test_drops_a_frame_of_the_site_itself(self):
+		site = frappe.local.site
+		for embed in (
+			f"https://{site}/files/page.html",
+			f"http://{site.upper()}:8000/x",
+			f"https://u@{site}/x",
+		):
+			with self.subTest(embed=embed):
+				self.assertFalse(self._kept(embed))
+
+	def test_drops_a_backslash_that_hides_the_host(self):
+		self.assertFalse(self._kept(f"https://{frappe.local.site}\\@evil.example/x"))
+
+	def test_keeps_external_http_urls(self):
+		for embed in (
+			"https://drive.google.com/file/d/1A2B/preview",
+			"HTTPS://player.vimeo.com/video/1?h=ab",
+			"http://codepen.io/a/embed/b?height=300&theme-id=0",
+		):
+			with self.subTest(embed=embed):
+				self.assertTrue(self._kept(embed))
+
+	def test_keeps_a_bare_youtube_video_id(self):
+		self.assertTrue(self._kept("QhA4h6qD4wY", service="youtube"))
+		self.assertFalse(self._kept("QhA4h6qD4wY"))
+		self.assertFalse(self._kept("javascript:alert(1)", service="youtube"))
+
+
+class TestGetPaletteOnFips(UnitTestCase):
+	def test_palette_hash_is_declared_non_cryptographic(self):
+		"""On a FIPS host a bare hashlib.md5() raises, taking out every avatar render.
+		Guards that get_palette passes usedforsecurity=False."""
+		import hashlib
+
+		from lms.lms.utils import get_palette
+
+		real_md5 = hashlib.md5
+
+		def fips_md5(data, **kwargs):
+			if kwargs.get("usedforsecurity") is not False:
+				raise ValueError("[digital envelope routines] unsupported")
+			return real_md5(data, **kwargs)
+
+		with patch("lms.lms.utils.hashlib.md5", side_effect=fips_md5):
+			self.assertEqual(len(get_palette("Ada Lovelace")), 2)

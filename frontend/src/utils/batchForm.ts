@@ -2,28 +2,34 @@ import type { LMSBatch } from '@/types/lms/LMSBatch'
 
 // Client-side mirror of LMS Batch's mandatory fields (lms_batch.json `reqd`).
 // `batch_details` is a Text Editor field, so an "empty" editor still serializes
-// to markup like "<p></p>", so strip tags before treating it as filled.
+// to markup like "<p></p>", so strip tags before treating it as filled. An
+// image-only value has no text but is not empty.
+type BatchFields = Pick<
+	LMSBatch,
+	| 'title'
+	| 'start_date'
+	| 'end_date'
+	| 'start_time'
+	| 'end_time'
+	| 'timezone'
+	| 'description'
+	| 'batch_details'
+	| 'paid_batch'
+	| 'amount'
+	| 'currency'
+>
+
+// Nullable so the create form's unset dates and times pass as-is.
 interface BatchValidationInput {
-	doc: Pick<
-		LMSBatch,
-		| 'title'
-		| 'start_date'
-		| 'end_date'
-		| 'start_time'
-		| 'end_time'
-		| 'timezone'
-		| 'description'
-		| 'batch_details'
-		| 'paid_batch'
-		| 'amount'
-		| 'currency'
-	> | null
+	doc: { [K in keyof BatchFields]: BatchFields[K] | null } | null
 	instructors: readonly string[]
 }
 
 function hasText(value: string | null | undefined): boolean {
 	if (!value) return false
-	return value.replace(/<[^>]*>/g, '').trim().length > 0
+	return (
+		value.replace(/<[^>]*>/g, '').trim().length > 0 || /<img\b/i.test(value)
+	)
 }
 
 // Returns a single actionable message for the first unmet requirement, or null

@@ -103,6 +103,8 @@ const props = withDefaults(
 	defineProps<{
 		doctype: string
 		filters?: Record<string, unknown>
+		/** A whitelisted search_link `query`, for doctypes the user cannot read. */
+		query?: string
 		modelValue?: string
 		label?: string
 		description?: string
@@ -191,6 +193,7 @@ watch(
 			params: {
 				txt: v,
 				doctype: props.doctype,
+				query: props.query,
 				filters: JSON.stringify(props.filters),
 			},
 		})
@@ -214,6 +217,7 @@ function reload(txt: string = ''): void {
 		params: {
 			txt,
 			doctype: props.doctype,
+			query: props.query,
 			filters: JSON.stringify(props.filters),
 		},
 	})

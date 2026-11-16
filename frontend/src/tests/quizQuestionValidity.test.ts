@@ -1,3 +1,4 @@
+// @vitest-environment node
 import { describe, expect, it } from 'vitest'
 import { isQuestionValid } from '@/utils/quizQuestion'
 

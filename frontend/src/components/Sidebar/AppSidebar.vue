@@ -7,7 +7,7 @@
 		@update:collapsed="setCollapsed"
 	>
 		<UserDropdown />
-		<div class="min-h-0 flex-1 overflow-y-auto px-2 pt-2">
+		<ScrollArea class="min-h-0 flex-1" viewportClass="px-2 pt-2">
 			<div v-if="sidebarSettings.data" class="flex flex-col gap-0.5">
 				<template v-for="row in sidebarRows" :key="row.key">
 					<div v-if="row.kind === 'gap'" class="h-2.5" aria-hidden="true" />
@@ -27,7 +27,7 @@
 					<SidebarLink v-else :link="row.link" />
 				</template>
 			</div>
-		</div>
+		</ScrollArea>
 		<div class="mt-auto flex flex-col gap-1 px-2 pb-2">
 			<div
 				v-if="readOnlyMode && !sidebarStore.isSidebarCollapsed"
@@ -58,57 +58,40 @@
 				/>
 			</template>
 			<TrialBanner
-				v-if="
-					userResource.data?.is_system_manager && userResource.data?.is_fc_site
-				"
+				v-if="isV1CloudAdmin()"
 				:isSidebarCollapsed="sidebarStore.isSidebarCollapsed"
 			/>
+			<TrialCard v-if="!sidebarStore.isSidebarCollapsed" />
 			<GettingStartedBanner
 				v-if="showOnboarding && !isOnboardingStepsCompleted"
 				:isSidebarCollapsed="sidebarStore.isSidebarCollapsed"
 				appName="learning"
 			/>
 			<div
-				class="mt-4 flex gap-3 ps-2"
-				:class="
-					sidebarStore.isSidebarCollapsed
-						? 'flex-col items-start'
-						: 'flex-row items-center'
-				"
+				v-if="readOnlyMode && sidebarStore.isSidebarCollapsed"
+				class="mt-4 flex ps-2"
 			>
-				<template v-if="readOnlyMode && sidebarStore.isSidebarCollapsed">
-					<Tooltip>
-						<span
-							class="lucide-circle-alert size-4 text-ink-gray-7 cursor-pointer"
-							aria-hidden="true"
-						/>
-						<template #content>
-							<div class="max-w-[30ch] text-center text-p-xs">
-								{{ readOnlyNotice }}
-							</div>
-						</template>
-					</Tooltip>
-					<span class="sr-only">{{ readOnlyNotice }}</span>
-				</template>
-				<Tooltip v-if="showOnboarding" :text="__('Help')">
-					<button
-						type="button"
-						class="flex"
-						:aria-label="__('Help')"
-						@click="
-							() => {
-								showHelpModal = minimize ? true : !showHelpModal
-								minimize = !showHelpModal
-							}
-						"
-					>
-						<span
-							class="lucide-circle-help size-4 text-ink-gray-7 cursor-pointer"
-							aria-hidden="true"
-						/>
-					</button>
+				<Tooltip>
+					<span
+						class="lucide-circle-alert size-4 text-ink-gray-7 cursor-pointer"
+						aria-hidden="true"
+					/>
+					<template #content>
+						<div class="max-w-[30ch] text-center text-p-xs">
+							{{ readOnlyNotice }}
+						</div>
+					</template>
 				</Tooltip>
+				<span class="sr-only">{{ readOnlyNotice }}</span>
 			</div>
+			<SidebarItem
+				v-if="showOnboarding"
+				class="mt-2"
+				:label="__('Help')"
+				icon="lucide-circle-help"
+				:active="false"
+				:onClick="toggleHelp"
+			/>
 			<SidebarCollapseToggle
 				class="mt-1"
 				:aria-label="
@@ -117,6 +100,7 @@
 			/>
 		</div>
 		<HelpModal
+			class="getting-started"
 			data-testid="onboarding-help-modal"
 			v-if="showOnboarding && showHelpModal"
 			v-model="showHelpModal"
@@ -141,10 +125,12 @@
 <script setup>
 import { getSidebarLinks } from '@/utils'
 import { usersStore } from '@/stores/user'
+import { seesOnboarding } from '@/utils/onboarding'
 import { useSidebar } from '@/stores/sidebar'
 import { useSettings } from '@/stores/settings'
 import {
 	call,
+	ScrollArea,
 	Sidebar,
 	SidebarCard,
 	SidebarCollapseToggle,
@@ -167,15 +153,7 @@ import {
 	onUnmounted,
 	computed,
 } from 'vue'
-import {
-	BookOpen,
-	CircleHelp,
-	FolderTree,
-	FileText,
-	UserPlus,
-	Users,
-	BookText,
-} from 'lucide-vue-next'
+import { BookOpen, FileText, Globe, Users } from 'lucide-vue-next'
 import { TrialBanner } from '@framework/ui/components/TrialBanner/index'
 import {
 	HelpModal,
@@ -186,8 +164,11 @@ import {
 	IntermediateStepModal,
 } from '@framework/ui/components/Onboarding/index'
 import { useTelemetry } from '@framework/ui/telemetry/index'
+import { setFormSource } from '@/composables/formTracking'
 import InviteIcon from '@/components/Icons/InviteIcon.vue'
 import UserDropdown from '@/components/Sidebar/UserDropdown.vue'
+import TrialCard from '@/components/Sidebar/TrialCard.vue'
+import { isV1CloudAdmin } from '@/composables/cloudSettings'
 import SidebarLink from '@/components/Sidebar/SidebarLink.vue'
 import CommandPalette from '@/components/CommandPalette/CommandPalette.vue'
 import { pushSettingsHash } from '@/composables/useSettingsHash'
@@ -215,6 +196,23 @@ const readOnlyMode = window.read_only_mode
 const readOnlyNotice = __(
 	'This site is being updated. You will not be able to make any changes. Full access will be restored shortly.'
 )
+const openCourseForm = () => {
+	setFormSource('onboarding')
+	openFormRoute(router, { name: 'NewCourse' })
+}
+
+// Opens the help panel, or brings it back when it was minimized.
+const toggleHelp = () => {
+	showHelpModal.value = minimize.value ? true : !showHelpModal.value
+	minimize.value = !showHelpModal.value
+	if (showHelpModal.value) {
+		capture('onboarding_help_opened', {
+			role: userResource.data?.is_system_manager
+				? 'system_manager'
+				: 'moderator',
+		})
+	}
+}
 const iconProps = {
 	strokeWidth: 1.5,
 	width: 16,
@@ -280,13 +278,9 @@ const getFirstCourse = async () => {
 	return await call('lms.lms.onboarding.get_first_course')
 }
 
-const getFirstBatch = async () => {
-	let firstBatch = localStorage.getItem('firstBatch')
-	if (firstBatch) return firstBatch
-	return await call('lms.lms.onboarding.get_first_batch')
-}
-
-const steps = reactive([
+// Five steps, in the order of the goal picked in setup: a course first for most,
+// a batch first for someone bringing their learners in.
+const allSteps = [
 	{
 		name: 'create_first_course',
 		title: __('Create your first course'),
@@ -294,29 +288,9 @@ const steps = reactive([
 		completed: false,
 		onClick: () => {
 			minimize.value = true
-			router.push({
-				name: 'Courses',
-			})
-		},
-	},
-	{
-		name: 'create_first_chapter',
-		title: __('Add your first chapter'),
-		icon: markRaw(h(FolderTree, iconProps)),
-		completed: false,
-		dependsOn: 'create_first_course',
-		onClick: async () => {
-			minimize.value = true
-			let course = await getFirstCourse()
-			if (course) {
-				router.push({
-					name: 'CourseDetail',
-					params: { courseName: course },
-					hash: '#editor',
-				})
-			} else {
-				openFormRoute(router, { name: 'NewCourse' })
-			}
+			// Opens the form itself: sent to the course list instead, nothing
+			// happened when the list was already open.
+			openCourseForm()
 		},
 	},
 	{
@@ -324,7 +298,7 @@ const steps = reactive([
 		title: __('Add your first lesson'),
 		icon: markRaw(h(FileText, iconProps)),
 		completed: false,
-		dependsOn: 'create_first_chapter',
+		dependsOn: 'create_first_course',
 		onClick: async () => {
 			minimize.value = true
 			let course = await getFirstCourse()
@@ -335,19 +309,24 @@ const steps = reactive([
 					hash: '#editor',
 				})
 			} else {
-				openFormRoute(router, { name: 'NewCourse' })
+				openCourseForm()
 			}
 		},
 	},
 	{
-		name: 'create_first_quiz',
-		title: __('Create your first quiz'),
-		icon: markRaw(h(CircleHelp, iconProps)),
+		name: 'publish_first_course',
+		title: __('Publish your course'),
+		icon: markRaw(h(Globe, iconProps)),
 		completed: false,
-		dependsOn: 'create_first_course',
-		onClick: () => {
+		dependsOn: 'create_first_lesson',
+		onClick: async () => {
 			minimize.value = true
-			router.push({ name: 'Quizzes' })
+			let course = await getFirstCourse()
+			if (course) {
+				router.push({ name: 'CourseDetail', params: { courseName: course } })
+			} else {
+				openCourseForm()
+			}
 		},
 	},
 	{
@@ -367,53 +346,43 @@ const steps = reactive([
 		completed: false,
 		onClick: () => {
 			minimize.value = true
-			router.push({ name: 'Batches' })
+			setFormSource('onboarding')
+			openFormRoute(router, { name: 'NewBatch' })
 		},
 	},
-	{
-		name: 'add_batch_student',
-		title: __('Add students to your batch'),
-		icon: markRaw(h(UserPlus, iconProps)),
-		completed: false,
-		dependsOn: 'create_first_batch',
-		onClick: async () => {
-			minimize.value = true
-			let batch = await getFirstBatch()
-			if (batch) {
-				router.push({
-					name: 'BatchDetail',
-					params: {
-						batchName: batch,
-					},
-				})
-			} else {
-				router.push({ name: 'Batches' })
-			}
-		},
-	},
-	{
-		name: 'add_batch_course',
-		title: __('Add courses to your batch'),
-		icon: markRaw(h(BookText, iconProps)),
-		completed: false,
-		dependsOn: 'create_first_batch',
-		onClick: async () => {
-			minimize.value = true
-			let batch = await getFirstBatch()
-			if (batch) {
-				router.push({
-					name: 'BatchDetail',
-					params: {
-						batchName: batch,
-					},
-					hash: '#courses',
-				})
-			} else {
-				router.push({ name: 'Batches' })
-			}
-		},
-	},
-])
+].map((step) => reactive(step))
+
+const BATCH_FIRST = [
+	'create_first_batch',
+	'invite_students',
+	'create_first_course',
+	'create_first_lesson',
+	'publish_first_course',
+]
+
+const stepsFor = (goal) => {
+	if (goal !== 'Onboard my existing learners') return allSteps
+	return BATCH_FIRST.map((name) => allSteps.find((step) => step.name === name))
+}
+
+// The goal from this browser, else from the server, asked twice so one failed
+// request does not put the checklist in the wrong order for the visit.
+const firstGoal = async () => {
+	const saved = localStorage.getItem('lmsFirstGoal')
+	if (saved) return saved
+	for (const delay of [0, 2000]) {
+		if (delay) await new Promise((resolve) => setTimeout(resolve, delay))
+		try {
+			const goal = (await call('lms.lms.onboarding.get_setup_state'))
+				?.first_goal
+			if (goal) localStorage.setItem('lmsFirstGoal', goal)
+			return goal
+		} catch {
+			// Try once more.
+		}
+	}
+	return null
+}
 
 const articles = ref([
 	{
@@ -482,10 +451,13 @@ const articles = ref([
 	},
 ])
 
-const setUpOnboarding = () => {
-	if (userResource.data?.is_system_manager) {
+const setUpOnboarding = async () => {
+	if (seesOnboarding(userResource.data)) {
 		onboardingDetails = useOnboarding('learning')
-		onboardingDetails.setUp(steps)
+		const goal = onboardingDetails.isOnboardingStepsCompleted.value
+			? null
+			: await firstGoal()
+		onboardingDetails.setUp(stepsFor(goal))
 		isOnboardingStepsCompleted = onboardingDetails.isOnboardingStepsCompleted
 		showOnboarding.value = true
 	}
@@ -539,3 +511,10 @@ onUnmounted(() => {
 	window.removeEventListener('keydown', onKeyboardShortcut)
 })
 </script>
+
+<style scoped>
+.getting-started :deep(.overflow-y-auto) {
+	scrollbar-width: thin;
+	scrollbar-color: var(--outline-gray-3) transparent;
+}
+</style>

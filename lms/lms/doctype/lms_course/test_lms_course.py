@@ -2,6 +2,7 @@
 # See license.txt
 
 import unittest
+from unittest.mock import patch
 
 import frappe
 
@@ -85,3 +86,115 @@ class TestLMSCourseInstructors(BaseTestUtils):
 		# and it must be persisted, not only present on the in-memory document
 		course.reload()
 		self.assertEqual([row.instructor for row in course.instructors], [course.owner])
+
+
+class TestPublishWarnsAboutEmptyQuizzes(BaseTestUtils):
+	def setUp(self):
+		super().setUp()
+		self.course = _new_course(["Administrator"]).insert()
+		chapter = self._create_chapter("Publish Warning Chapter", self.course.name)
+		self.quiz = self._create_quiz([], title=f"Unfilled Quiz {frappe.generate_hash(length=6)}")
+		content = frappe.as_json({"blocks": [{"type": "quiz", "data": {"quiz": self.quiz.name}}]})
+		self._create_lesson("Publish Warning Lesson", chapter.name, self.course.name, content)
+		self.course.reload()
+		frappe.clear_messages()
+
+	def _publish(self):
+		self.course.published = 1
+		self.course.save()
+
+	def test_publishing_lists_quizzes_without_questions(self):
+		self._publish()
+
+		self.assertEqual(self.course.get_onload("quizzes_without_questions"), [self.quiz.title])
+		self.assertIn(self.quiz.title, frappe.as_json(frappe.message_log))
+
+	def test_saving_an_already_published_course_does_not_warn_again(self):
+		self._publish()
+		frappe.clear_messages()
+		self.course.reload()
+		self.course.description = "Edited after publishing"
+		self.course.save()
+
+		self.assertEqual(frappe.message_log, [])
+
+
+class TestCourseLaunchEmail(BaseTestUtils):
+	def setUp(self):
+		super().setUp()
+		hash = frappe.generate_hash(length=6)
+		instructor = self._create_user(f"launch-{hash}@example.com", "Lia", "Instr", ["Course Creator"])
+		self.notified = self._create_user(f"notified-{hash}@example.com", "Nia", "Old", ["LMS Student"])
+		self.waiting = self._create_user(f"waiting-{hash}@example.com", "Wes", "New", ["LMS Student"])
+		self.course = self._create_course(title=f"Launch Course {hash}", instructor=instructor.email)
+		self.course.db_set("upcoming", 1)
+		self.course.reload()
+		for user, sent in ((self.notified, 1), (self.waiting, 0)):
+			frappe.get_doc(
+				{
+					"doctype": "LMS Course Interest",
+					"course": self.course.name,
+					"user": user.name,
+					"email_sent": sent,
+				}
+			).insert()
+
+	def test_launch_emails_only_users_not_yet_notified(self):
+		"""Every launch re-mailed all interested users since #170 (email_sent was never read).
+		Added for audit finding #93."""
+		with patch("frappe.sendmail") as sendmail:
+			self.course.upcoming = 0
+			self.course.save()
+
+		recipients = [call.kwargs["recipients"] for call in sendmail.call_args_list]
+		self.assertEqual(recipients, [self.waiting.name])
+
+	def test_a_rolled_back_launch_leaves_users_unmarked(self):
+		"""The email is queued inside the save's transaction, not after it, so it rolls
+		back with email_sent and the next launch emails the user."""
+		frappe.db.savepoint("launch")
+		with patch("frappe.sendmail") as sendmail:
+			self.course.upcoming = 0
+			self.course.save()
+		self.assertEqual([call.kwargs["recipients"] for call in sendmail.call_args_list], [self.waiting.name])
+
+		frappe.db.rollback(save_point="launch")
+
+		self.assertEqual(self._email_sent(self.waiting), 0)
+
+	def test_launch_without_an_outgoing_email_account_saves(self):
+		# Asserted on the call, not the row: Error Log is not a database table on every
+		# frappe version.
+		with (
+			patch("frappe.sendmail", side_effect=frappe.OutgoingEmailError),
+			patch("frappe.log_error", wraps=frappe.log_error) as log_error,
+		):
+			self.course.upcoming = 0
+			self.course.save()
+
+		self.assertEqual(frappe.db.get_value("LMS Course", self.course.name, "upcoming"), 0)
+		self.assertEqual(self._email_sent(self.waiting), 0)
+		log_error.assert_called_once()
+		self.assertEqual(log_error.call_args.kwargs.get("reference_name"), self.course.name)
+
+	def _email_sent(self, user):
+		return frappe.db.get_value(
+			"LMS Course Interest", {"course": self.course.name, "user": user.name}, "email_sent"
+		)
+
+	def test_each_launch_email_greets_its_own_user(self):
+		second = self._create_user(
+			f"second-{frappe.generate_hash(length=6)}@example.com", "Sam", "Second", ["LMS Student"]
+		)
+		frappe.get_doc(
+			{"doctype": "LMS Course Interest", "course": self.course.name, "user": second.name}
+		).insert()
+
+		with patch("frappe.sendmail") as sendmail:
+			self.course.upcoming = 0
+			self.course.save()
+
+		greetings = {
+			call.kwargs["recipients"]: call.kwargs["args"]["first_name"] for call in sendmail.call_args_list
+		}
+		self.assertEqual(greetings, {self.waiting.name: "Wes", second.name: "Sam"})

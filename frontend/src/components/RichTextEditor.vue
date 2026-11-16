@@ -19,11 +19,7 @@
 				/>
 				<EditorContent
 					:id="id"
-					:class="[
-						editorClass,
-						contentClasses,
-						'focus-visible:ring-2 focus-visible:ring-outline-gray-5',
-					]"
+					:class="[editorClass, contentClasses]"
 					:aria-label="ariaLabel"
 					:aria-labelledby="ariaLabelledby"
 					:aria-required="

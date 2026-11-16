@@ -4,7 +4,7 @@
 			<div v-if="loadingBatch" class="p-4 text-base text-ink-gray-6">
 				{{ __('Loading...') }}
 			</div>
-			<div v-else-if="refusal" class="p-4 text-base text-ink-gray-6">
+			<div v-else-if="refusal" class="text-base text-ink-gray-6">
 				{{ refusal }}
 			</div>
 			<div v-else data-testid="bulk-certificates-fields" class="space-y-4">
@@ -58,7 +58,7 @@
 			>
 				<HeaderButton
 					data-testid="bulk-certificates-save"
-					:label="__('Save')"
+					:label="__('Generate')"
 					variant="solid"
 					:loading="generating"
 					@click="generateCertificates()"

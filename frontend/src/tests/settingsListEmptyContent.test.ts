@@ -7,6 +7,7 @@
  */
 import { describe, expect, it, vi } from 'vitest'
 import { mount } from '@vue/test-utils'
+import { markRaw } from 'vue'
 import type { ListPage } from '@/types/settingsSchema'
 
 vi.mock('frappe-ui', () => ({
@@ -72,12 +73,12 @@ vi.stubGlobal('__', (text: string) => text)
 import SettingsListPanel from '@/components/Layouts/settings/desktop/SettingsListPanel.vue'
 import SettingsList from '@/components/Layouts/settings/desktop/SettingsList.vue'
 
-const CreateDetail = {
+const CreateDetail = markRaw({
 	props: ['name'],
 	template: `<div data-testid="create-detail" :data-name="name" />`,
-}
+})
 
-const EmptyPicker = { template: `<div data-testid="empty-picker" />` }
+const EmptyPicker = markRaw({ template: `<div data-testid="empty-picker" />` })
 
 const page: ListPage = {
 	kind: 'list',

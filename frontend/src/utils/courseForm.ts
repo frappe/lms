@@ -2,7 +2,7 @@ import type { LMSCourse } from '@/types/lms/LMSCourse'
 
 // Client-side mirror of LMS Course's mandatory fields (lms_course.json `reqd`).
 // `description` is a Text Editor field, so an "empty" editor still serializes to
-// markup like "<p></p>", so strip tags before treating it as filled.
+// markup like "<p></p>", so strip tags; an image-only one still counts.
 interface CourseValidationInput {
 	doc: Pick<
 		LMSCourse,
@@ -19,7 +19,9 @@ interface CourseValidationInput {
 
 function hasText(value: string | null | undefined): boolean {
 	if (!value) return false
-	return value.replace(/<[^>]*>/g, '').trim().length > 0
+	return (
+		value.replace(/<[^>]*>/g, '').trim().length > 0 || /<img\b/i.test(value)
+	)
 }
 
 // Returns a single actionable message for the first unmet requirement, or null

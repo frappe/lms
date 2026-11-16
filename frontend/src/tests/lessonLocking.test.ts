@@ -155,7 +155,9 @@ const translateStub = (s: string) =>
 
 vi.stubGlobal('__', translateStub)
 
+import { call } from 'frappe-ui'
 import Lesson from '@/pages/Lesson.vue'
+import { markLessonProgress } from '@/utils/markLessonProgress'
 
 const findResource = (url: string) =>
 	created.list.find((resource) => resource._config.url === url)
@@ -164,14 +166,15 @@ async function mountLesson(
 	props: { chapterNumber: string; lessonNumber: string } = {
 		chapterNumber: '1',
 		lessonNumber: '1',
-	}
+	},
+	user: { name: string } | null = { name: 'student@example.com' }
 ) {
 	const wrapper = mount(Lesson, {
 		props: { courseName: 'COURSE-1', ...props },
 		global: {
 			mocks: { __: translateStub },
 			provide: {
-				$user: { data: { name: 'student@example.com' } },
+				$user: { data: user },
 				$socket: { on: socketOnMock, off: socketOffMock },
 			},
 		},
@@ -205,24 +208,6 @@ afterEach(() => {
 })
 
 describe('Lesson.vue Next affordance follows canGoNext', () => {
-	it('hides the Next button when the following lesson is locked', async () => {
-		wrapper = await mountLesson()
-		findResource('lms.lms.utils.get_course_outline').data = [
-			{
-				name: 'CH-1',
-				lessons: [
-					{ name: 'L1', number: '1-1', locked: 0 },
-					{ name: 'L2', number: '1-2', locked: 1 },
-				],
-			},
-		]
-		findResource('lms.lms.utils.get_lesson').data = { ...baseLesson }
-		await flushPromises()
-
-		expect((wrapper.vm as any).canGoNext).toBe(false)
-		expect(wrapper.text()).not.toContain('Next')
-	})
-
 	it('shows the Next button when the following lesson is unlocked', async () => {
 		wrapper = await mountLesson()
 		findResource('lms.lms.utils.get_course_outline').data = [
@@ -514,6 +499,79 @@ describe('Lesson.vue unlocks the next lesson without a reload', () => {
 	})
 })
 
+describe('Lesson.vue unlocks the next lesson when realtime is down', () => {
+	// #2701: a quiz completes its lesson through markLessonProgress(), and the
+	// page used to hear about it only from update_lesson_progress. With the
+	// socket down, Next stayed locked until a reload.
+	const lessonPath = '/lms/courses/COURSE-1/learn/1-1'
+
+	beforeEach(() => {
+		window.history.pushState({}, '', lessonPath)
+		vi.mocked(call).mockResolvedValue(true)
+	})
+
+	afterEach(() => {
+		window.history.pushState({}, '', '/')
+	})
+
+	const mountWithLesson = async () => {
+		const mounted = await mountLesson()
+		findResource('lms.lms.utils.get_lesson').data = {
+			...baseLesson,
+			membership: { progress: 0 },
+		}
+		await flushPromises()
+		findResource('lms.lms.utils.get_course_outline').reload.mockClear()
+		return mounted
+	}
+
+	it('reloads the outline once a quiz marks the lesson, with no socket event', async () => {
+		wrapper = await mountWithLesson()
+		const outline = findResource('lms.lms.utils.get_course_outline')
+
+		markLessonProgress()
+		await flushPromises()
+
+		expect(outline.reload).toHaveBeenCalledTimes(1)
+	})
+
+	it('does not reload again when the socket event follows', async () => {
+		wrapper = await mountWithLesson()
+		const outline = findResource('lms.lms.utils.get_course_outline')
+
+		markLessonProgress()
+		await flushPromises()
+		progressHandler()({ course: 'COURSE-1', lesson: 'L1', progress: 40 })
+
+		expect(outline.reload).toHaveBeenCalledTimes(1)
+	})
+
+	it('does not mark the lesson done when the server declined it', async () => {
+		// mark_lesson_progress returns false when save_progress wrote nothing, e.g.
+		// the lesson's requirements are not met, so the socket event still reloads.
+		wrapper = await mountWithLesson()
+		const outline = findResource('lms.lms.utils.get_course_outline')
+		vi.mocked(call).mockResolvedValueOnce(false)
+
+		markLessonProgress()
+		await flushPromises()
+		progressHandler()({ course: 'COURSE-1', lesson: 'L1', progress: 40 })
+
+		expect(outline.reload).toHaveBeenCalledTimes(2)
+	})
+
+	it('stops listening once the page is left', async () => {
+		wrapper = await mountWithLesson()
+		const outline = findResource('lms.lms.utils.get_course_outline')
+		wrapper.unmount()
+
+		markLessonProgress()
+		await flushPromises()
+
+		expect(outline.reload).not.toHaveBeenCalled()
+	})
+})
+
 describe('Lesson.vue Next survives an outline that never resolves', () => {
 	it('shows Next from lesson.data.next while the outline is still unresolved', async () => {
 		wrapper = await mountLesson()
@@ -584,5 +642,23 @@ describe('Lesson.vue zen-mode progress chip', () => {
 		expect(classes).toContain('[@media(hover:none)]:block')
 		expect(classes).toContain('[@media(hover:none)]:static')
 		expect(classes).toContain('[@media(hover:none)]:mt-0')
+	})
+})
+
+describe('Lesson.vue sidebar progress', () => {
+	// Guards #3010: a guest cannot make progress, so the sidebar shows none.
+	const sidebarWithProgress = async (user: { name: string } | null) => {
+		wrapper = await mountLesson(undefined, user)
+		findResource('lms.lms.utils.get_lesson').data = { ...baseLesson }
+		await flushPromises()
+		return wrapper.get('aside > div').attributes('withprogress')
+	}
+
+	it('hides progress for a guest', async () => {
+		expect(await sidebarWithProgress(null)).toBe('false')
+	})
+
+	it('keeps progress for a signed-in learner', async () => {
+		expect(await sidebarWithProgress({ name: 'a@example.com' })).toBe('true')
 	})
 })

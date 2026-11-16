@@ -20,8 +20,13 @@
 				</SettingsNavItem>
 			</SettingsNavGroup>
 		</SettingsSidebar>
-		<SettingsContent>
-			<SettingsPanel v-for="item in items" :key="item.slug" :value="item.slug">
+		<SettingsContent class="min-w-0">
+			<SettingsPanel
+				v-for="item in items"
+				:key="item.slug"
+				:value="item.slug"
+				class="min-w-0"
+			>
 				<SettingsFieldsPanel
 					v-if="item.page.kind === 'fields'"
 					:page="item.page"
@@ -77,7 +82,7 @@ import DiscardChangesDialog from '@/components/Settings/DiscardChangesDialog.vue
 import { confirmDiscard, installDirtyGuard } from '@/composables/useDirtyGuard'
 import SettingsFieldsPanel from '@/components/Layouts/settings/desktop/SettingsFieldsPanel.vue'
 import SettingsListPanel from '@/components/Layouts/settings/desktop/SettingsListPanel.vue'
-import { settingsTree } from '@/components/Settings/settings'
+import { isGroupVisible, settingsTree } from '@/components/Settings/settings'
 import { useSettingsHash } from '@/composables/useSettingsHash'
 
 const doctype = ref('LMS Settings')
@@ -118,14 +123,17 @@ const sharedDocument = (page) =>
 	'doc' in page.source && page.source.doc === doctype.value ? data : undefined
 
 const tabs = computed(() => {
-	return settingsTree.map((tab) => {
-		return {
-			...tab,
-			items: tab.items.filter((item) => {
-				return !item.condition || item.condition()
-			}),
-		}
-	})
+	return settingsTree
+		.filter(isGroupVisible)
+		.map((tab) => {
+			return {
+				...tab,
+				items: tab.items.filter((item) => {
+					return !item.condition || item.condition()
+				}),
+			}
+		})
+		.filter((tab) => tab.items.length)
 })
 
 const {
@@ -144,9 +152,14 @@ const {
 const show = computed({
 	get: () => isOpen.value,
 	set: (value) => {
-		if (!value) close()
+		if (!value && !isCloudOverlayOpen()) close()
 	},
 })
+
+// A Cloud panel's menus and dialogs live in a shadow root the dialog can't
+// see, so their Esc and outside clicks would close Settings too
+const isCloudOverlayOpen = () =>
+	!!document.querySelector('fc-cloud-settings[overlay-open]')
 
 // Panels are keyed by slug, so this is what the nav emits back on a click.
 const activeSlug = computed({

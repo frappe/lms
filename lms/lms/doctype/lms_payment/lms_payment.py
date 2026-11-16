@@ -12,7 +12,22 @@ from lms.lms.utils import get_lms_route
 
 
 class LMSPayment(Document):
-	pass
+	def validate(self):
+		self.validate_source()
+
+	def validate_source(self):
+		if self.source or self.flags.ignore_mandatory or self.is_exempt_from_source():
+			return
+		frappe.throw(_("Source is required."), frappe.MandatoryError)
+
+	def is_exempt_from_source(self):
+		# Staff recording a payment on a student's behalf may not know where the student came from.
+		# The flag lives only for that insert, so a later save inherits the exemption from a
+		# row that was stored without a source; one stored with a source cannot drop it.
+		previous = self.get_doc_before_save()
+		if previous:
+			return not previous.source
+		return bool(self.flags.recorded_by_staff)
 
 
 UNIQUE_PAYMENT_ID = "unique_payment_id"

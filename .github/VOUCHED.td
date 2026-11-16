@@ -17,5 +17,6 @@ FawazAlhafiz
 frappe-pr-bot
 harshpwctech
 mergify[bot]
+Nagaraj-62
 NagariaHussain
 sayali-fossist

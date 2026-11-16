@@ -14,7 +14,9 @@ const {
 	documentCache,
 	saved,
 	toast,
+	markLessonProgress,
 } = vi.hoisted(() => ({
+	markLessonProgress: vi.fn(),
 	documentCache: new Map<string, { reload: () => void }>(),
 	// The rows the server's own run stored, which reload() hands back.
 	saved: {
@@ -78,8 +80,10 @@ vi.mock('@/router', () => ({
 }))
 vi.mock('@/components/ProgrammingExercises/ExerciseWorkspace.vue', () => ({
 	default: defineComponent({
+		// Renders a fragment, so the props it does not read have nowhere to go.
+		inheritAttrs: false,
 		props: { submissionStatus: String, results: Array },
-		emits: ['run'],
+		emits: ['run', 'reset'],
 		setup: (props, { emit, slots }) => {
 			return () => [
 				h('button', { 'data-testid': 'workspace', onClick: () => emit('run') }),
@@ -129,6 +133,7 @@ vi.mock('@/utils/dialogs', () => ({
 	isDialogOpen: () => false,
 }))
 vi.mock('@/utils/basePath', () => ({ getLmsRoute: (p: string) => `/lms/${p}` }))
+vi.mock('@/utils/markLessonProgress', () => ({ markLessonProgress }))
 vi.mock(
 	'@/pages/ProgrammingExercises/exerciseRunFlow',
 	async (importOriginal) => ({
@@ -200,6 +205,7 @@ beforeEach(() => {
 		return Promise.resolve()
 	})
 	routerPush.mockReset()
+	markLessonProgress.mockReset()
 	pageMeta.mockReset()
 	collectOutputs.mockClear()
 	localStorage.clear()
@@ -358,6 +364,46 @@ describe('the programming exercise mounted inline in a lesson', () => {
 		await flushPromises()
 
 		expect(wrapper.get('[data-testid="code"]').text()).toBe('print(1)')
+	})
+
+	it('marks the lesson once the saved submission passes', async () => {
+		const wrapper = await mountEmbedded()
+
+		await runCode(wrapper)
+
+		expect(markLessonProgress).toHaveBeenCalledTimes(1)
+	})
+
+	// Regression on this branch only, no upstream PR: the server applies the rule now.
+	// Added on fix/course-progress-enforcement (no PR yet).
+	it('marks the lesson when the saved submission fails too', async () => {
+		saved.doc = { status: 'Failed' }
+		const wrapper = await mountEmbedded()
+
+		await runCode(wrapper)
+
+		expect(markLessonProgress).toHaveBeenCalledTimes(1)
+	})
+
+	it('marks no lesson once the learner has moved to another one', async () => {
+		const wrapper = await mountEmbedded()
+		call.mockImplementation((method: string) => {
+			if (method !== CREATE) return Promise.resolve(scoredRun)
+			window.history.pushState({}, '', '/lms/courses/c/learn/1-2')
+			return Promise.resolve('SUB-1')
+		})
+
+		await runCode(wrapper)
+
+		expect(markLessonProgress).not.toHaveBeenCalled()
+	})
+
+	it('marks no lesson from the standalone page', async () => {
+		const wrapper = await mountEmbedded(undefined, false)
+
+		await runCode(wrapper)
+
+		expect(markLessonProgress).not.toHaveBeenCalled()
 	})
 
 	it('never moves the lesson to another route', async () => {

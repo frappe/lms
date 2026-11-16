@@ -1,6 +1,6 @@
 <template>
 	<FormShell
-		:title="__('Create a Live Class')"
+		:title="__('New Live Class')"
 		size="xl"
 		position="top"
 		@close="close"
@@ -9,7 +9,7 @@
 			<div v-if="loadingBatch" class="p-4 text-base text-ink-gray-6">
 				{{ __('Loading...') }}
 			</div>
-			<div v-else-if="refusal" class="p-4 text-base text-ink-gray-6">
+			<div v-else-if="refusal" class="text-base text-ink-gray-6">
 				{{ refusal }}
 			</div>
 			<div v-else data-testid="live-class-fields" class="flex flex-col gap-4">
@@ -98,7 +98,7 @@
 			>
 				<HeaderButton
 					data-testid="live-class-save"
-					:label="__('Save')"
+					:label="__('Create')"
 					variant="solid"
 					:loading="
 						createLiveClass.loading || createGoogleMeetLiveClass.loading
@@ -165,10 +165,10 @@ const conferencingProvider = computed(
 	() => batch.data?.conferencing_provider || null
 )
 
-// can_manage, not the Batch Evaluator role: create_live_class accepts only an
-// evaluator the batch tags.
+// can_schedule_classes, not the Batch Evaluator role or can_manage:
+// create_live_class accepts only the batch's instructors.
 const isAdmin = computed(() =>
-	Boolean(user.data?.is_moderator || batch.data?.can_manage)
+	Boolean(user.data?.is_moderator || batch.data?.can_schedule_classes)
 )
 
 // Copied from LiveClass.vue's canCreateClass()/hasProviderAccount(), which gate
@@ -190,7 +190,9 @@ const hasProviderAccount = computed(() => {
 const refusal = computed(() => {
 	if (readOnlyMode) return __('This site is in read-only mode.')
 	if (!isAdmin.value)
-		return __('You are not permitted to create a live class for this batch.')
+		return __(
+			"You can't schedule live classes for this batch. Ask one of its instructors or a Moderator."
+		)
 	if (!hasProviderAccount.value)
 		return __(
 			'Please select a conferencing provider and add an account to the batch to create live classes.'

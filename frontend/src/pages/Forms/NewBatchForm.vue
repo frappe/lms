@@ -1,7 +1,7 @@
 <template>
 	<FormShell :title="__('New Batch')" size="3xl" @close="close">
 		<template #default>
-			<div v-if="!canCreateBatch" class="p-4 text-base text-ink-gray-6">
+			<div v-if="!canCreateBatch" class="text-base text-ink-gray-6">
 				{{ __('You are not permitted to create a batch.') }}
 			</div>
 			<div v-else data-testid="new-batch-fields" class="text-base">
@@ -135,7 +135,7 @@
 			<div v-if="canCreateBatch" class="flex items-center justify-end">
 				<HeaderButton
 					data-testid="new-batch-save"
-					:label="__('Save')"
+					:label="__('Create')"
 					variant="solid"
 					:loading="batches.insert.loading"
 					@click="saveBatch()"
@@ -159,6 +159,7 @@ import {
 } from 'frappe-ui'
 import type { FrappeResourceError } from 'frappe-ui'
 import { useOnboarding } from '@framework/ui/components/Onboarding/index'
+import { seesOnboarding } from '@/utils/onboarding'
 import { useTelemetry } from '@framework/ui/telemetry/index'
 import { computed, inject, onMounted, onBeforeUnmount, ref } from 'vue'
 import { createLMSCategory, cleanError } from '@/utils'
@@ -175,8 +176,11 @@ import NewMemberModal from '@/components/Modals/NewMemberModal.vue'
 import RichTextEditor from '@/components/RichTextEditor.vue'
 import { InputLabel, useInputLabeling } from 'frappe-ui/experimental'
 import { submitResource } from '@/utils/resource'
+import { validateBatch } from '@/utils/batchForm'
+import { filledFields, takeFormSource } from '@/composables/formTracking'
 
 const { capture } = useTelemetry()
+const batchCreated = ref(false)
 const { updateOnboardingStep } = useOnboarding('learning')
 const dateFormat = getDateFormat()
 const user = inject<any>('$user')
@@ -257,6 +261,14 @@ const onInstructorCreated = (user: any) => {
 const saveBatch = () => {
 	if (!canCreateBatch.value) return
 	sanitizeStringFields(batch.value as Record<string, unknown>)
+	const error = validateBatch({
+		doc: batch.value,
+		instructors: batch.value.instructors,
+	})
+	if (error) {
+		toast.error(error)
+		return
+	}
 	submitResource(
 		batches.insert,
 		{
@@ -267,6 +279,7 @@ const saveBatch = () => {
 		},
 		{
 			onSuccess(data: any) {
+				batchCreated.value = true
 				toast.success(__('Batch created successfully'))
 				// replace, not push: the form entry is consumed so Back reaches
 				// the list rather than a stale empty form.
@@ -275,10 +288,8 @@ const saveBatch = () => {
 					params: { batchName: data.name },
 					hash: '#settings',
 				})
-				if (user.data?.is_system_manager) {
-					updateOnboardingStep('create_first_batch', true, false, () => {
-						localStorage.setItem('firstBatch', data.name)
-					})
+				if (seesOnboarding(user.data)) {
+					updateOnboardingStep('create_first_batch')
 				}
 			},
 			onError(err: FrappeResourceError) {
@@ -305,14 +316,19 @@ const keyboardShortcut = (e: KeyboardEvent) => {
 
 onMounted(() => {
 	window.addEventListener('keydown', keyboardShortcut)
-	capture('batch_form_opened')
+	capture('batch_form_opened', { source: takeFormSource() })
 })
 
 onBeforeUnmount(() => {
 	window.removeEventListener('keydown', keyboardShortcut)
-	capture('batch_form_closed', {
-		data: batch.value,
-	})
+	if (!batchCreated.value) {
+		capture('batch_form_closed', {
+			data: batch.value,
+			// Which fields were filled when the form was left, to see where
+			// people stop.
+			filled_fields: filledFields(batch.value),
+		})
+	}
 })
 
 const timezoneResource = createResource({

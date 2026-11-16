@@ -11,6 +11,10 @@ const seen: Record<string, unknown>[] = []
 const locked: Record<string, string>[] = []
 const deletable: unknown[] = []
 
+vi.mock('@/utils/dayjs', () => ({
+	serverTime: () => ({ fromNow: () => 'an hour ago' }),
+}))
+
 vi.mock('@/components/Submissions/SubmissionsPage.vue', () => ({
 	default: defineComponent({
 		props: ['config', 'lockedFilters', 'canDelete'],
@@ -89,7 +93,6 @@ const mountPage = async (userData: {
 			mocks: { __: (text: string) => `t:${text}` },
 			provide: {
 				$user: { data: { name: 'a@b.c', ...userData } },
-				$dayjs: () => ({ fromNow: () => 'an hour ago' }),
 			},
 		},
 	})

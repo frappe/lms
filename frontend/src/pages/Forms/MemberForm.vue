@@ -1,6 +1,6 @@
 <template>
 	<FormShell
-		:title="isEdit ? __('Edit Member') : __('Add New Member')"
+		:title="isEdit ? __('Edit Member') : __('New Member')"
 		size="lg"
 		@close="close"
 	>
@@ -49,7 +49,7 @@
 			<div v-if="!refusal" class="flex items-center justify-end">
 				<HeaderButton
 					data-testid="member-save"
-					:label="__('Save')"
+					:label="isEdit ? __('Save') : __('Create')"
 					variant="solid"
 					:loading="submitting"
 					:disabled="isEdit && !memberRow"
@@ -64,6 +64,7 @@ import { call, createResource, FormControl, toast } from 'frappe-ui'
 import type { FrappeResourceError } from 'frappe-ui'
 import { computed, inject, onMounted, reactive, ref, watch } from 'vue'
 import { useOnboarding } from '@framework/ui/components/Onboarding/index'
+import { seesOnboarding } from '@/utils/onboarding'
 import { useTelemetry } from '@framework/ui/telemetry/index'
 import RoleSwitches from '@/components/Controls/RoleSwitches.vue'
 import FormShell from '@/components/FormShell.vue'
@@ -206,18 +207,15 @@ const addMember = async () => {
 
 	submitting.value = true
 	try {
-		const created = await call('frappe.client.insert', {
-			doc: {
-				doctype: 'User',
-				email: member.email.trim(),
-				first_name: member.first_name.trim() || undefined,
-				last_name: member.last_name.trim() || undefined,
-			},
+		const created = await call('lms.lms.api.add_member', {
+			email: member.email.trim(),
+			first_name: member.first_name.trim() || undefined,
+			last_name: member.last_name.trim() || undefined,
 		})
 
 		await assignRoles(created.name)
 
-		if (user.data?.is_system_manager) updateOnboardingStep('invite_students')
+		if (seesOnboarding(user.data)) updateOnboardingStep('invite_students')
 		capture('user_added')
 		toast.success(__('Member added successfully'))
 		reloadMembers()

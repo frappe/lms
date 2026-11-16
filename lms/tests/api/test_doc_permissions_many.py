@@ -1,3 +1,5 @@
+from unittest.mock import patch
+
 import frappe
 
 from lms.lms.api import MAX_PERMISSION_BATCH, get_doc_permissions_many
@@ -48,20 +50,23 @@ class TestDocPermissionsMany(BaseTestUtils):
 		names, and a permission map back means the row is real while {} means it
 		is not. Job Opportunity is read-if_owner for LMS Student, so one owned by
 		somebody else is a real row this caller must not be able to confirm."""
-		job = frappe.get_doc(
-			{
-				"doctype": "Job Opportunity",
-				"job_title": f"Perm Many Job {frappe.generate_hash(length=6)}",
-				"location": "Remote",
-				"type": "Full Time",
-				"description": "<p>Work</p>",
-				"company_name": "Acme",
-				"company_website": "https://acme.test",
-				"company_logo": "/files/acme.png",
-				"company_email_address": "jobs@acme.test",
-				"country": "India",
-			}
-		).insert(ignore_permissions=True)
+		# The "New job alert" email is not under test, and premailer logs CSS
+		# warnings to stderr the first time it renders one.
+		with patch("frappe.email.doctype.notification.notification.evaluate_alert"):
+			job = frappe.get_doc(
+				{
+					"doctype": "Job Opportunity",
+					"job_title": f"Perm Many Job {frappe.generate_hash(length=6)}",
+					"location": "Remote",
+					"type": "Full Time",
+					"description": "<p>Work</p>",
+					"company_name": "Acme",
+					"company_website": "https://acme.test",
+					"company_logo": "/files/acme.png",
+					"company_email_address": "jobs@acme.test",
+					"country": "India",
+				}
+			).insert(ignore_permissions=True)
 
 		student = self._create_user(
 			f"permmany-outsider-{frappe.generate_hash(length=6)}@example.com",

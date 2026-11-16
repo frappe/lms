@@ -16,10 +16,12 @@ import zipfile
 from unittest.mock import patch
 
 import frappe
+from frappe.tests import IntegrationTestCase
 
 from lms.lms import course_import_export
 from lms.lms.api import extract_package
 from lms.lms.course_import_export import import_course_zip
+from lms.lms.test_helpers import delete_error_logs_on_cleanup
 
 RATIO_BOMB = b"\0" * (5 * 1024 * 1024)
 
@@ -43,8 +45,10 @@ def lie_about_size(path, member, declared):
 		f.write(data)
 
 
-class TestCourseImportExpansionLimits(unittest.TestCase):
+class TestCourseImportExpansionLimits(IntegrationTestCase):
 	def setUp(self):
+		super().setUp()
+		delete_error_logs_on_cleanup(self)
 		self.hash = frappe.generate_hash(length=8).lower()
 		self.path = frappe.get_site_path("private", "files", f"expansion-{self.hash}.zip")
 		self.addCleanup(lambda: os.path.exists(self.path) and os.remove(self.path))
@@ -107,10 +111,11 @@ class TestCourseImportExpansionLimits(unittest.TestCase):
 		self.assertTrue(frappe.db.exists("LMS Course", course))
 
 
-class TestScormExpansionLimits(unittest.TestCase):
+class TestScormExpansionLimits(IntegrationTestCase):
 	COURSE = "ct-scorm-expansion"
 
 	def setUp(self):
+		super().setUp()
 		self._tmp = tempfile.mkdtemp()
 		self.zip_path = os.path.join(self._tmp, "pkg.zip")
 		self.course_root = frappe.get_site_path("private", "scorm", self.COURSE)

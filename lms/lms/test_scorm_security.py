@@ -137,7 +137,7 @@ class TestScormExtractContainment(unittest.TestCase):
 
 
 class TestScormServingContainment(unittest.TestCase):
-	"""_is_safe_path must contain served paths to the scorm root, resolving symlinks."""
+	"""_package_of must contain served paths to a package dir under the scorm root, resolving symlinks."""
 
 	def setUp(self):
 		self.scorm_root = os.path.realpath(frappe.get_site_path("private", "scorm"))
@@ -151,18 +151,25 @@ class TestScormServingContainment(unittest.TestCase):
 			elif os.path.isdir(p):
 				shutil.rmtree(p, ignore_errors=True)
 
-	def _renderer(self, path="/scorm/c/t/index.html"):
+	def _package_of(self, path):
 		r = SCORMRenderer.__new__(SCORMRenderer)
-		r.path = path
-		return r
+		r.path = "scorm/c/t/index.html"
+		return r._package_of(self.scorm_root, os.path.realpath(path))
 
-	def test_path_inside_scorm_root_is_allowed(self):
-		inside = os.path.join(self.scorm_root, "c", "t", "index.html")
-		self.assertTrue(self._renderer()._is_safe_path(inside))
+	def test_path_inside_a_package_names_it(self):
+		inside = os.path.join(self.scorm_root, "c", "t", "sub", "index.html")
+		self.assertEqual(self._package_of(inside), ("c", "t"))
 
 	def test_parent_traversal_is_rejected(self):
 		escape = os.path.join(self.scorm_root, "c", "t", "..", "..", "..", "..", "etc", "passwd")
-		self.assertFalse(self._renderer()._is_safe_path(escape))
+		with self.assertRaises(frappe.PermissionError):
+			self._package_of(escape)
+
+	def test_scorm_root_and_course_dir_are_rejected(self):
+		for path in (self.scorm_root, os.path.join(self.scorm_root, "c")):
+			with self.subTest(path=path):
+				with self.assertRaises(frappe.PermissionError):
+					self._package_of(path)
 
 	def test_symlink_escaping_scorm_root_is_rejected(self):
 		link = os.path.join(self.scorm_root, "ct-evil-link")
@@ -171,7 +178,8 @@ class TestScormServingContainment(unittest.TestCase):
 			os.remove(link)
 		os.symlink("/etc", link)
 		# The symlink lives under scorm_root, but realpath resolves it to /etc.
-		self.assertFalse(self._renderer()._is_safe_path(os.path.join(link, "passwd")))
+		with self.assertRaises(frappe.PermissionError):
+			self._package_of(os.path.join(link, "passwd"))
 
 
 class TestScormManifestParsing(unittest.TestCase):
@@ -220,7 +228,7 @@ class TestScormManifestParsing(unittest.TestCase):
 		self.assertLess(time.time() - start, 5, "entity expansion was not bounded")
 
 	def test_traversal_launch_href_is_not_servable(self):
-		# A traversal href resolves outside the scorm root, which _is_safe_path refuses.
+		# A traversal href resolves outside the scorm root, which _package_of refuses.
 		path = self._write_manifest(
 			'<?xml version="1.0"?>\n'
 			f'<manifest {self.NS}><resource adlcp:scormtype="sco" '
@@ -229,5 +237,6 @@ class TestScormManifestParsing(unittest.TestCase):
 		launch = get_launch_file(path)
 		self.assertTrue(launch)
 		renderer = SCORMRenderer.__new__(SCORMRenderer)
-		renderer.path = "/scorm/c/t/launch"
-		self.assertFalse(renderer._is_safe_path(launch), "traversal launch href resolved to a servable path")
+		renderer.path = "scorm/c/t/launch"
+		with self.assertRaises(frappe.PermissionError):
+			renderer._package_of(self.scorm_root, os.path.realpath(launch))

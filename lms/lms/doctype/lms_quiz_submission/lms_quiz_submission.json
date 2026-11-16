@@ -51,7 +51,8 @@
    "in_standard_filter": 1,
    "read_only": 1,
    "label": "Member",
-   "options": "User"
+   "options": "User",
+   "search_index": 1
   },
   {
    "fetch_from": "member.full_name",
@@ -131,7 +132,7 @@
  "in_create": 1,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2026-09-29 10:00:00.000000",
+ "modified": "2026-10-21 10:00:00.000000",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Quiz Submission",

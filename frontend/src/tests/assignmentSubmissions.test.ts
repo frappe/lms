@@ -11,6 +11,10 @@ vi.stubGlobal('__', (text: string) => `t:${text}`)
 const seen: Record<string, unknown>[] = []
 const seenCanDelete: unknown[] = []
 
+vi.mock('@/utils/dayjs', () => ({
+	serverTime: () => ({ fromNow: () => 'today' }),
+}))
+
 vi.mock('@/components/Submissions/SubmissionsPage.vue', () => ({
 	default: defineComponent({
 		props: ['config', 'lockedFilters', 'canDelete'],
@@ -78,7 +82,6 @@ const mountPage = async (userData: {
 			mocks: { __: (text: string) => `t:${text}` },
 			provide: {
 				$user: { data: { name: 'a@b.c', ...userData } },
-				$dayjs: () => ({ fromNow: () => 'today' }),
 			},
 		},
 	})

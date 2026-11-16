@@ -90,6 +90,7 @@ const mountOverview = (course: { data: { name: string } | null }) =>
 		global: {
 			provide: { $user: { data: { name: 'a@b.c' } } },
 			mocks: { __: (s: string) => s },
+			stubs: { 'router-link': true },
 		},
 	})
 

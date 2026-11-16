@@ -39,6 +39,7 @@
 			class="not-prose my-5 overflow-hidden rounded-7"
 		>
 			<video
+				:ref="guardMacroVideo"
 				controls
 				width="100%"
 				class="block w-full"
@@ -96,6 +97,7 @@
 	</div>
 </template>
 <script setup lang="ts">
+import type { ComponentPublicInstance } from 'vue'
 import Quiz from '@/components/QuizBlock.vue'
 import PdfBlock from '@/components/PdfBlock.vue'
 // @ts-expect-error markdown-it ships no type declarations
@@ -103,6 +105,7 @@ import MarkdownIt from 'markdown-it'
 import { extractYoutubeID, getMacroArg } from '@/utils/lessonMacros'
 import { usesWebkitPdfViewer } from '@/utils/pdfViewer'
 import { safeUrl } from '@/utils/safeUrl'
+import { guardVideoElementSkips } from '@/utils/videoSkipGuard'
 
 const inlinePdf = usesWebkitPdfViewer()
 
@@ -125,6 +128,12 @@ const getId = (block: string): string => {
 	// Guard the match: a malformed `{{ PDF() }}` / unbalanced-quote macro yields
 	// null, and the old unguarded [1] threw and killed the whole lesson render.
 	return getMacroArg(block) ?? ''
+}
+
+const guardMacroVideo = (
+	el: Element | ComponentPublicInstance | null
+): void => {
+	if (el instanceof HTMLVideoElement) guardVideoElementSkips(el)
 }
 
 // Both authoring paths (the `youtube` field and the `{{ YouTubeVideo }}` macro)

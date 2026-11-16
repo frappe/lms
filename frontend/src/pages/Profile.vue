@@ -27,29 +27,44 @@
 						:open-to="profile.data.open_to"
 					/>
 				</div>
-				<div class="ms-6 mt-5">
+				<div class="mt-5 md:mt-0 md:ms-6 text-center md:text-start">
 					<h1 class="text-4xl-semibold text-ink-gray-9">
 						{{ profile.data.full_name }}
 					</h1>
-					<div class="text-base text-ink-gray-7 mt-1">
+					<div
+						v-if="profile.data.headline"
+						class="text-base text-ink-gray-7 mt-1"
+					>
 						{{ profile.data.headline }}
 					</div>
 					<ProfileSocialLinks
+						v-if="
+							profile.data.twitter ||
+							profile.data.linkedin ||
+							profile.data.github
+						"
 						:twitter="profile.data.twitter"
 						:linkedin="profile.data.linkedin"
 						:github="profile.data.github"
 					/>
 				</div>
-				<Button
+				<div
 					v-if="isSessionUser() && !readOnlyMode"
-					class="mt-3 sm:mt-0 md:ms-auto"
-					@click="editProfile()"
+					class="mt-3 flex items-center gap-2 sm:mt-0 md:ms-auto"
 				>
-					<template #prefix>
-						<span class="lucide-edit size-4 text-ink-gray-7" />
-					</template>
-					{{ __('Edit Profile') }}
-				</Button>
+					<Button @click="editProfile()">
+						<template #prefix>
+							<span class="lucide-edit size-4 text-ink-gray-7" />
+						</template>
+						{{ __('Edit Profile') }}
+					</Button>
+					<Button @click="showPasswordDialog = true">
+						<template #prefix>
+							<span class="lucide-key-round size-4 text-ink-gray-7" />
+						</template>
+						{{ __('Change password') }}
+					</Button>
+				</div>
 			</div>
 
 			<div class="mb-4 mt-10">
@@ -60,11 +75,15 @@
 				/>
 			</div>
 			<router-view
-				v-if="!awaitingEmail"
+				v-if="!awaitingEmail && !onBlockedEvaluatorTab"
 				:profile="profile"
 				:key="profile.data.username"
 			/>
 		</div>
+		<ChangePasswordDialog
+			v-if="isSessionUser()"
+			v-model:open="showPasswordDialog"
+		/>
 	</div>
 	<NotFound v-else-if="(profile.fetched || profile.error) && !profile.data" />
 </template>
@@ -90,6 +109,7 @@ import NotFound from '@/pages/NotFound.vue'
 import ProfileAvatar from '@/components/Profile/ProfileAvatar.vue'
 import ProfileCover from '@/components/Profile/ProfileCover.vue'
 import ProfileSocialLinks from '@/components/Profile/ProfileSocialLinks.vue'
+import ChangePasswordDialog from '@/components/Profile/ChangePasswordDialog.vue'
 import { openFormRoute } from '@/composables/useFormRoute'
 
 const { user, brand } = sessionStore()
@@ -97,6 +117,7 @@ const $user = inject('$user')
 const route = useRoute()
 const router = useRouter()
 const activeTab = ref('')
+const showPasswordDialog = ref(false)
 const readOnlyMode = window.read_only_mode
 const { isMobile } = useScreenSize()
 
@@ -190,7 +211,7 @@ const setActiveTab = () => {
 			activeTab.value = convertToTitleCase(section)
 		}
 	})
-	if (!activeTab.value) activeTab.value = 'About'
+	if (!activeTab.value || onBlockedEvaluatorTab.value) activeTab.value = 'About'
 }
 
 // The edit form is a child route, not a tab, and `edit` matches none of the tab
@@ -210,7 +231,8 @@ watchEffect(() => {
 	// push carries no hash. That took '#settings/<slug>' straight back off the
 	// URL, so settings never opened on this page.
 	if (!target || route.name === target.name) return
-	router.push(target)
+	if (onBlockedEvaluatorTab.value) router.replace(target)
+	else router.push(target)
 })
 
 watch(
@@ -241,12 +263,28 @@ const canSeeEvaluatorTabs = () => {
 	return $user.data?.is_evaluator && isSessionUser()
 }
 
-const isEvaluatorOrModerator = () => {
-	return (
-		profile.data?.roles?.includes('Batch Evaluator') ||
-		profile.data?.roles?.includes('Moderator')
-	)
+// Only a Batch Evaluator can be picked as a course or batch evaluator, so only
+// their profile has availability. Moderator alone lets you edit it, not have it.
+const profileCanEvaluate = () => {
+	return Boolean(profile.data?.roles?.includes('Batch Evaluator'))
 }
+
+const showEvaluatorTabs = () => canSeeEvaluatorTabs() && profileCanEvaluate()
+
+const EVALUATOR_TABS = ['ProfileEvaluator', 'ProfileEvaluationSchedule']
+
+// A deep link to /slots or /schedule is sent to About once the profile it names
+// is known and can't show them.
+const onBlockedEvaluatorTab = computed(
+	() =>
+		EVALUATOR_TABS.includes(route.name) &&
+		profile.data?.username === props.username &&
+		!showEvaluatorTabs()
+)
+
+watch(onBlockedEvaluatorTab, (blocked) => {
+	if (blocked) activeTab.value = 'About'
+})
 
 const getTabButtons = () => {
 	let buttons = [
@@ -257,7 +295,7 @@ const getTabButtons = () => {
 		buttons.push({ label: __('Roles'), value: 'Roles' })
 	}
 
-	if (canSeeEvaluatorTabs() && isEvaluatorOrModerator()) {
+	if (showEvaluatorTabs()) {
 		buttons.push({ label: __('Slots'), value: 'Slots' })
 		buttons.push({ label: __('Schedule'), value: 'Schedule' })
 	}

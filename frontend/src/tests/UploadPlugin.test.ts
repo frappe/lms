@@ -44,7 +44,7 @@ vi.mock('frappe-ui', async () => {
 					h(
 						'div',
 						{ class: 'file-uploader' },
-						slots.default?.({ openFileSelector, ...slotState })
+						slots.default?.({ openFileSelector, ...slotState }),
 					)
 			},
 		},
@@ -116,6 +116,14 @@ describe('UploadPlugin: file picker', () => {
 		expect(openFileSelector).toHaveBeenCalledTimes(1)
 	})
 
+	// A pasted audio link replaces the uploader before its first tick.
+	it('opens no file selector once it is gone before its first tick', async () => {
+		const wrapper = mountPlugin({ docname: null, fieldname: 'content' })
+		wrapper.unmount()
+		await flushPromises()
+		expect(openFileSelector).not.toHaveBeenCalled()
+	})
+
 	it('keeps an upload button to reopen a cancelled picker', async () => {
 		const wrapper = mountPlugin({ docname: null, fieldname: 'content' })
 		await flushPromises()
@@ -137,7 +145,31 @@ describe('UploadPlugin: file picker', () => {
 		const wrapper = mountPlugin({ docname: null, fieldname: 'content' })
 		await flushPromises()
 		expect(wrapper.find('.error-message').text()).toBe(
-			'Only image and video files are allowed.'
+			'Only image and video files are allowed.',
+		)
+	})
+})
+
+describe('UploadPlugin: what a lesson accepts', () => {
+	const check = (name: string) =>
+		uploader(mountPlugin({ docname: null, fieldname: 'content' })).props(
+			'validateFile',
+		)({ name })
+
+	it('takes the audio files phones and recorders save', () => {
+		for (const name of [
+			'talk.mp3',
+			'memo.M4A',
+			'clip.wav',
+			'clip.ogg',
+			'clip.aac',
+		])
+			expect(check(name)).toBeUndefined()
+	})
+
+	it('refuses a file it cannot show', () => {
+		expect(check('notes.docx')).toBe(
+			'Upload an image, video, audio or PDF file.',
 		)
 	})
 })

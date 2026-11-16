@@ -16,6 +16,7 @@ required_apps = ["frappe/payments"]
 
 
 def get_lms_path():
+	"""Bench-wide: read once at import. Set lms_path in common_site_config.json."""
 	path = "lms"
 	if frappe.conf and frappe.conf.get("lms_path"):
 		path = frappe.conf.get("lms_path")
@@ -73,9 +74,16 @@ web_include_js = []
 after_install = "lms.install.after_install"
 after_sync = "lms.install.after_sync"
 before_uninstall = "lms.install.before_uninstall"
-setup_wizard_complete = "lms.demo.demo_data.create_demo_data"
+# Runs after every setup, including one finished at login on Frappe Cloud, without forcing
+# the desk wizard the way setup_wizard_complete would.
+setup_wizard_success = "lms.demo.demo_data.create_demo_data"
+
+# Who may invite through the framework's User Invitation, and the roles they can give.
+_invitable_roles = ["Moderator", "Course Creator", "LMS Student"]
+user_invitation = {
+	"allowed_roles": {"System Manager": _invitable_roles, "Moderator": _invitable_roles},
+}
 after_migrate = [
-	"lms.sqlite.build_index_in_background",
 	"lms.lms.doctype.lms_payment.lms_payment.add_unique_payment_id_constraint",
 	# Also on migrate, not only after_sync. Both seeders are create-if-absent, and
 	# running the sidebar one on fresh installs alone means a fourteenth built-in
@@ -219,7 +227,6 @@ doc_events = {
 # ---------------
 scheduler_events = {
 	"all": [
-		"lms.sqlite.build_index_in_background",
 		"lms.lms.doctype.lms_live_class.lms_live_class.retry_pending_invites",
 	],
 	"hourly": [
@@ -227,6 +234,7 @@ scheduler_events = {
 		"lms.lms.doctype.lms_course.lms_course.update_course_statistics",
 		"lms.lms.doctype.lms_certificate_request.lms_certificate_request.mark_eval_as_completed",
 		"lms.lms.doctype.lms_live_class.lms_live_class.update_attendance",
+		"lms.lms.day1_email.send_day1_email",
 	],
 	"daily": [
 		"lms.job.doctype.job_opportunity.job_opportunity.update_job_openings",
@@ -235,10 +243,9 @@ scheduler_events = {
 		"lms.lms.doctype.lms_live_class.lms_live_class.send_live_class_reminder",
 		"lms.lms.doctype.lms_course.lms_course.send_notification_for_published_courses",
 		"lms.lms.doctype.course_lesson.course_lesson.rename_settled_untitled_lessons",
+		"lms.lms.doctype.course_evaluator.course_evaluator.clear_expired_time_off",
 	],
 }
-
-fixtures = ["Custom Field", "Function", "Industry", "LMS Category"]
 
 # Testing
 # -------
@@ -326,10 +333,6 @@ extend_bootinfo = [
 ## subclass of lms.plugins.PageExtension
 # lms_lesson_page_extension = None
 
-# lms_lesson_page_extensions = [
-# 	"lms.plugins.LiveCodeExtension"
-# ]
-
 has_website_permission = {
 	"LMS Certificate Evaluation": "lms.lms.doctype.lms_certificate_evaluation.lms_certificate_evaluation.has_website_permission",
 	"LMS Certificate": "lms.lms.doctype.lms_certificate.lms_certificate.has_website_permission",
@@ -337,11 +340,8 @@ has_website_permission = {
 
 ## Markdown Macros for Lessons
 lms_markdown_macro_renderers = {
-	"Exercise": "lms.plugins.exercise_renderer",
-	"Quiz": "lms.plugins.quiz_renderer",
 	"YouTubeVideo": "lms.plugins.youtube_video_renderer",
 	"Video": "lms.plugins.video_renderer",
-	"Assignment": "lms.plugins.assignment_renderer",
 	"Embed": "lms.plugins.embed_renderer",
 	"Audio": "lms.plugins.audio_renderer",
 	"PDF": "lms.plugins.pdf_renderer",

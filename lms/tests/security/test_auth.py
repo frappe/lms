@@ -33,3 +33,37 @@ class TestAuth(BaseTestUtils):
 		frappe.session.user = self.normal_user.name
 		self.assertRaises(frappe.PermissionError, authenticate)
 		frappe.session.user = "Administrator"
+
+	def check_request_path(self, path):
+		frappe.form_dict.cmd = None
+		original_request = getattr(frappe.local, "request", None)
+		frappe.local.request = frappe._dict(path=path)
+		frappe.session.user = self.normal_user.name
+		try:
+			authenticate()
+		finally:
+			frappe.session.user = "Administrator"
+			frappe.local.request = original_request
+
+	def test_v2_method_follows_v1_rules(self):
+		# frappectl calls methods through /api/v2/method/.
+		self.check_request_path("/api/v2/method/lms.lms.utils.get_roles")
+		self.check_request_path("/api/v2/method/frappe.client.get_list")
+		self.assertRaises(
+			frappe.PermissionError, self.check_request_path, "/api/v2/method/frappe.auth.get_logged_user"
+		)
+
+	def test_v2_document_routes_stay_blocked(self):
+		self.assertRaises(frappe.PermissionError, self.check_request_path, "/api/v2/document/LMS Course")
+
+	def test_oauth_client_registration_and_logout_are_allowed(self):
+		# frappectl registers itself as Guest before the browser sign-in, then revokes its
+		# token on logout. Blocking either made OAuth login fail with a 403.
+		for method in ("register_client", "revoke_token"):
+			frappe.form_dict.cmd = f"frappe.integrations.oauth2.{method}"
+			for user in ("Guest", self.normal_user.name):
+				frappe.session.user = user
+				try:
+					authenticate()
+				finally:
+					frappe.session.user = "Administrator"

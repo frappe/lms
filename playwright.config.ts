@@ -8,6 +8,9 @@ export default defineConfig({
 	// files are independent. The default already runs separate files in
 	// parallel across workers; fullyParallel additionally splits a single
 	// file's own tests across workers, racing them out of order.
+	// One worker per spec file. CI's default of 2 on the 4-vCPU runner leaves
+	// one worker running two specs back to back.
+	workers: process.env.CI ? 3 : undefined,
 	forbidOnly: !!process.env.CI,
 	retries: process.env.CI ? 2 : 0,
 	reporter: process.env.CI ? [["line"], ["html", { open: "never" }]] : "list",

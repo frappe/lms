@@ -115,7 +115,7 @@ const openCertificate = () => {
 	openExternal(
 		`/api/method/frappe.utils.print_format.download_pdf?doctype=LMS+Certificate&name=${
 			cert.name
-		}&format=${encodeURIComponent(cert.template)}`
+		}&format=${encodeURIComponent(cert.template)}&no_letterhead=1`
 	)
 }
 

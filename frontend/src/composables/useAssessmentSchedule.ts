@@ -69,5 +69,5 @@ export function useAssessmentSchedule(
 		return ''
 	})
 
-	return { scheduleBlockReason, scheduleBlocked, scheduleMessage }
+	return { now, scheduleBlockReason, scheduleBlocked, scheduleMessage }
 }

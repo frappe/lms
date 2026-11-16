@@ -13,6 +13,7 @@
 		</div>
 		<div v-if="courses.data?.length" class="text-sm">
 			<ResponsiveListView
+				docked-banner
 				:columns="courseColumns"
 				:rows="courses.data"
 				row-key="name"
@@ -32,12 +33,19 @@
 				</template>
 			</ResponsiveListView>
 		</div>
-		<div v-else class="text-ink-gray-7">
-			{{ __('No courses added to this batch') }}
-		</div>
+		<SectionEmptyState
+			v-else
+			icon="lucide-book-open"
+			:message="
+				__(
+					'Add the courses this batch works through. Students get access to each one when they enroll.'
+				)
+			"
+		/>
 	</div>
 </template>
 <script setup>
+import SectionEmptyState from '@/components/SectionEmptyState.vue'
 import { computed, inject } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { openBatchForm } from '@/composables/useBatchForms'

@@ -4,6 +4,7 @@
 import json
 import os
 import re
+import warnings
 from binascii import Error as BinasciiError
 from functools import partial
 
@@ -22,15 +23,25 @@ from frappe.utils import (
 )
 from frappe.utils.file_manager import safe_b64decode
 from frappe.utils.html_utils import sanitize_html
-from fuzzywuzzy import fuzz
 
-from lms.lms.doctype.course_lesson.course_lesson import get_lesson_course, save_progress
+# fuzzywuzzy warns on import unless python-Levenshtein is installed. That
+# package scores differently from difflib and would change which answers pass.
+with warnings.catch_warnings():
+	warnings.filterwarnings("ignore", message="Using slow pure-python SequenceMatcher")
+	from fuzzywuzzy import fuzz
+
+from lms.lms.doctype.course_lesson.course_lesson import (
+	get_lesson_course,
+	save_progress,
+	video_holds_completion,
+)
 from lms.lms.doctype.lms_content_author.lms_content_author import AuthoredDocument
 from lms.lms.doctype.lms_question.lms_question import (
 	QUESTION_CORRECTNESS_FIELDS,
 	QUESTION_OPTION_FIELDS,
 	QUESTION_POSSIBILITY_FIELDS,
 )
+from lms.lms.lesson_assessments import RenamableAssessment
 from lms.lms.schedule_utils import assert_within_schedule, validate_schedule_fields
 from lms.lms.utils import (
 	generate_slug,
@@ -58,7 +69,15 @@ MAX_VIOLATION_FRAME_BYTES = 250 * 1024
 MAX_VIOLATION_FRAMES = 40
 
 
-class LMSQuiz(AuthoredDocument, Document):
+class LMSQuiz(RenamableAssessment, AuthoredDocument, Document):
+	def throw_length_exceeded_error(self, df, max_length, value):
+		if df.fieldname == "title":
+			frappe.throw(
+				_("Title must be {0} characters or fewer.").format(max_length),
+				frappe.CharacterLengthExceededError,
+			)
+		super().throw_length_exceeded_error(df, max_length, value)
+
 	def validate(self):
 		self.validate_duplicate_questions()
 		self.validate_limit()
@@ -87,7 +106,9 @@ class LMSQuiz(AuthoredDocument, Document):
 	def calculate_total_marks(self):
 		if len(self.questions) == 0:
 			self.total_marks = 0
-			self.passing_percentage = 100
+			# Fill the required pass mark only when unset; never overwrite the author's.
+			if self.passing_percentage in (None, ""):
+				self.passing_percentage = 100
 			return
 
 		if self.limit_questions_to:
@@ -162,7 +183,7 @@ def _validate_quiz_results(results):
 			frappe.throw(_("Invalid quiz results submitted."), frappe.ValidationError)
 
 
-@frappe.whitelist()
+@frappe.whitelist(methods=["POST"])
 def submit_quiz(
 	quiz: str,
 	results: str | None = None,
@@ -231,7 +252,7 @@ def submit_quiz(
 		submission_reason=proctoring["submission_reason"],
 	)
 	percentage = submission.percentage or 0
-	save_progress_after_quiz(quiz_details, percentage)
+	save_progress_after_quiz(quiz_details)
 
 	_save_violation_events(submission.name, proctoring["events"])
 	_attach_answer_files(data["answer_files"], submission.name)
@@ -507,9 +528,13 @@ def _save_violation_frame(log_name: str, data_url: str) -> bool:
 
 @frappe.whitelist()
 def is_open_ended_submission(submission: str) -> bool:
-	quiz = frappe.db.get_value("LMS Quiz Submission", submission, "quiz")
+	quiz, member = frappe.db.get_value("LMS Quiz Submission", submission, ["quiz", "member"]) or (None, None)
 	if not quiz:
 		return False
+	if member != frappe.session.user and not frappe.has_permission("LMS Quiz Submission", "read", submission):
+		frappe.throw(_("Insufficient Permission"), frappe.PermissionError)
+	# A quiz is open ended as a whole (validate_open_ended_questions), so its first
+	# question decides.
 	question_type = frappe.db.get_value("LMS Quiz Question", {"parent": quiz}, "type")
 	return question_type == "Open Ended"
 
@@ -600,6 +625,8 @@ def process_results(results: list, quiz_details: dict):
 		else:
 			is_open_ended = True
 			result["is_correct"] = 0
+			# An evaluator grades it later; whatever marks the page sent do not count.
+			result["marks"] = 0
 			answer = re.sub(
 				r'<img[^>]*src\s*=\s*["\'](?=data:)(.*?)["\']',
 				partial(_save_file, answer_files),
@@ -709,7 +736,7 @@ def create_submission(
 		{
 			"doctype": "LMS Quiz Submission",
 			"quiz": quiz,
-			"result": results,
+			"result": _result_rows(results),
 			"score": 0,
 			"score_out_of": score_out_of,
 			"member": frappe.session.user,
@@ -723,11 +750,26 @@ def create_submission(
 	return submission
 
 
-def save_progress_after_quiz(quiz_details: dict, percentage: float):
-	if not quiz_details.lesson or not quiz_details.course:
-		return
+RESULT_ROW_FIELDS = (
+	"question_name",
+	"question",
+	"question_type",
+	"answer",
+	"is_correct",
+	"marks",
+	"marks_out_of",
+)
 
-	if quiz_details.passing_percentage and percentage < quiz_details.passing_percentage:
+
+def _result_rows(results: list) -> list[dict]:
+	"""Copy only the fields process_results derives: the rows are client dicts, and taken
+	verbatim a forged owner, creation or idx stuck to the child row."""
+	return [{field: row.get(field) for field in RESULT_ROW_FIELDS} for row in results]
+
+
+def save_progress_after_quiz(quiz_details: dict):
+	"""save_progress decides whether this attempt is enough to complete the lesson."""
+	if not quiz_details.lesson or not quiz_details.course:
 		return
 
 	# save_progress refuses a locked lesson by raising, which would roll back the
@@ -740,6 +782,9 @@ def save_progress_after_quiz(quiz_details: dict, percentage: float):
 
 	course = get_lesson_course(quiz_details.lesson)
 	if not course or quiz_details.lesson in get_locked_lessons(course):
+		return
+	# The lesson page completes it once the video ends.
+	if video_holds_completion(quiz_details.lesson):
 		return
 
 	save_progress(quiz_details.lesson, course)

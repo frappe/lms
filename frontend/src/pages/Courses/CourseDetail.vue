@@ -25,7 +25,7 @@
 				/>
 				<Button
 					v-if="user.data?.is_moderator && !isMobile"
-					:variant="course.data?.published ? 'subtle' : 'solid'"
+					variant="subtle"
 					:theme="course.data?.published ? 'red' : 'gray'"
 					:loading="publishToggle.loading"
 					@click="togglePublishCourse"
@@ -75,7 +75,7 @@
 						</template>
 					</Button>
 				</Tooltip>
-				<Tooltip v-if="isMobile" :text="__('Student View')">
+				<Tooltip v-if="studentViewRoute && isMobile" :text="__('Student View')">
 					<Button
 						variant="outline"
 						class="!size-9"
@@ -87,7 +87,11 @@
 						</template>
 					</Button>
 				</Tooltip>
-				<Button v-else variant="outline" :route="studentViewRoute">
+				<Button
+					v-else-if="studentViewRoute"
+					variant="outline"
+					:route="studentViewRoute"
+				>
 					<template #prefix>
 						<span class="lucide-eye size-4" />
 					</template>
@@ -168,7 +172,9 @@
 
 		<template #overlay="{ tab }">
 			<Button
-				v-if="isMobile && tab?.key === 'editor'"
+				v-if="
+					isMobile && tab?.key === 'editor' && courseEditorRef?.outlineVisible
+				"
 				variant="outline"
 				size="md"
 				class="absolute bottom-4 end-4 z-10 !h-11 !rounded-full !px-4 !shadow-lg"
@@ -181,7 +187,11 @@
 			</Button>
 
 			<div
-				v-if="tab?.key === 'editor' && course.data"
+				v-if="
+					tab?.key === 'editor' &&
+					course.data &&
+					courseEditorRef?.outlineVisible
+				"
 				class="pointer-events-none absolute inset-x-0 top-0 z-10 hidden md:flex"
 			>
 				<div class="w-[70%]" />
@@ -208,7 +218,15 @@
 	<router-view />
 </template>
 <script setup lang="ts">
-import { computed, inject, markRaw, ref, useTemplateRef, watch } from 'vue'
+import {
+	computed,
+	inject,
+	markRaw,
+	provide,
+	ref,
+	useTemplateRef,
+	watch,
+} from 'vue'
 import type { ComputedRef } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import type { Router } from 'vue-router'
@@ -224,6 +242,9 @@ import {
 import type { FrappeResourceError } from 'frappe-ui'
 import { sessionStore } from '@/stores/session'
 import { useScreenSize } from '@/utils/composables'
+import { useTelemetry } from '@framework/ui/telemetry/index'
+import { useOnboarding } from '@framework/ui/components/Onboarding/index'
+import { seesOnboarding } from '@/utils/onboarding'
 import TabbedDetailPage from '@/components/Layouts/pages/TabbedDetailPage.vue'
 import type { DetailTab } from '@/components/Layouts/pages/TabbedDetailPage.vue'
 import CourseOverview from '@/pages/Courses/CourseOverview.vue'
@@ -256,15 +277,20 @@ interface EditorSelection {
 const editorSelected = ref<EditorSelection | null>(null)
 const showLessonHelp = ref(false)
 
-const studentViewRoute = computed(() => ({
-	name: 'Lesson',
-	params: {
-		courseName: props.courseName,
-		chapterNumber: editorSelected.value?.chapterNumber,
-		lessonNumber: editorSelected.value?.lessonNumber,
-	},
-	query: { studentView: 1 },
-}))
+// A lesson just created has no position until the outline reload places it.
+const studentViewRoute = computed(() =>
+	editorSelected.value?.number
+		? {
+				name: 'Lesson',
+				params: {
+					courseName: props.courseName,
+					chapterNumber: editorSelected.value.chapterNumber,
+					lessonNumber: editorSelected.value.lessonNumber,
+				},
+				query: { studentView: 1 },
+		  }
+		: null
+)
 
 type CourseMenuItem = {
 	label: string
@@ -289,6 +315,7 @@ type CourseEditorApi = {
 	lessonHasVideo: ComputedRef<boolean>
 	openVideoStats: () => void
 	openAddChapter: () => void
+	outlineVisible: ComputedRef<boolean>
 	lessonIndex: ComputedRef<number>
 	lessonTotal: ComputedRef<number>
 	hasPrev: ComputedRef<boolean>
@@ -299,6 +326,12 @@ type CourseEditorApi = {
 }
 const courseEditorRef = ref<CourseEditorApi | null>(null)
 
+type PublishResponse = {
+	__onload?: { quizzes_without_questions?: string[] }
+}
+
+const { capture } = useTelemetry()
+const onboarding = useOnboarding('learning')
 const publishToggle = createResource({
 	url: 'frappe.client.set_value',
 	makeParams() {
@@ -309,10 +342,22 @@ const publishToggle = createResource({
 			value: course.data?.published ? 0 : 1,
 		}
 	},
-	onSuccess() {
-		toast.success(
-			course.data?.published ? __('Course unpublished') : __('Course published')
-		)
+	onSuccess(data: PublishResponse) {
+		const published = !course.data?.published
+		capture(published ? 'course_published' : 'course_unpublished', {
+			course: course.data?.name,
+		})
+		if (published && seesOnboarding(user.data))
+			onboarding?.updateOnboardingStep('publish_first_course')
+		toast.success(published ? __('Course published') : __('Course unpublished'))
+		const emptyQuizzes = data?.__onload?.quizzes_without_questions
+		if (emptyQuizzes?.length) {
+			toast.warning(
+				__(
+					'These quizzes have no questions, so learners skip them: {0}'
+				).format(emptyQuizzes.join(', '))
+			)
+		}
 		course.reload()
 	},
 	onError(err: FrappeResourceError) {
@@ -372,6 +417,10 @@ const course = createResource({
 	auto: true,
 }) as Resource<CourseDetails | null>
 
+// Enrolling from the form in the <router-view> below moves the dashboard's
+// Enrolled stat; with no cache key the form cannot reach this resource itself.
+provide('reloadCourseDetails', () => course.reload())
+
 const tabs = computed<DetailTab[]>(() => [
 	{
 		key: 'overview',
@@ -415,7 +464,12 @@ watch(
 )
 
 watch(course, () => {
-	if (!isAdmin.value && !course.data?.published && !course.data?.upcoming) {
+	if (
+		!isAdmin.value &&
+		!course.data?.membership &&
+		!course.data?.published &&
+		!course.data?.upcoming
+	) {
 		router.push({
 			name: 'Courses',
 		})

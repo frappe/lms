@@ -98,7 +98,8 @@
    "fieldname": "start_url",
    "fieldtype": "Small Text",
    "label": "Start URL",
-   "read_only": 1
+   "read_only": 1,
+   "permlevel": 1
   },
   {
    "fieldname": "column_break_yokr",
@@ -218,7 +219,7 @@
    "link_fieldname": "live_class"
   }
  ],
- "modified": "2026-10-12 00:00:00.000000",
+ "modified": "2026-10-14 15:27:02.616374",
  "modified_by": "sayali@frappe.io",
  "module": "LMS",
  "name": "LMS Live Class",
@@ -282,6 +283,24 @@
    "report": 1,
    "role": "Course Creator",
    "share": 1,
+   "write": 1
+  },
+  {
+   "permlevel": 1,
+   "read": 1,
+   "role": "System Manager",
+   "write": 1
+  },
+  {
+   "permlevel": 1,
+   "read": 1,
+   "role": "Moderator",
+   "write": 1
+  },
+  {
+   "permlevel": 1,
+   "read": 1,
+   "role": "Batch Evaluator",
    "write": 1
   }
  ],

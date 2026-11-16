@@ -53,6 +53,9 @@ vi.mock('@/components/Icons/LMSLogo.vue', () => ({
 vi.mock('@/components/Settings/Settings.vue', () => ({
 	default: { template: '<div />' },
 }))
+vi.mock('@/components/Settings/settings', () => ({
+	canOpenSettings: () => false,
+}))
 vi.mock('vue-router', () => ({ useRouter: () => ({ push: vi.fn() }) }))
 vi.mock('@/utils', () => ({ convertToTitleCase: (s: string) => s }))
 vi.mock('@/utils/safeUrl', () => ({ safeUrl: (s: string) => s }))

@@ -132,6 +132,9 @@ class TestLMSAPI(BaseTestUtils):
 		site_path = frappe.get_site_path("private", "files")
 		zip_files = glob.glob(os.path.join(site_path, f"{self.course.name}_*.zip"))
 		latest_file = max(zip_files, key=os.path.getctime) if zip_files else None
+		if latest_file:
+			# The app deletes it from a job enqueued after commit, which a test never reaches.
+			self.addCleanup(os.remove, latest_file)
 		return latest_file
 
 	def test_import_course_from_zip(self):
@@ -153,7 +156,16 @@ class TestLMSAPI(BaseTestUtils):
 		latest_file = self.get_latest_zip_file()
 		self.assertTrue(latest_file)
 		zip_file_path = f"/{'/'.join(latest_file.split('/')[2:])}"
-		imported_course_name = import_course_from_zip(zip_file_path)
+		# The import form uploads the ZIP first and sends that File's url.
+		upload = frappe.get_doc(
+			{
+				"doctype": "File",
+				"file_url": zip_file_path,
+				"file_name": os.path.basename(zip_file_path),
+				"is_private": 1,
+			}
+		).insert()
+		imported_course_name = import_course_from_zip(upload.file_url)
 		imported_course = frappe.get_doc("LMS Course", imported_course_name)
 		return imported_course
 

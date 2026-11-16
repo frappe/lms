@@ -149,11 +149,15 @@
 					)
 				}}
 			</div>
-			<Button :route="{ name: 'NewCourse' }" class="mt-4">
+			<Button
+				:route="{ name: 'NewCourse' }"
+				class="mt-4"
+				@click="setFormSource('admin_home')"
+			>
 				<template #prefix>
 					<span class="lucide-plus size-4" />
 				</template>
-				{{ __('Create Course') }}
+				{{ __('New Course') }}
 			</Button>
 		</div>
 	</div>
@@ -165,6 +169,7 @@ import { formatTime } from '@/utils'
 import { formatTimezone } from '@/utils/timezone'
 import { profileRoute } from '@/utils/routes'
 import CourseCard from '@/components/CourseCard.vue'
+import { setFormSource } from '@/composables/formTracking'
 import BatchCard from '@/pages/Batches/components/BatchCard.vue'
 import LiveClassCard from '@/pages/Home/LiveClassCard.vue'
 

@@ -71,33 +71,41 @@
 							:title="scheduleMessage"
 						/>
 						<template v-if="showUploader()">
-							<div
-								v-if="attachment"
-								data-testid="assignment-attachment"
-								class="flex h-9 items-center gap-x-2 rounded-4 border border-outline-gray-2 px-2.5"
-							>
-								<span
-									class="lucide-file-text size-4 shrink-0 text-ink-gray-6"
+							<template v-if="attachment">
+								<div
+									data-testid="assignment-attachment"
+									class="flex h-9 items-center gap-x-2 rounded-4 border border-outline-gray-2 px-2.5"
+								>
+									<span
+										class="lucide-file-text size-4 shrink-0 text-ink-gray-6"
+									/>
+									<a
+										:href="safeUrl(attachment)"
+										v-external
+										class="min-w-0 flex-1 truncate text-base text-ink-gray-8 !no-underline"
+									>
+										{{ attachment.split('/').pop() }}
+									</a>
+									<Button
+										v-if="canModifyAssignment"
+										variant="ghost"
+										size="sm"
+										:aria-label="__('Remove submission')"
+										@click="removeSubmission()"
+									>
+										<template #icon>
+											<span class="lucide-x size-4" />
+										</template>
+									</Button>
+								</div>
+								<!-- An evaluator listens here instead of downloading the file. -->
+								<AudioBlock
+									v-if="assignment.data.type == 'Audio'"
+									:key="attachment"
+									data-testid="assignment-audio"
+									:file="attachment"
 								/>
-								<a
-									:href="safeUrl(attachment)"
-									v-external
-									class="min-w-0 flex-1 truncate text-base text-ink-gray-8 !no-underline"
-								>
-									{{ attachment.split('/').pop() }}
-								</a>
-								<Button
-									v-if="canModifyAssignment"
-									variant="ghost"
-									size="sm"
-									:aria-label="__('Remove submission')"
-									@click="removeSubmission()"
-								>
-									<template #icon>
-										<span class="lucide-x size-4" />
-									</template>
-								</Button>
-							</div>
+							</template>
 							<AssignmentUploadPrompt
 								v-else-if="canModifyAssignment"
 								:type="assignment.data.type"
@@ -306,6 +314,8 @@ import router from '@/router'
 import { validateFile } from '@/utils'
 import RichTextEditor from '@/components/RichTextEditor.vue'
 import { safeUrl } from '@/utils/safeUrl'
+import { AUDIO_EXTENSIONS } from '@/utils/audio'
+import AudioBlock from '@/components/AudioBlock.vue'
 import { useAssessmentSchedule } from '@/composables/useAssessmentSchedule'
 import type { ScheduledAssessment } from '@/composables/useAssessmentSchedule'
 import { markLessonProgress } from '@/utils/markLessonProgress'
@@ -316,7 +326,7 @@ type SubmissionStatus = 'Not Graded' | 'Pass' | 'Fail'
 interface AssignmentDetails extends ScheduledAssessment {
 	title: string
 	question: string
-	type: 'Document' | 'PDF' | 'URL' | 'Image' | 'Text'
+	type: 'Document' | 'PDF' | 'URL' | 'Image' | 'Text' | 'Audio'
 }
 
 interface SubmissionDoc {
@@ -539,6 +549,8 @@ const getType = (): string[] | undefined => {
 		]
 	} else if (type == 'PDF') {
 		return ['.pdf']
+	} else if (type == 'Audio') {
+		return ['audio/*', ...AUDIO_EXTENSIONS.map((extension) => `.${extension}`)]
 	}
 }
 
@@ -609,6 +621,8 @@ const statusTheme = computed(() => {
 })
 
 const showUploader = (): boolean => {
-	return ['PDF', 'Image', 'Document'].includes(assignment.data?.type ?? '')
+	return ['PDF', 'Image', 'Document', 'Audio'].includes(
+		assignment.data?.type ?? ''
+	)
 }
 </script>

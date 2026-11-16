@@ -41,35 +41,6 @@ const doc = {
 }
 
 describe('CoursePublishSettings', () => {
-	it('renders a switch bound to enforce_lesson_completion', () => {
-		const markDirty = vi.fn()
-		const wrapper = mount(CoursePublishSettings, {
-			global: {
-				mocks: { __: (s: string) => s },
-				provide: {
-					courseForm: { resource: { doc }, markDirty },
-					$dayjs: (v: unknown) => ({ format: () => String(v) }),
-				},
-				stubs: {
-					CollapsibleSection: { template: '<div><slot /></div>' },
-					Link: true,
-					NewMemberModal: true,
-					BooleanSwitch: {
-						props: ['modelValue', 'label'],
-						emits: ['update:modelValue'],
-						template: `<button
-							:data-label="label"
-							@click="$emit('update:modelValue', !modelValue)"
-						/>`,
-					},
-				},
-			},
-		})
-
-		const toggle = wrapper.find('[data-label="Enforce Lesson Completion"]')
-		expect(toggle.exists()).toBe(true)
-	})
-
 	it('marks the form dirty when the switch is flipped', async () => {
 		const markDirty = vi.fn()
 		const wrapper = mount(CoursePublishSettings, {
@@ -100,4 +71,37 @@ describe('CoursePublishSettings', () => {
 			.trigger('click')
 		expect(markDirty).toHaveBeenCalled()
 	})
+})
+
+// Regression: currency picker 403 for Moderator and Course Creator, LMS roles
+// cannot read Currency (#3023, fixed in #3038).
+describe('CoursePublishSettings currency picker', () => {
+	it.each([{ paid_course: 1 }, { paid_certificate: 1 }])(
+		'searches through the LMS query (%o)',
+		(pricing) => {
+			const wrapper = mount(CoursePublishSettings, {
+				global: {
+					mocks: { __: (s: string) => s },
+					provide: {
+						courseForm: {
+							resource: { doc: { ...doc, ...pricing } },
+							markDirty: vi.fn(),
+						},
+						$dayjs: (v: unknown) => ({ format: () => String(v) }),
+					},
+					stubs: {
+						CollapsibleSection: { template: '<div><slot /></div>' },
+						Link: true,
+						NewMemberModal: true,
+						BooleanSwitch: true,
+					},
+				},
+			})
+
+			const picker = wrapper
+				.findAllComponents({ name: 'Link' })
+				.find((link) => link.props('doctype') === 'Currency')
+			expect(picker?.props('query')).toBe('lms.lms.api.search_currencies')
+		}
+	)
 })

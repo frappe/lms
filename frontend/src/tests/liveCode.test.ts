@@ -1,3 +1,4 @@
+// @vitest-environment node
 // Guards a run waiting out the full 20s timeout after the runner dropped it.
 // Came with the runner script ignoring a closed socket (seen when Falcon's
 // containers could not start). Added on fix-1 with the close listener.

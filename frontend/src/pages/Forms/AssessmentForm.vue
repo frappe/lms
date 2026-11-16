@@ -1,5 +1,5 @@
 <template>
-	<FormShell :title="__('Add an assessment')" size="sm" @close="close">
+	<FormShell :title="__('Add Assessment')" size="sm" @close="close">
 		<template #default>
 			<div v-if="refusal" class="p-4 text-base text-ink-gray-6">
 				{{ refusal }}
@@ -26,7 +26,7 @@
 		<template #actions>
 			<HeaderButton
 				v-if="!refusal"
-				:label="__('Save')"
+				:label="__('Add')"
 				variant="solid"
 				:loading="assessmentResource.loading"
 				@click="submit"
@@ -84,9 +84,9 @@ const refusal = computed(() => {
 })
 
 const assessmentTypes = computed(() => [
-	{ label: 'Quiz', value: 'LMS Quiz' },
-	{ label: 'Assignment', value: 'LMS Assignment' },
-	{ label: 'Programming Exercise', value: 'LMS Programming Exercise' },
+	{ label: __('Quiz'), value: 'LMS Quiz' },
+	{ label: __('Assignment'), value: 'LMS Assignment' },
+	{ label: __('Programming Exercise'), value: 'LMS Programming Exercise' },
 ])
 
 const assessmentResource = createResource({

@@ -72,9 +72,9 @@ class TestUserEmailDisclosure(BaseTestUtils):
 			}
 		).insert()
 		chapter = cls._create_chapter(f"Chapter {hash}", cls.course).name
-		lesson = cls._create_lesson(f"Lesson {hash}", chapter, cls.course).name
+		cls.lesson = cls._create_lesson(f"Lesson {hash}", chapter, cls.course).name
 		cls._create_chapter_reference(cls.course, chapter)
-		cls._create_lesson_reference(chapter, lesson)
+		cls._create_lesson_reference(chapter, cls.lesson)
 		cls._create_enrollment(cls.student, cls.course)
 		cls._create_enrollment(cls.other, cls.course)
 		cls._add_rating(cls.course, cls.other, 0.8, "Good course")
@@ -232,6 +232,7 @@ class TestUserEmailDisclosure(BaseTestUtils):
 			"get_application_users": lambda: api.get_application_users([self.application]),
 			"get_batch_student_progress": lambda: get_batch_student_progress(self.other_username, self.batch),
 			"get_certification_details": lambda: api.get_certification_details(self.course),
+			"get_all_users": lambda: api.get_all_users("LMS Batch", self.batch),
 		}
 
 	def _callers(self):
@@ -373,19 +374,49 @@ class TestUserEmailDisclosure(BaseTestUtils):
 			self._as(self.student, lambda: unwrapped(["like", "%"]))
 
 	def test_job_poster_emails_an_applicant_without_their_address(self):
-		with patch("frappe.core.doctype.communication.email.make") as make:
-			self._as(self.other, lambda: api.send_job_application_email(self.application, "Hi", "Body", None))
-		self.assertEqual(make.call_args.kwargs["recipients"], self.student)
-		self.assertEqual(make.call_args.kwargs["name"], self.application)
+		for poster in (self.other, self.moderator):
+			with self.subTest(poster=poster), patch("frappe.core.doctype.communication.email.make") as make:
+				self._as(poster, lambda: api.send_job_application_email(self.application, "Hi", "Body"))
+				self.assertEqual(make.call_args.kwargs["recipients"], self.student)
+				self.assertEqual(make.call_args.kwargs["name"], self.application)
+				# Nobody is copied in: the poster's address is the sender's own.
+				self.assertNotIn("cc", make.call_args.kwargs)
+				self.assertNotIn("bcc", make.call_args.kwargs)
 
-	def test_only_a_reader_of_the_application_can_email_the_applicant(self):
+	def test_only_the_jobs_poster_can_email_the_applicant(self):
 		outsider = self._create_user(
 			f"ued-outsider-{self.hash}@example.com", "Out", "Sider", ["LMS Student"]
 		).name
-		with patch("frappe.core.doctype.communication.email.make") as make:
-			with self.assertRaises(frappe.PermissionError):
-				self._as(outsider, lambda: api.send_job_application_email(self.application, "Hi", "Body"))
-		make.assert_not_called()
+		# The applicant reads their own application; that is not enough.
+		for caller in (self.student, outsider):
+			with self.subTest(caller=caller), patch("frappe.core.doctype.communication.email.make") as make:
+				with self.assertRaises(frappe.PermissionError):
+					self._as(caller, lambda: api.send_job_application_email(self.application, "Hi", "Body"))
+				make.assert_not_called()
+
+	def test_mentionable_people_are_the_contexts_members_and_staff_by_username(self):
+		def usernames(*users):
+			return {frappe.db.get_value("User", user, "username") for user in users}
+
+		batch_people = self._as(self.instructor, lambda: api.get_all_users("LMS Batch", self.batch))
+		self.assertEqual(
+			set(batch_people),
+			usernames(self.student, self.other, self.instructor, self.moderator, self.evaluator),
+		)
+		lesson_people = self._as(self.moderator, lambda: api.get_all_users("Course Lesson", self.lesson))
+		self.assertEqual(set(lesson_people), usernames(self.student, self.other, self.instructor))
+		for person in (*batch_people.values(), *lesson_people.values()):
+			self.assertEqual(set(person), {"username", "full_name", "user_image"})
+		self.assertEqual(self._as(self.moderator, lambda: api.get_all_users("LMS Course", self.course)), {})
+
+	def test_mentions_are_refused_outside_the_callers_courses_and_batches(self):
+		bystander = self._create_user(
+			f"ued-bystander-{self.hash}@example.com", "By", "Stander", ["Course Creator"]
+		).name
+		for caller in (self.student, bystander):
+			for doctype, docname in (("LMS Batch", self.batch), ("Course Lesson", self.lesson)):
+				with self.subTest(caller=caller, doctype=doctype), self.assertRaises(frappe.PermissionError):
+					self._as(caller, lambda: api.get_all_users(doctype, docname))
 
 	def test_announcement_bccs_the_students_on_the_server(self):
 		with patch("frappe.core.doctype.communication.email.make") as make:

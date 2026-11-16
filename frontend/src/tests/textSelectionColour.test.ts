@@ -1,3 +1,4 @@
+// @vitest-environment node
 // Guards lesson text selection staying readable in dark mode. EditorJS injects
 // a fixed light-blue ::selection with no text colour. Came with this branch's
 // lesson selection-colour fix; added on feat/assessment-visual-redesign.

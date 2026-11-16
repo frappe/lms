@@ -5,12 +5,18 @@ from bs4 import BeautifulSoup
 from frappe import _
 from frappe.core.api.file import get_max_file_size
 from frappe.translate import get_user_lang
+from frappe.utils import get_system_timezone
 from frappe.utils.data import escape_html
 from frappe.utils.telemetry import capture
 
 from lms.lms.api import can_see_job
 from lms.lms.permissions import can_access_course, can_author_batch
-from lms.lms.utils import get_lms_path, get_lms_route, resolve_text_direction
+from lms.lms.utils import (
+	get_lms_path,
+	get_lms_route,
+	resolve_text_direction,
+	warn_if_lms_path_differs_from_routes,
+)
 
 no_cache = 1
 
@@ -18,7 +24,6 @@ no_cache = 1
 def get_context():
 	context = frappe._dict()
 	context.boot = get_boot()
-	frappe.db.commit()
 
 	app_path = frappe.form_dict.get("app_path")
 	favicon = frappe.db.get_single_value("Website Settings", "favicon") or "/assets/lms/frontend/favicon.png"
@@ -33,6 +38,7 @@ def get_context():
 
 
 def get_boot():
+	warn_if_lms_path_differs_from_routes()
 	lang = get_user_lang()
 
 	return frappe._dict(
@@ -45,6 +51,7 @@ def get_boot():
 			"lang": lang,
 			"text_direction": resolve_text_direction(lang),
 			"date_format": frappe.get_system_settings("date_format"),
+			"timezone": {"system": get_system_timezone()},
 		}
 	)
 

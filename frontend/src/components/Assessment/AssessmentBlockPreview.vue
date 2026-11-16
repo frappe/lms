@@ -173,7 +173,7 @@ type Details =
 
 const props = defineProps<{ kind: PreviewKind; name: string }>()
 
-const uploadTypes = ['PDF', 'Image', 'Document']
+const uploadTypes = ['PDF', 'Image', 'Document', 'Audio']
 
 const icon = {
 	quiz: 'lucide-circle-help',

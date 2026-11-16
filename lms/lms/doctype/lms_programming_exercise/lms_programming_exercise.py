@@ -6,10 +6,11 @@ from frappe import _
 from frappe.model.document import Document
 
 from lms.lms.doctype.lms_content_author.lms_content_author import AuthoredDocument
+from lms.lms.lesson_assessments import RenamableAssessment
 from lms.lms.utils import generate_slug
 
 
-class LMSProgrammingExercise(AuthoredDocument, Document):
+class LMSProgrammingExercise(RenamableAssessment, AuthoredDocument, Document):
 	def autoname(self):
 		# See LMSAssignment.autoname. Older exercises keep their hash names.
 		if not self.name:

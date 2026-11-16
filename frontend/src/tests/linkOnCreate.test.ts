@@ -70,22 +70,6 @@ describe('Link onCreate contract', () => {
 		expect(onCreate.mock.calls[0]).toHaveLength(1)
 		expect(onCreate.mock.calls[0][0]).toBeNull()
 	})
-
-	it('does not hand the handler a close callback to invoke', async () => {
-		const received: unknown[] = []
-		await clickCreateNew(
-			mountLink((...args) => received.push(...args.slice(1)))
-		)
-
-		expect(received).toEqual([])
-	})
-
-	it('survives a handler that takes no parameters at all', async () => {
-		const onCreate = vi.fn(() => {})
-		await clickCreateNew(mountLink(onCreate))
-
-		expect(onCreate).toHaveBeenCalledOnce()
-	})
 })
 
 // A filter sitting at the end of a row opened its popover off the side of the

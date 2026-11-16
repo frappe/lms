@@ -33,6 +33,7 @@
 						:private="true"
 						:validateFile="validateFile"
 						@success="(file) => (chapter.scorm_package = file)"
+						@failure="onUploadFailure"
 					>
 						<template v-slot="{ file, progress, uploading, openFileSelector }">
 							<Button @click="openFileSelector" :loading="uploading">
@@ -77,7 +78,7 @@
 			<div v-if="canManageChapters" class="flex items-center justify-end">
 				<HeaderButton
 					data-testid="chapter-save"
-					:label="__('Save')"
+					:label="isEdit ? __('Save') : __('Add')"
 					variant="solid"
 					:loading="chapterResource.loading"
 					:disabled="isEdit && !chapterDetail"
@@ -102,7 +103,8 @@ import { computed, inject, onMounted, reactive, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { getFileSize } from '@/utils/'
 import { resourceErrorMessage, submitResource } from '@/utils/resource'
-import { useOnboarding } from '@framework/ui/components/Onboarding/index'
+import { useTelemetry } from '@framework/ui/telemetry/index'
+import { takeFormSource } from '@/composables/formTracking'
 import FormShell from '@/components/FormShell.vue'
 import HeaderButton from '@/components/HeaderButton.vue'
 import { useFormRoute } from '@/composables/useFormRoute'
@@ -139,7 +141,6 @@ const props = defineProps<{
 
 const route = useRoute()
 const user = inject<SessionUser>('$user')!
-const { updateOnboardingStep } = useOnboarding('learning')
 
 // House style for a route that serves both create and edit
 // (`/job-opening/:jobName/edit`, JobForm.vue:147-149).
@@ -208,6 +209,10 @@ const outline = createResource({
 
 // C3 — the old watch had no `immediate`, so a directly-mounted route rendered
 // an empty form. Nothing else fills this key, so edit mode always fetches.
+const { capture } = useTelemetry()
+// Read once, at mount: the opener sets it just before navigating here.
+const formSource = takeFormSource()
+
 onMounted(() => {
 	if (isEdit.value) outline.fetch()
 })
@@ -269,8 +274,7 @@ const saveChapter = () => {
 	// submitResource, not a bare submit(): createResource's handleError calls
 	// onError and then RETHROWS, so a bare statement leaves a rejected promise
 	// nobody handles on every validation failure or 500. It also keeps a throw
-	// from onSuccess — updateOnboardingStep throws when onboarding is not
-	// registered — out of frappe-ui's error path, so a saved chapter is never
+	// from onSuccess out of frappe-ui's error path, so a saved chapter is never
 	// reported as a failed one. Validation runs in the helper because
 	// createResource's `validate` wraps the message in new Error(), which this
 	// onError could only ever render as a bare "Error".
@@ -281,8 +285,10 @@ const saveChapter = () => {
 			validate: validateChapter,
 			onSuccess() {
 				if (!isEdit.value) {
-					if (user.data?.is_system_manager)
-						updateOnboardingStep('create_first_chapter')
+					capture('chapter_created', {
+						course: props.courseName,
+						source: formSource,
+					})
 				}
 				// Stands in for the modal's `created`/`updated` emits: a route
 				// component has no parent listening, so refresh the outline the
@@ -304,6 +310,16 @@ const saveChapter = () => {
 				toast.error(resourceErrorMessage(err))
 			},
 		}
+	)
+}
+
+// The custom slot hides FileUploader's own error line, so a rejected zip has to
+// be reported here. Validation fails with a string, an upload with an Error.
+const onUploadFailure = (err: unknown) => {
+	toast.error(
+		err instanceof Error && err.message
+			? err.message
+			: resourceErrorMessage(err, __('Error Uploading File'))
 	)
 }
 

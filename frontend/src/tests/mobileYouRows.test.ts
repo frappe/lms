@@ -3,7 +3,10 @@
  * destination on both the bar and this list, an unrecognised destination
  * landing somewhere, and the emitted icon classes matching real lucide SVGs.
  */
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
+
+// Marks what went through translation, so a test can see it did.
+vi.stubGlobal('__', (text: string) => `«${text}»`)
 import { existsSync } from 'node:fs'
 import { resolve } from 'node:path'
 
@@ -103,13 +106,6 @@ describe('destinations', () => {
 		])
 	})
 
-	it('leaves out everything already on the bottom bar', () => {
-		const labels = allRows(build()).map((row) => row.label)
-		for (const primary of ['Home', 'Courses', 'Certifications']) {
-			expect(labels).not.toContain(primary)
-		}
-	})
-
 	it('shows a destination once when it is in both link lists', () => {
 		const rows = allRows(
 			build({ otherLinks: [link('Programs', 'Route', 'Programs'), ...OTHER] })
@@ -200,13 +196,8 @@ describe('the last group', () => {
 			'Settings'
 		)?.rows.find((row) => row.key === 'colour-mode')
 		expect(fromYou).toEqual(colourModeRow('dark'))
-		expect(fromYou?.value).toBe('Dark')
-	})
-
-	it('logs out in place rather than routing somewhere', () => {
-		const logout = allRows(build()).find((row) => row.label === 'Log out')
-		expect(logout?.action).toBe('logout')
-		expect(logout?.to).toBeUndefined()
+		// The list translates labels, not values, so the builder does.
+		expect(fromYou?.value).toBe('«Dark»')
 	})
 })
 

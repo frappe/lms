@@ -1,3 +1,4 @@
+// @vitest-environment node
 // In frappe-ui rc.1, ink-gray-5 text is 4.18:1 on white and 3.76:1 on
 // surface-gray-2, under AA's 4.5:1; ink-gray-6 clears it. Icons are exempt
 // from 1.4.3, so ink-gray-5 may only colour an element with no text of its own.

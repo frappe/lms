@@ -13,17 +13,6 @@ import { shallowMount } from '@vue/test-utils'
 
 const { resourceCalls } = vi.hoisted(() => ({ resourceCalls: [] as any[] }))
 
-const stubbedSource = () => ({
-	resource: { delete: { submit: vi.fn() }, insert: { submit: vi.fn() } },
-	search: '',
-	rows: [],
-	loading: false,
-	hasNextPage: false,
-	loadMore: vi.fn(),
-	reload: vi.fn(),
-	applyFilters: vi.fn(),
-})
-
 vi.mock('@/composables/useSettingsListResource', () => ({
 	SETTINGS_PAGE_LENGTH: 13,
 	useSettingsListResource: (options: any) => {
@@ -113,7 +102,7 @@ const panels = [
 
 const mountPanel = (panel: any) =>
 	shallowMount(panel.component, {
-		props: { label: panel.name, description: '', ...(panel.props || {}) },
+		props: { label: panel.name, ...(panel.props || {}) },
 		global: {
 			provide: {
 				$user: { data: { is_moderator: true, name: 'admin@example.com' } },
@@ -144,8 +133,6 @@ describe('settings list search', () => {
 		const wrapper = shallowMount(owner, {
 			props: {
 				label: panel.name,
-				description: '',
-				list: stubbedSource(),
 				...(panel.props || {}),
 			},
 			global: {

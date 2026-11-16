@@ -1,0 +1,54 @@
+name: Install apt packages
+description: >-
+  Install apt packages, reusing the downloaded .deb files until the package
+  list or the runner image changes.
+
+inputs:
+  packages:
+    description: Space-separated apt packages to install.
+    required: true
+
+runs:
+  using: composite
+  steps:
+    - name: Compute apt cache key
+      id: key
+      shell: bash
+      env:
+        PACKAGES: ${{ inputs.packages }}
+      run: |
+        set -euo pipefail
+        list=$(echo "$PACKAGES" | tr ' ' '\n' | sed '/^$/d' | sort | sha256sum | cut -c1-16)
+        echo "key=apt-${ImageOS:-unknown}-${ImageVersion:-unknown}-$list" >> "$GITHUB_OUTPUT"
+
+    - name: Restore apt packages
+      id: cache
+      uses: actions/cache/restore@v4
+      with:
+        path: ~/apt-cache
+        key: ${{ steps.key.outputs.key }}
+
+    - name: Install from cache
+      if: steps.cache.outputs.cache-hit == 'true'
+      shell: bash
+      run: sudo apt-get install -y --no-install-recommends ~/apt-cache/*.deb
+
+    - name: Download and install
+      if: steps.cache.outputs.cache-hit != 'true'
+      shell: bash
+      env:
+        PACKAGES: ${{ inputs.packages }}
+      run: |
+        set -euo pipefail
+        sudo apt-get update
+        # shellcheck disable=SC2086 # the list is split on purpose
+        sudo apt-get install -y --no-install-recommends -o APT::Keep-Downloaded-Packages=true $PACKAGES
+        mkdir -p ~/apt-cache
+        cp /var/cache/apt/archives/*.deb ~/apt-cache/
+
+    - name: Save apt packages
+      if: steps.cache.outputs.cache-hit != 'true'
+      uses: actions/cache/save@v4
+      with:
+        path: ~/apt-cache
+        key: ${{ steps.key.outputs.key }}

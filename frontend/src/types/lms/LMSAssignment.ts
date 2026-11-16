@@ -12,7 +12,7 @@ export interface LMSAssignment {
 	/**	Question : Text Editor	*/
 	question: string
 	/**	Type : Select	*/
-	type: 'Document' | 'PDF' | 'URL' | 'Image' | 'Text'
+	type: 'Document' | 'PDF' | 'URL' | 'Image' | 'Text' | 'Audio'
 	/**	Title : Data	*/
 	title: string
 	/**	Show Answer : Check	*/

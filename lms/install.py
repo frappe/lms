@@ -1,18 +1,32 @@
 import frappe
+from frappe.custom.doctype.custom_field.custom_field import create_custom_fields
 from frappe.permissions import add_permission, update_permission_property
+from frappe.search.sqlite_search import build_index_in_background
 
 from lms.lms.api import give_discussions_permission
 from lms.lms.enrollment_constraints import ensure_enrollment_unique_constraints
 from lms.lms.sidebar import seed_sidebar_items
 
+LEGACY_USER_FIELDS = ["profile_complete"]
+
 
 def after_install():
+	create_default_records()
+	create_user_custom_fields()
 	create_batch_source()
 	give_discussions_permission()
 	give_user_list_permission()
 	give_event_permission()
 	ensure_batch_enrollment_index()
 	ensure_enrollment_unique_constraints()
+	ensure_course_progress_unique_constraint()
+	build_search_index()
+
+
+def build_search_index():
+	"""Queue the first search index build. Frappe builds it on migrate and every three hours,
+	and an install is neither, so a new site would wait up to three hours for search."""
+	build_index_in_background()
 
 
 def ensure_batch_enrollment_index():
@@ -20,6 +34,13 @@ def ensure_batch_enrollment_index():
 	if not frappe.db.table_exists("LMS Batch Enrollment"):
 		return
 	frappe.db.add_index("LMS Batch Enrollment", ["batch", "member"])
+
+
+def ensure_course_progress_unique_constraint():
+	"""Fresh installs skip delete_duplicate_course_progress, the patch that adds this; idempotent."""
+	if not frappe.db.table_exists("LMS Course Progress"):
+		return
+	frappe.db.add_unique("LMS Course Progress", ["member", "lesson"])
 
 
 def after_sync():
@@ -120,49 +141,25 @@ def set_default_certificate_print_format():
 		doc.save()
 
 
-def delete_custom_fields():
-	fields = [
-		"user_category",
-		"headline",
-		"college",
-		"city",
-		"verify_terms",
-		"country",
-		"preferred_location",
-		"preferred_functions",
-		"preferred_industries",
-		"work_environment_column",
-		"time",
-		"role",
-		"carrer_preference_details",
-		"skill",
-		"certification_details",
-		"internship",
-		"branch",
-		"github",
-		"medium",
-		"linkedin",
-		"profession",
-		"open_to",
-		"cover_image" "work_environment",
-		"dream_companies",
-		"career_preference_column",
-		"attire",
-		"collaboration",
-		"location_preference",
-		"company_type",
-		"skill_details",
-		"certification",
-		"education",
-		"work_experience",
-		"education_details",
-		"hide_private",
-		"work_experience_details",
-		"profile_complete",
-	]
+def load_install_data(filename):
+	return frappe.get_file_json(frappe.get_app_path("lms", "install_data", filename))
 
-	for field in fields:
-		frappe.db.delete("Custom Field", {"fieldname": field})
+
+def create_default_records():
+	for filename in ("lms_category.json", "function.json", "industry.json"):
+		for record in load_install_data(filename):
+			frappe.get_doc(record).insert(ignore_if_duplicate=True)
+
+
+def create_user_custom_fields():
+	create_custom_fields(load_install_data("custom_field.json"), update=False)
+
+
+def delete_custom_fields():
+	for dt, fields in load_install_data("custom_field.json").items():
+		fieldnames = [field["fieldname"] for field in fields]
+		frappe.db.delete("Custom Field", {"dt": dt, "fieldname": ["in", fieldnames]})
+	frappe.db.delete("Custom Field", {"dt": "User", "fieldname": ["in", LEGACY_USER_FIELDS]})
 
 
 def create_batch_source():
@@ -196,11 +193,11 @@ def give_lms_roles_to_admin():
 
 def give_user_list_permission():
 	doctype = "User"
-	roles = ["Course Creator", "Moderator", "Batch Evaluator"]
-	for role in roles:
-		permlevel = 0
-		create_role(doctype, role, permlevel)
-	create_role(doctype, "System Manager", 1)
+	create_role(doctype, "Moderator", 0)
+	# Select resolves User links and pickers without opening anyone's profile.
+	for role in ["Course Creator", "Batch Evaluator"]:
+		create_role(doctype, role, 0, read=0)
+	create_role(doctype, "System Manager", 1, write=1)
 
 
 def give_event_permission():
@@ -212,16 +209,20 @@ def give_event_permission():
 	create_role(doctype, "System Manager", 0, 1, 1)
 
 
-def create_role(doctype, role, permlevel, write=0, create=0):
+def create_role(doctype, role, permlevel, write=0, create=0, read=1):
 	if frappe.db.exists("Custom DocPerm", {"parent": doctype, "role": role, "permlevel": permlevel}):
 		return
 
 	add_permission(doctype, role, permlevel)
 	update_permission_property(doctype, role, permlevel, "select", 1)
+	if read == 0:
+		update_permission_property(doctype, role, permlevel, "read", 0)
 
-	if role in ["Moderator", "System Manager"] or write == 1:
+	# Only what the caller asks for: write or create on User would let a role
+	# change any account, System Managers' included.
+	if write == 1:
 		update_permission_property(doctype, role, permlevel, "write", 1)
-	if role == "Moderator" or create == 1:
+	if create == 1:
 		update_permission_property(doctype, role, permlevel, "create", 1)
 
 

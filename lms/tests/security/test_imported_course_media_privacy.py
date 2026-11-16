@@ -37,7 +37,7 @@ from lms.lms.course_import_export import (
 	validate_assets,
 )
 from lms.lms.permissions import courses_authored_by
-from lms.lms.test_helpers import BaseTestUtils
+from lms.lms.test_helpers import BaseTestUtils, delete_error_logs_on_cleanup
 
 # 1x1 transparent PNG.
 ONE_PIXEL_PNG = base64.b64decode(
@@ -60,8 +60,14 @@ class TestImportedCourseMediaPrivacy(BaseTestUtils):
 		cls.listed_author = cls._create_user(
 			f"mp-author-{hash}@example.com", "Au", "Thor", ["Course Creator"]
 		).name
-		cls.private_asset = f"secret-{hash}.png"
-		cls.public_asset = f"banner-{hash}.png"
+
+	def setUp(self):
+		super().setUp()
+		# Per test: a savepoint rollback leaves the files an import wrote on disk, and
+		# version-16 renames an asset whose name is already taken there.
+		asset_hash = frappe.generate_hash(length=6).lower()
+		self.private_asset = f"secret-{asset_hash}.png"
+		self.public_asset = f"banner-{asset_hash}.png"
 
 	def _build_zip(self):
 		"""A course whose lesson embeds one private and one public asset."""
@@ -605,6 +611,9 @@ class TestAssetPrivacyIsNotFlattened(unittest.TestCase):
 	a course can embed both. The archive has to keep them apart or the import loses one
 	of them and the URL that cited it serves nothing. Fixture-free: archive bookkeeping.
 	"""
+
+	def setUp(self):
+		delete_error_logs_on_cleanup(self)
 
 	def _archive(self, *members):
 		buffer = io.BytesIO()

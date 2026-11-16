@@ -4,11 +4,12 @@
 from frappe.model.document import Document
 
 from lms.lms.doctype.lms_content_author.lms_content_author import AuthoredDocument
+from lms.lms.lesson_assessments import RenamableAssessment
 from lms.lms.schedule_utils import validate_schedule_fields
 from lms.lms.utils import generate_slug
 
 
-class LMSAssignment(AuthoredDocument, Document):
+class LMSAssignment(RenamableAssessment, AuthoredDocument, Document):
 	def autoname(self):
 		# Insert only, so ASG-##### names and live URLs survive a retitle. "new" is
 		# the form's create route, so a title slugging to it takes "new-2".

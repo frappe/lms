@@ -11,6 +11,8 @@
 		:list-options="listOptions"
 		empty-name="Quiz Submissions"
 		empty-icon="lucide-file-check"
+		:empty-title="emptyState?.title"
+		:empty-description="emptyState?.description"
 		@load-more="submissions.next()"
 	>
 		<template #filters>
@@ -49,7 +51,7 @@
 			>
 				{{ value }}
 			</div>
-			<div v-else>{{ value }}</div>
+			<div v-else class="truncate">{{ value }}</div>
 		</template>
 
 		<template #selection-actions="{ unselectAll, selections }">
@@ -104,7 +106,11 @@ const filters = ref<QuizSubmissionFilters>({ quiz: '', member: '', course: '' })
 setFiltersFromRoute()
 
 onMounted(() => {
-	if (!user.data?.is_instructor && !user.data?.is_moderator) {
+	if (
+		!user.data?.is_instructor &&
+		!user.data?.is_moderator &&
+		!user.data?.is_evaluator
+	) {
 		router.push({ name: 'Courses' })
 		return
 	}
@@ -223,6 +229,14 @@ const columns = computed<ListColumn[]>(() => [
 
 // A filter is not a place, so the trail never names the quiz in scope. The quiz
 // is already named by the filter control and by every row's Quiz column.
+// Only instructors and moderators reach this page.
+const emptyState = {
+	title: __('No quiz attempts yet'),
+	description: __(
+		'Each time a learner takes a quiz, their answers and score show up here.'
+	),
+}
+
 const breadcrumbs = computed<Breadcrumb[]>(() => [
 	{ label: __('Quizzes'), route: { name: 'Quizzes' } },
 	{ label: __('Submissions') },

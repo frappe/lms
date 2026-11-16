@@ -11,37 +11,38 @@ class TestAssessmentSubmissionScope(BaseTestUtils):
 	"""A submission reaches its own member and whoever administers the assessment
 	it answers -- both halves registered in hooks.py, both read off the stored row."""
 
-	def setUp(self):
-		super().setUp()
+	@classmethod
+	def setUpClass(cls):
+		super().setUpClass()
 		frappe.set_user("Administrator")
-		self.suffix = frappe.generate_hash(length=6)
-		self.instructor = self._create_user(
-			f"asub-instr-{self.suffix}@example.com", "Ivy", "Instructor", ["Course Creator"]
+		cls.suffix = frappe.generate_hash(length=6)
+		cls.instructor = cls._create_user(
+			f"asub-instr-{cls.suffix}@example.com", "Ivy", "Instructor", ["Course Creator"]
 		)
-		self.member = self._create_user(
-			f"asub-member-{self.suffix}@example.com", "Mel", "Member", ["LMS Student"]
+		cls.member = cls._create_user(
+			f"asub-member-{cls.suffix}@example.com", "Mel", "Member", ["LMS Student"]
 		)
-		self.outsider = self._create_user(
-			f"asub-outsider-{self.suffix}@example.com", "Ove", "Outsider", ["LMS Student"]
+		cls.outsider = cls._create_user(
+			f"asub-outsider-{cls.suffix}@example.com", "Ove", "Outsider", ["LMS Student"]
 		)
-		self.course = self._create_course(
-			title=f"Submission Course {self.suffix}", instructor=self.instructor.name
+		cls.course = cls._create_course(
+			title=f"Submission Course {cls.suffix}", instructor=cls.instructor.name
 		)
-		self.assignment = self._create_assignment(title=f"Submission Assignment {self.suffix}")
-		self._place_in_lesson(self.course.name, "LMS Assignment", self.assignment.name)
-		self._create_enrollment(self.member.name, self.course.name)
-		self.submission = frappe.get_doc(
+		cls.assignment = cls._create_assignment(title=f"Submission Assignment {cls.suffix}")
+		cls._place_in_lesson(cls.course.name, "LMS Assignment", cls.assignment.name)
+		cls._create_enrollment(cls.member.name, cls.course.name)
+		cls.submission = frappe.get_doc(
 			{
 				"doctype": "LMS Assignment Submission",
-				"assignment": self.assignment.name,
-				"member": self.member.name,
+				"assignment": cls.assignment.name,
+				"member": cls.member.name,
 				"answer": "The submitted answer.",
 			}
 		).insert(ignore_permissions=True)
 		# insert() stamps `owner` from the acting session user regardless of what is
 		# passed in, so the if_owner DocPerm needs it set explicitly afterwards.
-		frappe.db.set_value("LMS Assignment Submission", self.submission.name, "owner", self.member.name)
-		self.submission.reload()
+		frappe.db.set_value("LMS Assignment Submission", cls.submission.name, "owner", cls.member.name)
+		cls.submission.reload()
 
 	def tearDown(self):
 		frappe.set_user("Administrator")

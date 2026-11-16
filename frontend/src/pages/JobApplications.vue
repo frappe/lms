@@ -12,6 +12,8 @@
 		v-model:page-length="pageLength"
 		empty-name="Job Applications"
 		empty-icon="lucide-briefcase"
+		:empty-title="emptyState?.title"
+		:empty-description="emptyState?.description"
 		@load-more="applications.next()"
 	>
 		<template #filters>
@@ -77,11 +79,6 @@
 				:placeholder="__('Enter email subject')"
 				required
 			/>
-			<FormControl
-				v-model="emailForm.replyTo"
-				:label="__('Reply To')"
-				:placeholder="__('Enter reply to email')"
-			/>
 			<div>
 				<InputLabel
 					:id="messageLabelId"
@@ -130,7 +127,6 @@ const pageLength = ref(24)
 const emailForm = reactive({
 	subject: '',
 	message: '',
-	replyTo: '',
 })
 
 const props = defineProps({
@@ -208,7 +204,6 @@ const emailResource = createResource({
 			application: selectedApplicant.value.name,
 			subject: emailForm.subject,
 			message: emailForm.message,
-			reply_to: emailForm.replyTo || null,
 		}
 	},
 })
@@ -216,7 +211,6 @@ const emailResource = createResource({
 const openEmailModal = (applicant) => {
 	selectedApplicant.value = applicant
 	emailForm.subject = `Job Application for ${applications.data?.[0]?.job_title} - ${applicant.full_name}`
-	emailForm.replyTo = ''
 	emailForm.message = ''
 	showEmailModal.value = true
 }
@@ -263,6 +257,14 @@ const getActionOptions = (row) => {
 		onClick: () => openEmailModal(row),
 	})
 	return options
+}
+
+// Only the job's poster and moderators reach this page.
+const emptyState = {
+	title: __('No applications yet'),
+	description: __(
+		'People who apply to this job show up here. Share the job link to reach more applicants.'
+	),
 }
 
 const breadcrumbs = computed(() => [

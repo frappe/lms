@@ -1,3 +1,4 @@
+// @vitest-environment node
 // Regression: rc.1 <Editor> is renderless, so a `space-y-*` parent split fixedMenu toolbars from their content.
 // Introduced by the frappe-ui 1.0.0-rc.1 upgrade; test added in that PR (chore/frappe-ui-v1-rc1)
 // to scan every fixedMenu RichTextEditor for a spacing parent.

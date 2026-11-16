@@ -26,7 +26,9 @@ vi.mock('frappe-ui', async (importOriginal) => {
 		toast: { error: vi.fn(), success: vi.fn() },
 	}
 })
-vi.mock('@/components/Modals/EvaluationModal.vue', () => ({ default: {} }))
+vi.mock('@/components/Modals/EvaluationModal.vue', () => ({
+	default: { render: () => null },
+}))
 
 const mountNotice = async (endDate: string) => {
 	const UpcomingEvaluations = (

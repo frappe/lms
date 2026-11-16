@@ -46,20 +46,19 @@ def validate_payment_gateway(payment_gateway):
 		)
 
 
-@frappe.whitelist()
+@frappe.whitelist(methods=["POST"])
 def get_payment_link(
 	doctype: str,
 	docname: str,
 	address: dict,
 	payment_for_certificate: int,
 	coupon_code: str | None = None,
-	country: str | None = None,
 ):
 	payment_gateway = get_payment_gateway()
 	address = frappe._dict(address)
 	redirect_to = get_redirect_url(doctype, docname, payment_for_certificate)
 
-	details = frappe._dict(get_order_summary(doctype, docname, coupon=coupon_code, country=country))
+	details = frappe._dict(get_order_summary(doctype, docname, coupon=coupon_code, country=address.country))
 	title = details.title
 	currency = details.currency
 	original_amount = details.original_amount
@@ -115,6 +114,7 @@ def get_payment_link(
 		"payment_gateway": payment_gateway,
 		"redirect_to": redirect_to,
 		"payment": payment.name,
+		"receipt": payment.name,
 	}
 
 	# The controller creates the order itself when no `order_id` is supplied

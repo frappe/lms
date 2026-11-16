@@ -28,7 +28,7 @@ export interface LMSAssignmentSubmission {
 	/**	Assignment Attachment : Attach	*/
 	assignment_attachment?: string
 	/**	Type : Select	*/
-	type?: 'Document' | 'PDF' | 'URL' | 'Image' | 'Text'
+	type?: 'Document' | 'PDF' | 'URL' | 'Image' | 'Text' | 'Audio'
 	/**	Question : Text Editor	*/
 	question?: string
 	/**	Assignment Title : Data	*/

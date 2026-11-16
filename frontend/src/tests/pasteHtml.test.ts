@@ -271,53 +271,113 @@ describe('_onNativePaste: routing', () => {
 })
 
 describe('pasted code block language detection', () => {
-	it('reads language- class from an inner <code>', () => {
-		const blocks = parse(
-			'<pre><code class="language-python">x = 1</code></pre>'
-		)
+	it.each([
+		[
+			'reads language- class from an inner <code>',
+			'<pre><code class="language-python">x = 1</code></pre>',
+			'python',
+		],
+		[
+			'reads language- class from the <pre> itself (Prism markup)',
+			'<pre class="language-javascript"><code>let x</code></pre>',
+			'javascript',
+		],
+		[
+			'reads lang- and brush: variants (lang-)',
+			'<pre><code class="lang-ruby">x</code></pre>',
+			'ruby',
+		],
+		[
+			'reads lang- and brush: variants (brush:)',
+			'<pre class="brush: php">x</pre>',
+			'php',
+		],
+		[
+			'falls back to plaintext when no language class is present',
+			'<pre>plain</pre>',
+			'plaintext',
+		],
+		[
+			'ignores language- as a substring of an unrelated class',
+			'<pre class="prism-language-toolbar">x</pre>',
+			'plaintext',
+		],
+		[
+			'prefers the inner <code> language over a generic <pre> class',
+			'<pre class="language-markup"><code class="language-python">x = 1</code></pre>',
+			'python',
+		],
+	])('%s', (_case, html, language) => {
+		const blocks = parse(html)
 		expect(blocks[0].type).toBe('codeBox')
-		expect(blocks[0].data.language).toBe('python')
-	})
-
-	it('reads language- class from the <pre> itself (Prism markup)', () => {
-		const blocks = parse(
-			'<pre class="language-javascript"><code>let x</code></pre>'
-		)
-		expect(blocks[0].data.language).toBe('javascript')
-	})
-
-	it('reads lang- and brush: variants', () => {
-		expect(
-			parse('<pre><code class="lang-ruby">x</code></pre>')[0].data.language
-		).toBe('ruby')
-		expect(parse('<pre class="brush: php">x</pre>')[0].data.language).toBe(
-			'php'
-		)
-	})
-
-	it('falls back to plaintext when no language class is present', () => {
-		expect(parse('<pre>plain</pre>')[0].data.language).toBe('plaintext')
+		expect(blocks[0].data.language).toBe(language)
 	})
 })
 
-describe('pasted code language detection edge cases', () => {
-	it('ignores language- as a substring of an unrelated class', () => {
-		expect(
-			parse('<pre class="prism-language-toolbar">x</pre>')[0].data.language
-		).toBe('plaintext')
+describe('_checkMarkdownAfterEnter: markdown image syntax', () => {
+	// `![alt](url)` + Enter converted to an image block with `{file: {url}}`,
+	// which SimpleImage never reads, so the block rendered blank (dfb9e2e7b).
+	it('converts to an image block in the shape SimpleImage reads', () => {
+		const block = newBlock()
+		block.wrapper = document.createElement('div')
+		block.wrapper.textContent = '![The gut](https://example.test/gut.png)'
+		const convert = vi
+			.spyOn(block, '_replaceWithImage')
+			.mockReturnValue(undefined)
+
+		block._checkMarkdownAfterEnter()
+
+		expect(convert).toHaveBeenCalledWith({
+			url: 'https://example.test/gut.png',
+			caption: 'The gut',
+		})
 	})
 
-	it('prefers the inner <code> language over a generic <pre> class', () => {
-		const blocks = parse(
-			'<pre class="language-markup"><code class="language-python">x = 1</code></pre>'
+	// The caption is HTML to SimpleImage, as on the paste path.
+	it('escapes the alt text it carries into the caption', () => {
+		const block = newBlock()
+		block.wrapper = document.createElement('div')
+		block.wrapper.textContent = '![<b>bold</b>](https://example.test/a.png)'
+		const convert = vi
+			.spyOn(block, '_replaceWithImage')
+			.mockReturnValue(undefined)
+
+		block._checkMarkdownAfterEnter()
+
+		expect(convert).toHaveBeenCalledWith({
+			url: 'https://example.test/a.png',
+			caption: '&lt;b&gt;bold&lt;/b&gt;',
+		})
+	})
+})
+
+describe('_replaceWithImage', () => {
+	// Enter has already moved the caret to a new block, so the image replaces the
+	// block holding the markdown, not the current one.
+	it('replaces the block that holds the markdown, not the current block', () => {
+		const block = newBlock()
+		block.wrapper = document.createElement('div')
+		const holders = [document.createElement('div'), document.createElement('div')]
+		holders[0].appendChild(block.wrapper)
+		const insert = vi.fn()
+		block.api = {
+			blocks: {
+				getBlocksCount: () => 2,
+				getBlockByIndex: (i) => ({ holder: holders[i] }),
+				getCurrentBlockIndex: () => 1,
+				insert,
+			},
+		}
+
+		block._replaceWithImage({ url: 'https://example.test/a.png', caption: '' })
+
+		expect(insert).toHaveBeenCalledWith(
+			'image',
+			{ url: 'https://example.test/a.png', caption: '' },
+			{},
+			0,
+			false,
+			true
 		)
-		expect(blocks[0].data.language).toBe('python')
-	})
-
-	it('still reads a language- class on the <pre> when the inner <code> has none', () => {
-		expect(
-			parse('<pre class="language-javascript"><code>x</code></pre>')[0].data
-				.language
-		).toBe('javascript')
 	})
 })

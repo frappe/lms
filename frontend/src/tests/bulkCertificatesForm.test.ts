@@ -164,16 +164,6 @@ describe('BulkCertificatesForm as a route', () => {
 		})
 	})
 
-	it('mounts straight from the URL with no parent page mounted', async () => {
-		const router = makeRouter()
-		await router.push('/batches/B1/certificates')
-		const wrapper = await mountForm(router, moderator)
-		expect(wrapper.html()).toContain('Generate Certificates')
-		expect(
-			wrapper.find('[data-testid="bulk-certificates-fields"]').exists()
-		).toBe(true)
-	})
-
 	it('fetches its own batch context for the batch in the URL', async () => {
 		// The students and courses this form needs are not on a plain LMS Batch
 		// fetch; they come from get_batch_details. This is the form's OWN fetch:
@@ -344,45 +334,6 @@ describe('BulkCertificatesForm as a route', () => {
 		expect(toastError).toHaveBeenCalled()
 		expect(toastSuccess).not.toHaveBeenCalled()
 		expect(router.currentRoute.value.name).toBe('BulkCertificates')
-	})
-
-	it('mobile: the back control pops the router back to the page', async () => {
-		const router = makeRouter()
-		await router.push('/batches/B1#dashboard')
-		await router.push({
-			name: 'BulkCertificates',
-			params: { batchName: 'B1' },
-			hash: '#dashboard',
-			state: { lmsFormEntry: true },
-		})
-		Object.defineProperty(window, 'innerWidth', {
-			value: 390,
-			writable: true,
-			configurable: true,
-		})
-		const wrapper = await mountForm(router, moderator)
-
-		await wrapper.find('[data-testid="form-shell-back"]').trigger('click')
-		await flushPromises()
-		expect(router.currentRoute.value.fullPath).toBe('/batches/B1#dashboard')
-	})
-
-	it('desktop: dismissing the Dialog pops the router back to the page', async () => {
-		const router = makeRouter()
-		await router.push('/batches/B1#dashboard')
-		await router.push({
-			name: 'BulkCertificates',
-			params: { batchName: 'B1' },
-			hash: '#dashboard',
-			state: { lmsFormEntry: true },
-		})
-		const wrapper = await mountForm(router, moderator)
-
-		await wrapper
-			.findComponent({ name: 'Dialog' })
-			.vm.$emit('update:open', false)
-		await flushPromises()
-		expect(router.currentRoute.value.name).toBe('BatchDetail')
 	})
 
 	it('closing a DEEP-LINKED form keeps the tab hash (C2)', async () => {

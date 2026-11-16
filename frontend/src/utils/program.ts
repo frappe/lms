@@ -94,11 +94,15 @@ export class Program {
 	renderExercise(exercise: string) {
 		if (this.readOnly) {
 			const { userResource } = usersStore()
+			if (!userResource.data) {
+				this.mountSubmission(exercise, 'new')
+				return
+			}
 			call<{ name?: string } | null>('frappe.client.get_value', {
 				doctype: 'LMS Programming Exercise Submission',
 				filters: {
 					exercise: exercise,
-					member: userResource.data?.name,
+					member: userResource.data.name,
 				},
 				fieldname: ['name'],
 			})

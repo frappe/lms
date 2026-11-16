@@ -32,4 +32,10 @@ if (pageLang.toLowerCase().startsWith('vi')) {
 	dayjs.locale(window.lang)
 }
 
+// Server datetimes are naive and in the site's timezone, not the browser's.
+export function serverTime(value) {
+	const zone = window.timezone?.system
+	return zone && value ? dayjs.tz(value, zone) : dayjs(value)
+}
+
 export default dayjs

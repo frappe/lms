@@ -1,3 +1,4 @@
+// @vitest-environment node
 import { describe, expect, it } from 'vitest'
 
 // Every createApp() builds its own app context, and global directives are not

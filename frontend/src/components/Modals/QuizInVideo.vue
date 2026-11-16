@@ -29,6 +29,7 @@
 						{{ __('Quizzes in this video') }}
 					</div>
 					<ResponsiveListView
+						docked-banner
 						v-if="allQuizzes.length"
 						:columns="columns"
 						:rows="allQuizzes"
