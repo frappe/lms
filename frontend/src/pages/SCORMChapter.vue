@@ -1,12 +1,18 @@
 <template>
 	<PageHeader :breadcrumbs="breadcrumbs" />
-	<div v-if="isLocked" class="sm:border-e">
+	<div
+		v-if="isPlaybackPending"
+		class="flex items-center justify-center h-[calc(100vh-3.00rem)]"
+	>
+		<LoadingIndicator class="size-5 text-ink-gray-5" />
+	</div>
+	<div v-else-if="isLocked" class="sm:border-e">
 		<LockedLessonNotice
 			:redirect="!!currentLessonNumber"
 			@done="goToCurrentLesson()"
 		/>
 	</div>
-	<div v-else-if="launchFile">
+	<div v-else-if="launchFile" class="relative">
 		<iframe
 			ref="frame"
 			:src="safeUrl(launchFile)"
@@ -14,7 +20,15 @@
 			referrerpolicy="no-referrer"
 			:title="playback.data?.title || __('Lesson content')"
 			class="w-full h-[calc(100vh-3.00rem)]"
+			@load="frameLoading = false"
 		/>
+		<!-- A large package takes a while to start; until it does the frame is empty. -->
+		<div
+			v-if="frameLoading"
+			class="absolute inset-0 flex items-center justify-center bg-surface-base"
+		>
+			<LoadingIndicator class="size-5 text-ink-gray-5" />
+		</div>
 	</div>
 	<div v-else-if="hasNoLesson" class="text-center pt-10 px-5 md:px-0 pb-10">
 		{{ __('This chapter has no lesson to play yet.') }}
@@ -40,8 +54,22 @@
 	</div>
 </template>
 <script setup>
-import { Button, call, createResource, toast, usePageMeta } from 'frappe-ui'
-import { computed, inject, onBeforeMount, onBeforeUnmount, ref } from 'vue'
+import {
+	Button,
+	call,
+	createResource,
+	LoadingIndicator,
+	toast,
+	usePageMeta,
+} from 'frappe-ui'
+import {
+	computed,
+	inject,
+	onBeforeMount,
+	onBeforeUnmount,
+	ref,
+	watch,
+} from 'vue'
 import { useRouter } from 'vue-router'
 import PageHeader from '@/components/Layouts/pages/PageHeader.vue'
 import LockedLessonNotice from '@/components/LockedLessonNotice.vue'
@@ -102,6 +130,9 @@ const playback = createResource({
 
 // Four states, and only the server tells them apart: locked, not entitled, no lesson,
 // playing. The page renders what it is told and derives none of them itself.
+// Nothing to show until the server answers; an error leaves for the course instead.
+const isPlaybackPending = computed(() => !playback.data && !playback.error)
+
 const isLocked = computed(() => !!playback.data?.locked)
 
 // delete_lesson drops the Lesson Reference and leaves the chapter standing. The server
@@ -127,6 +158,9 @@ const hasNoPackage = computed(
 		!isNotEntitled.value &&
 		!launchFile.value
 )
+
+const frameLoading = ref(true)
+watch(launchFile, () => (frameLoading.value = true))
 
 const leaveForCourse = () => {
 	router.replace({

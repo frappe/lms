@@ -39,6 +39,10 @@ vi.mock('frappe-ui', async () => {
 		call: vi.fn(() => Promise.resolve()),
 		toast: { error: toastError, success: vi.fn() },
 		usePageMeta: vi.fn(),
+		LoadingIndicator: {
+			name: 'LoadingIndicator',
+			template: '<span data-testid="loading" />',
+		},
 		Button: {
 			name: 'Button',
 			template: `<button><slot name="prefix" /><slot name="icon" /><slot /></button>`,
@@ -168,6 +172,26 @@ describe('SCORMChapter.vue plays what the server says it may play', () => {
 		expect(wrapper.find('iframe').attributes('src')).toBe(LAUNCH_FILE)
 		expect(wrapper.find('iframe').attributes('title')).toBe('SCORM Chapter')
 		expect(findResource(OUTLINE_URL).fetch).not.toHaveBeenCalled()
+	})
+
+	it('shows a loader, not a blank page, until the server answers', async () => {
+		// #1643: a large package took seconds to appear, with nothing on screen.
+		wrapper = await mountChapter()
+
+		expect(wrapper.find('[data-testid="loading"]').exists()).toBe(true)
+		expect(wrapper.find('iframe').exists()).toBe(false)
+	})
+
+	it('keeps the loader over the frame until the package has loaded', async () => {
+		wrapper = await mountChapter()
+		await answerPlayback(playbackAnswer())
+
+		expect(wrapper.find('iframe').exists()).toBe(true)
+		expect(wrapper.find('[data-testid="loading"]').exists()).toBe(true)
+
+		await wrapper.find('iframe').trigger('load')
+
+		expect(wrapper.find('[data-testid="loading"]').exists()).toBe(false)
 	})
 
 	it('renders the locked panel instead of the package iframe', async () => {
