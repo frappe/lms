@@ -124,7 +124,7 @@
 						{{
 							course.data?.lessons === 1
 								? __('1 lesson')
-								: __('{0} lessons').format(course.data?.lessons)
+								: __('{0} lessons').format(course.data?.lessons ?? 0)
 						}}
 					</span>
 				</div>
@@ -137,7 +137,7 @@
 						{{
 							course.data?.quiz_count === 1
 								? __('1 quiz topic')
-								: __('{0} quiz topics').format(course.data?.quiz_count)
+								: __('{0} quiz topics').format(course.data?.quiz_count ?? 0)
 						}}
 					</span>
 				</div>

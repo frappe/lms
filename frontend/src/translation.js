@@ -1,5 +1,3 @@
-import { call } from 'frappe-ui'
-
 // Set on import, so module-scope `__()` calls in later imports don't throw.
 window.__ = translate
 
@@ -34,19 +32,42 @@ function translate(message, replace) {
 }
 
 let loading = null
+// A hung request must not leave the page blank; the app mounts in English and
+// picks the messages up when they arrive.
+const MOUNT_WAIT_MS = 3000
 
 // Strings built in setup() are translated once, so main.js mounts the app only
-// after the messages are in.
+// after the messages are in (or MOUNT_WAIT_MS has passed).
 export function loadTranslations() {
 	if (window.translatedMessages) return Promise.resolve()
-	loading ||= fetchTranslations()
+	loading ||= waitForTranslations()
 	return loading
 }
 
-async function fetchTranslations() {
-	try {
-		window.translatedMessages = await call('lms.lms.api.get_translations')
-	} catch (error) {
-		console.error('Could not load translations', error)
-	}
+function waitForTranslations() {
+	const request = (window.lmsTranslations || fetchTranslations()).then(
+		(messages) => {
+			window.translatedMessages = messages
+		}
+	)
+	const timeout = new Promise((resolve) => setTimeout(resolve, MOUNT_WAIT_MS))
+	return Promise.race([request, timeout])
+}
+
+// Fallback when index.html did not start the request (tests, other entries).
+function fetchTranslations() {
+	const lang = encodeURIComponent(document.documentElement.lang || '')
+	return fetch(
+		`/api/method/frappe.translate.get_boot_translations?lang=${lang}`,
+		{
+			credentials: 'same-origin',
+			headers: { Accept: 'application/json' },
+		}
+	)
+		.then((response) => (response.ok ? response.json() : {}))
+		.then((data) => data.message || {})
+		.catch((error) => {
+			console.error('Could not load translations', error)
+			return {}
+		})
 }

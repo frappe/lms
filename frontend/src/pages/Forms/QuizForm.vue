@@ -112,7 +112,7 @@
 					:title="__('Name the quiz first')"
 					:description="
 						__(
-							'Fill in the title on the right. The quiz is created then, and questions can go in.'
+							'Fill in the title under Details. The quiz is created then, and questions can go in.'
 						)
 					"
 				/>

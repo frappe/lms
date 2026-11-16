@@ -54,6 +54,9 @@ vi.mock('@/components/Modals/Event.vue', () => ({
 }))
 
 vi.stubGlobal('__', (text: string) => text)
+;(String.prototype as any).format ??= function (...args: string[]) {
+	return args.reduce((out, arg, i) => out.replace(`{${i}}`, arg), String(this))
+}
 
 async function mountSchedule(
 	rows: any[] = [{ name: 'CR-0001' }],

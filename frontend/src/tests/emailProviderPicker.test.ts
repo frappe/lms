@@ -24,6 +24,7 @@ const GMAIL: EmailService = {
 
 const CUSTOM: EmailService = {
 	name: 'Custom',
+	label: 'مخصص',
 	icon: '',
 	description: 'Connect any IMAP/POP3 and SMTP server',
 	info: 'info',
@@ -42,7 +43,14 @@ describe('EmailProviderPicker', () => {
 		const wrapper = build()
 
 		expect(wrapper.text()).toContain('GMail')
-		expect(wrapper.text()).toContain('Custom')
+		expect(wrapper.text()).toContain('مخصص')
+	})
+
+	it('shows a label in place of the name when the service has one', () => {
+		const wrapper = build()
+
+		expect(wrapper.get('[data-testid="provider-Custom"]').text()).toBe('مخصص')
+		expect(wrapper.get('[data-testid="provider-GMail"]').text()).toBe('GMail')
 	})
 
 	it('emits pick with the full service on click', async () => {

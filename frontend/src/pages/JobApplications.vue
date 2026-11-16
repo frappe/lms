@@ -177,7 +177,7 @@ const totalApplications = createResource({
 	auto: true,
 	cache: ['totalApplications', props.job],
 	onError(err) {
-		toast.error(err.messages?.[0] || err)
+		toast.error(err.messages?.[0] || err.message)
 		console.error('Error fetching total applications:', err)
 	},
 })
@@ -211,7 +211,10 @@ const emailResource = createResource({
 
 const openEmailModal = (applicant) => {
 	selectedApplicant.value = applicant
-	emailForm.subject = `Job Application for ${applications.data?.[0]?.job_title} - ${applicant.full_name}`
+	emailForm.subject = __('Job Application for {0} - {1}').format(
+		applications.data?.[0]?.job_title,
+		applicant.full_name
+	)
 	emailForm.message = ''
 	showEmailModal.value = true
 }
@@ -234,7 +237,7 @@ const sendEmail = (close) => {
 				close()
 			},
 			onError: (err) => {
-				toast.error(err.messages?.[0] || err)
+				toast.error(err.messages?.[0] || err.message)
 			},
 		}
 	)

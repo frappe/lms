@@ -2,10 +2,10 @@
 	<div v-if="assignment.data" ref="root" :class="rootClass">
 		<div v-if="showTitle" class="mb-4 text-lg-semibold text-ink-gray-9">
 			<div v-if="currentSubmission === 'new'">
-				{{ __('Submission by {0}').format(user.data?.full_name) }}
+				{{ __('Submission by {0}').format(user.data?.full_name ?? '') }}
 			</div>
 			<div v-else>
-				{{ __('Submission by {0}').format(submissionDoc?.member_name) }}
+				{{ __('Submission by {0}').format(submissionDoc?.member_name ?? '') }}
 			</div>
 		</div>
 		<AssessmentCard>

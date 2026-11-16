@@ -15,7 +15,11 @@
 							}}
 						</div>
 						<div class="text-2xl-semibold text-ink-gray-9">
-							{{ __('{0} day streak').format(streakInfo.data?.current_streak) }}
+							{{
+								__('{0} day streak').format(
+									streakInfo.data?.current_streak ?? 0
+								)
+							}}
 						</div>
 					</div>
 				</div>
@@ -28,7 +32,7 @@
 							{{ __('Current Streak') }}
 						</div>
 						<div class="text-lg-semibold text-ink-gray-9">
-							{{ __('{0} days').format(streakInfo.data?.current_streak) }}
+							{{ __('{0} days').format(streakInfo.data?.current_streak ?? 0) }}
 						</div>
 					</div>
 					<div class="space-y-1">
@@ -36,7 +40,7 @@
 							{{ __('Longest Streak') }}
 						</div>
 						<div class="text-lg-semibold text-ink-gray-9">
-							{{ __('{0} days').format(streakInfo.data?.longest_streak) }}
+							{{ __('{0} days').format(streakInfo.data?.longest_streak ?? 0) }}
 						</div>
 					</div>
 				</div>

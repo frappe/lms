@@ -469,23 +469,28 @@ const memberImage = computed(
 	() => memberImageResource.data?.[0]?.user_image || ''
 )
 
-const formatDate = (value) => {
-	if (!value) return ''
-	return new Date(value).toLocaleDateString(undefined, {
-		year: 'numeric',
-		month: 'short',
-		day: 'numeric',
-	})
-}
+// The page language, not the browser's, so dates follow the site language;
+// Latin digits like the rest of the UI.
+const dateLocale = () => document.documentElement.lang || undefined
+const formatDate = (value) =>
+	value
+		? new Date(value).toLocaleDateString(dateLocale(), {
+				year: 'numeric',
+				month: 'short',
+				day: 'numeric',
+				numberingSystem: 'latn',
+		  })
+		: ''
 
-const formatTime = (value) => {
-	if (!value) return ''
-	return new Date(value).toLocaleTimeString(undefined, {
-		hour: '2-digit',
-		minute: '2-digit',
-		second: '2-digit',
-	})
-}
+const formatTime = (value) =>
+	value
+		? new Date(value).toLocaleTimeString(dateLocale(), {
+				hour: '2-digit',
+				minute: '2-digit',
+				second: '2-digit',
+				numberingSystem: 'latn',
+		  })
+		: ''
 
 // Matches the `lg` breakpoint the sidebar itself switches on. useScreenSize()
 // reports mobile below 640px, which would leave the log expanded through the

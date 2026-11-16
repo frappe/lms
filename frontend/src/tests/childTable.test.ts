@@ -34,3 +34,16 @@ describe('ChildTable add-row button', () => {
 		expect(addRowLabel(build({}))).toBe('Add Row')
 	})
 })
+
+describe('ChildTable column headers', () => {
+	it('translates the column names', () => {
+		const wrapper = mount(ChildTable, {
+			props: { columns: ['Input', 'Expected Output'] },
+			global: { mocks: { __: (text: string) => `ar:${text}` } },
+		})
+		const headers = wrapper.findAll('[role="columnheader"]').map((h) => h.text())
+
+		expect(headers).toContain('ar:Input')
+		expect(headers).toContain('ar:Expected Output')
+	})
+})

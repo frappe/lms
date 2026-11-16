@@ -17,7 +17,7 @@
 				<template #prefix>
 					<span class="lucide-plus size-4" />
 				</template>
-				{{ newLabel || __('New') }}
+				{{ newLabel ? __(newLabel) : __('New') }}
 			</Button>
 		</template>
 
