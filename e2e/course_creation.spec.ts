@@ -112,13 +112,10 @@ test.describe("Course Creation", () => {
 		// Configure settings
 		await settingsTab(page).click();
 
-		// Preview video: the redesigned field has a URL input (plus a hidden
-		// file input), so target the YouTube URL input by its placeholder.
+		// Preview video: the field has a URL input beside a hidden file input,
+		// so target the URL input by its accessible name.
 		await page
-			.locator("label")
-			.filter({ hasText: "Preview video" })
-			.locator("xpath=..")
-			.getByPlaceholder("Paste a YouTube link")
+			.getByRole("textbox", { name: "YouTube link" })
 			.fill("https://www.youtube.com/embed/-LPmw2Znl2c");
 
 		// Tags. A new tag is the `Create "<tag>"` option CourseDetailsSection
