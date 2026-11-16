@@ -130,7 +130,6 @@ const FILTERS: Array<[string, string, string]> = [
 	['pages/QuizSubmissions.vue', 'Link', 'Filter by Member'],
 	['pages/QuizSubmissions.vue', 'Link', 'Filter by Course'],
 	['pages/ProgrammingExercises/ProgrammingExercises.vue', 'Select', 'Type'],
-	['pages/Courses/CourseDashboard.vue', 'Select', 'Sort by'],
 	['components/Programs/ProgramProgressSummary.vue', 'FormControl', 'Search'],
 	['pages/Courses/Courses.vue', 'ClearableCombobox', 'Category'],
 	['pages/Batches/Batches.vue', 'ClearableCombobox', 'Category'],
