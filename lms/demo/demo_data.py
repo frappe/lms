@@ -9,8 +9,14 @@ from lms.lms.utils import create_user, get_course_progress
 def create_demo_data(setup_args: dict | None = None):
 	# Sample content, not the site's own: kept out of product telemetry.
 	frappe.flags.in_lms_demo = True
+	frappe.db.savepoint("lms_demo_data")
 	try:
 		_create_demo_data()
+	except Exception:
+		# Sample content is a nice-to-have; a site whose setup just finished must not fail
+		# on it, and half a course is worse than none.
+		frappe.db.rollback(save_point="lms_demo_data")
+		frappe.log_error(title="Demo course could not be created")
 	finally:
 		frappe.flags.in_lms_demo = False
 

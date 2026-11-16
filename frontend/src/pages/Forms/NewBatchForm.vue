@@ -287,9 +287,7 @@ const saveBatch = () => {
 					hash: '#settings',
 				})
 				if (seesOnboarding(user.data)) {
-					updateOnboardingStep('create_first_batch', true, false, () => {
-						localStorage.setItem('firstBatch', data.name)
-					})
+					updateOnboardingStep('create_first_batch')
 				}
 			},
 			onError(err: FrappeResourceError) {
