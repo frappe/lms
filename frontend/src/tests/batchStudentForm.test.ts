@@ -16,13 +16,11 @@ const {
 	createResourceMock,
 	getCachedListResourceMock,
 	getCachedResourceMock,
-	updateOnboardingStepMock,
 	toastMock,
 } = vi.hoisted(() => ({
 	createResourceMock: vi.fn(),
 	getCachedListResourceMock: vi.fn(),
 	getCachedResourceMock: vi.fn(),
-	updateOnboardingStepMock: vi.fn(),
 	toastMock: { success: vi.fn(), error: vi.fn() },
 }))
 
@@ -32,16 +30,6 @@ vi.mock('frappe-ui', () => ({
 	getCachedResource: getCachedResourceMock,
 	toast: toastMock,
 }))
-
-vi.mock(
-	'@framework/ui/components/Onboarding/index',
-	async (importOriginal) => ({
-		...(await importOriginal<
-			typeof import('@framework/ui/components/Onboarding/index')
-		>()),
-		useOnboarding: () => ({ updateOnboardingStep: updateOnboardingStepMock }),
-	})
-)
 
 // The form stands in as a component that shows its props and can emit.
 vi.mock('@/components/Enrollment/EnrollStudentsForm.vue', () => ({
@@ -156,7 +144,6 @@ describe('BatchStudentForm as a route', () => {
 		getCachedListResourceMock.mockReturnValue(null)
 		getCachedResourceMock.mockReset()
 		getCachedResourceMock.mockReturnValue(null)
-		updateOnboardingStepMock.mockReset()
 		toastMock.success.mockReset()
 		delete (window as Window & { read_only_mode?: boolean }).read_only_mode
 	})
@@ -274,15 +261,6 @@ describe('BatchStudentForm as a route', () => {
 		expect(router.currentRoute.value.name).toBe('NewBatchStudent')
 	})
 
-	it('ticks the onboarding step for a moderator', async () => {
-		const router = makeRouter()
-		await openForm(router)
-		const wrapper = await mountForm(router)
-		await enrolled(wrapper)
-
-		expect(updateOnboardingStepMock).toHaveBeenCalledWith('add_batch_student')
-	})
-
 	// Regression from the bulk-enroll PR (feat/bulk-enroll): the page toasted on
 	// top of the dialog's own outcome toast, so one enroll showed two.
 	it('leaves the success toast to the dialog', async () => {
@@ -292,24 +270,6 @@ describe('BatchStudentForm as a route', () => {
 		await enrolled(wrapper)
 
 		expect(toastMock.success).not.toHaveBeenCalled()
-	})
-
-	it('ticks the onboarding step only when someone was added', async () => {
-		const router = makeRouter()
-		await openForm(router)
-		const wrapper = await mountForm(router)
-		await enrolled(wrapper, [])
-
-		expect(updateOnboardingStepMock).not.toHaveBeenCalled()
-	})
-
-	it('leaves the onboarding step alone for a user who does not see onboarding', async () => {
-		const router = makeRouter()
-		await openForm(router)
-		const wrapper = await mountForm(router, evaluator)
-		await enrolled(wrapper)
-
-		expect(updateOnboardingStepMock).not.toHaveBeenCalled()
 	})
 
 	it('returns to the opening tab when the form closes', async () => {

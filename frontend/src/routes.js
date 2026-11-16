@@ -381,9 +381,13 @@ export const routes = [
 		}),
 	},
 	{
+		path: '/setup',
+		name: 'Setup',
+		component: () => import('@/pages/Setup.vue'),
+	},
+	{
 		path: '/persona',
-		name: 'PersonaForm',
-		component: () => import('@/pages/Forms/PersonaForm.vue'),
+		redirect: { name: 'Setup' },
 	},
 	{
 		path: '/programming-exercises',

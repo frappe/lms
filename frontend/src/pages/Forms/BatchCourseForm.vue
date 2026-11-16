@@ -1,7 +1,7 @@
 <template>
 	<FormShell :title="__('Add Course')" size="lg" @close="close">
 		<template #default>
-			<div v-if="refusal" class="p-4 text-base text-ink-gray-6">
+			<div v-if="refusal" class="text-base text-ink-gray-6">
 				{{ refusal }}
 			</div>
 			<div v-else data-testid="batch-course-fields" class="flex flex-col gap-4">
@@ -16,6 +16,7 @@
 				/>
 				<Link
 					doctype="Course Evaluator"
+					variant="outline"
 					v-model="evaluator"
 					:label="__('Evaluator')"
 				/>
@@ -36,8 +37,6 @@
 <script setup>
 import { computed, inject, ref } from 'vue'
 import { createListResource, getCachedListResource, toast } from 'frappe-ui'
-import { useOnboarding } from '@framework/ui/components/Onboarding/index'
-import { seesOnboarding } from '@/utils/onboarding'
 import { useRoute, useRouter } from 'vue-router'
 import Link from '@/components/Controls/Link.vue'
 import FormShell from '@/components/FormShell.vue'
@@ -57,7 +56,6 @@ const user = inject('$user')
 const route = useRoute()
 const router = useRouter()
 const readOnlyMode = window.read_only_mode
-const { updateOnboardingStep } = useOnboarding('learning')
 
 const course = ref(null)
 const evaluator = ref(null)
@@ -120,9 +118,6 @@ const submit = () => {
 		},
 		{
 			onSuccess() {
-				if (seesOnboarding(user.data)) {
-					updateOnboardingStep('add_batch_course')
-				}
 				reloadBatchCourses()
 				toast.success(__('Course added to batch successfully'))
 				saveAndReplace(

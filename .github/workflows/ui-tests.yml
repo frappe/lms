@@ -77,6 +77,22 @@ jobs:
         with:
           fetch-depth: 2
 
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      - name: Cache pip
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cache/pip
+            ~/.cache/uv
+          key: ${{ runner.os }}-pip-${{ hashFiles('**/*requirements.txt', '**/pyproject.toml', '**/setup.py', '**/setup.cfg') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
+            ${{ runner.os }}-
+
       - name: Select tests
         id: select
         if: >-
@@ -90,40 +106,23 @@ jobs:
       - name: Add to Hosts
         run: echo "127.0.0.1 lms.test" | sudo tee -a /etc/hosts
 
-      - uses: ./.github/actions/setup-bench
-        with:
-          site: lms.test
-          db-root-password: "123"
-          build-assets: "true"
-          site-config: >-
-            {
-              "allow_tests": true,
-              "enable_ui_tests": true,
-              "auto_email_id": "test@example.com",
-              "mail_server": "smtp.example.com",
-              "mail_login": "test@example.com",
-              "mail_password": "test",
-              "host_name": "http://lms.test:8000",
-              "monitor": 1,
-              "server_script_enabled": true,
-              "mute_emails": true
-            }
+      - name: Setup Pilot bench
+        shell: bash
+        env:
+          FRAPPE_BRANCH: develop
+          SITE: lms.test
+          DB_ROOT_PASSWORD: "123"
+        run: bash ${GITHUB_WORKSPACE}/.github/helper/install-e2e.sh
 
       - name: Site Setup
-        working-directory: /home/runner/frappe-bench
+        shell: bash
+        working-directory: /home/runner/pilot/benches/frappe-bench
         run: |
-          bench --site lms.test execute frappe.utils.install.complete_setup_wizard
-          bench --site lms.test execute frappe.tests.ui_test_helpers.create_test_user
-          bench --site lms.test set-password frappe@example.com admin
-          bench --site lms.test execute lms.lms.utils.persona_captured
-
-      - name: Start bench
-        working-directory: /home/runner/frappe-bench
-        run: |
-          sed -i -e 's/^watch:/# watch:/' -e 's/^schedule:/# schedule:/' Procfile
-          bench start &> bench_start.log &
-          curl --silent --show-error --retry 30 --retry-delay 2 --retry-all-errors \
-            --output /dev/null http://lms.test:8000/api/method/ping
+          export PATH="$HOME/pilot/bin:$HOME/.local/bin:$PATH"
+          pilot frappe --site lms.test execute frappe.utils.install.complete_setup_wizard
+          pilot frappe --site lms.test execute frappe.tests.ui_test_helpers.create_test_user
+          pilot frappe --site lms.test set-password frappe@example.com admin
+          pilot frappe --site lms.test execute lms.lms.utils.persona_captured
 
       - name: Cache Playwright browsers
         uses: actions/cache@v4
@@ -132,11 +131,11 @@ jobs:
           key: ${{ runner.os }}-playwright-${{ hashFiles('yarn.lock') }}
 
       - name: Install Playwright browsers
-        working-directory: /home/runner/frappe-bench/apps/lms
+        working-directory: /home/runner/pilot/benches/frappe-bench/apps/lms
         run: npx playwright install --with-deps chromium
 
       - name: UI Tests
-        working-directory: /home/runner/frappe-bench/apps/lms
+        working-directory: /home/runner/pilot/benches/frappe-bench/apps/lms
         # SPECS is empty on a full run.
         run: |
           read -ra specs <<< "$SPECS"
@@ -152,10 +151,10 @@ jobs:
         with:
           name: playwright-results
           path: |
-            /home/runner/frappe-bench/apps/lms/test-results
-            /home/runner/frappe-bench/apps/lms/playwright-report
+            /home/runner/pilot/benches/frappe-bench/apps/lms/test-results
+            /home/runner/pilot/benches/frappe-bench/apps/lms/playwright-report
           if-no-files-found: ignore
 
-      - name: Show bench output
+      - name: Show pilot log
         if: ${{ always() }}
-        run: cat ~/frappe-bench/bench_start.log || true
+        run: cat "$RUNNER_TEMP/pilot.log" || true

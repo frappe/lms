@@ -1,7 +1,7 @@
 <template>
 	<FormShell :title="__('New Batch')" size="3xl" @close="close">
 		<template #default>
-			<div v-if="!canCreateBatch" class="p-4 text-base text-ink-gray-6">
+			<div v-if="!canCreateBatch" class="text-base text-ink-gray-6">
 				{{ __('You are not permitted to create a batch.') }}
 			</div>
 			<div v-else data-testid="new-batch-fields" class="text-base">
@@ -289,9 +289,7 @@ const saveBatch = () => {
 					hash: '#settings',
 				})
 				if (seesOnboarding(user.data)) {
-					updateOnboardingStep('create_first_batch', true, false, () => {
-						localStorage.setItem('firstBatch', data.name)
-					})
+					updateOnboardingStep('create_first_batch')
 				}
 			},
 			onError(err: FrappeResourceError) {

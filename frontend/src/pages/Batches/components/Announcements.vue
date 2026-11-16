@@ -38,7 +38,7 @@
 		>
 			<Button
 				v-if="canAnnounce"
-				variant="solid"
+				variant="subtle"
 				:label="hasStudents ? __('Make Announcement') : __('Enroll Students')"
 				@click="openForm"
 			>

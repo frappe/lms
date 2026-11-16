@@ -123,6 +123,7 @@ import SkeletonLoader from '@/components/SkeletonLoader.vue'
 import TabbedDetailPage from '@/components/Layouts/pages/TabbedDetailPage.vue'
 import NotFound from '@/pages/NotFound.vue'
 import { openBatchForm } from '@/composables/useBatchForms'
+import { canReadDiscussions } from '@/utils/doctypePermissions'
 
 const router = useRouter()
 // Read by every form opener below. TabbedDetailPage still keeps the active tab
@@ -223,7 +224,7 @@ const tabs = computed(() => {
 			label: __('Discussions'),
 			component: markRaw(Discussions),
 			icon: 'lucide-message-circle',
-			when: enrolled,
+			when: enrolled && canReadDiscussions(user),
 		},
 		{
 			key: 'settings',

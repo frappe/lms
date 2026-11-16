@@ -26,6 +26,7 @@ from lms.lms.permissions import (
 	is_site_administrator,
 )
 from lms.lms.utils import (
+	delete_discussions,
 	format_timezone,
 	generate_slug,
 	get_assignment_details,
@@ -37,6 +38,11 @@ from lms.lms.utils import (
 	guest_access_allowed,
 	update_payment_record,
 )
+
+# Bounds how long a Zoom call can hold the worker if the API stops responding.
+# Generous because these are admin actions (create a class, read attendance),
+# not page renders — a spurious timeout would break a working integration.
+ZOOM_REQUEST_TIMEOUT_SECONDS = 30
 
 
 class LMSBatch(Document):
@@ -58,7 +64,43 @@ class LMSBatch(Document):
 
 	def on_update(self):
 		if self.has_value_changed("published") and self.published:
-			frappe.enqueue(send_notification_for_published_batch, batch=self)
+			frappe.enqueue(send_notification_for_published_batch, batch=self, enqueue_after_commit=True)
+
+	def on_trash(self):
+		"""Child tables (instructors, courses, timetable, legends) go with the batch itself."""
+		self.validate_no_payments()
+		frappe.db.delete("LMS Batch Enrollment", {"batch": self.name})
+		frappe.db.delete("LMS Batch Feedback", {"batch": self.name})
+		delete_discussions("LMS Batch", self.name)
+		# A live class owns a calendar Event that only its own after_delete removes.
+		for live_class in frappe.get_all("LMS Live Class", {"batch_name": self.name}, pluck="name"):
+			# nosemgrep: lms-unjustified-ignore-permissions - the batch delete was authorised; its classes go with it
+			frappe.delete_doc("LMS Live Class", live_class, ignore_permissions=True)
+		# A coupon outlives one of the items it applies to.
+		frappe.db.delete("LMS Coupon Item", {"reference_doctype": "LMS Batch", "reference_name": self.name})
+		self._unlink_learner_records()
+
+	def validate_no_payments(self):
+		"""Payments are money records, so a batch that has them is kept. Checked before
+		anything is deleted; delete_doc would refuse it only after on_trash."""
+		payments = frappe.db.count(
+			"LMS Payment", {"payment_for_document_type": "LMS Batch", "payment_for_document": self.name}
+		)
+		if payments == 1:
+			frappe.throw(_("This batch has a payment, so it can't be deleted."), frappe.LinkExistsError)
+		if payments:
+			frappe.throw(
+				_("This batch has {0} payments, so it can't be deleted.").format(payments),
+				frappe.LinkExistsError,
+			)
+
+	def _unlink_learner_records(self):
+		"""Certificates and course enrollments outlive the batch that produced them."""
+		for doctype in ("LMS Certificate", "LMS Certificate Request", "LMS Certificate Evaluation"):
+			frappe.db.set_value(doctype, {"batch_name": self.name}, "batch_name", None)
+		frappe.db.set_value(
+			"LMS Enrollment", {"enrollment_from_batch": self.name}, "enrollment_from_batch", None
+		)
 
 	def autoname(self):
 		if not self.name and self.title:
@@ -395,7 +437,10 @@ def create_live_class(
 		"content-type": "application/json",
 	}
 	response = requests.post(
-		"https://api.zoom.us/v2/users/me/meetings", headers=headers, data=json.dumps(payload)
+		"https://api.zoom.us/v2/users/me/meetings",
+		headers=headers,
+		data=json.dumps(payload),
+		timeout=ZOOM_REQUEST_TIMEOUT_SECONDS,
 	)
 
 	if response.status_code == 201:
@@ -437,7 +482,9 @@ def delete_zoom_meeting(meeting_id, headers):
 	it would go with it."""
 	try:
 		response = requests.delete(
-			f"https://api.zoom.us/v2/meetings/{meeting_id}", headers=headers, timeout=10
+			f"https://api.zoom.us/v2/meetings/{meeting_id}",
+			headers=headers,
+			timeout=ZOOM_REQUEST_TIMEOUT_SECONDS,
 		)
 		if response.ok:
 			return
@@ -525,7 +572,9 @@ def authenticate(zoom_account):
 			)
 		).decode()
 	}
-	response = requests.request("POST", authenticate_url, headers=headers)
+	response = requests.request(
+		"POST", authenticate_url, headers=headers, timeout=ZOOM_REQUEST_TIMEOUT_SECONDS
+	)
 	return response.json()["access_token"]
 
 

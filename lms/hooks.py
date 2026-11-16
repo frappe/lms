@@ -16,6 +16,7 @@ required_apps = ["frappe/payments"]
 
 
 def get_lms_path():
+	"""Bench-wide: read once at import. Set lms_path in common_site_config.json."""
 	path = "lms"
 	if frappe.conf and frappe.conf.get("lms_path"):
 		path = frappe.conf.get("lms_path")
@@ -73,7 +74,15 @@ web_include_js = []
 after_install = "lms.install.after_install"
 after_sync = "lms.install.after_sync"
 before_uninstall = "lms.install.before_uninstall"
-setup_wizard_complete = "lms.demo.demo_data.create_demo_data"
+# Runs after every setup, including one finished at login on Frappe Cloud, without forcing
+# the desk wizard the way setup_wizard_complete would.
+setup_wizard_success = "lms.demo.demo_data.create_demo_data"
+
+# Who may invite through the framework's User Invitation, and the roles they can give.
+_invitable_roles = ["Moderator", "Course Creator", "LMS Student"]
+user_invitation = {
+	"allowed_roles": {"System Manager": _invitable_roles, "Moderator": _invitable_roles},
+}
 after_migrate = [
 	"lms.lms.doctype.lms_payment.lms_payment.add_unique_payment_id_constraint",
 	# Also on migrate, not only after_sync. Both seeders are create-if-absent, and
@@ -237,8 +246,6 @@ scheduler_events = {
 		"lms.lms.doctype.course_evaluator.course_evaluator.clear_expired_time_off",
 	],
 }
-
-fixtures = ["Custom Field", "Function", "Industry", "LMS Category"]
 
 # Testing
 # -------

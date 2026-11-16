@@ -8,6 +8,7 @@ import {
 	type Router,
 } from 'vue-router'
 import { defineComponent, h, nextTick, reactive } from 'vue'
+import { toast } from 'frappe-ui'
 
 vi.stubGlobal('__', (text: string) => text)
 
@@ -387,5 +388,24 @@ describe('ChapterForm as a route', () => {
 		])
 		expect(sharedOutline.reload).toHaveBeenCalledTimes(1)
 		expect(outlineResource.reload).not.toHaveBeenCalled()
+	})
+
+	// A rejected SCORM zip (validation or a 413) showed nothing: the custom slot
+	// hides FileUploader's own error and nothing handled @failure (428d364db).
+	it.each([
+		['a validation message', 'Only zip files are allowed'],
+		['an upload Error', new Error('File too large')],
+	])('toasts %s when the SCORM upload fails', async (_label, failure) => {
+		outlineResource.data = [chapterRow({ is_scorm_package: 1 })]
+		const router = makeRouter()
+		await openForm(router, 'CHAPTER-1')
+		const wrapper = await mountForm(router)
+		vi.mocked(toast.error).mockClear()
+
+		wrapper.findComponent(passthrough).vm.$emit('failure', failure)
+
+		const expected = failure instanceof Error ? failure.message : failure
+		expect(toast.error).toHaveBeenCalledWith(expected)
+		expect(upsertResource.submit).not.toHaveBeenCalled()
 	})
 })

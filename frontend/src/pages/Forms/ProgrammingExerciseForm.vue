@@ -120,7 +120,7 @@
 			</template>
 		</div>
 		<div
-			class="order-first min-w-0 space-y-4 border-b p-5 lg:order-none lg:min-h-0 lg:overflow-y-auto lg:border-b-0 lg:border-s"
+			class="order-first flex min-w-0 flex-col gap-4 border-b p-5 lg:order-none lg:min-h-0 lg:overflow-y-auto lg:border-b-0 lg:border-s"
 		>
 			<FormControl
 				v-model="exercise.title"

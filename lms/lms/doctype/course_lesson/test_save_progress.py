@@ -389,3 +389,26 @@ class TestSaveProgressProgrammingExerciseGate(BaseTestUtils):
 		self._set_enforcement(1, passing=1)
 		self._submit("Passed")
 		self.assertTrue(self._completes_lesson())
+
+	def _mark_lesson_progress(self, user):
+		from lms.lms.api import mark_lesson_progress
+
+		frappe.set_user(user)
+		try:
+			return mark_lesson_progress(self.course.name, 1, 1)
+		finally:
+			frappe.set_user("Administrator")
+
+	def test_mark_lesson_progress_reports_a_declined_completion(self):
+		# The lesson page showed a green tick whenever this call succeeded, though
+		# save_progress writes nothing while the lesson's requirements are unmet.
+		self._set_enforcement(1)
+		self.assertFalse(self._mark_lesson_progress(self.student.email))
+
+	def test_mark_lesson_progress_reports_a_completed_lesson(self):
+		self._set_enforcement(0)
+		self.assertTrue(self._mark_lesson_progress(self.student.email))
+
+	def test_mark_lesson_progress_reports_nothing_done_without_enrollment(self):
+		self._set_enforcement(0)
+		self.assertFalse(self._mark_lesson_progress("Administrator"))

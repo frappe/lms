@@ -2,7 +2,7 @@
 	<div class="flex flex-wrap items-center justify-center gap-2">
 		<Button
 			v-if="createLabel"
-			variant="solid"
+			variant="subtle"
 			:label="createLabel"
 			:route="route"
 			@click="act('create')"
@@ -14,7 +14,7 @@
 		<!-- An href makes the Button an anchor that opens in a new tab. -->
 		<Button
 			v-if="docs"
-			variant="subtle"
+			variant="ghost"
 			:href="safeUrl(docs)"
 			:label="__('Read the docs')"
 			@click="act('docs')"

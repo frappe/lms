@@ -6,6 +6,9 @@ from datetime import datetime
 
 import frappe
 from frappe import _
+from frappe.integrations.doctype.google_calendar.google_calendar import (
+	delete_event_from_google_calendar,
+)
 from frappe.model.document import Document
 from frappe.model.mapper import get_mapped_doc
 from frappe.utils import (
@@ -20,6 +23,7 @@ from frappe.utils import (
 	nowtime,
 )
 
+from lms.lms.locking import locked_count
 from lms.lms.utils import (
 	PRIVILEGED_ROLES,
 	convert_from_system_timezone,
@@ -60,13 +64,13 @@ class LMSCertificateRequest(Document):
 			frappe.throw(_("You are not enrolled in this course."), frappe.PermissionError)
 
 	def after_insert(self):
+		self.validate_slot_against_committed_rows()
 		self.send_notification()
 
 	def guard_server_fields(self):
-		"""The evaluator, the meeting link and the status are the server's to set.
-		The form marks the last two read-only, which the API does not enforce, and a
-		request naming its own evaluator would land on anyone's list carrying any
-		link, while the scheduler skips requests that already have one."""
+		"""The evaluator, meeting link, event and status are the server's to set. The
+		form's read-only flag binds no API caller, and the scheduler skips a request
+		that already carries a link."""
 		if PRIVILEGED_ROLES & set(frappe.get_roles()):
 			return
 		stored = self.get_doc_before_save()
@@ -77,6 +81,7 @@ class LMSCertificateRequest(Document):
 			frappe.throw(_("The evaluator is assigned by the course or batch."), frappe.PermissionError)
 		self.evaluator = assigned
 		self.google_meet_link = stored.google_meet_link if stored else None
+		self.event = stored.event if stored else None
 		self.status = stored.status if stored else "Upcoming"
 
 	def set_evaluator(self):
@@ -109,17 +114,33 @@ class LMSCertificateRequest(Document):
 				)
 
 	def validate_slot(self):
-		if frappe.db.exists(
-			"LMS Certificate Request",
-			{
-				"evaluator": self.evaluator,
-				"date": self.date,
-				"status": ["!=", "Cancelled"],
-				"start_time": self.start_time,
-				"member": ["!=", self.member],
-			},
-		):
-			frappe.throw(_("The slot is already booked by another participant."))
+		if self.evaluator:
+			# One evaluator's bookings run one after the other from here on, which
+			# validate_slot_against_committed_rows relies on. Their Course Evaluator row,
+			# not the User row every request of theirs writes; User only if it is gone.
+			if not frappe.db.get_value("Course Evaluator", self.evaluator, "name", for_update=True):
+				frappe.db.get_value("User", self.evaluator, "name", for_update=True)
+
+		if frappe.db.exists("LMS Certificate Request", self.slot_filters()):
+			self.throw_slot_booked()
+
+	def validate_slot_against_committed_rows(self):
+		"""validate_slot reads a snapshot that misses a booking committed while this
+		request waited on the evaluator lock. Recheck, with this row in."""
+		if locked_count("LMS Certificate Request", self.slot_filters()):
+			self.throw_slot_booked()
+
+	def slot_filters(self):
+		return {
+			"evaluator": self.evaluator,
+			"date": self.date,
+			"status": ["!=", "Cancelled"],
+			"start_time": self.start_time,
+			"member": ["!=", self.member],
+		}
+
+	def throw_slot_booked(self):
+		frappe.throw(_("The slot is already booked by another participant."))
 
 	def validate_if_existing_requests(self):
 		existing_requests = frappe.get_all(
@@ -208,22 +229,34 @@ class LMSCertificateRequest(Document):
 
 
 def schedule_evals():
-	if frappe.db.get_single_value("LMS Settings", "send_calendar_invite_for_evaluations"):
-		timelapse = add_to_date(get_datetime(), hours=-5)
-		evals = frappe.get_all(
-			"LMS Certificate Request",
-			{
-				"creation": [">=", timelapse],
-				"google_meet_link": ["is", "not set"],
-				"status": "Upcoming",
-			},
-			["name", "member", "member_name", "evaluator", "date", "start_time", "end_time"],
-		)
-		for evaluation in evals:
-			setup_calendar_event(evaluation.name)
+	if not frappe.db.get_single_value("LMS Settings", "send_calendar_invite_for_evaluations"):
+		return
+
+	for eval_name in get_unscheduled_evaluations():
+		# Each request commits on its own, so a later failure cannot roll back the
+		# event an earlier one recorded after Google had already sent its invites.
+		frappe.db.savepoint("schedule_eval")
+		try:
+			book_calendar_event(eval_name)
+		except Exception:
+			frappe.db.rollback(save_point="schedule_eval")
+			frappe.log_error(title=f"Could not schedule evaluation {eval_name}")
 
 
-@frappe.whitelist()
+def get_unscheduled_evaluations() -> list[str]:
+	return frappe.get_all(
+		"LMS Certificate Request",
+		{
+			"creation": [">=", add_to_date(get_datetime(), hours=-5)],
+			"event": ["is", "not set"],
+			"google_meet_link": ["is", "not set"],
+			"status": "Upcoming",
+		},
+		pluck="name",
+	)
+
+
+@frappe.whitelist(methods=["POST"])
 def setup_calendar_event(eval_name: str):
 	evaluation = frappe.db.get_value(
 		"LMS Certificate Request",
@@ -242,12 +275,75 @@ def setup_calendar_event(eval_name: str):
 			frappe.PermissionError,
 		)
 
-	calendar = frappe.db.get_value("Google Calendar", {"user": evaluation.evaluator, "enable": 1}, "name")
+	event, google_meet_link = frappe.db.get_value(
+		"LMS Certificate Request", eval_name, ["event", "google_meet_link"]
+	)
+	if event and not google_meet_link:
+		frappe.msgprint(
+			_(
+				"Calendar event {0} already exists for this evaluation, but Google did not return a Meet link for it. Add the link to that event in Google Calendar."
+			).format(event)
+		)
+		return
 
-	if calendar:
-		event = create_event(evaluation)
-		add_participants(evaluation, event)
+	book_calendar_event(eval_name)
+
+
+def book_calendar_event(eval_name: str):
+	"""The request records its Event before Google is called and commits right
+	after, so the Event is the marker that stops a second set of invites. Requests
+	scheduled before the Event was recorded have only their Meet link."""
+	evaluation = get_locked_evaluation(eval_name)
+	if evaluation.event or evaluation.google_meet_link:
+		return
+
+	# Frappe pushes an Event to Google only with push_to_google_calendar on. Without it
+	# the Event below would mark the request scheduled with no invite ever sent.
+	calendar = frappe.db.get_value(
+		"Google Calendar",
+		{"user": evaluation.evaluator, "enable": 1, "push_to_google_calendar": 1},
+		"name",
+	)
+	if not calendar:
+		return
+
+	event = create_event(evaluation)
+	frappe.db.set_value("LMS Certificate Request", eval_name, "event", event.name)
+	add_participants(evaluation, event)
+	try:
 		update_meeting_details(evaluation, event, calendar)
+		frappe.db.commit()
+	except Exception:
+		cancel_google_event(event)
+		raise
+
+
+def get_locked_evaluation(eval_name: str):
+	fields = [
+		"name",
+		"member",
+		"member_name",
+		"evaluator",
+		"date",
+		"start_time",
+		"end_time",
+		"event",
+		"google_meet_link",
+	]
+	return frappe.db.get_value("LMS Certificate Request", eval_name, fields, as_dict=1, for_update=True)
+
+
+def cancel_google_event(event: Document):
+	"""Google sent the invites before the request could keep its Event, so a failure
+	past that point would leave a live meeting nothing points at."""
+	if not event.google_calendar_event_id:
+		return
+
+	try:
+		delete_event_from_google_calendar(event)
+	except Exception:
+		# Reported on its own so it cannot mask the error that triggered the cleanup.
+		frappe.log_error(title=f"Could not cancel Google Calendar event {event.name}")
 
 
 def create_event(evaluation: dict):

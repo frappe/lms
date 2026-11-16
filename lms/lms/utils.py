@@ -37,6 +37,7 @@ from frappe.utils import (
 	to_timedelta,
 	validate_email_address,
 )
+from frappe.utils.caching import site_cache
 from frappe.utils.dateutils import get_period_ending
 from frappe.utils.html_utils import sanitize_html
 from pypika import Case
@@ -44,9 +45,12 @@ from pypika import functions as fn
 
 from lms.lms import telemetry
 from lms.lms.doctype.lms_enrollment.lms_enrollment import (
+	save_unless_enrolled,
 	update_enrollment,
 	update_program_progress,
 )
+from lms.lms.html_sanitizer import sanitize_rich_text
+from lms.lms.locking import locked_get_all
 from lms.lms.md import find_macros
 
 RE_SLUG_NOTALLOWED = re.compile("[^a-z0-9]+")
@@ -68,7 +72,31 @@ def get_lms_route(path=""):
 
 
 def extend_bootinfo(bootinfo: dict):
+	warn_if_lms_path_differs_from_routes()
 	bootinfo["lms_path"] = get_lms_path()
+
+
+@site_cache
+def warn_if_lms_path_differs_from_routes():
+	"""The route rules in lms/hooks.py read lms_path once, at import, so the value
+	is bench-wide and a per-site override is not routed. Warns once per site and process."""
+	site = frappe.local.site
+	routed = get_routed_lms_path()
+	if routed is None or routed == get_lms_path():
+		return
+
+	frappe.logger("lms", allow_site=True).warning(
+		f"lms_path for site {site} is '{get_lms_path()}' but routes are served at '/{routed}'. "
+		"lms_path is bench-wide: set it in common_site_config.json, not site_config.json, "
+		"and restart the bench."
+	)
+
+
+def get_routed_lms_path() -> str | None:
+	for rule in frappe.get_hooks("website_route_rules"):
+		if rule.get("to_route") == "_lms" and "<" not in rule["from_route"]:
+			return rule["from_route"].strip("/")
+	return None
 
 
 def resolve_text_direction(lang: str) -> str:
@@ -496,25 +524,34 @@ def get_progress(course: str, lesson: str, member: str = None):
 	)
 
 
-def get_course_progress(course: str, member: str = None):
-	"""Returns the course progress of the session user"""
+def get_course_progress(course: str, member: str = None, for_update: bool = False):
+	"""Returns the course progress of the session user. Pass for_update when the result is
+	written back, so the count sees lessons other requests completed meanwhile."""
 	chapters = frappe.get_all("Chapter Reference", {"parent": course}, pluck="chapter")
 	if not chapters:
 		return 0
 	lessons = frappe.get_all("Lesson Reference", {"parent": ("in", chapters)}, pluck="lesson")
 	if not lessons:
 		return 0
-	completed_lessons = frappe.db.count(
-		"LMS Course Progress",
-		{
-			"course": course,
-			"member": member or frappe.session.user,
-			"status": "Complete",
-			"lesson": ("in", lessons),
-		},
-	)
+	member = member or frappe.session.user
+	if for_update:
+		completed_lessons = count_completed_lessons_locked(course, member, lessons)
+	else:
+		completed_lessons = frappe.db.count(
+			"LMS Course Progress",
+			{"course": course, "member": member, "status": "Complete", "lesson": ("in", lessons)},
+		)
 	precision = cint(frappe.db.get_default("float_precision")) or 3
 	return flt(min(completed_lessons / len(lessons) * 100, 100), precision)
+
+
+def count_completed_lessons_locked(course: str, member: str, lessons: list[str]) -> int:
+	# Locked through the (member, course) index, so a recount locks only this
+	# enrolment's rows: two learners in one course, or one learner in two courses,
+	# lock disjoint ranges and cannot deadlock.
+	rows = locked_get_all("LMS Course Progress", {"member": member, "course": course}, ["lesson", "status"])
+	outline = set(lessons)
+	return sum(1 for row in rows if row.lesson in outline and row.status == "Complete")
 
 
 def is_instructor(course: str) -> bool:
@@ -712,7 +749,8 @@ def get_course_details_for_notification(topic: dict):
 	users.append(topic.owner)
 	users += instructors
 
-	subject = _("New reply on the topic {0} in course {1}").format(topic.title, course_title)
+	# Titles are stored as typed; the subject is rendered as HTML.
+	subject = _("New reply on the topic {0} in course {1}").format(escape_html(topic.title), course_title)
 	link = get_lesson_url(course, get_lesson_index(topic.reference_docname))
 
 	return subject, link, users
@@ -779,7 +817,7 @@ def notify_mentions_on_portal(doc: Document, topic: dict):
 	if topic.reference_doctype == "Course Lesson":
 		course = frappe.db.get_value("Course Lesson", topic.reference_docname, "course")
 		subject = _("{0} mentioned you in a comment in {1}").format(
-			frappe.bold(from_user_name), frappe.bold(topic.title)
+			frappe.bold(from_user_name), frappe.bold(escape_html(topic.title))
 		)
 		link = get_lesson_url(course, get_lesson_index(topic.reference_docname))
 	else:
@@ -2314,7 +2352,7 @@ def get_batch_details(batch: str):
 	if (
 		not batch_details.accept_enrollments
 		and batch_details.start_date == getdate()
-		and str(batch_details.start_time) > nowtime()
+		and get_time(batch_details.start_time) > get_time(nowtime())
 	):
 		batch_details.accept_enrollments = True
 
@@ -2926,8 +2964,9 @@ def can_access_topic(doctype: str, docname: str) -> bool:
 	return True
 
 
-@frappe.whitelist()
+@frappe.whitelist(methods=["POST"])
 def get_discussion_topics(doctype: str, docname: str, single_thread: bool = False):
+	frappe.has_permission("Discussion Topic", "read", throw=True)
 	if not can_access_topic(doctype, docname):
 		frappe.throw(_("You are not authorized to view the discussion topics for this item."))
 
@@ -2990,6 +3029,7 @@ def create_discussion_topic(doctype: str, docname: str) -> str:
 
 @frappe.whitelist()
 def get_discussion_replies(topic: str):
+	frappe.has_permission("Discussion Reply", "read", throw=True)
 	topic_details = frappe.db.get_value(
 		"Discussion Topic", topic, ["reference_doctype", "reference_docname"], as_dict=True
 	)
@@ -3047,6 +3087,9 @@ def get_paid_course_details(docname: str) -> dict:
 		as_dict=True,
 	)
 
+	if not details:
+		frappe.throw(_("This course does not exist."), frappe.DoesNotExistError)
+
 	if not details.paid_course and not details.paid_certificate:
 		raise frappe.throw(_("This course is free."))
 
@@ -3060,6 +3103,9 @@ def get_paid_batch_details(docname: str) -> dict:
 		["title", "name", "paid_batch", "amount", "currency", "amount_usd"],
 		as_dict=True,
 	)
+
+	if not details:
+		frappe.throw(_("This batch does not exist."), frappe.DoesNotExistError)
 
 	if not details.paid_batch:
 		raise frappe.throw(_("To join this batch, please contact the Administrator."))
@@ -3304,17 +3350,20 @@ def is_payment_for_this_checkout(data: dict, doctype: str, docname: str) -> bool
 		as_dict=True,
 	)
 
-	if (
-		not payment
-		or payment.member != frappe.session.user
-		or payment.payment_for_document_type != doctype
-		or payment.payment_for_document != docname
-	):
-		return refuse_payment(data, "The LMS Payment does not belong to this user and document.")
+	if not payment or payment.payment_for_document_type != doctype or payment.payment_for_document != docname:
+		return refuse_payment(data, "The LMS Payment does not belong to this document.")
 
 	if not data.get("razorpay_payment_id") and data.get("payment_gateway") != "Razorpay":
+		# Nothing from the gateway backs this callback, so only the payment's own
+		# member may complete it.
+		if payment.member != frappe.session.user:
+			return refuse_payment(data, "The LMS Payment does not belong to this user.")
 		return True
 
+	# Razorpay confirms the money arrived for this payment's order, so the callback
+	# completes it whoever's session carries it: the buyer may have been logged out
+	# by then, or the callback may arrive as Guest. complete_enrollment credits
+	# payment.member, never the session.
 	return verify_razorpay_payment(data, payment)
 
 
@@ -3434,12 +3483,15 @@ def complete_enrollment(payment_name: str, doctype: str, docname: str):
 		)
 		frappe.throw(_("We could not find your payment record. Please contact the administrator."))
 
+	# The payment's member, not the session: a callback can arrive as Guest or from
+	# another session, and would otherwise enrol whoever carried it.
+	member = payment_doc.member
 	if payment_doc.payment_for_certificate:
-		update_certificate_purchase(docname, payment_name)
+		update_certificate_purchase(docname, payment_name, member)
 	elif doctype == "LMS Course":
-		enroll_in_course(docname, payment_name)
+		enroll_in_course(docname, payment_name, member)
 	else:
-		enroll_in_batch(docname, payment_name)
+		enroll_paid_member_in_batch(docname, get_payment_details(payment_name), member)
 
 	# Counted last: it locks the coupon row until the request commits, and
 	# enrolling is the slower half of this transaction.
@@ -3464,7 +3516,7 @@ def get_payment_doc(payment_name: str) -> dict:
 	return frappe.db.get_value(
 		"LMS Payment",
 		payment_name,
-		["name", "coupon", "payment_for_certificate", "amount", "amount_with_gst"],
+		["name", "member", "coupon", "payment_for_certificate", "amount", "amount_with_gst"],
 		as_dict=True,
 	)
 
@@ -3549,27 +3601,28 @@ def get_payment_total(payment_doc: dict) -> float:
 	return flt(payment_doc.amount_with_gst) or flt(payment_doc.amount)
 
 
-def enroll_in_course(course: str, payment_name: str):
-	# The check below exists so a repeated payment callback is a no-op, and an
-	# unlocked check cannot deliver that: two callbacks arriving together both read
-	# "absent", and the loser then hits the controller's own duplicate error —
-	# failing a request that has already taken the learner's money. Locking the
-	# course row first makes the skip reliable. The controller locks the same row,
-	# so this adds no new lock ordering.
+def enroll_in_course(course: str, payment_name: str, member: str):
+	# A repeated payment callback is a no-op. The second of two concurrent callbacks
+	# waits on the course lock and misses the first's row in its snapshot, so the
+	# check below passes it; save_unless_enrolled then skips the duplicate.
 	frappe.db.get_value("LMS Course", course, "name", for_update=True)
 
-	if not frappe.db.exists("LMS Enrollment", {"member": frappe.session.user, "course": course}):
+	if not frappe.db.exists("LMS Enrollment", {"member": member, "course": course}):
 		enrollment = frappe.new_doc("LMS Enrollment")
 		payment = frappe.db.get_value("LMS Payment", payment_name, ["name", "source"], as_dict=True)
 
 		enrollment.update(
 			{
-				"member": frappe.session.user,
+				"member": member,
 				"course": course,
 				"payment": payment.name,
 			}
 		)
-		enrollment.save(ignore_permissions=True)
+		# The member paid for this course, so it is theirs whoever's session the
+		# callback arrived in.
+		enrollment.flags.via_payment = True
+		# nosemgrep: lms-unjustified-ignore-permissions - the gateway verified this member's payment for this course
+		save_unless_enrolled(enrollment, ignore_permissions=True)
 
 
 @frappe.whitelist(methods=["POST"])
@@ -3591,33 +3644,36 @@ def get_payment_details(payment_name: str) -> dict:
 
 
 def create_enrollment(batch: str, payment_doc: dict = None):
-	new_student = frappe.new_doc("LMS Batch Enrollment")
-	new_student.update(
-		{
-			"member": frappe.session.user,
-			"batch": batch,
-		}
-	)
+	# Enrolling twice, as two concurrent clicks do, is a no-op.
+	save_unless_enrolled(_new_batch_enrollment(batch, frappe.session.user, payment_doc))
 
+
+def enroll_paid_member_in_batch(batch: str, payment_doc: dict, member: str):
+	"""Enroll the member a verified payment is for, whoever's session the callback
+	arrived in; see LMS Batch Enrollment's validate_owner."""
+	enrollment = _new_batch_enrollment(batch, member, payment_doc)
+	enrollment.flags.via_payment = True
+	# nosemgrep: lms-unjustified-ignore-permissions - the gateway verified this member's payment for this batch
+	save_unless_enrolled(enrollment, ignore_permissions=True)
+
+
+def _new_batch_enrollment(batch: str, member: str, payment_doc: dict | None):
+	enrollment = frappe.new_doc("LMS Batch Enrollment")
+	enrollment.update({"member": member, "batch": batch})
 	if payment_doc:
-		new_student.update(
-			{
-				"payment": payment_doc.name,
-				"source": payment_doc.source,
-			}
-		)
-	new_student.save()
+		enrollment.update({"payment": payment_doc.name, "source": payment_doc.source})
+	return enrollment
 
 
-def update_certificate_purchase(course: str, payment_name: str):
+def update_certificate_purchase(course: str, payment_name: str, member: str):
 	# The purchase is recorded on the enrollment, so a learner who bought
 	# certification without enrolling first would otherwise pay for nothing:
 	# set_value with filters updates no rows and reports no error.
-	enroll_in_course(course, payment_name)
+	enroll_in_course(course, payment_name, member)
 
 	frappe.db.set_value(
 		"LMS Enrollment",
-		{"member": frappe.session.user, "course": course},
+		{"member": member, "course": course},
 		{
 			"purchased_certificate": 1,
 			"payment": payment_name,
@@ -3687,6 +3743,9 @@ def get_program_details(program_name: str) -> dict:
 		],
 		as_dict=1,
 	)
+	# The page asks here, not the generic API: a learner can't filter the member
+	# rows by `member`, a field only the program's staff read.
+	program.is_member = bool(is_member)
 	program_courses = frappe.get_all(
 		"LMS Program Course", {"parent": program_name}, ["course"], order_by="idx"
 	)
@@ -3936,7 +3995,9 @@ def get_palette(full_name: str) -> list:
 	]
 
 	encoded_name = str(full_name).encode("utf-8")
-	hash_name = hashlib.md5(encoded_name).hexdigest()
+	# Not a security hash — it only spreads names across the palette. Declaring that
+	# keeps it working on FIPS-mode hosts, where a bare md5() raises.
+	hash_name = hashlib.md5(encoded_name, usedforsecurity=False).hexdigest()
 	idx = cint((int(hash_name[4:6], 16) + 1) / 5.33)
 	return palette[idx % 8]
 
@@ -3964,6 +4025,8 @@ def persona_captured():
 
 
 def validate_discussion_reply(doc: Document, method: str):
+	# Released frappe skips JSON-shaped HTML, and replies are mailed out as written.
+	doc.reply = sanitize_rich_text(doc.reply)
 	topic = frappe.db.get_value(
 		"Discussion Topic", doc.topic, ["reference_doctype", "reference_docname"], as_dict=True
 	)
@@ -4011,6 +4074,17 @@ def validate_batch_access(batch: str):
 		frappe.throw(_("You do not have access to this batch."))
 
 
+def delete_discussions(reference_doctype: str, reference_docname: str):
+	topics = frappe.get_all(
+		"Discussion Topic",
+		{"reference_doctype": reference_doctype, "reference_docname": reference_docname},
+		pluck="name",
+	)
+	if topics:
+		frappe.db.delete("Discussion Reply", {"topic": ("in", topics)})
+		frappe.db.delete("Discussion Topic", {"name": ("in", topics)})
+
+
 def can_modify_course(course: str) -> bool:
 	is_instructor = frappe.db.exists(
 		"Course Instructor",
@@ -4043,7 +4117,8 @@ def has_lms_role():
 
 
 def recalculate_course_progress(course: str, member: str):
-	progress = get_course_progress(course, member)
+	# Locked before counting, so two completions for one enrollment recompute one after
+	# the other and the second counts the first's lesson.
 	membership = frappe.db.get_value(
 		"LMS Enrollment",
 		{
@@ -4051,11 +4126,14 @@ def recalculate_course_progress(course: str, member: str):
 			"course": course,
 		},
 		"name",
+		for_update=True,
 	)
 	if not membership:
 		# No enrollment to write, but the member's programs still need rolling up.
 		update_program_progress(member)
 		return
+
+	progress = get_course_progress(course, member, for_update=True)
 
 	# A raw set_value here fired no doc events at all, so On Update webhooks and
 	# DocType Event scripts never ran. update_enrollment() writes outside the version

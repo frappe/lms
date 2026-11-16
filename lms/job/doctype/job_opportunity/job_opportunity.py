@@ -22,7 +22,7 @@ class JobOpportunity(Document):
 
 	def autoname(self):
 		if not self.name:
-			self.name = generate_slug(f"{self.job_title}-${self.company_name}", "LMS Course")
+			self.name = generate_slug(f"{self.job_title}-{self.company_name}", "Job Opportunity")
 
 
 def update_job_openings():
@@ -36,7 +36,7 @@ def update_job_openings():
 		frappe.db.set_value("Job Opportunity", job, "status", "Closed")
 
 
-@frappe.whitelist()
+@frappe.whitelist(methods=["POST"])
 # Unbounded, this endpoint lets any authenticated user flood System Managers'
 # inboxes with report emails for the cost of one API call each.
 @rate_limit(key="job", limit=5, seconds=60 * 60)

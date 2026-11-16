@@ -163,6 +163,7 @@
 								class="flex items-center gap-x-2 mt-2 md:mt-0"
 							>
 								<Button
+									v-if="canUseDiscussions"
 									@click="showDiscussionsInZenMode()"
 									:label="__('Toggle discussions')"
 								>
@@ -282,7 +283,7 @@
 							@updateNotes="updateNotes"
 						/>
 						<Discussions
-							v-else-if="allowDiscussions"
+							v-else-if="showDiscussions"
 							:title="'Questions'"
 							:doctype="'Course Lesson'"
 							:docname="lesson.data.name"
@@ -340,7 +341,7 @@
 		</BottomSheet>
 	</div>
 	<InlineLessonMenu
-		v-if="lesson.data?.name"
+		v-if="lesson.data?.name && canCreateNotes"
 		v-model="showInlineMenu"
 		:lesson="lesson.data?.name"
 		v-model:notes="notes"
@@ -406,9 +407,13 @@ import InlineLessonMenu from '@/components/Notes/InlineLessonMenu.vue'
 import { parseStoredEditorJs } from '@/utils/lessonForm'
 import { isLessonSelection } from '@/utils/lessonSelection'
 import { getLmsRoute } from '@/utils/basePath'
+import {
+	canReadDiscussions,
+	hasDoctypePermission,
+} from '@/utils/doctypePermissions'
 import { provideStudentView } from '@/composables/useStudentView'
 import type { UserResource } from '@/composables/useStudentView'
-import type { Note, Notes as NotesResource } from '@/types'
+import type { Note, Notes as NotesResource, SessionUser } from '@/types'
 import { isInstructorOf } from '@/utils/instructors'
 import { allowSkipUpTo } from '@/utils/videoSkipGuard'
 import {
@@ -417,8 +422,10 @@ import {
 } from '@/utils/bunnyStreamPlayer'
 import {
 	holdLessonCompletion,
+	onLessonProgressMarked,
 	releaseLessonCompletion,
 } from '@/utils/markLessonProgress'
+import type { MarkedLesson } from '@/utils/markLessonProgress'
 
 interface LessonProgressEvent {
 	course: string
@@ -476,7 +483,7 @@ type Crumb = { label: string; route: RouteLocationRaw }
 
 const router = useRouter()
 const route = useRoute()
-const realUser = inject<UserResource>('$user')!
+const realUser = inject<UserResource & SessionUser>('$user')!
 // A component's own provide() is invisible to its own inject(), so read the
 // handles provideStudentView returns rather than calling useStudentView().
 const { isStudentView, mockedUser } = provideStudentView(
@@ -488,6 +495,28 @@ const { isStudentView, mockedUser } = provideStudentView(
 const user = mockedUser
 const socket = inject<LessonSocket>('$socket')!
 const allowDiscussions = ref(false)
+// The learners of this course and the people who run it, as can_access_topic
+// allows: previewing a lesson is not joining its community. Shared by the
+// Community tab and the zen-mode toggle.
+const canUseDiscussions = computed(
+	() =>
+		canReadDiscussions(user) &&
+		Boolean(lesson.data?.membership || isAdmin.value)
+)
+const showDiscussions = computed(
+	() => allowDiscussions.value && canUseDiscussions.value
+)
+// Notes belong to an enrolment: a learner previewing a lesson has none to keep.
+const canReadNotes = computed(
+	() =>
+		Boolean(lesson.data?.membership) &&
+		hasDoctypePermission(user, 'LMS Lesson Note')
+)
+const canCreateNotes = computed(
+	() =>
+		Boolean(lesson.data?.membership) &&
+		hasDoctypePermission(user, 'LMS Lesson Note', 'create')
+)
 const editor = ref<EditorJS | null>(null)
 const instructorEditor = ref<EditorJS | null>(null)
 const lessonProgress = ref(0)
@@ -527,7 +556,23 @@ onMounted(() => {
 	}
 	document.addEventListener('fullscreenchange', attachFullscreenEvent)
 	socket.on('update_lesson_progress', onLessonProgress)
+	stopListeningForMarkedLessons = onLessonProgressMarked(onLessonMarked)
 })
+
+let stopListeningForMarkedLessons: (() => void) | undefined
+
+// A quiz or an assignment marks its lesson through markLessonProgress(), so
+// this unlocks the next lesson even where realtime is unavailable.
+const onLessonMarked = (marked: MarkedLesson): void => {
+	if (marked.course !== props.courseName) return
+	if (
+		marked.completed &&
+		marked.chapterNumber === props.chapterNumber &&
+		marked.lessonNumber === props.lessonNumber
+	)
+		completedLesson.value = lesson.data?.name ?? null
+	outline.reload()
+}
 
 const onLessonProgress = (data: LessonProgressEvent): void => {
 	if (data.course !== props.courseName) return
@@ -557,6 +602,7 @@ onBeforeUnmount(() => {
 	// Without this the handler outlives the page, and every revisit adds another
 	// one — so a single progress event fires one outline reload per past visit.
 	socket.off('update_lesson_progress', onLessonProgress)
+	stopListeningForMarkedLessons?.()
 	if (collapsedByLesson) sidebarStore.isSidebarCollapsed = false
 	releaseLessonCompletion()
 	trackVideoWatchDuration()
@@ -1201,13 +1247,7 @@ const checkIfDiscussionsAllowed = () => {
 		}
 	}
 
-	if (
-		!hasQuiz.value &&
-		!zenModeEnabled.value &&
-		(lesson.data?.membership ||
-			user.data?.is_moderator ||
-			user.data?.is_instructor)
-	) {
+	if (!hasQuiz.value && !zenModeEnabled.value) {
 		allowDiscussions.value = true
 	} else {
 		allowDiscussions.value = false
@@ -1332,7 +1372,7 @@ const scrollDiscussionsIntoView = () => {
 }
 
 const updateNotes = () => {
-	if (!user.data) return
+	if (!user.data || !canReadNotes.value) return
 	notes.update({
 		filters: {
 			lesson: lesson.data?.name,
@@ -1346,11 +1386,11 @@ const updateNotes = () => {
 // straight on a quiz lesson never flips allowDiscussions, so pushed tabs never
 // appeared, and tabs pushed on an earlier lesson stayed after moving on.
 const tabs = computed<LessonTab[]>(() => [
-	// Guests cannot save notes, so they get none.
-	...(user.data && !isAdmin.value
+	// Notes need an enrolment (see canReadNotes); admins don't keep them.
+	...(!isAdmin.value && canReadNotes.value
 		? [{ label: __('Notes'), value: 'Notes' }]
 		: []),
-	...(allowDiscussions.value
+	...(showDiscussions.value
 		? [{ label: __('Community'), value: 'Community' }]
 		: []),
 ])
