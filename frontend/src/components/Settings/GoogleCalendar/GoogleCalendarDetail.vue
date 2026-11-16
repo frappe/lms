@@ -83,23 +83,24 @@ const sections: FieldsSection[] = [
 		fields: [
 			{
 				name: 'calendar_name',
-				label: 'Calendar Name',
-				description: 'The name that will appear in Google Calendar',
+				label: __('Calendar Name'),
+				description: __('The name that will appear in Google Calendar'),
 				type: 'text',
 				reqd: true,
 			},
 			{
 				name: 'user',
-				label: 'User',
+				label: __('User'),
 				type: 'link',
 				doctype: 'User',
 				reqd: true,
 			},
 			{
 				name: 'push_to_google_calendar',
-				label: 'Push to Google Calendar',
-				description:
-					'Events this app creates only sync to Google Calendar while this is on. Off looks configured and syncs nothing.',
+				label: __('Push to Google Calendar'),
+				description: __(
+					'Events this app creates only sync to Google Calendar while this is on. Off looks configured and syncs nothing.'
+				),
 				type: 'checkbox',
 				default: 1,
 			},

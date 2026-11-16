@@ -10,7 +10,7 @@
 		:has-next-page="questions.hasNextPage"
 		:list-options="listOptions"
 		v-model:search="search"
-		empty-name="Questions"
+		:empty-name="__('Questions')"
 		empty-icon="lucide-circle-help"
 		:empty-title="emptyState?.title"
 		:empty-description="emptyState?.description"

@@ -11,6 +11,7 @@ import { describe, expect, it, vi, beforeEach } from 'vitest'
 import { defineComponent, h, nextTick, reactive } from 'vue'
 import { mount } from '@vue/test-utils'
 import { createMemoryHistory, createRouter, type Router } from 'vue-router'
+import { translate } from './helpers/translate'
 
 type Rows = { name: string }[]
 
@@ -140,7 +141,7 @@ vi.mock('@/components/Layouts/pages/ListPage.vue', () => ({
 	},
 }))
 
-vi.stubGlobal('__', (s: string) => s)
+vi.stubGlobal('__', translate)
 
 const MODERATOR = { name: 'admin@test.com', is_moderator: true }
 const PUBLISHED_PROGRAMS = [{ name: 'program-a' }, { name: 'program-b' }]
@@ -175,7 +176,7 @@ async function mountPrograms(router: Router = makeRouter()) {
 		global: {
 			plugins: [router],
 			provide: { $user: { data: { ...MODERATOR } } },
-			mocks: { __: (s: string) => s },
+			mocks: { __: translate },
 			stubs: { RouterView: true },
 		},
 	})

@@ -25,7 +25,7 @@
 						class="text-sm text-ink-gray-6"
 						:class="{ 'text-center': isCheckboxColumn(column) }"
 					>
-						{{ column }}
+						{{ __(column) }}
 					</div>
 					<div role="columnheader">
 						<span class="sr-only">{{ actionsLabel }}</span>

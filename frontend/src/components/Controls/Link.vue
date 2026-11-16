@@ -4,7 +4,7 @@
 			:open="isOpen"
 			:modelValue="value"
 			:options="resolvedOptions"
-			:placeholder="attrs.placeholder as string"
+			:placeholder="(attrs.placeholder as string) || __('Select option')"
 			:disabled="attrs.readonly as boolean"
 			:size="(attrs.size as ComboboxSize) || 'sm'"
 			:aria-label="label ? undefined : (attrs['aria-label'] as string)"

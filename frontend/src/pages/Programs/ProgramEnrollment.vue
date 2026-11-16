@@ -59,14 +59,16 @@
 								<Tooltip :text="__('Lessons')">
 									<span class="flex items-center gap-x-1">
 										<span class="lucide-book-open size-3" />
-										<span> {{ course.lessons }} {{ __('lessons') }} </span>
+										<span>{{ __('{0} lessons').format(course.lessons) }}</span>
 									</span>
 								</Tooltip>
 
 								<Tooltip :text="__('Enrolled Students')">
 									<span class="flex items-center gap-x-1">
 										<span class="lucide-user size-3" />
-										<span> {{ course.enrollments }} {{ __('students') }} </span>
+										<span>{{
+											__('{0} students').format(course.enrollments)
+										}}</span>
 									</span>
 								</Tooltip>
 							</div>

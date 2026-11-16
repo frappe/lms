@@ -8,7 +8,7 @@
 		:has-next-page="list.hasNextPage"
 		v-model:search="list.search"
 		searchable
-		empty-name="Transactions"
+		:empty-name="__('Transactions')"
 		empty-icon="lucide-landmark"
 		@new="openForm(NEW_RECORD)"
 		@load-more="list.loadMore()"

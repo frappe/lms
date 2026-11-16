@@ -16,7 +16,7 @@
 					:class="{ 'mt-4': !hideHeader }"
 				>
 					<Cloud class="size-4 stroke-1.5" />
-					<span>{{ __('Completed') }} {{ displayedProgress }}%</span>
+					<span>{{ __('{0}% completed').format(displayedProgress) }}</span>
 				</div>
 				<div
 					class="h-1 w-full rounded-full bg-surface-gray-2 overflow-hidden mt-2"

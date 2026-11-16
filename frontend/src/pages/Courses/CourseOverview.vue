@@ -48,10 +48,11 @@
 									class="lucide-dot size-5 shrink-0 me-1.5"
 								/>
 								<span class="lucide-users-round size-4" />
-								<span
-									>{{ formatAmount(course.data.enrollments) }}
-									{{ __('Students') }}</span
-								>
+								<span>{{
+									__('{0} students').format(
+										formatAmount(course.data.enrollments)
+									)
+								}}</span>
 							</div>
 						</template>
 						<div
@@ -224,14 +225,14 @@ const outlineStats = computed(() => {
 	const parts: string[] = []
 	if (chapters.length) {
 		parts.push(
-			`${chapters.length} ${
-				chapters.length === 1 ? __('section') : __('sections')
-			}`
+			chapters.length === 1
+				? __('1 section')
+				: __('{0} sections').format(chapters.length)
 		)
 	}
 	if (lessonCount) {
 		parts.push(
-			`${lessonCount} ${lessonCount === 1 ? __('lesson') : __('lessons')}`
+			lessonCount === 1 ? __('1 lesson') : __('{0} lessons').format(lessonCount)
 		)
 	}
 	return parts.join(' · ')

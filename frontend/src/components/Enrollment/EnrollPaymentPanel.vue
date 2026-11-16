@@ -170,11 +170,7 @@
 						class="flex items-center justify-between gap-2"
 					>
 						<p class="min-w-0 text-p-sm text-ink-gray-6">
-							{{
-								__('Different addresses for these {0} students', [
-									members.length,
-								])
-							}}
+							{{ differentAddressesNote }}
 						</p>
 						<Button
 							ref="overwriteRef"
@@ -376,6 +372,10 @@ const members = computed<string[]>(() =>
 		: props.rows
 				.map((row) => row.member)
 				.filter((member) => choices.value[member]?.mode !== 'link')
+)
+
+const differentAddressesNote = computed(() =>
+	__('Different addresses for these {0} students', [members.value.length])
 )
 
 const title = computed<string>(() => {

@@ -11,35 +11,35 @@
 			<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
 				<Tooltip :text="__('Published Courses')">
 					<NumberCard
-						title="Courses"
+						:title="__('Courses')"
 						:value="chartDetails.data.courses"
 						:format="compactNumber"
 					/>
 				</Tooltip>
 				<Tooltip :text="__('Active Members')">
 					<NumberCard
-						title="Signups"
+						:title="__('Signups')"
 						:value="chartDetails.data.users"
 						:format="compactNumber"
 					/>
 				</Tooltip>
 				<Tooltip :text="__('Course Enrollments')">
 					<NumberCard
-						title="Enrollments"
+						:title="__('Enrollments')"
 						:value="chartDetails.data.enrollments"
 						:format="compactNumber"
 					/>
 				</Tooltip>
 				<Tooltip :text="__('Course Completions')">
 					<NumberCard
-						title="Completions"
+						:title="__('Completions')"
 						:value="chartDetails.data.completions"
 						:format="compactNumber"
 					/>
 				</Tooltip>
 				<Tooltip :text="__('Certified Members')">
 					<NumberCard
-						title="Certifications"
+						:title="__('Certifications')"
 						:value="chartDetails.data.certifications"
 						:format="compactNumber"
 					/>
@@ -52,8 +52,8 @@
 						:data="signupsChart.data"
 						x="date"
 						y="count"
-						title="Signups"
-						subtitle="Signups per day"
+						:title="__('Signups')"
+						:subtitle="__('Signups per day')"
 						:x-axis="{ type: 'time', timeGrain: 'day' }"
 					/>
 					<ChartEmptyState
@@ -74,8 +74,8 @@
 						:data="enrollmentChart.data"
 						x="date"
 						y="count"
-						title="Enrollments"
-						subtitle="Enrollments per day"
+						:title="__('Enrollments')"
+						:subtitle="__('Enrollments per day')"
 						:x-axis="{ type: 'time', timeGrain: 'day' }"
 					/>
 					<ChartEmptyState
@@ -96,8 +96,8 @@
 						:data="certification.data"
 						x="date"
 						y="count"
-						title="Certifications"
-						subtitle="Certifications per day"
+						:title="__('Certifications')"
+						:subtitle="__('Certifications per day')"
 						:x-axis="{ type: 'time', timeGrain: 'day' }"
 					/>
 					<ChartEmptyState
@@ -113,11 +113,11 @@
 				<ChartCard v-if="courseCompletion.data" class="h-72">
 					<DonutChart
 						v-if="hasCompletions"
-						:data="courseCompletion.data"
+						:data="completionSlices"
 						category="label"
 						value="value"
-						title="Completions"
-						subtitle="Course Completion"
+						:title="__('Completions')"
+						:subtitle="__('Course Completion')"
 						:center-label="__('Enrollments')"
 					/>
 					<ChartEmptyState
@@ -211,6 +211,11 @@ const hasCompletions = computed(() => {
 	const completed = courseCompletion.data?.find((d) => d.label === 'Completed')
 	return (completed?.value || 0) > 0
 })
+
+// The server labels each slice in English.
+const completionSlices = computed(() =>
+	courseCompletion.data?.map((slice) => ({ ...slice, label: __(slice.label) }))
+)
 
 usePageMeta(() => {
 	return {

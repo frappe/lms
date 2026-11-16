@@ -44,7 +44,7 @@
 				<component
 					v-else
 					:is="item.page.component"
-					:label="item.label"
+					:label="__(item.label)"
 					v-bind="recordModel(item)"
 				/>
 			</SettingsPanel>

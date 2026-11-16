@@ -122,7 +122,7 @@
 			/>
 
 			<div v-if="user && course.membership" class="text-sm mt-2 mb-4">
-				{{ Math.ceil(course.membership.progress) }}% {{ __('completed') }}
+				{{ __('{0}% completed').format(Math.ceil(course.membership.progress)) }}
 			</div>
 
 			<div class="flex items-center justify-between mt-auto">

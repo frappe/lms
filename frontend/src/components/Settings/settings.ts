@@ -47,18 +47,20 @@ const cloudPanel = (panel: CloudSettingsPanel) =>
  * item carrying a declared slug so a renamed label can't break a bookmark.
  * Panels still rendered by a component are `kind: 'custom'` until ported.
  */
+// `__` here only marks strings for the catalog: it runs before translations
+// load, and the components that draw the tree translate them on render.
 export const settingsTree: SettingsGroup[] = [
 	{
-		label: 'System Configuration',
+		label: __('System Configuration'),
 		items: [
 			{
-				label: 'General',
+				label: __('General'),
 				slug: 'general',
 				icon: 'lucide-settings-2',
 				page: { kind: 'custom', component: markRaw(Preferences) },
 			},
 			{
-				label: 'Signup',
+				label: __('Signup'),
 				slug: 'signup',
 				icon: 'lucide-log-in',
 				page: {
@@ -67,30 +69,33 @@ export const settingsTree: SettingsGroup[] = [
 					save: 'auto',
 					sections: [
 						{
-							label: 'Signup',
+							label: __('Signup'),
 							fields: [
 								{
-									label: 'Identify User Category',
+									label: __('Identify User Category'),
 									name: 'user_category',
 									type: 'checkbox',
-									description:
-										'Enable this option to identify the user category during signup.',
+									description: __(
+										'Enable this option to identify the user category during signup.'
+									),
 								},
 								{
-									label: 'Disable signup',
+									label: __('Disable signup'),
 									name: 'disable_signup',
 									type: 'checkbox',
-									description:
-										'New users will have to be manually registered by Admins.',
+									description: __(
+										'New users will have to be manually registered by Admins.'
+									),
 								},
 								{
-									label: 'Signup Consent HTML',
+									label: __('Signup Consent HTML'),
 									name: 'custom_signup_content',
 									type: 'code',
 									mode: 'htmlmixed',
 									rows: 10,
-									description:
-										'Custom HTML shown on the signup page, e.g. for consent notices or terms of service.',
+									description: __(
+										'Custom HTML shown on the signup page, e.g. for consent notices or terms of service.'
+									),
 								},
 							],
 						},
@@ -100,10 +105,10 @@ export const settingsTree: SettingsGroup[] = [
 		],
 	},
 	{
-		label: 'Course Configuration',
+		label: __('Course Configuration'),
 		items: [
 			{
-				label: 'Progress',
+				label: __('Progress'),
 				slug: 'course-progress',
 				icon: 'lucide-activity',
 				page: {
@@ -112,84 +117,92 @@ export const settingsTree: SettingsGroup[] = [
 					save: 'auto',
 					sections: [
 						{
-							label: 'Lesson Completion',
+							label: __('Lesson Completion'),
 							fields: [
 								{
-									label: 'Lesson Completion Time (seconds)',
+									label: __('Lesson Completion Time (seconds)'),
 									name: 'lesson_dwell_time',
 									type: 'number',
 									min: 1,
-									description:
-										'Seconds a learner must stay on a lesson before it is marked complete.',
+									description: __(
+										'Seconds a learner must stay on a lesson before it is marked complete.'
+									),
 								},
 								{
-									label: 'Enforce completion',
+									label: __('Enforce completion'),
 									name: 'enforce_completion',
 									type: 'checkboxGroup',
-									description:
-										'A lesson is marked complete only once the selected items are done.',
+									description: __(
+										'A lesson is marked complete only once the selected items are done.'
+									),
 									options: [
 										{
-											label: 'Videos',
+											label: __('Videos'),
 											name: 'enforce_video_completion',
-											caution:
-												'A video that fails to load, or comes from Cloudflare Stream, Google Drive, Aparat or another embedded link, cannot be tracked, so its lesson completes on the completion time instead.',
+											caution: __(
+												'A video that fails to load, or comes from Cloudflare Stream, Google Drive, Aparat or another embedded link, cannot be tracked, so its lesson completes on the completion time instead.'
+											),
 										},
 										{
-											label: 'Quizzes',
+											label: __('Quizzes'),
 											name: 'enforce_quiz_completion',
 										},
 										{
-											label: 'Assignments',
+											label: __('Assignments'),
 											name: 'enforce_assignment_completion',
 										},
 										{
-											label: 'Programming exercises',
+											label: __('Programming exercises'),
 											name: 'enforce_programming_exercise_completion',
 										},
 									],
 								},
 								{
-									label: 'Enforce passing',
+									label: __('Enforce passing'),
 									name: 'enforce_passing',
 									type: 'checkboxGroup',
-									description:
-										'The selected items must be passed, not just attempted.',
+									description: __(
+										'The selected items must be passed, not just attempted.'
+									),
 									options: [
 										{
-											label: 'Quizzes',
+											label: __('Quizzes'),
 											name: 'enforce_quiz_passing',
 											requires: 'enforce_quiz_completion',
 										},
 										{
-											label: 'Open-ended quizzes',
+											label: __('Open-ended quizzes'),
 											name: 'enforce_open_ended_quiz_passing',
 											requires: 'enforce_quiz_completion',
-											caution:
-												'The lesson completes only after an instructor grades it.',
+											caution: __(
+												'The lesson completes only after an instructor grades it.'
+											),
 										},
 										{
-											label: 'Assignments',
+											label: __('Assignments'),
 											name: 'enforce_assignment_passing',
 											requires: 'enforce_assignment_completion',
-											caution:
-												'The lesson completes only after an instructor grades it.',
+											caution: __(
+												'The lesson completes only after an instructor grades it.'
+											),
 										},
 										{
-											label: 'Programming exercises',
+											label: __('Programming exercises'),
 											name: 'enforce_programming_exercise_passing',
 											requires: 'enforce_programming_exercise_completion',
 										},
 									],
 								},
 								{
-									label: 'Prevent Skipping Videos',
+									label: __('Prevent Skipping Videos'),
 									name: 'prevent_skipping_videos',
 									type: 'checkbox',
-									description:
-										"Learners can't jump ahead of the furthest point they've watched. Turn on with Videos above to require watching the whole video.",
-									caution:
-										'This is not enforced for videos from Cloudflare Stream, Google Drive, Aparat or other embedded links.',
+									description: __(
+										"Learners can't jump ahead of the furthest point they've watched. Turn on with Videos above to require watching the whole video."
+									),
+									caution: __(
+										'This is not enforced for videos from Cloudflare Stream, Google Drive, Aparat or other embedded links.'
+									),
 								},
 							],
 						},
@@ -197,21 +210,21 @@ export const settingsTree: SettingsGroup[] = [
 				},
 			},
 			{
-				label: 'Badges',
+				label: __('Badges'),
 				slug: 'badges',
 				icon: 'lucide-award',
 				records: true,
 				page: badgesSettingsPage,
 			},
 			{
-				label: 'Badge Assignments',
+				label: __('Badge Assignments'),
 				slug: 'badge-assignments',
 				icon: 'lucide-badge-check',
 				records: true,
 				page: badgeAssignmentsSettingsPage,
 			},
 			{
-				label: 'Categories',
+				label: __('Categories'),
 				slug: 'categories',
 				icon: 'lucide-network',
 				page: { kind: 'custom', component: markRaw(Categories) },
@@ -219,10 +232,10 @@ export const settingsTree: SettingsGroup[] = [
 		],
 	},
 	{
-		label: 'Communication',
+		label: __('Communication'),
 		items: [
 			{
-				label: 'General',
+				label: __('General'),
 				slug: 'communication-general',
 				icon: 'lucide-settings-2',
 				// Moved back here from Preferences.vue, since both are about how
@@ -234,16 +247,16 @@ export const settingsTree: SettingsGroup[] = [
 					save: 'auto',
 					sections: [
 						{
-							label: 'Contact Information',
+							label: __('Contact Information'),
 							fields: [
 								{
-									label: 'Email',
+									label: __('Email'),
 									name: 'contact_us_email',
 									type: 'text',
 									fullWidth: true,
 								},
 								{
-									label: 'URL',
+									label: __('URL'),
 									name: 'contact_us_url',
 									type: 'text',
 									fullWidth: true,
@@ -253,10 +266,10 @@ export const settingsTree: SettingsGroup[] = [
 						// Both override the notification rule's own wording. Shown
 						// here so a site that set one can clear it.
 						{
-							label: 'Email Templates',
+							label: __('Email Templates'),
 							fields: [
 								{
-									label: 'Batch Confirmation Template',
+									label: __('Batch Confirmation Template'),
 									name: 'batch_confirmation_template',
 									type: 'link',
 									doctype: 'Email Template',
@@ -264,17 +277,19 @@ export const settingsTree: SettingsGroup[] = [
 									// defaulting to disabled, and search_widget filters on
 									// it unless told otherwise. See the `filters` doc comment.
 									filters: { include_disabled: 1 },
-									description:
-										'Replaces the wording of the batch enrollment notification.',
+									description: __(
+										'Replaces the wording of the batch enrollment notification.'
+									),
 								},
 								{
-									label: 'Certificate Email Template',
+									label: __('Certificate Email Template'),
 									name: 'certification_template',
 									type: 'link',
 									doctype: 'Email Template',
 									filters: { include_disabled: 1 },
-									description:
-										'Replaces the wording of the certification notification.',
+									description: __(
+										'Replaces the wording of the certification notification.'
+									),
 								},
 							],
 						},
@@ -283,14 +298,14 @@ export const settingsTree: SettingsGroup[] = [
 				},
 			},
 			{
-				label: 'Email Template',
+				label: __('Email Template'),
 				slug: 'email-template',
 				icon: 'lucide-mail-plus',
 				records: true,
 				page: emailTemplateSettingsPage,
 			},
 			{
-				label: 'Email Accounts',
+				label: __('Email Accounts'),
 				slug: 'email-accounts',
 				icon: 'lucide-mail',
 				records: true,
@@ -299,10 +314,10 @@ export const settingsTree: SettingsGroup[] = [
 		],
 	},
 	{
-		label: 'User Management',
+		label: __('User Management'),
 		items: [
 			{
-				label: 'Users',
+				label: __('Users'),
 				slug: 'members',
 				icon: 'lucide-user',
 				records: true,
@@ -311,10 +326,10 @@ export const settingsTree: SettingsGroup[] = [
 		],
 	},
 	{
-		label: 'Payment',
+		label: __('Payment'),
 		items: [
 			{
-				label: 'Configuration',
+				label: __('Configuration'),
 				slug: 'payments',
 				icon: 'lucide-credit-card',
 				page: {
@@ -323,16 +338,17 @@ export const settingsTree: SettingsGroup[] = [
 					save: 'auto',
 					sections: [
 						{
-							label: 'Configuration',
+							label: __('Configuration'),
 							fields: [
 								{
-									label: 'Default Currency',
+									label: __('Default Currency'),
 									name: 'default_currency',
 									type: 'link',
 									doctype: 'Currency',
 									query: 'lms.lms.api.search_currencies',
-									description:
-										'Default currency used for course and batch pricing.',
+									description: __(
+										'Default currency used for course and batch pricing.'
+									),
 									// Shown, never written by being shown. Nothing on the
 									// server resolves a blank default_currency: LMS Course's
 									// desk form copies this value (blank included) into a new
@@ -342,52 +358,58 @@ export const settingsTree: SettingsGroup[] = [
 									displayFallback: 'USD',
 								},
 								{
-									label: 'Show USD equivalent amount',
+									label: __('Show USD equivalent amount'),
 									name: 'show_usd_equivalent',
 									type: 'checkbox',
-									description:
-										'If enabled, it shows the USD equivalent amount for all transactions based on the current exchange rate.',
+									description: __(
+										'If enabled, it shows the USD equivalent amount for all transactions based on the current exchange rate.'
+									),
 								},
 								{
-									label: 'Apply rounding on equivalent',
+									label: __('Apply rounding on equivalent'),
 									name: 'apply_rounding',
 									type: 'checkbox',
-									description:
-										'If enabled, it applies rounding on the USD equivalent amount.',
+									description: __(
+										'If enabled, it applies rounding on the USD equivalent amount.'
+									),
 								},
 								{
-									label: 'Payment Gateway',
+									label: __('Payment Gateway'),
 									name: 'payment_gateway',
 									type: 'link',
 									doctype: 'Payment Gateway',
-									description:
-										'Payment gateway used to process course and batch purchases.',
+									description: __(
+										'Payment gateway used to process course and batch purchases.'
+									),
 								},
 								{
-									label: 'Apply GST for India',
+									label: __('Apply GST for India'),
 									name: 'apply_gst',
 									type: 'checkbox',
-									description:
-										'If enabled, GST will be applied to the price for students from India.',
+									description: __(
+										'If enabled, GST will be applied to the price for students from India.'
+									),
 								},
 							],
 						},
 						{
-							label: 'Payment Reminders',
+							label: __('Payment Reminders'),
 							fields: [
 								{
-									label: 'Send payment reminders for batch',
+									label: __('Send payment reminders for batch'),
 									name: 'send_payment_reminders_for_batch',
 									type: 'checkbox',
-									description:
-										'If enabled, it sends payment reminders to students who left the payment incomplete for a batch.',
+									description: __(
+										'If enabled, it sends payment reminders to students who left the payment incomplete for a batch.'
+									),
 								},
 								{
-									label: 'Send payment reminders for course',
+									label: __('Send payment reminders for course'),
 									name: 'send_payment_reminders_for_course',
 									type: 'checkbox',
-									description:
-										'If enabled, it sends payment reminders to students who left the payment incomplete for a course.',
+									description: __(
+										'If enabled, it sends payment reminders to students who left the payment incomplete for a course.'
+									),
 								},
 							],
 						},
@@ -395,21 +417,21 @@ export const settingsTree: SettingsGroup[] = [
 				},
 			},
 			{
-				label: 'Gateways',
+				label: __('Gateways'),
 				slug: 'payment-gateways',
 				icon: 'lucide-dollar-sign',
 				records: true,
 				page: { kind: 'custom', component: markRaw(PaymentGateways) },
 			},
 			{
-				label: 'Transactions',
+				label: __('Transactions'),
 				slug: 'transactions',
 				icon: 'lucide-landmark',
 				records: true,
 				page: transactionsPage,
 			},
 			{
-				label: 'Coupons',
+				label: __('Coupons'),
 				slug: 'coupons',
 				icon: 'lucide-ticket',
 				records: true,
@@ -420,16 +442,16 @@ export const settingsTree: SettingsGroup[] = [
 	{
 		// Conferencing folded in here. Google Meet, Calendar and Zoom are
 		// conferencing providers, no different from the rest of Integrations.
-		label: 'Integrations',
+		label: __('Integrations'),
 		items: [
 			{
-				label: 'Services',
+				label: __('Services'),
 				slug: 'services',
 				icon: 'lucide-key-round',
 				page: { kind: 'custom', component: markRaw(Services) },
 			},
 			{
-				label: 'Google Calendar',
+				label: __('Google Calendar'),
 				slug: 'google-calendar',
 				icon: 'lucide-calendar',
 				records: true,
@@ -437,7 +459,7 @@ export const settingsTree: SettingsGroup[] = [
 				page: googleCalendarSettingsPage,
 			},
 			{
-				label: 'Google Meet',
+				label: __('Google Meet'),
 				slug: 'google-meet',
 				icon: 'lucide-presentation',
 				records: true,
@@ -445,14 +467,14 @@ export const settingsTree: SettingsGroup[] = [
 				page: googleMeetSettingsPage,
 			},
 			{
-				label: 'Zoom',
+				label: __('Zoom'),
 				slug: 'zoom',
 				icon: 'lucide-video',
 				records: true,
 				page: zoomSettingsPage,
 			},
 			{
-				label: 'Raven',
+				label: __('Raven'),
 				slug: 'raven',
 				icon: 'lucide-messages-square',
 				page: { kind: 'custom', component: markRaw(RavenSettings) },
@@ -460,17 +482,17 @@ export const settingsTree: SettingsGroup[] = [
 		],
 	},
 	{
-		label: 'Customization',
+		label: __('Customization'),
 		items: [
 			{
-				label: 'Branding',
+				label: __('Branding'),
 				slug: 'branding',
 				icon: 'lucide-palette',
 				page: { kind: 'custom', component: markRaw(BrandSettings) },
 			},
 			sidebarSettingsPage,
 			{
-				label: 'SEO',
+				label: __('SEO'),
 				slug: 'seo',
 				icon: 'lucide-search',
 				page: {
@@ -479,33 +501,36 @@ export const settingsTree: SettingsGroup[] = [
 					save: 'auto',
 					sections: [
 						{
-							label: 'SEO',
+							label: __('SEO'),
 							fields: [
 								{
-									label: 'Meta Description',
+									label: __('Meta Description'),
 									name: 'meta_description',
 									type: 'textarea',
 									rows: 4,
-									description:
-										"This description will be shown on lists and pages that don't have meta description",
+									description: __(
+										"This description will be shown on lists and pages that don't have meta description"
+									),
 								},
 								{
-									label: 'Meta Keywords',
+									label: __('Meta Keywords'),
 									name: 'meta_keywords',
 									type: 'textarea',
 									rows: 4,
-									description:
-										'Comma separated keywords for search engines to find your website.',
+									description: __(
+										'Comma separated keywords for search engines to find your website.'
+									),
 								},
 								{
-									label: 'Meta Image',
+									label: __('Meta Image'),
 									name: 'meta_image',
 									type: 'upload',
 									size: 'lg',
 									// Open Graph image: unauthenticated crawlers fetch it.
 									public: true,
-									description:
-										'Default social-share image used when pages lack their own meta image.',
+									description: __(
+										'Default social-share image used when pages lack their own meta image.'
+									),
 								},
 							],
 						},
@@ -515,29 +540,29 @@ export const settingsTree: SettingsGroup[] = [
 		],
 	},
 	{
-		label: 'Frappe Cloud',
+		label: __('Frappe Cloud'),
 		audience: hasCloudSettings,
 		items: [
 			{
-				label: 'Billing',
+				label: __('Billing'),
 				slug: 'cloud-billing',
 				icon: 'lucide-credit-card',
 				page: { kind: 'custom', component: cloudPanel('billing') },
 			},
 			{
-				label: 'Marketplace',
+				label: __('Marketplace'),
 				slug: 'cloud-marketplace',
 				icon: 'lucide-store',
 				page: { kind: 'custom', component: cloudPanel('marketplace') },
 			},
 			{
-				label: 'Domains',
+				label: __('Domains'),
 				slug: 'cloud-domains',
 				icon: 'lucide-globe',
 				page: { kind: 'custom', component: cloudPanel('domains') },
 			},
 			{
-				label: 'Advanced',
+				label: __('Advanced'),
 				slug: 'cloud-advanced',
 				icon: 'lucide-bolt',
 				page: { kind: 'custom', component: cloudPanel('advanced') },

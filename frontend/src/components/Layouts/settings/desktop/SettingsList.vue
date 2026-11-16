@@ -17,7 +17,7 @@
 				<template #prefix>
 					<span class="lucide-plus size-4" />
 				</template>
-				{{ newLabel || __('New') }}
+				{{ newLabel ? __(newLabel) : __('New') }}
 			</Button>
 		</template>
 
@@ -84,8 +84,8 @@
 				:title="__('No results')"
 				:description="
 					search
-						? __('No {0} match {1}').format(emptyName.toLowerCase(), search)
-						: __('No {0} match this filter').format(emptyName.toLowerCase())
+						? __('No {0} match {1}').format(__(emptyName).toLowerCase(), search)
+						: __('No {0} match this filter').format(__(emptyName).toLowerCase())
 				"
 				:icon="emptyIcon"
 			/>

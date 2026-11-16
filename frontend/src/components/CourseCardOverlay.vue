@@ -106,7 +106,7 @@
 					class="flex items-center gap-3 text-ink-gray-8"
 				>
 					<span class="lucide-users size-4 shrink-0 text-ink-gray-7" />
-					<span>{{ enrolledLabel }} {{ __('enrolled') }}</span>
+					<span>{{ __('{0} enrolled').format(enrolledLabel) }}</span>
 				</div>
 				<div
 					v-if="course.data?.video_link"
@@ -121,8 +121,11 @@
 				>
 					<span class="lucide-book-open size-4 shrink-0 text-ink-gray-7" />
 					<span>
-						{{ course.data?.lessons }}
-						{{ course.data?.lessons === 1 ? __('Lesson') : __('Lessons') }}
+						{{
+							course.data?.lessons === 1
+								? __('1 lesson')
+								: __('{0} lessons').format(course.data?.lessons ?? 0)
+						}}
 					</span>
 				</div>
 				<div
@@ -131,11 +134,10 @@
 				>
 					<span class="lucide-help-circle size-4 shrink-0 text-ink-gray-7" />
 					<span>
-						{{ course.data?.quiz_count }}
 						{{
 							course.data?.quiz_count === 1
-								? __('Quiz topic')
-								: __('Quiz topics')
+								? __('1 quiz topic')
+								: __('{0} quiz topics').format(course.data?.quiz_count ?? 0)
 						}}
 					</span>
 				</div>

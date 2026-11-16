@@ -1,7 +1,7 @@
 <template>
 	<ListPage
 		:breadcrumbs="breadcrumbs"
-		:title="__(config.title)"
+		:title="config.title"
 		layout="list"
 		:columns="config.columns"
 		:rows="submissions.data || []"
@@ -22,8 +22,8 @@
 					v-if="field.doctype"
 					:doctype="field.doctype"
 					:modelValue="filterValue(field.key)"
-					:placeholder="__(field.placeholder)"
-					:aria-label="__(field.placeholder)"
+					:placeholder="field.placeholder"
+					:aria-label="field.placeholder"
 					:readonly="isLocked(field.key)"
 					@update:modelValue="(value: string) => setFilter(field.key, value)"
 				/>
@@ -31,8 +31,8 @@
 					v-else
 					:modelValue="filterValue(field.key)"
 					:options="field.options"
-					:placeholder="__(field.placeholder)"
-					:aria-label="__(field.placeholder)"
+					:placeholder="field.placeholder"
+					:aria-label="field.placeholder"
 					@update:modelValue="
 						(value?: SelectOptionValue) =>
 							setFilter(field.key, (value as string) ?? '')
@@ -325,12 +325,12 @@ const breadcrumbs = computed<Breadcrumb[]>(() => {
 			route: scope.route(scopeValue.value),
 		})
 	}
-	crumbs.push({ label: __(props.config.title) })
+	crumbs.push({ label: props.config.title })
 	return crumbs
 })
 
 usePageMeta(() => ({
-	title: __(props.config.pageTitle),
+	title: props.config.pageTitle,
 	icon: brand.favicon,
 }))
 </script>

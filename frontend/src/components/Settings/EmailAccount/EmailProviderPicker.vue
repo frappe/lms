@@ -17,7 +17,9 @@
 				/>
 				<span v-else class="lucide-mail size-5 text-ink-gray-7" />
 			</div>
-			<span class="text-p-base text-ink-gray-8">{{ service.name }}</span>
+			<span class="text-p-base text-ink-gray-8">{{
+				service.label ?? service.name
+			}}</span>
 		</button>
 	</div>
 </template>

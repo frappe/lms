@@ -2,10 +2,10 @@
 	<div v-if="assignment.data" ref="root" :class="rootClass">
 		<div v-if="showTitle" class="mb-4 text-lg-semibold text-ink-gray-9">
 			<div v-if="currentSubmission === 'new'">
-				{{ __('Submission by') }} {{ user.data?.full_name }}
+				{{ __('Submission by {0}').format(user.data?.full_name ?? '') }}
 			</div>
 			<div v-else>
-				{{ __('Submission by') }} {{ submissionDoc?.member_name }}
+				{{ __('Submission by {0}').format(submissionDoc?.member_name ?? '') }}
 			</div>
 		</div>
 		<AssessmentCard>
@@ -60,7 +60,7 @@
 							:theme="statusTheme"
 							size="sm"
 						>
-							{{ submissionDoc?.status }}
+							{{ __(submissionDoc?.status) }}
 						</Badge>
 					</div>
 
@@ -602,9 +602,9 @@ const saveLabel = computed(() =>
 
 const submissionStatusOptions = computed(() => {
 	return [
-		{ label: 'Not Graded', value: 'Not Graded' },
-		{ label: 'Pass', value: 'Pass' },
-		{ label: 'Fail', value: 'Fail' },
+		{ label: __('Not Graded'), value: 'Not Graded' },
+		{ label: __('Pass'), value: 'Pass' },
+		{ label: __('Fail'), value: 'Fail' },
 	]
 })
 

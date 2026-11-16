@@ -35,6 +35,7 @@
 							:label="__('Type')"
 							type="select"
 							:options="jobTypes"
+							:placeholder="__('Select option')"
 							:required="true"
 						/>
 						<FormControl
@@ -42,6 +43,7 @@
 							:label="__('Work Mode')"
 							type="select"
 							:options="workModes"
+							:placeholder="__('Select option')"
 							:required="true"
 						/>
 					</div>
@@ -69,6 +71,7 @@
 							:label="__('Status')"
 							type="select"
 							:options="jobStatuses"
+							:placeholder="__('Select option')"
 							:required="true"
 						/>
 					</div>

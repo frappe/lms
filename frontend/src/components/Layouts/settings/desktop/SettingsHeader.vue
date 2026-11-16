@@ -36,7 +36,7 @@
 							v-if="marker"
 							variant="subtle"
 							:theme="marker.theme"
-							:label="__(marker.label)"
+							:label="marker.label"
 						/>
 					</div>
 				</div>
@@ -114,16 +114,16 @@ const marker = computed<{ label: string; theme: BadgeProps['theme'] } | null>(
 	() => {
 		switch (props.saveState) {
 			case 'saving':
-				return { label: 'Saving…', theme: 'gray' }
+				return { label: __('Saving…'), theme: 'gray' }
 			case 'saved':
-				return { label: 'Saved', theme: 'green' }
+				return { label: __('Saved'), theme: 'green' }
 			case 'error':
-				return { label: 'Save failed', theme: 'red' }
+				return { label: __('Save failed'), theme: 'red' }
 			case 'dirty':
 			case 'pending':
-				return { label: 'Not saved', theme: 'amber' }
+				return { label: __('Not saved'), theme: 'amber' }
 		}
-		return props.unsaved ? { label: 'Not saved', theme: 'amber' } : null
+		return props.unsaved ? { label: __('Not saved'), theme: 'amber' } : null
 	}
 )
 </script>

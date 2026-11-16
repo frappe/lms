@@ -1,6 +1,7 @@
 import json
 
 import frappe
+from frappe import _
 
 ALLOWED_PATHS = [
 	"/api/method/ping",
@@ -56,6 +57,8 @@ ALLOWED_PATHS = [
 	"/api/method/frappe.desk.doctype.notification_log.notification_log.mark_as_read",
 	"/api/method/frappe.desk.doctype.notification_log.notification_log.mark_all_as_read",
 	"/api/method/frappe.sessions.clear",
+	# index.html loads every visitor's UI translations from here.
+	"/api/method/frappe.translate.get_boot_translations",
 ]
 
 
@@ -86,7 +89,7 @@ def authenticate():
 
 	if path in ALLOWED_PATHS:
 		return
-	frappe.throw(f"Access not allowed for this URL: {path}", frappe.PermissionError)
+	frappe.throw(_("Access not allowed for this URL: {0}").format(path), frappe.PermissionError)
 
 
 def api_v1_path(path):

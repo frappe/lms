@@ -5,7 +5,7 @@
 				v-if="column.key === 'status'"
 				:theme="statusTheme(value as string)"
 			>
-				{{ value }}
+				{{ __(value) }}
 			</Badge>
 			<div v-else>{{ value }}</div>
 		</template>
@@ -79,12 +79,12 @@ const config: SubmissionsConfig = {
 		{
 			key: 'assignment',
 			doctype: 'LMS Assignment',
-			placeholder: 'Filter by Assignment',
+			placeholder: __('Filter by Assignment'),
 		},
-		{ key: 'member', doctype: 'User', placeholder: 'Filter by Member' },
+		{ key: 'member', doctype: 'User', placeholder: __('Filter by Member') },
 		{
 			key: 'status',
-			placeholder: 'Filter by Status',
+			placeholder: __('Filter by Status'),
 			options: [
 				{ label: '', value: '' },
 				{ label: __('Pass'), value: 'Pass' },
@@ -110,9 +110,9 @@ const config: SubmissionsConfig = {
 			params: { assignmentID: value },
 		}),
 	},
-	title: 'Submissions',
-	pageTitle: 'Assignment Submissions',
-	emptyName: 'Assignment Submissions',
+	title: __('Submissions'),
+	pageTitle: __('Assignment Submissions'),
+	emptyName: __('Assignment Submissions'),
 	emptyIcon: 'lucide-pencil',
 	emptyTitle: __('No assignment submissions yet'),
 	emptyDescription: __(

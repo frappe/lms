@@ -100,9 +100,9 @@ describe('the assignment submissions page', () => {
 		const badges = wrapper.findAll('[data-theme]')
 		expect(badges).toHaveLength(3)
 		expect(badges.map((b) => [b.attributes('data-theme'), b.text()])).toEqual([
-			['green', 'Pass'],
-			['red', 'Fail'],
-			['blue', 'Not Graded'],
+			['green', 't:Pass'],
+			['red', 't:Fail'],
+			['blue', 't:Not Graded'],
 		])
 
 		expect(wrapper.text()).toContain('Ada')

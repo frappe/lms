@@ -33,9 +33,11 @@
 					<template #prefix>
 						<span class="lucide-camera size-3" aria-hidden="true" />
 					</template>
-					{{ violationCount }} / {{ quiz.data.max_violations }}
 					{{
-						quiz.data.max_violations == 1 ? __('violation') : __('violations')
+						__('{0} / {1} violations').format(
+							violationCount,
+							quiz.data.max_violations
+						)
 					}}
 				</Badge>
 				<!-- After a submit the result says it beside Try again. -->
@@ -330,8 +332,11 @@
 								/>
 							</div>
 							<span class="shrink-0 text-sm text-ink-gray-6">
-								{{ question.marks }}
-								{{ question.marks == 1 ? __('Mark') : __('Marks') }}
+								{{
+									question.marks == 1
+										? __('1 mark')
+										: __('{0} marks').format(question.marks)
+								}}
 							</span>
 						</div>
 
@@ -714,11 +719,7 @@
 		name="quiz"
 		:icon="noQuizAccess ? 'lucide-lock' : 'lucide-circle-alert'"
 		width="lg"
-		:title="
-			noQuizAccess
-				? __('You don\'t have access to this quiz')
-				: __('This quiz couldn\'t load')
-		"
+		:title="quizErrorTitle"
 		:description="
 			noQuizAccess
 				? __(
@@ -784,9 +785,9 @@
 						/>
 					</div>
 					<div class="flex justify-between text-xs">
-						<span class="text-ink-green-6 font-medium"
-							>{{ attemptedQuestions.length }} {{ __('attempted') }}</span
-						>
+						<span class="text-ink-green-6 font-medium">{{
+							__('{0} attempted').format(attemptedQuestions.length)
+						}}</span>
 						<span
 							:class="
 								questions.length - attemptedQuestions.length > 0
@@ -794,8 +795,11 @@
 									: 'text-ink-gray-6'
 							"
 						>
-							{{ questions.length - attemptedQuestions.length }}
-							{{ __('unattempted') }}
+							{{
+								__('{0} unattempted').format(
+									questions.length - attemptedQuestions.length
+								)
+							}}
 						</span>
 					</div>
 				</div>
@@ -1107,6 +1111,12 @@ const answerStorageKey = computed(() =>
 const noQuizAccess = computed(
 	() =>
 		(quiz.error as FrappeResourceError | null)?.exc_type === 'PermissionError'
+)
+
+const quizErrorTitle = computed(() =>
+	noQuizAccess.value
+		? __("You don't have access to this quiz")
+		: __("This quiz couldn't load")
 )
 
 const populateQuestions = () => {
@@ -1627,7 +1637,7 @@ const handleViolation = (
 		submitQuiz('max_violations')
 	} else {
 		const label = violationLabel(eventType) || __('Proctoring violation')
-		toast.warning(label + '. ' + __('Remaining: {0}').format(remaining))
+		toast.warning(__('{0}. Remaining: {1}').format(label, remaining))
 	}
 }
 
@@ -1918,29 +1928,29 @@ const markForReview = (checked: boolean, questionNumber: number): void => {
 const getSubmissionColumns = () => {
 	return [
 		{
-			label: 'No.',
+			label: __('No.'),
 			key: 'idx',
 			width: 1,
 		},
 		{
-			label: 'Date',
+			label: __('Date'),
 			key: 'creation',
 			width: 2,
 		},
 		{
-			label: 'Score',
+			label: __('Score'),
 			key: 'score',
 			align: 'left',
 			width: 1,
 		},
 		{
-			label: 'Score out of',
+			label: __('Score out of'),
 			key: 'score_out_of',
 			align: 'left',
 			width: 1,
 		},
 		{
-			label: 'Percentage',
+			label: __('Percentage'),
 			key: 'percentage',
 			align: 'left',
 			width: 1,

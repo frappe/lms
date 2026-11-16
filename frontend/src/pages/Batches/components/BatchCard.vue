@@ -13,9 +13,9 @@
 			size="md"
 			class="self-start"
 			:label="
-				batch.seats_left +
-				' ' +
-				(batch.seats_left > 1 ? __('Seats Left') : __('Seat Left'))
+				batch.seats_left > 1
+					? __('{0} seats left').format(batch.seats_left)
+					: __('1 seat left')
 			"
 		/>
 		<Badge

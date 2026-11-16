@@ -3,7 +3,7 @@
 		<div class="space-y-2">
 			<div class="flex items-center justify-between">
 				<h1 class="text-2xl-bold text-ink-gray-9">
-					{{ __('Hey') }}, {{ user.data?.full_name }} 👋
+					{{ __('Hey, {0}').format(user.data?.full_name ?? '') }} 👋
 				</h1>
 				<div>
 					<button
