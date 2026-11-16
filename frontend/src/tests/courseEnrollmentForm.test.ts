@@ -11,17 +11,17 @@ import { defineComponent, h, provide, reactive } from 'vue'
 
 vi.stubGlobal('__', (text: string) => text)
 
-const { createResourceMock, getCachedListResourceMock, toastMock } = vi.hoisted(
+const { createResourceMock, getCachedResourceMock, toastMock } = vi.hoisted(
 	() => ({
 		createResourceMock: vi.fn(),
-		getCachedListResourceMock: vi.fn(),
+		getCachedResourceMock: vi.fn(),
 		toastMock: { success: vi.fn(), error: vi.fn() },
 	})
 )
 
 vi.mock('frappe-ui', () => ({
 	createResource: createResourceMock,
-	getCachedListResource: getCachedListResourceMock,
+	getCachedResource: getCachedResourceMock,
 	toast: toastMock,
 }))
 
@@ -140,8 +140,8 @@ describe('CourseEnrollmentForm as a route', () => {
 		courseResource.data = null
 		courseResource.loading = false
 		createResourceMock.mockClear()
-		getCachedListResourceMock.mockReset()
-		getCachedListResourceMock.mockReturnValue(null)
+		getCachedResourceMock.mockReset()
+		getCachedResourceMock.mockReturnValue(null)
 		toastMock.success.mockReset()
 		reloadCourseDetails.mockReset()
 	})
@@ -214,7 +214,12 @@ describe('CourseEnrollmentForm as a route', () => {
 
 	it('reloads the dashboard list on enrolled and stays open', async () => {
 		const list = { reload: vi.fn() }
-		getCachedListResourceMock.mockReturnValue(list)
+		const stats = { reload: vi.fn() }
+		const cached: Record<string, { reload: () => void }> = {
+			courseProgress: list,
+			courseDashboardStats: stats,
+		}
+		getCachedResourceMock.mockImplementation(([key]: string[]) => cached[key])
 		courseResource.data = course()
 		const router = makeRouter()
 		await openForm(router)

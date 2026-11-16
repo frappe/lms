@@ -15,7 +15,7 @@ const ROOT = resolve(__dirname, '../..')
 const WEARERS = [
 	'src/components/Layouts/pages/PageHeader.vue',
 	'src/components/Layouts/pages/mobile/MobilePageLayout.vue',
-	'src/components/FormShell.vue',
+	'src/components/MobilePage.vue',
 	'src/components/SkeletonLoader.vue',
 ]
 

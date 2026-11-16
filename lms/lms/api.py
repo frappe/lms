@@ -19,6 +19,7 @@ from frappe.integrations.frappe_providers.frappecloud_billing import (
 	current_site_info,
 	is_fc_site,
 )
+from frappe.query_builder.functions import Cast_
 from frappe.rate_limiter import rate_limit
 from frappe.translate import get_all_translations
 from frappe.utils import (
@@ -69,6 +70,7 @@ from lms.lms.permissions import is_site_administrator
 from lms.lms.sidebar import LEGACY_VISIBILITY_FIELDS, ROW_FIELDS, get_sidebar_rows
 from lms.lms.utils import (
 	LMS_ROLES,
+	_latest_exercise_submissions,
 	attach_file_to_doc,
 	can_access_topic,
 	can_modify_batch,
@@ -4374,7 +4376,34 @@ def get_lesson_completion_stats(course: str):
 		.run(as_dict=True)
 	)
 
+	watch_seconds = _average_watch_seconds(course)
+	for row in rows:
+		row.watch_seconds = watch_seconds.get(row.lesson_name)
 	return rows
+
+
+def _average_watch_seconds(course: str) -> dict:
+	"""Seconds of video a student who watched the lesson watched in it, on average.
+
+	A lesson can hold several videos, so each student's time is summed first."""
+	Watch = frappe.qb.DocType("LMS Video Watch Duration")
+	per_member = (
+		frappe.qb.from_(Watch)
+		.select(
+			Watch.lesson,
+			fn.Sum(Cast_(Watch.watch_time, "DECIMAL(12,2)")).as_("seconds"),
+		)
+		.where(Watch.course == course)
+		.groupby(Watch.lesson, Watch.member)
+		.as_("per_member")
+	)
+	return {
+		lesson: round(flt(seconds))
+		for lesson, seconds in frappe.qb.from_(per_member)
+		.select(per_member.lesson, fn.Avg(per_member.seconds))
+		.groupby(per_member.lesson)
+		.run()
+	}
 
 
 @frappe.whitelist()
@@ -4460,21 +4489,12 @@ def get_course_assignment_progress(course: str, member: str):
 
 def get_course_programming_exercise_progress(course: str, member: str):
 	exercises = get_assessment_from_lesson(course, "program")
+	latest = _latest_exercise_submissions(exercises, member)
 	submissions = []
 
 	for exercise in exercises:
-		exercise_subs = frappe.get_all(
-			"LMS Programming Exercise Submission",
-			{
-				"exercise": exercise,
-				"member": member,
-			},
-			["name", "status", "exercise", "exercise_title"],
-			order_by="creation desc",
-			limit=1,
-		)
-		if len(exercise_subs):
-			submissions.append(exercise_subs[0])
+		if exercise in latest:
+			submissions.append(latest[exercise])
 		else:
 			submissions.append(
 				{
