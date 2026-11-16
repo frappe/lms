@@ -1,7 +1,9 @@
+from unittest.mock import patch
 from urllib.parse import parse_qs, urlsplit
 
 import frappe
 
+from lms.lms.doctype.lms_certificate.lms_certificate import get_default_certificate_template
 from lms.lms.test_helpers import BaseTestUtils
 from lms.www import certificate as certificate_page
 
@@ -48,3 +50,30 @@ class TestCertificatePdfUrl(BaseTestUtils):
 			no_letterhead=params.get("no_letterhead"),
 		)
 		self.assertTrue(html)
+
+	def test_a_certificate_that_does_not_exist_is_not_found(self):
+		"""Regression: the lookup came back empty and quote(None) raised a TypeError."""
+		for certificate_id in ("no-such-certificate", None, ["!=", ""]):
+			with self.subTest(certificate_id=certificate_id):
+				frappe.form_dict.certificate_id = certificate_id
+				with self.assertRaises(frappe.DoesNotExistError):
+					certificate_page.get_context(frappe._dict())
+
+	def test_a_certificate_without_a_template_uses_the_default_one(self):
+		self.certificate.db_set("template", "")
+
+		params = self._redirect_params()
+
+		self.assertEqual(params["format"], get_default_certificate_template())
+		self.assertEqual(params["name"], self.certificate.name)
+
+	def test_a_certificate_with_no_template_anywhere_says_so(self):
+		"""Without a template of its own or a default, the PDF URL carried format=None."""
+		self.certificate.db_set("template", "")
+		frappe.form_dict.certificate_id = self.certificate.name
+
+		with (
+			patch.object(certificate_page, "get_default_certificate_template", return_value=None),
+			self.assertRaises(frappe.ValidationError),
+		):
+			certificate_page.get_context(frappe._dict())
