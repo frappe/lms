@@ -1,18 +1,15 @@
 <template>
 	<div
-		v-if="loading"
 		role="status"
 		:aria-label="__('Loading...')"
-		data-testid="form-shell-loading"
+		data-testid="modal-loading"
+		class="flex items-center justify-center py-12"
 	>
 		<LoadingIndicator class="size-5 text-ink-gray-5" />
 	</div>
-	<p v-else data-testid="form-shell-message" class="text-base text-ink-gray-6">
-		{{ message }}
-	</p>
 </template>
 <script setup lang="ts">
+// The default loading state for a modal: one centred spinner. A modal that
+// wants a skeleton renders its own in place of this.
 import { LoadingIndicator } from 'frappe-ui'
-
-defineProps<{ loading: boolean; message: string | null }>()
 </script>

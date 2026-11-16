@@ -80,7 +80,7 @@ vi.mock('frappe-ui', () => ({
 		loading: false,
 	}),
 	call: vi.fn(),
-	toast: { success: vi.fn(), error: vi.fn() },
+	toast: { success: vi.fn(), error: vi.fn(), warning: vi.fn() },
 	Dialog: {
 		name: 'Dialog',
 		props: ['open', 'title', 'size'],
@@ -116,7 +116,7 @@ vi.mock(
 			typeof import('@framework/ui/components/Onboarding/index')
 		>()),
 		useOnboarding: () => ({ updateOnboardingStep: vi.fn() }),
-	})
+	}),
 )
 
 // The rich text editor drags in ProseMirror. A textarea that emits `change`
@@ -219,7 +219,7 @@ const fillRequired = async (wrapper: VueWrapper): Promise<void> => {
 // allowed to bubble, or the test would pass without exercising the guard.
 const pressCtrlS = (): void => {
 	document.body.dispatchEvent(
-		new KeyboardEvent('keydown', { key: 's', ctrlKey: true, bubbles: true })
+		new KeyboardEvent('keydown', { key: 's', ctrlKey: true, bubbles: true }),
 	)
 }
 
@@ -258,7 +258,7 @@ describe('NewBatchForm as a route', () => {
 		wrapper.unmount()
 
 		const closed = captureMock.mock.calls.find(
-			([event]) => event === 'batch_form_closed'
+			([event]) => event === 'batch_form_closed',
 		)
 		expect(closed?.[1].filled_fields).toEqual(['title'])
 	})
@@ -268,9 +268,11 @@ describe('NewBatchForm as a route', () => {
 		await router.push({ name: 'NewBatch' })
 		const wrapper = await mountForm(router, student)
 		expect(wrapper.find('[data-testid="new-batch-fields"]').exists()).toBe(
-			false
+			false,
 		)
-		expect(wrapper.html()).toContain('not permitted')
+		expect(vi.mocked(toast.warning)).toHaveBeenLastCalledWith(
+			expect.stringContaining('not permitted'),
+		)
 	})
 
 	it('ignores Ctrl+S for a user who cannot create batches', async () => {
@@ -383,7 +385,7 @@ describe('NewBatchForm as a route', () => {
 		insertSubmit.mockImplementation(
 			(_doc: unknown, options: { onSuccess: (d: unknown) => void }) => {
 				options.onSuccess({ name: 'BATCH-0001' })
-			}
+			},
 		)
 		await wrapper.find('[data-testid="new-batch-save"]').trigger('click')
 		await flushPromises()
