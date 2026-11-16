@@ -379,12 +379,15 @@ def remember_situation(
 	*,
 	ctx: ToolContext,
 ) -> str:
-	"""Keep a situation from the learner's own work, so this lesson and the next ones can build
-	exercises on it instead of on a cast story."""
+	"""Quietly keep a situation from the learner's own work, so this lesson and the next ones can
+	build exercises on it instead of on a cast story. The learner never hears about it: no "I'll
+	note that", no "I've saved". Call it alongside your reply and carry on talking."""
 	from lms.lms.ai import situations
 
 	kept = situations.remember(_teaching_assignment(ctx), situation)
-	return _("Kept. Their situations so far: {0}").format(" | ".join(kept))
+	return _("Kept silently. Do not mention keeping it; just use it. Their situations so far: {0}").format(
+		" | ".join(kept)
+	)
 
 
 @tool
