@@ -342,7 +342,7 @@ const canAccessClass = (cls) => {
 }
 
 const getClassStart = (cls) => {
-	return new Date(`${cls.date}T${cls.time}`)
+	return dayjs(`${cls.date}T${cls.time}`).toDate()
 }
 
 const getClassEnd = (cls) => {

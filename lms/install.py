@@ -12,7 +12,7 @@ LEGACY_USER_FIELDS = ["profile_complete"]
 
 def after_install():
 	create_default_records()
-	create_user_custom_fields()
+	create_lms_custom_fields()
 	create_batch_source()
 	give_discussions_permission()
 	give_user_list_permission()
@@ -151,8 +151,12 @@ def create_default_records():
 			frappe.get_doc(record).insert(ignore_if_duplicate=True)
 
 
-def create_user_custom_fields():
+def create_lms_custom_fields():
 	create_custom_fields(load_install_data("custom_field.json"), update=False)
+
+
+# The name it had while it created only User fields.
+create_user_custom_fields = create_lms_custom_fields
 
 
 def delete_custom_fields():

@@ -110,7 +110,8 @@ export default defineConfig(async ({ mode }) => {
 			},
 			host: '0.0.0.0', // Accept connections from any network interface
 			allowedHosts: true,
-			// SCORM packages are served by Frappe's SCORMRenderer at /scorm/... .
+			// SCORM packages are served by Frappe's SCORMRenderer at /scorm/... and, behind
+			// a play token, /scorm-play/... (this prefix matches both).
 			// frappeProxy only forwards ^/(desk|app|login|api|assets|files|private),
 			// so without this the iframe's /scorm URL hits the SPA fallback and renders
 			// blank. The `router` mirrors frappeProxy: Frappe resolves the site from the

@@ -6,6 +6,7 @@ from frappe import _
 from frappe.model.document import Document
 
 from lms.lms.doctype.course_lesson.course_lesson import enqueue_progress_recalculation
+from lms.lms.scorm_player import get_play_url
 from lms.lms.utils import get_lesson_count
 
 
@@ -117,5 +118,6 @@ def _scorm_playback_payload(row: frappe._dict, lesson: str | None, access: frapp
 		"lesson": lesson,
 		"locked": 1 if access.locked else 0,
 		"can_access": 1 if access.can_access else 0,
-		"launch_file": row.launch_file if playable else None,
+		# Behind a play token: the package runs sandboxed, without the session cookie.
+		"launch_file": get_play_url(row.launch_file, lesson) if playable else None,
 	}

@@ -737,11 +737,20 @@ const markProgress = () => {
 	)
 		return
 	progressSubmitting = true
+	// Taken before sending: the realtime event of this very save can land first
+	// and raise lessonProgress before the response is compared with it.
+	const progressBefore = lessonProgress.value
 	progress.submit(
 		{},
 		{
-			onSuccess() {
+			onSuccess(data: number) {
 				progressSubmitting = false
+				// save_progress declines without an error while a quiz or an
+				// assignment still holds the lesson back, e.g. when the dwell timer
+				// runs out first. Only a completion raises the course progress, and
+				// counting a declined save as one would drop the event that later
+				// reports the real one.
+				if (data > progressBefore) completedLesson.value = lesson.data?.name
 			},
 			onError(err: unknown) {
 				progressSubmitting = false
@@ -761,7 +770,6 @@ const progress = createResource({
 	},
 	onSuccess(data: number) {
 		lessonProgress.value = data
-		completedLesson.value = lesson.data?.name
 		// Reload here rather than waiting on the socket, so this page's own
 		// completion unlocks the next lesson even where realtime is unavailable.
 		outline.reload()

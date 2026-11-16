@@ -122,6 +122,7 @@
 								:id="batchDetailsId"
 								:ariaLabelledby="batchDetailsLabelId"
 								:content="batch.batch_details"
+								:uploadArgs="{ private: false }"
 								@change="(val: string) => (batch.batch_details = val)"
 								:editable="true"
 								:fixedMenu="true"

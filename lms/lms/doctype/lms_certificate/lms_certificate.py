@@ -128,13 +128,16 @@ class LMSCertificate(Document):
 				)
 
 	def validate_batch_duplicates(self):
-		if self.batch_name:
+		# A course certificate is one per batch of that course, which the course
+		# check covers; this one is for the certificate of the batch as a whole.
+		if self.batch_name and not self.course:
 			batch_duplicates = frappe.get_all(
 				"LMS Certificate",
 				filters={
 					"member": self.member,
 					"name": ["!=", self.name],
 					"batch_name": self.batch_name,
+					"course": ["is", "not set"],
 				},
 				fields=["name", "batch_name", "batch_title"],
 			)
@@ -210,12 +213,25 @@ def create_certificate(course: str):
 				"doctype": "LMS Certificate",
 				"member": frappe.session.user,
 				"course": course,
+				"batch_name": get_enrollment_batch(course, frappe.session.user),
 				"issue_date": nowdate(),
 				"template": default_certificate_template,
 			}
 		)
 		certificate.save(ignore_permissions=True)
 		return certificate
+
+
+def get_enrollment_batch(course: str, member: str) -> str | None:
+	"""The batch a member took the course through, which a certificate for it names.
+	None once they were removed from it: that keeps the course enrollment, which
+	still names the batch, and a certificate naming it would be refused."""
+	batch = frappe.db.get_value(
+		"LMS Enrollment", {"course": course, "member": member}, "enrollment_from_batch"
+	)
+	if batch and frappe.db.exists("LMS Batch Enrollment", {"batch": batch, "member": member}):
+		return batch
+	return None
 
 
 def get_default_certificate_template():
