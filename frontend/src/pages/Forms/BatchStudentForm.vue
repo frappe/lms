@@ -10,7 +10,7 @@
 
 <script setup lang="ts">
 import { computed, inject } from 'vue'
-import { getCachedListResource, getCachedResource } from 'frappe-ui'
+import { getCachedResource } from 'frappe-ui'
 import { useRoute } from 'vue-router'
 import EnrollStudentsForm from '@/components/Enrollment/EnrollStudentsForm.vue'
 import { paidKindForBatch } from '@/components/Enrollment/enrollment'
@@ -75,11 +75,12 @@ const reloadBatchDetails = inject<(() => void) | null>(
 	null
 )
 
-// Both live on the dashboard tab behind this form. Null on a deep link, where
-// that tab was never mounted — correct, since each fetches on mount.
+// The student list and the counts live on the dashboard tab behind this form.
+// Null on a deep link, where that tab was never mounted — correct, since each
+// fetches on mount.
 const reloadDashboard = () => {
-	getCachedListResource(['batchStudents', props.batchName])?.reload()
-	getCachedResource(['batch_student_count', props.batchName])?.reload()
+	getCachedResource(['batchDashboardStudents', props.batchName])?.reload()
+	getCachedResource(['batchDashboardStats', props.batchName])?.reload()
 	reloadBatchDetails?.()
 }
 

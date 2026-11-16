@@ -1,28 +1,17 @@
 <template>
 	<div>
-		<div class="flex justify-between mb-5">
-			<div class="space-y-1">
-				<div class="text-lg-semibold text-ink-gray-9">
-					{{ __('Feedback') }}
-				</div>
-				<div
-					v-if="feedbackList.data?.length && isAdmin"
-					class="leading-5 text-ink-gray-7 text-sm mb-2 mt-5"
-				>
-					{{ __('Average Feedback Received') }}
-				</div>
-			</div>
-			<Button
-				v-if="feedbackList.data?.length && isAdmin"
-				variant="outline"
-				class="text-p-base-medium"
-				@click="showAllFeedback = true"
-			>
-				{{ __('View all feedback') }}
-			</Button>
+		<div class="text-lg-semibold text-ink-gray-9 mb-5">
+			{{ __('Feedback') }}
 		</div>
 		<div v-if="user.data?.is_student">
-			<div>
+			<LoadError
+				v-if="feedbackList.list.error && !feedbackList.data"
+				compact
+				:error="feedbackList.list.error"
+				@retry="feedbackList.reload()"
+			/>
+			<PanelSkeleton v-else-if="!feedbackList.data" kind="rows" />
+			<div v-else>
 				<div class="leading-5 mb-4 text-ink-gray-7">
 					<div v-if="readOnly">
 						{{ __('Thank you for providing your feedback.') }}
@@ -68,67 +57,37 @@
 			</div>
 		</div>
 
-		<div v-else-if="feedbackList.data?.length">
-			<div class="space-y-4">
-				<Rating
-					v-for="key in ratingKeys"
-					:key="key"
-					v-model="average[key]"
-					:label="__(convertToTitleCase(key))"
-					:disabled="true"
-				/>
-			</div>
-		</div>
-		<div v-else class="text-p-sm text-ink-gray-6">
-			{{
-				__(
-					'Students can rate this batch and leave a note. Their average ratings show up here.'
-				)
-			}}
+		<div v-else class="text-ink-gray-7 leading-5">
+			{{ __('No feedback received yet.') }}
 		</div>
 	</div>
-	<FeedbackModal
-		v-if="feedbackList.data?.length"
-		v-model="showAllFeedback"
-		:feedbackList="feedbackList.data"
-	/>
 </template>
 <script setup>
-import { computed, inject, onMounted, reactive, ref, watch } from 'vue'
+import { inject, onMounted, reactive, ref, watch } from 'vue'
 import { convertToTitleCase } from '@/utils'
 import { Button, createListResource, FormControl, Rating } from 'frappe-ui'
-import FeedbackModal from '@/components/Modals/FeedbackModal.vue'
+import LoadError from '@/components/LoadError.vue'
+import PanelSkeleton from '@/components/Dashboard/PanelSkeleton.vue'
 
 const user = inject('$user')
 const ratingKeys = ['content', 'instructors', 'value']
 const readOnly = ref(false)
-const average = reactive({})
 const feedback = reactive({})
 const showFeedbackForm = ref(true)
-const showAllFeedback = ref(false)
 
 const props = defineProps({
 	batch: {
 		type: String,
 		required: true,
 	},
-	// Per-batch: a Course Creator only manages a batch they author, unlike the
-	// session-wide user.data.is_instructor.
-	canManage: {
-		type: Boolean,
-		default: false,
-	},
 })
 
+// Staff read every response on the admin dashboard; this list is only the
+// student's own.
 onMounted(() => {
-	let filters = {
-		batch: props.batch,
-	}
-	if (user.data?.is_student) {
-		filters['member'] = user.data?.name
-	}
+	if (!user.data?.is_student) return
 	feedbackList.update({
-		filters: filters,
+		filters: { batch: props.batch, member: user.data.name },
 	})
 	feedbackList.reload()
 })
@@ -154,26 +113,13 @@ const feedbackList = createListResource({
 watch(
 	() => feedbackList.data,
 	() => {
-		if (feedbackList.data.length) {
-			let data = feedbackList.data
+		if (feedbackList.data?.length) {
 			readOnly.value = true
 			showFeedbackForm.value = false
 
-			ratingKeys.forEach((key) => {
-				average[key] = 0
-			})
-
-			data.forEach((row) => {
-				Object.keys(row).forEach((key) => {
-					if (ratingKeys.includes(key)) row[key] = row[key] * 5
-					feedback[key] = row[key]
-				})
-				ratingKeys.forEach((key) => {
-					average[key] += row[key]
-				})
-			})
-			Object.keys(average).forEach((key) => {
-				average[key] = average[key] / data.length
+			const row = feedbackList.data[0]
+			Object.keys(row).forEach((key) => {
+				feedback[key] = ratingKeys.includes(key) ? row[key] * 5 : row[key]
 			})
 		}
 	}
@@ -199,8 +145,4 @@ const submitFeedback = () => {
 		}
 	)
 }
-
-const isAdmin = computed(() => {
-	return user.data?.is_moderator || user.data?.is_evaluator || props.canManage
-})
 </script>
