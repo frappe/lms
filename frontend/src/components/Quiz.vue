@@ -128,9 +128,9 @@
 						<li
 							v-for="(tip, index) in introTips"
 							:key="index"
-							class="flex gap-x-2 text-p-base text-ink-gray-7"
+							class="flex items-baseline gap-x-2 text-p-base text-ink-gray-7"
 						>
-							<span class="shrink-0 font-mono text-ink-gray-4">
+							<span class="shrink-0 tabular-nums text-ink-gray-4">
 								{{ index + 1 }}
 							</span>
 							<span>{{ tip }}</span>
