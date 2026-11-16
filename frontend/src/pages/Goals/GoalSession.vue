@@ -72,6 +72,9 @@
 				>
 					{{ overview.outcome }}
 				</p>
+				<p v-if="overviewMeta" class="mt-2 text-p-sm text-ink-gray-6">
+					{{ overviewMeta }}
+				</p>
 				<ol
 					v-if="overview.parts.length"
 					class="mt-6 w-full max-w-md divide-y divide-outline-gray-1 rounded-7 border border-outline-gray-2 text-start"
@@ -94,7 +97,6 @@
 						</span>
 					</li>
 				</ol>
-				<p class="mt-4 text-p-sm text-ink-gray-6">{{ overviewMeta }}</p>
 				<Button
 					class="mt-6"
 					variant="solid"

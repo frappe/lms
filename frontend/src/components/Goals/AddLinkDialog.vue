@@ -13,7 +13,7 @@
 				<p class="text-p-sm text-ink-gray-6">
 					{{
 						__(
-							'Paste a page Lumi can open without logging in: a policy on your site, a help article, a Google Doc shared with anyone who has the link. Lumi reads that one page and cites it by its title, so for a guide with many pages add the ones people need most.'
+							'A page that opens without logging in. Lumi reads just that one page.'
 						)
 					}}
 				</p>

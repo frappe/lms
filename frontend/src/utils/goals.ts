@@ -33,18 +33,17 @@ export const learnerCard = (skill: LearnerSkill) => ({
 		skill.due_date && skill.state !== 'Ready'
 			? __('Due {0}').format(dayjs(skill.due_date).format('D MMM'))
 			: '',
-	badge:
-		skill.state === 'Ready'
-			? { label: __('Ready'), theme: 'green' }
-			: skill.state === 'In Progress'
-				? { label: __('In progress'), theme: 'blue' }
-				: null,
 	instructor: skill.instructor,
-	// Enrolment, as admins see it; a skill nobody has taken yet says nothing to learners.
-	meta: skill.enrolled_count
-		? __('{0} enrolled').format(skill.enrolled_count)
-		: '',
-	progress: skill.enrolled && skill.state !== 'Ready' ? skill.progress : 0,
+	// A finished skill says so; otherwise enrolment, as admins see it, and a skill nobody
+	// has taken yet says nothing to learners.
+	meta:
+		skill.enrolled && skill.state === 'Ready'
+			? __('Finished')
+			: skill.enrolled_count
+				? __('{0} enrolled').format(skill.enrolled_count)
+				: '',
+	// Their own progress as a bar, the way course cards show it; a finished skill is a full bar.
+	progress: !skill.enrolled ? 0 : skill.state === 'Ready' ? 100 : skill.progress,
 	to: { name: 'GoalSession', params: { goal: skill.name } },
 })
 

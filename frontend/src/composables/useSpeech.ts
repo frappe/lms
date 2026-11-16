@@ -47,14 +47,31 @@ export const speechText = (text: string): string =>
 		.replace(/\s+/g, ' ')
 		.trim()
 
-/** Sentences to speak one at a time, so captions track the voice without timestamps. */
-export const splitSentences = (text: string): string[] =>
-	speechText(text)
+const CHUNK_LENGTH = 160
+const PREFETCH = 3
+
+/** Sentences to speak one at a time, so captions track the voice without timestamps.
+ * Short neighbouring sentences travel together: each request to the voice costs a round
+ * trip, and a run of five-word sentences is where the gaps were heard. */
+export const splitSentences = (text: string): string[] => {
+	const parts = speechText(text)
 		.split(/(?<=[.!?])\s+/)
 		.map((part) => part.trim())
 		.filter(Boolean)
+	const chunks: string[] = []
+	for (const part of parts) {
+		const last = chunks[chunks.length - 1]
+		if (last && last.length + part.length + 1 <= CHUNK_LENGTH)
+			chunks[chunks.length - 1] = `${last} ${part}`
+		else chunks.push(part)
+	}
+	return chunks
+}
 
-const PREFETCH = 2
+/** Words the voices get wrong, spelled the way they are said. Captions keep the real spelling. */
+const SAY_AS: [RegExp, string][] = [[/\bFrappe\b/g, 'Frappay']]
+export const pronounce = (sentence: string): string =>
+	SAY_AS.reduce((text, [word, said]) => text.replace(word, said), sentence)
 
 interface QueueItem {
 	sentence: string
@@ -128,7 +145,7 @@ export function useSpeech() {
 						(window as unknown as { csrf_token?: string }).csrf_token || '',
 				},
 				body: JSON.stringify({
-					text: item.sentence,
+					text: pronounce(item.sentence),
 					character: item.character,
 					provider: provider || undefined,
 				}),
@@ -168,7 +185,7 @@ export function useSpeech() {
 		new Promise<void>((resolve) => {
 			if (!('speechSynthesis' in window) || token !== generation)
 				return resolve()
-			const utterance = new SpeechSynthesisUtterance(sentence)
+			const utterance = new SpeechSynthesisUtterance(pronounce(sentence))
 			const profile = VOICES[character]
 			const voice = pickVoice(profile)
 			if (voice) {

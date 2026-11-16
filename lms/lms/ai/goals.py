@@ -15,6 +15,8 @@ PRACTICE_TYPES = ("Scenario", "Check", "Role-play")
 
 
 UNTITLED = "Untitled skill"
+# Up to this many people are sent a skill inline; more go to a background job.
+FAN_OUT_INLINE = 25
 
 
 def create_goal(title: str | None, outcome: str | None = None, instructions: str | None = None) -> str:
@@ -190,34 +192,78 @@ def publish(goal_name: str) -> int:
 	goal = frappe.get_doc("LMS Goal", goal_name)
 	if not goal.activities:
 		frappe.throw(_("Build the plan before you publish it."), title=_("No Plan Yet"))
-	members = _audience(goal)
-	created = 0
-	for member in members:
-		if frappe.db.exists("LMS Goal Assignment", {"goal": goal.name, "member": member, "is_preview": 0}):
-			continue
-		# nosemgrep: lms-unjustified-ignore-permissions - publishing gives members an assignment they could not create for themselves
-		frappe.get_doc(
-			{
-				"doctype": "LMS Goal Assignment",
-				"goal": goal.name,
-				"member": member,
-				"due_date": goal.due_date,
-			}
-		).insert(ignore_permissions=True)
-		_notify(goal, member)
-		created += 1
+	already = set(frappe.get_all("LMS Goal Assignment", {"goal": goal.name, "is_preview": 0}, pluck="member"))
+	pending = [member for member in _audience(goal) if member not in already]
 	goal.db_set({"status": "Published", "published_on": goal.published_on or now_datetime()})
-	return created
+	# Everyone on a large site is hundreds of rows and notifications: that work goes to a
+	# background job, so publishing answers at once and nobody is left half-sent. One job per
+	# skill at a time, so a second click while it waits does not send everyone twice.
+	if len(pending) > FAN_OUT_INLINE:
+		frappe.enqueue(
+			_send_to,
+			queue="long",
+			job_id=f"lms-goal-publish-{goal.name}",
+			deduplicate=True,
+			enqueue_after_commit=True,
+			goal_name=goal.name,
+			members=pending,
+			in_job=True,
+		)
+	else:
+		_send_to(goal.name, pending)
+	return len(pending)
+
+
+def _send_to(goal_name: str, members: list[str], in_job: bool = False) -> None:
+	"""Give each member an assignment and a notification. In the job each person is their own
+	transaction and a failure is logged and skipped, so one bad address never takes the other
+	three hundred down with it; the list is re-checked because it was made before the job ran."""
+	goal = frappe.get_doc("LMS Goal", goal_name)
+	for member in members:
+		if in_job and frappe.db.exists(
+			"LMS Goal Assignment", {"goal": goal.name, "member": member, "is_preview": 0}
+		):
+			continue
+		try:
+			# nosemgrep: lms-unjustified-ignore-permissions - publishing gives members an assignment they could not create for themselves
+			frappe.get_doc(
+				{
+					"doctype": "LMS Goal Assignment",
+					"goal": goal.name,
+					"member": member,
+					"due_date": goal.due_date,
+				}
+			).insert(ignore_permissions=True)
+			_notify(goal, member)
+			if in_job:
+				frappe.db.commit()  # nosemgrep: each person is one unit of work in the job
+		except Exception:
+			if not in_job:
+				raise
+			frappe.db.rollback()
+			frappe.log_error(title=f"Could not send {goal.name} to {member}")
 
 
 def _audience(goal) -> list[str]:
 	if goal.assign_everyone:
-		return frappe.get_all(
-			"User",
-			filters={"enabled": 1, "name": ("not in", ("Administrator", "Guest"))},
-			pluck="name",
-		)
+		return _everyone()
 	return [row.user for row in goal.audience]
+
+
+def _everyone() -> list[str]:
+	"""Everyone who learns here: website users, and system users who hold a Learning role.
+	Integration and bot accounts, and staff with no part in Learning, are not sent a skill."""
+	from lms.lms.utils import LMS_ROLES
+
+	learners = set(
+		frappe.get_all("Has Role", filters={"parenttype": "User", "role": ("in", LMS_ROLES)}, pluck="parent")
+	)
+	users = frappe.get_all(
+		"User",
+		filters={"enabled": 1, "name": ("not in", ("Administrator", "Guest"))},
+		fields=["name", "user_type"],
+	)
+	return [u.name for u in users if u.user_type == "Website User" or u.name in learners]
 
 
 def _notify(goal, member: str) -> None:

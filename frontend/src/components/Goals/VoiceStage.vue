@@ -1,60 +1,63 @@
 <template>
-	<div class="flex min-h-0 flex-1 flex-col gap-4 md:flex-row">
-		<!-- While an exercise is up it is the workspace and gets the room; the
-		     character folds into a slim presence column beside it. -->
-		<!-- On a phone, an exercise turns the character into a small row above it. -->
+	<!-- The stage shares the input strip's column, so the character, the exercise and
+	     the mic line up as one thing. -->
+	<div
+		class="mx-auto flex min-h-0 w-full max-w-[820px] flex-1 flex-col gap-4 px-4 sm:px-6"
+	>
+		<!-- Without an exercise the character is the whole stage. With one, they sit above
+		     it as a row: face, name and the sentence being spoken, like a speaker at a desk. -->
 		<div
-			class="flex items-center justify-center gap-3 px-4"
+			class="flex items-center gap-4"
 			:class="
 				moment
-					? 'shrink-0 flex-row py-2 md:w-52 md:flex-col md:py-4'
-					: 'flex-1 flex-col py-6'
+					? 'shrink-0 flex-row py-2'
+					: 'flex-1 flex-col justify-center gap-3 py-6 text-center'
 			"
 		>
 			<CharacterAvatar
 				:who="character"
 				:mood="running ? 'think' : speaking ? 'happy' : 'calm'"
 				:label="assistantName"
-				class="transition-transform"
+				class="shrink-0 transition-transform"
 				:class="[
-					moment ? 'size-10 shrink-0 md:size-20' : 'size-24 sm:size-28',
+					moment ? 'size-12 sm:size-14' : 'size-24 sm:size-28',
 					speaking ? 'scale-105' : '',
 				]"
 			/>
-			<div
-				class="text-base-medium text-ink-gray-9"
-				:class="moment ? 'hidden md:block' : ''"
-			>
-				{{ assistantName }}
+			<div class="min-w-0" :class="moment ? 'flex-1 text-start' : ''">
+				<div
+					class="text-ink-gray-9"
+					:class="moment ? 'text-p-sm font-medium' : 'text-base-medium'"
+				>
+					{{ assistantName }}
+				</div>
+				<!-- The sentence being spoken, not a transcript: the voice is the medium here. -->
+				<p
+					class="text-ink-gray-8"
+					:class="
+						moment
+							? 'mt-0.5 min-h-12 text-p-base'
+							: 'mx-auto mt-1 min-h-28 max-w-md text-lg'
+					"
+					aria-live="polite"
+				>
+					{{ caption || (running ? thinkingLabel : '') }}
+				</p>
 			</div>
-			<!-- The sentence being spoken, not a transcript: the voice is the medium here. -->
-			<p
-				class="max-w-md text-ink-gray-8"
-				:class="
-					moment
-						? 'min-h-0 text-start text-p-sm md:min-h-16 md:text-center md:text-p-base'
-						: 'min-h-16 text-center text-lg'
-				"
-				aria-live="polite"
-			>
-				{{ caption || (running ? thinkingLabel : '') }}
-			</p>
 		</div>
-		<!-- The exercise takes the rest of the width. Its layouts are compact enough to fit;
+		<!-- The exercise takes the rest of the height. Its layouts are compact enough to fit;
 		     scrolling is only the fallback on a short screen, so it never slides under the
 		     strip below. -->
-		<div
-			v-if="moment"
-			class="flex min-h-0 min-w-0 flex-1 flex-col overflow-y-auto px-1"
-		>
-			<div class="my-auto w-full max-w-3xl py-3">
-				<MomentBlock
-					:id="moment.id"
-					:moment="moment.moment"
-					:result="result"
-					@answer="emit('answer', $event)"
-				/>
-			</div>
+		<div v-if="moment" class="min-h-0 flex-1 overflow-y-auto pb-3">
+			<MomentBlock
+				:id="moment.id"
+				:moment="moment.moment"
+				:result="result"
+				@answer="emit('answer', $event)"
+			/>
+		</div>
+		<div v-if="$slots.after" class="shrink-0 pb-3">
+			<slot name="after" />
 		</div>
 	</div>
 </template>
@@ -65,8 +68,8 @@ import MomentBlock from '@/components/Goals/moments/MomentBlock.vue'
 import type { CharacterKey } from '@/utils/characters'
 import type { Moment } from '@/composables/useFlowChat'
 
-// Speak mode's stage: the character front and center with live captions, and the
-// activity at hand beside them instead of inside a transcript.
+// Speak mode's stage: the character with live captions, and the activity at hand
+// under them instead of inside a transcript.
 defineProps<{
 	character: CharacterKey
 	assistantName: string

@@ -11,7 +11,13 @@
 			:moment="shownMoment"
 			:result="shownMoment ? results[shownMoment.id] : undefined"
 			@answer="answerMoment"
-		/>
+		>
+			<!-- What comes after the last reply, such as the way on to practice, belongs on
+			     the stage too, not only in the transcript. -->
+			<template v-if="done && !running" #after>
+				<slot name="done" />
+			</template>
+		</VoiceStage>
 		<div v-else ref="scroller" class="flex-1 overflow-y-auto">
 			<div
 				class="mx-auto flex w-full max-w-[820px] flex-col gap-1 px-4 py-5 sm:px-6"

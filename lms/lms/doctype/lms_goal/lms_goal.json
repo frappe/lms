@@ -175,7 +175,7 @@
    "label": "Audience"
   },
   {
-   "default": "0",
+   "default": "1",
    "fieldname": "assign_everyone",
    "fieldtype": "Check",
    "label": "Everyone"
@@ -244,7 +244,7 @@
  "grid_page_length": 50,
  "link_display_mode": "Search",
  "links": [],
- "modified": "2026-11-16 11:44:30.133698",
+ "modified": "2026-11-16 15:03:02.257574",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Goal",

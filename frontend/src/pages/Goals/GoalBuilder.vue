@@ -532,11 +532,11 @@ const publish = createResource({
 		toast.success(
 			count
 				? __(
-						'Published and sent to {0} people. Their progress shows in the Dashboard tab.'
+						'Published. {0} people are getting it now. Their progress shows in the Dashboard tab.'
 				  ).format(count)
 				: firstTime
 				? __(
-						"Published. Choose who it's for below whenever you want to send it to people."
+						'Published. Add people in Settings whenever you want to send it out.'
 				  )
 				: __('Everyone you chose already has it.')
 		)

@@ -4,7 +4,12 @@ vi.mock('frappe-ui', () => ({
 	call: vi.fn(async () => []),
 }))
 
-import { speechText, splitSentences, useSpeech } from '@/composables/useSpeech'
+import {
+	pronounce,
+	speechText,
+	splitSentences,
+	useSpeech,
+} from '@/composables/useSpeech'
 
 class FakeUtterance {
 	text: string
@@ -47,11 +52,24 @@ describe('speechText', () => {
 
 describe('splitSentences', () => {
 	it('splits on sentence ends so captions can track the voice', () => {
-		expect(splitSentences('Hi there! Ready to start? Let us go.')).toEqual([
-			'Hi there!',
-			'Ready to start?',
-			'Let us go.',
+		const long = 'A'.repeat(120) + '.'
+		expect(splitSentences(`${long} ${long} Let us go.`)).toEqual([
+			long,
+			`${long} Let us go.`,
 		])
+	})
+
+	it('lets short sentences travel together, one voice request instead of three', () => {
+		expect(splitSentences('Hi there! Ready to start? Let us go.')).toEqual([
+			'Hi there! Ready to start? Let us go.',
+		])
+	})
+
+	it('spells Frappe the way it is said, for the voice only', () => {
+		expect(pronounce('Frappe makes Frappe Learning.')).toBe(
+			'Frappay makes Frappay Learning.',
+		)
+		expect(pronounce('A frappe is a drink.')).toBe('A frappe is a drink.')
 	})
 
 	it('returns nothing for an empty reply', () => {
@@ -65,9 +83,9 @@ describe('useSpeech', () => {
 		speech.enqueue('First reply. It has two sentences.')
 		speech.enqueue('Second reply.')
 		await vi.waitFor(() => expect(speech.speaking.value).toBe(false))
+		// Short sentences of one reply share a request; replies never merge.
 		expect(spoken).toEqual([
-			'First reply.',
-			'It has two sentences.',
+			'First reply. It has two sentences.',
 			'Second reply.',
 		])
 	})
