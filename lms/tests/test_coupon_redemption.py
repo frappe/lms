@@ -13,6 +13,7 @@ from lms.lms.doctype.lms_payment.lms_payment import (
 from lms.lms.payments import get_payment_link
 from lms.lms.test_helpers import BaseTestUtils
 from lms.lms.utils import complete_enrollment, update_coupon_redemption, update_payment_record
+from lms.tests.fixtures.gateway import record_gateway_request
 from lms.tests.fixtures.razorpay import mock_razorpay
 
 # A worker that never reaches the barrier must not hang the whole suite.
@@ -162,6 +163,8 @@ class _CouponRedemptionFixtures:
 			frappe.flags.data = None
 
 	def _stripe_callback(self, payment, stripe_token_id, course=None):
+		request = record_gateway_request(payment)
+		self._committed_items.append(("Integration Request", request.name))
 		frappe.flags.data = {
 			"payment": payment.name,
 			"payment_gateway": "Stripe",
