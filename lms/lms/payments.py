@@ -56,6 +56,10 @@ def get_payment_link(
 ):
 	payment_gateway = get_payment_gateway()
 	address = frappe._dict(address)
+	# The price and its GST follow the billing country, so it has to be the one
+	# on this checkout rather than whatever an older address or the profile says.
+	if not address.get("country") or not isinstance(address.country, str):
+		frappe.throw(_("Please select the country of your billing address."))
 	redirect_to = get_redirect_url(doctype, docname, payment_for_certificate)
 
 	details = frappe._dict(get_order_summary(doctype, docname, coupon=coupon_code, country=address.country))

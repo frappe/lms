@@ -1338,15 +1338,7 @@ def check_multicurrency(amount: float, currency: str, country: str = None, amoun
 	exception_country = settings.exception_country
 	exception_country = [country.country for country in exception_country]
 
-	# Get users country
-	if not country:
-		country = frappe.db.get_value("Address", {"email_id": frappe.session.user}, "country")
-
-	if not country:
-		country = frappe.db.get_value("User", frappe.session.user, "country")
-
-	if not country:
-		country = get_country_code()
+	country = get_billing_country(country)
 
 	# If the country is the one for which conversion is not needed then return as is
 	if not country or (exception_country and country in exception_country):
@@ -1373,12 +1365,31 @@ def check_multicurrency(amount: float, currency: str, country: str = None, amoun
 	return rounded(amount), currency
 
 
+def get_billing_country(country: str | None = None) -> str | None:
+	"""The country a price and its tax are both worked out for: the one given, else
+	the buyer's latest billing address, else their profile, else their location."""
+	if country:
+		return country
+
+	address_country = frappe.get_all(
+		"Address",
+		filters={"email_id": frappe.session.user},
+		pluck="country",
+		order_by="creation desc",
+		limit=1,
+	)
+	return (
+		(address_country[0] if address_country else None)
+		or frappe.db.get_value("User", frappe.session.user, "country")
+		or get_country_code()
+	)
+
+
 def apply_gst(amount: float, country: str = None) -> tuple:
 	gst_applied = 0
 	apply_gst = frappe.db.get_single_value("LMS Settings", "apply_gst")
 
-	if not country:
-		country = frappe.db.get_value("User", frappe.session.user, "country")
+	country = get_billing_country(country)
 
 	if apply_gst and country == "India":
 		gst_applied = amount * 0.18
@@ -3054,6 +3065,8 @@ def get_discussion_replies(topic: str):
 @frappe.whitelist()
 def get_order_summary(doctype: str, docname: str, coupon: str | None = None, country: str | None = None):
 	details = get_paid_course_details(docname) if doctype == "LMS Course" else get_paid_batch_details(docname)
+	# Resolved once, so the currency and the GST cannot follow different countries.
+	country = get_billing_country(country)
 
 	details.amount, details.currency = check_multicurrency(
 		details.amount, details.currency, country, details.amount_usd
