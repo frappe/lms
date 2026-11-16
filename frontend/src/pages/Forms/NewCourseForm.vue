@@ -73,7 +73,6 @@
 					<Uploader
 						v-model="course.image"
 						:label="__('Course thumbnail')"
-						:required="false"
 						size="sm"
 						:description="thumbnailGuidelines"
 					/>

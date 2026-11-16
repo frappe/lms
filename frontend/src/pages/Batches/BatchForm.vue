@@ -280,7 +280,6 @@
 							v-model="batchDetail.doc.meta_image"
 							:label="__('Meta Image')"
 							type="image"
-							:required="false"
 						/>
 					</div>
 				</div>
