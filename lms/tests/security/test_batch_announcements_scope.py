@@ -124,6 +124,18 @@ class TestBatchAnnouncementsScope(BaseTestUtils):
 		self._mail("Past mail from outside", user=self.other_creator, announcement=0, bcc=self.student)
 		self._mail("Past mail to a colleague", user=self.instructor, announcement=0, bcc=self.evaluator)
 
+		# Sent to one of two students, then the other left: still not a broadcast.
+		leaver = self._create_user(
+			f"ann-leaver-{frappe.generate_hash(length=6)}@example.com", "Lee", "Ver", ["LMS Student"]
+		).name
+		self._create_batch_enrollment(leaver, self.batch)
+		self._mail("Past mail to one student", user=self.instructor, announcement=0, bcc=self.student)
+		frappe.delete_doc(
+			"LMS Batch Enrollment",
+			frappe.db.get_value("LMS Batch Enrollment", {"batch": self.batch, "member": leaver}),
+			ignore_permissions=True,
+		)
+
 		mark_batch_announcements.execute()
 
 		subjects = self._subjects_as(self.student)
@@ -131,3 +143,4 @@ class TestBatchAnnouncementsScope(BaseTestUtils):
 		self.assertNotIn("Past private mail", subjects)
 		self.assertNotIn("Past mail from outside", subjects)
 		self.assertNotIn("Past mail to a colleague", subjects)
+		self.assertNotIn("Past mail to one student", subjects)
