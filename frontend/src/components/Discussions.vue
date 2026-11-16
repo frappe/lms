@@ -10,7 +10,10 @@
 			</template>
 			{{ __('New {0}').format(singularize(title)) }}
 		</Button>
-		<div class="text-2xl-semibold text-ink-gray-9">
+		<div
+			class="text-ink-gray-9"
+			:class="headingSize === 'lg' ? 'text-lg-semibold' : 'text-2xl-semibold'"
+		>
 			{{ __(title) }}
 		</div>
 	</div>
@@ -107,7 +110,7 @@
 		"
 		:description="__(emptyStateText)"
 	>
-		<Button v-if="!readOnlyMode" variant="solid" @click="openTopicModal()">
+		<Button v-if="!readOnlyMode" variant="subtle" @click="openTopicModal()">
 			<template #prefix>
 				<span class="lucide-plus size-4" />
 			</template>
@@ -168,6 +171,11 @@ const props = defineProps({
 	scrollToBottom: {
 		type: Boolean,
 		default: false,
+	},
+	headingSize: {
+		type: String,
+		default: '2xl',
+		validator: (size) => ['lg', '2xl'].includes(size),
 	},
 })
 

@@ -138,7 +138,7 @@
 			<Button
 				v-if="canCreateClass()"
 				data-testid="live-class-add"
-				variant="solid"
+				variant="subtle"
 				:label="__('Schedule a Class')"
 				@click="openLiveClassForm"
 			>
@@ -148,7 +148,7 @@
 			</Button>
 			<Button
 				v-else-if="needsProvider"
-				variant="solid"
+				variant="subtle"
 				:label="__('Open Settings')"
 				@click="openSettings"
 			/>
@@ -236,6 +236,7 @@ const isRetrying = (cls) =>
 	retryInvites.loading && retryInvites.params?.live_class === cls.name
 
 const retryClassInvites = (cls) => {
+	if (retryInvites.loading) return
 	retryInvites.submit(
 		{ live_class: cls.name },
 		{

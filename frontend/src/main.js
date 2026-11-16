@@ -11,10 +11,12 @@ import { initSocket } from './socket'
 import { FrappeUI, setConfig, frappeRequest } from 'frappe-ui'
 import { telemetryPlugin } from '@framework/ui/telemetry/index'
 import { registerDirectives } from './directives'
+import { dedupeToasts } from '@/utils/toastDedupe'
 
 let pinia = createPinia()
 let app = createApp(App)
 setConfig('resourceFetcher', frappeRequest)
+dedupeToasts()
 setConfig('maxFileSize', window.max_file_size)
 
 app.use(FrappeUI)

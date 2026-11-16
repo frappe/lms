@@ -371,6 +371,7 @@ export function useChannelRules(
 	)
 
 	function save(): void {
+		if (saving.value) return
 		// The name lives behind this Save too, so a refusal has to say so rather
 		// than leave the button doing nothing.
 		if (!labelDraft.value.trim()) {

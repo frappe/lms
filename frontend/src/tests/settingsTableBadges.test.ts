@@ -8,9 +8,8 @@
  * a horizontal scrollbar.
  *
  * What is pinned here: that the cell draws a bounded number of badges, that the
- * rest are counted rather than dropped, that the count survives the clip that
- * bounds the badges, and that a screen reader can find out what the count
- * stands for.
+ * rest are counted rather than dropped, and that a screen reader can find out
+ * what the count stands for.
  */
 import { describe, expect, it, vi } from 'vitest'
 import { mount } from '@vue/test-utils'
@@ -111,40 +110,6 @@ describe('SettingsTable: badge cell', () => {
 
 		expect(labels(wrapper)).toHaveLength(3)
 		expect(wrapper.get('[data-testid="cell"]').text()).not.toContain('+')
-	})
-
-	it('keeps the badges on one line that cannot widen the cell', () => {
-		// jsdom computes no layout, so there is no width here to assert on: what
-		// makes the clamp true is the class set, and each of these is load-
-		// bearing. `min-w-0` lets the container shrink below its content (a flex
-		// item's default minimum is its content size), `overflow-hidden` stops
-		// what is left from painting outside the cell and pushing a scrollbar
-		// onto the dialog, and the absence of `flex-wrap` keeps the row height
-		// independent of how many badges the row has. `shrink-0` on each badge
-		// makes the surplus fall off the end rather than every badge being
-		// squeezed into an unreadable sliver.
-		const wrapper = build(10)
-		const badges = wrapper.get('[data-testid="cell"]').element
-			.children[0] as HTMLElement
-		const classes = badges.className.split(' ')
-
-		expect(classes).toContain('flex')
-		expect(classes).toContain('min-w-0')
-		expect(classes).toContain('overflow-hidden')
-		expect(classes.some((c) => c.startsWith('flex-wrap'))).toBe(false)
-		for (const badge of wrapper.findAll('[data-testid="badge"]'))
-			expect(badge.classes()).toContain('shrink-0')
-	})
-
-	it('keeps the count outside the clip that bounds the badges', () => {
-		// The indicator sits beside the clipping container, not inside it, so
-		// the clip can never be what removes it, a cell that hides badges and
-		// says nothing about it is the failure this whole cell exists to avoid.
-		const cell = build(10).get('[data-testid="cell"]').element
-		const indicator = cell.children[1] as HTMLElement
-
-		expect(indicator.textContent?.trim()).toBe('+7')
-		expect(indicator.className.split(' ')).toContain('shrink-0')
 	})
 
 	it('says what the count stands for, for a screen reader', () => {

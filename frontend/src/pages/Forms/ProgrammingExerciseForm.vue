@@ -29,6 +29,7 @@
 						theme="red"
 						icon="lucide-trash-2"
 						:label="__('Delete')"
+						:loading="exercises.delete.loading"
 						@click="deleteExercise()"
 					/>
 				</template>
@@ -120,7 +121,7 @@
 			</template>
 		</div>
 		<div
-			class="order-first min-w-0 space-y-4 border-b p-5 lg:order-none lg:min-h-0 lg:overflow-y-auto lg:border-b-0 lg:border-s"
+			class="order-first flex min-w-0 flex-col gap-4 border-b p-5 lg:order-none lg:min-h-0 lg:overflow-y-auto lg:border-b-0 lg:border-s"
 		>
 			<FormControl
 				v-model="exercise.title"
@@ -465,6 +466,7 @@ const togglePreview = async () => {
 
 const deleteExercise = () => {
 	if (isNew.value || !canManageExercise.value || !canEdit.value) return
+	if (exercises.delete.loading) return
 	submitResource(exercises.delete, props.exerciseID, {
 		onSuccess() {
 			// delete refetches the list (listResource.js:161); the count was

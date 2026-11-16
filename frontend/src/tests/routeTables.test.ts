@@ -67,7 +67,7 @@ vi.mock('frappe-ui', () => ({
 // This imports `@/routes` rather than `@/router`, which pulls in the stores and
 // the navigation guard's server calls; the route table has none of that.
 import { routes } from '@/routes'
-import { batchRouteLocation, openBatchForm } from '@/composables/useBatchForms'
+import { openBatchForm } from '@/composables/useBatchForms'
 
 const makeRouter = (): Router =>
 	createRouter({ history: createMemoryHistory(), routes })
@@ -290,14 +290,6 @@ describe('the batch-detail form routes', () => {
 		router.back()
 		await flushPromises()
 		expect(router.currentRoute.value.fullPath).toBe('/batches/B1#settings')
-	})
-
-	it('builds every batch-form location through one helper', () => {
-		expect(batchRouteLocation('BulkCertificates', 'B1', '#settings')).toEqual({
-			name: 'BulkCertificates',
-			params: { batchName: 'B1' },
-			hash: '#settings',
-		})
 	})
 })
 

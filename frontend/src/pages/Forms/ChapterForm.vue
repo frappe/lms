@@ -2,13 +2,11 @@
 	<FormShell
 		:title="isEdit ? __('Edit Chapter') : __('Add Chapter')"
 		size="lg"
+		:message="refusal"
 		@close="close"
 	>
 		<template #default>
-			<div v-if="!canManageChapters" class="p-4 text-p-base text-ink-gray-6">
-				{{ refusal }}
-			</div>
-			<div v-else data-testid="chapter-fields" class="space-y-4 text-base">
+			<div data-testid="chapter-fields" class="space-y-4 text-base">
 				<FormControl
 					label="Title"
 					v-model="chapter.title"
@@ -33,6 +31,7 @@
 						:private="true"
 						:validateFile="validateFile"
 						@success="(file) => (chapter.scorm_package = file)"
+						@failure="onUploadFailure"
 					>
 						<template v-slot="{ file, progress, uploading, openFileSelector }">
 							<Button @click="openFileSelector" :loading="uploading">
@@ -74,16 +73,14 @@
 			</div>
 		</template>
 		<template #actions>
-			<div v-if="canManageChapters" class="flex items-center justify-end">
-				<HeaderButton
-					data-testid="chapter-save"
-					:label="isEdit ? __('Save') : __('Add')"
-					variant="solid"
-					:loading="chapterResource.loading"
-					:disabled="isEdit && !chapterDetail"
-					@click="saveChapter()"
-				/>
-			</div>
+			<HeaderButton
+				data-testid="chapter-save"
+				:label="isEdit ? __('Save') : __('Add')"
+				variant="solid"
+				:loading="chapterResource.loading"
+				:disabled="isEdit && !chapterDetail"
+				@click="saveChapter()"
+			/>
 		</template>
 	</FormShell>
 </template>
@@ -102,10 +99,8 @@ import { computed, inject, onMounted, reactive, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { getFileSize } from '@/utils/'
 import { resourceErrorMessage, submitResource } from '@/utils/resource'
-import { useOnboarding } from '@framework/ui/components/Onboarding/index'
 import { useTelemetry } from '@framework/ui/telemetry/index'
 import { takeFormSource } from '@/composables/formTracking'
-import { seesOnboarding } from '@/utils/onboarding'
 import FormShell from '@/components/FormShell.vue'
 import HeaderButton from '@/components/HeaderButton.vue'
 import { useFormRoute } from '@/composables/useFormRoute'
@@ -142,7 +137,6 @@ const props = defineProps<{
 
 const route = useRoute()
 const user = inject<SessionUser>('$user')!
-const { updateOnboardingStep } = useOnboarding('learning')
 
 // House style for a route that serves both create and edit
 // (`/job-opening/:jobName/edit`, JobForm.vue:147-149).
@@ -168,11 +162,11 @@ const { close, saveAndReplace } = useFormRoute(parent)
 // can_modify_course() and throws PermissionError (lms/lms/api.py:1369-1370).
 const canManageChapters = computed(() => Boolean(user.data))
 
-// Built here rather than inline in the template because vue-tsc currently
-// cannot see the `__` augmentation on ComponentCustomProperties, so every
-// template call site is an error; the global `__` declaration works fine from
-// script. Same string either way.
-const refusal = __('You are not permitted to manage chapters.')
+const refusal = computed(() =>
+	canManageChapters.value
+		? null
+		: __('You are not permitted to manage chapters.')
+)
 
 const chapter = reactive<ChapterFields>({
 	title: '',
@@ -269,15 +263,14 @@ const validateChapter = (): string | undefined => {
 }
 
 const saveChapter = () => {
-	if (!canManageChapters.value) return
+	if (!canManageChapters.value || chapterResource.loading) return
 	// Edit mode before the outline lands would post a blank title over a real
 	// chapter; the button is disabled for the same reason.
 	if (isEdit.value && !chapterDetail.value) return
 	// submitResource, not a bare submit(): createResource's handleError calls
 	// onError and then RETHROWS, so a bare statement leaves a rejected promise
 	// nobody handles on every validation failure or 500. It also keeps a throw
-	// from onSuccess — updateOnboardingStep throws when onboarding is not
-	// registered — out of frappe-ui's error path, so a saved chapter is never
+	// from onSuccess out of frappe-ui's error path, so a saved chapter is never
 	// reported as a failed one. Validation runs in the helper because
 	// createResource's `validate` wraps the message in new Error(), which this
 	// onError could only ever render as a bare "Error".
@@ -292,8 +285,6 @@ const saveChapter = () => {
 						course: props.courseName,
 						source: formSource,
 					})
-					if (seesOnboarding(user.data))
-						updateOnboardingStep('create_first_chapter')
 				}
 				// Stands in for the modal's `created`/`updated` emits: a route
 				// component has no parent listening, so refresh the outline the
@@ -315,6 +306,16 @@ const saveChapter = () => {
 				toast.error(resourceErrorMessage(err))
 			},
 		}
+	)
+}
+
+// The custom slot hides FileUploader's own error line, so a rejected zip has to
+// be reported here. Validation fails with a string, an upload with an Error.
+const onUploadFailure = (err: unknown) => {
+	toast.error(
+		err instanceof Error && err.message
+			? err.message
+			: resourceErrorMessage(err, __('Error Uploading File'))
 	)
 }
 

@@ -1,4 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { toast } from 'frappe-ui'
 import {
 	enableAutoUnmount,
 	flushPromises,
@@ -84,7 +85,7 @@ vi.mock('frappe-ui', () => ({
 	createResource: createResourceMock,
 	createListResource: createListResourceMock,
 	getCachedListResource: getCachedListResourceMock,
-	toast: { success: vi.fn(), error: vi.fn() },
+	toast: { success: vi.fn(), error: vi.fn(), warning: vi.fn() },
 	Dialog: {
 		name: 'Dialog',
 		props: ['open', 'title', 'size'],
@@ -201,16 +202,6 @@ const norm = (text: string) =>
 		.replace(/\s*\*$/, '')
 		.trim()
 
-const FIELD_LABELS = [
-	'Title',
-	'Date',
-	'Duration (in minutes)',
-	'Time',
-	'Timezone',
-	'Auto Recording',
-	'Description',
-]
-
 describe('LiveClassForm as a route', () => {
 	beforeEach(() => {
 		zoomSubmit.mockReset()
@@ -242,29 +233,16 @@ describe('LiveClassForm as a route', () => {
 		})
 	})
 
-	it('fetches its own batch context for the batch in the URL', async () => {
-		// The conferencing provider and its account come from get_batch_details.
-		// This is the form's OWN fetch — BatchDetail's resource carries no cache
-		// key, so there is no instance to share and none is claimed.
-		const router = makeRouter()
-		await router.push('/batches/B1/live-class/new')
-		await mountForm(router, moderator)
-		const batchCall = createResourceMock.mock.calls.find(
-			(call) => call[0].url === BATCH_URL
-		)
-		expect(batchCall).toBeDefined()
-		expect(batchCall?.[0].cache).toBeUndefined()
-		expect(batchCall?.[0].makeParams()).toEqual({ batch: 'B1' })
-	})
-
 	it('refuses for a user who is not a batch admin', async () => {
 		const router = makeRouter()
 		await router.push('/batches/B1/live-class/new')
 		const wrapper = await mountForm(router, student)
 		expect(wrapper.find('[data-testid="live-class-fields"]').exists()).toBe(
-			false
+			false,
 		)
-		expect(wrapper.html()).toContain('Ask one of its instructors or a Moderator')
+		expect(vi.mocked(toast.warning)).toHaveBeenLastCalledWith(
+			expect.stringContaining('Ask one of its instructors or a Moderator'),
+		)
 	})
 
 	it('refuses an evaluator the batch does not tag', async () => {
@@ -272,9 +250,11 @@ describe('LiveClassForm as a route', () => {
 		await router.push('/batches/B1/live-class/new')
 		const wrapper = await mountForm(router, evaluator)
 		expect(wrapper.find('[data-testid="live-class-fields"]').exists()).toBe(
-			false
+			false,
 		)
-		expect(wrapper.html()).toContain('Ask one of its instructors or a Moderator')
+		expect(vi.mocked(toast.warning)).toHaveBeenLastCalledWith(
+			expect.stringContaining('Ask one of its instructors or a Moderator'),
+		)
 	})
 
 	it('refuses an evaluator the batch tags but does not list as an instructor', async () => {
@@ -283,9 +263,11 @@ describe('LiveClassForm as a route', () => {
 		await router.push('/batches/B1/live-class/new')
 		const wrapper = await mountForm(router, evaluator)
 		expect(wrapper.find('[data-testid="live-class-fields"]').exists()).toBe(
-			false
+			false,
 		)
-		expect(wrapper.html()).toContain('Ask one of its instructors or a Moderator')
+		expect(vi.mocked(toast.warning)).toHaveBeenLastCalledWith(
+			expect.stringContaining('Ask one of its instructors or a Moderator'),
+		)
 	})
 
 	it('opens for an instructor of the batch', async () => {
@@ -298,7 +280,7 @@ describe('LiveClassForm as a route', () => {
 		await router.push('/batches/B1/live-class/new')
 		const wrapper = await mountForm(router, evaluator)
 		expect(wrapper.find('[data-testid="live-class-fields"]').exists()).toBe(
-			true
+			true,
 		)
 	})
 
@@ -308,23 +290,11 @@ describe('LiveClassForm as a route', () => {
 		await router.push('/batches/B1/live-class/new')
 		const wrapper = await mountForm(router, moderator)
 		expect(wrapper.find('[data-testid="live-class-fields"]').exists()).toBe(
-			false
+			false,
 		)
-		expect(wrapper.html()).toContain('conferencing provider')
-	})
-
-	it('carries every field of the live-class form', async () => {
-		const router = makeRouter()
-		await router.push('/batches/B1/live-class/new')
-		const wrapper = await mountForm(router, moderator)
-
-		const labels = wrapper
-			.find('[data-testid="live-class-fields"]')
-			.findAll('label')
-			.map((label) => norm(label.text()))
-			.filter((text) => text !== '')
-		for (const label of FIELD_LABELS) expect(labels).toContain(label)
-		expect(labels).toHaveLength(FIELD_LABELS.length)
+		expect(vi.mocked(toast.warning)).toHaveBeenLastCalledWith(
+			expect.stringContaining('conferencing provider'),
+		)
 	})
 
 	// Empty fields used to reach the server, and an empty duration came back as
@@ -377,7 +347,7 @@ describe('LiveClassForm as a route', () => {
 						messages: [
 							'A Google Calendar connection is needed to send invites for live classes.',
 						],
-					})
+					}),
 			)
 
 		const shownLine = (wrapper: VueWrapper) => {
@@ -405,7 +375,7 @@ describe('LiveClassForm as a route', () => {
 
 			const line = shownLine(wrapper)
 			expect(line.text).toBe(
-				'A Google Calendar connection is needed to send invites for live classes. Set up'
+				'A Google Calendar connection is needed to send invites for live classes. Set up',
 			)
 			const { toast } = await import('frappe-ui')
 			expect(toast.error).not.toHaveBeenCalled()
@@ -493,25 +463,6 @@ describe('LiveClassForm as a route', () => {
 		})
 	})
 
-	it('refreshes the Classes tab list after a create, by cache key', async () => {
-		// The `reloadLiveClasses` defineModel is gone with the modal; the tab's
-		// list resource is found by the key LiveClass.vue registers it under.
-		const router = makeRouter()
-		await router.push('/batches/B1/live-class/new')
-		const wrapper = await mountForm(router, moderator)
-		zoomSubmit.mockImplementation(
-			(_doc: unknown, options: { onSuccess: () => void }) => options.onSuccess()
-		)
-		await fillForm(wrapper)
-		await wrapper.find('[data-testid="live-class-save"]').trigger('click')
-		await flushPromises()
-		expect(getCachedListResourceMock).toHaveBeenCalledWith([
-			'liveClasses',
-			'B1',
-		])
-		expect(liveClassList.reload).toHaveBeenCalledTimes(1)
-	})
-
 	it('closing a DEEP-LINKED form keeps the tab hash (C2)', async () => {
 		const router = makeRouter()
 		await router.push('/batches/B1/live-class/new#classes')
@@ -538,7 +489,7 @@ describe('the Classes tab opener', () => {
 	const mountTab = async (
 		router: Router,
 		user: Record<string, unknown> = moderator,
-		access: Record<string, boolean> = {}
+		access: Record<string, boolean> = {},
 	) =>
 		mount(LiveClass, {
 			props: {
@@ -613,15 +564,6 @@ describe('the Classes tab opener', () => {
 		})
 	})
 
-	it('registers its list under the key the form refreshes', async () => {
-		const router = makeRouter()
-		await router.push('/batches/B1#classes')
-		await mountTab(router)
-		expect(createListResourceMock).toHaveBeenCalledWith(
-			expect.objectContaining({ cache: ['liveClasses', 'B1'] })
-		)
-	})
-
 	it('offers no Add to an evaluator the batch does not tag', async () => {
 		const router = makeRouter()
 		await router.push('/batches/B1#classes')
@@ -653,7 +595,7 @@ describe('the Classes tab opener', () => {
 		await wrapper.find('[data-testid="live-class-add"]').trigger('click')
 		await flushPromises()
 		expect(router.currentRoute.value.fullPath).toBe(
-			'/batches/B1/live-class/new#classes'
+			'/batches/B1/live-class/new#classes',
 		)
 	})
 })

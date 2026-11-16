@@ -1,5 +1,5 @@
 <template>
-	<Tooltip :text="`${props.progress}%`">
+	<Tooltip :text="`${props.progress}%`" :disabled="!props.tooltip">
 		<div
 			class="w-full bg-surface-gray-3 rounded-full h-1"
 			:class="$attrs.class"
@@ -34,6 +34,10 @@ const props = defineProps({
 	label: {
 		type: String,
 		default: () => __('Progress'),
+	},
+	tooltip: {
+		type: Boolean,
+		default: true,
 	},
 })
 

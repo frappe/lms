@@ -7,6 +7,7 @@
 			{
 				label: page ? __('Save') : __('Add'),
 				variant: 'solid',
+				loading: resource.loading,
 				onClick: submit,
 			},
 		]"
@@ -19,11 +20,13 @@
 				:label="__('Web Page')"
 				:filters="{ published: 1 }"
 				:disabled="Boolean(page)"
+				:required="true"
 			/>
 			<IconPicker
 				data-testid="page-icon"
 				v-model="draft.icon"
 				:label="__('Icon')"
+				:required="true"
 			/>
 			<ErrorMessage v-if="error" :message="error" />
 		</div>
@@ -63,6 +66,13 @@ watch(
 	{ immediate: true }
 )
 
+watch(
+	() => [draft.web_page, draft.icon],
+	() => {
+		error.value = ''
+	}
+)
+
 const resource = createResource({
 	url: 'lms.lms.api.update_sidebar_item',
 	makeParams: () => ({ webpage: draft.web_page, icon: draft.icon }),
@@ -72,6 +82,10 @@ const submit = ({ close }: { close: () => void }) => {
 	error.value = ''
 	if (!draft.web_page) {
 		error.value = __('Choose the web page this link opens.')
+		return
+	}
+	if (!draft.icon) {
+		error.value = __('Choose an icon for this link.')
 		return
 	}
 	// submit() rethrows after onError has shown the message.

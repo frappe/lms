@@ -1,12 +1,22 @@
 <template>
 	<div class="space-y-1.5">
-		<InputLabel
-			v-if="label"
-			:id="labelId"
-			:for-id="inputId"
-			:label="label ? __(label) : undefined"
-			:required="required"
-		/>
+		<div v-if="label" class="flex items-center gap-1">
+			<InputLabel
+				:id="labelId"
+				:for-id="inputId"
+				:label="label ? __(label) : undefined"
+				:required="required"
+			/>
+			<Tooltip :text="helpText">
+				<button
+					type="button"
+					class="inline-grid size-6 place-items-center rounded-4 text-ink-gray-6 hover:text-ink-gray-9"
+					:aria-label="__('Preview video information')"
+				>
+					<span class="lucide-info size-4" aria-hidden="true" />
+				</button>
+			</Tooltip>
+		</div>
 		<div class="flex flex-col gap-4 sm:flex-row sm:items-start">
 			<div
 				class="relative aspect-[750/422] w-full shrink-0 grid place-items-center overflow-hidden rounded-6 border border-outline-gray-2 bg-surface-gray-2 sm:w-56"
@@ -52,7 +62,9 @@
 				<div class="text-p-sm-medium text-ink-gray-7 truncate">
 					{{ fileName }}
 				</div>
-				<div class="flex items-center gap-2">
+				<div
+					class="flex flex-col items-start gap-2 md:max-xl:flex-row md:max-xl:flex-wrap md:max-xl:items-center"
+				>
 					<FileUploader
 						:fileTypes="['video/mp4', 'video/webm', 'video/ogg']"
 						:private="false"
@@ -80,13 +92,6 @@
 						{{ __('Remove') }}
 					</Button>
 				</div>
-				<p class="text-p-sm text-ink-gray-6">
-					{{
-						__(
-							'Uploaded video. Students see it on the course page. Remove it to use a YouTube link instead.'
-						)
-					}}
-				</p>
 			</div>
 
 			<div v-else class="min-w-0 space-y-2 sm:flex-1">
@@ -112,17 +117,6 @@
 						</Button>
 					</template>
 				</FileUploader>
-				<p class="text-p-sm text-ink-gray-6">
-					{{
-						preview.type === 'youtube'
-							? __(
-									'YouTube link added. Students see it embedded on the course page. Clear the field to upload a file instead.'
-							  )
-							: __(
-									'Paste a YouTube link, or upload a video file (MP4, WebM, or OGG) to show a preview on the course page.'
-							  )
-					}}
-				</p>
 			</div>
 		</div>
 		<InputDescription
@@ -139,6 +133,7 @@ import {
 	Button,
 	FileUploader,
 	FormControl,
+	Tooltip,
 	UploadError,
 	toast,
 } from 'frappe-ui'
@@ -239,6 +234,22 @@ const preview = computed(() => getVideoPreview(props.modelValue))
 const isUploadedVideo = computed<boolean>(() => {
 	const v = props.modelValue || ''
 	return v.startsWith('/files/') || v.startsWith('/private/files/')
+})
+
+const helpText = computed(() => {
+	if (isUploadedVideo.value) {
+		return __(
+			'Uploaded video. Students see it on the course page. Remove it to use a YouTube link instead.'
+		)
+	}
+	if (preview.value.type === 'youtube') {
+		return __(
+			'YouTube link added. Students see it embedded on the course page. Clear the field to upload a file instead.'
+		)
+	}
+	return __(
+		'Paste a YouTube link, or upload a video file (MP4, WebM, or OGG) to show a preview on the course page.'
+	)
 })
 
 // Reset the in-browser playback error whenever the source changes.

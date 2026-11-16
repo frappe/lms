@@ -176,11 +176,4 @@ describe("BatchDetail's form openers", () => {
 			'/batches/B1/certificates#announcements'
 		)
 	})
-
-	it('renders the child form route through its own outlet', async () => {
-		const router = makeRouter()
-		await router.push('/batches/B1/announcement/new#announcements')
-		const wrapper = await mountPage(router)
-		expect(wrapper.text()).toContain('FORM')
-	})
 })

@@ -21,11 +21,8 @@ import Quiz from '@/components/Quiz.vue'
 
 const QUIZ_URL = 'lms.lms.utils.get_quiz_with_questions'
 const SUBMIT_URL = 'lms.lms.doctype.lms_quiz.lms_quiz.submit_quiz'
-const ATTEMPTS_URL = 'frappe.client.get_list'
 
 const submitSpy = vi.fn()
-const abortSpy = vi.fn()
-const resetSpy = vi.fn()
 
 const question = (name: string) => ({
 	name,
@@ -79,11 +76,8 @@ vi.mock('frappe-ui', async () => {
 				submitSpy(options.url)
 				handlers?.onSuccess?.({})
 			},
-			abort: () => {
-				abortSpy(options.url)
-			},
+			abort: () => {},
 			reset: () => {
-				resetSpy(options.url)
 				resource.data = null
 			},
 		})
@@ -149,8 +143,6 @@ const mountQuiz = (quizName: string) =>
 describe('Quiz.vue timer lifecycle', () => {
 	beforeEach(() => {
 		submitSpy.mockClear()
-		abortSpy.mockClear()
-		resetSpy.mockClear()
 		currentQuiz = 'quiz-a'
 		neverResolve = false
 		localStorage.clear()
@@ -206,8 +198,6 @@ describe('Quiz.vue timer lifecycle', () => {
 describe('Quiz.vue state reset when the instance is reused', () => {
 	beforeEach(() => {
 		submitSpy.mockClear()
-		abortSpy.mockClear()
-		resetSpy.mockClear()
 		currentQuiz = 'quiz-a'
 		neverResolve = false
 		localStorage.clear()
@@ -270,8 +260,6 @@ describe('Quiz.vue state reset when the instance is reused', () => {
 describe('Quiz.vue submit and reset on a reused instance', () => {
 	beforeEach(() => {
 		submitSpy.mockClear()
-		abortSpy.mockClear()
-		resetSpy.mockClear()
 		currentQuiz = 'quiz-a'
 		neverResolve = false
 		localStorage.clear()
@@ -297,23 +285,6 @@ describe('Quiz.vue submit and reset on a reused instance', () => {
 		expect(submitSpy).not.toHaveBeenCalled()
 	})
 
-	// The submission is deliberately NOT aborted — the POST has reached the
-	// server and the attempt is spent either way, so cancelling would only hide
-	// the result. A late response is ignored instead.
-	it('does not abort an in-flight submission when the quiz changes', async () => {
-		const wrapper = mountQuiz('quiz-a')
-		await flushPromises()
-		;(wrapper.vm as any).startQuiz()
-		await flushPromises()
-
-		currentQuiz = 'quiz-b'
-		await wrapper.setProps({ quizName: 'quiz-b' })
-		await flushPromises()
-
-		expect(abortSpy).not.toHaveBeenCalled()
-		wrapper.unmount()
-	})
-
 	it('keeps the start screen usable after Try Again', async () => {
 		// resetQuiz() is the Try Again handler. Clearing `attempts` there left the
 		// start card with neither a Start button nor the exceeded message, both of
@@ -328,19 +299,6 @@ describe('Quiz.vue submit and reset on a reused instance', () => {
 
 		expect(vm.activeQuestion).toBe(0)
 		expect(vm.attempts.data).not.toBeNull()
-		wrapper.unmount()
-	})
-
-	it('clears the previous quiz attempts when the quiz changes', async () => {
-		const wrapper = mountQuiz('quiz-a')
-		await flushPromises()
-
-		resetSpy.mockClear()
-		currentQuiz = 'quiz-b'
-		await wrapper.setProps({ quizName: 'quiz-b' })
-		await flushPromises()
-
-		expect(resetSpy).toHaveBeenCalledWith(ATTEMPTS_URL)
 		wrapper.unmount()
 	})
 

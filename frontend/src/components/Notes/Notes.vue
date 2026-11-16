@@ -72,7 +72,16 @@ const debouncedSave = useDebounceFn(() => {
 	saveNotes()
 }, 2000)
 
+// A save while the first insert is in flight would insert a second note, so it
+// waits and runs as an update once the insert lands.
+const creating = ref(false)
+const saveAfterCreate = ref(false)
+
 const saveNotes = () => {
+	if (creating.value) {
+		saveAfterCreate.value = true
+		return
+	}
 	if (currentNoteName.value) {
 		updateNote()
 	} else {
@@ -80,7 +89,15 @@ const saveNotes = () => {
 	}
 }
 
+const finishCreate = () => {
+	creating.value = false
+	if (!saveAfterCreate.value) return
+	saveAfterCreate.value = false
+	saveNotes()
+}
+
 const createNote = () => {
+	creating.value = true
 	notes.value?.insert.submit(
 		{
 			lesson: props.lesson,
@@ -93,9 +110,11 @@ const createNote = () => {
 			onSuccess(data: Note) {
 				currentNoteName.value = data.name || null
 				emit('updateNotes')
+				finishCreate()
 			},
 			onError(err: FrappeResourceError) {
 				console.error('Error creating note:', err)
+				finishCreate()
 			},
 		}
 	)

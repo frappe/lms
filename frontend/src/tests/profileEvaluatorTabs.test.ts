@@ -46,6 +46,7 @@ vi.mock('@/components/UserAvatar.vue', stub)
 vi.mock('@/components/NoPermission.vue', stub)
 vi.mock('@/pages/NotFound.vue', stub)
 vi.mock('@/components/Profile/ProfileAvatar.vue', stub)
+vi.mock('@/components/Profile/ChangePasswordDialog.vue', stub)
 vi.mock('@/components/Profile/ProfileCover.vue', stub)
 vi.mock('@/components/Profile/ProfileSocialLinks.vue', stub)
 

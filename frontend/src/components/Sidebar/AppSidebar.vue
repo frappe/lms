@@ -35,6 +35,29 @@
 			>
 				{{ readOnlyNotice }}
 			</div>
+			<template v-if="!isLoggedIn">
+				<SidebarItem
+					v-if="sidebarStore.isSidebarCollapsed"
+					:label="__('Log in')"
+					icon="lucide-log-in"
+					:active="false"
+					:onClick="() => redirectToLogin()"
+				/>
+				<SidebarCard
+					v-else
+					data-testid="sidebar-log-in"
+					:title="__('Log in')"
+					:description="
+						__('Log in or sign up to enroll and keep track of your progress.')
+					"
+					icon="lucide-log-in"
+					:action="{
+						label: __('Log in'),
+						variant: 'solid',
+						onClick: () => redirectToLogin(),
+					}"
+				/>
+			</template>
 			<template v-if="isStudent && !profileIsComplete && !profileNudgeHidden">
 				<SidebarItem
 					v-if="sidebarStore.isSidebarCollapsed"
@@ -175,7 +198,10 @@
 <script setup>
 import { getSidebarLinks } from '@/utils'
 import { usersStore } from '@/stores/user'
+import { storeToRefs } from 'pinia'
+import { sessionStore } from '@/stores/session'
 import { seesOnboarding } from '@/utils/onboarding'
+import { redirectToLogin } from '@/utils/login'
 import { useSidebar } from '@/stores/sidebar'
 import { useSettings } from '@/stores/settings'
 import {
@@ -205,15 +231,7 @@ import {
 	onUnmounted,
 	computed,
 } from 'vue'
-import {
-	BookOpen,
-	CircleHelp,
-	FolderTree,
-	FileText,
-	UserPlus,
-	Users,
-	BookText,
-} from 'lucide-vue-next'
+import { BookOpen, FileText, Globe, Users } from 'lucide-vue-next'
 import { TrialBanner } from '@framework/ui/components/TrialBanner/index'
 import {
 	HelpModal,
@@ -338,13 +356,9 @@ const getFirstCourse = async () => {
 	return await call('lms.lms.onboarding.get_first_course')
 }
 
-const getFirstBatch = async () => {
-	let firstBatch = localStorage.getItem('firstBatch')
-	if (firstBatch) return firstBatch
-	return await call('lms.lms.onboarding.get_first_batch')
-}
-
-const steps = reactive([
+// Five steps, in the order of the goal picked in setup: a course first for most,
+// a batch first for someone bringing their learners in.
+const allSteps = [
 	{
 		name: 'create_first_course',
 		title: __('Create your first course'),
@@ -358,31 +372,11 @@ const steps = reactive([
 		},
 	},
 	{
-		name: 'create_first_chapter',
-		title: __('Add your first chapter'),
-		icon: markRaw(h(FolderTree, iconProps)),
-		completed: false,
-		dependsOn: 'create_first_course',
-		onClick: async () => {
-			minimize.value = true
-			let course = await getFirstCourse()
-			if (course) {
-				router.push({
-					name: 'CourseDetail',
-					params: { courseName: course },
-					hash: '#editor',
-				})
-			} else {
-				openCourseForm()
-			}
-		},
-	},
-	{
 		name: 'create_first_lesson',
 		title: __('Add your first lesson'),
 		icon: markRaw(h(FileText, iconProps)),
 		completed: false,
-		dependsOn: 'create_first_chapter',
+		dependsOn: 'create_first_course',
 		onClick: async () => {
 			minimize.value = true
 			let course = await getFirstCourse()
@@ -398,14 +392,19 @@ const steps = reactive([
 		},
 	},
 	{
-		name: 'create_first_quiz',
-		title: __('Create your first quiz'),
-		icon: markRaw(h(CircleHelp, iconProps)),
+		name: 'publish_first_course',
+		title: __('Publish your course'),
+		icon: markRaw(h(Globe, iconProps)),
 		completed: false,
-		dependsOn: 'create_first_course',
-		onClick: () => {
+		dependsOn: 'create_first_lesson',
+		onClick: async () => {
 			minimize.value = true
-			router.push({ name: 'Quizzes' })
+			let course = await getFirstCourse()
+			if (course) {
+				router.push({ name: 'CourseDetail', params: { courseName: course } })
+			} else {
+				openCourseForm()
+			}
 		},
 	},
 	{
@@ -429,50 +428,39 @@ const steps = reactive([
 			openFormRoute(router, { name: 'NewBatch' })
 		},
 	},
-	{
-		name: 'add_batch_student',
-		title: __('Add students to your batch'),
-		icon: markRaw(h(UserPlus, iconProps)),
-		completed: false,
-		dependsOn: 'create_first_batch',
-		onClick: async () => {
-			minimize.value = true
-			let batch = await getFirstBatch()
-			if (batch) {
-				router.push({
-					name: 'BatchDetail',
-					params: {
-						batchName: batch,
-					},
-				})
-			} else {
-				router.push({ name: 'Batches' })
-			}
-		},
-	},
-	{
-		name: 'add_batch_course',
-		title: __('Add courses to your batch'),
-		icon: markRaw(h(BookText, iconProps)),
-		completed: false,
-		dependsOn: 'create_first_batch',
-		onClick: async () => {
-			minimize.value = true
-			let batch = await getFirstBatch()
-			if (batch) {
-				router.push({
-					name: 'BatchDetail',
-					params: {
-						batchName: batch,
-					},
-					hash: '#courses',
-				})
-			} else {
-				router.push({ name: 'Batches' })
-			}
-		},
-	},
-])
+].map((step) => reactive(step))
+
+const BATCH_FIRST = [
+	'create_first_batch',
+	'invite_students',
+	'create_first_course',
+	'create_first_lesson',
+	'publish_first_course',
+]
+
+const stepsFor = (goal) => {
+	if (goal !== 'Onboard my existing learners') return allSteps
+	return BATCH_FIRST.map((name) => allSteps.find((step) => step.name === name))
+}
+
+// The goal from this browser, else from the server, asked twice so one failed
+// request does not put the checklist in the wrong order for the visit.
+const firstGoal = async () => {
+	const saved = localStorage.getItem('lmsFirstGoal')
+	if (saved) return saved
+	for (const delay of [0, 2000]) {
+		if (delay) await new Promise((resolve) => setTimeout(resolve, delay))
+		try {
+			const goal = (await call('lms.lms.onboarding.get_setup_state'))
+				?.first_goal
+			if (goal) localStorage.setItem('lmsFirstGoal', goal)
+			return goal
+		} catch {
+			// Try once more.
+		}
+	}
+	return null
+}
 
 const articles = ref([
 	{
@@ -541,10 +529,13 @@ const articles = ref([
 	},
 ])
 
-const setUpOnboarding = () => {
+const setUpOnboarding = async () => {
 	if (seesOnboarding(userResource.data)) {
 		onboardingDetails = useOnboarding('learning')
-		onboardingDetails.setUp(steps)
+		const goal = onboardingDetails.isOnboardingStepsCompleted.value
+			? null
+			: await firstGoal()
+		onboardingDetails.setUp(stepsFor(goal))
 		isOnboardingStepsCompleted = onboardingDetails.isOnboardingStepsCompleted
 		showOnboarding.value = true
 	}
@@ -579,6 +570,8 @@ const updateSidebarLinks = () => {
 const isStudent = computed(() => {
 	return userResource.data?.is_student
 })
+
+const { isLoggedIn } = storeToRefs(sessionStore())
 
 const profileRoute = computed(() => ({
 	name: 'Profile',

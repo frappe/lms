@@ -1,10 +1,12 @@
 <template>
-	<FormShell :title="__('New Batch')" size="3xl" @close="close">
+	<FormShell
+		:title="__('New Batch')"
+		size="3xl"
+		:message="refusal"
+		@close="close"
+	>
 		<template #default>
-			<div v-if="!canCreateBatch" class="p-4 text-base text-ink-gray-6">
-				{{ __('You are not permitted to create a batch.') }}
-			</div>
-			<div v-else data-testid="new-batch-fields" class="text-base">
+			<div data-testid="new-batch-fields" class="text-base">
 				<div class="grid grid-cols-1 md:grid-cols-3 gap-5">
 					<FormControl
 						v-model="batch.title"
@@ -132,15 +134,13 @@
 			</div>
 		</template>
 		<template #actions>
-			<div v-if="canCreateBatch" class="flex items-center justify-end">
-				<HeaderButton
-					data-testid="new-batch-save"
-					:label="__('Create')"
-					variant="solid"
-					:loading="batches.insert.loading"
-					@click="saveBatch()"
-				/>
-			</div>
+			<HeaderButton
+				data-testid="new-batch-save"
+				:label="__('Create')"
+				variant="solid"
+				:loading="batches.insert.loading"
+				@click="saveBatch()"
+			/>
 		</template>
 	</FormShell>
 	<NewMemberModal
@@ -216,6 +216,10 @@ const canCreateBatch = computed(() => {
 	)
 })
 
+const refusal = computed(() =>
+	canCreateBatch.value ? null : __('You are not permitted to create a batch.')
+)
+
 type Batch = {
 	title: string
 	start_date: string | null
@@ -289,9 +293,7 @@ const saveBatch = () => {
 					hash: '#settings',
 				})
 				if (seesOnboarding(user.data)) {
-					updateOnboardingStep('create_first_batch', true, false, () => {
-						localStorage.setItem('firstBatch', data.name)
-					})
+					updateOnboardingStep('create_first_batch')
 				}
 			},
 			onError(err: FrappeResourceError) {
