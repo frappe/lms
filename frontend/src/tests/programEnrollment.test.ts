@@ -1,4 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { toast } from 'frappe-ui'
 import { enableAutoUnmount, flushPromises, mount } from '@vue/test-utils'
 import {
 	createMemoryHistory,
@@ -17,7 +18,7 @@ enableAutoUnmount(afterEach)
 // assignmentsCount.test.ts.
 String.prototype.format = function (this: string, ...args: unknown[]): string {
 	return this.replace(/{(\d+)}/g, (match, index) =>
-		args[Number(index)] === undefined ? match : String(args[Number(index)])
+		args[Number(index)] === undefined ? match : String(args[Number(index)]),
 	)
 }
 
@@ -54,7 +55,7 @@ vi.mock('@/components/HeaderButton.vue', () => ({
 
 vi.mock('frappe-ui', () => ({
 	createResource: createResourceMock,
-	toast: { success: toastSuccess, error: vi.fn() },
+	toast: { success: toastSuccess, error: vi.fn(), warning: vi.fn() },
 	Dialog: {
 		name: 'Dialog',
 		props: ['open', 'title', 'size'],
@@ -110,7 +111,7 @@ const student = { name: 'student@example.com', is_student: true }
 
 const mountPage = async (
 	router: Router,
-	user: Record<string, unknown> | null
+	user: Record<string, unknown> | null,
 ) => {
 	const wrapper = mount(defineComponent({ render: () => h(RouterView) }), {
 		global: {
@@ -175,12 +176,14 @@ describe('the program enrollment page', () => {
 		const wrapper = await mountPage(router, null)
 
 		expect(
-			wrapper.find('[data-testid="program-enrollment-summary"]').exists()
+			wrapper.find('[data-testid="program-enrollment-summary"]').exists(),
 		).toBe(false)
 		expect(
-			wrapper.find('[data-testid="program-enrollment-confirm"]').exists()
+			wrapper.find('[data-testid="program-enrollment-confirm"]').exists(),
 		).toBe(false)
-		expect(wrapper.html()).toContain('log in')
+		expect(vi.mocked(toast.warning)).toHaveBeenLastCalledWith(
+			expect.stringContaining('log in'),
+		)
 	})
 
 	it('refuses in read-only mode', async () => {
@@ -190,9 +193,11 @@ describe('the program enrollment page', () => {
 		const wrapper = await mountPage(router, student)
 
 		expect(
-			wrapper.find('[data-testid="program-enrollment-confirm"]').exists()
+			wrapper.find('[data-testid="program-enrollment-confirm"]').exists(),
 		).toBe(false)
-		expect(wrapper.html()).toContain('read-only')
+		expect(vi.mocked(toast.warning)).toHaveBeenLastCalledWith(
+			expect.stringContaining('read-only'),
+		)
 	})
 
 	it("surfaces the fetch's own refusal for a program the viewer may not see", async () => {
@@ -205,16 +210,18 @@ describe('the program enrollment page', () => {
 				messages: [
 					'You are not authorized to view the details of this program.',
 				],
-			}
+			},
 		)
 		const router = makeRouter()
 		await router.push('/programs/secret/enroll')
 		const wrapper = await mountPage(router, student)
 
 		expect(
-			wrapper.find('[data-testid="program-enrollment-confirm"]').exists()
+			wrapper.find('[data-testid="program-enrollment-confirm"]').exists(),
 		).toBe(false)
-		expect(wrapper.html()).toContain('not authorized')
+		expect(vi.mocked(toast.warning)).toHaveBeenLastCalledWith(
+			expect.stringContaining('not authorized'),
+		)
 	})
 
 	it('enrolls in the program named by the URL', async () => {
@@ -227,7 +234,7 @@ describe('the program enrollment page', () => {
 
 		expect(enrollSubmit).toHaveBeenCalledTimes(1)
 		const enrollCall = createResourceMock.mock.calls.find(
-			(call) => call[0].url === ENROLL_URL
+			(call) => call[0].url === ENROLL_URL,
 		)
 		expect(enrollCall?.[0].makeParams()).toEqual({ program: 'data-science' })
 	})
@@ -245,7 +252,7 @@ describe('the program enrollment page', () => {
 		const wrapper = await mountPage(router, student)
 		enrollSubmit.mockImplementation(
 			(_values: unknown, options: { onSuccess: () => void }) =>
-				options.onSuccess()
+				options.onSuccess(),
 		)
 		await wrapper
 			.find('[data-testid="program-enrollment-confirm"]')

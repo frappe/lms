@@ -34,9 +34,9 @@ const { callMock, createResourceMock, switchIds, toastMock } = vi.hoisted(
 	})
 =======
 			switchIds: { n: 0 },
-			toastMock: { success: vi.fn(), error: vi.fn() },
+			toastMock: { success: vi.fn(), error: vi.fn(), warning: vi.fn() },
 		}
-	}
+	},
 )
 >>>>>>> ffe35ba (test: drop mocked frontend tests that only pin wiring or markup)
 
@@ -88,7 +88,7 @@ vi.mock(
 			typeof import('@framework/ui/components/Onboarding/index')
 		>()),
 		useOnboarding: () => ({ updateOnboardingStep: vi.fn() }),
-	})
+	}),
 )
 vi.mock('@framework/ui/telemetry/index', async (importOriginal) => ({
 	...(await importOriginal<typeof import('@framework/ui/telemetry/index')>()),
@@ -143,7 +143,7 @@ const makeRouter = (): Router =>
 
 const mountForm = async (
 	router: Router,
-	user: Record<string, unknown> | null = moderator
+	user: Record<string, unknown> | null = moderator,
 ) => {
 	const wrapper = mount(defineComponent({ render: () => h(RouterView) }), {
 		global: {
@@ -190,8 +190,8 @@ describe('the member form route', () => {
 
 			expect(fields(wrapper).exists()).toBe(false)
 			expect(save(wrapper).exists()).toBe(false)
-			expect(wrapper.text()).toContain(
-				'You are not permitted to manage members.'
+			expect(toastMock.warning).toHaveBeenLastCalledWith(
+				expect.stringContaining('You are not permitted to manage members.'),
 			)
 		})
 
@@ -261,7 +261,7 @@ describe('the member form route', () => {
 			// and pages, so a member it happened not to return left this form with
 			// Save disabled forever and nothing on screen explaining it.
 			expect(createResourceMock.mock.calls[0][0].url).toBe(
-				'lms.lms.api.get_member'
+				'lms.lms.api.get_member',
 			)
 			expect(createResourceMock.mock.calls[0][0].makeParams()).toEqual({
 				member: MEMBER,
@@ -275,6 +275,7 @@ describe('the member form route', () => {
 			await flushPromises()
 
 			expect(save(wrapper).attributes('disabled')).toBeUndefined()
+<<<<<<< HEAD
 			expect(
 				wrapper.find('[data-testid="role-Student"]').attributes('data-on')
 			).toBe('true')
@@ -286,12 +287,23 @@ describe('the member form route', () => {
 			expect(
 				wrapper.find('[data-testid="role-Moderator"]').attributes('data-on')
 			).toBe('false')
+=======
+			expect(switchNamed(wrapper, 'Student').attributes('aria-checked')).toBe(
+				'true',
+			)
+			expect(
+				switchNamed(wrapper, 'Course Creator').attributes('aria-checked'),
+			).toBe('true')
+			expect(switchNamed(wrapper, 'Moderator').attributes('aria-checked')).toBe(
+				'false',
+			)
+>>>>>>> 3a1f127 (fix: show a modal's refusal as a toast and its loading as a centered spinner)
 			// The email is the route param, not something the parent handed over.
 			expect(
 				(
 					wrapper.find('[data-testid="field-Email"] input')
 						.element as HTMLInputElement
-				).value
+				).value,
 			).toBe(MEMBER)
 		})
 
@@ -359,7 +371,7 @@ describe('the member form route', () => {
 			const rows = wrapper.findAll('[data-testid="role-row"]')
 
 			expect(
-				rows.map((row) => row.get('[data-testid="switch-label"]').text())
+				rows.map((row) => row.get('[data-testid="switch-label"]').text()),
 			).toEqual(['Student', 'Course Creator', 'Evaluator', 'Moderator'])
 			for (const row of rows) {
 				expect(row.findAll('[data-testid="switch-label"]')).toHaveLength(1)

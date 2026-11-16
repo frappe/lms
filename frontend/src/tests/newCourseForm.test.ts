@@ -86,7 +86,7 @@ vi.mock('frappe-ui', () => ({
 		loading: false,
 	}),
 	call: vi.fn(),
-	toast: { success: vi.fn(), error: vi.fn() },
+	toast: { success: vi.fn(), error: vi.fn(), warning: vi.fn() },
 	Dialog: {
 		name: 'Dialog',
 		props: ['open', 'title', 'size'],
@@ -128,7 +128,7 @@ vi.mock(
 			typeof import('@framework/ui/components/Onboarding/index')
 		>()),
 		useOnboarding: () => ({ updateOnboardingStep: vi.fn() }),
-	})
+	}),
 )
 
 // The rich text editor drags in ProseMirror. A textarea that emits `change`
@@ -222,7 +222,7 @@ const fillRequired = async (wrapper: VueWrapper): Promise<void> => {
 // allowed to bubble, or the test would pass without exercising the guard.
 const pressCtrlS = (): void => {
 	document.body.dispatchEvent(
-		new KeyboardEvent('keydown', { key: 's', ctrlKey: true, bubbles: true })
+		new KeyboardEvent('keydown', { key: 's', ctrlKey: true, bubbles: true }),
 	)
 }
 
@@ -274,7 +274,7 @@ describe('NewCourseForm as a route', () => {
 		wrapper.unmount()
 
 		const closed = captureMock.mock.calls.find(
-			([event]) => event === 'course_form_closed'
+			([event]) => event === 'course_form_closed',
 		)
 		// The opener is prefilled as instructor; empty fields are left out.
 		expect(closed?.[1].filled_fields).toEqual(['title', 'instructors'])
@@ -286,9 +286,11 @@ describe('NewCourseForm as a route', () => {
 		await router.push({ name: 'NewCourse' })
 		const wrapper = await mountForm(router, student)
 		expect(wrapper.find('[data-testid="new-course-fields"]').exists()).toBe(
-			false
+			false,
 		)
-		expect(wrapper.html()).toContain('not permitted')
+		expect(vi.mocked(toast.warning)).toHaveBeenLastCalledWith(
+			expect.stringContaining('not permitted'),
+		)
 	})
 
 	it('ignores Ctrl+S for a user who cannot create courses', async () => {
@@ -328,7 +330,7 @@ describe('NewCourseForm as a route', () => {
 		await save()
 		expect(insertSubmit).not.toHaveBeenCalled()
 		expect(toast.error).toHaveBeenLastCalledWith(
-			'Add a Description before saving.'
+			'Add a Description before saving.',
 		)
 
 		// Control: the same form, completed, reaches the server.
@@ -414,7 +416,7 @@ describe('NewCourseForm as a route', () => {
 		insertSubmit.mockImplementation(
 			(_doc: unknown, options: { onSuccess: (d: unknown) => void }) => {
 				options.onSuccess({ name: 'COURSE-0001' })
-			}
+			},
 		)
 		await wrapper.find('[data-testid="new-course-save"]').trigger('click')
 		await flushPromises()
