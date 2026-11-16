@@ -11,12 +11,15 @@
 #   - Denounce with minus prefix: -username or -platform:username.
 #   - Optional details after a space following the handle.
 AryamanSharma14
+barredterra
 Bowrna
 bvnaik05
+dadsena01
 FawazAlhafiz
 frappe-pr-bot
 harshpwctech
 mergify[bot]
 Nagaraj-62
 NagariaHussain
+Rl0007
 sayali-fossist
