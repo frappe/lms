@@ -70,6 +70,7 @@
 				/>
 				<Button
 					v-else-if="!isAdmin"
+					:loading="enrolling"
 					@click="enrollStudent()"
 					variant="solid"
 					class="w-full mb-8"
@@ -84,6 +85,7 @@
 				</Button>
 				<Button
 					v-if="canGetCertificate"
+					:loading="certificate.loading"
 					@click="fetchCertificate()"
 					variant="subtle"
 					class="w-full mt-2"
@@ -149,7 +151,7 @@
 	</div>
 </template>
 <script setup lang="ts">
-import { computed, inject, watch } from 'vue'
+import { computed, inject, ref, watch } from 'vue'
 import { Alert, Button, call, createResource, toast } from 'frappe-ui'
 import type { FrappeResourceError } from 'frappe-ui'
 import { resourceErrorMessage } from '@/utils/resource'
@@ -158,6 +160,7 @@ import CertificationLinks from '@/components/CertificationLinks.vue'
 import ProgressBar from '@/components/ProgressBar.vue'
 import VideoPreview from '@/components/VideoPreview.vue'
 import { openExternal } from '@/utils/openExternal'
+import { redirectToLogin } from '@/utils/login'
 import type { CourseDetails, Resource, SessionUser } from '@/types'
 import { isInstructorOf } from '@/utils/instructors'
 
@@ -173,16 +176,20 @@ const props = withDefaults(
 	{}
 )
 
+const enrolling = ref(false)
+
 function enrollStudent() {
+	if (enrolling.value) return
 	if (!user.data) {
 		toast.warning(__('You need to login first to enroll for this course'))
 		setTimeout(() => {
-			window.location.href = `/login?redirect-to=${window.location.pathname}`
+			redirectToLogin()
 		}, 500)
 		return
 	}
 	const courseName = props.course.data?.name
 	if (!courseName) return
+	enrolling.value = true
 	call('frappe.client.insert', {
 		doc: {
 			doctype: 'LMS Enrollment',
@@ -204,6 +211,8 @@ function enrollStudent() {
 			}, 1000)
 		})
 		.catch((err: FrappeResourceError) => {
+			// Reset only on failure: success redirects after a delay.
+			enrolling.value = false
 			const msg = resourceErrorMessage(err, 'Error')
 			toast.warning(__(msg))
 			console.error(err)
@@ -296,6 +305,7 @@ const certificate = createResource({
 }) as Resource<{ name: string; template: string } | null>
 
 const fetchCertificate = () => {
+	if (certificate.loading) return
 	certificate.submit({
 		course: props.course.data?.name,
 		member: user.data?.name,

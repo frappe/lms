@@ -123,6 +123,7 @@
 							<Button
 								v-if="userIsEvaluator()"
 								variant="solid"
+								:loading="evaluationResource.loading"
 								@click="saveEvaluation()"
 							>
 								{{ __('Save') }}
@@ -164,6 +165,7 @@
 							<Button
 								v-if="userIsEvaluator()"
 								variant="solid"
+								:loading="certificateResource.loading"
 								@click="saveCertificate()"
 							>
 								{{ __('Save') }}
@@ -285,6 +287,7 @@ const evaluationDetails = createResource({
 })
 
 const saveEvaluation = () => {
+	if (evaluationResource.loading) return
 	evaluationResource.submit(
 		{},
 		{
@@ -351,6 +354,7 @@ const certificateDetails = createResource({
 })
 
 const saveCertificate = () => {
+	if (certificateResource.loading) return
 	certificateResource.submit(
 		{},
 		{

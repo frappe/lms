@@ -128,7 +128,7 @@
 		/>
 		<div v-if="!readOnlyMode" class="flex justify-between mt-2">
 			<span> </span>
-			<Button @click="postReply()">
+			<Button :loading="newReplyResource.loading" @click="postReply()">
 				<span>
 					{{ __('Post') }}
 				</span>
@@ -143,6 +143,7 @@ import UserAvatar from '@/components/UserAvatar.vue'
 import { ref, inject, onMounted, onUnmounted } from 'vue'
 import { useTelemetry } from '@framework/ui/telemetry/index'
 import RichTextEditor from '@/components/RichTextEditor.vue'
+import { submitResource } from '@/utils/resource'
 
 const showTopics = defineModel('showTopics')
 const newReply = ref('')
@@ -218,27 +219,35 @@ const fetchMentionUsers = () => {
 	)
 }
 
+const newReplyResource = createResource({ url: 'frappe.client.insert' })
+
 const postReply = () => {
+	if (newReplyResource.loading) return
 	if (!newReply.value) {
 		toast.error(__('Reply cannot be empty.'))
 		return
 	}
-	call('frappe.client.insert', {
-		doc: {
-			doctype: 'Discussion Reply',
-			reply: newReply.value,
-			topic: props.topic.name,
+	submitResource(
+		newReplyResource,
+		{
+			doc: {
+				doctype: 'Discussion Reply',
+				reply: newReply.value,
+				topic: props.topic.name,
+			},
 		},
-	})
-		.then((data) => {
-			newReply.value = ''
-			replies.reload()
-			capture('discussion_reply_created')
-		})
-		.catch((err) => {
-			toast.error(err.messages?.[0] || err)
-			console.error(err)
-		})
+		{
+			onSuccess() {
+				newReply.value = ''
+				replies.reload()
+				capture('discussion_reply_created')
+			},
+			onError(err) {
+				toast.error(err.messages?.[0] || err)
+				console.error(err)
+			},
+		}
+	)
 }
 
 const postEdited = (reply) => {

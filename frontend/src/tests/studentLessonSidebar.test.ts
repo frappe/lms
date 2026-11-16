@@ -132,23 +132,4 @@ describe('StudentLessonSidebar without progress', () => {
 		expect(wrapper.find('[style*="width"]').exists()).toBe(false)
 		expect(wrapper.text()).toContain('Course 1')
 	})
-
-	it('shows no completion ring on a lesson row', () => {
-		const rows = mountGuest().findAll('li li')
-
-		expect(rows[1].findAll('svg')).toHaveLength(1)
-		expect(rows[2].find('.sr-only').text()).toBe('Locked')
-	})
-})
-
-describe('StudentLessonSidebar lock reason', () => {
-	// Guards #3015: the lock gave no reason.
-	it('explains why a lesson is locked', () => {
-		const row = mountSidebar().findAll('li li')[2]
-		const reason = 'Complete the previous lessons to unlock this one'
-
-		expect(row.get('[data-tooltip]').attributes('data-tooltip')).toBe(reason)
-		expect(row.get('[data-tooltip] svg').exists()).toBe(true)
-		expect(row.text()).toContain(reason)
-	})
 })

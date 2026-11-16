@@ -865,7 +865,20 @@ export const canCreateCourse = () => {
 // EditorJS/frappe-ui import chain. Re-exported here for existing callers.
 export { enablePlyr } from './plyr'
 
+// Enter and the Create button both reach this; a second call for the same name
+// while the first is in flight shares it instead of inserting a duplicate.
+const creatingCategories = new Map()
+
 export const createLMSCategory = (name) => {
+	if (creatingCategories.has(name)) return creatingCategories.get(name)
+	const creating = insertCategory(name).finally(() =>
+		creatingCategories.delete(name)
+	)
+	creatingCategories.set(name, creating)
+	return creating
+}
+
+const insertCategory = (name) => {
 	return call('frappe.client.insert', {
 		doc: {
 			doctype: 'LMS Category',

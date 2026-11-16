@@ -35,6 +35,29 @@
 			>
 				{{ readOnlyNotice }}
 			</div>
+			<template v-if="!isLoggedIn">
+				<SidebarItem
+					v-if="sidebarStore.isSidebarCollapsed"
+					:label="__('Log in')"
+					icon="lucide-log-in"
+					:active="false"
+					:onClick="() => redirectToLogin()"
+				/>
+				<SidebarCard
+					v-else
+					data-testid="sidebar-log-in"
+					:title="__('Log in')"
+					:description="
+						__('Log in or sign up to enroll and keep track of your progress.')
+					"
+					icon="lucide-log-in"
+					:action="{
+						label: __('Log in'),
+						variant: 'solid',
+						onClick: () => redirectToLogin(),
+					}"
+				/>
+			</template>
 			<template v-if="isStudent && !profileIsComplete">
 				<SidebarItem
 					v-if="sidebarStore.isSidebarCollapsed"
@@ -125,7 +148,10 @@
 <script setup>
 import { getSidebarLinks } from '@/utils'
 import { usersStore } from '@/stores/user'
+import { storeToRefs } from 'pinia'
+import { sessionStore } from '@/stores/session'
 import { seesOnboarding } from '@/utils/onboarding'
+import { redirectToLogin } from '@/utils/login'
 import { useSidebar } from '@/stores/sidebar'
 import { useSettings } from '@/stores/settings'
 import {
@@ -492,6 +518,8 @@ const updateSidebarLinks = () => {
 const isStudent = computed(() => {
 	return userResource.data?.is_student
 })
+
+const { isLoggedIn } = storeToRefs(sessionStore())
 
 const profileRoute = computed(() => ({
 	name: 'Profile',

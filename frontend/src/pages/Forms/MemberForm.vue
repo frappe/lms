@@ -2,13 +2,11 @@
 	<FormShell
 		:title="isEdit ? __('Edit Member') : __('New Member')"
 		size="lg"
+		:message="refusal"
 		@close="close"
 	>
 		<template #default>
-			<div v-if="refusal" class="p-4 text-base text-ink-gray-6">
-				{{ refusal }}
-			</div>
-			<div v-else data-testid="member-fields" class="space-y-4">
+			<div data-testid="member-fields" class="space-y-4">
 				<FormControl
 					v-model="member.email"
 					:label="__('Email')"
@@ -46,16 +44,14 @@
 			</div>
 		</template>
 		<template #actions>
-			<div v-if="!refusal" class="flex items-center justify-end">
-				<HeaderButton
-					data-testid="member-save"
-					:label="isEdit ? __('Save') : __('Create')"
-					variant="solid"
-					:loading="submitting"
-					:disabled="isEdit && !memberRow"
-					@click="submit()"
-				/>
-			</div>
+			<HeaderButton
+				data-testid="member-save"
+				:label="isEdit ? __('Save') : __('Create')"
+				variant="solid"
+				:loading="submitting"
+				:disabled="isEdit && !memberRow"
+				@click="submit()"
+			/>
 		</template>
 	</FormShell>
 </template>

@@ -1,5 +1,6 @@
 """API methods for the LMS."""
 
+import hashlib
 import json
 import os
 import re
@@ -2078,22 +2079,37 @@ def get_batch_members(batch: str) -> list[str]:
 def send_batch_announcement(batch: str, subject: str, content: str, reply_to: str):
 	"""BCC every student of the batch. Their addresses are looked up here, so the
 	author never holds them."""
-	from frappe.core.doctype.communication.email import make
-
 	for value in (batch, subject, content, reply_to):
 		if not isinstance(value, str):
 			frappe.throw(_("Batch, subject, content and reply-to must be strings."))
 
 	frappe.has_permission("LMS Batch", "email", doc=batch, throw=True)
-	students = get_batch_members(batch)
-	if not students:
+	if not get_batch_members(batch):
 		frappe.throw(_("No students in this batch"))
 
-	return make(
+	# Queued: saving the Communication for a large batch outlasts the proxy timeout.
+	digest = hashlib.sha256(f"{subject}\n{content}".encode()).hexdigest()[:16]
+	frappe.enqueue(
+		_send_batch_announcement,
+		queue="long",
+		job_id=f"lms-batch-announcement-{batch}-{digest}",
+		deduplicate=True,
+		now=frappe.in_test,
+		batch=batch,
+		subject=subject,
+		content=content,
+		reply_to=reply_to,
+	)
+
+
+def _send_batch_announcement(batch: str, subject: str, content: str, reply_to: str):
+	from frappe.core.doctype.communication.email import make
+
+	make(
 		doctype="LMS Batch",
 		name=batch,
 		recipients=reply_to,
-		bcc=", ".join(students),
+		bcc=", ".join(get_batch_members(batch)),
 		subject=subject,
 		content=content,
 		send_email=1,

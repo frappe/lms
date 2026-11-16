@@ -1,6 +1,7 @@
 <template>
+	<template v-if="refusing" />
 	<Dialog
-		v-if="!isMobile"
+		v-else-if="!isMobile"
 		:open="true"
 		:title="title"
 		:size="size"
@@ -29,10 +30,13 @@
 						: 'max-h-[calc(100dvh-17rem)]'
 				"
 			>
-				<slot />
+				<slot v-if="loading" name="loading">
+					<ModalLoading :class="statusClass" />
+				</slot>
+				<slot v-else />
 			</div>
 		</template>
-		<template #actions>
+		<template v-if="!loading" #actions>
 			<div class="flex justify-end gap-2">
 				<slot name="actions" />
 			</div>
@@ -75,7 +79,7 @@
 						class="ms-auto flex shrink-0 items-center gap-2"
 					>
 						<slot name="header-action" />
-						<slot name="actions" />
+						<slot v-if="!loading" name="actions" />
 					</div>
 				</header>
 
@@ -83,7 +87,10 @@
 					data-testid="form-shell-body"
 					class="flex-1 overflow-y-auto overscroll-contain px-5 py-4"
 				>
-					<slot />
+					<slot v-if="loading" name="loading">
+						<ModalLoading class="h-full" :class="statusClass" />
+					</slot>
+					<slot v-else />
 				</div>
 			</div>
 		</Transition>
@@ -97,13 +104,22 @@
 // desktop. Pass HeaderButton, never a bare frappe-ui Button — Button.vue only
 // applies square icon-button sizing when the slot's vnode type name starts with
 // `lucide-`, which a plain `<span class="lucide-save">` does not satisfy.
-import { Dialog } from 'frappe-ui'
+import { Dialog, toast } from 'frappe-ui'
 import type { DialogPosition, DialogSize } from 'frappe-ui'
-import { nextTick, onBeforeUnmount, onMounted, ref, useId, watch } from 'vue'
+import {
+	computed,
+	nextTick,
+	onBeforeUnmount,
+	onMounted,
+	ref,
+	useId,
+	watch,
+} from 'vue'
 import { useEventListener, useMediaQuery } from '@vueuse/core'
 import { useScreenSize } from '@/utils/composables'
 import { useInertBackground } from '@/composables/useInertBackground'
 import { focusedElementOwnsLayer, trapTab } from '@/composables/useFocusTrap'
+import ModalLoading from '@/components/ModalLoading.vue'
 
 // The transition wraps the teleported node and must never move onto
 // <router-view>: a transform on any ancestor would establish a containing block
@@ -115,19 +131,44 @@ const reduceMotion = useMediaQuery('(prefers-reduced-motion: reduce)')
 
 // `position="top"` keeps a form whose height changes (a message appearing above
 // Save) from shifting the whole dialog, as a centred one does.
-withDefaults(
+//
+// `loading` replaces the fields with one centred spinner and hides the
+// actions. A form can pass a skeleton in the `loading` slot instead.
+// `message` is why the form can't be used ("not permitted", "no students"): it
+// shows as a toast and the form closes without opening. Loading wins, so a
+// refusal that reads data still loading waits for it.
+// `statusClass` sizes the spinner box for a form whose body has a fixed height.
+const props = withDefaults(
 	defineProps<{
 		title: string
 		size?: DialogSize
 		position?: DialogPosition
+		loading?: boolean
+		message?: string | null
+		statusClass?: string
 	}>(),
 	{
 		size: '3xl',
 		position: 'center',
+		loading: false,
+		message: null,
+		statusClass: '',
 	}
 )
 
 const emit = defineEmits<{ close: [] }>()
+
+const refusing = computed(() => !props.loading && Boolean(props.message))
+
+watch(
+	refusing,
+	(isRefusing) => {
+		if (!isRefusing) return
+		toast.warning(props.message as string)
+		emit('close')
+	},
+	{ immediate: true }
+)
 const { isMobile } = useScreenSize()
 const titleId = useId()
 const pageRef = ref<HTMLElement | null>(null)
@@ -138,7 +179,7 @@ const pageRef = ref<HTMLElement | null>(null)
 // the a11y tree, find-in-page and pointer hit-testing, none of which a keydown
 // handler can do. `aria-modal` stays too — it is what makes a screen reader
 // announce this as a modal dialog, which inert does not.
-useInertBackground(isMobile)
+useInertBackground(computed(() => isMobile.value && !refusing.value))
 
 // The desktop Dialog owns its own dismiss affordances (Escape, backdrop, the
 // header X); the route is the single source of truth for whether we are open.

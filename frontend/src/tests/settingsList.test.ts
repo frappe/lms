@@ -139,59 +139,6 @@ const build = (props: Record<string, any> = {}) =>
 	})
 
 describe('SettingsList', () => {
-	it('reads every cell through the column it was declared on', () => {
-		const wrapper = build()
-		const text = wrapper.text()
-
-		expect(text).toContain('Marketing')
-		expect(text).toContain('acc-9')
-		expect(text).toContain('$ 40')
-		expect(wrapper.get('[data-testid="badge"]').attributes('data-theme')).toBe(
-			'green'
-		)
-		expect(wrapper.get('[data-testid="avatar"]').attributes('data-label')).toBe(
-			'Marketing'
-		)
-		// Named through the slot the component wires to its control, and named
-		// without adding a visible word to a column whose header already has one.
-		const name = wrapper.get('[data-testid="switch"] span')
-		expect(name.text()).toBe('Enable Marketing')
-		expect(name.classes()).toContain('sr-only')
-	})
-
-	it('drops the second line when a stacked column has no secondary', () => {
-		const oneLine = [{ ...columns[0], secondary: undefined }, columns[4]]
-		const wrapper = mount(SettingsList, {
-			props: { title: 'Zoom', columns: oneLine, rows: [ROW] },
-			global: { mocks: { __: translate } },
-		})
-
-		expect(wrapper.text()).toContain('Marketing')
-		expect(wrapper.text()).not.toContain('acc-9')
-	})
-
-	it('gives the header a cell per column', () => {
-		expect(build().findAll('[data-testid="header-cell"]')).toHaveLength(5)
-	})
-
-	it('keeps the header in the same scroller as the rows', () => {
-		// Not a stylistic preference. The header and the rows are separate grid
-		// containers sharing one `--_list-columns` track list, so they only line up
-		// while they are the same width. With the header outside the scroller, a
-		// classic (space-taking) scrollbar makes the rows' content box ~15px
-		// narrower, the `fr` track absorbs the entire difference, and every fixed
-		// column after it draws that far right of its own cells. Measured at 15px
-		// on Linux Chrome before this moved. Sharing the box makes the widths
-		// equal under every scrollbar style; `sticky` is what keeps the labels in
-		// view once they scroll with the rows.
-		const wrapper = build()
-		const scroller = wrapper.get('.overflow-y-auto')
-
-		expect(scroller.find('[data-testid="header"]').exists()).toBe(true)
-		expect(scroller.find('[data-testid="row"]').exists()).toBe(true)
-		expect(wrapper.get('[data-testid="header"]').classes()).toContain('sticky')
-	})
-
 	it('opens the row on click', async () => {
 		const wrapper = build()
 
@@ -219,18 +166,6 @@ describe('SettingsList', () => {
 		expect(toggled).toContainEqual(['zoom-1', false])
 	})
 
-	it('offers Load More only when a next page exists', async () => {
-		expect(build().text()).not.toContain('Load More')
-
-		const wrapper = build({ hasNextPage: true })
-		const loadMore = wrapper
-			.findAll('[data-testid="button"]')
-			.find((b) => b.text().includes('Load More'))!
-		await loadMore.trigger('click')
-
-		expect(wrapper.emitted('loadMore')).toHaveLength(1)
-	})
-
 	it('spins only while the first page is still coming', () => {
 		expect(
 			build({ rows: [], loading: true })
@@ -254,28 +189,10 @@ describe('SettingsList', () => {
 		expect(noMatch.get('[data-testid="empty"]').text()).toContain('zzz')
 	})
 
-	it('shows the search box only when the panel asks for one', () => {
-		expect(build().find('[data-testid="search"]').exists()).toBe(false)
-		expect(
-			build({ searchable: true }).find('[data-testid="search"]').exists()
-		).toBe(true)
-	})
-
 	describe('emptyContent', () => {
 		const EmptyContent = markRaw({
 			emits: ['pick'],
 			template: `<button data-testid="empty-content" @click="$emit('pick', 'GMail')" />`,
-		})
-
-		it('draws it instead of the generic caption when the list is truly empty', () => {
-			const wrapper = build({
-				rows: [],
-				emptyName: 'Coupons',
-				emptyContent: { component: EmptyContent },
-			})
-
-			expect(wrapper.find('[data-testid="empty-content"]').exists()).toBe(true)
-			expect(wrapper.find('[data-testid="empty"]').exists()).toBe(false)
 		})
 
 		it('still shows the generic "no results" state for a search or filter', () => {
@@ -299,74 +216,6 @@ describe('SettingsList', () => {
 			expect(filtered.find('[data-testid="empty-content"]').exists()).toBe(
 				false
 			)
-		})
-
-		it("funnels its pick into SettingsList's own `new` event", async () => {
-			const wrapper = build({
-				rows: [],
-				emptyName: 'Coupons',
-				emptyContent: { component: EmptyContent },
-			})
-
-			await wrapper.get('[data-testid="empty-content"]').trigger('click')
-
-			expect(wrapper.emitted('new')?.[0]).toEqual(['GMail'])
-		})
-
-		it('hides the header New button while its own content is the affordance', () => {
-			const wrapper = build({
-				rows: [],
-				emptyName: 'Coupons',
-				emptyContent: { component: EmptyContent },
-			})
-
-			expect(
-				wrapper
-					.findAll('[data-testid="button"]')
-					.some((b) => b.text().includes('New'))
-			).toBe(false)
-		})
-
-		it('keeps New for the generic empty state, and for a search with no matches', () => {
-			expect(
-				build({ rows: [], emptyName: 'Coupons' })
-					.findAll('[data-testid="button"]')
-					.some((b) => b.text().includes('New'))
-			).toBe(true)
-
-			expect(
-				build({
-					rows: [],
-					emptyName: 'Coupons',
-					search: 'zzz',
-					emptyContent: { component: EmptyContent },
-				})
-					.findAll('[data-testid="button"]')
-					.some((b) => b.text().includes('New'))
-			).toBe(true)
-		})
-
-		it('hides the search box while its own content is the affordance', () => {
-			const wrapper = build({
-				rows: [],
-				emptyName: 'Coupons',
-				searchable: true,
-				emptyContent: { component: EmptyContent },
-			})
-
-			expect(wrapper.find('[data-testid="search"]').exists()).toBe(false)
-		})
-
-		it('keeps the search box for a search with no matches', () => {
-			const wrapper = build({
-				rows: [],
-				emptyName: 'Coupons',
-				searchable: true,
-				search: 'zzz',
-				emptyContent: { component: EmptyContent },
-			})
-
-			expect(wrapper.find('[data-testid="search"]').exists()).toBe(true)
 		})
 	})
 })

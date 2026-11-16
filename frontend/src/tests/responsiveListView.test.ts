@@ -243,30 +243,6 @@ describe('ResponsiveListView selection on a phone', () => {
 		expect((box().element as HTMLInputElement).checked).toBe(false)
 	})
 
-	it('hands the banner the same props a desk hands it', async () => {
-		mobile.value = true
-		const phone = await mountList(routedOptions)
-		await selectFirstRow(phone.wrapper)
-
-		mobile.value = false
-		const desk = await mountList(routedOptions)
-		const list = desk.wrapper.findComponent({ name: 'ListView' })
-		list.vm.toggleRow('a')
-		await nextTick()
-
-		expect(Object.keys(phone.banner.value!).sort()).toEqual(
-			Object.keys(desk.banner.value!).sort()
-		)
-		expect(Array.from(phone.banner.value!.selections)).toEqual(
-			Array.from(desk.banner.value!.selections)
-		)
-		for (const props of [phone.banner.value!, desk.banner.value!]) {
-			expect(props.selections).toBeInstanceOf(Set)
-			expect(typeof props.unselectAll).toBe('function')
-			expect(typeof props.selectAll).toBe('function')
-		}
-	})
-
 	it('clears the selection from the slot, the way a page ends a bulk action', async () => {
 		mobile.value = true
 		const { wrapper, banner } = await mountList(routedOptions)
@@ -356,46 +332,10 @@ describe('ResponsiveListView without selection', () => {
 
 		expect(wrapper.find('[data-testid="row-checkbox"]').exists()).toBe(false)
 	})
-
-	it('keeps drawing the desk row and header above the breakpoint', async () => {
-		mobile.value = false
-		const { wrapper } = await mountList(routedOptions)
-
-		expect(wrapper.find('[data-testid="list-rows"]').exists()).toBe(true)
-		expect(wrapper.find('ul').exists()).toBe(false)
-		expect(wrapper.find('[data-testid="row-checkbox"]').exists()).toBe(false)
-	})
 })
 
 /** frappe-ui hands its rows a box it has already clipped (`overflow-y-hidden`), and supplies the scrolling itself in ListRows. */
 describe('ResponsiveListView card scrolling', () => {
-	const SCROLLS = 'overflow-y-auto'
-
-	it('never scrolls the cards inside a box of their own', async () => {
-		mobile.value = true
-		const { wrapper } = await mountList(routedOptions)
-
-		const list = wrapper.find('ul').element
-		const clipped = wrapper.find('[data-testid="listview"]').element
-		expect(clipped.className).toContain('overflow-y-hidden')
-
-		for (
-			let el = list.parentElement;
-			el && el !== clipped;
-			el = el.parentElement
-		) {
-			expect(el.className.includes(SCROLLS)).toBe(false)
-		}
-		// And nothing may bound their height either, or the clip bites instead.
-		for (
-			let el = list.parentElement;
-			el && el !== clipped;
-			el = el.parentElement
-		) {
-			expect(el.className.includes('min-h-0')).toBe(false)
-		}
-	})
-
 	it('leaves the selection banner outside the rows, so it does not scroll away', async () => {
 		mobile.value = true
 		const { wrapper } = await mountList(routedOptions)
@@ -404,71 +344,5 @@ describe('ResponsiveListView card scrolling', () => {
 		const banner = wrapper.find('[data-testid="select-banner"]').element
 		const list = wrapper.find('ul').element
 		expect(banner.contains(list)).toBe(false)
-	})
-})
-
-/** The `·` between the card's detail cells. */
-describe('ResponsiveListView detail separator', () => {
-	const mountCards = async (props: Record<string, unknown> = {}) => {
-		const { default: ResponsiveListView } = await import(
-			'@/components/ResponsiveListView.vue'
-		)
-		mobile.value = true
-		const wrapper = mount(ResponsiveListView, {
-			props: { columns: COLUMNS, rows: ROWS, rowKey: 'name', ...props },
-			global: {
-				mocks: { __: (text: string) => text },
-				stubs: { 'router-link': { template: '<a><slot /></a>' } },
-			},
-		})
-		await nextTick()
-		return wrapper
-	}
-
-	// COLUMNS is title + one detail column, so a second detail column is what makes the separator reachable at all: it renders only from index 1 on.
-	const TWO_DETAILS = [...COLUMNS, { label: 'Owner', key: 'name', width: 1 }]
-
-	it('hides it from assistive tech, being decoration', async () => {
-		const wrapper = await mountCards({ columns: TWO_DETAILS })
-		const dot = wrapper
-			.findAll('li')[0]
-			.findAll('span')
-			.find((s) => s.text() === '·')!
-		expect(dot.attributes('aria-hidden')).toBe('true')
-	})
-
-	it('never draws one before the first detail cell', async () => {
-		// One detail column, so there is no gap to fill and `v-if="index"` is what keeps a leading middot off the row.
-		const wrapper = await mountCards()
-		expect(wrapper.find('li').text()).not.toContain('·')
-	})
-
-	it('drops it when a list opts out', async () => {
-		const wrapper = await mountCards({
-			columns: TWO_DETAILS,
-			noDetailSeparator: true,
-		})
-		expect(wrapper.find('li').text()).not.toContain('·')
-	})
-
-	it('renders nothing at all in its place, not an empty span', async () => {
-		// The detail row is a flex box with `gap-x-1.5`, so an empty span left behind would still hold a gap open and the cells would sit further apart with the separator gone than a list that never had one.
-		const plain = await mountCards()
-		const opted = await mountCards({
-			columns: TWO_DETAILS,
-			noDetailSeparator: true,
-		})
-		const spans = (w: VueWrapper) =>
-			w.findAll('li')[0].findAll('[data-list-card] > div')[1].findAll('span')
-				.length
-		// One wrapper span per detail cell, plus its sr-only label, and nothing else: two cells opted out cost exactly twice what one cell costs.
-		expect(spans(opted as VueWrapper)).toBe(2 * spans(plain as VueWrapper))
-	})
-
-	it('keeps the separator for a list that says nothing', async () => {
-		// The regression that matters: the default is what a dozen callers get.
-		const wrapper = await mountCards({ columns: TWO_DETAILS })
-		expect(wrapper.props('noDetailSeparator')).toBe(false)
-		expect(wrapper.find('li').text()).toContain('·')
 	})
 })

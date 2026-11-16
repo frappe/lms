@@ -1,12 +1,7 @@
 <template>
 	<Dialog v-model:open="show" size="xl" bare>
 		<template #default>
-			<div
-				v-if="studentDetails.loading && !studentDetails.data"
-				class="flex items-center justify-center py-12"
-			>
-				<LoadingIndicator class="size-4" />
-			</div>
+			<ModalLoading v-if="studentDetails.loading && !studentDetails.data" />
 			<div v-else-if="studentDetails.data" class="p-5 space-y-10 text-sm">
 				<div class="flex items-center gap-x-4">
 					<Avatar :image="studentDetails.data.user_image" size="3xl" />
@@ -73,13 +68,8 @@
 	</Dialog>
 </template>
 <script setup lang="ts">
-import {
-	Avatar,
-	Badge,
-	createResource,
-	Dialog,
-	LoadingIndicator,
-} from 'frappe-ui'
+import ModalLoading from '@/components/ModalLoading.vue'
+import { Avatar, Badge, createResource, Dialog } from 'frappe-ui'
 import { computed } from 'vue'
 import { useRouter } from 'vue-router'
 import ProgressBar from '@/components/ProgressBar.vue'

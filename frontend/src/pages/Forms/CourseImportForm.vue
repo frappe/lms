@@ -1,10 +1,12 @@
 <template>
-	<FormShell :title="__('Import Course from ZIP')" size="lg" @close="close">
+	<FormShell
+		:title="__('Import Course from ZIP')"
+		size="lg"
+		:message="refusal"
+		@close="close"
+	>
 		<template #default>
-			<div v-if="!canCreate" class="p-4 text-base text-ink-gray-6">
-				{{ __('You are not permitted to create a course.') }}
-			</div>
-			<div v-else data-testid="course-import-fields" class="text-p-base">
+			<div data-testid="course-import-fields" class="text-p-base">
 				<div
 					v-if="!zip"
 					@dragover.prevent
@@ -81,14 +83,13 @@
 			</div>
 		</template>
 		<template #actions>
-			<div v-if="canCreate" class="flex items-center justify-end">
-				<HeaderButton
-					data-testid="course-import-submit"
-					:label="__('Import')"
-					variant="solid"
-					@click="importZip"
-				/>
-			</div>
+			<HeaderButton
+				data-testid="course-import-submit"
+				:label="__('Import')"
+				variant="solid"
+				:loading="courseImport.loading"
+				@click="importZip"
+			/>
 		</template>
 	</FormShell>
 </template>
@@ -96,7 +97,7 @@
 // `size="lg"` is stated because it is frappe-ui's Dialog default
 // (Dialog.vue:260), which is what this rendered at before it had a URL, while
 // FormShell defaults to 3xl. Without it the desktop dialog changes width.
-import { call, FileUploadHandler, toast } from 'frappe-ui'
+import { createResource, FileUploadHandler, toast } from 'frappe-ui'
 import { computed, ref } from 'vue'
 import FormShell from '@/components/FormShell.vue'
 import HeaderButton from '@/components/HeaderButton.vue'
@@ -105,7 +106,7 @@ import { useFormRoute } from '@/composables/useFormRoute'
 // as composables/useKeyboardShortcuts.ts:3. Without this the import raises a
 // fresh TS7016 and pushes vue-tsc past its baseline.
 import { canCreateCourse } from '@/utils'
-import { resourceErrorMessage } from '@/utils/resource'
+import { resourceErrorMessage, submitResource } from '@/utils/resource'
 
 const fileInput = ref<HTMLInputElement | null>(null)
 const zip = ref<any | null>(null)
@@ -121,6 +122,10 @@ const { close, saveAndReplace } = useFormRoute({ name: 'Courses' })
 // here. UX gate only — lms.lms.api.import_course_from_zip's own server-side
 // permission check is the authorization boundary.
 const canCreate = computed(() => canCreateCourse())
+
+const refusal = computed(() =>
+	canCreate.value ? null : __('You are not permitted to create a course.')
+)
 
 const openFileSelector = () => {
 	fileInput.value?.click()
@@ -192,41 +197,40 @@ const uploadFile = (e: Event) => {
 		})
 }
 
+const courseImport = createResource({
+	url: 'lms.lms.api.import_course_from_zip',
+})
+
 const importZip = () => {
-	if (!canCreate.value) return
+	if (!canCreate.value || courseImport.loading) return
 	if (!zip.value) return
-	call('lms.lms.api.import_course_from_zip', {
-		zip_file_path: zip.value.file_url,
-	})
-		.then((data: any) => {
-			toast.success('Course imported successfully!')
-			deleteFile()
-			// replace, not push: the form's history entry is consumed so Back
-			// reaches the list rather than a stale, empty import form.
-			saveAndReplace({
-				name: 'CourseDetail',
-				params: { courseName: data },
-			})
-		})
-		.catch((error: any) => {
-			// call() builds error.message as "<method> <exc_type>" and puts the
-			// server's own messages in error.messages. Reporting the former shows
-			// "...import_course_from_zip ValidationError" and hides the reason the
-			// archive was rejected, which is the only actionable part.
-			//
-			// Via resourceErrorMessage rather than messages[0] directly: call()
-			// never leaves `messages` empty — with nothing from the server it
-			// substitutes the untranslated "Internal Server Error" — so a plain
-			// nullish check would treat that placeholder as a real message and
-			// make this fallback unreachable.
-			toast.error(
-				resourceErrorMessage(
-					error,
-					__('Error importing course') + ': ' + error.message
+	submitResource(
+		courseImport,
+		{ zip_file_path: zip.value.file_url },
+		{
+			onSuccess(data: any) {
+				toast.success(__('Course imported successfully'))
+				deleteFile()
+				// replace, not push: the form's history entry is consumed so Back
+				// reaches the list rather than a stale, empty import form.
+				saveAndReplace({
+					name: 'CourseDetail',
+					params: { courseName: data },
+				})
+			},
+			onError(error: any) {
+				// error.message is "<method> <exc_type>"; the reason is in
+				// error.messages, so go through resourceErrorMessage.
+				toast.error(
+					resourceErrorMessage(
+						error,
+						__('Error importing course') + ': ' + error.message
+					)
 				)
-			)
-			console.error('Error importing course:', error)
-		})
+				console.error('Error importing course:', error)
+			},
+		}
+	)
 }
 
 const deleteFile = () => {

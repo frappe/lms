@@ -98,6 +98,7 @@
 						hasSeatsLeft &&
 						batch.data.accept_enrollments
 					"
+					:loading="enroll.loading"
 					@click="enrollInBatch()"
 				>
 					<template #prefix>
@@ -133,6 +134,7 @@ import {
 	getFormattedDateRange,
 } from '@/utils'
 import { formatTimezone, nextOccurrence } from '@/utils/timezone'
+import { redirectToLogin } from '@/utils/login'
 import VideoPreview from '@/components/VideoPreview.vue'
 
 const user = inject('$user')
@@ -155,8 +157,9 @@ const enroll = createResource({
 })
 
 const enrollInBatch = () => {
+	if (enroll.loading) return
 	if (!user.data) {
-		window.location.href = `/login?redirect-to=${window.location.pathname}`
+		redirectToLogin()
 		return
 	}
 	enroll.submit(

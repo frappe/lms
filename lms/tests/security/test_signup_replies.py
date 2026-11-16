@@ -29,9 +29,15 @@ class TestSignupReplies(BaseTestUtils):
 
 	def setUp(self):
 		super().setUp()
-		frappe.db.set_single_value("Website Settings", "disable_signup", 0)
-		frappe.clear_document_cache("Website Settings", "Website Settings")
+		self._set_signup_disabled(0)
 		frappe.set_user("Guest")
+
+	def _set_signup_disabled(self, value):
+		frappe.db.set_single_value("Website Settings", "disable_signup", value)
+		frappe.clear_document_cache("Website Settings", "Website Settings")
+		# get_website_settings keeps its own copy for the life of the process.
+		if hasattr(frappe.local, "website_settings"):
+			del frappe.local.website_settings
 
 	def _sign_up(self, email):
 		return sign_up(email, "Some One", True, "")
@@ -90,8 +96,7 @@ class TestSignupReplies(BaseTestUtils):
 			lookup.assert_not_called()
 
 	def test_sign_up_refused_when_disabled(self):
-		frappe.db.set_single_value("Website Settings", "disable_signup", 1)
-		frappe.clear_document_cache("Website Settings", "Website Settings")
+		self._set_signup_disabled(1)
 		with self.assertRaises(frappe.ValidationError):
 			self._sign_up(f"su-off-{self.hash}@example.com")
 
