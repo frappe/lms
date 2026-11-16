@@ -100,6 +100,7 @@
 
 			<BlockEditor
 				ref="editor"
+				class="!mx-0"
 				:uploadContext="contentUploadContext"
 				@change="markDirty"
 			/>
