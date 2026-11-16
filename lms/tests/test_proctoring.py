@@ -23,6 +23,8 @@ from frappe.utils import add_to_date, convert_utc_to_system_timezone, get_dateti
 
 from lms.lms.doctype.lms_quiz.lms_quiz import (
 	MAX_VIOLATION_EVENTS,
+	MAX_VIOLATION_FRAMES,
+	_attach_violation_frames,
 	_normalise_violation_events,
 	_save_violation_events,
 	get_quiz_violation_logs,
@@ -249,6 +251,14 @@ class TestViolationEventNormalization(unittest.TestCase):
 			]
 		)
 		self.assertCountEqual([e["event_type"] for e in events], valid_types)
+
+	def test_only_the_frame_cap_is_attached(self):
+		events = [{"frame": f"data:image/jpeg;base64,frame-{i}"} for i in range(MAX_VIOLATION_FRAMES + 3)]
+		with patch(
+			"lms.lms.doctype.lms_quiz.lms_quiz._save_violation_frame", return_value=True
+		) as save_frame:
+			_attach_violation_frames([f"log-{i}" for i in range(len(events))], events)
+		self.assertEqual(save_frame.call_count, MAX_VIOLATION_FRAMES)
 
 
 # ---------------------------------------------------------------------------

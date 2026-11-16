@@ -65,8 +65,9 @@ MAX_VIOLATION_EVENTS = 500
 MAX_VIOLATION_FRAME_CHARS = 400_000
 MAX_VIOLATION_FRAME_BYTES = 250 * 1024
 # Per attempt, not per event: an attempt that trips two hundred times does not need two
-# hundred stills to show what happened.
-MAX_VIOLATION_FRAMES = 40
+# hundred stills to show what happened. Two keep the submission payload small enough to
+# post in one request; the frontend also sends at most this many.
+MAX_VIOLATION_FRAMES = 2
 
 
 class LMSQuiz(RenamableAssessment, AuthoredDocument, Document):
