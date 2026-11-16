@@ -16,7 +16,7 @@ def get_context(context):
 		else None
 	)
 	if not certificate:
-		raise frappe.DoesNotExistError(_("Certificate not found."))
+		raise frappe.PageDoesNotExistError(_("Certificate not found."))
 
 	# Certificates issued before templates were set on them have none.
 	template = certificate.template or get_default_certificate_template()

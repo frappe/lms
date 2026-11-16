@@ -55,7 +55,7 @@ class TestCertificatePdfUrl(BaseTestUtils):
 		for certificate_id in ("no-such-certificate", None, ["!=", ""]):
 			with self.subTest(certificate_id=certificate_id):
 				frappe.form_dict.certificate_id = certificate_id
-				with self.assertRaises(frappe.DoesNotExistError):
+				with self.assertRaises(frappe.PageDoesNotExistError):
 					certificate_page.get_context(frappe._dict())
 
 	def test_a_certificate_without_a_template_uses_the_default_one(self):
