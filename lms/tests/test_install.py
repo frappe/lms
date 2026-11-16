@@ -106,7 +106,7 @@ class TestInstall(IntegrationTestCase):
 
 		# The columns are already there, and updatedb commits, which would keep the deletes.
 		with patch.object(frappe.db, "updatedb"):
-			install.create_user_custom_fields()
+			install.create_lms_custom_fields()
 
 		self.assertEqual(user_field_names(), USER_FIELDS)
 		field = frappe.db.get_value(
@@ -117,13 +117,16 @@ class TestInstall(IntegrationTestCase):
 			("Table MultiSelect", "Preferred Function", "carrer_preference_details"),
 		)
 
-	def test_user_fields_ship_in_the_shape_create_custom_fields_takes(self):
+	def test_custom_fields_ship_in_the_shape_create_custom_fields_takes(self):
 		"""Loaded as is, so no export keys (name, dt, modified...) and nothing blank."""
 		custom_fields = install.load_install_data("custom_field.json")
 
-		self.assertEqual(list(custom_fields), ["User"])
+		self.assertEqual(list(custom_fields), ["User", "Communication"])
 		self.assertEqual({field["fieldname"] for field in custom_fields["User"]}, USER_FIELDS)
-		for field in custom_fields["User"]:
+		self.assertEqual(
+			[field["fieldname"] for field in custom_fields["Communication"]], ["lms_batch_announcement"]
+		)
+		for field in custom_fields["User"] + custom_fields["Communication"]:
 			self.assertFalse({"name", "doctype", "dt", "modified", "module"} & field.keys(), field)
 			self.assertNotIn(None, field.values(), field)
 

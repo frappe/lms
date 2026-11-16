@@ -2,12 +2,14 @@ from unittest.mock import patch
 
 import frappe
 
-from lms.lms.api import get_announcements
+from lms.lms.api import get_announcements, send_batch_announcement
 from lms.lms.test_helpers import BaseTestUtils
+from lms.patches.v2_0 import mark_batch_announcements
 
 
 # Guards a batch's announcements: only outgoing mail its own staff sent, shown
-# only to its students and staff. Added for audit finding #693.
+# only to its students and staff, and only what was sent as an announcement.
+# Added for audit finding #693.
 class TestBatchAnnouncementsScope(BaseTestUtils):
 	@classmethod
 	def setUpClass(cls):
@@ -49,9 +51,10 @@ class TestBatchAnnouncementsScope(BaseTestUtils):
 		cls._mail("Not staff of this batch", user=cls.other_creator)
 		cls._mail("Automated", user=cls.instructor, communication_type="Automated Message")
 		cls._mail("No sender account", user=None)
+		cls._mail("Staff mail to one colleague", user=cls.instructor, announcement=0)
 
 	@classmethod
-	def _mail(cls, subject, user, **fields):
+	def _mail(cls, subject, user, announcement=1, **fields):
 		doc = frappe.get_doc(
 			{
 				"doctype": "Communication",
@@ -64,6 +67,7 @@ class TestBatchAnnouncementsScope(BaseTestUtils):
 				"recipients": cls.instructor,
 				"reference_doctype": "LMS Batch",
 				"reference_name": cls.batch,
+				"lms_batch_announcement": announcement,
 				**fields,
 			}
 		)
@@ -97,3 +101,30 @@ class TestBatchAnnouncementsScope(BaseTestUtils):
 		finally:
 			frappe.set_user("Administrator")
 		self.assertNotIn("user", rows[0])
+
+	def test_a_sent_announcement_is_listed(self):
+		def make(**kwargs):
+			"""Saves the Communication the real one would, without sending mail."""
+			self._mail(kwargs["subject"], user=self.instructor, announcement=0)
+			return {"name": frappe.db.get_value("Communication", {"subject": kwargs["subject"]}, "name")}
+
+		frappe.set_user(self.instructor)
+		try:
+			with patch("frappe.core.doctype.communication.email.make", side_effect=make):
+				send_batch_announcement(self.batch, "Sent through the form", "Body", self.instructor)
+		finally:
+			frappe.set_user("Administrator")
+
+		self.assertIn("Sent through the form", self._subjects_as(self.student))
+
+	def test_the_patch_marks_past_announcements_only(self):
+		self._mail("Past announcement", user=self.instructor, announcement=0, bcc=self.student)
+		self._mail("Past private mail", user=self.instructor, announcement=0)
+		self._mail("Past mail from outside", user=self.other_creator, announcement=0, bcc=self.student)
+
+		mark_batch_announcements.execute()
+
+		subjects = self._subjects_as(self.student)
+		self.assertIn("Past announcement", subjects)
+		self.assertNotIn("Past private mail", subjects)
+		self.assertNotIn("Past mail from outside", subjects)

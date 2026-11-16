@@ -2048,6 +2048,8 @@ def get_announcements(batch: str):
 			"communication_type": "Communication",
 			"communication_medium": "Email",
 			"sent_or_received": "Sent",
+			# Staff mail one colleague from the batch too; only a broadcast is an announcement.
+			"lms_batch_announcement": 1,
 		},
 		fields=[
 			"subject",
@@ -2107,7 +2109,7 @@ def send_batch_announcement(batch: str, subject: str, content: str, reply_to: st
 def _send_batch_announcement(batch: str, subject: str, content: str, reply_to: str):
 	from frappe.core.doctype.communication.email import make
 
-	make(
+	communication = make(
 		doctype="LMS Batch",
 		name=batch,
 		recipients=reply_to,
@@ -2115,6 +2117,9 @@ def _send_batch_announcement(batch: str, subject: str, content: str, reply_to: s
 		subject=subject,
 		content=content,
 		send_email=1,
+	)
+	frappe.db.set_value(
+		"Communication", communication["name"], "lms_batch_announcement", 1, update_modified=False
 	)
 
 
