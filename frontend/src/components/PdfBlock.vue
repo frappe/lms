@@ -407,7 +407,6 @@ let sharedPdfWorker = null
 
 <style scoped>
 .pdf-block {
-	border: 1px solid var(--outline-gray-2);
 	border-radius: var(--radius-7);
 	overflow: hidden;
 	background: var(--surface-gray-1);
