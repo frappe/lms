@@ -1,0 +1,21 @@
+<p>
+    {{ _("Hi {0},").format(student_name) }}
+</p>
+<br>
+<p>
+    {{ _("A quick nudge from {0}: pick up where you left off in {1}.").format(sender_name, title) }}
+</p>
+{% if up_next %}
+<br>
+<p>
+    <b>{{ _("Up next:") }}</b> {{ up_next }}
+</p>
+{% endif %}
+<br>
+<p>
+    <a href="{{ get_lms_route(route) }}">👉 {{ _("Continue learning") }}</a>
+</p>
+<br>
+<p>
+    {{ _("Best Regards") }}
+</p>

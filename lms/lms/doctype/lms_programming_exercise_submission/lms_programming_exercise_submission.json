@@ -24,7 +24,8 @@
    "in_list_view": 1,
    "label": "Exercise",
    "options": "LMS Programming Exercise",
-   "reqd": 1
+   "reqd": 1,
+   "search_index": 1
   },
   {
    "fieldname": "member",
@@ -88,8 +89,13 @@
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
+<<<<<<< HEAD
  "modified": "2026-02-20 14:43:56.587110",
  "modified_by": "sayali@frappe.io",
+=======
+ "modified": "2026-11-13 21:00:00.000000",
+ "modified_by": "Administrator",
+>>>>>>> a9f8bbf (feat: course and batch dashboard analytics API)
  "module": "LMS",
  "name": "LMS Programming Exercise Submission",
  "owner": "Administrator",
