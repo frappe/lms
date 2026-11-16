@@ -187,8 +187,8 @@ def friendly_error(error: str | None) -> str | None:
 
 
 def publish(goal_name: str) -> int:
-	"""Publish a skill and send it to the people it is for. Returns how many newly got it; a skill
-	published for no one in particular (an open course) is still published."""
+	"""Publish a skill and send it to the people named for it. Returns how many newly got it; a
+	skill open to everyone sends nothing and waits in each learner's list instead."""
 	goal = frappe.get_doc("LMS Goal", goal_name)
 	if not goal.activities:
 		frappe.throw(_("Build the plan before you publish it."), title=_("No Plan Yet"))
@@ -245,25 +245,12 @@ def _send_to(goal_name: str, members: list[str], in_job: bool = False) -> None:
 
 
 def _audience(goal) -> list[str]:
+	"""The people a publish sends the skill to: the ones named. A skill open to everyone is not
+	pushed onto every account; it shows in each learner's Skills list and they join it when they
+	start, so nobody is enrolled in something they never opened."""
 	if goal.assign_everyone:
-		return _everyone()
+		return []
 	return [row.user for row in goal.audience]
-
-
-def _everyone() -> list[str]:
-	"""Everyone who learns here: website users, and system users who hold a Learning role.
-	Integration and bot accounts, and staff with no part in Learning, are not sent a skill."""
-	from lms.lms.utils import LMS_ROLES
-
-	learners = set(
-		frappe.get_all("Has Role", filters={"parenttype": "User", "role": ("in", LMS_ROLES)}, pluck="parent")
-	)
-	users = frappe.get_all(
-		"User",
-		filters={"enabled": 1, "name": ("not in", ("Administrator", "Guest"))},
-		fields=["name", "user_type"],
-	)
-	return [u.name for u in users if u.user_type == "Website User" or u.name in learners]
 
 
 def _notify(goal, member: str) -> None:
@@ -520,8 +507,9 @@ def finish_roleplay(assignment_name: str, index: int) -> None:
 
 	assignment = get_assignment(assignment_name)
 	activity, content = _activity(assignment.goal, index)
-	evidence = frappe.get_doc("LMS Goal Evidence", {"assignment": assignment.name, "activity_index": index})
-	if not evidence.flow_session:
+	name = frappe.db.get_value("LMS Goal Evidence", {"assignment": assignment.name, "activity_index": index})
+	evidence = frappe.get_doc("LMS Goal Evidence", name) if name else None
+	if not evidence or not evidence.flow_session:
 		frappe.throw(_("Start the role-play first."), title=_("Not Started"))
 	transcript = _transcript(evidence.flow_session)
 	if not any(turn["speaker"] == "Learner" for turn in transcript):

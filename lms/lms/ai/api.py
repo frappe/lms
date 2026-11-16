@@ -197,7 +197,7 @@ def get_goal(goal: str) -> dict:
 	_require_admin()
 	doc = frappe.get_doc("LMS Goal", goal)
 	state = goals.drafting_state(goal)
-	data = frappe.get_doc("LMS Goal", goal).as_dict()
+	data = doc.as_dict()
 	data.status, data.draft_error = state.status, state.draft_error
 	for row in data.activities:
 		row.content = json.loads(row.content or "{}")

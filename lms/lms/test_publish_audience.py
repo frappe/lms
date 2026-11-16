@@ -27,15 +27,18 @@ class TestPublishAudience(BaseTestUtils):
 		goal = frappe.get_doc("LMS Goal", goals.create_goal("Audience default", "Know the code"))
 		self.assertTrue(goal.assign_everyone)
 
-	def test_everyone_means_the_people_who_learn_here(self):
-		bot = self._create_user("audience.bot@example.com", "Audience", "Bot", roles=[])
-		# Users made through Learning pick up LMS Student on insert; a bot account has no role.
-		frappe.db.delete("Has Role", {"parent": bot.name})
-		bot.db_set("user_type", "System User")
-		everyone = goals._everyone()
-		self.assertIn(self.learner.name, everyone)
-		self.assertNotIn(bot.name, everyone)
-		self.assertNotIn("Administrator", everyone)
+	def test_open_to_everyone_shows_in_the_list_without_enrolling_anyone(self):
+		from lms.lms.ai.api import learner_skills
+
+		name = self._skill("Audience open", assign_everyone=1)
+		self.assertEqual(goals.publish(name), 0)
+		self.assertEqual(frappe.db.get_value("LMS Goal", name, "status"), "Published")
+		self.assertFalse(frappe.db.exists("LMS Goal Assignment", {"goal": name, "is_preview": 0}))
+
+		frappe.set_user(self.learner.name)
+		rows = {row["name"]: row for row in learner_skills()}
+		self.assertIn(name, rows)
+		self.assertFalse(rows[name]["enrolled"])
 
 	def test_publishing_sends_it_once_and_a_second_publish_sends_nothing(self):
 		name = self._skill("Audience publish", assign_everyone=0, audience=[{"user": self.learner.name}])

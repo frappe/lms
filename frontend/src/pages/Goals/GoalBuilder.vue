@@ -396,6 +396,8 @@ const load = async () => {
 		return
 	}
 	if (isNew.value) {
+		// The same defaults as the LMS Goal DocType, so the Settings tab shows the truth
+		// before the first save, and the first save does not switch them all off.
 		goal.value = normalise({
 			name: '',
 			title: '',
@@ -407,6 +409,14 @@ const load = async () => {
 			source_files: '{}',
 			audience: [],
 			learners: 0,
+			tutor_first: true,
+			proof_mastery: true,
+			mastery_threshold: 80,
+			check_questions: 5,
+			assign_everyone: true,
+			proof_acknowledgement: false,
+			proof_sign_off: false,
+			proof_certificate: false,
 		})
 		return
 	}
@@ -530,14 +540,8 @@ const publish = createResource({
 	onSuccess(count: number) {
 		const firstTime = goal.value?.status !== 'Published'
 		toast.success(
-			count
-				? __(
-						'Published. {0} people are getting it now. Their progress shows in the Dashboard tab.'
-				  ).format(count)
-				: firstTime
-				? __(
-						'Published. Add people in Settings whenever you want to send it out.'
-				  )
+			count || firstTime
+				? __('Published.')
 				: __('Everyone you chose already has it.')
 		)
 		load()
