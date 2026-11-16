@@ -14,8 +14,6 @@ jobs:
         include:
           - branch: develop
             frappe_branch: develop
-          - branch: main-hotfix
-            frappe_branch: develop
           - branch: version-16-hotfix
             frappe_branch: version-16-hotfix
           - branch: version-15-hotfix
