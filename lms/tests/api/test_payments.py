@@ -5,6 +5,7 @@ import frappe
 from lms.lms import payments as payments_module
 from lms.lms.payments import record_payment
 from lms.lms.test_helpers import BaseTestUtils
+from lms.lms.utils import get_order_summary
 
 
 class FakeRazorpayController:
@@ -163,6 +164,48 @@ class TestPaymentLink(BaseTestUtils):
 
 		self.assertEqual(self.controller.get_payment_url_calls[0]["amount"], 500)
 		self.assertEqual(payment.amount_with_gst, 0)
+
+	def test_a_checkout_without_a_billing_country_is_refused(self):
+		"""Without one the price would follow an older address and the GST the
+		profile, which can disagree."""
+		with self.assertRaises(frappe.ValidationError):
+			payments_module.get_payment_link(
+				doctype="LMS Course",
+				docname=self.course.name,
+				address={"billing_name": "Test Buyer", "address_line1": "1 Test Street", "city": "Test City"},
+				payment_for_certificate=0,
+			)
+		self.assertEqual(self.controller.get_payment_url_calls, [])
+
+	def test_the_summary_takes_currency_and_gst_from_one_country(self):
+		"""A buyer billed in India whose profile says Nepal is charged INR, so GST
+		applies too. GST used to read the profile while the currency read the address."""
+		for field, value in (("apply_gst", 1), ("show_usd_equivalent", 0)):
+			original = frappe.db.get_single_value("LMS Settings", field)
+			frappe.db.set_single_value("LMS Settings", field, value)
+			self.addCleanup(frappe.db.set_single_value, "LMS Settings", field, original)
+		buyer = self._create_user(
+			f"gst-buyer-{frappe.generate_hash(length=6)}@example.com", "Gst", "Buyer", ["LMS Student"]
+		)
+		frappe.db.set_value("User", buyer.name, "country", "Nepal")
+		frappe.get_doc(
+			{
+				"doctype": "Address",
+				"address_title": "Gst Buyer",
+				"address_type": "Billing",
+				"address_line1": "1 Test Street",
+				"city": "Test City",
+				"country": "India",
+				"email_id": buyer.name,
+			}
+		).insert(ignore_permissions=True)
+		frappe.set_user(buyer.name)
+		self.addCleanup(frappe.set_user, "Administrator")
+
+		summary = get_order_summary("LMS Course", self.course.name)
+
+		self.assertEqual(summary.currency, "INR")
+		self.assertEqual(summary.gst_applied, 90)
 
 	def test_the_request_carrying_the_order_id_is_written_last(self):
 		"""The controller writes two Integration Requests per attempt: the paise

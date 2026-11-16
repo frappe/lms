@@ -56,6 +56,7 @@ from lms.lms.dashboard.common import (
 )
 from lms.lms.doctype.lms_certificate.lms_certificate import (
 	get_default_certificate_template,
+	get_enrollment_batch,
 	get_latest_certificate,
 )
 from lms.lms.doctype.lms_course_review.lms_course_review import course_review_rows, course_review_summary
@@ -910,6 +911,7 @@ def issue_course_certificate(course: str, enrollment: str) -> dict:
 			"doctype": "LMS Certificate",
 			"member": member,
 			"course": course,
+			"batch_name": get_enrollment_batch(course, member),
 			"issue_date": nowdate(),
 			"template": get_default_certificate_template(),
 		}

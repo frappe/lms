@@ -1,17 +1,34 @@
 <template>
 	<PageHeader :breadcrumbs="breadcrumbs" />
-	<div v-if="isLocked" class="sm:border-e">
+	<div
+		v-if="isPlaybackPending"
+		class="flex items-center justify-center h-[calc(100vh-3.00rem)]"
+	>
+		<LoadingIndicator class="size-5 text-ink-gray-5" />
+	</div>
+	<div v-else-if="isLocked" class="sm:border-e">
 		<LockedLessonNotice
 			:redirect="!!currentLessonNumber"
 			@done="goToCurrentLesson()"
 		/>
 	</div>
-	<div v-else-if="readyToRender && launchFile">
+	<div v-else-if="launchFile" class="relative">
 		<iframe
+			ref="frame"
 			:src="safeUrl(launchFile)"
+			:sandbox="PACKAGE_SANDBOX"
+			referrerpolicy="no-referrer"
 			:title="playback.data?.title || __('Lesson content')"
 			class="w-full h-[calc(100vh-3.00rem)]"
+			@load="frameLoading = false"
 		/>
+		<!-- A large package takes a while to start; until it does the frame is empty. -->
+		<div
+			v-if="frameLoading"
+			class="absolute inset-0 flex items-center justify-center bg-surface-base"
+		>
+			<LoadingIndicator class="size-5 text-ink-gray-5" />
+		</div>
 	</div>
 	<div v-else-if="hasNoLesson" class="text-center pt-10 px-5 md:px-0 pb-10">
 		{{ __('This chapter has no lesson to play yet.') }}
@@ -37,8 +54,22 @@
 	</div>
 </template>
 <script setup>
-import { Button, call, createResource, toast, usePageMeta } from 'frappe-ui'
-import { computed, inject, onBeforeMount, ref } from 'vue'
+import {
+	Button,
+	call,
+	createResource,
+	LoadingIndicator,
+	toast,
+	usePageMeta,
+} from 'frappe-ui'
+import {
+	computed,
+	inject,
+	onBeforeMount,
+	onBeforeUnmount,
+	ref,
+	watch,
+} from 'vue'
 import { useRouter } from 'vue-router'
 import PageHeader from '@/components/Layouts/pages/PageHeader.vue'
 import LockedLessonNotice from '@/components/LockedLessonNotice.vue'
@@ -50,7 +81,6 @@ const router = useRouter()
 const { brand } = sessionStore()
 const sidebarStore = useSidebar()
 const user = inject('$user')
-const readyToRender = ref(false)
 const isSuccessfullyCompleted = ref(false)
 
 // If courseRestartOnFailure is true, student has to restart the whole course if failed.
@@ -71,7 +101,11 @@ const props = defineProps({
 
 onBeforeMount(() => {
 	sidebarStore.isSidebarCollapsed = true
-	setupSCORMAPI()
+	window.addEventListener('message', onPackageMessage)
+})
+
+onBeforeUnmount(() => {
+	window.removeEventListener('message', onPackageMessage)
 })
 
 // `launch_file` is permlevel 1, so the Course Chapter read this page used to make no
@@ -85,7 +119,6 @@ const playback = createResource({
 	auto: true,
 	onSuccess(data) {
 		if (data?.locked) outline.fetch()
-		else if (data?.launch_file) progress.submit()
 	},
 	// `/learn/:chapterName` also matches a lesson URL with no lesson number, so a
 	// mistyped or tampered address resolves to a chapter that does not exist. Without
@@ -97,6 +130,9 @@ const playback = createResource({
 
 // Four states, and only the server tells them apart: locked, not entitled, no lesson,
 // playing. The page renders what it is told and derives none of them itself.
+// Nothing to show until the server answers; an error leaves for the course instead.
+const isPlaybackPending = computed(() => !playback.data && !playback.error)
+
 const isLocked = computed(() => !!playback.data?.locked)
 
 // delete_lesson drops the Lesson Reference and leaves the chapter standing. The server
@@ -122,6 +158,9 @@ const hasNoPackage = computed(
 		!isNotEntitled.value &&
 		!launchFile.value
 )
+
+const frameLoading = ref(true)
+watch(launchFile, () => (frameLoading.value = true))
 
 const leaveForCourse = () => {
 	router.replace({
@@ -183,17 +222,6 @@ const enrollment = createResource({
 	},
 })
 
-const getDataFromLMS = (key) => {
-	if (key === 'cmi.core.lesson_status') {
-		return progress.data?.status === 'Complete' ? 'passed' : 'incomplete'
-	} else if (key === 'cmi.launch_data') {
-		return progress.data?.scorm_content || ''
-	} else if (key === 'cmi.suspend_data') {
-		return progress.data?.scorm_content || ''
-	}
-	return ''
-}
-
 let saveTimeout = null
 const debouncedSaveProgress = (scormDetails) => {
 	if (isSuccessfullyCompleted.value) return
@@ -244,36 +272,6 @@ const saveProgress = (scormDetails = null) => {
 	})
 }
 
-const progress = createResource({
-	url: 'frappe.client.get_value',
-	makeParams(values) {
-		return {
-			doctype: 'LMS Course Progress',
-			fieldname: ['status', 'scorm_content'],
-			filters: {
-				member: user.data?.name,
-				lesson: playback.data?.lesson,
-				chapter: playback.data?.chapter,
-				course: playback.data?.course,
-			},
-		}
-	},
-	onSuccess(data) {
-		readyToRender.value = true
-	},
-	// The resume point is a convenience, not a gate, so a failure here must not hold the
-	// frame back — without this the page had a fifth state no branch could render. It is
-	// said out loud because what is lost is cmi.suspend_data: a long package restarts.
-	onError() {
-		readyToRender.value = true
-		toast.error(__('Could not load your saved progress'), {
-			description: __(
-				'This lesson will start from the beginning. Reload the page to try resuming where you left off.'
-			),
-		})
-	},
-})
-
 const enrollStudent = () => {
 	if (enrollment.loading) return
 	enrollment.submit(
@@ -290,33 +288,31 @@ const enrollStudent = () => {
 	)
 }
 
-const setupSCORMAPI = () => {
-	window.API_1484_11 = {
-		Initialize: () => 'true',
-		Terminate: () => 'true',
-		GetValue: (key) => getDataFromLMS(key),
-		SetValue: (key, value) => {
-			saveDataToLMS(key, value)
-			return 'true'
-		},
-		Commit: () => 'true',
-		GetLastError: () => '0',
-		GetErrorString: () => '',
-		GetDiagnostic: () => '',
+// The package runs with an opaque origin, so it cannot reach this page or the
+// session. The SCORM API lives in its own window (the server inlines it, with the
+// learner's saved values) and posts here what the package sets.
+const PACKAGE_SANDBOX =
+	'allow-scripts allow-forms allow-popups allow-popups-to-escape-sandbox allow-modals allow-downloads allow-pointer-lock allow-presentation'
+
+const frame = ref(null)
+
+const isFromPackage = (source) => {
+	const packageWindow = frame.value?.contentWindow
+	// A package may nest frames of its own; walk up to see whether this one sits
+	// inside the player's iframe. parent is readable across origins.
+	for (let win = source; win && packageWindow; win = win.parent) {
+		if (win === packageWindow) return true
+		if (win === win.parent) return false
 	}
-	window.API = {
-		LMSInitialize: () => 'true',
-		LMSFinish: () => 'true',
-		LMSGetValue: (key) => getDataFromLMS(key),
-		LMSSetValue: (key, value) => {
-			saveDataToLMS(key, value)
-			return 'true'
-		},
-		LMSCommit: () => 'true',
-		LMSGetLastError: () => '0',
-		LMSGetErrorString: () => '',
-		LMSGetDiagnostic: () => '',
-	}
+	return false
+}
+
+const onPackageMessage = (event) => {
+	const data = event.data
+	if (event.origin !== 'null' || data?.source !== 'lms-scorm') return
+	if (typeof data.key !== 'string' || typeof data.value !== 'string') return
+	if (!isFromPackage(event.source)) return
+	saveDataToLMS(data.key, data.value)
 }
 
 const breadcrumbs = computed(() => {

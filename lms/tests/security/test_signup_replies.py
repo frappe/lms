@@ -35,6 +35,12 @@ class TestSignupReplies(BaseTestUtils):
 	def _set_signup_disabled(self, value):
 		frappe.db.set_single_value("Website Settings", "disable_signup", value)
 		frappe.clear_document_cache("Website Settings", "Website Settings")
+		# get_website_settings reads it through client_cache, whose local copy is
+		# dropped only when Redis's invalidation message is handled, which can come
+		# after the next read once another test has changed the setting.
+		frappe.client_cache.delete_value(
+			frappe.get_document_cache_key("Website Settings", "Website Settings")
+		)
 		# get_website_settings keeps its own copy for the life of the process.
 		if hasattr(frappe.local, "website_settings"):
 			del frappe.local.website_settings

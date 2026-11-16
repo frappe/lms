@@ -1,6 +1,7 @@
 """API methods for the LMS."""
 
 import hashlib
+import io
 import json
 import os
 import re
@@ -21,7 +22,7 @@ from frappe.integrations.frappe_providers.frappecloud_billing import (
 )
 from frappe.query_builder.functions import Cast_
 from frappe.rate_limiter import rate_limit
-from frappe.translate import get_all_translations
+from frappe.translate import get_all_translations, get_user_lang
 from frappe.utils import (
 	add_days,
 	cint,
@@ -210,13 +211,11 @@ def _doctype_permissions():
 	return out
 
 
+# nosemgrep: frappe-semgrep-rules.rules.security.guest-whitelisted-method - returns only the UI's translation catalogue, which guests have always been served
 @frappe.whitelist(allow_guest=True)
 def get_translations():
-	if frappe.session.user != "Guest":
-		language = frappe.db.get_value("User", frappe.session.user, "language")
-	else:
-		language = frappe.db.get_single_value("System Settings", "language")
-	return get_all_translations(language)
+	# The user's language, else the system's, as Desk resolves it.
+	return get_all_translations(get_user_lang())
 
 
 @frappe.whitelist()
@@ -2048,6 +2047,8 @@ def get_announcements(batch: str):
 			"communication_type": "Communication",
 			"communication_medium": "Email",
 			"sent_or_received": "Sent",
+			# Staff mail one colleague from the batch too; only a broadcast is an announcement.
+			"lms_batch_announcement": 1,
 		},
 		fields=[
 			"subject",
@@ -2107,7 +2108,7 @@ def send_batch_announcement(batch: str, subject: str, content: str, reply_to: st
 def _send_batch_announcement(batch: str, subject: str, content: str, reply_to: str):
 	from frappe.core.doctype.communication.email import make
 
-	make(
+	communication = make(
 		doctype="LMS Batch",
 		name=batch,
 		recipients=reply_to,
@@ -2115,6 +2116,9 @@ def _send_batch_announcement(batch: str, subject: str, content: str, reply_to: s
 		subject=subject,
 		content=content,
 		send_email=1,
+	)
+	frappe.db.set_value(
+		"Communication", communication["name"], "lms_batch_announcement", 1, update_modified=False
 	)
 
 
@@ -4665,6 +4669,28 @@ def export_course_as_file(course_name: str) -> str:
 		frappe.throw(_("You do not have permission to export this course."), frappe.PermissionError)
 
 	return export_course_zip(course_name, as_file=True)
+
+
+@frappe.whitelist(methods=["POST"])
+def upload_zip():
+	"""Save a course archive or a SCORM package as a private File of the caller's.
+
+	upload_file refuses a ZIP from anyone without desk access, which is every LMS
+	role, so the people who build courses could not upload either."""
+	frappe.only_for(["Moderator", "Course Creator"])
+	upload = frappe.request.files.get("file")
+	if not upload or not (upload.filename or "").lower().endswith(".zip"):
+		frappe.throw(_("Please upload a ZIP file."))
+
+	content = upload.stream.read()
+	if not zipfile.is_zipfile(io.BytesIO(content)):
+		frappe.throw(_("This file is not a valid ZIP archive."))
+
+	# Inserted under the caller's own File permissions; File applies the size limit.
+	file = frappe.get_doc(
+		{"doctype": "File", "file_name": upload.filename, "is_private": 1, "content": content}
+	).insert()
+	return file.as_dict()
 
 
 @frappe.whitelist(methods=["POST"])
