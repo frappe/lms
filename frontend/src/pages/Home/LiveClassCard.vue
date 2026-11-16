@@ -67,8 +67,7 @@ const user = inject<any>('$user')
 const dayjs = inject<any>('$dayjs')
 
 const getClassEnd = (cls: LiveClassTiming) => {
-	const classStart = new Date(`${cls.date}T${cls.time}`)
-	return new Date(classStart.getTime() + cls.duration * 60000)
+	return dayjs(`${cls.date}T${cls.time}`).add(cls.duration, 'minute').toDate()
 }
 
 const canAccessClass = (cls: LiveClassTiming) =>
