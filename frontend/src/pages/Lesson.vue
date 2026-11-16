@@ -410,6 +410,7 @@ import Notes from '@/components/Notes/Notes.vue'
 import InlineLessonMenu from '@/components/Notes/InlineLessonMenu.vue'
 import { parseStoredEditorJs } from '@/utils/lessonForm'
 import { isLessonSelection } from '@/utils/lessonSelection'
+import { textDirection } from '@/utils/textDirection'
 import { getLmsRoute } from '@/utils/basePath'
 import { redirectToLogin } from '@/utils/login'
 import {
@@ -710,7 +711,7 @@ const renderEditor = (holder: string, content: string): EditorJS | null => {
 		readOnly: true,
 		defaultBlock: 'embed',
 		i18n: {
-			direction: document.documentElement.dir === 'rtl' ? 'rtl' : 'ltr',
+			direction: textDirection(),
 		},
 		onReady: () => openLinksInNewTab(holder),
 	})

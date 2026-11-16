@@ -130,7 +130,7 @@
 				:to="bannerTarget"
 				:disabled="!bannerTarget"
 			>
-				<ListSelectBanner :class="bannerClass">
+				<ListSelectBanner :class="['lms-select-banner', bannerClass]">
 					<template #actions="bannerProps">
 						<slot name="selection-actions" v-bind="bannerProps" />
 					</template>

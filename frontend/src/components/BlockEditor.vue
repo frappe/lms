@@ -10,6 +10,7 @@ import { onBeforeUnmount, onMounted, ref } from 'vue'
 import EditorJS from '@editorjs/editorjs'
 import DragDrop from 'editorjs-drag-drop'
 import { enablePlyr, getEditorTools, getEditorTunes } from '@/utils'
+import { textDirection } from '@/utils/textDirection'
 
 const props = defineProps({
 	uploadContext: {
@@ -80,7 +81,7 @@ onMounted(() => {
 		tunes: getEditorTunes(),
 		defaultBlock: 'markdown',
 		i18n: {
-			direction: document.documentElement.dir === 'rtl' ? 'rtl' : 'ltr',
+			direction: textDirection(),
 		},
 		onReady: () => {
 			// onReady can fire after the component unmounted (fast nav / deleting

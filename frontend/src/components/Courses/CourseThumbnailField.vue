@@ -35,6 +35,7 @@
 					<div class="text-ink-gray-9 font-medium break-all leading-5">
 						{{ filename }}
 						<span
+							dir="ltr"
 							class="ms-2 inline-block whitespace-nowrap text-ink-gray-6 font-normal"
 						>
 							{{ metaLabel }}

@@ -110,3 +110,62 @@ main#main-content {
 		opacity: 1;
 	}
 }
+
+/* RTL fixes for frappe-ui parts that hardcode left/right. Same patches as
+   crm/frontend/src/index.css. */
+.ProseMirror:not(.ProseMirror-focused) p.is-editor-empty:dir(rtl)::before {
+	float: inline-start;
+}
+
+[data-slot='sidebar-item'] > :is(a, button):dir(rtl) {
+	padding-left: 0;
+	padding-inline-start: 0.5rem;
+	text-align: start;
+}
+[data-slot='sidebar-item'] > :is(a, button):dir(rtl) > .ml-2 {
+	margin-left: 0;
+	margin-inline-start: 0.5rem;
+}
+
+/* Key combos read left to right in every locale. */
+[data-slot='keyboard-shortcut'] {
+	direction: ltr;
+}
+
+/* Progress slides a full-width fill left by an inline transform; mirror the
+   track so it fills from the right. */
+[role='progressbar']:dir(rtl):has(> [data-max]) {
+	scale: -1 1;
+}
+
+/* Toasts sit bottom-right, over the RTL sidebar; move them to the left. */
+@media (min-width: 601px) {
+	[data-sonner-toaster][dir='rtl'][data-x-position='right'] {
+		right: auto;
+		left: var(--offset-left);
+	}
+}
+[data-sonner-toaster][dir='rtl'] [data-sonner-toast] [data-icon] {
+	margin-right: 0;
+	margin-left: 0.5rem;
+}
+[data-sonner-toaster][dir='rtl'] [data-sonner-toast] [data-close-button] {
+	margin-left: 0;
+	margin-right: auto;
+}
+[data-sonner-toaster][dir='rtl']
+	[data-sonner-toast]:has([data-action])
+	[data-close-button] {
+	margin-right: 0;
+}
+[data-sonner-toaster][dir='rtl'] [data-sonner-toast] [data-action] {
+	margin-left: 0.5rem;
+	margin-right: auto;
+}
+
+/* ListSelectBanner (frappe-ui/experimental) divides the count from "Select all"
+   with a physical right border. Both call sites tag it lms-select-banner. */
+.lms-select-banner > .border-r:dir(rtl) {
+	border-right-width: 0;
+	border-left-width: 1px;
+}

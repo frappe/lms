@@ -99,6 +99,7 @@
 					:id="inputId"
 					type="text"
 					v-model="urlInput"
+					dir="auto"
 					:aria-label="__('YouTube link')"
 					:placeholder="__('Paste a YouTube link')"
 					variant="outline"
