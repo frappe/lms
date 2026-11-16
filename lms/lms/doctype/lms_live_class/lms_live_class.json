@@ -127,7 +127,8 @@
    "fieldname": "batch_name",
    "fieldtype": "Link",
    "label": "Batch",
-   "options": "LMS Batch"
+   "options": "LMS Batch",
+   "search_index": 1
   },
   {
    "default": "No Recording",
@@ -219,7 +220,7 @@
    "link_fieldname": "live_class"
   }
  ],
- "modified": "2026-10-14 15:27:02.616374",
+ "modified": "2026-11-13 18:00:00.000000",
  "modified_by": "sayali@frappe.io",
  "module": "LMS",
  "name": "LMS Live Class",

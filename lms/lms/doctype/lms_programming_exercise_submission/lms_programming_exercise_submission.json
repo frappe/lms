@@ -25,7 +25,8 @@
    "in_list_view": 1,
    "label": "Exercise",
    "options": "LMS Programming Exercise",
-   "reqd": 1
+   "reqd": 1,
+   "search_index": 1
   },
   {
    "fieldname": "member",
@@ -98,7 +99,7 @@
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2026-10-06 23:30:00.000000",
+ "modified": "2026-11-13 21:00:00.000000",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Programming Exercise Submission",
