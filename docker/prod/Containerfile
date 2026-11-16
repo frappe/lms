@@ -15,33 +15,47 @@ FROM frappe/bench:latest AS builder
 
 ARG FRAPPE_BRANCH
 ARG UV_DEFAULT_INDEX
-ARG LMS_VERSION
 
 USER frappe
 WORKDIR /home/frappe
-
-COPY --chown=frappe:frappe lms-src /home/frappe/lms-src
 
 # Frappe develop needs the Node version the base image provides for it (as in docker/init.sh).
 ENV PATH="${NVM_DIR}/versions/node/v${NODE_VERSION_DEVELOP}/bin/:${PATH}"
 ENV UV_DEFAULT_INDEX=${UV_DEFAULT_INDEX}
 
+# Frappe and payments do not depend on the LMS source, so this layer is reused from the
+# cache until FRAPPE_BRANCH or the base image changes. This is the slow step.
 RUN bench init --skip-redis-config-generation --skip-assets --frappe-branch "${FRAPPE_BRANCH}" frappe-bench \
  && cd frappe-bench \
  && bench get-app payments \
- && cp -a /home/frappe/lms-src apps/lms \
+ && bench build --app frappe
+
+# The LMS source is the only part that changes between deploys, so it comes last.
+COPY --chown=frappe:frappe lms-src /home/frappe/frappe-bench/apps/lms
+
+# Declared here, not at the top of the stage: BuildKit passes declared build args into
+# every later RUN, so a new LMS version would otherwise invalidate the Frappe layer too.
+ARG LMS_VERSION
+
+# The yarn cache mount keeps package downloads between builds.
+RUN --mount=type=cache,target=/home/frappe/.cache/yarn,uid=1000,gid=1000 \
+    cd frappe-bench \
  && ./env/bin/python -m pip install --quiet -e apps/lms \
  && (grep -qx lms sites/apps.txt || { [ -n "$(tail -c1 sites/apps.txt)" ] && echo >> sites/apps.txt; echo lms >> sites/apps.txt; }) \
  && (cd apps/lms && yarn install --check-files) \
- && bench build \
+ && bench build --app lms \
  && echo "${LMS_VERSION}" > /home/frappe/frappe-bench/.lms-version
 
-# Clean up: the build sources, dependency caches and Git history are not needed at run time.
-# The Node install is copied out by dereferencing its path, not the nvm symlink.
-RUN cp -aL "${NVM_DIR}/versions/node/v${NODE_VERSION_DEVELOP}" /home/frappe/node \
- && rm -rf /home/frappe/lms-src \
-           /home/frappe/frappe-bench/apps/lms/frontend/node_modules \
+# Clean up: build-only Node toolchains (assets are already built), dependency caches and Git
+# history are not needed at run time. apps/frappe/node_modules stays: socketio needs socket.io.
+# The Node install is the one the node on the PATH resolves to, copied with its links dereferenced.
+RUN NODE_HOME="$(dirname "$(dirname "$(readlink -f "$(command -v node)")")")" \
+ && cp -aL "${NODE_HOME}" /home/frappe/node \
+ && rm -rf /home/frappe/frappe-bench/apps/lms/frontend/node_modules \
            /home/frappe/frappe-bench/apps/lms/frontend/.cache \
+           /home/frappe/frappe-bench/apps/frappe/island-toolchain/node_modules \
+           /home/frappe/frappe-bench/apps/frappe/flow/node_modules \
+           /home/frappe/frappe-bench/apps/frappe/studio/frontend/node_modules \
  && find /home/frappe/frappe-bench/apps /home/frappe/frappe-bench/env -name .git -prune -exec rm -rf {} + \
  && find /home/frappe/frappe-bench /home/frappe/.pyenv -name __pycache__ -prune -exec rm -rf {} + \
  && rm -rf /home/frappe/.cache /home/frappe/.npm /home/frappe/.yarn /home/frappe/.local/share/uv
@@ -49,19 +63,17 @@ RUN cp -aL "${NVM_DIR}/versions/node/v${NODE_VERSION_DEVELOP}" /home/frappe/node
 # ---------------------------------------------------------------- runtime
 FROM debian:trixie-slim
 
-ARG LMS_VERSION
 ENV DEBIAN_FRONTEND=noninteractive \
     LANG=C.UTF-8
 
-# Runtime libraries for Python packages (mysqlclient, Pillow, cairo), PDFs (wkhtmltopdf)
-# and general tools. Build packages are not installed here.
-RUN apt-get update \
- && apt-get install -y --no-install-recommends \
-      ca-certificates curl tini \
+# Runtime libraries for Python packages (mysqlclient, Pillow, cairo) and general tools.
+# wkhtmltopdf is not packaged for Debian trixie; PDF generation needs it installed separately. Build packages are not installed here.
+RUN apt-get -o Acquire::Retries=5 update \
+ && apt-get -o Acquire::Retries=5 install -y --no-install-recommends \
+      ca-certificates curl git tini \
       libmariadb3 libcairo2 libpango-1.0-0 libpangocairo-1.0-0 libgdk-pixbuf-2.0-0 \
       libjpeg62-turbo libxrender1 libxext6 fontconfig fonts-dejavu-core \
       libffi8 libssl3t64 libsqlite3-0 libbz2-1.0 liblzma5 libreadline8t64 zlib1g libncursesw6 \
-      wkhtmltopdf \
  && rm -rf /var/lib/apt/lists/*
 
 RUN useradd --create-home --uid 1000 --shell /bin/bash frappe
@@ -70,8 +82,12 @@ RUN useradd --create-home --uid 1000 --shell /bin/bash frappe
 COPY --from=builder --chown=frappe:frappe /home/frappe/.pyenv /home/frappe/.pyenv
 COPY --from=builder --chown=frappe:frappe /home/frappe/node /home/frappe/node
 COPY --from=builder --chown=frappe:frappe /home/frappe/frappe-bench /home/frappe/frappe-bench
+# The bench command itself (installed for the user in the builder).
+COPY --from=builder --chown=frappe:frappe /home/frappe/.local /home/frappe/.local
+COPY --from=builder --chown=frappe:frappe /home/frappe/.bench /home/frappe/.bench
 
-ENV PATH="/home/frappe/node/bin:/home/frappe/frappe-bench/env/bin:${PATH}"
+ENV PATH="/home/frappe/node/bin:/home/frappe/.local/bin:/home/frappe/frappe-bench/env/bin:${PATH}"
+ARG LMS_VERSION
 ENV LMS_VERSION=${LMS_VERSION}
 
 USER frappe
@@ -79,6 +95,7 @@ WORKDIR /home/frappe/frappe-bench
 
 # Smoke test: fails the build if the copied Python, Node or the app do not start.
 RUN node --version \
+ && node -e "require('/home/frappe/frappe-bench/apps/frappe/node_modules/socket.io')" \
  && python -c "import frappe, MySQLdb; print('frappe', frappe.__version__)" \
  && bench --version
 

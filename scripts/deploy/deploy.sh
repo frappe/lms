@@ -107,9 +107,13 @@ build_image() {
 	# A clean export of the ref, not the working tree.
 	git -C "$REPO_DIR" archive --format=tar "$ref" | tar -x -C "$ctx/lms-src"
 	cp "$CONTAINERFILE" "$ctx/Containerfile"
+	# Host networking avoids the flaky DNS of Docker's build network on some laptops.
+	# UV_DEFAULT_INDEX lets the build use a faster PyPI mirror.
+	local build_args=(--build-arg "LMS_VERSION=$sha")
+	[[ -n "${UV_DEFAULT_INDEX:-}" ]] && build_args+=(--build-arg "UV_DEFAULT_INDEX=$UV_DEFAULT_INDEX")
 	run "Build image $tag from $ref ($sha) for $PLATFORM" \
-		docker build --platform "$PLATFORM" -f "$ctx/Containerfile" \
-			--build-arg "LMS_VERSION=$sha" -t "$tag" "$ctx"
+		docker build --network "${BUILD_NETWORK:-host}" --platform "$PLATFORM" -f "$ctx/Containerfile" \
+			"${build_args[@]}" -t "$tag" "$ctx"
 	BUILT_TAG="$tag"
 }
 
