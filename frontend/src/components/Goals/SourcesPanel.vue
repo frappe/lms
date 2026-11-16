@@ -69,12 +69,9 @@
 				)
 			}}
 		</p>
-		<ul v-else class="-mx-2 space-y-0.5">
-			<li
-				v-for="source in sources"
-				:key="source.title"
-				class="group rounded-4 px-2 py-1.5 hover:bg-surface-gray-1"
-			>
+		<!-- A row is not clickable, so it gets no hover fill; hover only reveals Remove. -->
+		<ul v-else class="space-y-2">
+			<li v-for="source in sources" :key="source.title" class="group py-1">
 				<div class="flex min-h-6 items-center gap-2.5">
 					<span
 						class="size-4 shrink-0 text-ink-gray-6"

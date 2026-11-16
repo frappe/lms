@@ -2,11 +2,11 @@
 
 Lumi's voice (Kokoro-82M) and ears (Whisper) run as one small Python server. Frappe Cloud
 cannot host it inside a bench, so it runs on a VM and the site talks to it over HTTPS.
-No GPU is needed: 2 CPUs and 4 GB of memory serve a pilot.
+No GPU is needed: 4 CPUs and 16 GB of memory serve a pilot.
 
 ## 1. The machine
 
-Ubuntu 24.04, 2 vCPU, 4 GB RAM, 20 GB disk. Open ports 80 and 443 only.
+Ubuntu 24.04, 4 vCPU, 16 GB RAM, 20 GB disk. Open ports 80 and 443 only.
 
 ```sh
 sudo apt-get update && sudo apt-get install -y ffmpeg caddy
