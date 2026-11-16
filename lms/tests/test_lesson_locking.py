@@ -366,6 +366,37 @@ class TestLessonLockingIntegration(BaseTestUtils):
 		)
 		self.assertEqual(get_locked_lessons(self.course.name), {self.lessons[2].name})
 
+	def test_a_quiz_finished_after_the_dwell_time_unlocks_the_next_lesson(self):
+		"""#2701: the dwell timer saves progress first, which the unattempted quiz
+		declines; the quiz then completes the lesson and must open the next one."""
+		self._enable()
+		frappe.db.set_single_value("LMS Settings", "enforce_quiz_completion", 1)
+		frappe.clear_document_cache("LMS Settings", "LMS Settings")
+		frappe.set_user("Administrator")
+		quiz = self._create_quiz(self._create_quiz_questions()[:1], title="Locking Dwell Quiz")
+		content = {"blocks": [{"type": "quiz", "data": {"quiz": quiz.name}}]}
+		frappe.db.set_value("Course Lesson", self.lessons[0].name, "content", json.dumps(content))
+		frappe.set_user(self.student.email)
+		from lms.lms.api import mark_lesson_progress
+		from lms.lms.doctype.course_lesson.course_lesson import save_progress
+
+		save_progress(self.lessons[0].name, self.course.name)
+		self.assertIn(self.lessons[1].name, get_locked_lessons(self.course.name))
+
+		submission = frappe.get_doc(
+			{
+				"doctype": "LMS Quiz Submission",
+				"quiz": quiz.name,
+				"member": self.student.email,
+				"passing_percentage": 70,
+			}
+		).insert(ignore_permissions=True)
+		# Written straight in: the insert recomputes the score from answer rows.
+		frappe.db.set_value("LMS Quiz Submission", submission.name, "percentage", 100)
+
+		self.assertTrue(mark_lesson_progress(self.course.name, 1, 1))
+		self.assertNotIn(self.lessons[1].name, get_locked_lessons(self.course.name))
+
 	def test_scorm_renderer_refuses_bytes_for_a_locked_chapter(self):
 		# SCORMChapter.vue never calls get_lesson, so this is the authoritative gate
 		# for a student who opens /learn/<scorm-chapter> directly.
