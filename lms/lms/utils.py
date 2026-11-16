@@ -1338,15 +1338,7 @@ def check_multicurrency(amount: float, currency: str, country: str = None, amoun
 	exception_country = settings.exception_country
 	exception_country = [country.country for country in exception_country]
 
-	# Get users country
-	if not country:
-		country = frappe.db.get_value("Address", {"email_id": frappe.session.user}, "country")
-
-	if not country:
-		country = frappe.db.get_value("User", frappe.session.user, "country")
-
-	if not country:
-		country = get_country_code()
+	country = get_billing_country(country)
 
 	# If the country is the one for which conversion is not needed then return as is
 	if not country or (exception_country and country in exception_country):
@@ -1373,12 +1365,31 @@ def check_multicurrency(amount: float, currency: str, country: str = None, amoun
 	return rounded(amount), currency
 
 
+def get_billing_country(country: str | None = None) -> str | None:
+	"""The country a price and its tax are both worked out for: the one given, else
+	the buyer's latest billing address, else their profile, else their location."""
+	if country:
+		return country
+
+	address_country = frappe.get_all(
+		"Address",
+		filters={"email_id": frappe.session.user},
+		pluck="country",
+		order_by="creation desc",
+		limit=1,
+	)
+	return (
+		(address_country[0] if address_country else None)
+		or frappe.db.get_value("User", frappe.session.user, "country")
+		or get_country_code()
+	)
+
+
 def apply_gst(amount: float, country: str = None) -> tuple:
 	gst_applied = 0
 	apply_gst = frappe.db.get_single_value("LMS Settings", "apply_gst")
 
-	if not country:
-		country = frappe.db.get_value("User", frappe.session.user, "country")
+	country = get_billing_country(country)
 
 	if apply_gst and country == "India":
 		gst_applied = amount * 0.18
@@ -3054,6 +3065,8 @@ def get_discussion_replies(topic: str):
 @frappe.whitelist()
 def get_order_summary(doctype: str, docname: str, coupon: str | None = None, country: str | None = None):
 	details = get_paid_course_details(docname) if doctype == "LMS Course" else get_paid_batch_details(docname)
+	# Resolved once, so the currency and the GST cannot follow different countries.
+	country = get_billing_country(country)
 
 	details.amount, details.currency = check_multicurrency(
 		details.amount, details.currency, country, details.amount_usd
@@ -3325,10 +3338,19 @@ def payment_already_recorded(data: dict) -> bool:
 	if not payment_id:
 		return False
 
-	# Only sees callbacks that have already committed. Two arriving together are
-	# kept apart by the unique constraint on payment_id, which is what makes
-	# update_payment_details fail for whichever one loses.
-	return bool(frappe.db.exists("LMS Payment", {"payment_id": payment_id}))
+	# Imported here: lms_payment imports get_lms_route from this module.
+	from lms.lms.doctype.lms_payment.lms_payment import has_unique_payment_id
+
+	if has_unique_payment_id():
+		# Only sees callbacks that have already committed. Two arriving together are
+		# kept apart by the unique constraint on payment_id, which is what makes
+		# update_payment_details fail for whichever one loses.
+		return bool(frappe.db.exists("LMS Payment", {"payment_id": payment_id}))
+
+	# Without the constraint the callbacks queue on one lock instead. A plain read
+	# could answer from a snapshot taken before that lock, as the gateway's own
+	# request log insert takes one, and miss the callback that just committed.
+	return bool(frappe.db.get_value("LMS Payment", {"payment_id": payment_id}, "name", for_update=True))
 
 
 def is_payment_for_this_checkout(data: dict, doctype: str, docname: str) -> bool:
@@ -3354,17 +3376,62 @@ def is_payment_for_this_checkout(data: dict, doctype: str, docname: str) -> bool
 		return refuse_payment(data, "The LMS Payment does not belong to this document.")
 
 	if not data.get("razorpay_payment_id") and data.get("payment_gateway") != "Razorpay":
-		# Nothing from the gateway backs this callback, so only the payment's own
-		# member may complete it.
+		# No gateway lookup backs this callback, so only the payment's own member may
+		# complete it, and only for a charge the gateway completed at its full price.
 		if payment.member != frappe.session.user:
 			return refuse_payment(data, "The LMS Payment does not belong to this user.")
-		return True
+		return verify_gateway_request(data, payment)
 
 	# Razorpay confirms the money arrived for this payment's order, so the callback
 	# completes it whoever's session carries it: the buyer may have been logged out
 	# by then, or the callback may arrive as Guest. complete_enrollment credits
 	# payment.member, never the session.
 	return verify_razorpay_payment(data, payment)
+
+
+def verify_gateway_request(data: dict, payment: dict) -> bool:
+	"""The checkout page sends the amount it wants charged, and the gateway charges
+	exactly what its Integration Request records. That request turns Completed only
+	once the gateway confirms the charge, so it is what says how much arrived."""
+	request = get_completed_request(payment)
+	if not request:
+		return refuse_payment(data, "No completed gateway request exists for this LMS Payment.")
+
+	if (request.get("currency") or "").upper() != (payment.currency or "").upper():
+		return refuse_payment(data, f"The gateway charged {request.get('currency')}, not {payment.currency}.")
+
+	# Compared unrounded: the gateway truncates to cents, so an amount that rounds
+	# to the price can still be charged a cent short. The checkout URL carries the
+	# total as the float's own text, so a genuine one differs only in float noise.
+	expected = flt(get_payment_total(payment))
+	if abs(flt(request.get("amount")) - expected) > 1e-6:
+		return refuse_payment(data, f"The gateway charged {request.get('amount')}, not {expected}.")
+
+	return True
+
+
+def get_completed_request(payment: dict) -> dict | None:
+	"""The newest Completed Integration Request the member raised for this payment."""
+	rows = frappe.get_all(
+		"Integration Request",
+		filters={
+			"reference_doctype": payment.payment_for_document_type,
+			"reference_docname": payment.payment_for_document,
+			"owner": payment.member,
+			"status": "Completed",
+		},
+		pluck="data",
+		order_by="creation desc",
+		limit=20,
+	)
+	for raw in rows:
+		try:
+			request = json.loads(raw or "{}")
+		except ValueError:
+			continue
+		if isinstance(request, dict) and request.get("payment") == payment.name:
+			return request
+	return None
 
 
 def verify_razorpay_payment(data: dict, payment: dict) -> bool:

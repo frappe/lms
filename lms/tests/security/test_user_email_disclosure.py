@@ -419,7 +419,9 @@ class TestUserEmailDisclosure(BaseTestUtils):
 					self._as(caller, lambda: api.get_all_users(doctype, docname))
 
 	def test_announcement_bccs_the_students_on_the_server(self):
-		with patch("frappe.core.doctype.communication.email.make") as make:
+		with patch(
+			"frappe.core.doctype.communication.email.make", return_value={"name": "not-saved"}
+		) as make:
 			self._as(
 				self.moderator,
 				lambda: api.send_batch_announcement(self.batch, "Hi", "Body", "reply@example.com"),

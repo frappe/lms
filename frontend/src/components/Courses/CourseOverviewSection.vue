@@ -17,6 +17,7 @@
 					:id="descriptionId"
 					:ariaLabelledby="descriptionLabelId"
 					:content="doc.description"
+					:uploadArgs="{ private: false }"
 					@change="
 						(val) => {
 							doc.description = val

@@ -209,6 +209,7 @@
 								:id="batchDetailsId"
 								:ariaLabelledby="batchDetailsLabelId"
 								:content="batchDetail.doc.batch_details"
+								:uploadArgs="{ private: false }"
 								@change="(val: string) => updateBatchDetails(val)"
 								:editable="true"
 								:fixedMenu="true"
@@ -280,7 +281,6 @@
 							v-model="batchDetail.doc.meta_image"
 							:label="__('Meta Image')"
 							type="image"
-							:required="false"
 						/>
 					</div>
 				</div>
