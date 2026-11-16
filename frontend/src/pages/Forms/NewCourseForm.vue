@@ -97,6 +97,7 @@
 							:id="descriptionId"
 							:ariaLabelledby="descriptionLabelId"
 							:content="course.description"
+							:uploadArgs="{ private: false }"
 							@change="(val: string) => (course.description = val)"
 							:editable="true"
 							:fixedMenu="true"

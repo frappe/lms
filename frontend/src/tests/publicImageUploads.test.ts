@@ -294,6 +294,13 @@ const MANIFEST: Record<string, Privacy[]> = {
 	'components/Modals/EditCoverImage.vue': ['public'],
 	'components/UnsplashImageBrowser.vue': ['public'],
 	'components/Courses/CourseThumbnailField.vue': ['public', 'public'],
+	// A course description and a batch's details are shown wherever the course
+	// or batch is, Guest included; a private image in them was a 403 for
+	// everyone but its uploader (#3213).
+	'components/Courses/CourseOverviewSection.vue': ['public'],
+	'pages/Forms/NewCourseForm.vue': ['public'],
+	'pages/Batches/BatchForm.vue': ['public'],
+	'pages/Forms/NewBatchForm.vue': ['public'],
 	// Deliberately not readable by other users.
 	'components/Assignment.vue': ['private', 'private', 'private'],
 	'components/Modals/JobApplicationModal.vue': ['private'],
@@ -330,11 +337,7 @@ const MANIFEST: Record<string, Privacy[]> = {
 	// Moved out of AnnouncementForm.vue when it adopted FormLayout: the
 	// `<RichTextEditor>` tag now lives in this reusable field adapter instead.
 	'components/FormLayout/RichTextEditorField.vue': ['undeclared'],
-	'pages/Batches/BatchForm.vue': ['undeclared'],
 	'pages/Forms/EmailTemplateForm.vue': ['undeclared'],
-	'pages/Forms/NewBatchForm.vue': ['undeclared'],
-	'components/Courses/CourseOverviewSection.vue': ['undeclared'],
-	'pages/Forms/NewCourseForm.vue': ['undeclared'],
 	'pages/JobApplications.vue': ['undeclared'],
 	'pages/Forms/JobForm.vue': ['undeclared'],
 	'pages/Forms/ProfileEditForm.vue': ['undeclared'],
