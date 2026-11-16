@@ -31,7 +31,7 @@ vi.mock('frappe-ui', () => ({
 	createResource: createResourceMock,
 	call: vi.fn(),
 	usePageMeta: vi.fn(),
-	toast: { success: vi.fn(), error: vi.fn() },
+	toast: { success: vi.fn(), error: vi.fn(), warning: vi.fn() },
 	Dialog: {
 		name: 'Dialog',
 		props: ['open', 'title', 'size'],
@@ -96,7 +96,7 @@ const profileResource = reactive({
 })
 
 createResourceMock.mockImplementation(() =>
-	reactive({ loading: false, submit: vi.fn(), reload: vi.fn(), data: null })
+	reactive({ loading: false, submit: vi.fn(), reload: vi.fn(), data: null }),
 )
 
 const makeRouter = (): Router =>
@@ -117,7 +117,7 @@ const mountForm = (router: Router, username: string) =>
 
 const saveResource = () => {
 	const index = createResourceMock.mock.calls.findIndex(
-		([options]) => options.url === 'frappe.client.set_value'
+		([options]) => options.url === 'frappe.client.set_value',
 	)
 	return createResourceMock.mock.results[index].value
 }
@@ -174,7 +174,9 @@ describe('the profile edit route', () => {
 
 		expect(wrapper.find('[data-testid="profile-fields"]').exists()).toBe(false)
 		expect(wrapper.find('[data-testid="profile-save"]').exists()).toBe(false)
-		expect(wrapper.text()).toContain('You can only edit your own profile.')
+		expect(vi.mocked(toast.warning)).toHaveBeenLastCalledWith(
+			expect.stringContaining('You can only edit your own profile.'),
+		)
 	})
 
 	it('shows the fields to the profile owner', async () => {
@@ -199,7 +201,7 @@ describe('the profile edit route', () => {
 
 		const fields = wrapper.get('[data-testid="profile-fields"]')
 		expect(fields.findAll('input').map((input) => input.element.value)).toEqual(
-			expect.arrayContaining(['John', 'Doe'])
+			expect.arrayContaining(['John', 'Doe']),
 		)
 
 		const navigated = nextNavigation(router)
@@ -322,7 +324,7 @@ describe('the profile edit route', () => {
 
 		expect(saveResource().submit).not.toHaveBeenCalled()
 		expect(toast.error).toHaveBeenCalledWith(
-			'Please fill the mandatory fields: First Name'
+			'Please fill the mandatory fields: First Name',
 		)
 	})
 })

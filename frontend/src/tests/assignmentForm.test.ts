@@ -71,7 +71,7 @@ vi.mock('@/stores/user', () => ({ usersStore: () => ({ userResource: {} }) }))
 vi.mock('frappe-ui', () => ({
 	createDocumentResource: createDocumentResourceMock,
 	createResource: createResourceMock,
-	toast: { success: vi.fn(), error: vi.fn() },
+	toast: { success: vi.fn(), error: vi.fn(), warning: vi.fn() },
 	Dialog: {
 		name: 'Dialog',
 		props: ['open', 'title', 'size'],
@@ -226,10 +226,12 @@ describe('AssignmentForm as a route', () => {
 		})
 		const wrapper = await mountForm(router, student)
 		expect(wrapper.find('[data-testid="assignment-fields"]').exists()).toBe(
-			false
+			false,
 		)
 		expect(wrapper.find('[data-testid="assignment-save"]').exists()).toBe(false)
-		expect(wrapper.html()).toContain('not permitted')
+		expect(vi.mocked(toast.warning)).toHaveBeenLastCalledWith(
+			expect.stringContaining('not permitted'),
+		)
 	})
 
 	it('fetches the record itself on a cold deep link into edit mode', async () => {
@@ -328,7 +330,7 @@ describe('AssignmentForm as a route', () => {
 			.findAllComponents({ name: 'FormControl' })
 			.find((field: any) => field.props('label') === 'Submission Type')
 		expect(
-			typeField.props('options').map((option: any) => option.value)
+			typeField.props('options').map((option: any) => option.value),
 		).toContain('Audio')
 
 		await fillRequired(wrapper)
@@ -355,7 +357,7 @@ describe('AssignmentForm as a route', () => {
 		await save()
 		expect(insertSubmit).not.toHaveBeenCalled()
 		expect(error).toHaveBeenLastCalledWith(
-			'Add a Submission Type before saving.'
+			'Add a Submission Type before saving.',
 		)
 
 		await inputs(wrapper)[1].setValue('Text')
@@ -423,11 +425,11 @@ describe('AssignmentForm as a route', () => {
 		const wrapper = await mountForm(router, moderator)
 
 		expect(
-			wrapper.find('[data-testid="assignment-read-only-note"]').text()
+			wrapper.find('[data-testid="assignment-read-only-note"]').text(),
 		).toBe('Only the authors of this assignment can edit it.')
 		expect(wrapper.find('[data-testid="assignment-save"]').exists()).toBe(false)
 		expect(
-			wrapper.find('[data-testid="assignment-fields"]').attributes('disabled')
+			wrapper.find('[data-testid="assignment-fields"]').attributes('disabled'),
 		).toBeDefined()
 
 		const vm = wrapper.findComponent(AssignmentForm).vm as any
@@ -436,7 +438,7 @@ describe('AssignmentForm as a route', () => {
 		expect(setValueSubmit).not.toHaveBeenCalled()
 	})
 
-	it('ignores a save from a user who cannot manage assignments', async () => {
+	it('closes without saving for a user who cannot manage assignments', async () => {
 		const router = makeRouter()
 		await router.push({
 			name: 'AssignmentForm',
@@ -444,12 +446,8 @@ describe('AssignmentForm as a route', () => {
 		})
 		const wrapper = await mountForm(router, student)
 
-		// The button is gated too, so reach past it to the handler itself —
-		// otherwise this only re-tests the refusal render above.
-		const vm = wrapper.findComponent(AssignmentForm).vm as any
-		expect(typeof vm.saveAssignment).toBe('function')
-		vm.saveAssignment()
-		await flushPromises()
+		expect(wrapper.findComponent(AssignmentForm).exists()).toBe(false)
+		expect(router.currentRoute.value.name).not.toBe('AssignmentForm')
 		expect(insertSubmit).not.toHaveBeenCalled()
 	})
 
@@ -466,7 +464,7 @@ describe('AssignmentForm as a route', () => {
 		await fillRequired(wrapper)
 
 		insertSubmit.mockImplementation(() =>
-			insertOptions.current.onSuccess({ name: 'ASG-0002' })
+			insertOptions.current.onSuccess({ name: 'ASG-0002' }),
 		)
 		await wrapper.find('[data-testid="assignment-save"]').trigger('click')
 		await flushPromises()

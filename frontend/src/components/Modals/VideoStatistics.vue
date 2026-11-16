@@ -88,6 +88,7 @@
 						</div>
 					</div>
 				</div>
+				<ModalLoading v-else-if="statistics.loading" />
 				<div v-else class="text-sm text-ink-gray-6">
 					{{ __('No statistics available for this video.') }}
 				</div>
@@ -96,6 +97,7 @@
 	</Dialog>
 </template>
 <script setup lang="ts">
+import ModalLoading from '@/components/ModalLoading.vue'
 import { Avatar, createListResource, Dialog, TabButtons } from 'frappe-ui'
 import { computed, ref, watch } from 'vue'
 import { enablePlyr, formatTimestamp } from '@/utils'

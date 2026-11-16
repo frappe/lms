@@ -1,4 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { toast } from 'frappe-ui'
 import {
 	enableAutoUnmount,
 	flushPromises,
@@ -84,7 +85,7 @@ vi.mock('frappe-ui', () => ({
 	createResource: createResourceMock,
 	createListResource: createListResourceMock,
 	getCachedListResource: getCachedListResourceMock,
-	toast: { success: vi.fn(), error: vi.fn() },
+	toast: { success: vi.fn(), error: vi.fn(), warning: vi.fn() },
 	Dialog: {
 		name: 'Dialog',
 		props: ['open', 'title', 'size'],
@@ -237,10 +238,10 @@ describe('LiveClassForm as a route', () => {
 		await router.push('/batches/B1/live-class/new')
 		const wrapper = await mountForm(router, student)
 		expect(wrapper.find('[data-testid="live-class-fields"]').exists()).toBe(
-			false
+			false,
 		)
-		expect(wrapper.html()).toContain(
-			'Ask one of its instructors or a Moderator'
+		expect(vi.mocked(toast.warning)).toHaveBeenLastCalledWith(
+			expect.stringContaining('Ask one of its instructors or a Moderator'),
 		)
 	})
 
@@ -249,10 +250,10 @@ describe('LiveClassForm as a route', () => {
 		await router.push('/batches/B1/live-class/new')
 		const wrapper = await mountForm(router, evaluator)
 		expect(wrapper.find('[data-testid="live-class-fields"]').exists()).toBe(
-			false
+			false,
 		)
-		expect(wrapper.html()).toContain(
-			'Ask one of its instructors or a Moderator'
+		expect(vi.mocked(toast.warning)).toHaveBeenLastCalledWith(
+			expect.stringContaining('Ask one of its instructors or a Moderator'),
 		)
 	})
 
@@ -262,10 +263,10 @@ describe('LiveClassForm as a route', () => {
 		await router.push('/batches/B1/live-class/new')
 		const wrapper = await mountForm(router, evaluator)
 		expect(wrapper.find('[data-testid="live-class-fields"]').exists()).toBe(
-			false
+			false,
 		)
-		expect(wrapper.html()).toContain(
-			'Ask one of its instructors or a Moderator'
+		expect(vi.mocked(toast.warning)).toHaveBeenLastCalledWith(
+			expect.stringContaining('Ask one of its instructors or a Moderator'),
 		)
 	})
 
@@ -279,7 +280,7 @@ describe('LiveClassForm as a route', () => {
 		await router.push('/batches/B1/live-class/new')
 		const wrapper = await mountForm(router, evaluator)
 		expect(wrapper.find('[data-testid="live-class-fields"]').exists()).toBe(
-			true
+			true,
 		)
 	})
 
@@ -289,9 +290,11 @@ describe('LiveClassForm as a route', () => {
 		await router.push('/batches/B1/live-class/new')
 		const wrapper = await mountForm(router, moderator)
 		expect(wrapper.find('[data-testid="live-class-fields"]').exists()).toBe(
-			false
+			false,
 		)
-		expect(wrapper.html()).toContain('conferencing provider')
+		expect(vi.mocked(toast.warning)).toHaveBeenLastCalledWith(
+			expect.stringContaining('conferencing provider'),
+		)
 	})
 
 	// Empty fields used to reach the server, and an empty duration came back as
@@ -344,7 +347,7 @@ describe('LiveClassForm as a route', () => {
 						messages: [
 							'A Google Calendar connection is needed to send invites for live classes.',
 						],
-					})
+					}),
 			)
 
 		const shownLine = (wrapper: VueWrapper) => {
@@ -372,7 +375,7 @@ describe('LiveClassForm as a route', () => {
 
 			const line = shownLine(wrapper)
 			expect(line.text).toBe(
-				'A Google Calendar connection is needed to send invites for live classes. Set up'
+				'A Google Calendar connection is needed to send invites for live classes. Set up',
 			)
 			const { toast } = await import('frappe-ui')
 			expect(toast.error).not.toHaveBeenCalled()
@@ -486,7 +489,7 @@ describe('the Classes tab opener', () => {
 	const mountTab = async (
 		router: Router,
 		user: Record<string, unknown> = moderator,
-		access: Record<string, boolean> = {}
+		access: Record<string, boolean> = {},
 	) =>
 		mount(LiveClass, {
 			props: {
@@ -592,7 +595,7 @@ describe('the Classes tab opener', () => {
 		await wrapper.find('[data-testid="live-class-add"]').trigger('click')
 		await flushPromises()
 		expect(router.currentRoute.value.fullPath).toBe(
-			'/batches/B1/live-class/new#classes'
+			'/batches/B1/live-class/new#classes',
 		)
 	})
 })

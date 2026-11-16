@@ -53,7 +53,7 @@ vi.mock('frappe-ui', async () => {
 				resourceFetcher: ({ params }: { params: unknown }) =>
 					callMock(options.url, params),
 			}),
-		toast: { success: vi.fn(), error: vi.fn() },
+		toast: { success: vi.fn(), error: vi.fn(), warning: vi.fn() },
 		FileUploadHandler: class {
 			on() {}
 			upload(...args: unknown[]) {
@@ -177,12 +177,14 @@ describe('CourseImportForm as a route', () => {
 		await router.push({ name: 'CourseImport' })
 		const wrapper = await mountForm(router)
 		expect(wrapper.find('[data-testid="course-import-fields"]').exists()).toBe(
-			false
+			false,
 		)
 		expect(wrapper.find('[data-testid="course-import-submit"]').exists()).toBe(
-			false
+			false,
 		)
-		expect(wrapper.html()).toContain('not permitted')
+		expect(vi.mocked(toast.warning)).toHaveBeenLastCalledWith(
+			expect.stringContaining('not permitted'),
+		)
 	})
 
 	it('does not call the import endpoint before a ZIP has been uploaded', async () => {
@@ -203,7 +205,7 @@ describe('CourseImportForm as a route', () => {
 	const importError = (messages: string[]) => {
 		const error: Error & { messages: string[] } = Object.assign(
 			new Error('lms.lms.api.import_course_from_zip ValidationError'),
-			{ messages }
+			{ messages },
 		)
 		return error
 	}
@@ -220,7 +222,7 @@ describe('CourseImportForm as a route', () => {
 		await flushPromises()
 		expect(logged).toHaveBeenCalledWith(
 			'Error importing course:',
-			expect.any(Error)
+			expect.any(Error),
 		)
 	}
 
@@ -230,7 +232,7 @@ describe('CourseImportForm as a route', () => {
 		await rejectImportWith(['Invalid course ZIP: Missing course.json'])
 
 		expect(toast.error).toHaveBeenCalledWith(
-			'Invalid course ZIP: Missing course.json'
+			'Invalid course ZIP: Missing course.json',
 		)
 	})
 
@@ -240,7 +242,7 @@ describe('CourseImportForm as a route', () => {
 		await rejectImportWith(['Internal Server Error'])
 
 		expect(toast.error).toHaveBeenCalledWith(
-			'Error importing course: lms.lms.api.import_course_from_zip ValidationError'
+			'Error importing course: lms.lms.api.import_course_from_zip ValidationError',
 		)
 	})
 

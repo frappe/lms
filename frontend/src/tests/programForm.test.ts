@@ -1,4 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { toast } from 'frappe-ui'
 import { enableAutoUnmount, flushPromises, mount } from '@vue/test-utils'
 import {
 	createMemoryHistory,
@@ -49,7 +50,7 @@ createListResourceMock.mockImplementation((options: any) => {
 		answer(rows: any[]) {
 			if (resource.reload.mock.calls.length === 0) {
 				throw new Error(
-					`answered ${options.doctype}, which the form never reloaded`
+					`answered ${options.doctype}, which the form never reloaded`,
 				)
 			}
 			// The server returns at most one page: frappe-ui sends
@@ -208,7 +209,7 @@ const mountForm = async (router: Router, user: Record<string, unknown>) => {
 
 const deepLink = async (
 	programName: string,
-	user: Record<string, unknown> = moderator
+	user: Record<string, unknown> = moderator,
 ) => {
 	const router = makeRouter()
 	await router.push(`/programs/${programName}/edit`)
@@ -245,7 +246,9 @@ describe('ProgramForm as a route', () => {
 		const { wrapper } = await deepLink('new', student)
 		expect(wrapper.find('[data-testid="program-fields"]').exists()).toBe(false)
 		expect(wrapper.find('[data-testid="program-save"]').exists()).toBe(false)
-		expect(wrapper.html()).toContain('not permitted')
+		expect(vi.mocked(toast.warning)).toHaveBeenLastCalledWith(
+			expect.stringContaining('not permitted'),
+		)
 	})
 
 	describe('edit mode, arrived at cold', () => {
@@ -257,7 +260,7 @@ describe('ProgramForm as a route', () => {
 					doctype: 'LMS Program',
 					name: 'data-science',
 					auto: true,
-				})
+				}),
 			)
 
 			// And the fetched document is what fills the form.
@@ -269,7 +272,7 @@ describe('ProgramForm as a route', () => {
 			})
 			await flushPromises()
 			expect(
-				(wrapper.find('input[type="text"]').element as HTMLInputElement).value
+				(wrapper.find('input[type="text"]').element as HTMLInputElement).value,
 			).toBe('data-science')
 		})
 
@@ -338,7 +341,7 @@ describe('ProgramForm as a route', () => {
 		const drag = async (
 			wrapper: Awaited<ReturnType<typeof loadProgram>>,
 			oldIndex: number,
-			newIndex: number
+			newIndex: number,
 		) => {
 			const draggable = wrapper.findComponent({ name: 'Draggable' })
 			const list = draggable.props('list')
@@ -356,7 +359,7 @@ describe('ProgramForm as a route', () => {
 			await wrapper.find('[data-testid="program-save"]').trigger('click')
 			const payload = setValueSubmit.mock.calls[0][0]
 			expect(
-				payload.program_courses.map((row: any) => [row.course, row.idx])
+				payload.program_courses.map((row: any) => [row.course, row.idx]),
 			).toEqual([
 				['course-b', 1],
 				['course-c', 2],
@@ -396,7 +399,7 @@ describe('ProgramForm as a route', () => {
 			const wrapper = await loadProgram(THREE_COURSES, MEMBER_ROWS)
 			setValueSubmit.mockImplementation(
 				(_doc: unknown, options: { onError: (err: unknown) => void }) =>
-					options.onError(new Error('Not permitted'))
+					options.onError(new Error('Not permitted')),
 			)
 
 			await drag(wrapper, 0, 2)

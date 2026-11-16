@@ -29,7 +29,7 @@ const { createResourceMock, getCachedResourceMock, passthrough } = vi.hoisted(
 				template: `<div><slot name="icon" /><slot /></div>`,
 			},
 		}
-	}
+	},
 )
 
 // HeaderButton wraps frappe-ui's Button in a Tooltip below the mobile
@@ -50,7 +50,7 @@ vi.mock('frappe-ui', () => ({
 	createResource: createResourceMock,
 	getCachedResource: getCachedResourceMock,
 	call: vi.fn(),
-	toast: { success: vi.fn(), error: vi.fn() },
+	toast: { success: vi.fn(), error: vi.fn(), warning: vi.fn() },
 	Dialog: {
 		name: 'Dialog',
 		props: ['open', 'title', 'size'],
@@ -80,7 +80,7 @@ vi.mock(
 			typeof import('@framework/ui/components/Onboarding/index')
 		>()),
 		useOnboarding: () => ({ updateOnboardingStep: vi.fn() }),
-	})
+	}),
 )
 
 vi.mock('@/components/Controls/BooleanSwitch.vue', () => ({
@@ -117,13 +117,13 @@ const sharedOutline = { reload: vi.fn() }
 createResourceMock.mockImplementation((options: { url: string }) =>
 	options.url === 'lms.lms.utils.get_course_outline'
 		? outlineResource
-		: upsertResource
+		: upsertResource,
 )
 
 const optionsFor = (url: string): Record<string, unknown> =>
 	(
 		createResourceMock.mock.calls.find(
-			(call) => (call[0] as { url: string }).url === url
+			(call) => (call[0] as { url: string }).url === url,
 		) as [Record<string, unknown>]
 	)[0]
 
@@ -164,7 +164,7 @@ const COURSE_TAB = '#editor'
 const openForm = async (
 	router: Router,
 	chapterName: string,
-	state?: HistoryState
+	state?: HistoryState,
 ) => {
 	await router.push({
 		name: 'ChapterForm',
@@ -176,7 +176,7 @@ const openForm = async (
 
 const mountForm = async (
 	router: Router,
-	user: Record<string, unknown> | null = moderator
+	user: Record<string, unknown> | null = moderator,
 ) => {
 	const wrapper = mount(defineComponent({ render: () => h(RouterView) }), {
 		global: {
@@ -231,7 +231,9 @@ describe('ChapterForm as a route', () => {
 		const wrapper = await mountForm(router, null)
 		expect(wrapper.find('[data-testid="chapter-fields"]').exists()).toBe(false)
 		expect(wrapper.find('[data-testid="chapter-save"]').exists()).toBe(false)
-		expect(wrapper.html()).toContain('not permitted')
+		expect(vi.mocked(toast.warning)).toHaveBeenLastCalledWith(
+			expect.stringContaining('not permitted'),
+		)
 	})
 
 	// C4 — the highest-value test here. Edit mode used to be seeded from a row
@@ -271,7 +273,7 @@ describe('ChapterForm as a route', () => {
 					name?: string
 					title: string
 				}
-			)()
+			)(),
 		).toMatchObject({ name: 'CHAPTER-1', title: 'Deep dive' })
 
 		createResourceMock.mockClear()
@@ -283,7 +285,7 @@ describe('ChapterForm as a route', () => {
 				optionsFor('lms.lms.api.upsert_chapter').makeParams as () => {
 					name?: string
 				}
-			)().name
+			)().name,
 		).toBeUndefined()
 	})
 
@@ -314,7 +316,7 @@ describe('ChapterForm as a route', () => {
 		upsertResource.submit.mockImplementation(
 			(_params: unknown, options: { onSuccess: () => void }) => {
 				options.onSuccess()
-			}
+			},
 		)
 		await wrapper
 			.find('[data-testid="chapter-fields"] input')
