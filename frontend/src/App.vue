@@ -61,13 +61,7 @@ const { settings } = useSettings()
 // still showing, flashing it back into view. A route-driven computed changes in
 // the same tick as the route, so the swap and the page change happen together.
 const noSidebar = computed(
-<<<<<<< HEAD
-	() => Boolean(route.query.fromLesson) || route.path === '/persona'
-=======
-	() =>
-		Boolean(layoutRoute.value.query.fromLesson) ||
-		layoutRoute.value.path === '/setup'
->>>>>>> f72635e (feat: setup page on the framework setup flow, with a first password step)
+	() => Boolean(route.query.fromLesson) || route.path === '/setup'
 )
 
 const Layout = computed(() => {
