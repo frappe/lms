@@ -40,24 +40,17 @@
 				icon="lucide-plus"
 				@click="openStudentForm"
 			/>
-			<template v-if="tab?.key === 'announcements' && isAdmin && !readOnlyMode">
-				<Tooltip
-					v-if="!batch.data?.student_count"
-					:text="__('Add students to the batch to make an announcement')"
-				>
-					<HeaderButton
-						:label="__('Make Announcement')"
-						icon="lucide-send"
-						disabled
-					/>
-				</Tooltip>
-				<HeaderButton
-					v-else
-					:label="__('Make Announcement')"
-					icon="lucide-send"
-					@click="openAnnouncementModal"
-				/>
-			</template>
+			<HeaderButton
+				v-if="
+					tab?.key === 'announcements' &&
+					isAdmin &&
+					!readOnlyMode &&
+					batch.data?.student_count
+				"
+				:label="__('Make Announcement')"
+				icon="lucide-send"
+				@click="openAnnouncementModal"
+			/>
 			<template v-if="tab?.key === 'settings' && isAdmin">
 				<Tooltip
 					v-if="!instance?.isDirty"
@@ -274,13 +267,12 @@ const togglePublishBatch = () => {
 
 const batchMenu = (tab) => {
 	const options = []
-	if (batch.data?.certification) {
+	if (batch.data?.certification && batch.data?.student_count) {
 		options.push({
 			label: __('Generate Certificates'),
 			icon: 'lucide-award',
-			onClick: () => {
-				openBatchForm(router, 'BulkCertificates', props.batchName, route.hash)
-			},
+			onClick: () =>
+				openBatchForm(router, 'BulkCertificates', props.batchName, route.hash),
 		})
 	}
 	if (tab?.key !== 'settings') return options
