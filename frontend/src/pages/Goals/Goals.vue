@@ -133,6 +133,7 @@ import {
 
 interface GoalRow {
 	name: string
+	owner: string
 	title: string
 	status: 'Draft' | 'Drafting' | 'Ready' | 'Published'
 	outcome?: string
@@ -177,8 +178,9 @@ const rows = computed<GoalRow[]>(() => goals.data || [])
 const published = computed(() =>
 	rows.value.filter((goal) => goal.status === 'Published')
 )
+// Created is yours, whatever its status: the drafts and the ones already out.
 const created = computed(() =>
-	rows.value.filter((goal) => goal.status !== 'Published')
+	rows.value.filter((goal) => goal.owner === user.data?.name)
 )
 
 const tabs = computed(() =>
@@ -237,13 +239,13 @@ const emptyState = computed(() => {
 		? {
 				title: __('Nothing published yet'),
 				description: __(
-					'Publish a skill to send it to your people. Your drafts are under Created.'
+					'Publish a skill to send it to your people. Yours, published or not, are under Created.'
 				),
 		  }
 		: {
-				title: __('Every skill you made is published'),
+				title: __('Nothing created by you yet'),
 				description: __(
-					'Start a new one here, and it waits in this tab until you publish it.'
+					'Start a skill here. It stays in this tab as a draft and after you publish it.'
 				),
 		  }
 })

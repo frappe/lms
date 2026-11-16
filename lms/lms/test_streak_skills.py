@@ -19,6 +19,7 @@ class TestStreakCountsSkills(BaseTestUtils):
 		frappe.set_user(learner.name)
 		self.assertEqual(get_streak_info()["current_streak"], 0)
 
+		# nosemgrep: lms-unjustified-ignore-permissions - test setup writes the system's own record
 		frappe.get_doc(
 			{
 				"doctype": "LMS Goal Evidence",
@@ -46,6 +47,7 @@ class TestStreakCountsSkills(BaseTestUtils):
 		assignment = frappe.get_doc(
 			{"doctype": "LMS Goal Assignment", "goal": goal, "member": admin.name, "is_preview": 1}
 		).insert()
+		# nosemgrep: lms-unjustified-ignore-permissions - test setup writes the system's own record
 		frappe.get_doc(
 			{
 				"doctype": "LMS Goal Evidence",

@@ -38,7 +38,7 @@
 							)
 						"
 					>
-						<Button variant="solid" :route="{ name: 'Goals' }">{{
+						<Button variant="subtle" :route="{ name: 'Goals' }">{{
 							__('Go to Skills')
 						}}</Button>
 					</EmptyStateLayout>

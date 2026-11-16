@@ -369,8 +369,9 @@ def _write_alpha_feedback(assignment, answers: dict) -> None:
 	doc = frappe.get_doc("LMS Alpha Feedback", name) if name else frappe.new_doc("LMS Alpha Feedback")
 	doc.update({"member": assignment.member, "goal": assignment.goal, "assignment": assignment.name})
 	doc.update(answers)
-	# nosemgrep: lms-unjustified-ignore-permissions - a learner has no role on this doctype; the
-	# assignment check above proves the feedback is their own, and only the team can read it.
+	# A learner has no role on this doctype; the assignment check above proves the feedback is
+	# their own, and only the team can read it.
+	# nosemgrep: lms-unjustified-ignore-permissions - the learner's own feedback, checked above
 	doc.save(ignore_permissions=True)
 
 

@@ -17,4 +17,4 @@ class LMSAlphaFeedback(Document):
 		for field in SCALE_FIELDS:
 			value = cint(self.get(field))
 			if value and not 1 <= value <= 5:
-				frappe.throw(_("{0} is a score from 1 to 5.").format(self.meta.get_label(field)))
+				frappe.throw(_("{0} is a score from 1 to 5.").format(_(self.meta.get_label(field))))
