@@ -1,6 +1,5 @@
-// Guards every lesson embed being drawn as a rounded, outlined card, on the
-// visible wrapper since Plyr replaces the element. Came with this branch's
-// lesson embed rounding; added on feat/assessment-visual-redesign.
+// Guards every lesson embed being rounded but not outlined, on the visible
+// wrapper since Plyr replaces the element. Only assessment cards keep a border.
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { flushPromises, mount } from '@vue/test-utils'
 import { defineComponent, h } from 'vue'
@@ -56,11 +55,13 @@ const translate = (message: string) => {
 	}
 }
 
-const CARD = ['rounded-7', 'overflow-hidden', 'border', 'border-outline-gray-2']
+const CARD = ['rounded-7', 'overflow-hidden']
+const BORDER = ['border', 'border-outline-gray-2']
 
 const expectCard = (element: Element | null | undefined) => {
 	expect(element, 'the embed renders').toBeTruthy()
 	for (const name of CARD) expect(element!.classList).toContain(name)
+	for (const name of BORDER) expect(element!.classList).not.toContain(name)
 }
 
 const renderUpload = (file_url: string, file_type: string) => {
@@ -142,9 +143,9 @@ describe('the media players', () => {
 	it("rounds the inline PDF viewer's own frame", () => {
 		const css = onDisk('components/PdfBlock.vue')
 		const rule = css.slice(css.indexOf('.pdf-block {'))
-		expect(rule.slice(0, rule.indexOf('}'))).toContain(
-			'border-radius: var(--radius-7)'
-		)
+		const body = rule.slice(0, rule.indexOf('}'))
+		expect(body).toContain('border-radius: var(--radius-7)')
+		expect(body).not.toMatch(/\bborder:/)
 	})
 })
 
@@ -157,14 +158,21 @@ describe('EditorJS embeds and images', () => {
 	}
 
 	it.each(['.embed-tool', '.cdx-simple-image__picture'])(
-		'%s is clipped to a rounded, outlined card',
+		'%s is clipped to rounded corners with no border',
 		(selector) => {
 			const rule = ruleFor(selector)
 			expect(rule).toContain('border-radius: var(--radius-7)')
 			expect(rule).toContain('overflow: hidden')
-			expect(rule).toContain('border: 1px solid var(--outline-gray-2)')
+			expect(rule).not.toMatch(/\bborder:/)
 		}
 	)
+
+	it('leaves the Plyr video unoutlined', () => {
+		expect(ruleFor('.plyr--video')).not.toMatch(/\bborder:/)
+		const stats = onDisk('components/Modals/VideoStatistics.vue')
+		const at = stats.indexOf('.plyr--video {')
+		expect(stats.slice(at, stats.indexOf('}', at))).not.toMatch(/\bborder:/)
+	})
 })
 
 describe('markdown lesson embeds', () => {
