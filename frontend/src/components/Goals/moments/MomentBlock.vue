@@ -11,8 +11,8 @@
 				v-if="result"
 				class="ms-auto"
 				size="sm"
-				:theme="result.correct ? 'green' : 'amber'"
-				:label="result.correct ? __('Got it') : __('Worth a second look')"
+				:theme="verdict.theme"
+				:label="verdict.label"
 			/>
 		</div>
 		<component
@@ -42,6 +42,10 @@ import RateMoment from './RateMoment.vue'
 import BetMoment from './BetMoment.vue'
 import ChooseMoment from './ChooseMoment.vue'
 import BuildMoment from './BuildMoment.vue'
+import SortMoment from './SortMoment.vue'
+import MatchMoment from './MatchMoment.vue'
+import FillMoment from './FillMoment.vue'
+import ReplyMoment from './ReplyMoment.vue'
 
 const props = defineProps<{
 	id: string
@@ -83,7 +87,37 @@ const KINDS = {
 		icon: 'lucide-blocks',
 		label: __('Build it'),
 	},
+	sort: {
+		component: SortMoment,
+		icon: 'lucide-group',
+		label: __('Sort them'),
+	},
+	match: {
+		component: MatchMoment,
+		icon: 'lucide-link-2',
+		label: __('Match them'),
+	},
+	fill: {
+		component: FillMoment,
+		icon: 'lucide-text-cursor-input',
+		label: __('Fill the blanks'),
+	},
+	reply: {
+		component: ReplyMoment,
+		icon: 'lucide-message-square-reply',
+		label: __('In your words'),
+	},
 } as const
+
+// A reply has no key of its own: the tutor judges it in the next turn, so until then
+// the badge only says it went.
+const verdict = computed(() => {
+	if (props.result?.correct === null)
+		return { theme: 'gray' as const, label: __('Sent') }
+	return props.result?.correct
+		? { theme: 'green' as const, label: __('Got it') }
+		: { theme: 'amber' as const, label: __('Worth a second look') }
+})
 
 const meta = computed(
 	() => KINDS[props.moment.kind as keyof typeof KINDS] || KINDS.choose

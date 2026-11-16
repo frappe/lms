@@ -259,6 +259,8 @@ const start = async () => {
 
 // A missed moment counts against its idea, so the final check can come back to it.
 const recordMoment = (payload: Record<string, unknown>) => {
+	// A reply has no verdict yet; the tutor's confirm_idea call is what counts it.
+	if (payload.correct === null) return
 	call('lms.lms.ai.api.record_moment', {
 		assignment: props.assignment,
 		idea: payload.idea ?? null,

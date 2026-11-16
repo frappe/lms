@@ -70,7 +70,9 @@ class TestAlphaFeedback(BaseTestUtils):
 
 	def test_fields_the_doctype_does_not_have_are_ignored(self):
 		frappe.set_user(self.learner.name)
-		submit_alpha_feedback(self.assignment.name, {"compared": "Better", "member": self.other.name, "extra": 1})
+		submit_alpha_feedback(
+			self.assignment.name, {"compared": "Better", "member": self.other.name, "extra": 1}
+		)
 		row = frappe.db.get_value(
 			"LMS Alpha Feedback", {"assignment": self.assignment.name}, ["member", "compared"], as_dict=True
 		)

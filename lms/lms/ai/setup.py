@@ -85,6 +85,8 @@ def ensure_agents() -> None:
 				tools=[
 					tools.search_my_goal_sources,
 					tools.show_moment,
+					tools.remember_situation,
+					tools.judge_reply,
 					tools.confirm_idea,
 					tools.finish_teaching,
 				],

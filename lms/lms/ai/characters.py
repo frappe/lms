@@ -44,6 +44,14 @@ CAST = {
 CastKey = Literal["brannoc", "quilla", "fenwick", "odalie", "tavish"]
 
 
+def name_cast(content: dict) -> dict:
+	"""Give an activity's content the display name of its cast member, when it has one and the
+	drafter left the name out. The same content comes back, so it reads well in an expression."""
+	if content.get("cast") in CAST and not content.get("character"):
+		content["character"] = CAST[content["cast"]]["name"]
+	return content
+
+
 def cast_guide() -> str:
 	"""The cast as the plan drafter reads it."""
 	return "\n".join(

@@ -6,7 +6,7 @@ import frappe
 from frappe import _
 from frappe.utils import cint
 
-from lms.lms.ai import setup
+from lms.lms.ai import characters, setup
 
 SAVED = "lms_goal_revision_saved:{session}"
 
@@ -56,11 +56,13 @@ def save(goal_name: str, index: int, activity: dict, session: str | None = None)
 			_("Keep it a {0}; change only what the admin asked for.").format(row.activity_type),
 			title=_("Wrong Activity Type"),
 		)
-	content = {
-		key: value
-		for key, value in activity.items()
-		if key not in ("activity_type", "title", "summary", "minutes") and value is not None
-	}
+	content = characters.name_cast(
+		{
+			key: value
+			for key, value in activity.items()
+			if key not in ("activity_type", "title", "summary", "minutes") and value is not None
+		}
+	)
 	row.update(
 		{
 			"title": activity["title"],

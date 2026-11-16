@@ -12,7 +12,7 @@
 			:key="q"
 			class="rounded-7 border border-outline-gray-2 bg-surface-base p-5"
 		>
-			<div class="mb-3 text-base-medium text-ink-gray-9">
+			<div class="mb-3 text-p-base font-medium text-ink-gray-9">
 				{{ q + 1 }}. {{ question.question }}
 			</div>
 			<div

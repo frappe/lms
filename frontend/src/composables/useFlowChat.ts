@@ -240,12 +240,24 @@ export function useFlowChat(
 		if (notice?.session === session.value) load()
 	}
 
+	// A relay that never answers (socketio down, or still connecting) must not hold the
+	// transcript back: after a moment we read the log without it and poll while a reply runs.
 	const subscribe = (name: string) =>
 		new Promise<boolean>((resolve) => {
 			if (!socket) return resolve(false)
-			socket.emit('flow:subscribe', name, (ack: { subscribed?: boolean }) =>
-				resolve(ack?.subscribed === true),
-			)
+			let late = false
+			const timer = setTimeout(() => {
+				late = true
+				resolve(false)
+			}, 2000)
+			socket.emit('flow:subscribe', name, (ack: { subscribed?: boolean }) => {
+				clearTimeout(timer)
+				if (!late) return resolve(ack?.subscribed === true)
+				// The relay answered after we gave up on it: adopt the subscription if this is
+				// still the session on screen, otherwise let the server drop it.
+				if (ack?.subscribed && session.value === name) subscribed = name
+				else if (ack?.subscribed) socket.emit('flow:unsubscribe', name)
+			})
 		})
 
 	const unsubscribe = () => {

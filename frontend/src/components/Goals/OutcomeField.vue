@@ -35,12 +35,25 @@
 					</button>
 				</template>
 				<div class="w-[22rem] max-w-[calc(100vw-2rem)] p-1">
+					<!-- The wait looks like what arrives: three suggestions, each a short angle and two lines. -->
 					<div v-if="suggesting" class="flex flex-col gap-1" :aria-busy="true">
+						<div
+							class="flex items-center gap-2 px-2.5 pb-1 pt-1.5 text-p-xs text-ink-gray-6"
+						>
+							<LoadingIndicator class="size-3.5" />
+							{{ __('Reading your material. About twenty seconds.') }}
+						</div>
 						<div
 							v-for="n in 3"
 							:key="n"
-							class="h-12 animate-pulse rounded-5 bg-surface-gray-1"
-						/>
+							class="flex flex-col gap-2 px-2.5 py-2"
+						>
+							<div
+								class="h-2.5 w-1/3 animate-pulse rounded bg-surface-gray-2"
+							/>
+							<div class="h-3 w-full animate-pulse rounded bg-surface-gray-1" />
+							<div class="h-3 w-4/5 animate-pulse rounded bg-surface-gray-1" />
+						</div>
 					</div>
 					<ul v-else-if="options.length" class="flex flex-col">
 						<li v-for="option in options" :key="option.label">
@@ -91,7 +104,14 @@
 
 <script setup lang="ts">
 import { computed, onBeforeUnmount, ref } from 'vue'
-import { Button, call, ErrorMessage, FormControl, Popover } from 'frappe-ui'
+import {
+	Button,
+	call,
+	ErrorMessage,
+	FormControl,
+	LoadingIndicator,
+	Popover,
+} from 'frappe-ui'
 
 interface Option {
 	label: string

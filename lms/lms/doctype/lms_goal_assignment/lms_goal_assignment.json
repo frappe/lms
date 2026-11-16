@@ -26,6 +26,7 @@
   "is_preview",
   "tutor_persona",
   "idea_state",
+  "learner_situations",
   "check_selection"
  ],
  "fields": [
@@ -142,6 +143,12 @@
    "read_only": 1
   },
   {
+   "fieldname": "learner_situations",
+   "fieldtype": "JSON",
+   "label": "Their Own Situations",
+   "read_only": 1
+  },
+  {
    "fieldname": "check_selection",
    "fieldtype": "JSON",
    "label": "Check Questions Picked",
@@ -151,7 +158,7 @@
  "grid_page_length": 50,
  "link_display_mode": "Search",
  "links": [],
- "modified": "2026-10-30 21:17:33.744922",
+ "modified": "2026-11-16 11:14:09.969086",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Goal Assignment",

@@ -1,3 +1,5 @@
+import re
+
 """Tools Learning's Flow agents call. Each runs as the session's owner, so each checks who that is:
 a learner could start a session with any agent open to them and ask it anything."""
 
@@ -6,7 +8,7 @@ from typing import Annotated, Literal
 import frappe
 from frappe import _
 from frappe.flow.lib.tool import ToolContext, tool
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, model_validator
 
 from lms.lms.ai.characters import CastKey
 from lms.lms.permissions import require_learning_admin
@@ -168,8 +170,72 @@ class BuildMoment(_MomentBase):
 	extra_pieces: list[str] = Field(default_factory=list, description="0 to 3 plausible wrong pieces")
 
 
+class SortItem(BaseModel):
+	text: str
+	bucket: int = Field(description="The bucket this item belongs in, numbered from 0")
+
+
+class SortMoment(_MomentBase):
+	kind: Literal["sort"]
+	prompt: str
+	buckets: list[str] = Field(description="2 or 3 short bucket names")
+	items: list[SortItem] = Field(description="4 to 8 short items, each in exactly one bucket")
+
+	@model_validator(mode="after")
+	def _buckets_exist(self):
+		for item in self.items:
+			if not 0 <= item.bucket < len(self.buckets):
+				raise ValueError(f"bucket {item.bucket} does not exist; buckets are numbered from 0")
+		return self
+
+
+class MatchPair(BaseModel):
+	left: str
+	right: str
+
+
+class MatchMoment(_MomentBase):
+	kind: Literal["match"]
+	prompt: str
+	pairs: list[MatchPair] = Field(description="3 to 5 pairs; the right sides are shuffled for the learner")
+
+
+class FillMoment(_MomentBase):
+	kind: Literal["fill"]
+	prompt: str = Field(description="One line of context, e.g. Complete the rule")
+	text: str = Field(description="The sentence with each blank written as ___, 1 to 3 blanks")
+	answers: list[str] = Field(description="The piece for each blank, in order")
+	extra_pieces: list[str] = Field(default_factory=list, description="1 to 3 plausible wrong pieces")
+
+	@model_validator(mode="after")
+	def _one_answer_per_blank(self):
+		blanks = len(re.findall(r"_{3,}", self.text))
+		if not blanks or blanks != len(self.answers):
+			raise ValueError(f"text has {blanks} blanks written as ___ but {len(self.answers)} answers")
+		return self
+
+
+class ReplyMoment(_MomentBase):
+	kind: Literal["reply"]
+	prompt: str = Field(
+		description="What they must do, e.g. Quilla asks you this in the corridor. What do you say?"
+	)
+	message: str = Field(description="The cast member's words, or the situation, as the learner hears it")
+	cast: CastKey | None = Field(None, description="The cast member speaking, when one is")
+	criteria: list[str] = Field(description="2 or 3 things a good answer does, each a short phrase")
+
+
 Moment = Annotated[
-	SpotMoment | OrderMoment | RateMoment | BetMoment | ChooseMoment | BuildMoment,
+	SpotMoment
+	| OrderMoment
+	| RateMoment
+	| BetMoment
+	| ChooseMoment
+	| BuildMoment
+	| SortMoment
+	| MatchMoment
+	| FillMoment
+	| ReplyMoment,
 	Field(discriminator="kind"),
 ]
 
@@ -296,7 +362,8 @@ NO_MATERIAL_HIT = (
 def show_moment(moment: Moment, *, ctx: ToolContext) -> str:
 	"""Put an interactive exercise in front of the learner instead of asking in plain text: spot the
 	issue, put steps in order, rate a situation, answer and bet your confidence, choose between
-	options, or build something from pieces. Their answer arrives as their next message.
+	options, build something from pieces, sort items into buckets, match pairs, fill the blanks,
+	or reply in their own words. Their answer arrives as their next message.
 
 	Any person in it is Brannoc, Quilla, Fenwick, Odalie or Tavish, never any other name; a role
 	with no cast fit stays nameless, such as a contractor or your manager."""
@@ -304,6 +371,35 @@ def show_moment(moment: Moment, *, ctx: ToolContext) -> str:
 		"Shown to the learner. End your turn with one short line inviting them to try it. "
 		"Do not repeat what you already said this turn."
 	)
+
+
+@tool
+def remember_situation(
+	situation: Annotated[str, "The learner's own situation, in one plain sentence, with no real names"],
+	*,
+	ctx: ToolContext,
+) -> str:
+	"""Keep a situation from the learner's own work, so this lesson and the next ones can build
+	exercises on it instead of on a cast story."""
+	from lms.lms.ai import situations
+
+	kept = situations.remember(_teaching_assignment(ctx), situation)
+	return _("Kept. Their situations so far: {0}").format(" | ".join(kept))
+
+
+@tool
+def judge_reply(
+	idea: Annotated[int, "The key idea the reply moment checked"],
+	met: Annotated[bool, "True when their words met the criteria in substance"],
+	*,
+	ctx: ToolContext,
+) -> str:
+	"""Record your judgement of a reply moment, so a weak reply counts against its idea the way a
+	missed tap does and the final check comes back to it."""
+	from lms.lms.ai.ideas import record_moment
+
+	record_moment(_teaching_assignment(ctx), idea, met, None)
+	return _("Recorded.")
 
 
 @tool

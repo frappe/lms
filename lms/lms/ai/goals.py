@@ -6,7 +6,7 @@ import frappe
 from frappe import _
 from frappe.utils import cint, flt, getdate, now_datetime, today
 
-from lms.lms.ai import characters, ideas, material, setup
+from lms.lms.ai import characters, ideas, material, setup, situations
 
 PRACTICE_TYPES = ("Scenario", "Check", "Role-play")
 
@@ -123,8 +123,7 @@ def apply_plan(goal_name: str, plan: dict) -> None:
 			for key, value in activity.items()
 			if key not in ("activity_type", "title", "summary", "minutes") and value is not None
 		}
-		if content.get("cast") in characters.CAST:
-			content["character"] = characters.CAST[content["cast"]]["name"]
+		characters.name_cast(content)
 		goal.append(
 			"activities",
 			{
@@ -412,7 +411,7 @@ def start_roleplay(assignment_name: str, index: int) -> str:
 	if activity.activity_type != "Role-play":
 		frappe.throw(_("This activity is not a role-play."), title=_("Wrong Activity"))
 	session = new_session(setup.ROLE_PLAY, title=activity.title, approval_mode="Auto-approve")
-	session.chat(_roleplay_brief(content))
+	session.chat(_roleplay_brief(content, situations.recall(assignment)))
 	_save_evidence(assignment, index, activity, status="Recorded", flow_session=session.name, passed=0)
 	return session.name
 
@@ -446,6 +445,7 @@ def start_teaching(assignment_name: str, index: int) -> str:
 				).strip(),
 				"they_need_to_be_able_to": goal.learner_outcome or goal.title,
 				"has_material": has_material(goal.name),
+				"their_situations": situations.recall(assignment),
 				"key_ideas": [
 					{"idea": idea["idea"], "heading": idea["heading"], "body": idea["body"]}
 					for idea in ideas.key_ideas(goal)
@@ -726,12 +726,14 @@ def _activity(goal_name: str, index: int):
 	if not 0 <= index < len(activities):
 		frappe.throw(_("That activity does not exist."), title=_("Invalid Activity"))
 	row = activities[index]
-	return row, json.loads(row.content or "{}")
+	# Every reader gets the partner's name, whichever path wrote the plan.
+	return row, characters.name_cast(json.loads(row.content or "{}"))
 
 
 def _learner_view(index: int, row, evidence) -> dict:
 	"""The activity without what would give the answers away."""
-	content = json.loads(row.content or "{}")
+	# Older plans and revisions can lack the partner's name; the learner never sees a nameless one.
+	content = characters.name_cast(json.loads(row.content or "{}"))
 	if row.activity_type == "Scenario":
 		content["choices"] = [{"text": c.get("text")} for c in content.get("choices") or []]
 	elif row.activity_type == "Check":
@@ -896,7 +898,7 @@ def transcription_hint(session: str, user: str) -> str:
 	words += [idea["heading"] for idea in ideas.key_ideas(goal)]
 	activities = goal.activities or []
 	if 0 <= (row.activity_index or 0) < len(activities):
-		content = json.loads(activities[row.activity_index].content or "{}")
+		content = characters.name_cast(json.loads(activities[row.activity_index].content or "{}"))
 		words += [content.get("character"), content.get("setting")]
 	words += [member.get("name") for member in characters.CAST.values()]
 	return ". ".join(dict.fromkeys(word.strip().rstrip(".") for word in words if word))[:600]
@@ -907,11 +909,12 @@ def roleplay_exchanges(content: dict) -> int:
 	return min(max(int(content.get("exchanges") or ROLEPLAY_EXCHANGES), 2), 8)
 
 
-def _roleplay_brief(content: dict) -> str:
+def _roleplay_brief(content: dict, learner_situations: list[str] | None = None) -> str:
 	# Setting and task are written to the learner ("you are the member of staff"), so they go
 	# under the learner's name: a character handed them as its own plays the learner instead.
 	return "BRIEF\n" + json.dumps(
 		{
+			"the_learners_own_situations": learner_situations or [],
 			"you_play": content.get("character"),
 			"your_role": content.get("character_role"),
 			"personality": " ".join(

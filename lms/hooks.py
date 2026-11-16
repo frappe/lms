@@ -77,6 +77,8 @@ setup_wizard_complete = "lms.demo.demo_data.create_demo_data"
 after_migrate = [
 	"lms.lms.doctype.lms_payment.lms_payment.add_unique_payment_id_constraint",
 	"lms.lms.ai.setup.ensure_learner_access",
+	# Agent prompts and tool lists live in code; a deploy must roll them out without an admin action.
+	"lms.lms.ai.setup.ensure_agents",
 	# Also on migrate, not only after_sync. Both seeders are create-if-absent, and
 	# running the sidebar one on fresh installs alone means a fourteenth built-in
 	# added to `standard_sidebar_items` later never reaches a site that has

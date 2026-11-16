@@ -8,10 +8,10 @@
 					<CharacterAvatar
 						v-if="isCastKey(content.cast)"
 						:who="content.cast"
-						:label="content.character"
+						:label="characterName"
 						class="size-8"
 					/>
-					<Avatar v-else :label="content.character" size="lg" />
+					<Avatar v-else :label="characterName" size="lg" />
 					<span
 						class="absolute -bottom-0.5 -end-0.5 size-2.5 rounded-full border-2 border-outline-base bg-surface-green-5"
 						aria-hidden="true"
@@ -19,7 +19,7 @@
 				</span>
 				<div class="min-w-0 flex-1">
 					<div class="truncate text-p-base font-semibold text-ink-gray-9">
-						{{ content.character }}
+						{{ characterName }}
 					</div>
 					<div class="truncate text-p-xs text-ink-gray-6">
 						{{
@@ -58,13 +58,13 @@
 							<CharacterAvatar
 								v-if="isCastKey(content.cast)"
 								:who="content.cast"
-								:label="content.character"
+								:label="characterName"
 								class="size-14 shrink-0"
 							/>
-							<Avatar v-else :label="content.character" size="xl" />
+							<Avatar v-else :label="characterName" size="xl" />
 							<div class="min-w-0">
 								<div class="text-p-base font-semibold text-ink-gray-9">
-									{{ content.character }}
+									{{ characterName }}
 								</div>
 								<div class="text-p-sm text-ink-gray-6">
 									{{ content.character_role }}
@@ -123,9 +123,9 @@
 				<div v-else class="flex min-w-0 flex-1 flex-col">
 					<FlowChat
 						:session="session"
-						:assistant-name="content.character"
+						:assistant-name="characterName"
 						:character="isCastKey(content.cast) ? content.cast : undefined"
-						:placeholder="__('Reply to {0}').format(content.character)"
+						:placeholder="__('Reply to {0}').format(characterName)"
 						hide-first-message
 						voice
 						:read-only="outOfReplies"
@@ -149,7 +149,7 @@
 								{{
 									__(
 										"That's all your replies. See how you did with {0}."
-									).format(content.character)
+									).format(characterName)
 								}}
 							</span>
 							<Button
@@ -169,12 +169,12 @@
 						<CharacterAvatar
 							v-if="isCastKey(content.cast)"
 							:who="content.cast"
-							:label="content.character"
+							:label="characterName"
 							class="size-16"
 						/>
-						<Avatar v-else :label="content.character" size="3xl" />
+						<Avatar v-else :label="characterName" size="3xl" />
 						<div class="text-p-base font-semibold text-ink-gray-9">
-							{{ content.character }}
+							{{ characterName }}
 						</div>
 						<p v-if="content.personality" class="text-p-sm text-ink-gray-6">
 							{{ content.personality }}
@@ -341,7 +341,7 @@
 					<CharacterAvatar
 						v-if="isCastKey(content.cast)"
 						:who="content.cast"
-						:label="content.character"
+						:label="characterName"
 						class="size-14 shrink-0"
 					/>
 					<div class="min-w-0">
@@ -355,7 +355,7 @@
 							{{
 								__(
 									'Reading your conversation with {0}. This takes about half a minute.'
-								).format(content.character)
+								).format(characterName)
 							}}
 						</div>
 					</div>
@@ -395,7 +395,7 @@ import {
 import type { Socket } from 'socket.io-client'
 import FlowChat from '@/components/Goals/FlowChat.vue'
 import CharacterAvatar from '@/components/Goals/CharacterAvatar.vue'
-import { isCastKey } from '@/utils/characters'
+import { CAST_NAMES, isCastKey } from '@/utils/characters'
 
 const props = withDefaults(
 	defineProps<{
@@ -410,6 +410,16 @@ const emit = defineEmits<{ next: []; refresh: []; live: [live: boolean] }>()
 const socket = inject<Socket>('$socket')
 
 const content = computed(() => props.activity.content)
+// A plan can carry a cast key without the name; the partner still needs one on screen.
+const characterName = computed(() => {
+	const cast: unknown = content.value.cast
+	return (
+		content.value.character ||
+		(isCastKey(cast) ? CAST_NAMES[cast] : '') ||
+		content.value.character_role ||
+		__('them')
+	)
+})
 const evidence = computed(() => props.activity.evidence)
 const session = ref<string | null>(null)
 const stage = ref<'brief' | 'chat' | 'result'>('brief')

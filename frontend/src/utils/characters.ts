@@ -30,12 +30,63 @@ export const LUMI_COLORS = {
 	ink: '#1a1a1a',
 }
 
+/** How each cast member is called on screen, the same names the server gives a plan. */
+export const CAST_NAMES: Record<CastKey, string> = {
+	brannoc: 'Brannoc',
+	quilla: 'Quilla',
+	fenwick: 'Fenwick',
+	odalie: 'Odalie',
+	tavish: 'Tavish',
+}
+
 export const CAST_LOOKS: Record<CastKey, CastLook> = {
-	brannoc: { bg: '#f3c9a8', skin: '#8d5a3b', hair: '#2b1d16', shirt: '#3b4a6b', hairStyle: 'short', brows: 'down', mouth: 'flat', beard: true },
-	quilla: { bg: '#cfe3f7', skin: '#f1c7a3', hair: '#5a3a2a', shirt: '#8fb7a5', hairStyle: 'bun', brows: 'up', mouth: 'small' },
-	fenwick: { bg: '#e4e0f5', skin: '#e8b48a', hair: '#9a9a9a', shirt: '#4d5560', hairStyle: 'side', brows: 'flat', mouth: 'flat', glasses: true },
-	odalie: { bg: '#ffe2b8', skin: '#5e3b28', hair: '#1c1410', shirt: '#d9745b', hairStyle: 'curls', brows: 'up', mouth: 'grin' },
-	tavish: { bg: '#d6efe4', skin: '#c99772', hair: '#3a2a20', shirt: '#2f2f38', hairStyle: 'quiff', brows: 'one', mouth: 'smirk' },
+	brannoc: {
+		bg: '#f3c9a8',
+		skin: '#8d5a3b',
+		hair: '#2b1d16',
+		shirt: '#3b4a6b',
+		hairStyle: 'short',
+		brows: 'down',
+		mouth: 'flat',
+		beard: true,
+	},
+	quilla: {
+		bg: '#cfe3f7',
+		skin: '#f1c7a3',
+		hair: '#5a3a2a',
+		shirt: '#8fb7a5',
+		hairStyle: 'bun',
+		brows: 'up',
+		mouth: 'small',
+	},
+	fenwick: {
+		bg: '#e4e0f5',
+		skin: '#e8b48a',
+		hair: '#9a9a9a',
+		shirt: '#4d5560',
+		hairStyle: 'side',
+		brows: 'flat',
+		mouth: 'flat',
+		glasses: true,
+	},
+	odalie: {
+		bg: '#ffe2b8',
+		skin: '#5e3b28',
+		hair: '#1c1410',
+		shirt: '#d9745b',
+		hairStyle: 'curls',
+		brows: 'up',
+		mouth: 'grin',
+	},
+	tavish: {
+		bg: '#d6efe4',
+		skin: '#c99772',
+		hair: '#3a2a20',
+		shirt: '#2f2f38',
+		hairStyle: 'quiff',
+		brows: 'one',
+		mouth: 'smirk',
+	},
 }
 // token-exempt-end
 
