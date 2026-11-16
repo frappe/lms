@@ -1,6 +1,7 @@
 """API methods for the LMS."""
 
 import hashlib
+import io
 import json
 import os
 import re
@@ -4667,6 +4668,28 @@ def export_course_as_file(course_name: str) -> str:
 		frappe.throw(_("You do not have permission to export this course."), frappe.PermissionError)
 
 	return export_course_zip(course_name, as_file=True)
+
+
+@frappe.whitelist(methods=["POST"])
+def upload_zip():
+	"""Save a course archive or a SCORM package as a private File of the caller's.
+
+	upload_file refuses a ZIP from anyone without desk access, which is every LMS
+	role, so the people who build courses could not upload either."""
+	frappe.only_for(["Moderator", "Course Creator"])
+	upload = frappe.request.files.get("file")
+	if not upload or not (upload.filename or "").lower().endswith(".zip"):
+		frappe.throw(_("Please upload a ZIP file."))
+
+	content = upload.stream.read()
+	if not zipfile.is_zipfile(io.BytesIO(content)):
+		frappe.throw(_("This file is not a valid ZIP archive."))
+
+	# Inserted under the caller's own File permissions; File applies the size limit.
+	file = frappe.get_doc(
+		{"doctype": "File", "file_name": upload.filename, "is_private": 1, "content": content}
+	).insert()
+	return file.as_dict()
 
 
 @frappe.whitelist(methods=["POST"])

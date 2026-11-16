@@ -335,6 +335,18 @@ describe('ChapterForm as a route', () => {
 		expect(outlineResource.reload).not.toHaveBeenCalled()
 	})
 
+	it('uploads a SCORM package through the LMS endpoint the course roles may use', async () => {
+		// #2690: upload_file refuses a ZIP from anyone without desk access.
+		outlineResource.data = [chapterRow({ is_scorm_package: 1 })]
+		const router = makeRouter()
+		await openForm(router, 'CHAPTER-1')
+		const wrapper = await mountForm(router)
+
+		expect(wrapper.findComponent(passthrough).vm.$attrs.uploadEndpoint).toBe(
+			'/api/method/lms.lms.api.upload_zip',
+		)
+	})
+
 	// A rejected SCORM zip (validation or a 413) showed nothing: the custom slot
 	// hides FileUploader's own error and nothing handled @failure (428d364db).
 	it.each([
