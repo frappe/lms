@@ -1,6 +1,7 @@
 # Copyright (c) 2026, Frappe and Contributors
 # For license information, please see license.txt
 
+import re
 from unittest.mock import patch
 
 import frappe
@@ -17,6 +18,13 @@ class TestScormPlayback(ScormChapterFixture):
 	"""The replacement read: an enrolled student still plays, through the server. The
 	permlevel black-screens SCORMChapter.vue on its own; get_scorm_playback is what it
 	reads instead, off the same pair SCORMRenderer._check_permission refuses bytes on."""
+
+	def assertPlays(self, launch_file):
+		"""The launch file, behind a play token the sandboxed package loads it with."""
+		self.assertRegex(
+			launch_file or "",
+			rf"^/scorm-play/[0-9a-f]{{32}}/{re.escape(LAUNCH_FILE.removeprefix('/scorm/'))}$",
+		)
 
 	def _playback(self, label):
 		frappe.set_user(getattr(self, label).name)
@@ -45,13 +53,13 @@ class TestScormPlayback(ScormChapterFixture):
 		"""Read this before the refusals. An author is exempt from sequencing and is
 		never enrolled, so a gate answering them wrongly would look like a pass on
 		everything else here."""
-		self.assertEqual(self._playback("creator")["launch_file"], LAUNCH_FILE)
+		self.assertPlays(self._playback("creator")["launch_file"])
 
 	def test_an_enrolled_student_reaches_the_launch_file(self):
 		"""The regression guard on the permlevel. Red here means this change has
 		shipped a player that renders an empty iframe for everyone enrolled."""
 		answer = self._playback("learner")
-		self.assertEqual(answer["launch_file"], LAUNCH_FILE)
+		self.assertPlays(answer["launch_file"])
 		self.assertEqual(answer["locked"], 0)
 		self.assertEqual(answer["can_access"], 1)
 		self.assertEqual(answer["lesson"], self.lesson.name)
@@ -119,7 +127,7 @@ class TestScormPlayback(ScormChapterFixture):
 		"""Read this before the three below. A recorder that catches nothing at all
 		would call every one of them a pass."""
 		answer, warnings = self._playback_and_warnings("learner")
-		self.assertEqual(answer["launch_file"], LAUNCH_FILE)
+		self.assertPlays(answer["launch_file"])
 		self.assertEqual(warnings, [])
 
 	def test_the_sequential_gate_is_what_reaches_the_security_log(self):
