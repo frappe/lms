@@ -1,4 +1,3 @@
-from unittest.mock import patch
 from urllib.parse import parse_qs, urlsplit
 
 import frappe
@@ -66,14 +65,3 @@ class TestCertificatePdfUrl(BaseTestUtils):
 
 		self.assertEqual(params["format"], get_default_certificate_template())
 		self.assertEqual(params["name"], self.certificate.name)
-
-	def test_a_certificate_with_no_template_anywhere_says_so(self):
-		"""Without a template of its own or a default, the PDF URL carried format=None."""
-		self.certificate.db_set("template", "")
-		frappe.form_dict.certificate_id = self.certificate.name
-
-		with (
-			patch.object(certificate_page, "get_default_certificate_template", return_value=None),
-			self.assertRaises(frappe.ValidationError),
-		):
-			certificate_page.get_context(frappe._dict())

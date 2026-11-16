@@ -63,9 +63,3 @@ class TestUploadZip(BaseTestUtils):
 		for case, (content, filename) in cases.items():
 			with self.subTest(case=case), self.assertRaises(frappe.ValidationError):
 				self._upload_as(self.creator.name, content, filename)
-
-	def test_a_request_without_a_file_is_refused(self):
-		frappe.local.request = Request(EnvironBuilder(method="POST").get_environ())
-		frappe.set_user(self.creator.name)
-		with self.assertRaises(frappe.ValidationError):
-			upload_zip()

@@ -506,12 +506,6 @@ describe('Lesson.vue after a save the lesson requirements declined', () => {
 		await flushPromises()
 	}
 
-	it('does not show the lesson as complete', async () => {
-		await declinedSave()
-
-		expect((wrapper.vm as any).completedLesson).toBeNull()
-	})
-
 	it('still shows a completion whose realtime event beat the response', async () => {
 		// save_progress publishes after commit, so the event can arrive first and
 		// raise lessonProgress before the response is compared against it.

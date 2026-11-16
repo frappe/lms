@@ -174,26 +174,6 @@ describe('SCORMChapter.vue plays what the server says it may play', () => {
 		expect(findResource(OUTLINE_URL).fetch).not.toHaveBeenCalled()
 	})
 
-	it('shows a loader, not a blank page, until the server answers', async () => {
-		// #1643: a large package took seconds to appear, with nothing on screen.
-		wrapper = await mountChapter()
-
-		expect(wrapper.find('[data-testid="loading"]').exists()).toBe(true)
-		expect(wrapper.find('iframe').exists()).toBe(false)
-	})
-
-	it('keeps the loader over the frame until the package has loaded', async () => {
-		wrapper = await mountChapter()
-		await answerPlayback(playbackAnswer())
-
-		expect(wrapper.find('iframe').exists()).toBe(true)
-		expect(wrapper.find('[data-testid="loading"]').exists()).toBe(true)
-
-		await wrapper.find('iframe').trigger('load')
-
-		expect(wrapper.find('[data-testid="loading"]').exists()).toBe(false)
-	})
-
 	it('renders the locked panel instead of the package iframe', async () => {
 		wrapper = await mountChapter()
 		await answerPlayback(

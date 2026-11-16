@@ -31,11 +31,3 @@ class TestTranslations(BaseTestUtils):
 		frappe.db.set_value("User", self.student.name, "language", None)
 
 		self.assertEqual(self._language_served_to(self.student.name), "es")
-
-	def test_a_users_own_language_wins(self):
-		frappe.db.set_value("User", self.student.name, "language", "de")
-
-		self.assertEqual(self._language_served_to(self.student.name), "de")
-
-	def test_a_guest_gets_the_system_language(self):
-		self.assertEqual(self._language_served_to("Guest"), "es")

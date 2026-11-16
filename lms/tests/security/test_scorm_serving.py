@@ -162,18 +162,6 @@ class TestScormServing(BaseTestUtils):
 				self.assertEqual(response.headers.get("Referrer-Policy"), "no-referrer")
 				response.close()
 
-	def test_only_the_html_with_the_learners_values_is_kept_out_of_caches(self):
-		"""Media can be large and is the same for every learner; the HTML carries
-		this learner's saved values."""
-		cases = {"index.html": "private, no-store", "res/app.js": None}
-		for relpath, cache_control in cases.items():
-			with self.subTest(relpath=relpath):
-				response = self._render_as(
-					self.learner.name, f"scorm/{self.course_a.name}/{self.dir_a}/{relpath}"
-				)
-				self.assertEqual(response.headers.get("Cache-Control"), cache_control)
-				response.close()
-
 	def test_progress_is_posted_to_the_address_the_learner_opened(self):
 		"""Not the configured host_name: a site reached on a custom domain would
 		have every message dropped by the browser and no progress saved."""

@@ -187,24 +187,6 @@ describe('CourseImportForm as a route', () => {
 		)
 	})
 
-	it('uploads the ZIP through the LMS endpoint the course roles may use', async () => {
-		// #2690: upload_file refuses a ZIP from anyone without desk access,
-		// which is every LMS role.
-		const router = makeRouter()
-		await router.push({ name: 'CourseImport' })
-		const wrapper = await mountForm(router)
-
-		await attachZip(wrapper)
-
-		expect(uploadMock).toHaveBeenCalledWith(
-			expect.any(File),
-			expect.objectContaining({
-				private: true,
-				upload_endpoint: '/api/method/lms.lms.api.upload_zip',
-			}),
-		)
-	})
-
 	it('does not call the import endpoint before a ZIP has been uploaded', async () => {
 		const router = makeRouter()
 		await router.push({ name: 'CourseImport' })

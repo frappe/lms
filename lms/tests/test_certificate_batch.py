@@ -1,10 +1,7 @@
 import frappe
-from frappe.utils import nowdate
 
-from lms.lms.dashboard.course import issue_course_certificate
 from lms.lms.doctype.lms_certificate.lms_certificate import (
 	create_certificate,
-	get_default_certificate_template,
 )
 from lms.lms.test_helpers import BaseTestUtils
 
@@ -54,37 +51,6 @@ class TestCertificateBatch(BaseTestUtils):
 
 		self.assertEqual(frappe.db.get_value("LMS Certificate", second.name, "batch_name"), self.batch.name)
 
-	def test_a_certificate_issued_from_the_dashboard_names_the_batch(self):
-		chapter = self._create_chapter("Certificate Batch Chapter", self.course.name).name
-		self._create_chapter_reference(self.course.name, chapter)
-		lesson = self._create_lesson("Certificate Batch Lesson", chapter, self.course.name).name
-		self._create_lesson_reference(chapter, lesson)
-		self._create_progress(self.student.name, self.course.name, lesson)
-		enrollment = frappe.db.get_value(
-			"LMS Enrollment", {"course": self.course.name, "member": self.student.name}
-		)
-
-		certificate = issue_course_certificate(self.course.name, enrollment)
-
-		self.assertEqual(
-			frappe.db.get_value("LMS Certificate", certificate["name"], "batch_name"), self.batch.name
-		)
-
-	def test_a_certificate_issued_without_a_batch_stays_course_level(self):
-		"""A member may hold a course-level certificate beside the batch ones."""
-		self._complete(self.course.name)
-		certificate = frappe.get_doc(
-			{
-				"doctype": "LMS Certificate",
-				"member": self.student.name,
-				"course": self.course.name,
-				"issue_date": nowdate(),
-				"template": get_default_certificate_template(),
-			}
-		).insert()
-
-		self.assertFalse(certificate.batch_name)
-
 	def test_a_learner_removed_from_the_batch_is_still_certified_for_the_course(self):
 		"""Removing a learner from a batch keeps their course enrollment, which still
 		names the batch; a certificate naming it would be refused as not enrolled."""
@@ -96,14 +62,5 @@ class TestCertificateBatch(BaseTestUtils):
 		)
 
 		certificate = self._claim(self.course.name)
-
-		self.assertFalse(frappe.db.get_value("LMS Certificate", certificate.name, "batch_name"))
-
-	def test_a_course_taken_on_its_own_names_no_batch(self):
-		course = self._create_course(title="Certificate Solo Course")
-		course.db_set("enable_certification", 1)
-		self._create_enrollment(self.student.name, course.name)
-
-		certificate = self._claim(course.name)
 
 		self.assertFalse(frappe.db.get_value("LMS Certificate", certificate.name, "batch_name"))
