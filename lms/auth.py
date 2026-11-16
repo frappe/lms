@@ -57,6 +57,8 @@ ALLOWED_PATHS = [
 	"/api/method/frappe.desk.doctype.notification_log.notification_log.mark_as_read",
 	"/api/method/frappe.desk.doctype.notification_log.notification_log.mark_all_as_read",
 	"/api/method/frappe.sessions.clear",
+	# index.html loads every visitor's UI translations from here.
+	"/api/method/frappe.translate.get_boot_translations",
 ]
 
 

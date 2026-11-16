@@ -34,6 +34,14 @@ class TestAuth(BaseTestUtils):
 		self.assertRaises(frappe.PermissionError, authenticate)
 		frappe.session.user = "Administrator"
 
+	def test_boot_translations_are_allowed(self):
+		frappe.form_dict.cmd = "frappe.translate.get_boot_translations"
+		frappe.session.user = self.normal_user.name
+		try:
+			authenticate()
+		finally:
+			frappe.session.user = "Administrator"
+
 	def check_request_path(self, path):
 		frappe.form_dict.cmd = None
 		original_request = getattr(frappe.local, "request", None)

@@ -59,6 +59,33 @@ describe('loadTranslations', () => {
 		expect((window as any).__('Courses')).toBe('الدورات')
 	})
 
+	it('re-renders a mounted template when late messages arrive', async () => {
+		vi.useFakeTimers()
+		let arrive: (messages: Record<string, string>) => void = () => {}
+		;(window as any).lmsTranslations = new Promise((resolve) => {
+			arrive = resolve
+		})
+		const { default: translationPlugin, loadTranslations } = await import(
+			'@/translation.js'
+		)
+		const { mount } = await import('@vue/test-utils')
+		const loaded = loadTranslations()
+		await vi.advanceTimersByTimeAsync(3000)
+		await loaded
+
+		const { h } = await import('vue')
+		const wrapper = mount(
+			{ render: () => h('h1', (window as any).__('Courses')) },
+			{ global: { plugins: [translationPlugin] } }
+		)
+		expect(wrapper.text()).toBe('Courses')
+
+		arrive({ Courses: 'الدورات' })
+		await vi.runAllTimersAsync()
+		await wrapper.vm.$nextTick()
+		expect(wrapper.text()).toBe('الدورات')
+	})
+
 	it('falls back to English when the request fails', async () => {
 		vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new Error('offline')))
 		vi.spyOn(console, 'error').mockImplementation(() => {})

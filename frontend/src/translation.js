@@ -1,3 +1,8 @@
+import { ref } from 'vue'
+
+// Bumped when the messages arrive, so templates that called `__()` re-render.
+const messagesVersion = ref(0)
+
 // Set on import, so module-scope `__()` calls in later imports don't throw.
 window.__ = translate
 
@@ -15,6 +20,7 @@ function fill(message, args) {
 // LMS calls __('Hello {0}').format(name). Frappe's shared UI calls it the
 // Desk way, __('Hello {0}', [name]), and needs a string back.
 function translate(message, replace) {
+	messagesVersion.value
 	let translatedMessages = window.translatedMessages || {}
 	let translatedMessage = translatedMessages[message] || message
 
@@ -48,6 +54,7 @@ function waitForTranslations() {
 	const request = (window.lmsTranslations || fetchTranslations()).then(
 		(messages) => {
 			window.translatedMessages = messages
+			messagesVersion.value++
 		}
 	)
 	const timeout = new Promise((resolve) => setTimeout(resolve, MOUNT_WAIT_MS))
