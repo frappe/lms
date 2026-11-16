@@ -25,6 +25,10 @@ SANDBOX_HEADERS = {
 }
 # The HTML carries this learner's saved values; the rest is the same for everyone.
 HTML_HEADERS = {**SANDBOX_HEADERS, "Cache-Control": "private, no-store"}
+# A sandboxed package has an opaque origin, so its own fetch, XHR and module script
+# reads of its files are cross-origin. The token in the URL is what grants access and
+# no cookie is involved, so any origin may read what the token already opens.
+PLAY_HEADERS = {"Access-Control-Allow-Origin": "*"}
 
 _HEAD = re.compile(rb"<head\b[^>]*>", re.IGNORECASE)
 _HTML = re.compile(rb"<html\b[^>]*>", re.IGNORECASE)

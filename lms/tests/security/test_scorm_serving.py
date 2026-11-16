@@ -205,6 +205,17 @@ class TestScormServing(BaseTestUtils):
 		asset = path.replace("/index.html", "/res/app.js")
 		self.assertEqual(self._body(self._render_as("Guest", asset)), "var a = 1;")
 
+	def test_a_sandboxed_package_can_fetch_its_own_files(self):
+		"""Its origin is opaque, so a fetch of its own JSON is cross-origin."""
+		path = self._play_path(self.learner.name, self.chapter_a, self.dir_a)
+		response = self._render_as("Guest", path.replace("/index.html", "/res/app.js"))
+		self.assertEqual(response.headers.get("Access-Control-Allow-Origin"), "*")
+		response.close()
+
+		response = self._render_as(self.learner.name, f"scorm/{self.course_a.name}/{self.dir_a}/res/app.js")
+		self.assertIsNone(response.headers.get("Access-Control-Allow-Origin"))
+		response.close()
+
 	def test_a_play_token_reaches_no_other_package(self):
 		token_path = self._play_path(self.learner.name, self.chapter_a, self.dir_a)
 		token = token_path.split("/")[1]

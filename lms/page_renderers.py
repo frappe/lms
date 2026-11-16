@@ -9,7 +9,13 @@ from frappe.website.page_renderers.base_renderer import BaseRenderer
 from werkzeug.wrappers import Response
 from werkzeug.wsgi import wrap_file
 
-from lms.lms.scorm_player import HTML_HEADERS, SANDBOX_HEADERS, inject_bridge, read_play_token
+from lms.lms.scorm_player import (
+	HTML_HEADERS,
+	PLAY_HEADERS,
+	SANDBOX_HEADERS,
+	inject_bridge,
+	read_play_token,
+)
 
 
 @contextmanager
@@ -63,7 +69,10 @@ class SCORMRenderer(BaseRenderer):
 
 			path_on_disk = self._find_file(os.path.join(scorm_root, course, package), requested)
 			if path_on_disk:
-				return self._serve_file(path_on_disk, user, authorised[(course, package)])
+				response = self._serve_file(path_on_disk, user, authorised[(course, package)])
+				if claims:
+					response.headers.update(PLAY_HEADERS)
+				return response
 
 		# A cached 404 would outlive the package upload that adds this file.
 		frappe.local.no_cache = 1
