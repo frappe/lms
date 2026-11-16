@@ -211,6 +211,7 @@ def _doctype_permissions():
 	return out
 
 
+# nosemgrep: frappe-semgrep-rules.rules.security.guest-whitelisted-method - returns only the UI's translation catalogue, which guests have always been served
 @frappe.whitelist(allow_guest=True)
 def get_translations():
 	# The user's language, else the system's, as Desk resolves it.

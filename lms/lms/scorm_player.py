@@ -101,5 +101,6 @@ def _site_origin() -> str:
 @cache
 def _bridge_source() -> str:
 	"""Read once per process: it is served inside every HTML file of a package."""
+	# nosemgrep: frappe-semgrep-rules.rules.security.frappe-security-file-traversal - a fixed file shipped with this app, no request input in the path
 	with open(frappe.get_app_path("lms", "lms", "scorm_bridge.js")) as f:
 		return f.read().strip().rstrip(";")

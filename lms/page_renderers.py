@@ -18,10 +18,12 @@ def acting_as(user):
 	session back as it was: set_user also overwrites the sid and session data."""
 	session = frappe.local.session
 	saved = (session.user, session.sid, session.data, frappe.local.form_dict)
+	# nosemgrep: frappe-semgrep-rules.rules.security.frappe-setuser - the learner a valid play token was issued to, only for the access checks below
 	frappe.set_user(user)
 	try:
 		yield
 	finally:
+		# nosemgrep: frappe-semgrep-rules.rules.security.frappe-setuser - restores the request's own user
 		frappe.set_user(saved[0])
 		session.sid, session.data, frappe.local.form_dict = saved[1:]
 
@@ -142,6 +144,7 @@ class SCORMRenderer(BaseRenderer):
 		# its own: no session, no CSRF token, no reach into the LMS page.
 		mimetype = mimetypes.guess_type(path)[0] or "application/octet-stream"
 		if mimetype == "text/html":
+			# nosemgrep: frappe-semgrep-rules.rules.security.frappe-security-file-traversal - _find_file resolved the path inside the package directory
 			with open(path, "rb") as f:
 				response = Response(inject_bridge(f.read(), user, lesson))
 			response.headers.update(HTML_HEADERS)
