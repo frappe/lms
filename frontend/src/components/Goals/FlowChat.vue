@@ -531,9 +531,26 @@ watch(partial, (text) => {
 		current += settled[0]
 	}
 })
+// Reopening a conversation must not read the whole history aloud. Once the saved messages
+// have loaded, they count as heard, except the last reply when it is still waiting for an
+// answer: that one is said again, so the learner knows where they left off.
+let primed = false
+watch(loading, (busy, was) => {
+	// The first load to finish is the saved history; anything after it is new.
+	if (primed || busy || !was) return
+	primed = true
+	const replies = messages.value.filter(
+		(message) => message.role === 'assistant'
+	)
+	spokenCount = replies.length
+	const last = messages.value[messages.value.length - 1]
+	if (mode.value === 'speak' && !running.value && last?.role === 'assistant')
+		speech.enqueue(last.text, props.character || 'lumi')
+})
 watch(
 	() => [messages.value.length, running.value] as const,
 	() => {
+		if (!primed) return
 		const replies = messages.value.filter(
 			(message) => message.role === 'assistant'
 		)

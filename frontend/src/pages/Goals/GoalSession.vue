@@ -629,10 +629,9 @@ watch(
 	{ immediate: true }
 )
 
+// A skill always sits under Skills, wherever it was opened from.
 const breadcrumbs = computed(() => [
-	isPreview.value
-		? { label: __('Skills'), route: { name: 'Goals' } }
-		: { label: __('Home'), route: { name: 'Home' } },
+	{ label: __('Skills'), route: { name: 'Goals' } },
 	{
 		label:
 			state.value?.goal.title ||
