@@ -68,6 +68,7 @@ class TestBatchAnnouncementsScope(BaseTestUtils):
 				"reference_doctype": "LMS Batch",
 				"reference_name": cls.batch,
 				"lms_batch_announcement": announcement,
+				"communication_date": frappe.utils.now_datetime(),
 				**fields,
 			}
 		)
@@ -121,6 +122,7 @@ class TestBatchAnnouncementsScope(BaseTestUtils):
 		self._mail("Past announcement", user=self.instructor, announcement=0, bcc=self.student)
 		self._mail("Past private mail", user=self.instructor, announcement=0)
 		self._mail("Past mail from outside", user=self.other_creator, announcement=0, bcc=self.student)
+		self._mail("Past mail to a colleague", user=self.instructor, announcement=0, bcc=self.evaluator)
 
 		mark_batch_announcements.execute()
 
@@ -128,3 +130,4 @@ class TestBatchAnnouncementsScope(BaseTestUtils):
 		self.assertIn("Past announcement", subjects)
 		self.assertNotIn("Past private mail", subjects)
 		self.assertNotIn("Past mail from outside", subjects)
+		self.assertNotIn("Past mail to a colleague", subjects)
