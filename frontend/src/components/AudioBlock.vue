@@ -13,11 +13,7 @@
 		</audio>
 		<div
 			data-testid="audio-player"
-<<<<<<< HEAD
 			class="flex h-11 w-full max-w-lg items-center gap-x-2.5 overflow-hidden rounded-7 bg-surface-gray-2 pe-1.5 ps-1"
-=======
-			class="flex items-center gap-x-2 rounded-7 overflow-hidden p-1 w-1/2"
->>>>>>> 929f38e (fix: drop the border around non-assessment lesson embeds)
 		>
 			<Button
 				variant="outline"
