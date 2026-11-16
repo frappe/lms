@@ -182,3 +182,17 @@ main#main-content {
 	margin-left: 0;
 	margin-inline-start: auto;
 }
+
+/* frappe-ui's SettingsNavItem stretches its label with a physical left
+   alignment, which in RTL pushes the label away from its icon, and
+   SettingsSidebar draws its divider on the physical right. Settings.vue tags
+   the sidebar lms-settings-nav. */
+.lms-settings-nav [role='tab']:dir(rtl) {
+	text-align: start;
+}
+@media (min-width: 640px) {
+	.lms-settings-nav:dir(rtl) {
+		border-right-width: 0;
+		border-left-width: 1px;
+	}
+}
