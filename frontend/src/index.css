@@ -169,3 +169,16 @@ main#main-content {
 	border-right-width: 0;
 	border-left-width: 1px;
 }
+
+/* frappe-ui's Select, Combobox and MultiSelect triggers align their value and
+   push Select's chevron with physical left-side classes, so in RTL the value
+   lands at the far end and the chevron next to it. Scoped to those three:
+   Popover, Dropdown and Tooltip triggers share the data-slot. */
+[data-slot='trigger']:is([role='combobox'], [data-variant]):dir(rtl) .text-left,
+[data-slot='trigger']:is([role='combobox'], [data-variant]).text-left:dir(rtl) {
+	text-align: start;
+}
+[data-slot='trigger']:is([role='combobox'], [data-variant]):dir(rtl) > .ml-auto {
+	margin-left: 0;
+	margin-inline-start: auto;
+}
