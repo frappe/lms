@@ -114,7 +114,7 @@
 					<Tooltip
 						v-else-if="hasClassEnded(cls)"
 						:text="__('This class has ended')"
-						side="right"
+						:side="inlineEndSide()"
 					>
 						<div class="flex items-center gap-x-2 text-ink-amber-5 w-fit">
 							<span class="lucide-info w-4 h-4" />
@@ -174,6 +174,7 @@ import {
 	Tooltip,
 	toast,
 } from 'frappe-ui'
+import { inlineEndSide } from '@/utils/textDirection'
 import { computed, inject, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { formatTime } from '@/utils/'
@@ -341,7 +342,7 @@ const canAccessClass = (cls) => {
 }
 
 const getClassStart = (cls) => {
-	return new Date(`${cls.date}T${cls.time}`)
+	return dayjs(`${cls.date}T${cls.time}`).toDate()
 }
 
 const getClassEnd = (cls) => {

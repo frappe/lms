@@ -6,10 +6,13 @@
 					v-if="showBack"
 					data-testid="payment-panel-back"
 					variant="ghost"
-					icon="lucide-chevron-left"
 					:aria-label="__('Back')"
 					@click="emit('back')"
-				/>
+				>
+					<template #icon>
+						<span class="lucide-chevron-left size-4 rtl:rotate-180" />
+					</template>
+				</Button>
 				<h3
 					data-testid="panel-title"
 					class="truncate text-base font-semibold text-ink-gray-9"
@@ -167,11 +170,7 @@
 						class="flex items-center justify-between gap-2"
 					>
 						<p class="min-w-0 text-p-sm text-ink-gray-6">
-							{{
-								__('Different addresses for these {0} students', [
-									members.length,
-								])
-							}}
+							{{ differentAddressesNote }}
 						</p>
 						<Button
 							ref="overwriteRef"
@@ -373,6 +372,10 @@ const members = computed<string[]>(() =>
 		: props.rows
 				.map((row) => row.member)
 				.filter((member) => choices.value[member]?.mode !== 'link')
+)
+
+const differentAddressesNote = computed(() =>
+	__('Different addresses for these {0} students', [members.value.length])
 )
 
 const title = computed<string>(() => {

@@ -1,13 +1,17 @@
 <template>
 	<ListPage
 		:breadcrumbs="breadcrumbs"
-		:title="__('{0} {1} Jobs').format(jobCount.data ?? 0, activeTab)"
+		:title="
+			activeTab === 'Open'
+				? __('{0} Open Jobs').format(jobCount.data ?? 0)
+				: __('{0} Closed Jobs').format(jobCount.data ?? 0)
+		"
 		:rows="jobs.data || []"
 		:total-count="jobCount.data ?? 0"
 		:loading="jobs.list.loading"
 		:has-next-page="jobs.hasNextPage"
 		v-model:page-length="pageLength"
-		empty-name="Job Openings"
+		:empty-name="__('Job Openings')"
 		empty-icon="lucide-briefcase"
 		:empty-title="emptyState?.title"
 		:empty-description="emptyState?.description"

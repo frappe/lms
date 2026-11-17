@@ -266,6 +266,24 @@
 		<script>
 			document.getElementById('seo-content').style.display = 'none';
 		</script>
+		<script>
+			/* Started here so the messages download alongside the bundle. A GET
+			   keyed by the translations version, so the browser caches it, as
+			   frappe/www/desk.html does. src/translation.js waits for it. */
+			window.lmsTranslations = fetch(
+				'/api/method/frappe.translate.get_boot_translations?v={{ boot.translations_version }}&lang={{ boot.lang }}',
+				{ credentials: 'same-origin', headers: { Accept: 'application/json' } }
+			)
+				.then(function (response) {
+					return response.ok ? response.json() : {}
+				})
+				.then(function (data) {
+					return data.message || {}
+				})
+				.catch(function () {
+					return {}
+				})
+		</script>
 		<script type="module" src="/src/main.js"></script>
 	</body>
 </html>

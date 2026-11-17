@@ -73,7 +73,6 @@
 					<Uploader
 						v-model="course.image"
 						:label="__('Course thumbnail')"
-						:required="false"
 						size="sm"
 						:description="thumbnailGuidelines"
 					/>
@@ -98,6 +97,7 @@
 							:id="descriptionId"
 							:ariaLabelledby="descriptionLabelId"
 							:content="course.description"
+							:uploadArgs="{ private: false }"
 							@change="(val: string) => (course.description = val)"
 							:editable="true"
 							:fixedMenu="true"

@@ -9,7 +9,7 @@
 		:list-resource="submissions"
 		:has-next-page="submissions.hasNextPage"
 		:list-options="listOptions"
-		empty-name="Quiz Submissions"
+		:empty-name="__('Quiz Submissions')"
 		empty-icon="lucide-file-check"
 		:empty-title="emptyState?.title"
 		:empty-description="emptyState?.description"

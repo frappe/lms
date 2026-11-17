@@ -29,7 +29,7 @@
 				@click="goPrev()"
 			>
 				<template #icon>
-					<span class="lucide-chevron-left size-4" />
+					<span class="lucide-chevron-left size-4 rtl:rotate-180" />
 				</template>
 			</Button>
 			<div
@@ -45,7 +45,7 @@
 				@click="goNext()"
 			>
 				<template #icon>
-					<span class="lucide-chevron-right size-4" />
+					<span class="lucide-chevron-right size-4 rtl:rotate-180" />
 				</template>
 			</Button>
 		</div>
@@ -288,7 +288,7 @@
 						/>
 						<Discussions
 							v-else-if="showDiscussions"
-							:title="'Questions'"
+							:title="__('Questions')"
 							:doctype="'Course Lesson'"
 							:docname="lesson.data.name"
 							:key="lesson.data.name"
@@ -410,6 +410,7 @@ import Notes from '@/components/Notes/Notes.vue'
 import InlineLessonMenu from '@/components/Notes/InlineLessonMenu.vue'
 import { parseStoredEditorJs } from '@/utils/lessonForm'
 import { isLessonSelection } from '@/utils/lessonSelection'
+import { textDirection } from '@/utils/textDirection'
 import { getLmsRoute } from '@/utils/basePath'
 import { redirectToLogin } from '@/utils/login'
 import {
@@ -710,7 +711,7 @@ const renderEditor = (holder: string, content: string): EditorJS | null => {
 		readOnly: true,
 		defaultBlock: 'embed',
 		i18n: {
-			direction: document.documentElement.dir === 'rtl' ? 'rtl' : 'ltr',
+			direction: textDirection(),
 		},
 		onReady: () => openLinksInNewTab(holder),
 	})
@@ -736,11 +737,20 @@ const markProgress = () => {
 	)
 		return
 	progressSubmitting = true
+	// Taken before sending: the realtime event of this very save can land first
+	// and raise lessonProgress before the response is compared with it.
+	const progressBefore = lessonProgress.value
 	progress.submit(
 		{},
 		{
-			onSuccess() {
+			onSuccess(data: number) {
 				progressSubmitting = false
+				// save_progress declines without an error while a quiz or an
+				// assignment still holds the lesson back, e.g. when the dwell timer
+				// runs out first. Only a completion raises the course progress, and
+				// counting a declined save as one would drop the event that later
+				// reports the real one.
+				if (data > progressBefore) completedLesson.value = lesson.data?.name
 			},
 			onError(err: unknown) {
 				progressSubmitting = false
@@ -760,7 +770,6 @@ const progress = createResource({
 	},
 	onSuccess(data: number) {
 		lessonProgress.value = data
-		completedLesson.value = lesson.data?.name
 		// Reload here rather than waiting on the socket, so this page's own
 		// completion unlocks the next lesson even where realtime is unavailable.
 		outline.reload()

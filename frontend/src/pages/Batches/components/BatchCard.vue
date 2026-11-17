@@ -13,9 +13,9 @@
 			size="md"
 			class="self-start"
 			:label="
-				batch.seats_left +
-				' ' +
-				(batch.seats_left > 1 ? __('Seats Left') : __('Seat Left'))
+				batch.seats_left > 1
+					? __('{0} seats left').format(batch.seats_left)
+					: __('1 seat left')
 			"
 		/>
 		<Badge
@@ -41,7 +41,7 @@
 			</div>
 			<div class="flex items-center text-sm text-ink-gray-7">
 				<span class="lucide-clock h-4 w-4 me-2 text-ink-gray-7" />
-				<span dir="ltr">
+				<span dir="auto">
 					{{ formatTime(batch.start_time) }} - {{ formatTime(batch.end_time) }}
 				</span>
 			</div>

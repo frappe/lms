@@ -74,24 +74,24 @@ const form = recordForm({
 			fields: [
 				{
 					name: 'member',
-					label: 'Member',
-					description: 'The user receiving the badge.',
+					label: __('Member'),
+					description: __('The user receiving the badge.'),
 					type: 'link',
 					doctype: 'User',
 					reqd: true,
 				},
 				{
 					name: 'badge',
-					label: 'Badge',
-					description: 'The badge being awarded.',
+					label: __('Badge'),
+					description: __('The badge being awarded.'),
 					type: 'link',
 					doctype: 'LMS Badge',
 					reqd: true,
 				},
 				{
 					name: 'issued_on',
-					label: 'Issued On',
-					description: 'The date this badge was awarded.',
+					label: __('Issued On'),
+					description: __('The date this badge was awarded.'),
 					type: 'date',
 					reqd: true,
 				},
@@ -133,6 +133,6 @@ export const badgeAssignmentsSettingsPage: ListPage = {
 	columns,
 	searchable: true,
 	empty: { name: 'Badge Assignments', icon: 'lucide-award' },
-	create: { label: 'Assign', detail: form.forNew() },
+	create: { label: __('Assign'), detail: form.forNew() },
 	rowDetail: form.forRecord(),
 }

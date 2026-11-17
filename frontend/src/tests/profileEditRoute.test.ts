@@ -266,8 +266,8 @@ describe('the profile edit route', () => {
 
 		expect(openTo?.props('options')).toEqual([
 			{ label: '', value: '' },
-			'Work',
-			'Hiring',
+			{ label: 'Work', value: 'Work' },
+			{ label: 'Hiring', value: 'Hiring' },
 		])
 	})
 

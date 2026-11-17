@@ -15,11 +15,14 @@
 						v-if="showBack"
 						variant="ghost"
 						size="md"
-						icon-left="lucide-chevron-left"
 						:label="title"
 						class="-ms-3.5 !max-w-96 !justify-start !pe-0 text-p-lg-semibold cursor-pointer hover:bg-transparent hover:opacity-70 focus:bg-transparent active:bg-transparent active:text-ink-gray-6"
 						@click="emit('back')"
-					/>
+					>
+						<template #prefix>
+							<span class="lucide-chevron-left size-4.5 rtl:rotate-180" />
+						</template>
+					</Button>
 					<h2 v-else-if="title" class="text-p-lg-semibold text-ink-gray-8">
 						{{ title }}
 					</h2>
@@ -33,7 +36,7 @@
 							v-if="marker"
 							variant="subtle"
 							:theme="marker.theme"
-							:label="__(marker.label)"
+							:label="marker.label"
 						/>
 					</div>
 				</div>
@@ -111,16 +114,16 @@ const marker = computed<{ label: string; theme: BadgeProps['theme'] } | null>(
 	() => {
 		switch (props.saveState) {
 			case 'saving':
-				return { label: 'Saving…', theme: 'gray' }
+				return { label: __('Saving…'), theme: 'gray' }
 			case 'saved':
-				return { label: 'Saved', theme: 'green' }
+				return { label: __('Saved'), theme: 'green' }
 			case 'error':
-				return { label: 'Save failed', theme: 'red' }
+				return { label: __('Save failed'), theme: 'red' }
 			case 'dirty':
 			case 'pending':
-				return { label: 'Not saved', theme: 'amber' }
+				return { label: __('Not saved'), theme: 'amber' }
 		}
-		return props.unsaved ? { label: 'Not saved', theme: 'amber' } : null
+		return props.unsaved ? { label: __('Not saved'), theme: 'amber' } : null
 	}
 )
 </script>

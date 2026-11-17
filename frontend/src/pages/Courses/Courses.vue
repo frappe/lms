@@ -7,7 +7,7 @@
 		:total-count="courseCount"
 		:has-next-page="courses.hasNextPage"
 		v-model:page-length="pageLength"
-		empty-name="Courses"
+		:empty-name="__('Courses')"
 		empty-icon="lucide-book-open"
 		:empty-title="emptyState?.title"
 		:empty-description="emptyState?.description"

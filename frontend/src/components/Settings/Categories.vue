@@ -8,7 +8,7 @@
 		v-model:search="list.search"
 		searchable
 		:new-label="showForm ? __('Close') : __('New')"
-		empty-name="Categories"
+		:empty-name="__('Categories')"
 		empty-icon="lucide-network"
 		@new="openForm()"
 		@load-more="list.loadMore()"

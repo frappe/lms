@@ -9,11 +9,11 @@
 					v-if="program.data?.is_member"
 					:theme="program.data.progress < 100 ? 'amber' : 'green'"
 				>
-					{{ program.data.progress }}% {{ __('completed') }}
+					{{ __('{0}% completed').format(program.data.progress) }}
 				</Badge>
 
 				<template v-if="program.data?.enforce_course_order">
-					<Tooltip side="right" :text="courseOrderNote">
+					<Tooltip :side="inlineEndSide()" :text="courseOrderNote">
 						<span
 							class="lucide-info size-3 cursor-pointer"
 							aria-hidden="true"
@@ -62,6 +62,7 @@
 </template>
 <script setup lang="ts">
 import { computed, useId } from 'vue'
+import { inlineEndSide } from '@/utils/textDirection'
 import PageHeader from '@/components/Layouts/pages/PageHeader.vue'
 import PageBody from '@/components/Layouts/pages/PageBody.vue'
 import { Badge, createResource, Tooltip, usePageMeta } from 'frappe-ui'

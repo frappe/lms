@@ -115,12 +115,7 @@
 				:active="false"
 				:onClick="toggleHelp"
 			/>
-			<SidebarCollapseToggle
-				class="mt-1"
-				:aria-label="
-					sidebarStore.isSidebarCollapsed ? __('Expand') : __('Collapse')
-				"
-			/>
+			<SidebarCollapseButton class="mt-1" />
 		</div>
 		<HelpModal
 			class="getting-started"
@@ -159,7 +154,6 @@ import {
 	ScrollArea,
 	Sidebar,
 	SidebarCard,
-	SidebarCollapseToggle,
 	SidebarItem,
 	SidebarSection,
 	Tooltip,
@@ -196,6 +190,7 @@ import UserDropdown from '@/components/Sidebar/UserDropdown.vue'
 import TrialCard from '@/components/Sidebar/TrialCard.vue'
 import { isV1CloudAdmin } from '@/composables/cloudSettings'
 import SidebarLink from '@/components/Sidebar/SidebarLink.vue'
+import SidebarCollapseButton from '@/components/Sidebar/SidebarCollapseButton.vue'
 import CommandPalette from '@/components/CommandPalette/CommandPalette.vue'
 import { pushSettingsHash } from '@/composables/useSettingsHash'
 import {

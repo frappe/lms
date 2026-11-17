@@ -10,7 +10,7 @@
 		:loading="assignments.list.loading"
 		:has-next-page="assignments.hasNextPage"
 		v-model:page-length="pageLength"
-		empty-name="Assignments"
+		:empty-name="__('Assignments')"
 		empty-icon="lucide-clipboard-list"
 		:empty-title="emptyState?.title"
 		:empty-description="emptyState?.description"
@@ -66,6 +66,7 @@
 			<div v-if="column.key == 'modified'" class="text-sm text-ink-gray-6">
 				{{ value }}
 			</div>
+			<div v-else-if="column.key == 'type'">{{ __(value) }}</div>
 			<div v-else>{{ value }}</div>
 		</template>
 

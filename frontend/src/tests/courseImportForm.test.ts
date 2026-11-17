@@ -8,8 +8,9 @@ import {
 } from 'vue-router'
 import { defineComponent, h } from 'vue'
 import { toast } from 'frappe-ui'
+import { translate } from './helpers/translate'
 
-vi.stubGlobal('__', (text: string) => text)
+vi.stubGlobal('__', translate)
 enableAutoUnmount(afterEach)
 
 // canCreateCourse() (utils/index.js:826) reads usersStore().userResource, not
@@ -113,7 +114,7 @@ const mountForm = async (router: Router) => {
 		global: {
 			plugins: [router],
 			stubs: { teleport: true },
-			mocks: { __: (text: string) => text },
+			mocks: { __: translate },
 			config: {
 				errorHandler: (err: unknown) => {
 					handlerErrors.push(err)

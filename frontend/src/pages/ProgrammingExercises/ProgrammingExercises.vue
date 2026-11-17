@@ -10,7 +10,7 @@
 		:loading="exercises.list.loading"
 		:has-next-page="exercises.hasNextPage"
 		v-model:page-length="pageLength"
-		empty-name="Programming Exercises"
+		:empty-name="__('Programming Exercises')"
 		empty-icon="lucide-code"
 		:empty-title="emptyState?.title"
 		:empty-description="emptyState?.description"

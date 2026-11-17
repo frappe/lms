@@ -1,7 +1,8 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { mount } from '@vue/test-utils'
+import { translate } from './helpers/translate'
 
-vi.stubGlobal('__', (text: string) => text)
+vi.stubGlobal('__', translate)
 
 vi.mock('frappe-ui', () => ({
 	createResource: () => ({ submit: vi.fn() }),
@@ -62,7 +63,7 @@ describe('BatchOverlay for a guest', () => {
 			},
 			global: {
 				provide: { $user: { data: null } },
-				mocks: { __: (text: string) => text },
+				mocks: { __: translate },
 			},
 		})
 

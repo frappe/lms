@@ -4,7 +4,7 @@
 			:open="isOpen"
 			:modelValue="value"
 			:options="resolvedOptions"
-			:placeholder="attrs.placeholder as string"
+			:placeholder="(attrs.placeholder as string) || __('Select option')"
 			:disabled="attrs.readonly as boolean"
 			:size="(attrs.size as ComboboxSize) || 'sm'"
 			:aria-label="label ? undefined : (attrs['aria-label'] as string)"
@@ -33,7 +33,7 @@
 							:aria-label="__('Cancel')"
 							@click="creating = false"
 						>
-							<span class="lucide-arrow-left size-4" />
+							<span class="lucide-arrow-left size-4 rtl:rotate-180" />
 						</button>
 						<FormControl
 							v-model="newItemName"

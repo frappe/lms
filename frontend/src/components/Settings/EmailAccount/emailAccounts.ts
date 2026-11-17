@@ -319,8 +319,12 @@ export const services: EmailService[] = [
 		get description() {
 			return __('Send and receive through your Gmail account')
 		},
-		info: __(`Setting up GMail requires you to enable two factor authentication
-		  and app specific passwords. Read more`),
+		get info() {
+			return __(
+				'Setting up {0} requires you to enable two factor authentication and app specific passwords. Read more',
+				['GMail']
+			)
+		},
 		link: 'https://support.google.com/accounts/answer/185833',
 		custom: false,
 	},
@@ -330,8 +334,12 @@ export const services: EmailService[] = [
 		get description() {
 			return __('Send and receive through your Outlook account')
 		},
-		info: __(`Setting up Outlook requires you to enable two factor authentication
-		  and app specific passwords. Read more`),
+		get info() {
+			return __(
+				'Setting up {0} requires you to enable two factor authentication and app specific passwords. Read more',
+				['Outlook']
+			)
+		},
 		link: 'https://support.microsoft.com/en-us/account-billing/how-to-get-and-use-app-passwords-5896ed9b-4263-e681-128a-a6f2979a7944',
 		custom: false,
 	},
@@ -341,8 +349,12 @@ export const services: EmailService[] = [
 		get description() {
 			return __('Send through your SendGrid account')
 		},
-		info: __(`Setting up Sendgrid requires you to enable two factor authentication
-		  and app specific passwords. Read more`),
+		get info() {
+			return __(
+				'Setting up {0} requires you to enable two factor authentication and app specific passwords. Read more',
+				['Sendgrid']
+			)
+		},
 		link: 'https://sendgrid.com/docs/ui/account-and-settings/two-factor-authentication/',
 		custom: false,
 	},
@@ -352,8 +364,12 @@ export const services: EmailService[] = [
 		get description() {
 			return __('Send through your SparkPost account')
 		},
-		info: __(`Setting up SparkPost requires you to enable two factor authentication
-		  and app specific passwords. Read more`),
+		get info() {
+			return __(
+				'Setting up {0} requires you to enable two factor authentication and app specific passwords. Read more',
+				['SparkPost']
+			)
+		},
 		link: 'https://support.sparkpost.com/docs/my-account-and-profile/enabling-two-factor-authentication',
 		custom: false,
 	},
@@ -363,8 +379,12 @@ export const services: EmailService[] = [
 		get description() {
 			return __('Send and receive through your Yahoo Mail account')
 		},
-		info: __(`Setting up Yahoo requires you to enable two factor authentication
-		  and app specific passwords. Read more`),
+		get info() {
+			return __(
+				'Setting up {0} requires you to enable two factor authentication and app specific passwords. Read more',
+				['Yahoo']
+			)
+		},
 		link: 'https://help.yahoo.com/kb/SLN15241.html',
 		custom: false,
 	},
@@ -374,8 +394,12 @@ export const services: EmailService[] = [
 		get description() {
 			return __('Send and receive through your Yandex Mail account')
 		},
-		info: __(`Setting up Yandex requires you to enable two factor authentication
-		  and app specific passwords. Read more`),
+		get info() {
+			return __(
+				'Setting up {0} requires you to enable two factor authentication and app specific passwords. Read more',
+				['Yandex']
+			)
+		},
 		link: 'https://yandex.com/support/id/authorization/app-passwords.html',
 		custom: false,
 	},
@@ -385,21 +409,28 @@ export const services: EmailService[] = [
 		get description() {
 			return __('Send and receive through Frappe Mail')
 		},
-		info: __(
-			`Setting up Frappe Mail requires you to have an API key and API Secret of your email account. Read more`
-		),
+		get info() {
+			return __(
+				'Setting up Frappe Mail requires you to have an API key and API Secret of your email account. Read more'
+			)
+		},
 		link: 'https://github.com/frappe/mail',
 		custom: true,
 	},
 	{
 		name: CUSTOM_SERVICE,
+		get label() {
+			return __('Custom')
+		},
 		icon: '',
 		get description() {
 			return __('Connect any IMAP/POP3 and SMTP server')
 		},
-		info: __(
-			`Any IMAP/POP3 and SMTP server your provider gives you the host and port for. Read more`
-		),
+		get info() {
+			return __(
+				'Any IMAP/POP3 and SMTP server your provider gives you the host and port for. Read more'
+			)
+		},
 		link: 'https://docs.frappe.io/framework/user/en/setting-up-email',
 		custom: true,
 	},

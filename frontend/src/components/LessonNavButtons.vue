@@ -1,13 +1,13 @@
 <template>
 	<Button v-if="hasPrev" @click="emit('switch', 'prev')">
 		<template #prefix>
-			<span class="lucide-chevron-left size-4" />
+			<span class="lucide-chevron-left size-4 rtl:rotate-180" />
 		</template>
 		<span>{{ __('Previous') }}</span>
 	</Button>
 	<Button v-if="hasNext" @click="emit('switch', 'next')">
 		<template #suffix>
-			<span class="lucide-chevron-right size-4" />
+			<span class="lucide-chevron-right size-4 rtl:rotate-180" />
 		</template>
 		<span>{{ __('Next') }}</span>
 	</Button>

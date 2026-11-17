@@ -23,9 +23,9 @@ export function trialCardContent(trial: BillingTrial): TrialCardContent {
 			theme: 'red',
 			title: __('Your trial has ended'),
 			description: trial.deletes_on
-				? __('Your site will be deleted on {0}. Choose a plan to keep it.', [
-						dayjs(trial.deletes_on).format('D MMM'),
-				  ])
+				? __(
+						'Your site will be deleted on {0}. Choose a plan to keep it.'
+				  ).format(dayjs(trial.deletes_on).format('D MMM'))
 				: __('Choose a plan to keep using your site.'),
 			action: __('Choose a plan'),
 			dismissible: false,

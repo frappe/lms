@@ -14,6 +14,7 @@
 	>
 		<CodeEditorContent
 			class="mt-1"
+			dir="ltr"
 			:style="{ '--code-max-height': height, minHeight: height }"
 		/>
 	</CodeEditor>

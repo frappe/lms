@@ -51,7 +51,7 @@ const $dialog = createDialog
 const appName = computed(() =>
 	branding.data?.app_name && branding.data.app_name != 'Frappe'
 		? branding.data.app_name
-		: 'Learning'
+		: __('Learning')
 )
 
 // SidebarHeader passes no slots through to its Dropdown, so the check that
@@ -127,7 +127,7 @@ const userDropdownOptions = computed(() => {
 			options: [
 				{
 					icon: 'lucide-user',
-					label: 'My Profile',
+					label: __('My Profile'),
 					onClick: () => {
 						router.push(`/user/${userResource.data?.username}`)
 					},
@@ -170,7 +170,7 @@ const userDropdownOptions = computed(() => {
 				},
 				{
 					icon: 'lucide-settings',
-					label: 'Settings',
+					label: __('Settings'),
 					onClick: () => {
 						pushSettingsHash(router)
 					},
@@ -193,7 +193,7 @@ const userDropdownOptions = computed(() => {
 					},
 				},
 				{
-					label: 'Clear Demo Data',
+					label: __('Clear Demo Data'),
 					icon: 'lucide-trash-2',
 					onClick: () => {
 						clearDemoDataConfirmation()
@@ -207,7 +207,7 @@ const userDropdownOptions = computed(() => {
 				},
 				{
 					icon: FrappeCloudIcon,
-					label: 'Login to Frappe Cloud',
+					label: __('Login to Frappe Cloud'),
 					onClick: () => {
 						$dialog({
 							title: __('Login to Frappe Cloud?'),
@@ -230,7 +230,7 @@ const userDropdownOptions = computed(() => {
 				},
 				{
 					icon: 'lucide-log-out',
-					label: 'Log out',
+					label: __('Log out'),
 					onClick: () => {
 						logout.submit().then(() => {
 							isLoggedIn = false
@@ -242,7 +242,7 @@ const userDropdownOptions = computed(() => {
 				},
 				{
 					icon: 'lucide-log-in',
-					label: 'Log in',
+					label: __('Log in'),
 					onClick: () => {
 						window.location.href = '/login'
 					},

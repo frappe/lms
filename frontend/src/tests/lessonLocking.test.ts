@@ -474,6 +474,10 @@ describe('Lesson.vue unlocks the next lesson without a reload', () => {
 			...baseLesson,
 			membership: { progress: 0 },
 		}
+		// save_progress answers with the course progress the completion raised.
+		findResource(
+			'lms.lms.doctype.course_lesson.course_lesson.save_progress'
+		).data = 40
 		await flushPromises()
 		;(wrapper.vm as any).markProgress()
 		await flushPromises()
@@ -482,6 +486,61 @@ describe('Lesson.vue unlocks the next lesson without a reload', () => {
 		progressHandler()({ course: 'COURSE-1', lesson: 'L1', progress: 40 })
 
 		expect(outline.reload).not.toHaveBeenCalled()
+	})
+})
+
+describe('Lesson.vue after a save the lesson requirements declined', () => {
+	// #2701: the dwell timer can run out before the lesson's quiz is done.
+	// save_progress then records nothing and the course progress stays put.
+	const declinedSave = async () => {
+		wrapper = await mountLesson()
+		findResource('lms.lms.utils.get_lesson').data = {
+			...baseLesson,
+			membership: { progress: 20 },
+		}
+		findResource(
+			'lms.lms.doctype.course_lesson.course_lesson.save_progress'
+		).data = 20
+		await flushPromises()
+		;(wrapper.vm as any).markProgress()
+		await flushPromises()
+	}
+
+	it('still shows a completion whose realtime event beat the response', async () => {
+		// save_progress publishes after commit, so the event can arrive first and
+		// raise lessonProgress before the response is compared against it.
+		wrapper = await mountLesson()
+		findResource('lms.lms.utils.get_lesson').data = {
+			...baseLesson,
+			membership: { progress: 20 },
+		}
+		await flushPromises()
+		const progress = findResource(
+			'lms.lms.doctype.course_lesson.course_lesson.save_progress'
+		)
+		progress.submit.mockImplementationOnce((_params: any, handlers: any) => {
+			progressHandler()({ course: 'COURSE-1', lesson: 'L1', progress: 40 })
+			progress.data = 40
+			progress._config.onSuccess?.(40)
+			handlers?.onSuccess?.(40)
+			return Promise.resolve()
+		})
+
+		;(wrapper.vm as any).markProgress()
+		await flushPromises()
+
+		expect((wrapper.vm as any).completedLesson).toBe('L1')
+	})
+
+	it('still reloads when the lesson is completed later', async () => {
+		// A grade or a quiz in another tab completes it; the event is the only signal.
+		await declinedSave()
+		const outline = findResource('lms.lms.utils.get_course_outline')
+		outline.reload.mockClear()
+
+		progressHandler()({ course: 'COURSE-1', lesson: 'L1', progress: 40 })
+
+		expect(outline.reload).toHaveBeenCalledTimes(1)
 	})
 })
 

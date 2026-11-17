@@ -1,7 +1,7 @@
 <template>
 	<SettingsDialog v-model:open="show" v-model:tab="activeSlug" size="5xl">
 		<template #title>{{ __('Settings') }}</template>
-		<SettingsSidebar>
+		<SettingsSidebar class="lms-settings-nav">
 			<SettingsNavGroup v-for="group in tabs" :key="group.label">
 				<template #label>
 					<span class="text-xs-medium text-ink-gray-6">
@@ -44,7 +44,7 @@
 				<component
 					v-else
 					:is="item.page.component"
-					:label="item.label"
+					:label="__(item.label)"
 					v-bind="recordModel(item)"
 				/>
 			</SettingsPanel>

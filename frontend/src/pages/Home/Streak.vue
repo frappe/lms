@@ -8,15 +8,18 @@
 						<div class="text-ink-gray-6 mb-1">
 							{{
 								streakInfo.data?.current_streak < 1
-									? __('You can do better,')
+									? __('You can do better, you are on a')
 									: streakInfo.data?.current_streak < 10
-									? __('Keep going,')
-									: __('You rock,')
+									? __('Keep going, you are on a')
+									: __('You rock, you are on a')
 							}}
-							{{ __(' you are on a') }}
 						</div>
 						<div class="text-2xl-semibold text-ink-gray-9">
-							{{ streakInfo.data?.current_streak }} {{ __('day streak') }}
+							{{
+								__('{0} day streak').format(
+									streakInfo.data?.current_streak ?? 0
+								)
+							}}
 						</div>
 					</div>
 				</div>
@@ -29,7 +32,7 @@
 							{{ __('Current Streak') }}
 						</div>
 						<div class="text-lg-semibold text-ink-gray-9">
-							{{ streakInfo.data?.current_streak }} {{ __('days') }}
+							{{ __('{0} days').format(streakInfo.data?.current_streak ?? 0) }}
 						</div>
 					</div>
 					<div class="space-y-1">
@@ -37,7 +40,7 @@
 							{{ __('Longest Streak') }}
 						</div>
 						<div class="text-lg-semibold text-ink-gray-9">
-							{{ streakInfo.data?.longest_streak }} {{ __('days') }}
+							{{ __('{0} days').format(streakInfo.data?.longest_streak ?? 0) }}
 						</div>
 					</div>
 				</div>

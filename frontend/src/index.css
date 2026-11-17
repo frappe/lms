@@ -13,6 +13,21 @@ svg.lucide {
 	stroke-width: 1.5;
 }
 
+/* Icons that always point along the line. Mirrored here, not per use, because
+   most arrive as a lucide-* string in a menu or settings item, which cannot
+   carry an rtl: class. `scale` composes with any Tailwind transform on the
+   same element. */
+[dir='rtl'] .lucide-chevrons-right,
+[dir='rtl'] .lucide-external-link,
+[dir='rtl'] .lucide-log-in,
+[dir='rtl'] .lucide-log-out,
+[dir='rtl'] .lucide-panel-left,
+[dir='rtl'] .lucide-send,
+[dir='rtl'] .lucide-send-horizonal,
+[dir='rtl'] .lucide-square-arrow-out-up-right {
+	scale: -1 1;
+}
+
 /* 48px, the desk header's height. The property is the single source so the
    scroll containers below clear exactly the header (WCAG 2.4.11). */
 :root {
@@ -93,5 +108,91 @@ main#main-content {
 		+ [data-slot='list-row'][data-slot]
 		[data-slot='list-divider'] {
 		opacity: 1;
+	}
+}
+
+/* RTL fixes for frappe-ui parts that hardcode left/right. Same patches as
+   crm/frontend/src/index.css. */
+.ProseMirror:not(.ProseMirror-focused) p.is-editor-empty:dir(rtl)::before {
+	float: inline-start;
+}
+
+[data-slot='sidebar-item'] > :is(a, button):dir(rtl) {
+	padding-left: 0;
+	padding-inline-start: 0.5rem;
+	text-align: start;
+}
+[data-slot='sidebar-item'] > :is(a, button):dir(rtl) > .ml-2 {
+	margin-left: 0;
+	margin-inline-start: 0.5rem;
+}
+
+/* Key combos read left to right in every locale. */
+[data-slot='keyboard-shortcut'] {
+	direction: ltr;
+}
+
+/* Progress slides a full-width fill left by an inline transform; mirror the
+   track so it fills from the right. */
+[role='progressbar']:dir(rtl):has(> [data-max]) {
+	scale: -1 1;
+}
+
+/* Toasts sit bottom-right, over the RTL sidebar; move them to the left. */
+@media (min-width: 601px) {
+	[data-sonner-toaster][dir='rtl'][data-x-position='right'] {
+		right: auto;
+		left: var(--offset-left);
+	}
+}
+[data-sonner-toaster][dir='rtl'] [data-sonner-toast] [data-icon] {
+	margin-right: 0;
+	margin-left: 0.5rem;
+}
+[data-sonner-toaster][dir='rtl'] [data-sonner-toast] [data-close-button] {
+	margin-left: 0;
+	margin-right: auto;
+}
+[data-sonner-toaster][dir='rtl']
+	[data-sonner-toast]:has([data-action])
+	[data-close-button] {
+	margin-right: 0;
+}
+[data-sonner-toaster][dir='rtl'] [data-sonner-toast] [data-action] {
+	margin-left: 0.5rem;
+	margin-right: auto;
+}
+
+/* ListSelectBanner (frappe-ui/experimental) divides the count from "Select all"
+   with a physical right border. Both call sites tag it lms-select-banner. */
+.lms-select-banner > .border-r:dir(rtl) {
+	border-right-width: 0;
+	border-left-width: 1px;
+}
+
+/* frappe-ui's Select, Combobox and MultiSelect triggers align their value and
+   push Select's chevron with physical left-side classes, so in RTL the value
+   lands at the far end and the chevron next to it. Scoped to those three:
+   Popover, Dropdown and Tooltip triggers share the data-slot. */
+[data-slot='trigger']:is([role='combobox'], [data-variant]):dir(rtl) .text-left,
+[data-slot='trigger']:is([role='combobox'], [data-variant]).text-left:dir(rtl) {
+	text-align: start;
+}
+[data-slot='trigger']:is([role='combobox'], [data-variant]):dir(rtl) > .ml-auto {
+	margin-left: 0;
+	margin-inline-start: auto;
+}
+
+/* frappe-ui's SettingsNavItem stretches its label with a physical left
+   alignment, which in RTL pushes the label away from its icon, and
+   SettingsSidebar draws its divider on the physical right. Settings.vue tags
+   the sidebar lms-settings-nav. */
+.lms-settings-nav [role='tab']:dir(rtl) {
+	text-align: start;
+}
+@media (min-width: 640px) {
+	.lms-settings-nav:dir(rtl) {
+		border-right-width: 0;
+		border-left-width: 1px;
 	}
 }

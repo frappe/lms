@@ -8,7 +8,7 @@
 		:has-next-page="list.hasNextPage"
 		v-model:search="list.search"
 		searchable
-		empty-name="Coupons"
+		:empty-name="__('Coupons')"
 		empty-icon="lucide-ticket"
 		@new="openForm(NEW_RECORD)"
 		@load-more="list.loadMore()"

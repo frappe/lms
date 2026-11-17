@@ -16,20 +16,20 @@ type ImportTarget = {
 
 const TARGETS: Record<string, ImportTarget> = {
 	'LMS Course': {
-		title: 'Courses',
+		title: __('Courses'),
 		openList: (router) => router.push({ name: 'Courses' }),
 		openRecord: (router, name) =>
 			router.push({ name: 'CourseDetail', params: { courseName: name } }),
 	},
 	'LMS Batch': {
-		title: 'Batches',
+		title: __('Batches'),
 		openList: (router) => router.push({ name: 'Batches' }),
 		openRecord: (router, name) =>
 			router.push({ name: 'BatchDetail', params: { batchName: name } }),
 	},
 	// Categories have no page of their own; they are managed in Settings.
 	'LMS Category': {
-		title: 'Categories',
+		title: __('Categories'),
 		openList: (router) => pushSettingsHash(router, 'categories'),
 		listInSettings: true,
 	},

@@ -55,7 +55,7 @@
 						<div>
 							{{ dayjs(participant.left_at).format('HH:mm a') }}
 						</div>
-						<div>{{ participant.duration }} {{ __('minutes') }}</div>
+						<div>{{ __('{0} minutes').format(participant.duration) }}</div>
 					</div>
 				</component>
 			</div>

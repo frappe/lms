@@ -52,7 +52,7 @@
 				{{ instructors[0].first_name }}
 			</router-link>
 			<span v-else>{{ instructors[0].first_name }}</span>
-			{{ __('and') }} {{ instructors?.length - 1 }} {{ __('others') }}
+			{{ __('and {0} others').format(instructors?.length - 1) }}
 		</span>
 	</div>
 </template>

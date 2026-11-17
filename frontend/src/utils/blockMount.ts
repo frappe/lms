@@ -1,8 +1,10 @@
-import { createApp } from 'vue'
+import { createApp, h } from 'vue'
+import { ConfigProvider } from 'reka-ui'
 import type { App, Component } from 'vue'
 import { registerDirectives } from '@/directives'
 import { usersStore } from '@/stores/user'
 import translationPlugin from '@/translation'
+import { textDirection } from '@/utils/textDirection'
 import AssessmentBlockPreview from '@/components/Assessment/AssessmentBlockPreview.vue'
 import type { PreviewKind } from '@/components/Assessment/AssessmentBlockPreview.vue'
 
@@ -32,7 +34,11 @@ export function mountBlock(
 	{ preview = false }: MountBlockOptions = {}
 ): App {
 	markBlock(el, preview)
-	const app = createApp(component, props)
+	// Like App.vue, so reka-based parts inside a block follow the page direction.
+	const app = createApp({
+		render: () =>
+			h(ConfigProvider, { dir: textDirection() }, () => h(component, props)),
+	})
 	// useId() counts per app, so without a prefix two blocks hand out the same ids.
 	app.config.idPrefix = `block-${++mountedBlocks}`
 	registerDirectives(app)

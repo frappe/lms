@@ -10,7 +10,7 @@
 		:has-next-page="applications.hasNextPage"
 		:list-options="{ showTooltip: false, selectable: false }"
 		v-model:page-length="pageLength"
-		empty-name="Job Applications"
+		:empty-name="__('Job Applications')"
 		empty-icon="lucide-briefcase"
 		:empty-title="emptyState?.title"
 		:empty-description="emptyState?.description"
@@ -177,7 +177,7 @@ const totalApplications = createResource({
 	auto: true,
 	cache: ['totalApplications', props.job],
 	onError(err) {
-		toast.error(err.messages?.[0] || err)
+		toast.error(err.messages?.[0] || err.message)
 		console.error('Error fetching total applications:', err)
 	},
 })
@@ -211,7 +211,10 @@ const emailResource = createResource({
 
 const openEmailModal = (applicant) => {
 	selectedApplicant.value = applicant
-	emailForm.subject = `Job Application for ${applications.data?.[0]?.job_title} - ${applicant.full_name}`
+	emailForm.subject = __('Job Application for {0} - {1}').format(
+		applications.data?.[0]?.job_title,
+		applicant.full_name
+	)
 	emailForm.message = ''
 	showEmailModal.value = true
 }
@@ -234,7 +237,7 @@ const sendEmail = (close) => {
 				close()
 			},
 			onError: (err) => {
-				toast.error(err.messages?.[0] || err)
+				toast.error(err.messages?.[0] || err.message)
 			},
 		}
 	)
@@ -280,7 +283,9 @@ const breadcrumbs = computed(() => [
 
 const applicationCountLabel = computed(() => {
 	const count = totalApplications.data ?? 0
-	return `${count} ${count === 1 ? __('Application') : __('Applications')}`
+	return count === 1
+		? __('1 application')
+		: __('{0} applications').format(count)
 })
 
 const applicationColumns = computed(() => {
@@ -325,7 +330,7 @@ const applicantRows = computed(() => {
 
 usePageMeta(() => {
 	return {
-		title: `Applications - ${applications.data?.[0]?.job_title}`,
+		title: __('Applications - {0}').format(applications.data?.[0]?.job_title),
 		icon: brand.favicon,
 	}
 })

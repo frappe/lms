@@ -14,7 +14,9 @@
 			<span class="flex items-center gap-x-1.5">
 				<span
 					class="size-3.5 shrink-0 text-ink-gray-5"
-					:class="open ? 'lucide-chevron-down' : 'lucide-chevron-right'"
+					:class="
+						open ? 'lucide-chevron-down' : 'lucide-chevron-right rtl:rotate-180'
+					"
 				/>
 				<span class="text-sm-semibold text-ink-gray-9">{{
 					__('Console')

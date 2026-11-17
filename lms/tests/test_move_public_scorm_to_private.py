@@ -70,7 +70,7 @@ class TestMovePublicScormToPrivate(UnitTestCase):
 		with (
 			patch.object(frappe.local, "site_path", self.site),
 			patch.object(SCORMRenderer, "_check_permission", lambda _self, course, package: None),
-			patch.object(SCORMRenderer, "_serve_file", lambda _self, path: path),
+			patch.object(SCORMRenderer, "_serve_file", lambda _self, path, *_: path),
 		):
 			served = renderer.render()
 
