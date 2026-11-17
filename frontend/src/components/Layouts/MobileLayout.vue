@@ -49,7 +49,7 @@
 					<span
 						class="max-w-full break-words text-center text-p-xs"
 						:class="[
-							isActive(tab) ? 'font-medium text-ink-gray-9' : 'text-ink-gray-5',
+							isActive(tab) ? 'font-medium text-ink-gray-9' : 'text-ink-gray-6',
 						]"
 					>
 						{{ __(tabLabel(tab.label)) }}

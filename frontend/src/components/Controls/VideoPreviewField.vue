@@ -42,7 +42,7 @@
 					class="flex flex-col items-center gap-1 px-3 text-center"
 				>
 					<span class="lucide-circle-check size-5 text-ink-green-5" />
-					<span class="text-xs text-ink-gray-5">
+					<span class="text-xs text-ink-gray-6">
 						{{ __("Saved. This format can't be previewed here.") }}
 					</span>
 				</div>

@@ -24,4 +24,17 @@ describe('FeedbackBanner', () => {
 		expect(wrapper.classes().join(' ')).toContain('red')
 		expect(wrapper.find('.lucide-x-circle').exists()).toBe(true)
 	})
+
+	// Guards: a live role or exposed icon here doubles the quiz announcement.
+	// Introduced in #2823; test added with the a11y audit remediation.
+	it('stays presentational: no live role, icon hidden from assistive tech', () => {
+		const wrapper = mount(FeedbackBanner, {
+			props: { correct: true },
+			slots: { default: 'Correct' },
+		})
+		expect(wrapper.attributes('role')).toBeUndefined()
+		expect(wrapper.get('.lucide-check-circle').attributes('aria-hidden')).toBe(
+			'true'
+		)
+	})
 })

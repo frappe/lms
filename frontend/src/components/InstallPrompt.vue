@@ -35,9 +35,11 @@
 						<button
 							type="button"
 							:aria-label="__('Close')"
-							class="lucide-x ms-auto size-4 text-ink-gray-7"
+							class="-m-1 ms-auto size-6 p-1 text-ink-gray-7"
 							@click="iosInstallMessage = false"
-						/>
+						>
+							<span class="lucide-x size-4" aria-hidden="true" />
+						</button>
 					</span>
 				</div>
 				<div class="px-3 text-xs text-ink-gray-8">

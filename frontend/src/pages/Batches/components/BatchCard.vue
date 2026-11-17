@@ -1,10 +1,10 @@
 <template>
 	<div
-		class="flex flex-col border hover:border-outline-gray-3 rounded-5 p-4 h-full"
+		class="relative isolate flex flex-col border hover:border-outline-gray-3 rounded-5 p-4 h-full"
 		style="min-height: 150px"
 	>
 		<div class="text-lg-semibold leading-5 mb-2 text-ink-gray-9">
-			{{ batch.title }}
+			<CardLink :to="to">{{ batch.title }}</CardLink>
 		</div>
 		<Badge
 			v-if="batch.seat_count && batch.seats_left > 0"
@@ -65,7 +65,7 @@
 			class="flex avatar-group overlap mt-4"
 		>
 			<div
-				class="h-6 me-1"
+				class="relative z-10 h-6 me-1"
 				:class="{ 'avatar-group overlap': batch.instructors.length > 1 }"
 			>
 				<UserAvatar
@@ -82,12 +82,17 @@
 import { Badge } from 'frappe-ui'
 import { formatTime, getFormattedDateRange } from '@/utils'
 import { formatTimezone, nextOccurrence } from '@/utils/timezone'
+import CardLink from '@/components/CardLink.vue'
 import CourseInstructors from '@/components/CourseInstructors.vue'
 import UserAvatar from '@/components/UserAvatar.vue'
 
 const props = defineProps({
 	batch: {
 		type: Object,
+		default: null,
+	},
+	to: {
+		type: [Object, String],
 		default: null,
 	},
 })

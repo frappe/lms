@@ -42,7 +42,7 @@
 										</span>
 										<span
 											v-if="column.secondary"
-											class="truncate text-p-sm text-ink-gray-5"
+											class="truncate text-p-sm text-ink-gray-6"
 										>
 											{{ column.secondary(row) }}
 										</span>

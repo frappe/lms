@@ -39,7 +39,7 @@
 				v-if="!playing"
 				:aria-label="__('Play video')"
 				class="absolute inset-0 flex items-center justify-center cursor-pointer"
-				@click="playVideo"
+				@click="playFromOverlay"
 			>
 				<div class="video-play-scrim rounded-full p-4 ps-4.5">
 					<Play :class="scrimInk" />
@@ -48,10 +48,12 @@
 			<div
 				class="flex items-center gap-x-2 py-2 px-1 bg-gradient-to-b from-transparent to-black-overlay-700 absolute bottom-0 start-0 end-0 mx-auto rounded-5"
 				:class="{
-					'invisible group-hover:visible [@media(hover:none)]:visible': playing,
+					'invisible group-hover:visible group-focus-within:visible [@media(hover:none)]:visible':
+						playing,
 				}"
 			>
 				<Button
+					ref="playPauseButton"
 					variant="ghost"
 					class="hover:bg-transparent"
 					:label="playing ? __('Pause') : __('Play')"
@@ -178,6 +180,7 @@ const scrimInk = 'text-white'
    of the video statistics modal. */
 const videoRef = ref(null)
 const videoContainer = ref(null)
+const playPauseButton = ref(null)
 let playing = ref(false)
 let currentTime = ref(0)
 let duration = ref(0)
@@ -303,6 +306,14 @@ const fileURL = computed(() => {
 const playVideo = () => {
 	videoRef.value.play()
 	playing.value = true
+}
+
+// The overlay unmounts on play and would drop keyboard focus, so focus moves to
+// Pause while the bar is still visible; focus-within then keeps the bar shown.
+// A click with detail 0 came from Enter or Space.
+const playFromOverlay = (event) => {
+	if (event.detail === 0) playPauseButton.value?.$el?.focus()
+	playVideo()
 }
 
 const pauseVideo = () => {

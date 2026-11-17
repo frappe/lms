@@ -6,7 +6,7 @@
 	>
 		<template #default>
 			<div
-				class="grid grid-cols-2 gap-12 text-sm-semibold text-ink-gray-5 pb-2"
+				class="grid grid-cols-2 gap-12 text-sm-semibold text-ink-gray-6 pb-2"
 			>
 				<div>
 					{{ __('Member') }}

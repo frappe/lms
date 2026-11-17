@@ -106,7 +106,7 @@ const mountReviews = (props: Record<string, unknown> = {}) =>
 const renderedDates = async () => {
 	const wrapper = mountReviews()
 	await flushPromises()
-	return wrapper.findAll('article span.text-ink-gray-5').map((n) => n.text())
+	return wrapper.findAll('article span.text-ink-gray-6').map((n) => n.text())
 }
 
 beforeEach(() => {

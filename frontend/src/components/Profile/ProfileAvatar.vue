@@ -26,8 +26,17 @@
 							: 'bg-surface-violet-7 text-white'
 					"
 				>
-					<span class="lucide-badge-check size-5" />
+					<span
+						class="size-5"
+						:class="
+							openTo === 'Work' ? 'lucide-badge-check' : 'lucide-briefcase'
+						"
+						aria-hidden="true"
+					/>
 				</div>
+				<span class="sr-only">
+					{{ openTo === 'Work' ? __('Open to Work') : __('Hiring') }}
+				</span>
 			</div>
 		</Tooltip>
 	</div>
