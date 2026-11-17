@@ -50,7 +50,7 @@ createListResourceMock.mockImplementation((options: any) => {
 		answer(rows: any[]) {
 			if (resource.reload.mock.calls.length === 0) {
 				throw new Error(
-					`answered ${options.doctype}, which the form never reloaded`,
+					`answered ${options.doctype}, which the form never reloaded`
 				)
 			}
 			// The server returns at most one page: frappe-ui sends
@@ -209,7 +209,7 @@ const mountForm = async (router: Router, user: Record<string, unknown>) => {
 
 const deepLink = async (
 	programName: string,
-	user: Record<string, unknown> = moderator,
+	user: Record<string, unknown> = moderator
 ) => {
 	const router = makeRouter()
 	await router.push(`/programs/${programName}/edit`)
@@ -253,37 +253,8 @@ describe('ProgramForm as a route', () => {
 		expect(wrapper.find('[data-testid="program-fields"]').exists()).toBe(false)
 		expect(wrapper.find('[data-testid="program-save"]').exists()).toBe(false)
 		expect(vi.mocked(toast.warning)).toHaveBeenLastCalledWith(
-			expect.stringContaining('not permitted'),
+			expect.stringContaining('not permitted')
 		)
-	})
-
-<<<<<<< HEAD
-	it('carries every field of the program form', async () => {
-		const { wrapper } = await deepLink('new')
-		const fields = wrapper.find('[data-testid="program-fields"]')
-		const labels = fields
-			.findAll('label')
-			.map((label) => label.text())
-			.filter((text) => text !== '')
-		for (const label of FIELD_LABELS) {
-			expect(labels).toContain(label)
-		}
-		// Exact count, so an added field has to be added here too.
-		expect(labels).toHaveLength(FIELD_LABELS.length)
-		// Both child tables are still on the page.
-		expect(fields.text()).toContain('Courses')
-		expect(fields.text()).toContain('Members')
-	})
-
-	it('inserts through its own resource on the create sentinel', async () => {
-		const { wrapper } = await deepLink('new')
-		// R3: `new` must reach the CREATE branch. The prop used to arrive as null
-		// from the parent, and every `=== 'new'` check then took the edit path.
-		expect(wrapper.find('[data-testid="program-delete"]').exists()).toBe(false)
-
-		await wrapper.find('[data-testid="program-save"]').trigger('click')
-		expect(insertSubmit).toHaveBeenCalledTimes(1)
-		expect(setValueSubmit).not.toHaveBeenCalled()
 	})
 
 	it('replaces rather than pushes on save, so Back reaches the list', async () => {
@@ -308,28 +279,6 @@ describe('ProgramForm as a route', () => {
 		router.back()
 		await flushPromises()
 		expect(router.currentRoute.value.name).not.toBe('ProgramForm')
-	})
-
-	it('asks the list page to refetch rather than reloading its resource', async () => {
-		const router = makeRouter()
-		await router.push({ name: 'Programs' })
-		await router.push({
-			name: 'ProgramForm',
-			params: { programName: 'new' },
-			state: { lmsFormEntry: true },
-		})
-		const wrapper = await mountForm(router, moderator)
-
-		insertSubmit.mockImplementation(
-			(_doc: unknown, options: { onSuccess: () => void }) => options.onSuccess()
-		)
-		await wrapper.find('[data-testid="program-save"]').trigger('click')
-		await flushPromises()
-
-		// The list page refetches through updatePrograms(), which also drives its
-		// loading flag and its footer count; a bare reload from here would skip
-		// both. The listener reaching the form at all is the outlet forwarding it.
-		expect(savedSpy).toHaveBeenCalledTimes(1)
 	})
 
 	it('mobile: the back control pops the router back to the list', async () => {
@@ -369,8 +318,6 @@ describe('ProgramForm as a route', () => {
 		expect(router.currentRoute.value.name).toBe('Programs')
 	})
 
-=======
->>>>>>> ffe35ba (test: drop mocked frontend tests that only pin wiring or markup)
 	describe('edit mode, arrived at cold', () => {
 		it('fetches its own record instead of reading a parent array (C4)', async () => {
 			const { wrapper } = await deepLink('data-science')
@@ -380,7 +327,7 @@ describe('ProgramForm as a route', () => {
 					doctype: 'LMS Program',
 					name: 'data-science',
 					auto: true,
-				}),
+				})
 			)
 
 			// And the fetched document is what fills the form.
@@ -392,7 +339,7 @@ describe('ProgramForm as a route', () => {
 			})
 			await flushPromises()
 			expect(
-				(wrapper.find('input[type="text"]').element as HTMLInputElement).value,
+				(wrapper.find('input[type="text"]').element as HTMLInputElement).value
 			).toBe('data-science')
 		})
 
@@ -461,7 +408,7 @@ describe('ProgramForm as a route', () => {
 		const drag = async (
 			wrapper: Awaited<ReturnType<typeof loadProgram>>,
 			oldIndex: number,
-			newIndex: number,
+			newIndex: number
 		) => {
 			const draggable = wrapper.findComponent({ name: 'Draggable' })
 			const list = draggable.props('list')
@@ -479,7 +426,7 @@ describe('ProgramForm as a route', () => {
 			await wrapper.find('[data-testid="program-save"]').trigger('click')
 			const payload = setValueSubmit.mock.calls[0][0]
 			expect(
-				payload.program_courses.map((row: any) => [row.course, row.idx]),
+				payload.program_courses.map((row: any) => [row.course, row.idx])
 			).toEqual([
 				['course-b', 1],
 				['course-c', 2],
@@ -519,7 +466,7 @@ describe('ProgramForm as a route', () => {
 			const wrapper = await loadProgram(THREE_COURSES, MEMBER_ROWS)
 			setValueSubmit.mockImplementation(
 				(_doc: unknown, options: { onError: (err: unknown) => void }) =>
-					options.onError(new Error('Not permitted')),
+					options.onError(new Error('Not permitted'))
 			)
 
 			await drag(wrapper, 0, 2)

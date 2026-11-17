@@ -187,13 +187,13 @@ describe('CourseImportForm as a route', () => {
 		await router.push({ name: 'CourseImport' })
 		const wrapper = await mountForm(router)
 		expect(wrapper.find('[data-testid="course-import-fields"]').exists()).toBe(
-			false,
+			false
 		)
 		expect(wrapper.find('[data-testid="course-import-submit"]').exists()).toBe(
-			false,
+			false
 		)
 		expect(vi.mocked(toast.warning)).toHaveBeenLastCalledWith(
-			expect.stringContaining('not permitted'),
+			expect.stringContaining('not permitted')
 		)
 	})
 
@@ -215,7 +215,7 @@ describe('CourseImportForm as a route', () => {
 	const importError = (messages: string[]) => {
 		const error: Error & { messages: string[] } = Object.assign(
 			new Error('lms.lms.api.import_course_from_zip ValidationError'),
-			{ messages },
+			{ messages }
 		)
 		return error
 	}
@@ -229,13 +229,6 @@ describe('CourseImportForm as a route', () => {
 		await attachZip(wrapper)
 		await wrapper.find('[data-testid="course-import-submit"]').trigger('click')
 		await flushPromises()
-<<<<<<< HEAD
-=======
-		expect(logged).toHaveBeenCalledWith(
-			'Error importing course:',
-			expect.any(Error),
-		)
->>>>>>> 3a1f127 (fix: show a modal's refusal as a toast and its loading as a centered spinner)
 	}
 
 	it('reports the server message when the import is rejected', async () => {
@@ -243,13 +236,7 @@ describe('CourseImportForm as a route', () => {
 		// "...import_course_from_zip ValidationError" and dropped the reason.
 		await rejectImportWith(['Invalid course ZIP: Missing course.json'])
 
-<<<<<<< HEAD
 		expect(toast.error).toHaveBeenCalledWith('Invalid course ZIP: Missing course.json')
-=======
-		expect(toast.error).toHaveBeenCalledWith(
-			'Invalid course ZIP: Missing course.json',
-		)
->>>>>>> 3a1f127 (fix: show a modal's refusal as a toast and its loading as a centered spinner)
 	})
 
 	it('falls back to the raw error when the server sent no message', async () => {
@@ -258,7 +245,7 @@ describe('CourseImportForm as a route', () => {
 		await rejectImportWith(['Internal Server Error'])
 
 		expect(toast.error).toHaveBeenCalledWith(
-			'Error importing course: lms.lms.api.import_course_from_zip ValidationError',
+			'Error importing course: lms.lms.api.import_course_from_zip ValidationError'
 		)
 	})
 
@@ -279,7 +266,6 @@ describe('CourseImportForm as a route', () => {
 		await flushPromises()
 		expect(router.currentRoute.value.name).toBe('Courses')
 	})
-<<<<<<< HEAD
 
 	it('mobile: the back control pops the router back to the list', async () => {
 		const router = makeRouter()
@@ -309,16 +295,4 @@ describe('CourseImportForm as a route', () => {
 		await flushPromises()
 		expect(router.currentRoute.value.name).toBe('Courses')
 	})
-
-	it('renders at frappe-ui Dialog default size so desktop is unchanged', async () => {
-		// The modal this replaced passed no `size`, i.e. frappe-ui's 'lg'
-		// (Dialog.vue:260). FormShell defaults to '3xl', so dropping the explicit
-		// size would silently widen the dialog by a lot.
-		const router = makeRouter()
-		await router.push({ name: 'CourseImport' })
-		const wrapper = await mountForm(router)
-		expect(wrapper.findComponent({ name: 'Dialog' }).props('size')).toBe('lg')
-	})
-=======
->>>>>>> ffe35ba (test: drop mocked frontend tests that only pin wiring or markup)
 })

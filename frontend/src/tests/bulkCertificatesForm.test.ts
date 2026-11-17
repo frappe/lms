@@ -138,7 +138,7 @@ describe('BulkCertificatesForm as a route', () => {
 		createResourceMock.mockImplementation((options: { url: string }) =>
 			options.url === BATCH_URL
 				? batchResource
-				: { submit: certificateSubmit, loading: false, data: null },
+				: { submit: certificateSubmit, loading: false, data: null }
 		)
 		batchResource.data = {
 			name: 'B1',
@@ -154,7 +154,6 @@ describe('BulkCertificatesForm as a route', () => {
 		})
 	})
 
-<<<<<<< HEAD
 	it('mounts straight from the URL with no parent page mounted', async () => {
 		const router = makeRouter()
 		await router.push('/batches/B1/certificates')
@@ -165,34 +164,15 @@ describe('BulkCertificatesForm as a route', () => {
 		).toBe(true)
 	})
 
-	it('fetches its own batch context for the batch in the URL', async () => {
-		// The students and courses this form needs are not on a plain LMS Batch
-		// fetch; they come from get_batch_details. This is the form's OWN fetch:
-		// BatchDetail's resource carries no cache key (a key read once at setup
-		// would strand the previous batch's data there when the router reuses
-		// the page), so there is no instance to share and none is claimed.
-		const router = makeRouter()
-		await router.push('/batches/B1/certificates')
-		await mountForm(router, moderator)
-		const batchCall = createResourceMock.mock.calls.find(
-			(call) => call[0].url === BATCH_URL
-		)
-		expect(batchCall).toBeDefined()
-		expect(batchCall?.[0].cache).toBeUndefined()
-		expect(batchCall?.[0].makeParams()).toEqual({ batch: 'B1' })
-	})
-
-=======
->>>>>>> ffe35ba (test: drop mocked frontend tests that only pin wiring or markup)
 	it('refuses for a user who is not a batch admin', async () => {
 		const router = makeRouter()
 		await router.push('/batches/B1/certificates')
 		const wrapper = await mountForm(router, student)
 		expect(
-			wrapper.find('[data-testid="bulk-certificates-fields"]').exists(),
+			wrapper.find('[data-testid="bulk-certificates-fields"]').exists()
 		).toBe(false)
 		expect(vi.mocked(toast.warning)).toHaveBeenLastCalledWith(
-			expect.stringContaining('not permitted'),
+			expect.stringContaining('not permitted')
 		)
 	})
 
@@ -202,10 +182,10 @@ describe('BulkCertificatesForm as a route', () => {
 		await router.push('/batches/B1/certificates')
 		const wrapper = await mountForm(router, moderator)
 		expect(
-			wrapper.find('[data-testid="bulk-certificates-fields"]').exists(),
+			wrapper.find('[data-testid="bulk-certificates-fields"]').exists()
 		).toBe(false)
 		expect(vi.mocked(toast.warning)).toHaveBeenLastCalledWith(
-			expect.stringContaining('not enabled'),
+			expect.stringContaining('not enabled')
 		)
 	})
 
@@ -215,10 +195,10 @@ describe('BulkCertificatesForm as a route', () => {
 		await router.push('/batches/B1/certificates')
 		const wrapper = await mountForm(router, moderator)
 		expect(
-			wrapper.find('[data-testid="bulk-certificates-fields"]').exists(),
+			wrapper.find('[data-testid="bulk-certificates-fields"]').exists()
 		).toBe(false)
 		expect(vi.mocked(toast.warning)).toHaveBeenLastCalledWith(
-			expect.stringContaining('no students'),
+			expect.stringContaining('no students')
 		)
 	})
 
@@ -234,7 +214,7 @@ describe('BulkCertificatesForm as a route', () => {
 			.trigger('click')
 		expect(certificateSubmit).toHaveBeenCalledTimes(1)
 		const call = createResourceMock.mock.calls.find(
-			(c) => c[0].url === 'lms.lms.api.generate_batch_certificates',
+			(c) => c[0].url === 'lms.lms.api.generate_batch_certificates'
 		)
 		const params = call?.[0].makeParams()
 		expect(params).toMatchObject({ batch: 'B1' })
@@ -246,7 +226,7 @@ describe('BulkCertificatesForm as a route', () => {
 			(_params: unknown, options: { onSuccess: (r: unknown) => void }) => {
 				options.onSuccess({ created: 1, errors: ['Sam is already certified'] })
 				return Promise.resolve()
-			},
+			}
 		)
 		const router = makeRouter()
 		await router.push('/batches/B1/certificates')
@@ -297,7 +277,7 @@ describe('BulkCertificatesForm as a route', () => {
 			(_doc: unknown, options: { onError: (e: unknown) => void }) => {
 				options.onError({ messages: ['nope'] })
 				return Promise.resolve()
-			},
+			}
 		)
 
 		const router = makeRouter()

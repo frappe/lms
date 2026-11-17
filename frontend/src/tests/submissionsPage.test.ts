@@ -90,13 +90,8 @@ vi.mock('frappe-ui', () => ({
 	),
 }))
 
-<<<<<<< HEAD
-// Keeps only what the assertions read: crumbs, filter slot, selection banner.
-vi.mock('@/components/Layouts/ListPage.vue', () => ({
-=======
 // Keeps only what the assertions read: filter slot, selection banner.
-vi.mock('@/components/Layouts/pages/ListPage.vue', () => ({
->>>>>>> ffe35ba (test: drop mocked frontend tests that only pin wiring or markup)
+vi.mock('@/components/Layouts/ListPage.vue', () => ({
 	default: defineComponent({
 		name: 'ListPageStub',
 		props: [

@@ -146,7 +146,6 @@ describe('CourseEnrollmentForm as a route', () => {
 		reloadCourseDetails.mockReset()
 	})
 
-<<<<<<< HEAD
 	// The whole point of the conversion: no CourseDashboard tab is mounted, so
 	// there is no parent to hand this page a course or a student list.
 	it('mounts straight from the URL with no parent dashboard mounted', async () => {
@@ -159,23 +158,6 @@ describe('CourseEnrollmentForm as a route', () => {
 		expect(form(wrapper).props('refusal')).toBe('')
 	})
 
-	it('fetches the course itself, keyed off the route param', async () => {
-		const router = makeRouter()
-		await openForm(router)
-		await mountForm(router)
-
-		const options = optionsFor('lms.lms.utils.get_course_details')
-		expect((options.makeParams as () => unknown)()).toEqual({
-			course: 'COURSE-1',
-		})
-		// No cache key: CourseDetail's own resource deliberately has none, so
-		// there is no shared instance to join, and adding one here would file
-		// the next course's data under this one.
-		expect(options.cache).toBeUndefined()
-	})
-
-=======
->>>>>>> ffe35ba (test: drop mocked frontend tests that only pin wiring or markup)
 	it('refuses a visitor who is neither moderator nor an instructor of it', async () => {
 		courseResource.data = course()
 		const router = makeRouter()
