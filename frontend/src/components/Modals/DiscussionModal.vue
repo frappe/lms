@@ -83,7 +83,9 @@ const submitTopic = (close) => {
 		toast.error(__('Details cannot be empty.'))
 		return
 	}
-	call('frappe.client.insert', {
+	// Returned so the Dialog keeps Post loading, and so disabled, until the
+	// topic and its first reply are saved.
+	return call('frappe.client.insert', {
 		doc: {
 			doctype: 'Discussion Topic',
 			reference_doctype: props.doctype,
@@ -91,9 +93,7 @@ const submitTopic = (close) => {
 			title: topic.title,
 		},
 	})
-		.then((data) => {
-			createReply(data.name, close)
-		})
+		.then((data) => createReply(data.name, close))
 		.catch((err) => {
 			toast.error(err.messages?.[0] || err)
 			console.error(err)
@@ -101,7 +101,7 @@ const submitTopic = (close) => {
 }
 
 const createReply = (topicName, close) => {
-	call('frappe.client.insert', {
+	return call('frappe.client.insert', {
 		doc: {
 			doctype: 'Discussion Reply',
 			topic: topicName,

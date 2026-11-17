@@ -38,7 +38,11 @@ describe('BatchOverlay for a guest', () => {
 	// hooks.py redirects /batches/<name> to the batch list, so a login that
 	// returns there loses the batch. The page's own path survives the login.
 	it('returns to the batch page after login', async () => {
-		const location = { pathname: '/lms/batches/details/B1', href: '' }
+		const location = {
+			pathname: '/lms/batches/details/B1',
+			search: '',
+			href: '',
+		}
 		Object.defineProperty(window, 'location', {
 			value: location,
 			configurable: true,
@@ -63,6 +67,8 @@ describe('BatchOverlay for a guest', () => {
 		})
 
 		await wrapper.find('button').trigger('click')
-		expect(location.href).toBe('/login?redirect-to=/lms/batches/details/B1')
+		expect(location.href).toBe(
+			'/login?redirect-to=%2Flms%2Fbatches%2Fdetails%2FB1'
+		)
 	})
 })

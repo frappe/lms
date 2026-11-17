@@ -68,6 +68,7 @@
 					</div>
 					<Button
 						v-if="user.data && !lesson.data.disable_self_learning"
+						:loading="enrollment.loading"
 						@click="enrollStudent()"
 						variant="solid"
 					>
@@ -81,7 +82,10 @@
 					>
 						{{ __('Contact the Administrator to enroll for this course.') }}
 					</Badge>
-					<Button v-else @click="redirectToLogin()">
+					<Button
+						v-else
+						@click="redirectToLogin(getLmsRoute(`courses/${courseName}`))"
+					>
 						<template #prefix>
 							<span class="lucide-log-in size-4" />
 						</template>
@@ -404,6 +408,7 @@ import InlineLessonMenu from '@/components/Notes/InlineLessonMenu.vue'
 import { parseStoredEditorJs } from '@/utils/lessonForm'
 import { isLessonSelection } from '@/utils/lessonSelection'
 import { getLmsRoute } from '@/utils/basePath'
+import { redirectToLogin } from '@/utils/login'
 import { provideStudentView } from '@/composables/useStudentView'
 import type { UserResource } from '@/composables/useStudentView'
 import type { Note, Notes as NotesResource } from '@/types'
@@ -1253,6 +1258,7 @@ const enrollment = createResource({
 })
 
 const enrollStudent = () => {
+	if (enrollment.loading) return
 	enrollment.submit(
 		{},
 		{
@@ -1359,12 +1365,6 @@ watch(
 	},
 	{ immediate: true }
 )
-
-const redirectToLogin = () => {
-	window.location.href = `/login?redirect-to=${getLmsRoute(
-		`courses/${props.courseName}`
-	)}`
-}
 
 usePageMeta(() => {
 	return {

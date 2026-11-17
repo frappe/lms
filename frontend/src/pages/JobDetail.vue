@@ -51,7 +51,7 @@
 					:label="__('Login to apply')"
 					icon="lucide-log-in"
 					variant="subtle"
-					@click="redirectToLogin(job.data?.name)"
+					@click="redirectToLogin(`/job-openings/${job.data?.name}`)"
 				/>
 			</template>
 		</PageHeader>
@@ -145,6 +145,7 @@ import HeaderButton from '@/components/HeaderButton.vue'
 import JobApplicationModal from '@/components/Modals/JobApplicationModal.vue'
 import { safeUrl } from '@/utils/safeUrl'
 import { openExternal } from '@/utils/openExternal'
+import { redirectToLogin } from '@/utils/login'
 import { serverTime } from '@/utils/dayjs'
 
 const user = inject('$user')
@@ -207,10 +208,6 @@ const stopWatch = watch(
 
 const openApplicationModal = () => {
 	showApplicationModal.value = true
-}
-
-const redirectToLogin = (job) => {
-	window.location.href = `/login?redirect-to=/job-openings/${job}`
 }
 
 // A company_website is a plain Data field, so it often arrives without a

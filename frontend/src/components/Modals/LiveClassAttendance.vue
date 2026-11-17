@@ -23,7 +23,8 @@
 					</div>
 				</div>
 			</div>
-			<div class="divide-y text-base">
+			<ModalLoading v-if="participants.loading && !participants.data" />
+			<div v-else class="divide-y text-base">
 				<component
 					:is="participant.member_username ? 'router-link' : 'div'"
 					v-for="participant in participants.data"
@@ -62,6 +63,7 @@
 	</Dialog>
 </template>
 <script setup lang="ts">
+import ModalLoading from '@/components/ModalLoading.vue'
 import { Avatar, createListResource, Dialog } from 'frappe-ui'
 import { inject } from 'vue'
 import { profileRoute } from '@/utils/routes'

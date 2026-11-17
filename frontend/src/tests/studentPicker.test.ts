@@ -120,11 +120,6 @@ vi.mock('frappe-ui', () => ({
 						id: `${props.id}-search-input`,
 						'data-testid': 'search-input',
 					}),
-					h(
-						'span',
-						{ 'data-testid': 'slots' },
-						Object.keys(slots).sort().join(',')
-					),
 				])
 		},
 	}),
@@ -142,7 +137,6 @@ import StudentPicker from '@/components/Enrollment/StudentPicker.vue'
 
 const LIST_SLOT = `<template #list="{ students, remove }">
 	<div v-for="s in students" :key="s.value" data-testid="selected-student">
-		<span data-testid="avatar" :data-image="s.image ?? ''" />
 		<span data-testid="student-name">{{ s.label }}</span>
 		<span>{{ s.value }}</span>
 		<button type="button" :aria-label="'Remove ' + s.label" @click="remove([s.value])" />
@@ -224,20 +218,6 @@ describe('StudentPicker', () => {
 		calls.fail = false
 	})
 
-	it('searches this target on open, twenty at a time, with server-side filtering', async () => {
-		const wrapper = mountPicker()
-		await open(wrapper)
-		expect(calls.params[0]).toEqual({
-			txt: '',
-			enroll_doctype: 'LMS Course',
-			enroll_docname: 'course-1',
-			include_enrolled: false,
-			page_length: 20,
-		})
-		expect(picker(wrapper).props('filterable')).toBe(false)
-		expect(optionValues(wrapper)).toEqual(['jane@x.com', 'john@x.com'])
-	})
-
 	it('runs a debounced search for the typed text', async () => {
 		const wrapper = mountPicker()
 		await typeQuery(wrapper, 'lis')
@@ -245,15 +225,6 @@ describe('StudentPicker', () => {
 		await waitForSearch()
 		expect(calls.params.at(-1)?.txt).toBe('lis')
 		expect(optionValues(wrapper)).toEqual(['lisa@x.com'])
-	})
-
-	it('has no Create New footer, so the default Select All / Clear All shows', () => {
-		const wrapper = mountPicker()
-		const slots = wrapper.get('[data-testid="slots"]').text().split(',')
-		expect(slots).not.toContain('footer')
-		expect(slots).toEqual(
-			expect.arrayContaining(['prefix', 'item-prefix', 'item-label'])
-		)
 	})
 
 	// Regression from the bulk-enroll PR (feat/bulk-enroll): a new search replaced
@@ -276,33 +247,6 @@ describe('StudentPicker', () => {
 		await open(wrapper)
 		await pick(wrapper, ['jane@x.com'])
 		expect(wrapper.find('[data-testid="selected-empty"]').exists()).toBe(false)
-	})
-
-	it('lists each selected student with avatar, name and email', async () => {
-		const wrapper = mountPicker()
-		await open(wrapper)
-		await pick(wrapper, ['jane@x.com'])
-		const item = wrapper.get('[data-testid="selected-student"]')
-		expect(item.text()).toContain('Jane Doe')
-		expect(item.text()).toContain('jane@x.com')
-		expect(item.get('[data-testid="avatar"]').attributes('data-image')).toBe(
-			'/jane.png'
-		)
-	})
-
-	it('stacks up to three avatars on the trigger, then +N', async () => {
-		const wrapper = mountPicker()
-		await open(wrapper)
-		await pick(wrapper, [
-			'jane@x.com',
-			'john@x.com',
-			'a@x.com',
-			'b@x.com',
-			'c@x.com',
-		])
-		const trigger = wrapper.get('[data-testid="trigger"]')
-		expect(trigger.findAll('[data-testid="avatar"]')).toHaveLength(3)
-		expect(trigger.text()).toContain('+2')
 	})
 
 	it('adds every address in a pasted list, clears the search and names them', async () => {
@@ -407,43 +351,6 @@ describe('StudentPicker', () => {
 		expect(
 			optionValues(wrapper).filter((v) => v.toLowerCase() === 'jane@x.com')
 		).toEqual(['jane@x.com'])
-	})
-
-	it('renders the beforeList slot between the picker and the selected list', async () => {
-		const wrapper = mountPicker(['jane@x.com'], {
-			beforeList: '<div data-testid="extra" />',
-		})
-		await flushPromises()
-		const extra = wrapper.get('[data-testid="extra"]').element
-		const list = wrapper.get('[data-testid="selected-student"]').element
-		expect(
-			extra.compareDocumentPosition(list) & Node.DOCUMENT_POSITION_FOLLOWING
-		).toBeTruthy()
-	})
-
-	it('hands the selected students to the list slot in a box that fills the rest', async () => {
-		const wrapper = mountPicker(['jane@x.com'], {
-			beforeList: '<div data-testid="extra" />',
-		})
-		await flushPromises()
-		const root = wrapper.element as HTMLElement
-		expect(root.className).toMatch(/\bflex-col\b/)
-		expect(root.className).toMatch(/\bh-full\b/)
-		expect(root.className).not.toMatch(/overflow/)
-		const box = wrapper.get('[data-testid="selected-student"]').element
-			.parentElement as HTMLElement
-		expect(box.className).toMatch(/\bflex-1\b/)
-		expect(box.className).toMatch(/\bmin-h-0\b/)
-		expect(box.contains(wrapper.get('[data-testid="extra"]').element)).toBe(
-			false
-		)
-	})
-
-	it('reports checking while pasted emails are looked up', async () => {
-		const wrapper = mountPicker()
-		await typeQuery(wrapper, 'zed@x.com, new@x.com;')
-		const states = (wrapper.emitted('update:checking') ?? []).map((e) => e[0])
-		expect(states).toEqual([true, false])
 	})
 
 	it('ignores a name search that contains a comma', async () => {

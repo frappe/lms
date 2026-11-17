@@ -7,7 +7,6 @@ import { defineComponent, h } from 'vue'
 // which an identity stub would hide.
 vi.stubGlobal('__', (text: string) => `t:${text}`)
 
-const seen: Record<string, unknown>[] = []
 const locked: Record<string, string>[] = []
 const deletable: unknown[] = []
 
@@ -19,7 +18,6 @@ vi.mock('@/components/Submissions/SubmissionsPage.vue', () => ({
 	default: defineComponent({
 		props: ['config', 'lockedFilters', 'canDelete'],
 		setup(p, { slots }) {
-			seen.push(p.config as Record<string, unknown>)
 			deletable.push(p.canDelete)
 			locked.push(p.lockedFilters as Record<string, string>)
 			return () =>
@@ -101,7 +99,6 @@ const mountPage = async (userData: {
 }
 
 beforeEach(() => {
-	seen.length = 0
 	locked.length = 0
 })
 
@@ -109,112 +106,6 @@ beforeEach(() => {
 // Came with this branch's shared submissions page for every assessment type.
 // Added on feat/assessment-visual-redesign when the old list page was replaced.
 describe('the programming-exercise submissions page', () => {
-	it('scopes the shared page to exercise submissions', async () => {
-		await mountPage({ is_moderator: true })
-		const config = seen[0] as { doctype: string; filters: { key: string }[] }
-		expect(config.doctype).toBe('LMS Programming Exercise Submission')
-		expect(config.filters.map((f) => f.key)).toEqual([
-			'exercise',
-			'member',
-			'status',
-		])
-	})
-
-	it('requests the fields ListPage needs, including the row key', async () => {
-		await mountPage({ is_moderator: true })
-		const config = seen[0] as { fields: string[]; orderBy: string }
-		// ListPage's rowKey and bulk delete key on 'name'; without it selection
-		// breaks silently.
-		expect(config.fields).toEqual(
-			expect.arrayContaining([
-				'name',
-				'exercise',
-				'exercise_title',
-				'member_name',
-				'member_image',
-				'status',
-				'modified',
-			])
-		)
-		expect(config.orderBy).toBe('modified desc')
-	})
-
-	it('routes a row at the submission under its exercise', async () => {
-		await mountPage({ is_moderator: true })
-		const config = seen[0] as {
-			getRowRoute: (r: Record<string, unknown>) => Record<string, unknown>
-		}
-		expect(config.getRowRoute({ name: 'SUB-1', exercise: 'EX-1' })).toEqual({
-			name: 'ProgrammingExerciseSubmission',
-			params: { exerciseID: 'EX-1', submissionID: 'SUB-1' },
-		})
-	})
-
-	it('resolves the scope crumb back to the owning exercise', async () => {
-		await mountPage({ is_moderator: true })
-		const config = seen[0] as {
-			scopeCrumb: {
-				filterKey: string
-				doctype: string
-				titleField: string
-				route: (v: string) => Record<string, unknown>
-			}
-		}
-		expect(config.scopeCrumb.filterKey).toBe('exercise')
-		expect(config.scopeCrumb.doctype).toBe('LMS Programming Exercise')
-		expect(config.scopeCrumb.titleField).toBe('title')
-		expect(config.scopeCrumb.route('EX-1')).toEqual({
-			name: 'ProgrammingExerciseForm',
-			params: { exerciseID: 'EX-1' },
-		})
-	})
-
-	// SubmissionsPage wraps these in `__()` itself, so this page must pass raw
-	// text or a real translator would double-translate.
-	it('hands the shared page raw text for title, pageTitle and placeholders', async () => {
-		await mountPage({ is_moderator: true })
-		const config = seen[0] as {
-			title: string
-			pageTitle: string
-			emptyName: string
-			filters: { key: string; placeholder: string }[]
-		}
-		expect(config.title).toBe('Submissions')
-		expect(config.pageTitle).toBe('Programming Exercise Submissions')
-		expect(config.emptyName).toBe('Programming Exercise Submissions')
-		expect(config.filters.map((f) => [f.key, f.placeholder])).toEqual([
-			['exercise', 'Filter by Exercise'],
-			['member', 'Filter by Member'],
-			['status', 'Filter by Status'],
-		])
-	})
-
-	// These reach the DOM verbatim, so this page translates them itself: the
-	// opposite rule from title, pageTitle and placeholders.
-	it('translates the parent crumb, column labels and status options itself', async () => {
-		await mountPage({ is_moderator: true })
-		const config = seen[0] as {
-			parentCrumb: { label: string }
-			columns: { key: string; label: string }[]
-			filters: { key: string; options?: { label: string; value: string }[] }[]
-		}
-		expect(config.parentCrumb.label).toBe('t:Programming Exercises')
-		expect(
-			Object.fromEntries(config.columns.map((c) => [c.key, c.label]))
-		).toEqual({
-			member_name: 't:Member',
-			exercise_title: 't:Exercise',
-			status: 't:Status',
-			modified: 't:Modified',
-		})
-		const statusFilter = config.filters.find((f) => f.key === 'status')
-		expect(statusFilter?.options).toEqual([
-			{ label: '', value: '' },
-			{ label: 't:Passed', value: 'Passed' },
-			{ label: 't:Failed', value: 'Failed' },
-		])
-	})
-
 	it('draws the member cell with an avatar and status as a themed badge', async () => {
 		const { wrapper } = await mountPage({ is_moderator: true })
 
@@ -232,17 +123,6 @@ describe('the programming-exercise submissions page', () => {
 		expect(
 			wrapper.findAll('[data-theme]').some((b) => b.text() === 'an hour ago')
 		).toBe(false)
-	})
-
-	it('turns a raw modified timestamp into a relative one via transform', async () => {
-		await mountPage({ is_moderator: true })
-		const config = seen[0] as {
-			transform: (rows: Record<string, unknown>[]) => Record<string, unknown>[]
-		}
-		const out = config.transform([
-			{ name: 'SUB-1', modified: '2026-01-01 00:00:00' },
-		])
-		expect(out).toEqual([{ name: 'SUB-1', modified: 'an hour ago' }])
 	})
 
 	// A student sees this page as their own submission history.

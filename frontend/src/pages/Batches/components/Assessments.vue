@@ -36,6 +36,7 @@
 					<Button
 						variant="ghost"
 						:label="__('Delete')"
+						:loading="deleteAssessments.loading"
 						@click="removeAssessments(selections, unselectAll)"
 					>
 						<template #icon>
@@ -123,6 +124,7 @@ const deleteAssessments = createResource({
 })
 
 const removeAssessments = (selections, unselectAll) => {
+	if (deleteAssessments.loading) return
 	deleteAssessments.submit(
 		{ assessments: Array.from(selections) },
 		{

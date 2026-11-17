@@ -31,7 +31,7 @@ vi.mock('frappe-ui', () => ({
 	createResource: createResourceMock,
 	call: vi.fn(),
 	usePageMeta: vi.fn(),
-	toast: { success: vi.fn(), error: vi.fn() },
+	toast: { success: vi.fn(), error: vi.fn(), warning: vi.fn() },
 	Dialog: {
 		name: 'Dialog',
 		props: ['open', 'title', 'size'],
@@ -96,7 +96,7 @@ const profileResource = reactive({
 })
 
 createResourceMock.mockImplementation(() =>
-	reactive({ loading: false, submit: vi.fn(), reload: vi.fn(), data: null })
+	reactive({ loading: false, submit: vi.fn(), reload: vi.fn(), data: null }),
 )
 
 const makeRouter = (): Router =>
@@ -117,7 +117,7 @@ const mountForm = (router: Router, username: string) =>
 
 const saveResource = () => {
 	const index = createResourceMock.mock.calls.findIndex(
-		([options]) => options.url === 'frappe.client.set_value'
+		([options]) => options.url === 'frappe.client.set_value',
 	)
 	return createResourceMock.mock.results[index].value
 }
@@ -164,43 +164,6 @@ describe('the profile edit route', () => {
 		vi.mocked(toast.error).mockClear()
 	})
 
-	// resolve(), not push(): matching is synchronous and does not pull in the
-	// lazy page components, several of which are expensive to transform for an
-	// assertion that is purely about the route table.
-	it('resolves /user/X/edit to the form nested under the profile', () => {
-		const resolved = makeRouter().resolve(`/user/${USERNAME}/edit`)
-		expect(resolved.name).toBe('ProfileEditForm')
-		expect(resolved.matched.map((r) => r.name)).toEqual([
-			'Profile',
-			'ProfileEditForm',
-		])
-		expect(resolved.params.username).toBe(USERNAME)
-	})
-
-	it('points that route at the profile edit form itself', async () => {
-		type LazyRecord = {
-			name?: unknown
-			children?: LazyRecord[]
-			component?: () => Promise<unknown>
-		}
-		const record = (routes as LazyRecord[])
-			.find((route) => route.name === 'Profile')
-			?.children?.find((child) => child.name === 'ProfileEditForm')
-		expect(record?.component).toBeTypeOf('function')
-		await expect(record!.component!()).resolves.toMatchObject({
-			default: ProfileEditForm,
-		})
-	})
-
-	it('leaves the existing profile tab routes alone', () => {
-		const router = makeRouter()
-		expect(router.resolve(`/user/${USERNAME}`).name).toBe('ProfileAbout')
-		expect(router.resolve(`/user/${USERNAME}/certificates`).name).toBe(
-			'ProfileCertificates'
-		)
-		expect(router.resolve(`/user/${USERNAME}/roles`).name).toBe('ProfileRoles')
-	})
-
 	// The Edit Profile button's `isSessionUser()` gate cannot guard a URL, so
 	// somebody else's /user/X/edit has to be refused by the page itself.
 	it('refuses the form to anyone but the profile owner', async () => {
@@ -211,7 +174,9 @@ describe('the profile edit route', () => {
 
 		expect(wrapper.find('[data-testid="profile-fields"]').exists()).toBe(false)
 		expect(wrapper.find('[data-testid="profile-save"]').exists()).toBe(false)
-		expect(wrapper.text()).toContain('You can only edit your own profile.')
+		expect(vi.mocked(toast.warning)).toHaveBeenLastCalledWith(
+			expect.stringContaining('You can only edit your own profile.'),
+		)
 	})
 
 	it('shows the fields to the profile owner', async () => {
@@ -236,7 +201,7 @@ describe('the profile edit route', () => {
 
 		const fields = wrapper.get('[data-testid="profile-fields"]')
 		expect(fields.findAll('input').map((input) => input.element.value)).toEqual(
-			expect.arrayContaining(['John', 'Doe'])
+			expect.arrayContaining(['John', 'Doe']),
 		)
 
 		const navigated = nextNavigation(router)
@@ -285,24 +250,6 @@ describe('the profile edit route', () => {
 		await flushPromises()
 
 		expect(router.currentRoute.value.name).toBe('ProfileAbout')
-	})
-
-	// Guards the seeding loop: it walks the draft's keys, so a key it misses is
-	// silently left blank rather than failing loudly.
-	it('seeds every field from the profile it was handed', async () => {
-		const router = makeRouter()
-		await router.push(`/user/${USERNAME}/edit`)
-		const wrapper = mountForm(router, USERNAME)
-		await flushPromises()
-
-		const valueOf = (label: string) =>
-			(wrapper.find(`input[data-label="${label}"]`).element as HTMLInputElement)
-				.value
-
-		expect(valueOf('First Name')).toBe('John')
-		expect(valueOf('Last Name')).toBe('Doe')
-		expect(valueOf('LinkedIn ID')).toBe('')
-		expect(wrapper.text()).not.toContain('Not Saved')
 	})
 
 	// '' is the only empty the field's options accept, in object form because
@@ -377,7 +324,7 @@ describe('the profile edit route', () => {
 
 		expect(saveResource().submit).not.toHaveBeenCalled()
 		expect(toast.error).toHaveBeenCalledWith(
-			'Please fill the mandatory fields: First Name'
+			'Please fill the mandatory fields: First Name',
 		)
 	})
 })

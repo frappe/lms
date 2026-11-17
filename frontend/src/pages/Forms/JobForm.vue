@@ -9,6 +9,7 @@
 					<HeaderButton
 						:label="__('Save')"
 						variant="solid"
+						:loading="isSaving"
 						@click="saveJob()"
 					/>
 				</ShortcutTooltip>
@@ -117,9 +118,9 @@
 <script setup>
 import {
 	Badge,
-	call,
 	FormControl,
 	createDocumentResource,
+	createResource,
 	usePageMeta,
 	toast,
 } from 'frappe-ui'
@@ -222,39 +223,49 @@ watch(
 	{ deep: true }
 )
 
+const newJob = createResource({ url: 'frappe.client.insert' })
+
+// jobDetails is undefined for a new job: createDocumentResource needs a name.
+const isSaving = computed(
+	() => newJob.loading || Boolean(jobDetails?.setValue.loading)
+)
+
 const saveJob = () => {
+	if (isSaving.value) return
 	validateJobFields()
-	if (jobDetails?.doc) {
-		editJobDetails()
-	} else {
-		createNewJob()
-	}
+	if (jobDetails?.doc) editJobDetails()
+	else createNewJob()
 }
 
 const createNewJob = () => {
-	call('frappe.client.insert', {
-		doc: {
-			doctype: 'Job Opportunity',
-			company_logo: job.company_logo,
-			...job,
+	return submitResource(
+		newJob,
+		{
+			doc: {
+				doctype: 'Job Opportunity',
+				company_logo: job.company_logo,
+				...job,
+			},
 		},
-	})
-		.then((data) => {
-			router.push({
-				name: 'JobDetail',
-				params: {
-					job: data.name,
-				},
-			})
-		})
-		.catch((err) => {
-			toast.error(err.messages?.[0] || err)
-			console.error(err)
-		})
+		{
+			onSuccess(data) {
+				router.push({
+					name: 'JobDetail',
+					params: {
+						job: data.name,
+					},
+				})
+			},
+			onError(err) {
+				toast.error(err.messages?.[0] || err)
+				console.error(err)
+			},
+		}
+	)
 }
 
 const editJobDetails = () => {
-	submitResource(
+	return submitResource(
 		jobDetails.setValue,
 		{
 			company_logo: job.company_logo,

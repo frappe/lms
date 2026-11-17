@@ -80,6 +80,7 @@
 						</div>
 					</div>
 				</div>
+				<ModalLoading v-else-if="slots.loading" />
 				<div v-else-if="!evaluation.course" class="text-ink-gray-7">
 					{{ __('Please select a course to view available slots.') }}
 				</div>
@@ -91,6 +92,7 @@
 	</Dialog>
 </template>
 <script setup>
+import ModalLoading from '@/components/ModalLoading.vue'
 import { call, createResource, Dialog, FormControl, toast } from 'frappe-ui'
 import { computed, ref, watch, inject } from 'vue'
 import { formatTime } from '@/utils'
@@ -132,7 +134,7 @@ function submitEvaluation(close) {
 		})
 		return
 	}
-	call('frappe.client.insert', {
+	return call('frappe.client.insert', {
 		doc: {
 			doctype: 'LMS Certificate Request',
 			batch_name: evaluation.value.batch,

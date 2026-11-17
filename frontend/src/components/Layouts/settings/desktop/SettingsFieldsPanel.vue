@@ -166,6 +166,7 @@ const reportFailure = (error: FrappeResourceError) => {
 }
 
 const save = () => {
+	if (saving.value) return
 	const invalid = firstProblem()
 	if (invalid) {
 		toast.error(invalid)
