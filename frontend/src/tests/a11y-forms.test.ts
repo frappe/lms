@@ -151,12 +151,19 @@ describe('named controls and focus outlines', () => {
 	// #2662; test added with the a11y audit remediation.
 	it('names the lesson preview switches and rings the title', () => {
 		const file = 'pages/LessonForm.vue'
-		const switches = elements(file).filter((el) => el.tag === 'Switch')
+		const switches = elements(file).filter((el) => el.tag === 'SwitchRow')
 		expect(switches).toHaveLength(2)
-		for (const sw of switches)
-			expectIdsDeclared(file, attr(sw, 'aria-labelledby') ?? '')
+		for (const sw of switches) expect(attr(sw, 'label')).toBeTruthy()
+		const row = 'components/Controls/SwitchRow.vue'
+		const inner = elements(row).find((el) => el.tag === 'Switch')!
+		expectIdsDeclared(row, attr(inner, 'aria-labelledby') ?? '')
 		const title = elements(file).find((el) => el.tag === 'textarea')!
-		expect(attr(title, 'class')).toMatch(/\bfocus-visible:ring-2\b/)
+		// The ring is bound, not static: it shows only after keyboard input.
+		const boundClass = (title.props ?? []).find(
+			(p) =>
+				p.type === DIRECTIVE && p.name === 'bind' && p.arg?.content === 'class'
+		)
+		expect(boundClass?.exp?.content).toMatch(/\bfocus:ring-2\b/)
 	})
 
 	it('names the marks input and tags trigger, and gives JobForm an h1', () => {
