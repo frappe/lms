@@ -8,6 +8,7 @@ const AUDIO_MIME: Record<string, string> = {
 }
 
 export const AUDIO_EXTENSIONS = Object.keys(AUDIO_MIME)
+export const audioUploadExtensions = ['m4a', 'ogg']
 
 export const isAudioType = (type: string | null | undefined): boolean =>
 	!!type && Object.hasOwn(AUDIO_MIME, type.toLowerCase())

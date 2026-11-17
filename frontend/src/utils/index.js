@@ -1,5 +1,5 @@
 import { call, toast } from 'frappe-ui'
-import { AUDIO_EXTENSIONS } from '@/utils/audio'
+import { audioUploadExtensions } from '@/utils/audio'
 import { ASSESSMENT_BLOCK_SELECTOR } from '@/utils/blockMount'
 import { Quiz } from '@/utils/quiz'
 import { Program } from '@/utils/program'
@@ -748,9 +748,9 @@ export const validateFile = async (
 		)
 	} else if (fileType == 'zip' && extension != 'zip') {
 		return error(__('Only ZIP files are allowed.'))
-	} else if (fileType == 'audio' && !AUDIO_EXTENSIONS.includes(extension)) {
+	} else if (fileType == 'audio' && !audioUploadExtensions.includes(extension)) {
 		return error(
-			__('Upload an audio file: {0}.').format(AUDIO_EXTENSIONS.join(', '))
+			__('Upload an audio file: {0}.').format(audioUploadExtensions.join(', '))
 		)
 	} else if (
 		['image', 'video'].includes(fileType) &&

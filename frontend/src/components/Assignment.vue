@@ -314,7 +314,7 @@ import router from '@/router'
 import { validateFile } from '@/utils'
 import RichTextEditor from '@/components/RichTextEditor.vue'
 import { safeUrl } from '@/utils/safeUrl'
-import { AUDIO_EXTENSIONS } from '@/utils/audio'
+import { audioUploadExtensions } from '@/utils/audio'
 import AudioBlock from '@/components/AudioBlock.vue'
 import { useAssessmentSchedule } from '@/composables/useAssessmentSchedule'
 import type { ScheduledAssessment } from '@/composables/useAssessmentSchedule'
@@ -550,7 +550,7 @@ const getType = (): string[] | undefined => {
 	} else if (type == 'PDF') {
 		return ['.pdf']
 	} else if (type == 'Audio') {
-		return ['audio/*', ...AUDIO_EXTENSIONS.map((extension) => `.${extension}`)]
+		return audioUploadExtensions.map((extension) => `.${extension}`)
 	} else if (type == 'Video') {
 		return ['video/*']
 	}
