@@ -56,7 +56,7 @@ class _ActivityBase(BaseModel):
 
 class LessonActivity(_ActivityBase):
 	activity_type: Literal["Lesson"]
-	points: list[Point] = Field(description="3 to 5 key ideas")
+	points: list[Point] = Field(description="Exactly as many key ideas as the request asks for")
 
 
 class ScenarioActivity(_ActivityBase):
@@ -375,10 +375,32 @@ def show_moment(moment: Moment, *, ctx: ToolContext) -> str:
 			"try a few quick exercises, and end your turn. Call begin_exercises when they say yes, "
 			"then show the moment."
 		)
+	if _answer_stands_out(moment):
+		return NOT_SHOWN + _(
+			"The right option is much longer than the others, which gives the answer away. Make "
+			"every option about the same length, by shortening the right one or adding a real "
+			"detail to the others, then call show_moment again straight away. Write no text before "
+			"it: the learner has already heard your line."
+		)
 	return _(
-		"Shown to the learner. End your turn with one short line inviting them to try it. "
-		"Do not repeat what you already said this turn."
+		"Shown to the learner. End your turn with one short line inviting them to try it, "
+		"without asking them to explain why: they answer by tapping. Do not repeat what you "
+		"already said this turn."
 	)
+
+
+# The right option may run this much longer than the longest wrong one before it gives itself away.
+LENGTH_TELL = 1.25
+
+
+def _answer_stands_out(moment) -> bool:
+	moment = moment.model_dump() if isinstance(moment, BaseModel) else moment
+	if moment.get("kind") not in ("choose", "bet"):
+		return False
+	options = [option for option in moment.get("options") or [] if isinstance(option, dict)]
+	right = [len(option.get("text") or "") for option in options if option.get("correct")]
+	wrong = [len(option.get("text") or "") for option in options if not option.get("correct")]
+	return bool(right and wrong) and right[0] > LENGTH_TELL * max(wrong) and right[0] - max(wrong) > 12
 
 
 @tool
@@ -401,9 +423,10 @@ def remember_situation(
 	from lms.lms.ai import situations
 
 	kept = situations.remember(_teaching_assignment(ctx), situation)
-	return _("Kept silently. Do not mention keeping it; just use it. Their situations so far: {0}").format(
-		" | ".join(kept)
-	)
+	return _(
+		"Kept silently. Do not mention keeping it; just use it. Your reply already asked your "
+		"question, so end your turn now and write nothing more. Their situations so far: {0}"
+	).format(" | ".join(kept))
 
 
 @tool

@@ -308,6 +308,7 @@ def save_goal(goal: str, values: dict | str) -> dict:
 		"proof_certificate",
 		"assign_everyone",
 		"tutor_first",
+		"key_ideas",
 	):
 		if field in values:
 			doc.set(field, values[field])

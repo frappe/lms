@@ -23,6 +23,19 @@ type Recognition = {
 
 export type VoiceMode = 'type' | 'speak'
 
+// Words that leave a thought open: a turn ending on one of them is someone pausing to think.
+const OPEN_ENDINGS =
+	/\b(and|but|or|so|because|like|um|uh|er|the|a|an|to|of|for|with|that|which|when|if|is|was|my|i|we|then|also)$/i
+
+/** How long a silence ends the learner's turn, from what they have said so far. The browser's
+ * engine writes words as they are said, so it can wait longer when the words stop mid-thought
+ * or when only a few have come, and answer sooner after a finished one. */
+export const turnPause = (text: string): number => {
+	const words = text.trim().replace(/[.,!?]+$/, '')
+	if (OPEN_ENDINGS.test(words) || words.split(/\s+/).length < 4) return 3000
+	return 1600
+}
+
 const MODE_KEY = 'lms.goals.voice-mode'
 
 /** How this learner likes to talk to Lumi and the cast, remembered in their own browser only. */
@@ -95,13 +108,10 @@ export function useVoice() {
 	const blocked = ref(false)
 	let recognition: Recognition | null = null
 
-	// A pause between thoughts this long after real words ends the learner's turn.
-	// A pause this long ends the turn: long enough for a breath mid-thought, short enough
-	// that the reply does not feel slow.
-	const SILENCE_MS = 1400
-	// The browser's engine writes words as they are said, so it can tell sooner that the
-	// learner has stopped: a shorter pause ends the turn.
-	const ENGINE_SILENCE_MS = 1000
+	// A pause this long after real words ends the learner's turn: long enough to think
+	// mid-answer, short enough that the reply does not feel slow. This recorder cannot see
+	// the words until the turn ends, so it always waits the full pause.
+	const SILENCE_MS = 2000
 
 	let endTurn: ((send: boolean) => void) | null = null
 
@@ -298,7 +308,7 @@ export function useVoice() {
 
 		// One turn spans several short takes: the engine reliably ends a take at each
 		// breath (its continuous mode goes quiet on some Chrome builds), so the take is
-		// restarted across pauses, and only ENGINE_SILENCE_MS of quiet after real words — or an
+		// restarted across pauses, and only a turnPause of quiet after real words — or an
 		// explicit stop — ends the turn.
 		const take = () => {
 			recognition = new RecognitionClass()
@@ -345,7 +355,7 @@ export function useVoice() {
 			recognition.onend = () => {
 				if (!active) return
 				if (heard) turnText = [turnText, heard].filter(Boolean).join(' ')
-				if (turnText && Date.now() - lastHeard >= ENGINE_SILENCE_MS)
+				if (turnText && Date.now() - lastHeard >= turnPause(turnText))
 					return commit(true)
 				take()
 				// The next take would otherwise wait out the engine's own long no-speech
@@ -354,7 +364,7 @@ export function useVoice() {
 				if (turnText)
 					settleTimer = setTimeout(
 						() => recognition?.stop(),
-						Math.max(lastHeard + ENGINE_SILENCE_MS - Date.now(), 50),
+						Math.max(lastHeard + turnPause(turnText) - Date.now(), 50),
 					)
 			}
 			recognition.start()

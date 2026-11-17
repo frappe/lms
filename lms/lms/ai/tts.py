@@ -37,7 +37,7 @@ KOKORO_SPEEDS = {
 	"quilla": 1.0,
 	"odalie": 1.12,
 	"brannoc": 0.96,
-	"fenwick": 0.94,
+	"fenwick": 1.0,
 	"tavish": 1.05,
 }
 

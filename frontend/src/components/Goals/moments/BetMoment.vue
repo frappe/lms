@@ -3,7 +3,7 @@
 		<p class="mb-3 text-p-base text-ink-gray-9">{{ moment.question }}</p>
 		<div class="space-y-1.5" role="radiogroup" :aria-label="moment.question">
 			<button
-				v-for="(option, i) in moment.options"
+				v-for="i in order"
 				:key="i"
 				type="button"
 				role="radio"
@@ -14,7 +14,7 @@
 				@click="picked = i"
 			>
 				<span class="size-4 shrink-0" :class="optionIcon(i)" />
-				<span class="text-ink-gray-8">{{ optionText(option) }}</span>
+				<span class="text-ink-gray-8">{{ optionText(moment.options[i]) }}</span>
 			</button>
 		</div>
 		<template v-if="!result">
@@ -50,6 +50,7 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 import { Button } from 'frappe-ui'
+import { seededOrder } from '@/utils/shuffle'
 
 const props = defineProps<{
 	moment: Record<string, any>
@@ -71,6 +72,15 @@ const optionText = (option: unknown): string =>
 	typeof option === 'string'
 		? option
 		: (option as { text?: string })?.text || ''
+
+// Options show in a shuffled order; `picked` stays the option's own index.
+const order = computed(() =>
+	seededOrder(
+		(props.moment.options || []).length,
+		props.moment.question +
+			(props.moment.options || []).map(optionText).join('|')
+	)
+)
 
 const correctIndex = computed(() =>
 	(props.moment.options || []).findIndex(

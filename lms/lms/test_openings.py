@@ -40,6 +40,7 @@ class TestOpenings(BaseTestUtils):
 		super().tearDown()
 
 	def _open(self, *args):
+		# nosemgrep: lms-unjustified-ignore-permissions - stands in for Flow's new_session, which inserts the same way
 		session = frappe.get_doc(
 			{"doctype": "Flow Session", "agent": "lms/Learning Tutor", "title": "Root causes"}
 		).insert(ignore_permissions=True)

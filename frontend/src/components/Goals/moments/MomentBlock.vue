@@ -1,7 +1,5 @@
 <template>
-	<div
-		class="rounded-7 border border-outline-gray-2 bg-surface-base p-4 shadow-sm"
-	>
+	<div class="rounded-7 border border-outline-gray-2 bg-surface-base p-4">
 		<div
 			class="mb-3 flex items-center gap-1.5 text-p-xs font-medium text-ink-gray-6"
 		>

@@ -3,18 +3,18 @@
 		<p class="mb-3 text-p-base text-ink-gray-9">{{ moment.prompt }}</p>
 		<div class="flex flex-col gap-2">
 			<div
-				v-for="(item, i) in items"
+				v-for="i in order"
 				:key="i"
 				class="rounded-5 border px-3 py-2.5 transition-colors"
 				:class="rowClass(i)"
 			>
 				<!-- The item reads as a full line; the buckets sit under it, the same on every width. -->
 				<div class="flex flex-col gap-2">
-					<span class="text-p-sm text-ink-gray-9">{{ item.text }}</span>
+					<span class="text-p-sm text-ink-gray-9">{{ items[i].text }}</span>
 					<div
 						class="flex shrink-0 flex-wrap gap-1.5"
 						role="radiogroup"
-						:aria-label="item.text"
+						:aria-label="items[i].text"
 					>
 						<button
 							v-for="(bucket, b) in buckets"
@@ -32,10 +32,10 @@
 					</div>
 				</div>
 				<p
-					v-if="result && placed[i] !== item.bucket"
+					v-if="result && placed[i] !== items[i].bucket"
 					class="mt-1.5 text-p-xs text-ink-gray-7"
 				>
-					{{ __('Belongs in {0}').format(buckets[item.bucket]) }}
+					{{ __('Belongs in {0}').format(buckets[items[i].bucket]) }}
 				</p>
 			</div>
 		</div>
@@ -57,6 +57,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { Button } from 'frappe-ui'
+import { seededOrder } from '@/utils/shuffle'
 
 const props = defineProps<{
 	moment: Record<string, any>
@@ -66,6 +67,11 @@ const emit = defineEmits<{ answer: [result: Record<string, unknown>] }>()
 
 const buckets: string[] = props.moment.buckets || []
 const items: { text: string; bucket: number }[] = props.moment.items || []
+// Items show shuffled, not bucket by bucket; `placed` stays in the items' own order.
+const order = seededOrder(
+	items.length,
+	props.moment.prompt + items.map((item) => item.text).join('|')
+)
 const placed = ref<(number | null)[]>(
 	props.result?.placed || items.map(() => null)
 )

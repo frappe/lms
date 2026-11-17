@@ -384,7 +384,8 @@ const props = withDefaults(
 )
 
 const emit = defineEmits<{
-	messages: [count: number]
+	/** What the learner has sent so far, in order. */
+	messages: [replies: string[]]
 	moment: [payload: Record<string, unknown>]
 }>()
 
@@ -477,6 +478,8 @@ const toggleListening = () => {
 	}
 }
 
+// Whether the saved messages have loaded; set by the history watcher below.
+const primed = ref(false)
 watch(
 	() =>
 		[
@@ -485,9 +488,13 @@ watch(
 			running.value,
 			voiceTools.listening.value,
 			voiceTools.transcribing.value,
+			primed.value,
 		] as const,
-	([currentMode, speakingNow, busy, listening, transcribing]) => {
+	([currentMode, speakingNow, busy, listening, transcribing, loaded]) => {
+		// Until the saved messages are in and the last reply is queued to be said again, the
+		// mic would open over the voice and hear it as the learner.
 		if (
+			!loaded ||
 			currentMode !== 'speak' ||
 			held.value ||
 			speakingNow ||
@@ -540,11 +547,10 @@ watch(partial, (text) => {
 // Reopening a conversation must not read the whole history aloud. Once the saved messages
 // have loaded, they count as heard, except the last reply when it is still waiting for an
 // answer: that one is said again, so the learner knows where they left off.
-let primed = false
 watch(loading, (busy, was) => {
 	// The first load to finish is the saved history; anything after it is new.
-	if (primed || busy || !was) return
-	primed = true
+	if (primed.value || busy || !was) return
+	primed.value = true
 	const replies = messages.value.filter(
 		(message) => message.role === 'assistant'
 	)
@@ -556,7 +562,7 @@ watch(loading, (busy, was) => {
 watch(
 	() => [messages.value.length, running.value] as const,
 	() => {
-		if (!primed) return
+		if (!primed.value) return
 		const replies = messages.value.filter(
 			(message) => message.role === 'assistant'
 		)
@@ -731,7 +737,9 @@ watch(
 	async () => {
 		emit(
 			'messages',
-			messages.value.filter((message) => message.role === 'user').length
+			messages.value
+				.filter((message) => message.role === 'user')
+				.map((message) => message.text)
 		)
 		await nextTick()
 		scroller.value?.scrollTo({ top: scroller.value.scrollHeight })

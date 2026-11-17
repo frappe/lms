@@ -2,6 +2,14 @@ import dayjs from '@/utils/dayjs'
 export type GoalStatus = 'Draft' | 'Drafting' | 'Ready' | 'Published'
 export type ActivityType = 'Lesson' | 'Scenario' | 'Role-play' | 'Check'
 
+// A greeting or "can you repeat that?" is not an answer, so it does not use up a role-play
+// reply. Matches counts_as_reply on the server, which enforces the limit.
+const REPEAT_REQUEST =
+	/\b(repeat|say (that|it) again|pardon|didn'?t (catch|hear)|come again)\b/i
+export const countsAsReply = (text: string): boolean =>
+	(text || '').trim().split(/\s+/).filter(Boolean).length >= 6 &&
+	!REPEAT_REQUEST.test(text || '')
+
 export interface Readiness {
 	assigned: number
 	ready: number

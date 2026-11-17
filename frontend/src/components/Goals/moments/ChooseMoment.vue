@@ -4,7 +4,7 @@
 		<!-- Full-width rows: options read as sentences, and the why sits under each. -->
 		<div class="flex flex-col gap-2">
 			<button
-				v-for="(option, i) in moment.options"
+				v-for="(i, position) in order"
 				:key="i"
 				type="button"
 				:disabled="!!result"
@@ -22,7 +22,7 @@
 							: 'border border-outline-gray-2 text-ink-gray-6'
 					"
 					aria-hidden="true"
-					>{{ i + 1 }}</span
+					>{{ position + 1 }}</span
 				>
 				<span
 					v-else
@@ -32,21 +32,21 @@
 				/>
 				<span class="min-w-0 flex-1">
 					<span class="block text-p-sm text-ink-gray-9">{{
-						optionText(option)
+						optionText(moment.options[i])
 					}}</span>
 					<span
-						v-if="result && (option.correct || result.picked === i)"
+						v-if="result && (moment.options[i].correct || result.picked === i)"
 						class="mt-1 block text-p-xs text-ink-gray-7"
 					>
-						{{ option.why }}
+						{{ moment.options[i].why }}
 					</span>
 				</span>
 				<Badge
-					v-if="result && (option.correct || result.picked === i)"
+					v-if="result && !moment.options[i].correct && result.picked === i"
 					size="sm"
 					class="shrink-0"
-					:theme="option.correct ? 'green' : 'amber'"
-					:label="option.correct ? __('Best choice') : __('Your pick')"
+					theme="amber"
+					:label="__('Your pick')"
 				/>
 			</button>
 		</div>
@@ -68,9 +68,10 @@
 </template>
 
 <script setup lang="ts">
-import { ref, toRef } from 'vue'
+import { computed, ref, toRef } from 'vue'
 import { Badge, Button } from 'frappe-ui'
 import { useMomentKeys } from '@/composables/useMomentKeys'
+import { seededOrder } from '@/utils/shuffle'
 
 const props = defineProps<{
 	moment: Record<string, any>
@@ -85,6 +86,14 @@ const optionText = (option: unknown): string =>
 		? option
 		: (option as { text?: string })?.text || ''
 const emit = defineEmits<{ answer: [result: Record<string, unknown>] }>()
+
+// Options show in a shuffled order; `picked` stays the option's own index.
+const order = computed(() =>
+	seededOrder(
+		props.moment.options.length,
+		props.moment.prompt + props.moment.options.map(optionText).join('|')
+	)
+)
 
 // Picking only marks an option; Check sends it, so a slip of the finger is not an answer.
 const picked = ref<number | null>(null)
@@ -130,7 +139,7 @@ const optionIcon = (i: number) => {
 useMomentKeys(
 	toRef(props, 'active'),
 	() => (props.result ? 0 : props.moment.options.length),
-	pick,
+	(position: number) => pick(order.value[position]),
 	check
 )
 </script>

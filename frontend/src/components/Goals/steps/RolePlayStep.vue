@@ -131,7 +131,9 @@
 						voice
 						:read-only="outOfReplies"
 						run-method="lms.lms.ai.api.roleplay_reply"
-						@messages="(count) => (turns = count)"
+						@messages="
+							(replies) => (turns = replies.filter(countsAsReply).length)
+						"
 					>
 						<template v-if="sceneLine" #before>
 							<p class="pb-3 text-center text-p-xs text-ink-gray-6">
@@ -402,6 +404,7 @@ import CharacterAvatar from '@/components/Goals/CharacterAvatar.vue'
 import { useOpening } from '@/composables/useOpening'
 import { preferredMode, useVoice } from '@/composables/useVoice'
 import { CAST_NAMES, castTrait, isCastKey } from '@/utils/characters'
+import { countsAsReply } from '@/utils/goals'
 
 const props = withDefaults(
 	defineProps<{

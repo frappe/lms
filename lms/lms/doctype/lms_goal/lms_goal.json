@@ -36,6 +36,7 @@
   "draft_error",
   "learner_outcome",
   "tutor_first",
+  "key_ideas",
   "source_files",
   "source_urls",
   "courses"
@@ -220,6 +221,14 @@
    "label": "Start With a Tutor"
   },
   {
+   "default": "7",
+   "description": "How many key ideas the lesson covers when the plan is built.",
+   "fieldname": "key_ideas",
+   "fieldtype": "Int",
+   "label": "Key Ideas",
+   "non_negative": 1
+  },
+  {
    "description": "Each uploaded document's title and file, so citations can open it",
    "fieldname": "source_files",
    "fieldtype": "JSON",
@@ -230,8 +239,8 @@
    "description": "Web pages added as material, by the name citations use.",
    "fieldname": "source_urls",
    "fieldtype": "JSON",
-   "label": "Source URLs",
-   "hidden": 1
+   "hidden": 1,
+   "label": "Source URLs"
   },
   {
    "description": "Courses the skill teaches from. Their lessons are read into the material, and a published skill open to everyone is offered as practice once a learner finishes the course.",
@@ -244,7 +253,7 @@
  "grid_page_length": 50,
  "link_display_mode": "Search",
  "links": [],
- "modified": "2026-11-16 15:03:02.257574",
+ "modified": "2026-11-17 22:00:00.000000",
  "modified_by": "Administrator",
  "module": "LMS",
  "name": "LMS Goal",

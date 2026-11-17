@@ -14,6 +14,36 @@
 				/>
 			</div>
 
+			<div
+				class="flex items-center justify-between gap-3 border-b border-outline-gray-2 py-4"
+			>
+				<div class="flex min-w-0 flex-col gap-1">
+					<label
+						for="goal-key-ideas"
+						class="text-p-base font-medium text-ink-gray-8"
+						>{{ __('Key ideas') }}</label
+					>
+					<p class="text-p-sm text-ink-gray-6">
+						{{
+							__(
+								'How many ideas the lesson covers. Build the plan again to use a new number.'
+							)
+						}}
+					</p>
+				</div>
+				<FormControl
+					id="goal-key-ideas"
+					v-model="goal.key_ideas"
+					variant="outline"
+					type="number"
+					size="sm"
+					class="w-16 shrink-0"
+					:min="3"
+					:max="12"
+					@change="emit('change')"
+				/>
+			</div>
+
 			<div class="border-b border-outline-gray-2 pt-4">
 				<h3 class="text-p-base font-medium text-ink-gray-8">
 					{{ __('What counts as passing') }}

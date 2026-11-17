@@ -413,6 +413,7 @@ const load = async () => {
 			proof_mastery: true,
 			mastery_threshold: 80,
 			check_questions: 5,
+			key_ideas: 7,
 			assign_everyone: true,
 			proof_acknowledgement: false,
 			proof_sign_off: false,
@@ -457,6 +458,7 @@ const save = async (withActivities = false) => {
 		recurrence: goal.value.recurrence,
 		mastery_threshold: goal.value.mastery_threshold,
 		check_questions: goal.value.check_questions,
+		key_ideas: goal.value.key_ideas,
 		acknowledgement_text: goal.value.acknowledgement_text,
 		audience: (goal.value.audience || []).map(
 			(row: { user: string }) => row.user

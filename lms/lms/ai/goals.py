@@ -1,6 +1,7 @@
 """Learning goals: drafting them with AI, publishing them to people, and judging when someone is ready."""
 
 import json
+import re
 
 import frappe
 from frappe import _
@@ -56,6 +57,7 @@ def draft(goal_name: str) -> str:
 				f"Admin notes: {goal.instructions or 'None'}",
 				"Plan for: the people who will take this, practising the situations they will face.",
 				f"Starts with the Lumi tutor: {'Yes' if goal.tutor_first else 'No'}",
+				f"Key ideas in the Lesson: {key_idea_count(goal)}",
 				"",
 				*material_lines(sources),
 			]
@@ -70,6 +72,14 @@ NO_MATERIAL = "None. Build from the admin's request alone."
 
 def material_lines(sources: str) -> list[str]:
 	return ["Material:", sources] if sources else [f"Material: {NO_MATERIAL}"]
+
+
+DEFAULT_KEY_IDEAS = 7
+
+
+def key_idea_count(goal) -> int:
+	"""How many key ideas the admin wants the lesson to cover, kept to what one lesson can hold."""
+	return min(max(cint(goal.key_ideas) or DEFAULT_KEY_IDEAS, 3), 12)
 
 
 def has_material(goal_name: str) -> bool:
@@ -950,11 +960,12 @@ def roleplay_reply(session: str, message: str) -> dict:
 		frappe.throw(_("This conversation is not one of your role-plays."), frappe.PermissionError)
 	activities = frappe.get_doc("LMS Goal", row.goal).activities
 	content = json.loads(activities[row.activity_index].content or "{}")
-	replies = sum(1 for turn in _transcript(session) if turn["speaker"] == "Learner")
+	said = [turn["text"] for turn in _transcript(session) if turn["speaker"] == "Learner"]
+	replies = sum(1 for text in said if counts_as_reply(text))
 	limit = roleplay_exchanges(content)
-	if replies >= limit:
+	if replies >= limit or len(said) >= 2 * limit:
 		frappe.throw(_("That's all your replies. See how you did."), title=_("Conversation Over"))
-	if replies + 1 == limit:
+	if replies + 1 == limit and counts_as_reply(message):
 		message = message + SYSTEM_NOTE + LAST_REPLY_NOTE
 	return run(session, message)
 
@@ -978,6 +989,16 @@ def transcription_hint(session: str, user: str) -> str:
 		words += [content.get("character"), content.get("setting")]
 	words += [member.get("name") for member in characters.CAST.values()]
 	return ". ".join(dict.fromkeys(word.strip().rstrip(".") for word in words if word))[:600]
+
+
+# A greeting or "can you repeat that?" is not an answer, so it does not use up a reply.
+REPEAT_REQUEST = re.compile(r"\b(repeat|say (that|it) again|pardon|didn'?t (catch|hear)|come again)\b", re.I)
+SHORTEST_REPLY = 6
+
+
+def counts_as_reply(text: str) -> bool:
+	"""Whether a learner's turn counts towards their replies. The page counts the same way."""
+	return len((text or "").split()) >= SHORTEST_REPLY and not REPEAT_REQUEST.search(text or "")
 
 
 def roleplay_exchanges(content: dict) -> int:
