@@ -1,8 +1,8 @@
 import frappe
-from frappe.tests import UnitTestCase
+from frappe.tests.utils import FrappeTestCase
 
 
-class TestQuizPassingPercentage(UnitTestCase):
+class TestQuizPassingPercentage(FrappeTestCase):
 	"""An empty quiz reset passing_percentage to 100, and adding questions later never
 	restored it. Guards that only total_marks is derived; the author's pass mark stays.
 	Fixture-free: validators run on an unsaved doc."""

@@ -9,14 +9,14 @@ import tempfile
 from unittest.mock import patch
 
 import frappe
-from frappe.tests import UnitTestCase
+from frappe.tests.utils import FrappeTestCase
 
 from lms.lms.test_helpers import BaseTestUtils
 from lms.page_renderers import SCORMRenderer
 from lms.patches.v2_0 import move_public_scorm_to_private as relocation
 
 
-class TestMovePublicScormToPrivate(UnitTestCase):
+class TestMovePublicScormToPrivate(FrappeTestCase):
 	def setUp(self):
 		self._tmp = tempfile.TemporaryDirectory()
 		self.site = self._tmp.name
