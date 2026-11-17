@@ -525,7 +525,13 @@ watch(partial, (text) => {
 	if (mode.value !== 'speak') return
 	if (!text || !text.startsWith(current)) closeStream()
 	if (!text) return
-	const settled = text.slice(current.length).match(/^[\s\S]*[.!?](?=\s)/)
+	// The very first words of a turn may go at a comma, before the sentence ends: the voice
+	// then starts on a short phrase while the rest is still being written.
+	const settled =
+		text.slice(current.length).match(/^[\s\S]*[.!?](?=\s)/) ||
+		(!current && !streamed.length
+			? text.match(/^[^.!?]{20,60}?[,;:](?=\s)/)
+			: null)
 	if (settled) {
 		speech.enqueue(settled[0], props.character || 'lumi')
 		current += settled[0]

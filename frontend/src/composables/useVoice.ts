@@ -99,6 +99,9 @@ export function useVoice() {
 	// A pause this long ends the turn: long enough for a breath mid-thought, short enough
 	// that the reply does not feel slow.
 	const SILENCE_MS = 1400
+	// The browser's engine writes words as they are said, so it can tell sooner that the
+	// learner has stopped: a shorter pause ends the turn.
+	const ENGINE_SILENCE_MS = 1000
 
 	let endTurn: ((send: boolean) => void) | null = null
 
@@ -295,7 +298,7 @@ export function useVoice() {
 
 		// One turn spans several short takes: the engine reliably ends a take at each
 		// breath (its continuous mode goes quiet on some Chrome builds), so the take is
-		// restarted across pauses, and only SILENCE_MS of quiet after real words — or an
+		// restarted across pauses, and only ENGINE_SILENCE_MS of quiet after real words — or an
 		// explicit stop — ends the turn.
 		const take = () => {
 			recognition = new RecognitionClass()
@@ -342,7 +345,7 @@ export function useVoice() {
 			recognition.onend = () => {
 				if (!active) return
 				if (heard) turnText = [turnText, heard].filter(Boolean).join(' ')
-				if (turnText && Date.now() - lastHeard >= SILENCE_MS)
+				if (turnText && Date.now() - lastHeard >= ENGINE_SILENCE_MS)
 					return commit(true)
 				take()
 				// The next take would otherwise wait out the engine's own long no-speech
@@ -351,7 +354,7 @@ export function useVoice() {
 				if (turnText)
 					settleTimer = setTimeout(
 						() => recognition?.stop(),
-						Math.max(lastHeard + SILENCE_MS - Date.now(), 50),
+						Math.max(lastHeard + ENGINE_SILENCE_MS - Date.now(), 50),
 					)
 			}
 			recognition.start()

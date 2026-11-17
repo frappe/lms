@@ -71,6 +71,23 @@ whisper = None
 whisper_lock = threading.Lock()
 
 
+# The voices Learning's characters use, kept in step with KOKORO_VOICES in lms/lms/ai/tts.py.
+VOICES = os.environ.get("LMS_VOICE_PRELOAD", "af_heart,af_bella,af_sky,am_fenrir,am_michael,am_puck").split(
+	","
+)
+
+
+def warm_voices() -> None:
+	"""Load every character's voice and run one short sentence through each. Without it, the
+	first line in a new voice waits seconds for the voice to load, after every restart."""
+	for voice in [v.strip() for v in VOICES if v.strip()]:
+		try:
+			synthesize("Ready.", voice)
+		except Exception as error:  # a missing voice must not stop the server
+			print(f"Voice {voice} not warmed: {error}", flush=True)
+	print("Voices ready", flush=True)
+
+
 def load_whisper() -> None:
 	"""Loads (and first time, downloads) the transcriber, so the first turn is not minutes."""
 	global whisper
@@ -184,5 +201,6 @@ if __name__ == "__main__":
 	if HOST != "127.0.0.1" and not TOKEN:
 		raise SystemExit("Set LMS_VOICE_TOKEN before listening on anything but 127.0.0.1.")
 	threading.Thread(target=load_whisper, daemon=True).start()
+	threading.Thread(target=warm_voices, daemon=True).start()
 	print(f"Kokoro speaking on http://{HOST}:{PORT}/tts", flush=True)
 	ThreadingHTTPServer((HOST, PORT), Handler).serve_forever()
