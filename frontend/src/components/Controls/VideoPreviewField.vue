@@ -92,16 +92,6 @@
 						{{ __('Remove') }}
 					</Button>
 				</div>
-<<<<<<< HEAD
-=======
-				<p class="text-p-sm text-ink-gray-6">
-					{{
-						__(
-							'Uploaded video. Students see it on the course page. Remove it to use a YouTube link instead.'
-						)
-					}}
-				</p>
->>>>>>> 6a494cd (fix: raise secondary text to AA contrast)
 			</div>
 
 			<div v-else class="min-w-0 space-y-2 sm:flex-1">
@@ -127,20 +117,6 @@
 						</Button>
 					</template>
 				</FileUploader>
-<<<<<<< HEAD
-=======
-				<p class="text-p-sm text-ink-gray-6">
-					{{
-						preview.type === 'youtube'
-							? __(
-									'YouTube link added. Students see it embedded on the course page. Clear the field to upload a file instead.'
-							  )
-							: __(
-									'Paste a YouTube link, or upload a video file (MP4, WebM, or OGG) to show a preview on the course page.'
-							  )
-					}}
-				</p>
->>>>>>> 6a494cd (fix: raise secondary text to AA contrast)
 			</div>
 		</div>
 		<InputDescription

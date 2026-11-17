@@ -34,13 +34,9 @@
 				<div class="space-y-0.5 text-sm">
 					<div class="text-ink-gray-9 font-medium break-all leading-5">
 						{{ filename }}
-<<<<<<< HEAD
 						<span
-							class="ms-2 inline-block whitespace-nowrap text-ink-gray-5 font-normal"
+							class="ms-2 inline-block whitespace-nowrap text-ink-gray-6 font-normal"
 						>
-=======
-						<span class="ms-2 text-ink-gray-6 font-normal">
->>>>>>> 6a494cd (fix: raise secondary text to AA contrast)
 							{{ metaLabel }}
 						</span>
 					</div>
@@ -74,12 +70,6 @@
 						{{ __('Remove') }}
 					</Button>
 				</div>
-<<<<<<< HEAD
-=======
-				<p class="text-p-xs text-ink-gray-6">
-					{{ __('Remove the image to pick a color instead.') }}
-				</p>
->>>>>>> 6a494cd (fix: raise secondary text to AA contrast)
 			</div>
 		</div>
 
@@ -143,12 +133,6 @@
 							</template>
 							{{ uploading ? __('Uploading') : __('Upload image instead') }}
 						</Button>
-<<<<<<< HEAD
-=======
-						<p class="text-p-xs text-ink-gray-6">
-							{{ __('Upload an image to replace the color.') }}
-						</p>
->>>>>>> 6a494cd (fix: raise secondary text to AA contrast)
 					</div>
 				</div>
 			</template>

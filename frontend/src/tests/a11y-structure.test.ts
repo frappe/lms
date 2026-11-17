@@ -10,7 +10,7 @@ enableAutoUnmount(afterEach)
 
 // Renders each crumb as a link so an empty label shows up as an unnamed link,
 // which is what the real Breadcrumbs does.
-vi.mock('@/components/Layouts/pages/PageHeader.vue', () => ({
+vi.mock('@/components/Layouts/PageHeader.vue', () => ({
 	default: {
 		props: ['breadcrumbs'],
 		template: `<header><a v-for="(crumb, i) in breadcrumbs" :key="i" href="#">{{ crumb.label }}</a></header>`,

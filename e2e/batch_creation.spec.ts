@@ -202,13 +202,8 @@ test.describe("Batch Creation", () => {
 		await expect(page).toHaveURL(/\/lms\/batches/);
 		await page.getByRole("radio", { name: "Upcoming" }).click();
 
-<<<<<<< HEAD
-		// version-16's batch card is one link around the whole card, so its
-		// details are read from inside the link.
-=======
 		// The card's title is its link, stretched over the card; the rest of the
 		// card's text sits beside the link, not inside it.
->>>>>>> c05b8e6 (fix: stop nesting instructor links inside course and batch cards)
 		const batchLink = page.locator(`a[href='/lms/batches/${batchName}']`);
 		const batchCard = page.locator("div.isolate", { has: batchLink });
 		await expect(batchLink).toBeVisible({ timeout: 10000 });

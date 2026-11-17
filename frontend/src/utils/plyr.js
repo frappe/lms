@@ -57,17 +57,12 @@ const setupPlyrForVideo = (video, players) => {
 		speed: { selected: 1, options: [0.5, 0.75, 1, 1.25, 1.5, 1.75, 2] },
 	})
 
-<<<<<<< HEAD
 	guardPlayerSkips(player)
-=======
 	keepFocusInPlayer(player)
->>>>>>> 79d6904 (fix: let Space pause a YouTube lesson after clicking the video)
 	video.plyrInstance = player
 	players.push(player)
 }
 
-<<<<<<< HEAD
-=======
 // Plyr's Space/K shortcuts only fire while focus is inside the player, but a
 // click on the video (or on a control, in Safari) leaves focus on <body>.
 const keepFocusInPlayer = (player) => {
@@ -80,18 +75,6 @@ const keepFocusInPlayer = (player) => {
 	})
 }
 
-const getTargetTime = (plyr, input) => {
-	if (
-		typeof input === 'object' &&
-		(input.type === 'input' || input.type === 'change')
-	) {
-		return (input.target.value / input.target.max) * plyr.duration
-	} else {
-		return Number(input)
-	}
-}
-
->>>>>>> 79d6904 (fix: let Space pause a YouTube lesson after clicking the video)
 const extractYouTubeId = (url) => {
 	try {
 		const parsedUrl = new URL(url)

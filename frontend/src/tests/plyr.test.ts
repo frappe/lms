@@ -5,14 +5,14 @@ type FakePlayer = {
 	on: (event: string, handler: Handler) => void
 	emit: (event: string) => void
 	currentTime: number
+	elements: { container: HTMLElement }
 }
 
 // Mock the heavy Plyr dependency. The fake keeps Plyr's event surface so the
 // skip guard can be driven the way Plyr's keyboard shortcuts drive it: by
 // assigning currentTime, which fires `seeking` and never the progress input.
 const plyrCtor = vi.hoisted(() =>
-<<<<<<< HEAD
-	vi.fn(function FakePlyr(this: FakePlayer) {
+	vi.fn(function FakePlyr(this: FakePlayer, video: HTMLElement) {
 		const handlers: Record<string, Handler[]> = {}
 		let time = 0
 		this.on = (event, handler) => {
@@ -26,19 +26,12 @@ const plyrCtor = vi.hoisted(() =>
 				this.emit('seeking')
 			},
 		})
-=======
-	vi.fn(function FakePlyr(
-		this: { on: () => void; elements: { container: HTMLElement } },
-		video: HTMLElement
-	) {
-		this.on = () => {}
 		const container = document.createElement('div')
 		container.innerHTML =
 			'<div class="plyr__controls"><button type="button">Play</button></div>'
 		video.replaceWith(container)
 		container.append(video)
 		this.elements = { container }
->>>>>>> 79d6904 (fix: let Space pause a YouTube lesson after clicking the video)
 	})
 )
 const settings = vi.hoisted(() => ({ data: {} as Record<string, unknown> }))
@@ -86,7 +79,6 @@ describe('enablePlyr double-init guard', () => {
 	})
 })
 
-<<<<<<< HEAD
 describe('enablePlyr prevent_skipping_videos', () => {
 	beforeEach(() => {
 		document.body.innerHTML = ''
@@ -95,23 +87,10 @@ describe('enablePlyr prevent_skipping_videos', () => {
 	afterEach(() => (settings.data = {}))
 
 	const setup = async (): Promise<FakePlayer> => {
-=======
-// Guards: clicking the video left focus on <body>, so Space scrolled the page
-// instead of pausing (#1461), and no captions control (#1461). Test added with
-// the a11y audit remediation.
-describe('enablePlyr keyboard and captions', () => {
-	beforeEach(() => {
-		plyrCtor.mockClear()
-		document.body.innerHTML = ''
-	})
-
-	const setup = async () => {
->>>>>>> 79d6904 (fix: let Space pause a YouTube lesson after clicking the video)
 		const el = document.createElement('div')
 		el.className = 'video-player'
 		el.setAttribute('src', 'dQw4w9WgXcQ')
 		document.body.appendChild(el)
-<<<<<<< HEAD
 		const [player] = (await enablePlyr()) as unknown as FakePlayer[]
 		player.emit('play')
 		return player
@@ -123,7 +102,23 @@ describe('enablePlyr keyboard and captions', () => {
 		const player = await setup()
 		player.currentTime = 60
 		expect(player.currentTime).toBe(0)
-=======
+	})
+})
+
+// Guards: clicking the video left focus on <body>, so Space scrolled the page
+// instead of pausing (#1461), and no captions control (#1461). Test added with
+// the a11y audit remediation.
+describe('enablePlyr keyboard and captions', () => {
+	beforeEach(() => {
+		plyrCtor.mockClear()
+		document.body.innerHTML = ''
+	})
+
+	const setup = async () => {
+		const el = document.createElement('div')
+		el.className = 'video-player'
+		el.setAttribute('src', 'dQw4w9WgXcQ')
+		document.body.appendChild(el)
 		const [player] = await enablePlyr()
 		return player.elements.container as HTMLElement
 	}
@@ -150,6 +145,5 @@ describe('enablePlyr keyboard and captions', () => {
 			controls: expect.arrayContaining(['captions']),
 		})
 		expect(plyrCtor).toHaveBeenCalledWith(expect.anything(), options)
->>>>>>> 79d6904 (fix: let Space pause a YouTube lesson after clicking the video)
 	})
 })

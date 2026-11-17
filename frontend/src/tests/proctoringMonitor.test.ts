@@ -79,13 +79,7 @@ const emittedTypes = (wrapper: any, name: string): string[] =>
 
 // ─── Mount helper ─────────────────────────────────────────────────────────────
 
-<<<<<<< HEAD
 const mountMonitor = (props: Partial<{ active: boolean }> = {}) =>
-=======
-const mountMonitor = (
-	props: Partial<{ active: boolean; violationCount: number }> = {}
-) =>
->>>>>>> da6c1f3 (fix: make course, video and sidebar controls reachable by keyboard)
 	mount(ProctoringMonitor, {
 		props: { active: false, ...props },
 		global: { mocks: { __: (s: string) => s } },
@@ -117,16 +111,6 @@ describe('ProctoringMonitor — setup phase', () => {
 		expect(wrapper.text()).toContain('Camera access was denied')
 		expect(wrapper.emitted('camera-denied')).toBeTruthy()
 	})
-<<<<<<< HEAD
-=======
-
-	it('shows "Position your face" label after camera loads', async () => {
-		const wrapper = mountMonitor()
-		await flushPromises()
-		// Models loaded, interval started — setupStatus transitions to 'detecting'
-		expect(wrapper.text()).toContain('Position your face')
-	})
->>>>>>> da6c1f3 (fix: make course, video and sidebar controls reachable by keyboard)
 })
 
 describe('ProctoringMonitor — monitoring phase', () => {

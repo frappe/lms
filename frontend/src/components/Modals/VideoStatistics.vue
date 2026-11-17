@@ -88,12 +88,8 @@
 						</div>
 					</div>
 				</div>
-<<<<<<< HEAD
 				<ModalLoading v-else-if="statistics.loading" />
-				<div v-else class="text-sm text-ink-gray-5">
-=======
 				<div v-else class="text-sm text-ink-gray-6">
->>>>>>> 6a494cd (fix: raise secondary text to AA contrast)
 					{{ __('No statistics available for this video.') }}
 				</div>
 			</div>
