@@ -7,12 +7,11 @@ from frappe.core.api.file import get_max_file_size
 from frappe.translate import get_user_lang
 from frappe.utils import get_system_timezone
 from frappe.utils.data import escape_html
-from frappe.utils.jinja_globals import is_rtl
 from frappe.utils.telemetry import capture
 
 from lms.lms.api import can_see_job
 from lms.lms.permissions import can_access_course, can_author_batch
-from lms.lms.utils import get_lms_path, get_lms_route
+from lms.lms.utils import get_lms_path, get_lms_route, resolve_text_direction
 
 no_cache = 1
 
@@ -34,6 +33,8 @@ def get_context():
 
 
 def get_boot():
+	lang = get_user_lang()
+
 	return frappe._dict(
 		{
 			"read_only_mode": frappe.flags.read_only,
@@ -41,8 +42,8 @@ def get_boot():
 			"max_file_size": get_max_file_size(),
 			"site_name": frappe.local.site,
 			"lms_path": get_lms_path(),
-			"lang": get_user_lang(),
-			"text_direction": "rtl" if is_rtl() else "ltr",
+			"lang": lang,
+			"text_direction": resolve_text_direction(lang),
 			"date_format": frappe.get_system_settings("date_format"),
 			"timezone": {"system": get_system_timezone()},
 		}
