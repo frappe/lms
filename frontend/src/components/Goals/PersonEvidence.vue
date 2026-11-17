@@ -127,6 +127,7 @@
 import { computed, reactive, ref, watch } from 'vue'
 import { Badge, Button, createResource, Dialog, Dropdown } from 'frappe-ui'
 import { createDialog } from '@/utils/dialogs'
+import { TUTOR_NAME } from '@/utils/characters'
 import { activityLabel, statusTheme } from '@/utils/goals'
 import dayjs from '@/utils/dayjs'
 
@@ -226,8 +227,8 @@ const confirmFullReset = () =>
 	createDialog({
 		title: __("Reset all of {0}'s progress?").format(firstName.value),
 		message: __(
-			'Everything done in "{0}" is cleared, with the score and sign-off. {1} starts again from the first step.'
-		).format(props.goalTitle, firstName.value),
+			'Everything done in "{0}" is cleared, with the score, the sign-off and what {1} told {2} about their work. {1} starts again from the first step.'
+		).format(props.goalTitle, firstName.value, TUTOR_NAME),
 		actions: [
 			{
 				label: __('Reset progress'),

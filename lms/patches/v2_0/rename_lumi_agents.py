@@ -36,6 +36,7 @@ def execute():
 		for (doctype, field), names in zip(LINKS, by_doctype.values(), strict=True):
 			if names:
 				frappe.db.set_value(doctype, {"name": ("in", names)}, field, agent, update_modified=False)
+	# nosemgrep: lms-unjustified-ignore-permissions - a patch removing the app's own agent; Flow lets only the owning app delete it
 	frappe.delete_doc("Flow Agent", OLD_TUTOR, ignore_permissions=True, force=True)
 
 

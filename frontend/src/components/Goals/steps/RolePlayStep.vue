@@ -25,7 +25,7 @@
 						{{
 							[
 								content.character_role,
-								__('role-play'),
+								temperament || __('role-play'),
 								stage === 'chat'
 									? __('{0} of {1} replies', [turns, exchanges])
 									: stepLabel,
@@ -45,6 +45,7 @@
 					:label="__('I\'m done')"
 					@click="finish"
 				/>
+				<slot name="actions" />
 			</div>
 			<div class="flex min-h-0 flex-1">
 				<div
@@ -206,8 +207,11 @@
 			</div>
 		</div>
 
+		<div v-if="stage === 'result' && $slots.actions" class="flex justify-end">
+			<slot name="actions" />
+		</div>
 		<div
-			v-else
+			v-if="stage === 'result'"
 			class="rounded-7 border border-outline-gray-2 bg-surface-base p-5"
 		>
 			<div v-if="evidence?.status === 'Graded'">
@@ -395,7 +399,7 @@ import {
 import type { Socket } from 'socket.io-client'
 import FlowChat from '@/components/Goals/FlowChat.vue'
 import CharacterAvatar from '@/components/Goals/CharacterAvatar.vue'
-import { CAST_NAMES, isCastKey } from '@/utils/characters'
+import { CAST_NAMES, castTrait, isCastKey } from '@/utils/characters'
 
 const props = withDefaults(
 	defineProps<{
@@ -410,6 +414,16 @@ const emit = defineEmits<{ next: []; refresh: []; live: [live: boolean] }>()
 const socket = inject<Socket>('$socket')
 
 const content = computed(() => props.activity.content)
+
+// A few words on who they are talking to, such as "Sceptical and precise", without opening
+// the brief: the cast member's own trait, else the first line of a written personality.
+const temperament = computed(() => {
+	const cast: unknown = content.value.cast
+	if (isCastKey(cast)) return castTrait(cast)
+	return (content.value.personality || '')
+		.split(/(?<=\.)\s/)[0]
+		.replace(/\.$/, '')
+})
 // A plan can carry a cast key without the name; the partner still needs one on screen.
 const characterName = computed(() => {
 	const cast: unknown = content.value.cast

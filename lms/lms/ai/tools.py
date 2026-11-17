@@ -1,3 +1,4 @@
+import json
 import re
 
 """Tools Learning's Flow agents call. Each runs as the session's owner, so each checks who that is:
@@ -367,10 +368,25 @@ def show_moment(moment: Moment, *, ctx: ToolContext) -> str:
 
 	Any person in it is Brannoc, Quilla, Fenwick, Odalie or Tavish, never any other name; a role
 	with no cast fit stays nameless, such as a contractor or your manager."""
+	if not _exercises_agreed(ctx.session_id):
+		# The page leaves a moment off screen when its result starts with NOT_SHOWN.
+		return NOT_SHOWN + _(
+			"You have not asked whether they are ready. Ask in one line whether they are ready to "
+			"try a few quick exercises, and end your turn. Call begin_exercises when they say yes, "
+			"then show the moment."
+		)
 	return _(
 		"Shown to the learner. End your turn with one short line inviting them to try it. "
 		"Do not repeat what you already said this turn."
 	)
+
+
+@tool
+def begin_exercises(*, ctx: ToolContext) -> str:
+	"""Record that the learner said yes to trying exercises, after you asked them. Call it once,
+	right after their yes and before the first show_moment; never before you have asked."""
+	frappe.cache.set_value(_agreed_key(ctx.session_id), 1, expires_in_sec=AGREED_TTL)
+	return _("Noted. Show the first moment now.")
 
 
 @tool
@@ -539,6 +555,10 @@ def _require_admin(user: str) -> None:
 # Models sometimes declare a lesson done after the first reply; a lesson needs some real back-and-forth.
 MIN_TEACHING_TURNS = 3
 
+# A show_moment refused for want of the learner's yes; kept in step with useFlowChat.ts.
+NOT_SHOWN = "NOT_SHOWN "
+AGREED_TTL = 7 * 24 * 60 * 60
+
 
 def _learner_turns(session: str) -> int:
 	"""How many times the learner has replied, not counting the brief that opened the session."""
@@ -558,3 +578,32 @@ def _teaching_assignment(ctx: ToolContext) -> str:
 	if not assignment:
 		frappe.throw(_("This conversation is not a lesson."), frappe.PermissionError)
 	return assignment
+
+
+def _agreed_key(session: str) -> str:
+	return f"lms:exercises-agreed:{session}"
+
+
+def _exercises_agreed(session: str) -> bool:
+	"""The learner said yes to exercises in this lesson. A lesson that already showed one, from
+	before this was asked, counts as agreed."""
+	if frappe.cache.get_value(_agreed_key(session)):
+		return True
+	shown = [
+		call.get("id")
+		for row in frappe.get_all(
+			"Flow Session Message",
+			filters={"parent": session, "role": "assistant", "tool_calls": ("like", "%show_moment%")},
+			pluck="tool_calls",
+		)
+		for call in json.loads(row or "[]")
+		if "show_moment" in (call.get("name") or call.get("function", {}).get("name") or "")
+	]
+	if not shown:
+		return False
+	results = frappe.get_all(
+		"Flow Session Message",
+		filters={"parent": session, "role": "tool", "tool_call_id": ("in", shown)},
+		pluck="content",
+	)
+	return any(not (content or "").startswith(NOT_SHOWN) for content in results)

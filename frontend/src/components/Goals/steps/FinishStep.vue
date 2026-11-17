@@ -521,13 +521,16 @@ const rows = computed<Row[]>(() => {
 		list.push({
 			key: 'ideas',
 			label: __('Key ideas'),
-			value: taught
-				? __('{0} of {1}, {2} learned here').format(
-						confirmed,
-						props.ideas.length,
-						taught
-				  )
-				: __('{0} of {1}').format(confirmed, props.ideas.length),
+			// "Understood" says what the count means; the ideas Lumi had to teach are the
+			// ones that were new to them.
+			value: [
+				confirmed === props.ideas.length
+					? __('All {0} understood').format(confirmed)
+					: __('{0} of {1} understood').format(confirmed, props.ideas.length),
+				taught ? __('{0} new to you').format(taught) : '',
+			]
+				.filter(Boolean)
+				.join(' · '),
 		})
 	}
 	for (const activity of props.activities) {

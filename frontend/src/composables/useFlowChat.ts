@@ -21,6 +21,8 @@ export interface ChatMessage {
 export const MOMENT_RESULT = 'MOMENT_RESULT '
 // The server's note on a role-play's last reply; never shown. Kept in step with goals.py.
 const SYSTEM_NOTE = '\n\n[SYSTEM NOTE] '
+// The start of a show_moment the server refused. Kept in step with tools.py.
+const NOT_SHOWN = 'NOT_SHOWN '
 
 interface FlowRow {
 	type: string
@@ -33,6 +35,7 @@ interface FlowRow {
 	message?: string
 	session_id?: string
 	subagent_id?: string | null
+	tool_call_id?: string
 }
 
 const API = 'frappe.flow.api.api'
@@ -109,6 +112,20 @@ export function useFlowChat(
 	let poller: ReturnType<typeof setInterval> | null = null
 	let sending = false
 
+	// What the server said to each tool call. A moment shows only once the server took it:
+	// one refused, because the learner has not agreed to exercises yet, never appears.
+	const toolReplies = computed(() => {
+		const replies = new Map<string, string>()
+		for (const row of rows.value)
+			if (row.type === 'tool_result' && row.tool_call_id)
+				replies.set(row.tool_call_id, textOf(row.content))
+		return replies
+	})
+	const shown = (moment: Moment) => {
+		const reply = toolReplies.value.get(moment.id)
+		return reply !== undefined && !reply.startsWith(NOT_SHOWN)
+	}
+
 	const messages = computed<ChatMessage[]>(() => {
 		const out: ChatMessage[] = []
 		let firstUserSkipped = !hideFirstMessage
@@ -135,14 +152,14 @@ export function useFlowChat(
 				if (last?.role === 'assistant' && !last.text) {
 					last.text = text
 					last.tools.push(...toolsOf(row.content))
-					last.moments.push(...momentsOf(row.content))
+					last.moments.push(...momentsOf(row.content).filter(shown))
 				} else {
 					out.push({
 						key: `a${row.seq}`,
 						role: 'assistant',
 						text,
 						tools: toolsOf(row.content),
-						moments: momentsOf(row.content),
+						moments: momentsOf(row.content).filter(shown),
 						ts: row.ts,
 					})
 				}

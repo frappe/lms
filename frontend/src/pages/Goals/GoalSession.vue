@@ -175,29 +175,14 @@
 			</aside>
 
 			<div class="relative flex min-w-0 flex-1 flex-col">
-				<!-- Zen's own controls get a strip of their own, so they never sit on top of the
-				     step's header and its key ideas. -->
-				<div
-					v-if="zen"
-					class="flex shrink-0 items-center justify-end gap-1 px-4 pt-3"
-				>
-					<Button
-						v-if="!onCheck"
-						variant="ghost"
-						:aria-label="__('Ask {0}').format(TUTOR_NAME)"
-						@click="toggleTutor"
-					>
-						<template #icon
-							><span class="lucide-message-circle-question size-4"
-						/></template>
-					</Button>
-					<Button
-						variant="ghost"
-						:aria-label="__('Leave zen mode')"
-						@click="zen = false"
-					>
-						<template #icon><span class="lucide-minimize-2 size-4" /></template>
-					</Button>
+				<!-- Conversation steps carry zen's controls in their own header row; the other
+				     steps have no header, so the controls get a strip of their own. -->
+				<div v-if="zen && !isChatStep" class="flex justify-end px-4 pt-3">
+					<ZenControls
+						:can-ask="!onCheck"
+						@ask="toggleTutor"
+						@leave="zen = false"
+					/>
 				</div>
 				<main ref="pane" class="flex flex-1 flex-col overflow-y-auto">
 					<div
@@ -262,7 +247,15 @@
 								@live="(live) => (stepLive = live)"
 								@refresh="load"
 								@next="next"
-							/>
+							>
+								<template v-if="zen" #actions>
+									<ZenControls
+										:can-ask="true"
+										@ask="toggleTutor"
+										@leave="zen = false"
+									/>
+								</template>
+							</TeachStep>
 							<LessonStep
 								v-else-if="activity.activity_type === 'Lesson'"
 								:activity="activity"
@@ -292,7 +285,15 @@
 								@live="(live) => (stepLive = live)"
 								@refresh="load"
 								@next="next"
-							/>
+							>
+								<template v-if="zen" #actions>
+									<ZenControls
+										:can-ask="true"
+										@ask="toggleTutor"
+										@leave="zen = false"
+									/>
+								</template>
+							</RolePlayStep>
 						</template>
 						<template v-else>
 							<FinishStep
@@ -365,6 +366,7 @@
 
 <script setup lang="ts">
 import EmptyStateLayout from '@/components/Layouts/EmptyStateLayout.vue'
+import ZenControls from '@/components/Goals/ZenControls.vue'
 import {
 	computed,
 	inject,

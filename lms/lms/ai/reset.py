@@ -20,13 +20,15 @@ def reset_lesson(assignment_name: str, index: int) -> dict:
 
 
 def reset_progress(assignment_name: str) -> dict:
-	"""Send the learner back to the first step of the skill. They stay assigned with the same
-	due date, and what they told Lumi about their work is kept, so the warm-up need not repeat."""
+	"""Send the learner back to the first step of the skill, as if new to it: they stay assigned
+	with the same due date, but what they told Lumi about their work goes too, so the next
+	lesson does not bring back stories from the one that was reset."""
 	assignment = frappe.get_doc("LMS Goal Assignment", assignment_name)
 	_delete_evidence({"assignment": assignment.name})
 	assignment.db_set(
 		{
 			"idea_state": None,
+			"learner_situations": None,
 			"check_selection": None,
 			"tutor_session": None,
 			"started_on": None,

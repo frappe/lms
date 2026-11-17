@@ -24,7 +24,9 @@ KOKORO_VOICES = {
 	"quilla": "af_bella",
 	"odalie": "af_sky",
 	"brannoc": "am_fenrir",
-	"fenwick": "bm_george",
+	# American like the rest: the server reads every line with American pronunciation,
+	# which made the British voice that stood here sound wrong.
+	"fenwick": "am_michael",
 	"tavish": "am_puck",
 }
 

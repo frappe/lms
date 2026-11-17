@@ -52,6 +52,7 @@ class TestProgressReset(BaseTestUtils):
 		assignment = self._assignment()
 		self.assertEqual(json.loads(assignment.idea_state), {"0": {}})
 		self.assertFalse(assignment.signed_off_by)
+		self.assertEqual(json.loads(assignment.learner_situations), ["Runs the audit at the Pune plant"])
 
 	def test_only_a_lesson_can_be_reset_on_its_own(self):
 		self.goal.activities[1].activity_type = "Check"
@@ -59,14 +60,14 @@ class TestProgressReset(BaseTestUtils):
 		self.assertRaises(frappe.ValidationError, api.reset_lesson, self.assignment.name, 1)
 		self.assertRaises(frappe.ValidationError, api.reset_lesson, self.assignment.name, 7)
 
-	def test_a_full_reset_starts_the_skill_again_but_keeps_what_lumi_learned(self):
+	def test_a_full_reset_starts_the_skill_again_from_nothing(self):
 		result = api.reset_progress(self.assignment.name)
 		self.assertEqual(self._indexes(), [])
 		self.assertEqual(result["status"], "Assigned")
 		assignment = self._assignment()
 		self.assertEqual((assignment.progress, assignment.score, assignment.current_step), (0, 0, 0))
 		self.assertFalse(assignment.idea_state or assignment.signed_off_by or assignment.started_on)
-		self.assertEqual(json.loads(assignment.learner_situations), ["Runs the audit at the Pune plant"])
+		self.assertFalse(assignment.learner_situations)
 
 	def test_a_learner_cannot_reset(self):
 		frappe.set_user(self.learner.name)

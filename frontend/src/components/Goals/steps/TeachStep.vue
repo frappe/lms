@@ -52,6 +52,7 @@
 					aria-hidden="true"
 				/>
 			</button>
+			<slot name="actions" />
 		</div>
 		<KeyIdeas
 			v-if="showIdeas"
@@ -152,7 +153,7 @@
 				:commands="commands"
 				:waiting-text="__('{0} is reading your answer', [TUTOR_NAME])"
 				:done="ready"
-				@messages="emit('refresh')"
+				@messages="refreshSoon"
 				@moment="recordMoment"
 			>
 				<template #done>
@@ -290,6 +291,16 @@ const recordMoment = (payload: Record<string, unknown>) => {
 		confidence: (payload.confidence as string) || null,
 	}).catch(() => null)
 }
+
+// The chat reports every streamed word. The page only needs the state once a reply has
+// settled, such as the lesson being finished, so it waits for a pause. Ticked ideas arrive
+// on their own through the socket below.
+let settle: ReturnType<typeof setTimeout> | null = null
+const refreshSoon = () => {
+	if (settle) clearTimeout(settle)
+	settle = setTimeout(() => emit('refresh'), 1500)
+}
+onBeforeUnmount(() => settle && clearTimeout(settle))
 
 const onIdeas = (data: { assignment: string }) => {
 	if (data?.assignment === props.assignment) emit('refresh')

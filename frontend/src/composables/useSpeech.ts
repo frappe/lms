@@ -47,8 +47,14 @@ export const speechText = (text: string): string =>
 		.replace(/\s+/g, ' ')
 		.trim()
 
-const CHUNK_LENGTH = 160
-const PREFETCH = 3
+// The voice server makes about 45 characters a second and one request at a time, so chunks
+// stay short: a long one holds up everything queued behind it.
+const CHUNK_LENGTH = 120
+// The opening words go out on their own, cut at a pause, so the voice starts within a second.
+const FIRST_CHUNK = 60
+// The chunk playing and the one after it. More only queues work on the server that a
+// barge-in throws away, and the next reply then waits behind it.
+const PREFETCH = 2
 
 /** Sentences to speak one at a time, so captions track the voice without timestamps.
  * Short neighbouring sentences travel together: each request to the voice costs a round
@@ -58,16 +64,31 @@ export const splitSentences = (text: string): string[] => {
 		.split(/(?<=[.!?])\s+/)
 		.map((part) => part.trim())
 		.filter(Boolean)
+	if (parts[0] && parts[0].length > FIRST_CHUNK)
+		parts.splice(0, 1, ...atPause(parts[0]))
 	const chunks: string[] = []
 	for (const part of parts) {
 		const last = chunks[chunks.length - 1]
 		// The first sentence always goes alone: a short request comes back in under a second,
 		// so the voice starts while the longer chunks behind it are still being made.
-		if (last && chunks.length > 1 && last.length + part.length + 1 <= CHUNK_LENGTH)
+		if (
+			last &&
+			chunks.length > 1 &&
+			last.length + part.length + 1 <= CHUNK_LENGTH
+		)
 			chunks[chunks.length - 1] = `${last} ${part}`
 		else chunks.push(part)
 	}
 	return chunks
+}
+
+/** A long opening sentence split at its first comma or semicolon past a few words, so the
+ * first request is short. A sentence with no such pause stays whole. */
+const atPause = (sentence: string): string[] => {
+	const match = /^(.{20,}?[,;:])\s+(.+)$/.exec(sentence)
+	return match && match[1].length <= FIRST_CHUNK
+		? [match[1], match[2]]
+		: [sentence]
 }
 
 /** Words the voices get wrong, spelled the way they are said. Captions keep the real spelling. */

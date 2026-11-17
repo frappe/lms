@@ -52,7 +52,7 @@ describe('speechText', () => {
 
 describe('splitSentences', () => {
 	it('splits on sentence ends so captions can track the voice', () => {
-		const long = 'A'.repeat(120) + '.'
+		const long = 'A'.repeat(100) + '.'
 		expect(splitSentences(`${long} ${long} Let us go.`)).toEqual([
 			long,
 			`${long} Let us go.`,
@@ -62,6 +62,21 @@ describe('splitSentences', () => {
 			'Good.',
 			'That is right. Now the next one.',
 		])
+	})
+
+	it('cuts a long opening sentence at its first pause, so the voice starts sooner', () => {
+		expect(
+			splitSentences(
+				'That is exactly the habit that matters, because a fix that skips the root cause comes back. Next one.',
+			),
+		).toEqual([
+			'That is exactly the habit that matters,',
+			'because a fix that skips the root cause comes back. Next one.',
+		])
+		// A pause too early, or none at all, leaves the sentence whole.
+		const plain =
+			'Choosing the root cause before changing anything keeps the fix from coming back.'
+		expect(splitSentences(plain)).toEqual([plain])
 	})
 
 	it('lets short sentences after the first travel together', () => {

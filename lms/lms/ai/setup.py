@@ -84,6 +84,7 @@ def ensure_agents() -> None:
 				instructions=prompts.TUTOR,
 				tools=[
 					tools.search_my_goal_sources,
+					tools.begin_exercises,
 					tools.show_moment,
 					tools.remember_situation,
 					tools.judge_reply,

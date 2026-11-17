@@ -39,6 +39,17 @@ export const CAST_NAMES: Record<CastKey, string> = {
 	tavish: 'Tavish',
 }
 
+/** Each cast member's temperament in a few words, the first line of the server's personality.
+ * A function, so the words are translated when shown rather than when the module loads. */
+export const castTrait = (key: CastKey): string =>
+	({
+		brannoc: __('Blunt and impatient'),
+		quilla: __('Anxious and soft-spoken'),
+		fenwick: __('Sceptical and precise'),
+		odalie: __('Warm and chatty'),
+		tavish: __('Smooth and boundary-testing'),
+	})[key]
+
 export const CAST_LOOKS: Record<CastKey, CastLook> = {
 	brannoc: {
 		bg: '#f3c9a8',

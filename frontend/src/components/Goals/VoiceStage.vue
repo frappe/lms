@@ -36,7 +36,7 @@
 					class="text-ink-gray-8"
 					:class="
 						moment
-							? 'mt-0.5 min-h-12 text-p-base'
+							? 'mt-0.5 text-p-base'
 							: 'mx-auto mt-1 min-h-28 max-w-md text-lg'
 					"
 					aria-live="polite"
