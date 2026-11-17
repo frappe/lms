@@ -43,6 +43,9 @@ class LMSBadgeAssignment(Document):
 		if not badge_details:
 			return
 
+		if not badge_details.enabled and (self.is_new() or self.has_value_changed("badge")):
+			frappe.throw(_("Badge {0} is disabled.").format(self.badge))
+
 		if badge_details.reference_doctype and badge_details.user_field and badge_details.condition:
 			user_field = badge_details.user_field
 			if user_field not in frappe.get_meta(badge_details.reference_doctype).get_valid_columns():
