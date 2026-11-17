@@ -458,7 +458,7 @@ def start_teaching(assignment_name: str, index: int) -> str:
 	activity, content = _activity(assignment.goal, index)
 	if activity.activity_type != "Lesson":
 		frappe.throw(_("This activity is not a lesson."), title=_("Wrong Activity"))
-	if not frappe.db.exists("Flow Agent", setup.TEACHER):
+	if not frappe.db.exists("Flow Agent", setup.TUTOR):
 		# nosemgrep: frappe-setuser - agents are created as the system; the learner is put back in finally
 		frappe.set_user("Administrator")
 		try:
@@ -468,7 +468,7 @@ def start_teaching(assignment_name: str, index: int) -> str:
 			frappe.set_user(assignment.member)
 	goal = frappe.get_doc("LMS Goal", assignment.goal)
 	frappe.db.set_value("LMS Goal Assignment", assignment.name, "tutor_persona", characters.TUTOR_NAME)
-	session = new_session(setup.TEACHER, title=activity.title, approval_mode="Auto-approve")
+	session = new_session(setup.TUTOR, title=activity.title, approval_mode="Auto-approve")
 	session.chat(
 		"BRIEF\n"
 		+ json.dumps(
@@ -582,7 +582,7 @@ def tutor_session(assignment_name: str) -> str:
 	assignment = get_assignment(assignment_name)
 	if assignment.tutor_session and frappe.db.exists("Flow Session", assignment.tutor_session):
 		return assignment.tutor_session
-	session = new_session(setup.TUTOR, title=assignment.goal_title, approval_mode="Auto-approve")
+	session = new_session(setup.QUERIES, title=assignment.goal_title, approval_mode="Auto-approve")
 	frappe.db.set_value("LMS Goal Assignment", assignment.name, "tutor_session", session.name)
 	return session.name
 

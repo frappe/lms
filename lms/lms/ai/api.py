@@ -14,6 +14,7 @@ from lms.lms.ai import (
 	ideas,
 	material,
 	outcome,
+	reset,
 	revise,
 	setup,
 	transcripts,
@@ -395,6 +396,18 @@ def sign_off(assignment: str) -> dict:
 	_require_admin()
 	frappe.db.set_value("LMS Goal Assignment", assignment, "signed_off_by", frappe.session.user)
 	return goals.refresh_assignment(assignment)
+
+
+@frappe.whitelist(methods=["POST"])
+def reset_lesson(assignment: str, index: int) -> dict:
+	_require_admin()
+	return reset.reset_lesson(assignment, cint(index))
+
+
+@frappe.whitelist(methods=["POST"])
+def reset_progress(assignment: str) -> dict:
+	_require_admin()
+	return reset.reset_progress(assignment)
 
 
 @frappe.whitelist(methods=["POST"])

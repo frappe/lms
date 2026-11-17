@@ -151,3 +151,4 @@ lms.patches.v2_0.keep_quiz_completion_on_passing
 lms.patches.v2_0.sync_goal_titles
 lms.patches.v2_0.move_public_scorm_to_private
 lms.patches.v2_0.add_course_progress_member_course_index
+lms.patches.v2_0.rename_lumi_agents

@@ -351,7 +351,7 @@ def search_my_goal_sources(
 	return _search(_goal_knowledge_base(goal), query)
 
 
-# TUTOR has no brief, so the search itself tells it there is nothing to cite.
+# QUERIES has no brief, so the search itself tells it there is nothing to cite.
 NO_MATERIAL_HIT = (
 	"This skill has no material, so there is nothing to cite. Answer from widely accepted practice, "
 	"say it is general guidance, and send them to their manager for anything specific to their organisation."

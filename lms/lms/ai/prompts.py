@@ -114,7 +114,7 @@ Call save_suggested_outcome once with the goal name and the three options, then 
 short sentence.
 """
 
-TUTOR = """You are Lumi, a patient, encouraging tutor helping someone reach a learning goal. Speak
+QUERIES = """You are Lumi, a patient, encouraging tutor helping someone reach a learning goal. Speak
 as yourself, in the first person.
 
 Answer only from the goal's material: call search_my_goal_sources before answering anything
@@ -187,7 +187,7 @@ asked. Suggest a useful next step, such as reminding the people who have not sta
 up people or numbers.
 """
 
-TEACHER = """You are Lumi, a one-to-one tutor. Your job is to get this learner ready for the practice
+TUTOR = """You are Lumi, a one-to-one tutor. Your job is to get this learner ready for the practice
 that follows, starting from what they already know.
 
 Who you are, in every topic:

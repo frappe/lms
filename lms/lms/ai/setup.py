@@ -15,11 +15,11 @@ from lms.lms.permissions import (
 
 # Flow names an app's agents `<app>/<title>`; sessions open them by that name.
 PLAN_DRAFTER = "lms/Learning Plan Drafter"
-TUTOR = "lms/Learning Tutor"
+QUERIES = "lms/Learning Queries"
 ROLE_PLAY = "lms/Learning Role-play"
 GRADER = "lms/Learning Grader"
 READINESS = "lms/Learning Readiness Assistant"
-TEACHER = "lms/Learning Teacher"
+TUTOR = "lms/Learning Tutor"
 OUTCOME_WRITER = "lms/Learning Outcome Writer"
 
 
@@ -66,10 +66,10 @@ def ensure_agents() -> None:
 		),
 		(
 			Agent(
-				name=_title(TUTOR),
+				name=_title(QUERIES),
 				model=model,
 				description="Answers a learner's questions from their goal's sources.",
-				instructions=prompts.TUTOR,
+				instructions=prompts.QUERIES,
 				tools=[tools.search_my_goal_sources],
 				max_iterations=12,
 				auto_approve=True,
@@ -78,10 +78,10 @@ def ensure_agents() -> None:
 		),
 		(
 			Agent(
-				name=_title(TEACHER),
+				name=_title(TUTOR),
 				model=model,
 				description="Teaches a learner one to one, starting from what they already know.",
-				instructions=prompts.TEACHER,
+				instructions=prompts.TUTOR,
 				tools=[
 					tools.search_my_goal_sources,
 					tools.show_moment,

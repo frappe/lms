@@ -23,8 +23,16 @@
 					<template #prefix><span class="lucide-maximize-2 size-4" /></template>
 					<span class="hidden sm:inline">{{ __('Zen mode') }}</span>
 				</Button>
+				<!-- Lumi answers from the material, so during the check she would hand over the
+				     answers and make the score mean nothing. -->
+				<span
+					v-if="state && onCheck"
+					class="hidden text-p-sm text-ink-gray-6 sm:inline"
+				>
+					{{ __('{0} will be back after the check.').format(TUTOR_NAME) }}
+				</span>
 				<Button
-					v-if="state"
+					v-else-if="state"
 					:variant="tutorOpen ? 'subtle' : 'outline'"
 					:aria-label="__('Ask {0}').format(TUTOR_NAME)"
 					@click="toggleTutor"
@@ -174,6 +182,7 @@
 					class="flex shrink-0 items-center justify-end gap-1 px-4 pt-3"
 				>
 					<Button
+						v-if="!onCheck"
 						variant="ghost"
 						:aria-label="__('Ask {0}').format(TUTOR_NAME)"
 						@click="toggleTutor"
@@ -303,7 +312,7 @@
 			</div>
 
 			<aside
-				v-if="tutorOpen"
+				v-if="tutorOpen && !onCheck"
 				class="fixed inset-0 z-40 flex flex-col bg-surface-base md:static md:z-auto md:w-96 md:shrink-0 md:border-s md:border-outline-gray-1"
 			>
 				<div class="flex gap-3 border-b border-outline-gray-1 px-4 py-3">
@@ -467,6 +476,7 @@ const steps = computed(() => [
 ])
 
 const activity = computed(() => state.value?.activities[current.value])
+const onCheck = computed(() => activity.value?.activity_type === 'Check')
 const stepOptions = computed(() =>
 	steps.value.map((step) => ({
 		label: step.title,

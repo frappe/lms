@@ -7,7 +7,11 @@
 		<div v-else-if="data.data" class="space-y-4">
 			<div class="flex flex-wrap items-center gap-2 text-p-sm text-ink-gray-6">
 				<Badge :theme="statusTheme(data.data.assignment.status)">{{
-					__(data.data.assignment.status)
+					__(
+						data.data.assignment.status === 'Assigned'
+							? 'Not started'
+							: data.data.assignment.status
+					)
 				}}</Badge>
 				<span>{{
 					__('Score {0}%').format(data.data.assignment.score || 0)
@@ -26,15 +30,26 @@
 						__('Signed off by {0}').format(data.data.assignment.signed_off_by)
 					}}</span
 				>
-				<Button
-					v-if="needsSignOff"
-					size="sm"
-					class="ms-auto"
-					:loading="signOff.loading"
-					@click="signOff.submit({ assignment })"
-				>
-					{{ __('Sign off') }}
-				</Button>
+				<div class="ms-auto flex items-center gap-2">
+					<Button
+						v-if="needsSignOff"
+						size="sm"
+						:loading="signOff.loading"
+						@click="signOff.submit({ assignment })"
+					>
+						{{ __('Sign off') }}
+					</Button>
+					<Dropdown
+						v-if="data.data.evidence.length"
+						:options="personOptions"
+						:button="{
+							icon: 'lucide-ellipsis',
+							variant: 'ghost',
+							size: 'sm',
+							label: __('More options'),
+						}"
+					/>
+				</div>
 			</div>
 			<p v-if="!data.data.evidence.length" class="text-p-sm text-ink-gray-6">
 				{{ __('Nothing recorded yet.') }}
@@ -44,8 +59,8 @@
 				:key="row.activity_index"
 				class="rounded-7 border border-outline-gray-2 p-4"
 			>
-				<div class="flex items-center justify-between gap-3">
-					<div class="min-w-0">
+				<div class="flex items-center gap-3">
+					<div class="min-w-0 flex-1">
 						<div class="text-p-xs text-ink-gray-6">
 							{{ activityLabel(row.activity_type) }}
 						</div>
@@ -59,9 +74,16 @@
 					>
 						{{ row.score }}%
 					</Badge>
-					<Badge v-else theme="gray">{{
-						row.status === 'Grading' ? __('Grading') : __('Done')
-					}}</Badge>
+					<Badge v-else theme="gray">{{ rowStatus(row) }}</Badge>
+					<Button
+						v-if="row.activity_type === 'Lesson'"
+						size="sm"
+						variant="subtle"
+						:loading="resetLesson.loading && resetting === row.activity_index"
+						@click="confirmLessonReset(row)"
+					>
+						{{ __('Reset') }}
+					</Button>
 				</div>
 				<p v-if="row.feedback" class="mt-2 text-p-sm text-ink-gray-7">
 					{{ row.feedback }}
@@ -102,8 +124,9 @@
 </template>
 
 <script setup lang="ts">
-import { computed, reactive, watch } from 'vue'
-import { Badge, Button, createResource, Dialog } from 'frappe-ui'
+import { computed, reactive, ref, watch } from 'vue'
+import { Badge, Button, createResource, Dialog, Dropdown } from 'frappe-ui'
+import { createDialog } from '@/utils/dialogs'
 import { activityLabel, statusTheme } from '@/utils/goals'
 import dayjs from '@/utils/dayjs'
 
@@ -146,6 +169,85 @@ const transcript = (row: { response?: string }) => {
 }
 
 const formatDate = (value: string) => dayjs(value).format('D MMM YYYY')
+
+type Row = { activity_index: number; activity_title: string; status: string }
+
+// A lesson is only ever recorded when it starts, and graded when the learner finishes it.
+const rowStatus = (row: Row & { activity_type: string }) => {
+	if (row.status === 'Grading') return __('Grading')
+	if (row.activity_type === 'Lesson' && row.status === 'Recorded')
+		return __('Started')
+	return __('Done')
+}
+
+const resetting = ref<number | null>(null)
+
+const firstName = computed(() => props.name.split(' ')[0] || props.name)
+
+const afterReset = () => {
+	data.reload()
+	emit('changed')
+}
+
+const resetLesson = createResource({
+	url: 'lms.lms.ai.api.reset_lesson',
+	onSuccess: afterReset,
+})
+
+const resetProgress = createResource({
+	url: 'lms.lms.ai.api.reset_progress',
+	onSuccess: afterReset,
+})
+
+const confirmLessonReset = (row: Row) =>
+	createDialog({
+		// The list calls a lesson "Key ideas", so the dialog names it by its title instead.
+		title: __('Reset "{0}"?').format(row.activity_title),
+		message: __(
+			'{0} takes it again from the start, with every key idea unticked.'
+		).format(firstName.value),
+		actions: [
+			{
+				label: __('Reset'),
+				variant: 'solid',
+				onClick({ close }: { close: () => void }) {
+					close()
+					resetting.value = row.activity_index
+					resetLesson.submit({
+						assignment: props.assignment,
+						index: row.activity_index,
+					})
+				},
+			},
+		],
+	})
+
+const confirmFullReset = () =>
+	createDialog({
+		title: __("Reset all of {0}'s progress?").format(firstName.value),
+		message: __(
+			'Everything done in "{0}" is cleared, with the score and sign-off. {1} starts again from the first step.'
+		).format(props.goalTitle, firstName.value),
+		actions: [
+			{
+				label: __('Reset progress'),
+				theme: 'red',
+				variant: 'solid',
+				onClick({ close }: { close: () => void }) {
+					close()
+					resetProgress.submit({ assignment: props.assignment })
+				},
+			},
+		],
+	})
+
+const personOptions = [
+	{
+		label: __('Reset all progress'),
+		icon: 'lucide-rotate-ccw',
+		onClick: confirmFullReset,
+	},
+]
 
 watch(
 	() => [open.value, props.assignment],
