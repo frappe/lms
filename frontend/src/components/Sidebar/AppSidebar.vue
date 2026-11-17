@@ -3,85 +3,87 @@
 		class="flex h-full flex-col justify-between transition-all duration-300 ease-in-out border-e bg-surface-sidebar overflow-x-hidden"
 		:class="sidebarStore.isSidebarCollapsed ? 'w-14' : 'w-56'"
 	>
-		<div
-			class="flex flex-col overflow-y-auto flex-1 min-h-0"
-			:class="sidebarStore.isSidebarCollapsed ? 'items-center' : ''"
-		>
-			<UserDropdown :isCollapsed="sidebarStore.isSidebarCollapsed" />
-			<div class="flex flex-col" v-if="sidebarSettings.data">
-				<div v-for="link in sidebarLinks" class="mx-2 my-2.5">
-					<div
-						v-if="!link.hideLabel"
-						class="mb-2 mt-3 flex cursor-pointer gap-1.5 px-1 text-p-base-medium text-ink-gray-6 transition-all duration-300 ease-in-out"
-					>
-						<span>{{ __(link.label) }}</span>
+		<ScrollArea class="min-h-0 flex-1">
+			<div
+				class="flex flex-col"
+				:class="sidebarStore.isSidebarCollapsed ? 'items-center' : ''"
+			>
+				<UserDropdown :isCollapsed="sidebarStore.isSidebarCollapsed" />
+				<div class="flex flex-col" v-if="sidebarSettings.data">
+					<div v-for="link in sidebarLinks" class="mx-2 my-2.5">
+						<div
+							v-if="!link.hideLabel"
+							class="mb-2 mt-3 flex cursor-pointer gap-1.5 px-1 text-p-base-medium text-ink-gray-6 transition-all duration-300 ease-in-out"
+						>
+							<span>{{ __(link.label) }}</span>
+						</div>
+						<nav class="space-y-1">
+							<div v-for="item in link.items">
+								<SidebarLink
+									:link="item"
+									:isCollapsed="sidebarStore.isSidebarCollapsed"
+								/>
+							</div>
+						</nav>
 					</div>
-					<nav class="space-y-1">
-						<div v-for="item in link.items">
+				</div>
+				<div
+					v-if="sidebarSettings.data?.web_pages?.length || isModerator"
+					class="mt-4"
+				>
+					<div
+						class="flex items-center justify-between pe-2 cursor-pointer"
+						:class="sidebarStore.isSidebarCollapsed ? 'ps-3' : 'ps-4'"
+						@click="toggleWebPages"
+					>
+						<div
+							v-if="!sidebarStore.isSidebarCollapsed"
+							class="flex items-center text-ink-gray-6 my-1"
+						>
+							<span class="grid h-5 w-6 flex-shrink-0 place-items-center">
+								<span
+									class="lucide-chevron-right h-4 w-4 text-ink-gray-9 transition-all duration-300 ease-in-out"
+									:class="{
+										'rotate-90': !sidebarStore.isWebpagesCollapsed,
+										'rtl:rotate-180': sidebarStore.isWebpagesCollapsed,
+									}"
+								/>
+							</span>
+							<span class="ms-2">
+								{{ __('More') }}
+							</span>
+						</div>
+						<Button
+							v-if="isModerator && !readOnlyMode"
+							variant="ghost"
+							@click="openPageModal()"
+						>
+							<template #icon>
+								<span class="lucide-plus h-4 w-4 text-ink-gray-7" />
+							</template>
+						</Button>
+					</div>
+					<div
+						v-if="sidebarSettings.data?.web_pages?.length"
+						class="flex flex-col transition-all duration-300 ease-in-out"
+						:class="!sidebarStore.isWebpagesCollapsed ? 'block' : 'hidden'"
+					>
+						<div
+							v-for="link in sidebarSettings.data.web_pages"
+							class="mx-2 my-0.5"
+						>
 							<SidebarLink
-								:link="item"
+								:link="link"
 								:isCollapsed="sidebarStore.isSidebarCollapsed"
+								:showControls="isModerator ? true : false"
+								@openModal="openPageModal"
+								@deletePage="deletePage"
 							/>
 						</div>
-					</nav>
-				</div>
-			</div>
-			<div
-				v-if="sidebarSettings.data?.web_pages?.length || isModerator"
-				class="mt-4"
-			>
-				<div
-					class="flex items-center justify-between pe-2 cursor-pointer"
-					:class="sidebarStore.isSidebarCollapsed ? 'ps-3' : 'ps-4'"
-					@click="toggleWebPages"
-				>
-					<div
-						v-if="!sidebarStore.isSidebarCollapsed"
-						class="flex items-center text-ink-gray-6 my-1"
-					>
-						<span class="grid h-5 w-6 flex-shrink-0 place-items-center">
-							<span
-								class="lucide-chevron-right h-4 w-4 text-ink-gray-9 transition-all duration-300 ease-in-out"
-								:class="{
-									'rotate-90': !sidebarStore.isWebpagesCollapsed,
-									'rtl:rotate-180': sidebarStore.isWebpagesCollapsed,
-								}"
-							/>
-						</span>
-						<span class="ms-2">
-							{{ __('More') }}
-						</span>
-					</div>
-					<Button
-						v-if="isModerator && !readOnlyMode"
-						variant="ghost"
-						@click="openPageModal()"
-					>
-						<template #icon>
-							<span class="lucide-plus h-4 w-4 text-ink-gray-7" />
-						</template>
-					</Button>
-				</div>
-				<div
-					v-if="sidebarSettings.data?.web_pages?.length"
-					class="flex flex-col transition-all duration-300 ease-in-out"
-					:class="!sidebarStore.isWebpagesCollapsed ? 'block' : 'hidden'"
-				>
-					<div
-						v-for="link in sidebarSettings.data.web_pages"
-						class="mx-2 my-0.5"
-					>
-						<SidebarLink
-							:link="link"
-							:isCollapsed="sidebarStore.isSidebarCollapsed"
-							:showControls="isModerator ? true : false"
-							@openModal="openPageModal"
-							@deletePage="deletePage"
-						/>
 					</div>
 				</div>
 			</div>
-		</div>
+		</ScrollArea>
 		<div class="m-2 flex flex-col gap-1">
 			<div
 				v-if="readOnlyMode && !sidebarStore.isSidebarCollapsed"
@@ -220,6 +222,7 @@
 			</div>
 		</div>
 		<HelpModal
+			class="getting-started"
 			data-testid="onboarding-help-modal"
 			v-if="showOnboarding && showHelpModal"
 			v-model="showHelpModal"
@@ -252,7 +255,7 @@ import { usersStore } from '@/stores/user'
 import { seesOnboarding } from '@/utils/onboarding'
 import { useSidebar } from '@/stores/sidebar'
 import { useSettings } from '@/stores/settings'
-import { Button, call, Tooltip, toast } from 'frappe-ui'
+import { Button, call, ScrollArea, Tooltip, toast } from 'frappe-ui'
 import PageModal from '@/components/Modals/PageModal.vue'
 import LMSLogo from '@/components/Icons/LMSLogo.vue'
 import { useRouter } from 'vue-router'
@@ -665,3 +668,10 @@ onUnmounted(() => {
 	window.removeEventListener('keydown', onKeyboardShortcut)
 })
 </script>
+
+<style scoped>
+.getting-started :deep(.overflow-y-auto) {
+	scrollbar-width: thin;
+	scrollbar-color: var(--outline-gray-3) transparent;
+}
+</style>
