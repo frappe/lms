@@ -326,7 +326,7 @@ type SubmissionStatus = 'Not Graded' | 'Pass' | 'Fail'
 interface AssignmentDetails extends ScheduledAssessment {
 	title: string
 	question: string
-	type: 'Document' | 'PDF' | 'URL' | 'Image' | 'Text' | 'Audio'
+	type: 'Document' | 'PDF' | 'URL' | 'Image' | 'Text' | 'Audio' | 'Video'
 }
 
 interface SubmissionDoc {
@@ -551,6 +551,8 @@ const getType = (): string[] | undefined => {
 		return ['.pdf']
 	} else if (type == 'Audio') {
 		return ['audio/*', ...AUDIO_EXTENSIONS.map((extension) => `.${extension}`)]
+	} else if (type == 'Video') {
+		return ['video/*']
 	}
 }
 
@@ -621,7 +623,7 @@ const statusTheme = computed(() => {
 })
 
 const showUploader = (): boolean => {
-	return ['PDF', 'Image', 'Document', 'Audio'].includes(
+	return ['PDF', 'Image', 'Document', 'Audio', 'Video'].includes(
 		assignment.data?.type ?? ''
 	)
 }
