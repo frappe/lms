@@ -12,33 +12,18 @@ vi.stubGlobal('__', (text: string) => text)
 enableAutoUnmount(afterEach)
 
 // Stubbed so tests control call/resource responses without a network.
-<<<<<<< HEAD
-const { callMock, createResourceMock, getCachedResourceMock, toastMock } =
-	vi.hoisted(() => {
-=======
-const { callMock, createResourceMock, switchIds, toastMock } = vi.hoisted(
-	() => {
->>>>>>> ffe35ba (test: drop mocked frontend tests that only pin wiring or markup)
-		window.matchMedia ??= (() => ({
-			matches: false,
-			addEventListener: () => {},
-			removeEventListener: () => {},
-		})) as unknown as typeof window.matchMedia
-		return {
-			callMock: vi.fn(),
-			createResourceMock: vi.fn(),
-<<<<<<< HEAD
-			getCachedResourceMock: vi.fn(),
-			toastMock: { success: vi.fn(), error: vi.fn() },
-		}
-	})
-=======
-			switchIds: { n: 0 },
-			toastMock: { success: vi.fn(), error: vi.fn(), warning: vi.fn() },
-		}
-	},
-)
->>>>>>> ffe35ba (test: drop mocked frontend tests that only pin wiring or markup)
+const { callMock, createResourceMock, toastMock } = vi.hoisted(() => {
+	window.matchMedia ??= (() => ({
+		matches: false,
+		addEventListener: () => {},
+		removeEventListener: () => {},
+	})) as unknown as typeof window.matchMedia
+	return {
+		callMock: vi.fn(),
+		createResourceMock: vi.fn(),
+		toastMock: { success: vi.fn(), error: vi.fn(), warning: vi.fn() },
+	}
+})
 
 // HeaderButton wraps frappe-ui's Button in a Tooltip below the mobile
 // breakpoint, and the hand-written frappe-ui mock here has no Tooltip. Stub it
@@ -88,7 +73,7 @@ vi.mock(
 			typeof import('@framework/ui/components/Onboarding/index')
 		>()),
 		useOnboarding: () => ({ updateOnboardingStep: vi.fn() }),
-	}),
+	})
 )
 vi.mock('@framework/ui/telemetry/index', async (importOriginal) => ({
 	...(await importOriginal<typeof import('@framework/ui/telemetry/index')>()),
@@ -143,7 +128,7 @@ const makeRouter = (): Router =>
 
 const mountForm = async (
 	router: Router,
-	user: Record<string, unknown> | null = moderator,
+	user: Record<string, unknown> | null = moderator
 ) => {
 	const wrapper = mount(defineComponent({ render: () => h(RouterView) }), {
 		global: {
@@ -191,7 +176,7 @@ describe('the member form route', () => {
 			expect(fields(wrapper).exists()).toBe(false)
 			expect(save(wrapper).exists()).toBe(false)
 			expect(toastMock.warning).toHaveBeenLastCalledWith(
-				expect.stringContaining('You are not permitted to manage members.'),
+				expect.stringContaining('You are not permitted to manage members.')
 			)
 		})
 
@@ -261,7 +246,7 @@ describe('the member form route', () => {
 			// and pages, so a member it happened not to return left this form with
 			// Save disabled forever and nothing on screen explaining it.
 			expect(createResourceMock.mock.calls[0][0].url).toBe(
-				'lms.lms.api.get_member',
+				'lms.lms.api.get_member'
 			)
 			expect(createResourceMock.mock.calls[0][0].makeParams()).toEqual({
 				member: MEMBER,
@@ -275,7 +260,6 @@ describe('the member form route', () => {
 			await flushPromises()
 
 			expect(save(wrapper).attributes('disabled')).toBeUndefined()
-<<<<<<< HEAD
 			expect(
 				wrapper.find('[data-testid="role-Student"]').attributes('data-on')
 			).toBe('true')
@@ -287,23 +271,12 @@ describe('the member form route', () => {
 			expect(
 				wrapper.find('[data-testid="role-Moderator"]').attributes('data-on')
 			).toBe('false')
-=======
-			expect(switchNamed(wrapper, 'Student').attributes('aria-checked')).toBe(
-				'true',
-			)
-			expect(
-				switchNamed(wrapper, 'Course Creator').attributes('aria-checked'),
-			).toBe('true')
-			expect(switchNamed(wrapper, 'Moderator').attributes('aria-checked')).toBe(
-				'false',
-			)
->>>>>>> 3a1f127 (fix: show a modal's refusal as a toast and its loading as a centered spinner)
 			// The email is the route param, not something the parent handed over.
 			expect(
 				(
 					wrapper.find('[data-testid="field-Email"] input')
 						.element as HTMLInputElement
-				).value,
+				).value
 			).toBe(MEMBER)
 		})
 
@@ -354,61 +327,6 @@ describe('the member form route', () => {
 		})
 	})
 
-<<<<<<< HEAD
-=======
-	// Now renders through the shared RoleSwitches component, reversing an
-	// earlier fix for this phone route. What's still tested: each row pairs
-	// one label with its own switch, whatever the column count.
-	describe('the roles block', () => {
-		const mountAdd = async () => {
-			const router = makeRouter()
-			await router.push('/settings/users/new')
-			return mountForm(router)
-		}
-
-		it('gives each role a row of its own, the name beside its switch', async () => {
-			const wrapper = await mountAdd()
-			const rows = wrapper.findAll('[data-testid="role-row"]')
-
-			expect(
-				rows.map((row) => row.get('[data-testid="switch-label"]').text()),
-			).toEqual(['Student', 'Course Creator', 'Evaluator', 'Moderator'])
-			for (const row of rows) {
-				expect(row.findAll('[data-testid="switch-label"]')).toHaveLength(1)
-				expect(row.findAll('[role="switch"]')).toHaveLength(1)
-			}
-		})
-
-		it('names every switch by the role it sits next to', async () => {
-			const wrapper = await mountAdd()
-			for (const role of [
-				'Student',
-				'Course Creator',
-				'Evaluator',
-				'Moderator',
-			])
-				expect(switchNamed(wrapper, role).attributes('role')).toBe('switch')
-		})
-
-		it('toggles the role its row names, not the one beside it', async () => {
-			const wrapper = await mountAdd()
-			callMock.mockResolvedValue({ name: MEMBER })
-
-			await wrapper.find('[data-testid="field-Email"] input').setValue(MEMBER)
-			await switchNamed(wrapper, 'Evaluator').trigger('click')
-			await save(wrapper).trigger('click')
-			await flushPromises()
-
-			expect(callMock.mock.calls.slice(1)).toEqual([
-				[
-					'lms.lms.api.save_role',
-					{ user: MEMBER, role: 'Batch Evaluator', value: 1 },
-				],
-			])
-		})
-	})
-
->>>>>>> ffe35ba (test: drop mocked frontend tests that only pin wiring or markup)
 	// Opened from Members.vue instead. On desktop the settings dialog is still
 	// floating above whatever page the URL points at, so closing has to pop back
 	// to that page rather than replace it with the phone settings screen.

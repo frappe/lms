@@ -1,9 +1,5 @@
 import { describe, expect, it, vi } from 'vitest'
-<<<<<<< HEAD
-import { defineComponent, h, nextTick } from 'vue'
-=======
-import { defineComponent, h, markRaw } from 'vue'
->>>>>>> ffe35ba (test: drop mocked frontend tests that only pin wiring or markup)
+import { defineComponent, h } from 'vue'
 import type { Component } from 'vue'
 import { flushPromises, mount } from '@vue/test-utils'
 import type { VueWrapper } from '@vue/test-utils'
@@ -84,22 +80,16 @@ const DOC = { title: 'Intro to Frappe' }
 function body(testid: string): Component {
 	return defineComponent({
 		props: { course: { type: Object, default: null } },
-<<<<<<< HEAD
 		setup(props) {
 			return () =>
 				h('div', { 'data-testid': testid }, String(props.course?.title ?? ''))
-=======
-		setup() {
-			return () => h('div', { 'data-testid': 'body-settings' })
->>>>>>> ffe35ba (test: drop mocked frontend tests that only pin wiring or markup)
 		},
 	})
 }
 
 const SettingsBody = defineComponent({
 	props: { course: { type: Object, default: null } },
-	setup(_props, { expose }) {
-		expose({ save: () => 'saved' })
+	setup() {
 		return () => h('div', { 'data-testid': 'body-settings' })
 	},
 })
@@ -343,48 +333,4 @@ describe('TabbedDetailPage actions', () => {
 
 		expect(seen.key).toBe('editor')
 	})
-<<<<<<< HEAD
-
-	it('hands the actions slot the open tab’s own instance', async () => {
-		const seen: { instance?: { save?: () => string } } = {}
-		const { wrapper } = await mountPage({
-			tabs: tabs(),
-			slots: {
-				actions: (props: { instance?: { save?: () => string } }) => {
-					seen.instance = props.instance
-					return h('span')
-				},
-			},
-		})
-
-		expect(seen.instance?.save).toBeUndefined()
-
-		await openTab(wrapper, 'settings')
-		await nextTick()
-
-		expect(seen.instance?.save?.()).toBe('saved')
-	})
-})
-
-describe('TabbedDetailPage tab strip', () => {
-	it('drops the icon and takes the short label below the breakpoint', async () => {
-		mobile.value = true
-		const { wrapper } = await mountPage({ tabs: tabs() })
-
-		const strip = wrapper.find('[role="tablist"]')
-		expect(strip.text()).toContain('Editor')
-		expect(strip.text()).not.toContain('Course editor')
-		expect(strip.find('.lucide-list').exists()).toBe(false)
-	})
-
-	it('keeps both on a desk', async () => {
-		mobile.value = false
-		const { wrapper } = await mountPage({ tabs: tabs() })
-
-		const strip = wrapper.find('[role="tablist"]')
-		expect(strip.text()).toContain('Course editor')
-		expect(strip.find('.lucide-list').exists()).toBe(true)
-	})
-=======
->>>>>>> ffe35ba (test: drop mocked frontend tests that only pin wiring or markup)
 })

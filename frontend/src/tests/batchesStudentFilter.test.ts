@@ -115,9 +115,9 @@ describe('batch list filters for students and guests', () => {
 		expect(sent.filters).toEqual(UPCOMING)
 	})
 
-	it('a learner without the student flag also starts on Enrolled', async () => {
+	it('a learner without the student flag also gets the upcoming filter', async () => {
 		await mountAs({ name: 'member@test.com' })
-		expect(sent.filters).toEqual({ enrolled: 1 })
+		expect(sent.filters).toEqual(UPCOMING)
 	})
 
 	it('a student moving to Upcoming gets the upcoming filter, with no end_date', async () => {

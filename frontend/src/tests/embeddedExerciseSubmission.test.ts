@@ -60,13 +60,8 @@ vi.mock('frappe-ui', () => ({
 		return resource
 	},
 	Skeleton: defineComponent({ render: () => h('div') }),
-<<<<<<< HEAD
 	toast: { error: vi.fn(), success: vi.fn() },
-	usePageMeta: pageMeta,
-=======
-	toast,
 	usePageMeta: vi.fn(),
->>>>>>> ffe35ba (test: drop mocked frontend tests that only pin wiring or markup)
 }))
 
 vi.mock('@/router', () => ({

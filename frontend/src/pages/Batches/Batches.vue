@@ -119,15 +119,11 @@ const isAdmin = computed(() =>
 		(role) => user.data?.[role]
 	)
 )
-<<<<<<< HEAD
-const currentTab = ref('upcoming')
-=======
 // A signed-in learner most often comes back for a batch they are in, and a
 // batch that has started is no longer under Upcoming.
 const currentTab = ref(
-	isAdmin.value ? 'active' : user.data ? 'enrolled' : 'upcoming'
+	!isAdmin.value && is_student.value ? 'enrolled' : 'upcoming'
 )
->>>>>>> eefb240 (fix(batches): open on Enrolled for signed-in learners)
 const orderBy = ref('start_date')
 const readOnlyMode = window.read_only_mode
 const router = useRouter()

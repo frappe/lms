@@ -68,58 +68,6 @@ describe('FormShell', () => {
 		expect(wrapper.emitted('close')).toHaveLength(1)
 	})
 
-<<<<<<< HEAD
-	it('covers the parent list as a fixed full-screen surface on mobile', () => {
-		const wrapper = mountShell(390)
-		const page = wrapper.find('[data-testid="form-shell-page"]')
-		// fixed + inset-0 lift the page out of main#scrollContainer's normal
-		// flow so it covers the list underneath instead of rendering below it.
-		// z-40 matches BottomSheet.vue — high enough to sit above the (non-fixed)
-		// mobile tab bar's z-20 wrapper.
-		expect(page.classes()).toContain('fixed')
-		expect(page.classes()).toContain('inset-0')
-		expect(page.classes()).toContain('z-40')
-	})
-
-	it('scrolls its own body now that the page is a fixed surface', () => {
-		const wrapper = mountShell(390)
-		// A full-screen form legitimately owns its own scroll range — unlike a
-		// form embedded in main#scrollContainer, there is no outer scroller left
-		// for it to fight with, so overflow-y-auto here is correct, not a bug.
-		const body = wrapper.find('[data-testid="form-shell-body"]')
-		expect(body.exists()).toBe(true)
-		expect(body.classes()).toContain('overflow-y-auto')
-		expect(body.classes()).toContain('overscroll-contain')
-		expect(body.html()).toContain('FIELDS')
-	})
-
-	it('renders the actions slot in the header, not a footer, on mobile', () => {
-		const wrapper = mountShell(390)
-		const body = wrapper.find('[data-testid="form-shell-body"]')
-		const actions = wrapper.find('[data-testid="form-shell-header-actions"]')
-		expect(actions.exists()).toBe(true)
-		expect(actions.html()).toContain('Save')
-		// The footer is gone entirely — form actions live next to the title now.
-		// A previous session shipped a footer stranded 323px above the tab bar;
-		// there is no longer a bar to strand.
-		expect(wrapper.find('[data-testid="form-shell-footer"]').exists()).toBe(
-			false
-		)
-		// Still outside the scrolling body, so the actions never scroll away.
-		expect(
-			body.find('[data-testid="form-shell-header-actions"]').exists()
-		).toBe(false)
-		expect(actions.element.closest('header')).not.toBeNull()
-		expect(actions.classes()).toContain('shrink-0')
-=======
-	it('emits close when the desktop Dialog is dismissed', async () => {
-		const wrapper = mountShell(1024)
-		wrapper.findComponent(Dialog).vm.$emit('update:open', false)
-		await nextTick()
-		expect(wrapper.emitted('close')).toHaveLength(1)
->>>>>>> ffe35ba (test: drop mocked frontend tests that only pin wiring or markup)
-	})
-
 	it('keeps Tab inside the mobile page instead of leaking to the list behind', async () => {
 		// aria-modal hides the list page from a screen reader; nothing hid it
 		// from Tab. While the actions sat in a footer they were the last stop,

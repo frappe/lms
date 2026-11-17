@@ -335,32 +335,6 @@ describe('the Raven setup gate', () => {
 		expect(asked(ENABLE)).toHaveLength(1)
 	})
 
-<<<<<<< HEAD
-	it('links the app that has a page, and only names the one that has none', () => {
-		// raven_integration installs at the bench, so there is nowhere to send
-		// anyone; naming it is the whole of the instruction.
-		server.data[SETUP] = {
-			raven: false,
-			raven_integration: true,
-			enabled: false,
-		}
-		const raven = panel()
-		expect(raven.get('a').attributes('href')).toContain(
-			'marketplace/apps/raven'
-		)
-		expect(raven.get('a').attributes('target')).toBe('_blank')
-		expect(raven.get('a').attributes('rel')).toContain('noopener')
-
-		server.data[SETUP] = {
-			raven: true,
-			raven_integration: false,
-			enabled: false,
-		}
-		expect(panel().findAll('a')).toHaveLength(0)
-	})
-
-=======
->>>>>>> ffe35ba (test: drop mocked frontend tests that only pin wiring or markup)
 	it('translates the install sentence as one unit, not in fragments', () => {
 		// Three __() calls could not be reordered by a translator and fixed
 		// English's word order into the DOM, which is what an RTL locale undoes.
@@ -757,17 +731,6 @@ describe("a workspace's Channels tab", () => {
 		expect(w.emitted('new')).toBeUndefined()
 		expect(w.findComponent({ name: 'Button' }).props('tooltip')).toBe(
 			'Save this workspace before adding channels to it.'
-<<<<<<< HEAD
-		)
-	})
-
-	it('says what a channel is for when there are none', () => {
-		server.data[LIST_CHANNELS] = []
-
-		expect(tab().text()).toContain(
-			'Add one to give this workspace its first members.'
-=======
->>>>>>> ffe35ba (test: drop mocked frontend tests that only pin wiring or markup)
 		)
 	})
 })
@@ -792,39 +755,6 @@ describe("a workspace's Members tab", () => {
 		return mount(WorkspaceMembers, { props: { workspace }, ...mountOptions })
 	}
 
-<<<<<<< HEAD
-	it('reads a member as their name, where they came in, and who put them there', () => {
-		const w = tab([
-			member({
-				user_image: '/files/ada.png',
-				channels: ['announcements', 'vue-basics'],
-			}),
-			member({
-				user: 'grace@example.com',
-				full_name: 'Grace Hopper',
-				added_by_rule: false,
-			}),
-		])
-
-		expect(rows(w)[0].get('.text-ink-gray-8').text()).toBe('Ada Lovelace')
-		expect(rows(w)[0].get('img').attributes('src')).toBe('/files/ada.png')
-		// One badge per channel, which is why the cell's text runs them together.
-		// A row naming none would be a claim the backend cannot make.
-		expect(cells(rows(w)[0])[1]).toBe('# announcements# vue-basics')
-		// Whether a rule added someone is the one thing about a member with a
-		// consequence: that row goes when the mapping does, a hand-added one stays.
-		expect(cells(rows(w)[0])[2]).toBe('Yes')
-		expect(cells(rows(w)[1])[2]).toBe('No')
-	})
-
-	it('says nobody is in a channel yet, rather than showing an empty table', () => {
-		expect(tab([]).text()).toContain(
-			'Nobody is in a channel of this workspace yet.'
-		)
-	})
-
-=======
->>>>>>> ffe35ba (test: drop mocked frontend tests that only pin wiring or markup)
 	it('says the fetch failed rather than that nobody is here', () => {
 		// A failed fetch settles with no rows and nothing in flight, the same shape
 		// as a workspace whose channels are genuinely empty. Answering it with
@@ -919,107 +849,6 @@ describe('a condition row', () => {
 		expect(w.get('[data-testid="row-status"]').text()).toContain('Paused')
 	})
 
-<<<<<<< HEAD
-	it('bands the declared fields: selects on one line, multiselects below', () => {
-		// Our rules are {provider, rule_type, config}, not a field/operator/value
-		// triple, so a cascade has as many selects as it has levels. A multiselect
-		// reflows as chips are picked, which is unreadable beside fixed cells.
-		const w = row({
-			student_scope: 'Enrolled',
-			enrolled_in: 'Courses',
-			courses: ['C1'],
-		})
-
-		expect(labelled(w)).toEqual(['Students', 'Payment', 'Enrolled in'])
-		expect(blocks(w)).toHaveLength(1)
-		expect(w.findComponent({ name: 'MultiLink' }).exists()).toBe(true)
-	})
-
-	it('lays the type picker and the cascade answers out on equal tracks', () => {
-		// The type picker used to take flex-1 and grow to whatever was left, which
-		// pushed the first cascade answer onto a line of its own: the two controls
-		// the user reads as a pair were the two that looked least alike. Equal grid
-		// tracks, so no cell's width depends on the label inside it.
-		const cells = (w: VueWrapper) => w.get('[data-testid="condition-cells"]')
-
-		expect(cells(row({})).classes()).toContain('grid')
-		expect(
-			cells(row({}))
-				.classes()
-				.some((c) => c.startsWith('flex'))
-		).toBe(false)
-	})
-
-	it('pairs the cascade up once it outgrows one line', () => {
-		// Two tracks, or three where the whole cascade fits on one. Four cells is
-		// the shape that has to read as two rows of two rather than three and an
-		// orphan, which is the case a plain flex-wrap gets wrong.
-		const columns = (rule: Partial<RavenMemberRule>) =>
-			row(rule).get('[data-testid="condition-cells"]').classes()
-
-		// [type][scope]: the cascade stops at the first answer.
-		expect(columns({})).toContain('sm:grid-cols-2')
-
-		// [type][kind][roles]: three, so one line.
-		expect(
-			columns({ rule_type: 'Staff', staff_kind: 'Platform role' })
-		).toContain('sm:grid-cols-3')
-
-		// [type][scope] / [payment][enrolled in]: four, so two rows of two.
-		expect(columns({ student_scope: 'Enrolled' })).toContain('sm:grid-cols-2')
-	})
-
-	it('names every control against the row rather than with a shared word', () => {
-		// Eight rows of "Students" cannot be told apart by voice control or in a
-		// rotor listing, so each name starts with the row's own name node.
-		const w = row({ student_scope: 'Enrolled', enrolled_in: 'Courses' })
-
-		expect(w.get('#row-name').text()).toContain('Student')
-		for (const trigger of w.findAll('[data-testid="inline-field"] button'))
-			expect(trigger.attributes('aria-labelledby')).toContain('row-name ')
-	})
-
-	it('wraps the controls that drop a name in a group that carries one', () => {
-		// MultiLink binds only its own aria attributes, so a name put on it lands on
-		// nothing. Select does carry one, which is why the type cell is not wrapped.
-		const w = row({
-			student_scope: 'Enrolled',
-			enrolled_in: 'Courses',
-			courses: ['C1'],
-		})
-		const groups = w.findAll('[role="group"]')
-
-		const valueCell = groups.find((g) =>
-			g.findComponent({ name: 'MultiLink' }).exists()
-		)!
-		expect(valueCell.attributes('aria-labelledby')).toContain('row-name ')
-	})
-
-	it('renders no description inside a condition row', () => {
-		// A row is one line of a sentence the reader is composing. A paragraph under
-		// one cell pushes the cells beside it apart and re-flows the row as the
-		// cascade changes, so a declared description is ignored here.
-		const w = row({ rule_type: 'Staff', staff_kind: 'Platform role' })
-
-		expect(w.text()).not.toContain('A role granted across the site.')
-		expect(w.find('[data-testid="field-description"]').exists()).toBe(false)
-	})
-
-	it('names the type picker on the control, not on a wrapper', () => {
-		// It was a Combobox, whose button trigger drops caller attrs, so the name had
-		// to go on a role="group" around it. A Select takes it directly, and a group
-		// left behind would announce the cell twice.
-		const w = row({})
-		const trigger = w.get(
-			'[data-testid="condition-type"] [data-slot="trigger"]'
-		)
-
-		expect(trigger.attributes('aria-labelledby')).toContain('row-name ')
-		expect(w.findComponent({ name: 'Combobox' }).exists()).toBe(false)
-	})
-
-=======
->>>>>>> ffe35ba (test: drop mocked frontend tests that only pin wiring or markup)
 	it('emits a whole new rule when a cell changes, never a nested write', async () => {
 		// A nested write into `rule` does not reach the tree the builder holds, so
 		// the edit would vanish on the next render.
@@ -1159,53 +988,6 @@ describe('the conditions of a channel', () => {
 		expect(message).toContain('written for an older version')
 		expect(message).not.toContain('Finish every condition')
 	})
-<<<<<<< HEAD
-
-	it("names each row's actions button after the row, and says the word once", () => {
-		// useId() inside slot content still runs in the host's setup, so a word id
-		// minted per row would hand every row the same value.
-		const w = channel({
-			rules: {
-				conjunctions: ['and'],
-				conditions: [
-					apiRule('Student', { student_scope: 'All' }),
-					apiRule('Staff', { staff_kind: 'All' }),
-				],
-			},
-		})
-		// The add affordance is a menu too, and names itself with `aria-label`.
-		const triggers = w.findAll('button[aria-haspopup="menu"][aria-labelledby]')
-		const named = triggers.map((t) => t.attributes('aria-labelledby')!)
-
-		expect(triggers).toHaveLength(2)
-		expect(
-			w.findAll('span.sr-only').filter((s) => s.text() === 'Condition actions')
-		).toHaveLength(1)
-		// The row's own name first, then the shared word: eight identical
-		// "Condition actions" buttons cannot be told apart in a rotor listing.
-		expect(named[0].split(' ')[1]).toBe(named[1].split(' ')[1])
-		expect(w.get(`#${named[0].split(' ')[0]}`).text()).toContain('Student')
-		expect(w.get(`#${named[1].split(' ')[0]}`).text()).toContain('Staff')
-	})
-
-	it('hangs the row menu off the end of its trigger', () => {
-		// `placement="end"` was not a value the component accepts, so the menu fell
-		// back to the default and opened away from the button it belongs to.
-		const w = channel({ rules: incomplete })
-		// The row menu is the one offering Remove; the other Dropdown on the page
-		// is the add affordance, which takes the default placement.
-		const menu = w
-			.findAllComponents({ name: 'Dropdown' })
-			.find((d) =>
-				(d.props('options') as { label: string }[]).some(
-					(o) => o.label === 'Remove'
-				)
-			)!
-
-		expect(menu.props('align')).toBe('end')
-	})
-=======
->>>>>>> ffe35ba (test: drop mocked frontend tests that only pin wiring or markup)
 })
 
 describe('the channel page', () => {

@@ -39,16 +39,12 @@ vi.mock('frappe-ui', async () => {
 					h(
 						'div',
 						{ class: 'file-uploader' },
-<<<<<<< HEAD
-						slots.default?.({ openFileSelector, ...slotState })
-=======
 						slots.default?.({
 							openFileSelector,
 							uploading: false,
 							progress: 0,
 							error: null,
 						})
->>>>>>> ffe35ba (test: drop mocked frontend tests that only pin wiring or markup)
 					)
 			},
 		},
@@ -105,66 +101,5 @@ describe('UploadPlugin: attach args', () => {
 		const u = uploader(wrapper)
 		expect(u.props('doctype')).toBe('Course Lesson')
 		expect(u.props('docname')).toBe('lesson-456')
-	})
-})
-
-<<<<<<< HEAD
-describe('UploadPlugin: file picker', () => {
-	beforeEach(() => {
-		openFileSelector.mockClear()
-		Object.assign(slotState, { uploading: false, progress: 0, error: null })
-	})
-
-	it('opens the file selector once through the slot prop on mount', async () => {
-		mountPlugin({ docname: null, fieldname: 'content' })
-		await flushPromises()
-		expect(openFileSelector).toHaveBeenCalledTimes(1)
-	})
-
-	it('keeps an upload button to reopen a cancelled picker', async () => {
-		const wrapper = mountPlugin({ docname: null, fieldname: 'content' })
-		await flushPromises()
-		const button = wrapper.find('button')
-		expect(button.text()).toBe('Upload File')
-		await button.trigger('click')
-		expect(openFileSelector).toHaveBeenCalledTimes(2)
-	})
-
-	it('shows upload progress', async () => {
-		Object.assign(slotState, { uploading: true, progress: 42 })
-		const wrapper = mountPlugin({ docname: null, fieldname: 'content' })
-		await flushPromises()
-		expect(wrapper.find('button').text()).toBe('Uploading 42%')
-	})
-
-	it('shows the validation error', async () => {
-		slotState.error = 'Only image and video files are allowed.'
-		const wrapper = mountPlugin({ docname: null, fieldname: 'content' })
-		await flushPromises()
-		expect(wrapper.find('.error-message').text()).toBe(
-			'Only image and video files are allowed.'
-=======
-describe('UploadPlugin: what a lesson accepts', () => {
-	const check = (name: string) =>
-		uploader(mountPlugin({ docname: null, fieldname: 'content' })).props(
-			'validateFile'
-		)({ name })
-
-	it('takes the audio files phones and recorders save', () => {
-		for (const name of [
-			'talk.mp3',
-			'memo.M4A',
-			'clip.wav',
-			'clip.ogg',
-			'clip.aac',
-		])
-			expect(check(name)).toBeUndefined()
-	})
-
-	it('refuses a file it cannot show', () => {
-		expect(check('notes.docx')).toBe(
-			'Upload an image, video, audio or PDF file.'
->>>>>>> ffe35ba (test: drop mocked frontend tests that only pin wiring or markup)
-		)
 	})
 })

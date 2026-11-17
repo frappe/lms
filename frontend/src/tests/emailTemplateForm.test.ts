@@ -27,7 +27,7 @@ const { createResourceMock, getCachedListResourceMock, toastMock } = vi.hoisted(
 			getCachedListResourceMock: vi.fn(),
 			toastMock: { success: vi.fn(), error: vi.fn(), warning: vi.fn() },
 		}
-	},
+	}
 )
 
 // HeaderButton wraps frappe-ui's Button in a Tooltip below the mobile
@@ -90,7 +90,7 @@ createResourceMock.mockImplementation(() => insert)
 const insertOptions = (): Record<string, unknown> =>
 	(
 		createResourceMock.mock.calls.find(
-			(call) => (call[0] as { url: string }).url === 'frappe.client.insert',
+			(call) => (call[0] as { url: string }).url === 'frappe.client.insert'
 		) as [Record<string, unknown>]
 	)[0]
 
@@ -138,7 +138,7 @@ const openForm = (router: Router, state?: HistoryState) =>
 
 const mountForm = async (
 	router: Router,
-	user: Record<string, unknown> | null = moderator,
+	user: Record<string, unknown> | null = moderator
 ) => {
 	const wrapper = mount(defineComponent({ render: () => h(RouterView) }), {
 		global: {
@@ -174,7 +174,7 @@ const succeedOnSubmit = () => {
 	insert.submit.mockImplementation(
 		(_params: unknown, options: { onSuccess: () => void }) => {
 			options.onSuccess()
-		},
+		}
 	)
 }
 
@@ -216,7 +216,7 @@ describe('EmailTemplateForm as a route', () => {
 		expect(fields(wrapper).exists()).toBe(false)
 		expect(save(wrapper).exists()).toBe(false)
 		expect(toastMock.warning).toHaveBeenLastCalledWith(
-			expect.stringContaining('do not have permission'),
+			expect.stringContaining('do not have permission')
 		)
 	})
 
@@ -239,7 +239,7 @@ describe('EmailTemplateForm as a route', () => {
 
 		expect(fields(wrapper).exists()).toBe(false)
 		expect(toastMock.warning).toHaveBeenLastCalledWith(
-			expect.stringContaining('read-only'),
+			expect.stringContaining('read-only')
 		)
 	})
 
@@ -269,7 +269,7 @@ describe('EmailTemplateForm as a route', () => {
 		expect(router.currentRoute.value.name).toBe('BatchDetail')
 		expect(router.currentRoute.value.hash).toBe(BATCH_TAB)
 		expect(router.currentRoute.value.query.emailTemplate).toBe(
-			'Enrollment Confirmation',
+			'Enrollment Confirmation'
 		)
 	})
 
@@ -295,38 +295,8 @@ describe('EmailTemplateForm as a route', () => {
 		expect(router.currentRoute.value.name).toBe('BatchDetail')
 		expect(router.currentRoute.value.hash).toBe(BATCH_TAB)
 		expect(router.currentRoute.value.query.emailTemplate).toBe(
-			'Enrollment Confirmation',
+			'Enrollment Confirmation'
 		)
-	})
-<<<<<<< HEAD
-
-	it('survives a save with no template list mounted to refresh', async () => {
-		const router = makeRouter()
-		await openForm(router)
-		const wrapper = await mountForm(router)
-		await fill(wrapper)
-		succeedOnSubmit()
-
-		await save(wrapper).trigger('click')
-		await flushPromises()
-
-		expect(getCachedListResourceMock).toHaveBeenCalledWith('email-templates')
-		expect(router.currentRoute.value.name).toBe('BatchDetail')
-	})
-
-	it('refreshes the settings template list when it is mounted', async () => {
-		const list = { reload: vi.fn() }
-		getCachedListResourceMock.mockReturnValue(list)
-		const router = makeRouter()
-		await openForm(router)
-		const wrapper = await mountForm(router)
-		await fill(wrapper)
-		succeedOnSubmit()
-
-		await save(wrapper).trigger('click')
-		await flushPromises()
-
-		expect(list.reload).toHaveBeenCalledTimes(1)
 	})
 
 	it('mobile: the back control pops the router back to the batch', async () => {
@@ -349,6 +319,4 @@ describe('EmailTemplateForm as a route', () => {
 		expect(router.currentRoute.value.name).toBe('BatchDetail')
 		expect(router.currentRoute.value.hash).toBe(BATCH_TAB)
 	})
-=======
->>>>>>> ffe35ba (test: drop mocked frontend tests that only pin wiring or markup)
 })

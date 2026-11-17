@@ -238,44 +238,14 @@ describe('AssignmentForm as a route', () => {
 		})
 		const wrapper = await mountForm(router, student)
 		expect(wrapper.find('[data-testid="assignment-fields"]').exists()).toBe(
-			false,
+			false
 		)
 		expect(wrapper.find('[data-testid="assignment-save"]').exists()).toBe(false)
 		expect(vi.mocked(toast.warning)).toHaveBeenLastCalledWith(
-			expect.stringContaining('not permitted'),
+			expect.stringContaining('not permitted')
 		)
 	})
 
-<<<<<<< HEAD
-	it('carries every field of the assignment form', async () => {
-		const router = makeRouter()
-		await router.push({
-			name: 'AssignmentForm',
-			params: { assignmentID: 'new' },
-		})
-		const wrapper = await mountForm(router, moderator)
-
-		const fields = wrapper.find('[data-testid="assignment-fields"]')
-		// InputLabel appends RequiredIndicator ("*" plus an sr-only "(required)"),
-		// so the field's own name has to be read out of that.
-		const labels = fields
-			.findAll('label')
-			.map((label: any) =>
-				label
-					.text()
-					.replace(/\(required\)|\*/g, '')
-					.replace(/\s+/g, ' ')
-					.trim()
-			)
-			.filter((text: string) => text !== '')
-		expect(labels).toEqual(FIELD_LABELS)
-		expect(
-			fields.find('[data-testid="assignment-question-label"]').text()
-		).toContain('Question')
-	})
-
-=======
->>>>>>> ffe35ba (test: drop mocked frontend tests that only pin wiring or markup)
 	it('fetches the record itself on a cold deep link into edit mode', async () => {
 		// C4. The form used to read edit values out of the parent list's
 		// in-memory array, which is empty when the list has never been mounted —
@@ -360,30 +330,6 @@ describe('AssignmentForm as a route', () => {
 		})
 	})
 
-<<<<<<< HEAD
-=======
-	it('offers an Audio type and creates an audio assignment', async () => {
-		const router = makeRouter()
-		await router.push({
-			name: 'AssignmentForm',
-			params: { assignmentID: 'new' },
-		})
-		const wrapper = await mountForm(router, moderator)
-
-		const typeField = wrapper
-			.findAllComponents({ name: 'FormControl' })
-			.find((field: any) => field.props('label') === 'Submission Type')
-		expect(
-			typeField.props('options').map((option: any) => option.value),
-		).toContain('Audio')
-
-		await fillRequired(wrapper)
-		await inputs(wrapper)[1].setValue('Audio')
-		await wrapper.find('[data-testid="assignment-save"]').trigger('click')
-		expect(insertOptions.current.makeParams().doc.type).toBe('Audio')
-	})
-
->>>>>>> ffe35ba (test: drop mocked frontend tests that only pin wiring or markup)
 	// Regression: empty create showed a raw server error (#3024, fixed in
 	// #3047).
 	it('names the first missing field instead of sending an empty assignment', async () => {
@@ -402,7 +348,7 @@ describe('AssignmentForm as a route', () => {
 		await save()
 		expect(insertSubmit).not.toHaveBeenCalled()
 		expect(error).toHaveBeenLastCalledWith(
-			'Add a Submission Type before saving.',
+			'Add a Submission Type before saving.'
 		)
 
 		await inputs(wrapper)[1].setValue('Text')
@@ -470,11 +416,11 @@ describe('AssignmentForm as a route', () => {
 		const wrapper = await mountForm(router, moderator)
 
 		expect(
-			wrapper.find('[data-testid="assignment-read-only-note"]').text(),
+			wrapper.find('[data-testid="assignment-read-only-note"]').text()
 		).toBe('Only the authors of this assignment can edit it.')
 		expect(wrapper.find('[data-testid="assignment-save"]').exists()).toBe(false)
 		expect(
-			wrapper.find('[data-testid="assignment-fields"]').attributes('disabled'),
+			wrapper.find('[data-testid="assignment-fields"]').attributes('disabled')
 		).toBeDefined()
 
 		const vm = wrapper.findComponent(AssignmentForm).vm as any
@@ -509,7 +455,7 @@ describe('AssignmentForm as a route', () => {
 		await fillRequired(wrapper)
 
 		insertSubmit.mockImplementation(() =>
-			insertOptions.current.onSuccess({ name: 'ASG-0002' }),
+			insertOptions.current.onSuccess({ name: 'ASG-0002' })
 		)
 		await wrapper.find('[data-testid="assignment-save"]').trigger('click')
 		await flushPromises()

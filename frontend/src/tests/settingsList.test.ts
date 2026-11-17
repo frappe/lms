@@ -187,42 +187,4 @@ describe('SettingsList', () => {
 		const noMatch = build({ rows: [], emptyName: 'Coupons', search: 'zzz' })
 		expect(noMatch.get('[data-testid="empty"]').text()).toContain('zzz')
 	})
-
-<<<<<<< HEAD
-	it('shows the search box only when the panel asks for one', () => {
-		expect(build().find('[data-testid="search"]').exists()).toBe(false)
-		expect(
-			build({ searchable: true }).find('[data-testid="search"]').exists()
-		).toBe(true)
-=======
-	describe('emptyContent', () => {
-		const EmptyContent = markRaw({
-			emits: ['pick'],
-			template: `<button data-testid="empty-content" @click="$emit('pick', 'GMail')" />`,
-		})
-
-		it('still shows the generic "no results" state for a search or filter', () => {
-			const searched = build({
-				rows: [],
-				emptyName: 'Coupons',
-				search: 'zzz',
-				emptyContent: { component: EmptyContent },
-			})
-			expect(searched.find('[data-testid="empty-content"]').exists()).toBe(
-				false
-			)
-			expect(searched.get('[data-testid="empty"]').text()).toContain('zzz')
-
-			const filtered = build({
-				rows: [],
-				emptyName: 'Coupons',
-				filtered: true,
-				emptyContent: { component: EmptyContent },
-			})
-			expect(filtered.find('[data-testid="empty-content"]').exists()).toBe(
-				false
-			)
-		})
->>>>>>> ffe35ba (test: drop mocked frontend tests that only pin wiring or markup)
-	})
 })

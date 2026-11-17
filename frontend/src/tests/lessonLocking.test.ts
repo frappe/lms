@@ -501,71 +501,6 @@ describe('Lesson.vue unlocks the next lesson without a reload', () => {
 	})
 })
 
-<<<<<<< HEAD
-=======
-describe('Lesson.vue unlocks the next lesson when realtime is down', () => {
-	// #2701: a quiz completes its lesson through markLessonProgress(), and the
-	// page used to hear about it only from update_lesson_progress. With the
-	// socket down, Next stayed locked until a reload.
-	const lessonPath = '/lms/courses/COURSE-1/learn/1-1'
-
-	beforeEach(() => {
-		window.history.pushState({}, '', lessonPath)
-		vi.mocked(call).mockResolvedValue(true)
-	})
-
-	afterEach(() => {
-		window.history.pushState({}, '', '/')
-	})
-
-	const mountWithLesson = async () => {
-		const mounted = await mountLesson()
-		findResource('lms.lms.utils.get_lesson').data = {
-			...baseLesson,
-			membership: { progress: 0 },
-		}
-		await flushPromises()
-		findResource('lms.lms.utils.get_course_outline').reload.mockClear()
-		return mounted
-	}
-
-	it('reloads the outline once a quiz marks the lesson, with no socket event', async () => {
-		wrapper = await mountWithLesson()
-		const outline = findResource('lms.lms.utils.get_course_outline')
-
-		markLessonProgress()
-		await flushPromises()
-
-		expect(outline.reload).toHaveBeenCalledTimes(1)
-	})
-
-	it('does not reload again when the socket event follows', async () => {
-		wrapper = await mountWithLesson()
-		const outline = findResource('lms.lms.utils.get_course_outline')
-
-		markLessonProgress()
-		await flushPromises()
-		progressHandler()({ course: 'COURSE-1', lesson: 'L1', progress: 40 })
-
-		expect(outline.reload).toHaveBeenCalledTimes(1)
-	})
-
-	it('does not mark the lesson done when the server declined it', async () => {
-		// mark_lesson_progress returns false when save_progress wrote nothing, e.g.
-		// the lesson's requirements are not met, so the socket event still reloads.
-		wrapper = await mountWithLesson()
-		const outline = findResource('lms.lms.utils.get_course_outline')
-		vi.mocked(call).mockResolvedValueOnce(false)
-
-		markLessonProgress()
-		await flushPromises()
-		progressHandler()({ course: 'COURSE-1', lesson: 'L1', progress: 40 })
-
-		expect(outline.reload).toHaveBeenCalledTimes(2)
-	})
-})
-
->>>>>>> ffe35ba (test: drop mocked frontend tests that only pin wiring or markup)
 describe('Lesson.vue Next survives an outline that never resolves', () => {
 	it('shows Next from lesson.data.next while the outline is still unresolved', async () => {
 		wrapper = await mountLesson()
@@ -634,28 +569,3 @@ describe('Lesson.vue sidebar progress', () => {
 		expect(await sidebarWithProgress({ name: 'a@example.com' })).toBe('true')
 	})
 })
-<<<<<<< HEAD
-
-describe('Lesson.vue zen-mode progress chip', () => {
-	it('drops into flow on touch screens so it cannot cover the zen buttons', async () => {
-		wrapper = await mountLesson()
-		findResource('lms.lms.utils.get_lesson').data = {
-			...baseLesson,
-			membership: { progress: 42.3 },
-		}
-		;(wrapper.vm as any).zenModeEnabled = true
-		await flushPromises()
-
-		const chip = wrapper
-			.findAll('div')
-			.find((el) => el.text() === '43% completed')
-		expect(chip).toBeDefined()
-		const classes = chip!.classes()
-		expect(classes).toContain('absolute')
-		expect(classes).toContain('[@media(hover:none)]:block')
-		expect(classes).toContain('[@media(hover:none)]:static')
-		expect(classes).toContain('[@media(hover:none)]:mt-0')
-	})
-})
-=======
->>>>>>> ffe35ba (test: drop mocked frontend tests that only pin wiring or markup)

@@ -67,17 +67,11 @@
 		>
 			<Button
 				v-if="canAnnounce"
-<<<<<<< HEAD
 				variant="solid"
-				:label="hasStudents ? __('Make Announcement') : __('Enroll Students')"
-				@click="openForm"
-=======
-				variant="subtle"
 				:label="__('Make Announcement')"
 				@click="
 					openBatchForm(router, 'NewAnnouncement', batch.data.name, route.hash)
 				"
->>>>>>> 2076c53 (fix(batches): hide announcement and certificate actions until a student enrolls)
 			>
 				<template #prefix>
 					<span class="lucide-send size-4" />

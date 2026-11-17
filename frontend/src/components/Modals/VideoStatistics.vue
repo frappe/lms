@@ -88,12 +88,8 @@
 						</div>
 					</div>
 				</div>
-<<<<<<< HEAD
-				<div v-else class="text-sm text-ink-gray-5">
-=======
 				<ModalLoading v-else-if="statistics.loading" />
-				<div v-else class="text-sm text-ink-gray-6">
->>>>>>> 3a1f127 (fix: show a modal's refusal as a toast and its loading as a centered spinner)
+				<div v-else class="text-sm text-ink-gray-5">
 					{{ __('No statistics available for this video.') }}
 				</div>
 			</div>

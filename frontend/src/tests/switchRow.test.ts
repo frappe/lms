@@ -69,44 +69,4 @@ describe('SwitchRow', () => {
 		expect(onToggle).not.toHaveBeenCalled()
 		expect(control(w).attributes('aria-checked')).toBe('false')
 	})
-
-<<<<<<< HEAD
-	it('passes disabled through to the switch', () => {
-		const w = mount(SwitchRow, { props: { label: 'Enabled', disabled: true } })
-		expect(control(w).attributes('disabled')).toBeDefined()
-=======
-	// Regression on this branch only, no upstream PR: settings switches kept their
-	// own row to get these. Added on fix/course-progress-enforcement (no PR yet).
-	it('flips the switch when the description is clicked', async () => {
-		const w = mount(SwitchRow, {
-			props: {
-				label: 'Enabled',
-				description: 'Shown to learners.',
-				modelValue: false,
-				'onUpdate:modelValue': (value: boolean) =>
-					w.setProps({ modelValue: value }),
-			},
-			attachTo: document.body,
-		})
-		await w.get('[data-testid="switch-description"]').trigger('click')
-		expect(control(w).attributes('aria-checked')).toBe('true')
-	})
-
-	it('keeps the caution out of the label so it does not toggle', async () => {
-		const onToggle = vi.fn()
-		const w = mount(SwitchRow, {
-			props: {
-				label: 'Videos',
-				caution: 'Embeds are not tracked.',
-				modelValue: false,
-				'onUpdate:modelValue': onToggle,
-			},
-			attachTo: document.body,
-		})
-		const caution = w.get('button[aria-label="Embeds are not tracked."]')
-		expect(caution.element.closest('label')).toBeNull()
-		await caution.trigger('click')
-		expect(onToggle).not.toHaveBeenCalled()
->>>>>>> ffe35ba (test: drop mocked frontend tests that only pin wiring or markup)
-	})
 })

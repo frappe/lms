@@ -1,11 +1,6 @@
 import { describe, expect, it, vi } from 'vitest'
 import { mount } from '@vue/test-utils'
 
-<<<<<<< HEAD
-const editorClassFor = { current: '' as unknown }
-
-=======
->>>>>>> ffe35ba (test: drop mocked frontend tests that only pin wiring or markup)
 vi.mock('frappe-ui', () => ({
 	Button: { template: '<button><slot /></button>' },
 	Badge: { template: '<span><slot /></span>' },
@@ -29,13 +24,6 @@ vi.mock('@/components/RichTextEditor.vue', () => ({
 			'ariaInvalid',
 		],
 		emits: ['change', 'blur'],
-<<<<<<< HEAD
-		created() {
-			// @ts-expect-error - options API `this` inside a stub
-			editorClassFor.current = this.editorClass
-		},
-=======
->>>>>>> ffe35ba (test: drop mocked frontend tests that only pin wiring or markup)
 		template:
 			'<div class="text-editor-stub" :id="id" :aria-invalid="String(ariaInvalid)" />',
 	},
@@ -76,49 +64,6 @@ async function mountEditor(
 	})
 }
 
-<<<<<<< HEAD
-const classOf = (wrapper: ReturnType<typeof mount>) =>
-	wrapper.find('.text-editor-stub').element.parentElement!.className
-
-const editorClass = () => editorClassFor.current as string
-
-describe('QuestionEditor fill', () => {
-	it('fills for an open ended question', async () => {
-		const wrapper = await mountEditor('open_ended', true)
-		expect(classOf(wrapper)).toContain('flex-1')
-		expect(editorClass()).toContain('flex-1')
-	})
-
-	it('fills for a choices question too', async () => {
-		const wrapper = await mountEditor('single', true)
-		expect(classOf(wrapper)).toContain('flex-1')
-		expect(editorClass()).toContain('flex-1')
-	})
-
-	it('keeps a floor so many options cannot squeeze it to nothing', async () => {
-		await mountEditor('single', true)
-		expect(editorClass()).toContain('flex-1')
-		expect(editorClass()).toMatch(/min-h-\[\d/)
-	})
-
-	// A ten-option question needs more room than the dialog has. `min-h-0` let
-	// every ancestor shrink to nothing while the field kept its floor, so the
-	// toolbar rendered on top of the options.
-	it('never lets an ancestor shrink below the field it wraps', async () => {
-		const wrapper = await mountEditor('single', true)
-		expect(classOf(wrapper)).toContain('flex-1')
-		expect(classOf(wrapper)).not.toContain('min-h-0')
-	})
-
-	it('takes its natural height when the owner gives no height to fill', async () => {
-		const wrapper = await mountEditor('single', false)
-		expect(classOf(wrapper)).not.toContain('flex-1')
-		expect(editorClass()).toContain('min-h-[5rem]')
-	})
-})
-
-=======
->>>>>>> ffe35ba (test: drop mocked frontend tests that only pin wiring or markup)
 describe('QuestionEditor field labelling', () => {
 	const editorOf = (wrapper: ReturnType<typeof mount>) =>
 		wrapper.findComponent({ name: 'RichTextEditorStub' })

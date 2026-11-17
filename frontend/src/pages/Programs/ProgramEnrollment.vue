@@ -94,11 +94,7 @@
 	</FormShell>
 </template>
 <script setup lang="ts">
-<<<<<<< HEAD
-import { createResource, LoadingIndicator, toast, Tooltip } from 'frappe-ui'
-=======
-import { createResource, toast, Tooltip, usePageMeta } from 'frappe-ui'
->>>>>>> 4dbf303 (fix: show every form's refusal and loading state through FormShell)
+import { createResource, toast, Tooltip } from 'frappe-ui'
 import type { FrappeResourceError } from 'frappe-ui'
 import { computed, inject, onMounted } from 'vue'
 import FormShell from '@/components/FormShell.vue'

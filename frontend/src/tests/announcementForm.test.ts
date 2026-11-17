@@ -117,7 +117,7 @@ describe('AnnouncementForm as a route', () => {
 		createResourceMock.mockImplementation((options: { url: string }) =>
 			options.url === BATCH_URL
 				? batchResource
-				: { submit: announcementSubmit, loading: false, data: null },
+				: { submit: announcementSubmit, loading: false, data: null }
 		)
 		batchResource.data = { name: 'B1', student_count: 2 }
 		batchResource.loading = false
@@ -128,7 +128,6 @@ describe('AnnouncementForm as a route', () => {
 		})
 	})
 
-<<<<<<< HEAD
 	it('mounts straight from the URL with no parent page mounted', async () => {
 		const router = makeRouter()
 		await router.push('/batches/B1/announcement/new')
@@ -139,30 +138,13 @@ describe('AnnouncementForm as a route', () => {
 		)
 	})
 
-	it('fetches its own batch context for the batch in the URL', async () => {
-		// The BCC student list comes from get_batch_details. This is the form's
-		// OWN fetch — BatchDetail's resource carries no cache key, so there is no
-		// instance to share and none is claimed.
-		const router = makeRouter()
-		await router.push('/batches/B1/announcement/new')
-		await mountForm(router, moderator)
-		const batchCall = createResourceMock.mock.calls.find(
-			(call) => call[0].url === BATCH_URL
-		)
-		expect(batchCall).toBeDefined()
-		expect(batchCall?.[0].cache).toBeUndefined()
-		expect(batchCall?.[0].makeParams()).toEqual({ batch: 'B1' })
-	})
-
-=======
->>>>>>> ffe35ba (test: drop mocked frontend tests that only pin wiring or markup)
 	// The students' addresses never reach the client: the server BCCs them.
 	it('sends the batch, not a student list, to the server', async () => {
 		const router = makeRouter()
 		await router.push('/batches/B1/announcement/new')
 		await mountForm(router, moderator)
 		const emailCall = createResourceMock.mock.calls.find(
-			(call) => call[0].url === EMAIL_URL,
+			(call) => call[0].url === EMAIL_URL
 		)
 		const params = emailCall?.[0].makeParams()
 		expect(params).toMatchObject({ batch: 'B1' })
@@ -174,10 +156,10 @@ describe('AnnouncementForm as a route', () => {
 		await router.push('/batches/B1/announcement/new')
 		const wrapper = await mountForm(router, student)
 		expect(wrapper.find('[data-testid="announcement-fields"]').exists()).toBe(
-			false,
+			false
 		)
 		expect(toastWarning).toHaveBeenLastCalledWith(
-			expect.stringContaining('not permitted'),
+			expect.stringContaining('not permitted')
 		)
 	})
 
@@ -189,7 +171,7 @@ describe('AnnouncementForm as a route', () => {
 		const wrapper = await mountForm(router, moderator)
 		expect(wrapper.find('[role="dialog"]').exists()).toBe(false)
 		expect(toastWarning).toHaveBeenCalledWith(
-			'Add students to the batch to make an announcement',
+			'Add students to the batch to make an announcement'
 		)
 		expect(router.currentRoute.value.name).toBe('BatchDetail')
 	})

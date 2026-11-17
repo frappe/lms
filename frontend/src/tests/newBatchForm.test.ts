@@ -116,7 +116,7 @@ vi.mock(
 			typeof import('@framework/ui/components/Onboarding/index')
 		>()),
 		useOnboarding: () => ({ updateOnboardingStep: vi.fn() }),
-	}),
+	})
 )
 
 // The rich text editor drags in ProseMirror. A textarea that emits `change`
@@ -219,7 +219,7 @@ const fillRequired = async (wrapper: VueWrapper): Promise<void> => {
 // allowed to bubble, or the test would pass without exercising the guard.
 const pressCtrlS = (): void => {
 	document.body.dispatchEvent(
-		new KeyboardEvent('keydown', { key: 's', ctrlKey: true, bubbles: true }),
+		new KeyboardEvent('keydown', { key: 's', ctrlKey: true, bubbles: true })
 	)
 }
 
@@ -258,7 +258,7 @@ describe('NewBatchForm as a route', () => {
 		wrapper.unmount()
 
 		const closed = captureMock.mock.calls.find(
-			([event]) => event === 'batch_form_closed',
+			([event]) => event === 'batch_form_closed'
 		)
 		expect(closed?.[1].filled_fields).toEqual(['title'])
 	})
@@ -268,10 +268,10 @@ describe('NewBatchForm as a route', () => {
 		await router.push({ name: 'NewBatch' })
 		const wrapper = await mountForm(router, student)
 		expect(wrapper.find('[data-testid="new-batch-fields"]').exists()).toBe(
-			false,
+			false
 		)
 		expect(vi.mocked(toast.warning)).toHaveBeenLastCalledWith(
-			expect.stringContaining('not permitted'),
+			expect.stringContaining('not permitted')
 		)
 	})
 
@@ -328,22 +328,6 @@ describe('NewBatchForm as a route', () => {
 		expect(insertSubmit).toHaveBeenCalledTimes(1)
 	})
 
-<<<<<<< HEAD
-	it('scopes its list resource to the SAME cache key Batches.vue uses', async () => {
-		// The design doc (C4) records this as the single load-bearing reason a
-		// created batch appears in the list at all: createListResource hands
-		// back whichever instance was cached first under this key, so if this
-		// key ever drifts from Batches.vue:167's, a save silently stops showing
-		// up in the list with no test failing — until now.
-		const router = makeRouter()
-		await router.push({ name: 'NewBatch' })
-		await mountForm(router, moderator)
-
-		expect(createListResourceMock).toHaveBeenCalledWith(
-			expect.objectContaining({ cache: ['batches', 'mod@example.com'] })
-		)
-	})
-
 	it('mobile: the back control pops the router back to the list', async () => {
 		const router = makeRouter()
 		await router.push({ name: 'Batches' })
@@ -373,8 +357,6 @@ describe('NewBatchForm as a route', () => {
 		expect(router.currentRoute.value.name).toBe('Batches')
 	})
 
-=======
->>>>>>> ffe35ba (test: drop mocked frontend tests that only pin wiring or markup)
 	it('replaces rather than pushes on save, so Back reaches the list', async () => {
 		const router = makeRouter()
 		await router.push({ name: 'Batches' })
@@ -385,7 +367,7 @@ describe('NewBatchForm as a route', () => {
 		insertSubmit.mockImplementation(
 			(_doc: unknown, options: { onSuccess: (d: unknown) => void }) => {
 				options.onSuccess({ name: 'BATCH-0001' })
-			},
+			}
 		)
 		await wrapper.find('[data-testid="new-batch-save"]').trigger('click')
 		await flushPromises()

@@ -105,23 +105,3 @@ describe('the assignment block in a lesson', () => {
 		expect(unmount).toHaveBeenCalledTimes(1)
 	})
 })
-<<<<<<< HEAD
-
-describe('getEditorTools wiring', () => {
-	it('hands the assignment tool the Student View flag', () => {
-		const tools = getEditorTools(false, {}, { studentView: true }) as Record<
-			string,
-			any
-		>
-
-		expect(tools.assignment.config.studentView).toBe(true)
-	})
-
-	it('defaults the flag off', () => {
-		const tools = getEditorTools() as Record<string, any>
-
-		expect(tools.assignment.config.studentView).toBe(false)
-	})
-})
-=======
->>>>>>> ffe35ba (test: drop mocked frontend tests that only pin wiring or markup)

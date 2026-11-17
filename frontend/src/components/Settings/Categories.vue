@@ -240,14 +240,9 @@ const saveChanges = () => {
 // LMS Category is a Link target on Course and Batch, so the server unlinks
 // before deleting; a plain delete raises LinkExistsError.
 const deleteCategory = (name: string, close: () => void) => {
-<<<<<<< HEAD
+	if (saving.value) return Promise.resolve()
 	saving.value = true
-	call('lms.lms.api.delete_category', { category: name })
-=======
-	if (deleting.value) return Promise.resolve()
-	deleting.value = true
 	return call('lms.lms.api.delete_category', { category: name })
->>>>>>> c612645 (fix: block a second click on action buttons while they run)
 		.then(() => {
 			list.reload()
 			if (typeof close === 'function') close()
