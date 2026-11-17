@@ -3,6 +3,7 @@
 		v-if="label"
 		:label="label"
 		:description="description"
+		:caution="caution"
 		:disabled="disabled"
 		:model-value="!!modelValue"
 		@update:model-value="onUpdate"
@@ -25,6 +26,7 @@ const props = defineProps<{
 	modelValue: number | boolean | null | undefined
 	label?: string
 	description?: string
+	caution?: string
 	disabled?: boolean
 }>()
 
