@@ -748,9 +748,14 @@ export const validateFile = async (
 		)
 	} else if (fileType == 'zip' && extension != 'zip') {
 		return error(__('Only ZIP files are allowed.'))
-	} else if (fileType == 'audio' && !audioUploadExtensions.includes(extension)) {
+	} else if (
+		fileType == 'audio' &&
+		!audioUploadExtensions.includes(extension)
+	) {
 		return error(
-			__('Upload an audio file: {0}.').format(audioUploadExtensions.join(', '))
+			__('Upload an audio file: {0}.').format(
+				audioUploadExtensions.join(', ')
+			)
 		)
 	} else if (
 		['image', 'video'].includes(fileType) &&
