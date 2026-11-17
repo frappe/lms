@@ -11,6 +11,11 @@ vi.mock('frappe-ui', () => ({
 		emits: ['update:modelValue'],
 		template: `<button type="button" role="switch" :aria-checked="String(Boolean(modelValue))" :disabled="disabled" @click="$emit('update:modelValue', !modelValue)" />`,
 	},
+	Button: {
+		name: 'Button',
+		template: `<button type="button"><slot /></button>`,
+	},
+	Tooltip: { name: 'Tooltip', template: `<span><slot /></span>` },
 }))
 
 const control = (w: ReturnType<typeof mount>) => w.get('[role="switch"]')
@@ -68,5 +73,22 @@ describe('SwitchRow', () => {
 		await w.get('[data-testid="switch-label"]').trigger('click')
 		expect(onToggle).not.toHaveBeenCalled()
 		expect(control(w).attributes('aria-checked')).toBe('false')
+	})
+
+	it('keeps the caution out of the label so it does not toggle', async () => {
+		const onToggle = vi.fn()
+		const w = mount(SwitchRow, {
+			props: {
+				label: 'Videos',
+				caution: 'Embeds are not tracked.',
+				modelValue: false,
+				'onUpdate:modelValue': onToggle,
+			},
+			attachTo: document.body,
+		})
+		const caution = w.get('button[aria-label="Embeds are not tracked."]')
+		expect(caution.element.closest('label')).toBeNull()
+		await caution.trigger('click')
+		expect(onToggle).not.toHaveBeenCalled()
 	})
 })
