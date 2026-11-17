@@ -12,7 +12,7 @@
 				<div v-for="link in sidebarLinks" class="mx-2 my-2.5">
 					<div
 						v-if="!link.hideLabel"
-						class="mb-2 mt-3 flex cursor-pointer gap-1.5 px-1 text-p-base-medium text-ink-gray-5 transition-all duration-300 ease-in-out"
+						class="mb-2 mt-3 flex cursor-pointer gap-1.5 px-1 text-p-base-medium text-ink-gray-6 transition-all duration-300 ease-in-out"
 					>
 						<span>{{ __(link.label) }}</span>
 					</div>
@@ -37,7 +37,7 @@
 				>
 					<div
 						v-if="!sidebarStore.isSidebarCollapsed"
-						class="flex items-center text-ink-gray-5 my-1"
+						class="flex items-center text-ink-gray-6 my-1"
 					>
 						<span class="grid h-5 w-6 flex-shrink-0 place-items-center">
 							<span

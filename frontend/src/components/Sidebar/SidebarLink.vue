@@ -58,7 +58,7 @@
 			</span>
 			<div
 				v-if="showControls && !isCollapsed"
-				class="flex items-center gap-x-2 !ms-auto block text-p-xs text-ink-gray-5 group-hover:visible invisible"
+				class="flex items-center gap-x-2 !ms-auto block text-p-xs text-ink-gray-6 group-hover:visible invisible"
 			>
 				<component
 					:is="icons['Edit']"
