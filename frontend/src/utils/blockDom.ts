@@ -11,12 +11,14 @@ import { safeUrl } from './safeUrl'
 // load the whole SPA inside itself.
 export const embedFrame = (
 	src: string | null | undefined,
-	attrs: Record<string, string>
+	attrs: Record<string, string>,
+	title?: string
 ): HTMLIFrameElement | undefined => {
 	const href = safeUrl(src)
 	if (!href) return undefined
 	const frame = document.createElement('iframe')
 	frame.setAttribute('src', href)
+	if (title) frame.setAttribute('title', title)
 	for (const [name, value] of Object.entries(attrs))
 		frame.setAttribute(name, value)
 	return frame

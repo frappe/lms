@@ -25,7 +25,7 @@
 							<div class="text-p-base-medium text-ink-gray-7">
 								{{ __(field.label) }}
 							</div>
-							<div class="text-p-sm text-ink-gray-5">
+							<div class="text-p-sm text-ink-gray-6">
 								{{ __(field.description) }}
 							</div>
 						</div>
@@ -108,7 +108,7 @@
 						/>
 						<div
 							v-if="field.description"
-							class="text-p-sm text-ink-gray-5 mt-2"
+							class="text-p-sm text-ink-gray-6 mt-2"
 						>
 							{{ __(field.description) }}
 						</div>
@@ -119,7 +119,7 @@
 							<div class="text-p-base-medium text-ink-gray-7">
 								{{ __(field.label) }}
 							</div>
-							<div v-if="field.description" class="text-p-sm text-ink-gray-5">
+							<div v-if="field.description" class="text-p-sm text-ink-gray-6">
 								{{ __(field.description) }}
 							</div>
 						</div>

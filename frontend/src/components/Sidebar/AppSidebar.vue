@@ -12,7 +12,7 @@
 				<div v-for="link in sidebarLinks" class="mx-2 my-2.5">
 					<div
 						v-if="!link.hideLabel"
-						class="mb-2 mt-3 flex cursor-pointer gap-1.5 px-1 text-p-base-medium text-ink-gray-5 transition-all duration-300 ease-in-out"
+						class="mb-2 mt-3 flex cursor-pointer gap-1.5 px-1 text-p-base-medium text-ink-gray-6 transition-all duration-300 ease-in-out"
 					>
 						<span>{{ __(link.label) }}</span>
 					</div>
@@ -37,7 +37,7 @@
 				>
 					<div
 						v-if="!sidebarStore.isSidebarCollapsed"
-						class="flex items-center text-ink-gray-5 my-1"
+						class="flex items-center text-ink-gray-6 my-1"
 					>
 						<span class="grid h-5 w-6 flex-shrink-0 place-items-center">
 							<span
@@ -87,11 +87,7 @@
 				v-if="readOnlyMode && !sidebarStore.isSidebarCollapsed"
 				class="z-10 m-2 bg-surface-elevation-2 py-2.5 px-3 text-p-xs text-ink-gray-7 rounded-5"
 			>
-				{{
-					__(
-						'This site is being updated. You will not be able to make any changes. Full access will be restored shortly.'
-					)
-				}}
+				{{ readOnlyNotice }}
 			</div>
 			<div
 				v-if="
@@ -165,31 +161,45 @@
 					class="flex items-center flex-1 gap-3"
 					:class="sidebarStore.isSidebarCollapsed ? 'flex-col' : 'flex-row'"
 				>
-					<Tooltip v-if="readOnlyMode && sidebarStore.isSidebarCollapsed">
-						<span
-							class="lucide-circle-alert size-4 text-ink-gray-7 cursor-pointer"
-						/>
-						<template #content>
-							<div class="max-w-[30ch] text-center text-p-xs">
-								{{
-									__(
-										'This site is being updated. You will not be able to make any changes. Full access will be restored shortly.'
-									)
-								}}
-							</div>
-						</template>
-					</Tooltip>
+					<template v-if="readOnlyMode && sidebarStore.isSidebarCollapsed">
+						<Tooltip>
+							<span
+								class="lucide-circle-alert size-4 text-ink-gray-7 cursor-pointer"
+								aria-hidden="true"
+							/>
+							<template #content>
+								<div class="max-w-[30ch] text-center text-p-xs">
+									{{ readOnlyNotice }}
+								</div>
+							</template>
+						</Tooltip>
+						<span class="sr-only">{{ readOnlyNotice }}</span>
+					</template>
 					<Tooltip v-if="showOnboarding" :text="__('Help')">
-						<span
-							class="lucide-circle-help size-4 text-ink-gray-7 cursor-pointer"
+						<button
+							type="button"
+							class="flex"
+							:aria-label="__('Help')"
 							@click="toggleHelp"
-						/>
+						>
+							<span
+								class="lucide-circle-help size-4 text-ink-gray-7 cursor-pointer"
+								aria-hidden="true"
+							/>
+						</button>
 					</Tooltip>
 					<Tooltip :text="__('Powered by Frappe Learning')">
-						<span
-							class="lucide-zap size-4 text-ink-gray-7 cursor-pointer"
-							@click="redirectToWebsite()"
-						/>
+						<a
+							href="https://frappe.io/learning"
+							v-external
+							class="flex"
+							:aria-label="__('Powered by Frappe Learning')"
+						>
+							<span
+								class="lucide-zap size-4 text-ink-gray-7 cursor-pointer"
+								aria-hidden="true"
+							/>
+						</a>
 					</Tooltip>
 				</div>
 				<Tooltip
@@ -208,7 +218,6 @@
 						@click="toggleSidebar()"
 					/>
 				</Tooltip>
-				<span class="sr-only">{{ readOnlyNotice }}</span>
 			</div>
 		</div>
 		<HelpModal
@@ -285,7 +294,6 @@ import UserDropdown from '@/components/Sidebar/UserDropdown.vue'
 import CollapseSidebar from '@/components/Icons/CollapseSidebar.vue'
 import SidebarLink from '@/components/Sidebar/SidebarLink.vue'
 import CommandPalette from '@/components/CommandPalette/CommandPalette.vue'
-import { openExternal } from '@/utils/openExternal'
 import {
 	loadUnreadCount,
 	unreadCount,
@@ -317,6 +325,9 @@ let onboardingDetails
 let isOnboardingStepsCompleted = false
 const readOnlyMode = window.read_only_mode
 const isRtl = document.documentElement.dir === 'rtl'
+const readOnlyNotice = __(
+	'This site is being updated. You will not be able to make any changes. Full access will be restored shortly.'
+)
 const openCourseForm = () => {
 	setFormSource('onboarding')
 	openFormRoute(router, { name: 'NewCourse' })
@@ -675,10 +686,6 @@ const updateSidebarLinks = () => {
 	sidebarLinks.value = getSidebarLinks()
 	updateSidebarLinksVisibility()
 	updateUnreadCount()
-}
-
-const redirectToWebsite = () => {
-	openExternal('https://frappe.io/learning')
 }
 
 const isStudent = computed(() => {

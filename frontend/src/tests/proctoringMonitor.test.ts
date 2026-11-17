@@ -255,3 +255,49 @@ describe('ProctoringMonitor — floating camera', () => {
 		wrapper.unmount()
 	})
 })
+
+describe('ProctoringMonitor — assistive tech', () => {
+	// Guards: lost focus on minimise, and face status and camera errors not
+	// announced. Introduced in #2659; test added with the a11y audit remediation.
+	beforeEach(() => {
+		document.body.innerHTML = ''
+	})
+
+	it('makes the minimised camera inert and moves focus to Show camera and back', async () => {
+		const wrapper = mountMonitor({ active: true })
+		await flushPromises()
+		const minimise = document.querySelector<HTMLElement>(
+			'[aria-label="Minimise camera"]'
+		)!
+		const panel = minimise.closest('.overflow-hidden')!
+
+		minimise.click()
+		await flushPromises()
+		expect(panel.hasAttribute('inert')).toBe(true)
+		const show = document.activeElement as HTMLElement
+		expect(show.getAttribute('aria-label')).toBe('Show camera')
+
+		show.click()
+		await flushPromises()
+		expect(panel.hasAttribute('inert')).toBe(false)
+		expect(document.activeElement).toBe(minimise)
+		wrapper.unmount()
+	})
+
+	it('keeps the face status region mounted and announces a camera error', async () => {
+		const wrapper = mountMonitor()
+		const region = wrapper.get('[role="status"]:not(.fui-spinner)').element
+		await flushPromises()
+		expect(wrapper.get('[role="status"]:not(.fui-spinner)').element).toBe(
+			region
+		)
+		expect(region.textContent).toContain('Position your face')
+
+		getUserMediaMock.mockRejectedValue(new Error('NotAllowedError'))
+		const denied = mountMonitor()
+		await flushPromises()
+		expect(denied.get('[role="alert"]').text()).toContain(
+			'Camera access was denied'
+		)
+	})
+})

@@ -1,6 +1,6 @@
 <template>
 	<div class="flex flex-col gap-1.5">
-		<span v-if="label" class="px-1.5 text-xs-medium text-ink-gray-5">
+		<span v-if="label" class="px-1.5 text-xs-medium text-ink-gray-6">
 			{{ label }}
 		</span>
 		<div
@@ -18,7 +18,7 @@
 // `overflow-hidden` is what keeps the first and last row's corners inside the
 // radius.
 //
-// The heading reuses `text-xs-medium text-ink-gray-5`, the same pair the
+// The heading reuses `text-xs-medium text-ink-gray-6`, the same pair the
 // desktop settings sidebar uses for its group labels (Settings.vue), rather
 // than inventing a second treatment for the same idea. No `tracking-wide`
 // alongside it: the token already carries 0.02em, and the utility is emitted

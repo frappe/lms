@@ -21,7 +21,7 @@
 				>
 					·
 				</span>
-				<span class="min-w-0 truncate text-xs text-ink-gray-5">
+				<span class="min-w-0 truncate text-xs text-ink-gray-6">
 					{{ subtitle }}
 				</span>
 			</template>

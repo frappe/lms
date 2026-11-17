@@ -1,5 +1,5 @@
 <div style="width: 70%; margin: 0 auto;">
-    <img src="{{ brand_logo }}" style="width: 30px; height: 30px;" />
+    <img src="{{ brand_logo }}" alt="{{ (brand_name or _("Logo")) | e }}" style="width: 30px; height: 30px;" />
     <p style="font-size: 16px; font-weight: 600;">
         {{ _("Hello Learner") }},
     </p>
@@ -33,7 +33,7 @@
             {% for instructor in instructors %}
                 <div style="display: flex; align-items: center; margin-bottom: 5px;">
                     {% if instructor.user_image %}
-                    <img src="{{ instructor.user_image }}" style="width: 20px; height: 20px; border-radius: 50%; margin-right: 5px;" />
+                    <img src="{{ instructor.user_image }}" alt="" style="width: 20px; height: 20px; border-radius: 50%; margin-right: 5px;" />
                     {% else %}
                     <div style="width: 20px; height: 20px; border-radius: 50%; background-color: #ccc; display: flex; align-items: center; justify-content: center; margin-right: 5px;">
                         <span style="font-size: 12px; color: #fff;">

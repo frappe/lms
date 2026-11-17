@@ -22,7 +22,7 @@
 						v-for="(column, index) in columns"
 						:key="index"
 						role="columnheader"
-						class="text-sm text-ink-gray-5"
+						class="text-sm text-ink-gray-6"
 						:class="{ 'text-center': isCheckboxColumn(column) }"
 					>
 						{{ column }}
