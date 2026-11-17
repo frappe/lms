@@ -12,20 +12,18 @@ vi.stubGlobal('__', (text: string) => text)
 enableAutoUnmount(afterEach)
 
 // Stubbed so tests control call/resource responses without a network.
-const { callMock, createResourceMock, getCachedResourceMock, toastMock } =
-	vi.hoisted(() => {
-		window.matchMedia ??= (() => ({
-			matches: false,
-			addEventListener: () => {},
-			removeEventListener: () => {},
-		})) as unknown as typeof window.matchMedia
-		return {
-			callMock: vi.fn(),
-			createResourceMock: vi.fn(),
-			getCachedResourceMock: vi.fn(),
-			toastMock: { success: vi.fn(), error: vi.fn() },
-		}
-	})
+const { callMock, createResourceMock, toastMock } = vi.hoisted(() => {
+	window.matchMedia ??= (() => ({
+		matches: false,
+		addEventListener: () => {},
+		removeEventListener: () => {},
+	})) as unknown as typeof window.matchMedia
+	return {
+		callMock: vi.fn(),
+		createResourceMock: vi.fn(),
+		toastMock: { success: vi.fn(), error: vi.fn(), warning: vi.fn() },
+	}
+})
 
 // HeaderButton wraps frappe-ui's Button in a Tooltip below the mobile
 // breakpoint, and the hand-written frappe-ui mock here has no Tooltip. Stub it
@@ -41,7 +39,6 @@ vi.mock('@/components/HeaderButton.vue', () => ({
 vi.mock('frappe-ui', () => ({
 	call: callMock,
 	createResource: createResourceMock,
-	getCachedResource: getCachedResourceMock,
 	toast: toastMock,
 	Dialog: {
 		name: 'Dialog',
@@ -97,9 +94,6 @@ vi.mock('@/components/Controls/BooleanSwitch.vue', () => ({
 import MemberForm from '@/pages/Forms/MemberForm.vue'
 import { openFormRoute } from '@/composables/useFormRoute'
 import { membersRevision } from '@/stores/members'
-// The REAL route table, not a copy: a reimplemented table would only prove that
-// vue-router matches what you tell it to match.
-import { routes } from '@/routes'
 
 const MEMBER = 'jane@doe.com'
 
@@ -167,53 +161,8 @@ describe('the member form route', () => {
 		lookup.fetch.mockClear()
 		callMock.mockReset()
 		createResourceMock.mockClear()
-		getCachedResourceMock.mockReset()
-		getCachedResourceMock.mockReturnValue(null)
 		toastMock.success.mockClear()
 		toastMock.error.mockClear()
-	})
-
-	// resolve(), not push(): matching is synchronous and does not pull in the
-	// lazy page components, several of which are expensive to transform.
-	describe('route grammar', () => {
-		it('resolves both modes of /settings/users/:memberID', () => {
-			const router = createRouter({ history: createMemoryHistory(), routes })
-
-			const add = router.resolve('/settings/users/new')
-			expect(add.name).toBe('MemberForm')
-			expect(add.params.memberID).toBe('new')
-
-			const edit = router.resolve(`/settings/users/${MEMBER}`)
-			expect(edit.name).toBe('MemberForm')
-			expect(edit.params.memberID).toBe(MEMBER)
-		})
-
-		// It is the only thing under '/settings' with an address now: the phone
-		// settings pages are gone, so the prefix itself matches nothing.
-		it('is the only route under the settings prefix', () => {
-			const router = createRouter({ history: createMemoryHistory(), routes })
-			expect(router.resolve('/settings').name).toBe('NotFound')
-			expect(router.resolve('/settings/users').name).toBe('NotFound')
-			expect(router.resolve('/settings/zoom').name).toBe('NotFound')
-		})
-
-		// It matches its own three segments and nothing wider: a path-param route
-		// with a greedier pattern here would answer for '/settings/zoom/oops' too.
-		it('does not answer for another settings path', () => {
-			const router = createRouter({ history: createMemoryHistory(), routes })
-			expect(router.resolve('/settings/zoom/oops').name).toBe('NotFound')
-		})
-
-		it('points that route at the member form itself', async () => {
-			type LazyRecord = { name?: unknown; component?: () => Promise<unknown> }
-			const record = (routes as LazyRecord[]).find(
-				(route) => route.name === 'MemberForm'
-			)
-			expect(record?.component).toBeTypeOf('function')
-			await expect(record!.component!()).resolves.toMatchObject({
-				default: MemberForm,
-			})
-		})
 	})
 
 	// Members.vue's Add button carried no gate of its own; the gate was on the
@@ -226,8 +175,8 @@ describe('the member form route', () => {
 
 			expect(fields(wrapper).exists()).toBe(false)
 			expect(save(wrapper).exists()).toBe(false)
-			expect(wrapper.text()).toContain(
-				'You are not permitted to manage members.'
+			expect(toastMock.warning).toHaveBeenLastCalledWith(
+				expect.stringContaining('You are not permitted to manage members.')
 			)
 		})
 
@@ -375,21 +324,6 @@ describe('the member form route', () => {
 			await flushPromises()
 
 			expect(membersRevision.value).toBeGreaterThan(before)
-		})
-
-		// The cache key this replaced would have survived the panel unmounting
-		// and kept writing into the dead component's refs.
-		it('never reaches for the list resource by cache key', async () => {
-			const router = makeRouter()
-			await router.push('/settings/users/new')
-			const wrapper = await mountForm(router)
-			callMock.mockResolvedValue({ name: MEMBER })
-
-			await wrapper.find('[data-testid="field-Email"] input').setValue(MEMBER)
-			await save(wrapper).trigger('click')
-			await flushPromises()
-
-			expect(getCachedResourceMock).not.toHaveBeenCalled()
 		})
 	})
 

@@ -60,7 +60,7 @@ interface DialogAction {
 	label: string
 	theme?: string
 	variant?: string
-	onClick: (context: { close: () => void }) => void
+	onClick: (context: { close: () => void }) => void | Promise<unknown>
 }
 type DialogFn = (opts: {
 	title: string
@@ -200,6 +200,7 @@ const updateCourseData = (): void => {
 }
 
 const submitCourse = (): void => {
+	if (isSaving.value) return
 	const error = validateForm()
 	if (error) {
 		toast.error(error)
@@ -267,8 +268,7 @@ const trashCourse = (): void => {
 				theme: 'red',
 				variant: 'solid',
 				onClick({ close }) {
-					deleteCourse.submit()
-					close()
+					return deleteCourse.submit().finally(close)
 				},
 			},
 		],
@@ -297,5 +297,7 @@ const checkPermission = (): void => {
 	if (!isInstructor) router.push({ name: 'Courses' })
 }
 
-defineExpose({ isDirty, submitCourse, trashCourse, courseMenu })
+const isSaving = computed(() => courseResource.setValue.loading)
+
+defineExpose({ isDirty, isSaving, submitCourse, trashCourse, courseMenu })
 </script>

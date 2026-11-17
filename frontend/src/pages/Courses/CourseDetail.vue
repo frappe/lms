@@ -43,6 +43,7 @@
 					<HeaderButton
 						:label="__('Save')"
 						variant="solid"
+						:loading="courseFormRef.isSaving"
 						@click="courseFormRef.submitCourse()"
 					/>
 				</ShortcutTooltip>
@@ -377,6 +378,7 @@ const courseOptions = computed<CourseMenuItem[]>(() => {
 })
 
 function togglePublishCourse() {
+	if (publishToggle.loading) return
 	publishToggle.submit()
 }
 

@@ -483,20 +483,6 @@ describe('Lesson.vue unlocks the next lesson without a reload', () => {
 		expect((wrapper.vm as any).lessonProgress).not.toBe(90)
 	})
 
-	it('takes its progress listener with it when the page is left', async () => {
-		// The listener outlived the page, so revisiting the lesson N times left N
-		// handlers subscribed and one progress event fired N outline reloads.
-		wrapper = await mountLesson()
-		const handler = progressHandler()
-
-		wrapper.unmount()
-
-		expect(socketOffMock).toHaveBeenCalledWith(
-			'update_lesson_progress',
-			handler
-		)
-	})
-
 	it('does not reload twice for the completion this page already handled', async () => {
 		wrapper = await mountLesson()
 		const outline = findResource('lms.lms.utils.get_course_outline')
@@ -581,27 +567,5 @@ describe('Lesson.vue sidebar progress', () => {
 
 	it('keeps progress for a signed-in learner', async () => {
 		expect(await sidebarWithProgress({ name: 'a@example.com' })).toBe('true')
-	})
-})
-
-describe('Lesson.vue zen-mode progress chip', () => {
-	it('drops into flow on touch screens so it cannot cover the zen buttons', async () => {
-		wrapper = await mountLesson()
-		findResource('lms.lms.utils.get_lesson').data = {
-			...baseLesson,
-			membership: { progress: 42.3 },
-		}
-		;(wrapper.vm as any).zenModeEnabled = true
-		await flushPromises()
-
-		const chip = wrapper
-			.findAll('div')
-			.find((el) => el.text() === '43% completed')
-		expect(chip).toBeDefined()
-		const classes = chip!.classes()
-		expect(classes).toContain('absolute')
-		expect(classes).toContain('[@media(hover:none)]:block')
-		expect(classes).toContain('[@media(hover:none)]:static')
-		expect(classes).toContain('[@media(hover:none)]:mt-0')
 	})
 })

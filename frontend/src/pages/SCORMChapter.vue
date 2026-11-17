@@ -24,7 +24,11 @@
 				)
 			}}
 		</div>
-		<Button variant="solid" @click="enrollStudent()">
+		<Button
+			variant="solid"
+			:loading="enrollment.loading"
+			@click="enrollStudent()"
+		>
 			{{ __('Start Learning') }}
 		</Button>
 	</div>
@@ -271,6 +275,7 @@ const progress = createResource({
 })
 
 const enrollStudent = () => {
+	if (enrollment.loading) return
 	enrollment.submit(
 		{},
 		{

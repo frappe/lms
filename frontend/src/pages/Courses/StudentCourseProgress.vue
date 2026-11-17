@@ -33,7 +33,12 @@
 					</div>
 				</div>
 
-				<div class="grid gap-5" :class="hasAssessmentData ? 'grid-cols-2' : ''">
+				<ModalLoading v-if="lessons.loading && !lessons.data" />
+				<div
+					v-else
+					class="grid gap-5"
+					:class="hasAssessmentData ? 'grid-cols-2' : ''"
+				>
 					<div
 						v-if="lessons.data"
 						class="border border-outline-elevation-2 rounded-6 px-3 max-h-[60vh] overflow-y-auto"
@@ -159,6 +164,7 @@
 	</Dialog>
 </template>
 <script setup lang="ts">
+import ModalLoading from '@/components/ModalLoading.vue'
 import {
 	Avatar,
 	Badge,

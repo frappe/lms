@@ -482,6 +482,7 @@
 											questionDetails.data.type != 'Open Ended'
 										"
 										variant="solid"
+										:loading="answerCheck.loading"
 										@click="checkAnswer()"
 									>
 										<span>{{ __('Check') }}</span>
@@ -852,6 +853,7 @@ import {
 	useAssessmentSchedule,
 } from '@/composables/useAssessmentSchedule'
 import { markLessonProgress } from '@/utils/markLessonProgress'
+import { submitResource } from '@/utils/resource'
 import ResponsiveListView from '@/components/ResponsiveListView.vue'
 import RichTextEditor from '@/components/RichTextEditor.vue'
 import router from '@/router'
@@ -1626,7 +1628,12 @@ const getAnswers = (): Answer[] => {
 	return answers
 }
 
+const answerCheck = createResource({
+	url: 'lms.lms.doctype.lms_quiz.lms_quiz.check_answer',
+})
+
 const checkAnswer = (): void => {
+	if (answerCheck.loading) return
 	const answers = getAnswers()
 	const details = questionDetails.data
 	if (!quiz.data || !details) return
@@ -1635,35 +1642,39 @@ const checkAnswer = (): void => {
 		return
 	}
 
-	createResource({
-		url: 'lms.lms.doctype.lms_quiz.lms_quiz.check_answer',
-		params: {
+	submitResource<AnswerVerdict[] | AnswerVerdict>(
+		answerCheck,
+		{
 			quiz: quiz.data.name,
 			question: currentQuestion.value,
 			question_type: details.type,
 			answers: JSON.stringify(answers),
 		},
-		auto: true,
-		onSuccess(data: AnswerVerdict[] | AnswerVerdict) {
-			if (details.type == 'Choices' && Array.isArray(data)) {
-				selectedOptions.value.forEach((option, index) => {
-					if (option) {
-						showAnswers[index] = data[index]
-					} else if (data[index] == 2) {
-						showAnswers[index] = 2
-					} else {
-						showAnswers[index] = undefined
-					}
-				})
-			} else if (!Array.isArray(data)) {
-				showAnswers.push(data)
-			}
-			addToLocalStorage()
-			if (!quiz.data?.show_answers) {
-				resetQuestion()
-			}
-		},
-	})
+		{
+			onSuccess(data) {
+				if (details.type == 'Choices' && Array.isArray(data)) {
+					selectedOptions.value.forEach((option, index) => {
+						if (option) {
+							showAnswers[index] = data[index]
+						} else if (data[index] == 2) {
+							showAnswers[index] = 2
+						} else {
+							showAnswers[index] = undefined
+						}
+					})
+				} else if (!Array.isArray(data)) {
+					showAnswers.push(data)
+				}
+				addToLocalStorage()
+				if (!quiz.data?.show_answers) {
+					resetQuestion()
+				}
+			},
+			onError(error) {
+				console.error(error)
+			},
+		}
+	)
 }
 
 const addToLocalStorage = (): void => {

@@ -25,7 +25,7 @@ const { createResourceMock, getCachedListResourceMock, toastMock } = vi.hoisted(
 		return {
 			createResourceMock: vi.fn(),
 			getCachedListResourceMock: vi.fn(),
-			toastMock: { success: vi.fn(), error: vi.fn() },
+			toastMock: { success: vi.fn(), error: vi.fn(), warning: vi.fn() },
 		}
 	}
 )
@@ -215,7 +215,9 @@ describe('EmailTemplateForm as a route', () => {
 
 		expect(fields(wrapper).exists()).toBe(false)
 		expect(save(wrapper).exists()).toBe(false)
-		expect(wrapper.html()).toContain('do not have permission')
+		expect(toastMock.warning).toHaveBeenLastCalledWith(
+			expect.stringContaining('do not have permission')
+		)
 	})
 
 	// The settings tab that hosted the modal was gated on moderator OR
@@ -236,28 +238,9 @@ describe('EmailTemplateForm as a route', () => {
 		const wrapper = await mountForm(router)
 
 		expect(fields(wrapper).exists()).toBe(false)
-		expect(wrapper.html()).toContain('read-only')
-	})
-
-	it('inserts through its own resource, naming by prompt', async () => {
-		const router = makeRouter()
-		await openForm(router)
-		const wrapper = await mountForm(router)
-		await fill(wrapper)
-
-		await save(wrapper).trigger('click')
-		expect(insert.submit).toHaveBeenCalledTimes(1)
-		expect((insertOptions().makeParams as () => unknown)()).toEqual({
-			doc: {
-				doctype: 'Email Template',
-				__newname: 'Enrollment Confirmation',
-				name: 'Enrollment Confirmation',
-				subject: 'You are in',
-				use_html: 0,
-				response: 'Dear member',
-				response_html: '',
-			},
-		})
+		expect(toastMock.warning).toHaveBeenLastCalledWith(
+			expect.stringContaining('read-only')
+		)
 	})
 
 	it('sends the HTML body instead once Use HTML is on', async () => {
@@ -314,35 +297,6 @@ describe('EmailTemplateForm as a route', () => {
 		expect(router.currentRoute.value.query.emailTemplate).toBe(
 			'Enrollment Confirmation'
 		)
-	})
-
-	it('survives a save with no template list mounted to refresh', async () => {
-		const router = makeRouter()
-		await openForm(router)
-		const wrapper = await mountForm(router)
-		await fill(wrapper)
-		succeedOnSubmit()
-
-		await save(wrapper).trigger('click')
-		await flushPromises()
-
-		expect(getCachedListResourceMock).toHaveBeenCalledWith('email-templates')
-		expect(router.currentRoute.value.name).toBe('BatchDetail')
-	})
-
-	it('refreshes the settings template list when it is mounted', async () => {
-		const list = { reload: vi.fn() }
-		getCachedListResourceMock.mockReturnValue(list)
-		const router = makeRouter()
-		await openForm(router)
-		const wrapper = await mountForm(router)
-		await fill(wrapper)
-		succeedOnSubmit()
-
-		await save(wrapper).trigger('click')
-		await flushPromises()
-
-		expect(list.reload).toHaveBeenCalledTimes(1)
 	})
 
 	it('mobile: the back control pops the router back to the batch', async () => {

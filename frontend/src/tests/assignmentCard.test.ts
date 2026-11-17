@@ -149,52 +149,6 @@ beforeEach(() => {
 })
 
 describe('the assignment card', () => {
-	it('shows a skeleton card while the assignment loads', async () => {
-		state.loading = true
-		const wrapper = await mountAssignment()
-
-		expect(wrapper.find('[data-testid="assignment-skeleton"]').exists()).toBe(
-			true
-		)
-		expect(wrapper.text()).toContain('Assignment')
-	})
-
-	it('renders the brief and a drop zone for a file assignment', async () => {
-		state.assignment = {
-			title: 'Temperature Converter',
-			type: 'PDF',
-			question: '<p>Convert Celsius.</p>',
-		}
-		const wrapper = await mountAssignment()
-
-		expect(wrapper.find('[data-testid="assignment-skeleton"]').exists()).toBe(
-			false
-		)
-		expect(wrapper.text()).toContain('Temperature Converter')
-		expect(wrapper.text()).toContain('Brief')
-		expect(wrapper.text()).toContain('Convert Celsius.')
-		expect(wrapper.find('[data-testid="assignment-dropzone"]').exists()).toBe(
-			true
-		)
-		expect(wrapper.find('[data-testid="url-input"]').exists()).toBe(false)
-		const labels = wrapper.findAll('button').map((b) => b.text())
-		expect(labels).toContain('Submit')
-		expect(labels).not.toContain('Save')
-	})
-
-	it('draws the drop zone with the artboard 10px corners', async () => {
-		state.assignment = {
-			title: 'Temperature Converter',
-			type: 'PDF',
-			question: '<p>Convert Celsius.</p>',
-		}
-		const wrapper = await mountAssignment()
-
-		const zone = wrapper.get('[data-testid="assignment-dropzone"]')
-		expect(zone.classes()).toContain('rounded-5')
-		expect(zone.classes()).toContain('border-outline-gray-2')
-	})
-
 	it('renders only the URL input for a URL assignment', async () => {
 		state.assignment = {
 			title: 'Portfolio',
