@@ -13,7 +13,8 @@ vi.mock('@/components/RichTextEditor.vue', () => ({
 	default: {
 		name: 'RichTextEditorStub',
 		props: [
-			'editorClass',
+			'fill',
+			'minHeight',
 			'content',
 			'editable',
 			'fixedMenu',

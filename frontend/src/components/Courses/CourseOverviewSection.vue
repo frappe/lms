@@ -24,7 +24,7 @@
 					"
 					:editable="true"
 					:fixedMenu="true"
-					editorClass="prose-sm max-w-none border-b border-x border-outline-gray-2 hover:border-outline-gray-3 hover:shadow-sm focus-within:border-outline-gray-4 focus-within:shadow-sm rounded-b-5 py-1 px-2 min-h-[7rem] transition-colors"
+					minHeight="7rem"
 				/>
 			</div>
 		</div>
