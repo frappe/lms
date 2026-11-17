@@ -168,7 +168,7 @@
 								{{ TUTOR_NAME }}
 							</div>
 							<div
-								class="mt-1.5 flex max-w-[560px] flex-col gap-3 rounded-7 border border-outline-green-2 bg-surface-green-1 px-4 py-3"
+								class="mt-1.5 flex flex-col gap-3 rounded-7 border border-outline-green-2 bg-surface-green-1 px-4 py-3"
 							>
 								<div class="text-p-sm text-ink-gray-8">
 									<span class="text-base-medium text-ink-gray-9">{{

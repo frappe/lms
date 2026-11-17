@@ -57,11 +57,17 @@ describe('splitSentences', () => {
 			long,
 			`${long} Let us go.`,
 		])
+		// The first sentence is always on its own, so the voice starts quickly.
+		expect(splitSentences('Good. That is right. Now the next one.')).toEqual([
+			'Good.',
+			'That is right. Now the next one.',
+		])
 	})
 
-	it('lets short sentences travel together, one voice request instead of three', () => {
+	it('lets short sentences after the first travel together', () => {
 		expect(splitSentences('Hi there! Ready to start? Let us go.')).toEqual([
-			'Hi there! Ready to start? Let us go.',
+			'Hi there!',
+			'Ready to start? Let us go.',
 		])
 	})
 
@@ -85,7 +91,8 @@ describe('useSpeech', () => {
 		await vi.waitFor(() => expect(speech.speaking.value).toBe(false))
 		// Short sentences of one reply share a request; replies never merge.
 		expect(spoken).toEqual([
-			'First reply. It has two sentences.',
+			'First reply.',
+			'It has two sentences.',
 			'Second reply.',
 		])
 	})

@@ -167,9 +167,11 @@
 			</aside>
 
 			<div class="relative flex min-w-0 flex-1 flex-col">
+				<!-- Zen's own controls get a strip of their own, so they never sit on top of the
+				     step's header and its key ideas. -->
 				<div
 					v-if="zen"
-					class="absolute end-4 top-4 z-10 flex items-center gap-1"
+					class="flex shrink-0 items-center justify-end gap-1 px-4 pt-3"
 				>
 					<Button
 						variant="ghost"

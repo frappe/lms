@@ -10,7 +10,7 @@
 			class="flex items-center gap-4"
 			:class="
 				moment
-					? 'shrink-0 flex-row py-2'
+					? 'shrink-0 flex-row pb-2 pt-8'
 					: 'flex-1 flex-col justify-center gap-3 py-6 text-center'
 			"
 		>

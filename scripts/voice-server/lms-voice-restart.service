@@ -1,0 +1,7 @@
+# /etc/systemd/system/lms-voice-restart.service
+[Unit]
+Description=Restart the Learning voice server to free memory
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/systemctl restart lms-voice

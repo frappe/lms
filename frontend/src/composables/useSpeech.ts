@@ -61,7 +61,9 @@ export const splitSentences = (text: string): string[] => {
 	const chunks: string[] = []
 	for (const part of parts) {
 		const last = chunks[chunks.length - 1]
-		if (last && last.length + part.length + 1 <= CHUNK_LENGTH)
+		// The first sentence always goes alone: a short request comes back in under a second,
+		// so the voice starts while the longer chunks behind it are still being made.
+		if (last && chunks.length > 1 && last.length + part.length + 1 <= CHUNK_LENGTH)
 			chunks[chunks.length - 1] = `${last} ${part}`
 		else chunks.push(part)
 	}

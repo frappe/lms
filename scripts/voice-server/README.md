@@ -39,6 +39,9 @@ Keep the token: the site needs it in step 4.
 ```sh
 sudo cp lms-voice.service /etc/systemd/system/
 sudo systemctl enable --now lms-voice
+# Memory grows with use; restart it every night at 3 AM IST.
+sudo cp lms-voice-restart.service lms-voice-restart.timer /etc/systemd/system/
+sudo systemctl enable --now lms-voice-restart.timer
 ```
 
 On a machine of its own, Caddy is the front door:

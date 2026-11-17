@@ -63,10 +63,15 @@ const serverSTT = async (): Promise<boolean> => {
 	return sidecarSTT
 }
 
+/** The browser's engine failed once on this page (offline, blocked by policy), so the
+ * remaining turns go to the sidecar instead of failing again. */
+let engineFailed = false
+
 /**
- * Speaking and listening. Listening prefers the site's Whisper sidecar — recorded
- * locally, endpointed by mic level, transcribed server-side — and falls back to the
- * browser's own speech engine. Speaking falls back to the browser's voices.
+ * Speaking and listening. Listening prefers the browser's own speech engine: it writes
+ * the words while the learner talks, so the turn is ready the moment they stop. Without
+ * one (Firefox), or once it fails, the site's Whisper sidecar records the turn and
+ * transcribes it. Speaking stays with the site's voice and falls back to the browser's.
  */
 export function useVoice() {
 	const RecognitionClass =
@@ -85,6 +90,7 @@ export function useVoice() {
 	const transcribing = ref(false)
 	const transcript = ref('')
 	const error = ref<string | null>(null)
+	let emptyTurns = 0
 	/** The microphone is denied, so listening again without the user fixing it is futile. */
 	const blocked = ref(false)
 	let recognition: Recognition | null = null
@@ -104,8 +110,8 @@ export function useVoice() {
 		error.value = null
 		listening.value = true
 		void (async () => {
-			if (await serverSTT()) recordTurn(onDone)
-			else if (RecognitionClass) engineTurn(onDone)
+			if (RecognitionClass && !engineFailed) engineTurn(onDone)
+			else if (await serverSTT()) recordTurn(onDone)
 			else listening.value = false
 		})()
 	}
@@ -205,9 +211,13 @@ export function useVoice() {
 				const data = await response.json()
 				const text = ((data.message || data).text || '').trim()
 				transcript.value = text
-				if (text) onDone(text)
-				else
-					// Naming the device turns "it doesn't work" into "it used the wrong mic".
+				if (text) {
+					emptyTurns = 0
+					onDone(text)
+				} else if (++emptyTurns >= 3)
+					// One silent turn is someone thinking, or the mic opening as the tutor stops.
+					// Only a run of them points at the device; naming it turns "it doesn't work"
+					// into "it used the wrong mic".
 					error.value = __(
 						"We couldn't make out any words. The browser recorded from '{0}'. If that's not your mic, pick another in the address bar and try again.",
 					).format(device || __('an unknown device'))
@@ -306,6 +316,22 @@ export function useVoice() {
 				// take forever, which looks like listening while hearing nothing.
 				if (event.error === 'no-speech' || event.error === 'aborted') return
 				blocked.value = event.error === 'not-allowed'
+				// The engine itself failed, not the mic: the same turn goes on with the
+				// sidecar, so the learner does not have to tap again.
+				if (!blocked.value) {
+					active = false
+					endTurn = null
+					if (settleTimer) clearTimeout(settleTimer)
+					engineFailed = true
+					void serverSTT().then((available) => {
+						if (available) return recordTurn(onDone)
+						error.value = __(
+							'Speech recognition failed ({0}). Check your connection and tap the mic to retry.',
+						).format(event.error)
+						listening.value = false
+					})
+					return
+				}
 				error.value = blocked.value
 					? __('Allow microphone access in your browser to speak.')
 					: __(
