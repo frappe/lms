@@ -98,7 +98,6 @@ describe('StudentLessonSidebar locked lesson', () => {
 	})
 })
 
-<<<<<<< HEAD
 describe('StudentLessonSidebar without progress', () => {
 	// Guards #3010: a guest saw "Completed 0%" and an empty ring per lesson.
 	const mountGuest = () =>
@@ -121,7 +120,9 @@ describe('StudentLessonSidebar without progress', () => {
 		expect(wrapper.text()).not.toContain('Completed')
 		expect(wrapper.find('[style*="width"]').exists()).toBe(false)
 		expect(wrapper.text()).toContain('Course 1')
-=======
+	})
+})
+
 describe('StudentLessonSidebar completed lesson', () => {
 	// Guards: completion shown by an icon alone. Introduced in #2674; test added
 	// with the a11y audit remediation.
@@ -130,6 +131,5 @@ describe('StudentLessonSidebar completed lesson', () => {
 
 		expect(rows[0].get('.sr-only').text()).toBe('Completed')
 		expect(rows[1].find('.sr-only').exists()).toBe(false)
->>>>>>> da6c1f3 (fix: make course, video and sidebar controls reachable by keyboard)
 	})
 })

@@ -245,7 +245,6 @@ describe('ChapterRow locked lesson', () => {
 	})
 })
 
-<<<<<<< HEAD
 describe('ChapterRow draft lesson', () => {
 	const mountInline = (selectedLessonNumber: string) =>
 		mount(ChapterRow, {
@@ -312,7 +311,9 @@ describe('ChapterRow lock reason', () => {
 
 		expect(lockTooltip(wrapper)?.attributes('data-tooltip')).toBe(reason)
 		expect(wrapper.text()).toContain(reason)
-=======
+	})
+})
+
 describe('ChapterRow keyboard access', () => {
 	// Guards: chapter and lesson actions were icon spans, nested in the header or
 	// lesson control, and completion was an icon alone. Introduced in #2424 and
@@ -349,6 +350,5 @@ describe('ChapterRow keyboard access', () => {
 		expect(wrapper.emitted('select-lesson')).toEqual([
 			[{ chapterNumber: '2', lessonNumber: '1' }],
 		])
->>>>>>> 6a494cd (fix: raise secondary text to AA contrast)
 	})
 })

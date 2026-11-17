@@ -52,12 +52,14 @@
 					{{ chapter.lessons.length }}
 				</span>
 				<template v-if="isScormChapterLocked">
-					<span
-						class="lucide-lock-keyhole size-4 text-ink-gray-4"
-						:title="__('Complete the previous lessons to unlock this one')"
-						aria-hidden="true"
-					/>
+					<Tooltip :text="lockReason">
+						<span
+							class="lucide-lock-keyhole size-4 text-ink-gray-4"
+							aria-hidden="true"
+						/>
+					</Tooltip>
 					<span class="sr-only">{{ __('Locked') }}</span>
+					<span class="sr-only">{{ lockReason }}</span>
 				</template>
 				<template
 					v-else-if="chapter.is_scorm_package && isScormChapterComplete"
@@ -99,25 +101,7 @@
 					</Button>
 				</Tooltip>
 			</div>
-<<<<<<< HEAD
-			<template v-if="isScormChapterLocked">
-				<Tooltip :text="lockReason">
-					<span
-						class="lucide-lock-keyhole size-4 text-ink-gray-4"
-						aria-hidden="true"
-					/>
-				</Tooltip>
-				<span class="sr-only">{{ __('Locked') }}</span>
-				<span class="sr-only">{{ lockReason }}</span>
-			</template>
-			<span
-				v-else-if="chapter.is_scorm_package && isScormChapterComplete"
-				class="lucide-check size-4 text-ink-green-8"
-			/>
-		</DisclosureButton>
-=======
 		</div>
->>>>>>> da6c1f3 (fix: make course, video and sidebar controls reachable by keyboard)
 		<DisclosurePanel v-if="!chapter.is_scorm_package">
 			<Draggable
 				:list="chapter.lessons"

@@ -45,19 +45,15 @@
 				:combo="link.shortcut"
 				class="!ms-auto"
 			/>
-<<<<<<< HEAD
 			<span
 				v-if="link.count && !isCollapsed"
-				class="!ms-auto block text-p-xs text-ink-gray-5"
+				class="!ms-auto block text-p-xs text-ink-gray-6"
 				:class="
 					isCollapsed && link.count > 9
 						? 'absolute top-[2px] end-0 bg-surface-base'
 						: ''
 				"
 			>
-=======
-			<span v-else-if="link.count" class="me-2 text-p-xs text-ink-gray-6">
->>>>>>> 6a494cd (fix: raise secondary text to AA contrast)
 				{{ link.count }}
 			</span>
 			<div

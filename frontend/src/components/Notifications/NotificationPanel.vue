@@ -82,13 +82,8 @@
 							</div>
 							<div>
 								<div v-safe-html:basic="decodeEntities(n.subject)" />
-<<<<<<< HEAD
-								<div class="text-p-sm text-ink-gray-5">
-									{{ serverTime(n.creation).fromNow() }}
-=======
 								<div class="text-p-sm text-ink-gray-6">
-									{{ dayjs(n.creation).fromNow() }}
->>>>>>> 6a494cd (fix: raise secondary text to AA contrast)
+									{{ serverTime(n.creation).fromNow() }}
 								</div>
 							</div>
 						</component>
@@ -108,12 +103,7 @@
 </template>
 <script setup>
 import { Avatar, Button, TabButtons, Tooltip } from 'frappe-ui'
-<<<<<<< HEAD
 import { computed, ref, watch } from 'vue'
-import { useRouter } from 'vue-router'
-=======
-import { computed, inject, ref, watch } from 'vue'
->>>>>>> da6c1f3 (fix: make course, video and sidebar controls reachable by keyboard)
 import { onClickOutside } from '@vueuse/core'
 import { decodeEntities } from '@/utils'
 import { assignmentSubmissionFromLink } from '@/utils/notificationLinks'
@@ -129,11 +119,6 @@ import {
 	markAllAsRead,
 } from '@/stores/notifications'
 
-<<<<<<< HEAD
-const router = useRouter()
-=======
-const dayjs = inject('$dayjs')
->>>>>>> da6c1f3 (fix: make course, video and sidebar controls reachable by keyboard)
 const sidebarStore = useSidebar()
 const { isMobile } = useScreenSize()
 

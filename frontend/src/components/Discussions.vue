@@ -94,7 +94,6 @@
 			)
 		"
 	>
-<<<<<<< HEAD
 		<Button :label="__('Reload')" @click="topics.reload()" />
 	</EmptyStateLayout>
 	<!-- Sits under a lesson, so it stays compact rather than filling the view. -->
@@ -118,18 +117,6 @@
 			{{ __('New {0}').format(singularize(title)) }}
 		</Button>
 	</EmptyStateLayout>
-=======
-		<span class="lucide-message-square-text size-7 text-ink-gray-4 me-2" />
-		<div class="mt-2">
-			<div v-if="emptyStateTitle" class="font-medium mb-2">
-				{{ __(emptyStateTitle) }}
-			</div>
-			<div class="text-ink-gray-6">
-				{{ __(emptyStateText) }}
-			</div>
-		</div>
-	</div>
->>>>>>> 6a494cd (fix: raise secondary text to AA contrast)
 	<DiscussionModal
 		v-model="showTopicModal"
 		:title="__('New {0}').format(title)"

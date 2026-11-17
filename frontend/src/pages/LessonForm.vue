@@ -11,7 +11,6 @@
 				{{ __('Lesson details') }}
 			</button>
 
-<<<<<<< HEAD
 			<SwitchRow
 				v-else
 				v-model="lesson.include_in_preview"
@@ -21,22 +20,6 @@
 				<template #label>
 					<span class="flex items-center gap-1.5">
 						{{ __('Include in preview') }}
-=======
-			<div v-else class="flex items-center justify-between gap-3">
-				<div class="flex items-center gap-3">
-					<Switch
-						v-model="lesson.include_in_preview"
-						:aria-labelledby="previewLabelId"
-						@update:modelValue="markDirty"
-					/>
-					<div class="flex items-center gap-1.5">
-						<span
-							:id="previewLabelId"
-							class="text-p-base font-medium text-ink-gray-8"
-						>
-							{{ __('Include in preview') }}
-						</span>
->>>>>>> c6220df (fix: give rich text editors, filters and billing fields programmatic names)
 						<Tooltip
 							:text="
 								__(
@@ -54,7 +37,6 @@
 			</SwitchRow>
 
 			<BottomSheet v-model="showLessonDetails" :title="__('Lesson details')">
-<<<<<<< HEAD
 				<div class="px-3 pb-5 pt-3">
 					<SwitchRow
 						v-model="lesson.include_in_preview"
@@ -66,32 +48,6 @@
 						"
 						@update:modelValue="markDirty"
 					/>
-=======
-				<div class="px-3 pb-2">
-					<div class="flex items-start justify-between gap-4 py-3">
-						<div class="min-w-0">
-							<div
-								:id="previewSheetLabelId"
-								class="text-p-base font-medium text-ink-gray-8"
-							>
-								{{ __('Include in preview') }}
-							</div>
-							<p class="mt-0.5 text-p-sm text-ink-gray-6">
-								{{
-									__(
-										'When on, anyone can preview this lesson without enrolling. Otherwise it is visible only to enrolled students.'
-									)
-								}}
-							</p>
-						</div>
-						<Switch
-							v-model="lesson.include_in_preview"
-							:aria-labelledby="previewSheetLabelId"
-							class="shrink-0"
-							@update:modelValue="markDirty"
-						/>
-					</div>
->>>>>>> c6220df (fix: give rich text editors, filters and billing fields programmatic names)
 				</div>
 			</BottomSheet>
 
@@ -101,16 +57,12 @@
 				:placeholder="__('Lesson title')"
 				:aria-label="__('Lesson title')"
 				rows="1"
-<<<<<<< HEAD
 				class="lesson-title block w-full resize-none overflow-hidden border-0 bg-transparent p-0 text-2xl font-bold leading-tight text-ink-gray-9 placeholder:text-ink-gray-4 focus:outline-none"
 				:class="
 					titleKeyboardFocus
 						? 'focus:ring-2 focus:ring-outline-gray-5'
 						: 'focus:ring-0'
 				"
-=======
-				class="lesson-title block w-full resize-none overflow-hidden border-0 bg-transparent p-0 text-2xl font-bold leading-tight text-ink-gray-9 placeholder:text-ink-gray-4 focus:outline-none focus:ring-0 focus-visible:ring-2 focus-visible:ring-outline-gray-5"
->>>>>>> c6220df (fix: give rich text editors, filters and billing fields programmatic names)
 				@input="onTitleInput"
 				@focus="titleKeyboardFocus = lastInputWasKeyboard"
 				@keydown.enter="onTitleEnter"
@@ -168,7 +120,6 @@ import {
 	ref,
 	nextTick,
 	onBeforeUnmount,
-	useId,
 } from 'vue'
 import { ChevronRight, NotebookPen } from 'lucide-vue-next'
 import { useDebounceFn, useEventListener } from '@vueuse/core'
@@ -196,8 +147,6 @@ import {
 
 const { isMobile } = useScreenSize()
 const showLessonDetails = ref(false)
-const previewLabelId = useId()
-const previewSheetLabelId = useId()
 
 const editor = ref(null)
 const instructorEditor = ref(null)

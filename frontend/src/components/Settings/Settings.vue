@@ -4,11 +4,7 @@
 		<SettingsSidebar>
 			<SettingsNavGroup v-for="group in tabs" :key="group.label">
 				<template #label>
-<<<<<<< HEAD
-					<span class="text-p-xs-medium text-ink-gray-5">
-=======
-					<span class="text-xs-medium text-ink-gray-6">
->>>>>>> 6a494cd (fix: raise secondary text to AA contrast)
+					<span class="text-p-xs-medium text-ink-gray-6">
 						{{ __(group.label) }}
 					</span>
 				</template>

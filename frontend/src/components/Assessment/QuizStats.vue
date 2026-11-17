@@ -15,13 +15,8 @@
 				{{ duration ? `${duration} ${__('min')}` : __('None') }}
 			</dd>
 		</div>
-<<<<<<< HEAD
 		<div v-if="questions" class="space-y-0.5 bg-surface-base px-3 py-2">
-			<dt class="text-xs text-ink-gray-5">{{ __('Pass mark') }}</dt>
-=======
-		<div class="space-y-0.5 bg-surface-base px-3 py-2">
 			<dt class="text-xs text-ink-gray-6">{{ __('Pass mark') }}</dt>
->>>>>>> 6a494cd (fix: raise secondary text to AA contrast)
 			<dd class="text-base font-medium text-ink-gray-9">
 				{{ passingPercentage || 0 }}%
 			</dd>

@@ -61,15 +61,9 @@
 	</PageBody>
 </template>
 <script setup lang="ts">
-<<<<<<< HEAD
-import { computed, inject, onMounted } from 'vue'
+import { computed, inject, onMounted, useId } from 'vue'
 import PageHeader from '@/components/Layouts/PageHeader.vue'
 import PageBody from '@/components/Layouts/PageBody.vue'
-=======
-import { computed, inject, onMounted, useId } from 'vue'
-import PageHeader from '@/components/Layouts/pages/PageHeader.vue'
-import PageBody from '@/components/Layouts/pages/PageBody.vue'
->>>>>>> da6c1f3 (fix: make course, video and sidebar controls reachable by keyboard)
 import { Badge, call, createResource, Tooltip, usePageMeta } from 'frappe-ui'
 import { sessionStore } from '@/stores/session'
 
