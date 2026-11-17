@@ -6,7 +6,7 @@ import frappe
 from frappe import _
 from frappe.utils import cint, flt, getdate, now_datetime, today
 
-from lms.lms.ai import characters, ideas, material, setup, situations
+from lms.lms.ai import characters, ideas, material, openings, setup, situations
 
 PRACTICE_TYPES = ("Scenario", "Check", "Role-play")
 
@@ -437,27 +437,70 @@ def start_check(assignment_name: str, index: int, fresh: bool = False) -> list[d
 	]
 
 
-def start_roleplay(assignment_name: str, index: int) -> str:
-	from frappe.flow.lib.session import new_session
+def prepare_conversation(assignment_name: str, index: int) -> dict:
+	"""Open the lesson or role-play while the learner reads its start screen, so the opening is
+	written before they press Start. Returns the opening once it is, for the page to ask for its
+	voice ahead."""
+	assignment = get_assignment(assignment_name)
+	activity, content = _activity(assignment.goal, index)
+	opener = {"Lesson": _open_lesson, "Role-play": _open_roleplay}.get(activity.activity_type)
+	if not opener:
+		frappe.throw(_("Only a lesson or a role-play starts a conversation."), title=_("Wrong Activity"))
+	name = openings.prepared(assignment.name, index, lambda: opener(assignment, activity, content))
+	return {"opening": _opening(name)}
 
+
+def _opening(session_name: str) -> str | None:
+	"""The first reply, once it is finished."""
+	turns = _transcript(session_name)
+	if frappe.db.exists("Flow Run", {"session": session_name, "status": "Running"}):
+		return None
+	replies = [turn["text"] for turn in turns if turn["speaker"] == "Character"]
+	return replies[-1] if replies else None
+
+
+def start_roleplay(assignment_name: str, index: int) -> str:
 	assignment = get_assignment(assignment_name)
 	activity, content = _activity(assignment.goal, index)
 	if activity.activity_type != "Role-play":
 		frappe.throw(_("This activity is not a role-play."), title=_("Wrong Activity"))
+	session = openings.take(assignment.name, index) or _open_roleplay(assignment, activity, content).name
+	_save_evidence(assignment, index, activity, status="Recorded", flow_session=session, passed=0)
+	return session
+
+
+def _open_roleplay(assignment, activity, content: dict):
+	from frappe.flow.lib.session import new_session
+
 	session = new_session(setup.ROLE_PLAY, title=activity.title, approval_mode="Auto-approve")
 	session.chat(_roleplay_brief(content, situations.recall(assignment)))
-	_save_evidence(assignment, index, activity, status="Recorded", flow_session=session.name, passed=0)
-	return session.name
+	return session
 
 
 def start_teaching(assignment_name: str, index: int) -> str:
 	"""Open a one-to-one teaching conversation with Lumi for the goal's lesson."""
-	from frappe.flow.lib.session import new_session
-
 	assignment = get_assignment(assignment_name)
 	activity, content = _activity(assignment.goal, index)
 	if activity.activity_type != "Lesson":
 		frappe.throw(_("This activity is not a lesson."), title=_("Wrong Activity"))
+	frappe.db.set_value("LMS Goal Assignment", assignment.name, "tutor_persona", characters.TUTOR_NAME)
+	session = openings.take(assignment.name, index) or _open_lesson(assignment, activity, content).name
+	# A lesson left before it was finished counts for nothing: the new conversation starts
+	# clean, key ideas unticked. A finished lesson taken again stays finished.
+	finished = frappe.db.get_value(
+		"LMS Goal Evidence", {"assignment": assignment.name, "activity_index": index, "status": "Graded"}
+	)
+	if finished:
+		_save_evidence(assignment, index, activity, flow_session=session)
+	else:
+		ideas.forget_confirmations(assignment.name)
+		_save_evidence(assignment, index, activity, status="Recorded", flow_session=session, passed=0)
+	return session
+
+
+def _open_lesson(assignment, activity, content: dict):
+	from frappe.flow.lib.session import new_session
+
 	if not frappe.db.exists("Flow Agent", setup.TUTOR):
 		# nosemgrep: frappe-setuser - agents are created as the system; the learner is put back in finally
 		frappe.set_user("Administrator")
@@ -467,7 +510,6 @@ def start_teaching(assignment_name: str, index: int) -> str:
 			# nosemgrep: frappe-setuser - restores the learner after a system step
 			frappe.set_user(assignment.member)
 	goal = frappe.get_doc("LMS Goal", assignment.goal)
-	frappe.db.set_value("LMS Goal Assignment", assignment.name, "tutor_persona", characters.TUTOR_NAME)
 	session = new_session(setup.TUTOR, title=activity.title, approval_mode="Auto-approve")
 	session.chat(
 		"BRIEF\n"
@@ -487,17 +529,7 @@ def start_teaching(assignment_name: str, index: int) -> str:
 			}
 		)
 	)
-	# A lesson left before it was finished counts for nothing: the new conversation starts
-	# clean, key ideas unticked. A finished lesson taken again stays finished.
-	finished = frappe.db.get_value(
-		"LMS Goal Evidence", {"assignment": assignment.name, "activity_index": index, "status": "Graded"}
-	)
-	if finished:
-		_save_evidence(assignment, index, activity, flow_session=session.name)
-	else:
-		ideas.forget_confirmations(assignment.name)
-		_save_evidence(assignment, index, activity, status="Recorded", flow_session=session.name, passed=0)
-	return session.name
+	return session
 
 
 def finish_teaching(session_name: str, user: str, summary: str) -> None:

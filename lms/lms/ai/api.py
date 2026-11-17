@@ -513,6 +513,12 @@ def record_moment(
 
 
 @frappe.whitelist(methods=["POST"])
+def prepare_conversation(assignment: str, index: int) -> dict:
+	"""Called while a lesson or role-play shows its start screen, until the opening is written."""
+	return goals.prepare_conversation(assignment, int(index))
+
+
+@frappe.whitelist(methods=["POST"])
 def start_roleplay(assignment: str, index: int) -> str:
 	return goals.start_roleplay(assignment, int(index))
 

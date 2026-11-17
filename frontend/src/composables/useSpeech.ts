@@ -96,6 +96,35 @@ const SAY_AS: [RegExp, string][] = [[/\bFrappe\b/g, 'Frappay']]
 export const pronounce = (sentence: string): string =>
 	SAY_AS.reduce((text, [word, said]) => text.replace(word, said), sentence)
 
+/** One chunk's audio from the hosted voice, or null when the browser voice speaks. */
+const requestAudio = async (
+	sentence: string,
+	character: CharacterKey
+): Promise<Response | null> => {
+	const provider = preferredProvider()
+	if (provider === 'browser' || !(await speechProviders()).length) return null
+	return fetch('/api/method/lms.lms.ai.api.speech', {
+		method: 'POST',
+		headers: {
+			'Content-Type': 'application/json',
+			'X-Frappe-CSRF-Token':
+				(window as unknown as { csrf_token?: string }).csrf_token || '',
+		},
+		body: JSON.stringify({
+			text: pronounce(sentence),
+			character,
+			provider: provider || undefined,
+		}),
+	})
+}
+
+/** Has the voice made a reply's first chunks before it is read out. The server keeps the
+ * audio it makes, so reading the reply later plays them at once. */
+export const warmSpeech = (text: string, character: CharacterKey) => {
+	for (const sentence of splitSentences(text).slice(0, PREFETCH))
+		requestAudio(sentence, character).catch(() => null)
+}
+
 interface QueueItem {
 	sentence: string
 	character: CharacterKey
@@ -157,23 +186,9 @@ export function useSpeech() {
 	}
 
 	const fetchAudio = async (item: QueueItem): Promise<string | null> => {
-		const provider = preferredProvider()
-		if (provider === 'browser' || !(await speechProviders()).length) return null
 		try {
-			const response = await fetch('/api/method/lms.lms.ai.api.speech', {
-				method: 'POST',
-				headers: {
-					'Content-Type': 'application/json',
-					'X-Frappe-CSRF-Token':
-						(window as unknown as { csrf_token?: string }).csrf_token || '',
-				},
-				body: JSON.stringify({
-					text: pronounce(item.sentence),
-					character: item.character,
-					provider: provider || undefined,
-				}),
-			})
-			if (!response.ok) return null
+			const response = await requestAudio(item.sentence, item.character)
+			if (!response?.ok) return null
 			const url = URL.createObjectURL(await response.blob())
 			blobUrls.add(url)
 			return url

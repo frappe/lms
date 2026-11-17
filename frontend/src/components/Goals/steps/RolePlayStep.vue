@@ -399,6 +399,8 @@ import {
 import type { Socket } from 'socket.io-client'
 import FlowChat from '@/components/Goals/FlowChat.vue'
 import CharacterAvatar from '@/components/Goals/CharacterAvatar.vue'
+import { useOpening } from '@/composables/useOpening'
+import { preferredMode, useVoice } from '@/composables/useVoice'
 import { CAST_NAMES, castTrait, isCastKey } from '@/utils/characters'
 
 const props = withDefaults(
@@ -497,9 +499,21 @@ watch(() => [props.activity.index, evidence.value?.status], sync, {
 	immediate: true,
 })
 
+// The character writes their opening line while the learner reads the brief.
+const { canListen } = useVoice()
+const opening = useOpening(
+	() => ({ assignment: props.assignment, index: props.activity.index }),
+	() => (isCastKey(content.value.cast) ? content.value.cast : 'lumi'),
+	() => canListen && preferredMode() === 'speak'
+)
+watch(stage, (value) => value === 'brief' && opening.prepare(), {
+	immediate: true,
+})
+
 const start = async () => {
 	starting.value = true
 	try {
+		await opening.ready()
 		session.value = await call('lms.lms.ai.api.start_roleplay', {
 			assignment: props.assignment,
 			index: props.activity.index,

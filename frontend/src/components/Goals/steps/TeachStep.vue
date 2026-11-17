@@ -199,6 +199,7 @@ import type { Socket } from 'socket.io-client'
 import FlowChat from '@/components/Goals/FlowChat.vue'
 import CharacterAvatar from '@/components/Goals/CharacterAvatar.vue'
 import KeyIdeas, { type KeyIdea } from '@/components/Goals/KeyIdeas.vue'
+import { useOpening } from '@/composables/useOpening'
 import {
 	preferredMode,
 	rememberMode,
@@ -241,6 +242,15 @@ const confirmed = computed(
 // The intro and the conversation share one full-width page, so starting doesn't jump.
 emit('live', true)
 
+// Lumi writes her opening while the learner reads this screen. A finished lesson is rarely
+// taken again, so it waits for the click.
+const opening = useOpening(
+	() => ({ assignment: props.assignment, index: props.activity.index }),
+	() => 'lumi',
+	() => canListen && mode.value === 'speak'
+)
+if (!ready.value) opening.prepare()
+
 const commands = [
 	{
 		name: 'explain',
@@ -268,6 +278,7 @@ const start = async () => {
 	if (canListen) rememberMode(mode.value)
 	starting.value = true
 	try {
+		await opening.ready()
 		session.value = await call('lms.lms.ai.api.start_teaching', {
 			assignment: props.assignment,
 			index: props.activity.index,

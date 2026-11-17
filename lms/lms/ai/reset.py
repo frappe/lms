@@ -3,7 +3,7 @@
 import frappe
 from frappe import _
 
-from lms.lms.ai import goals, ideas
+from lms.lms.ai import goals, ideas, openings
 
 
 def reset_lesson(assignment_name: str, index: int) -> dict:
@@ -14,6 +14,7 @@ def reset_lesson(assignment_name: str, index: int) -> dict:
 		frappe.throw(_("Only a lesson can be reset on its own."), title=_("Not a Lesson"))
 	_delete_evidence({"assignment": assignment.name, "activity_index": index})
 	ideas.forget_confirmations(assignment.name)
+	openings.forget(assignment.name)
 	# A sign-off vouched for the work as it was; with a lesson to take again, it is given again.
 	assignment.db_set("signed_off_by", None)
 	return goals.refresh_assignment(assignment.name)
@@ -25,6 +26,7 @@ def reset_progress(assignment_name: str) -> dict:
 	lesson does not bring back stories from the one that was reset."""
 	assignment = frappe.get_doc("LMS Goal Assignment", assignment_name)
 	_delete_evidence({"assignment": assignment.name})
+	openings.forget(assignment.name)
 	assignment.db_set(
 		{
 			"idea_state": None,
