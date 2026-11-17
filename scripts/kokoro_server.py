@@ -51,6 +51,7 @@ import os
 import pathlib
 import threading
 import urllib.parse
+from concurrent.futures import ThreadPoolExecutor
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
 import soundfile
@@ -63,9 +64,13 @@ MAX_BYTES = int(float(os.environ.get("LMS_VOICE_MAX_MB", "25")) * 1024 * 1024)
 WHISPER_MODEL = os.environ.get("LMS_VOICE_WHISPER", "small.en")
 KEEP_LAST = os.environ.get("LMS_VOICE_KEEP_LAST") == "1"
 
-pipeline = KPipeline(lang_code="a")  # American English; British voices still work
-# One model, many worker threads: generation holds the lock, sentence requests queue.
-generate_lock = threading.Lock()
+# Every use of the speech model runs on this one thread, from loading it to each sentence.
+# Torch keeps a pool of CPU threads per calling thread: when requests arrived on new threads,
+# the pools fought over the CPUs and each sentence took about twice as long. One thread also
+# keeps sentence requests in order, one at a time.
+speech_thread = ThreadPoolExecutor(max_workers=1, thread_name_prefix="speech")
+# American English; British voices still work
+pipeline = speech_thread.submit(KPipeline, lang_code="a", repo_id="hexgrad/Kokoro-82M").result()
 
 whisper = None
 whisper_lock = threading.Lock()
@@ -104,8 +109,9 @@ def load_whisper() -> None:
 def synthesize(text: str, voice: str, speed: float = 1.0) -> bytes:
 	import numpy
 
-	with generate_lock:
-		segments = [audio for _, _, audio in pipeline(text, voice=voice, speed=speed)]
+	segments = speech_thread.submit(
+		lambda: [audio for _, _, audio in pipeline(text, voice=voice, speed=speed)]
+	).result()
 	audio = numpy.concatenate(segments)
 	# Players fade in and eat the first instants, which makes the opening word sound
 	# quiet; a breath of lead-in protects it. Peak normalization keeps every sentence
