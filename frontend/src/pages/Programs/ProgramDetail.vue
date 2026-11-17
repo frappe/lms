@@ -61,17 +61,10 @@
 	</PageBody>
 </template>
 <script setup lang="ts">
-<<<<<<< HEAD
-import { computed, inject, onMounted, useId } from 'vue'
+import { computed, useId } from 'vue'
 import PageHeader from '@/components/Layouts/PageHeader.vue'
 import PageBody from '@/components/Layouts/PageBody.vue'
-import { Badge, call, createResource, Tooltip, usePageMeta } from 'frappe-ui'
-=======
-import { computed, useId } from 'vue'
-import PageHeader from '@/components/Layouts/pages/PageHeader.vue'
-import PageBody from '@/components/Layouts/pages/PageBody.vue'
 import { Badge, createResource, Tooltip, usePageMeta } from 'frappe-ui'
->>>>>>> b9aa0c4 (fix(programs): tell a member from a visitor on the server)
 import { sessionStore } from '@/stores/session'
 
 import { useRouter } from 'vue-router'
