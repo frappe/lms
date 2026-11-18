@@ -1,3 +1,5 @@
+from unittest.mock import patch
+
 import frappe
 from frappe.utils.password import update_password
 
@@ -78,7 +80,9 @@ class TestOnboarding(BaseTestUtils):
 
 		save_setup("Onboard my existing learners")
 
-		state = get_setup_state()
+		# CI sites never run the setup wizard, which would send every admin there first.
+		with patch("frappe.is_setup_complete", return_value=True):
+			state = get_setup_state()
 		self.assertFalse(state["needs_setup"])
 		self.assertEqual(state["first_goal"], "Onboard my existing learners")
 
