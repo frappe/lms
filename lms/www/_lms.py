@@ -11,7 +11,12 @@ from frappe.utils.telemetry import capture
 
 from lms.lms.api import can_see_job
 from lms.lms.permissions import can_access_course, can_author_batch
-from lms.lms.utils import get_lms_path, get_lms_route, resolve_text_direction
+from lms.lms.utils import (
+	get_lms_path,
+	get_lms_route,
+	resolve_text_direction,
+	warn_if_lms_path_differs_from_routes,
+)
 
 no_cache = 1
 
@@ -33,6 +38,7 @@ def get_context():
 
 
 def get_boot():
+	warn_if_lms_path_differs_from_routes()
 	lang = get_user_lang()
 
 	return frappe._dict(
