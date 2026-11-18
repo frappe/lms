@@ -40,6 +40,9 @@ runs:
         PACKAGES: ${{ inputs.packages }}
       run: |
         set -euo pipefail
+        # Ubuntu's container images delete downloaded .deb files after each install,
+        # which leaves nothing to cache (frappe-arc runners use one).
+        sudo rm -f /etc/apt/apt.conf.d/docker-clean
         sudo apt-get update
         # shellcheck disable=SC2086 # the list is split on purpose
         sudo apt-get install -y --no-install-recommends -o APT::Keep-Downloaded-Packages=true $PACKAGES

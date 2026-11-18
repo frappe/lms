@@ -22,12 +22,15 @@ jobs:
   plan:
     name: Plan
     if: github.event_name == 'pull_request'
-    runs-on: ubuntu-latest
+    runs-on: frappe-arc
     timeout-minutes: 5
     outputs:
       run: ${{ steps.plan.outputs.run }}
       full: ${{ steps.plan.outputs.full }}
     steps:
+      - name: Install gh
+        # frappe-arc runners have no gh CLI.
+        run: sudo apt-get update -qq && sudo apt-get install -y -qq --no-install-recommends gh
       # Pull requests into develop and the hotfix branches skip this suite: it runs every hour
       # on the branch instead (branch-status.yml on develop), and on the release pull request.
       # A label runs it on one pull request. Labels are read live, so a re-run sees a new one.
@@ -55,7 +58,7 @@ jobs:
     needs: plan
     if: >-
       !cancelled() && (github.event_name != 'pull_request' || needs.plan.outputs.run == 'true')
-    runs-on: ubuntu-latest
+    runs-on: frappe-arc
     timeout-minutes: 30
     services:
       redis:
