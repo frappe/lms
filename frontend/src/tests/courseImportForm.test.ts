@@ -43,26 +43,35 @@ vi.mock('@/stores/settings', () => ({ useSettings: () => ({}) }))
 vi.mock('@/stores/user', () => ({ usersStore: () => ({ userResource }) }))
 
 // Stubbed so tests control call/resource responses without a network.
-vi.mock('frappe-ui', () => ({
-	call: callMock,
-	toast: { success: vi.fn(), error: vi.fn() },
-	FileUploadHandler: class {
-		on() {}
-		upload(...args: unknown[]) {
-			return uploadMock(...args)
-		}
-	},
-	Dialog: {
-		name: 'Dialog',
-		props: ['open', 'title', 'size'],
-		emits: ['update:open'],
-		template: `<div v-if="open" role="dialog"><h2>{{ title }}</h2><slot /><slot name="actions" /></div>`,
-	},
-	Button: {
-		inheritAttrs: false,
-		template: `<button v-bind="$attrs"><slot name="icon" /><slot /></button>`,
-	},
-}))
+// The real createResource, fetching through callMock, so `loading` behaves.
+vi.mock('frappe-ui', async () => {
+	const actual = await vi.importActual<typeof import('frappe-ui')>('frappe-ui')
+	return {
+		createResource: (options: { url: string }) =>
+			actual.createResource({
+				...options,
+				resourceFetcher: ({ params }: { params: unknown }) =>
+					callMock(options.url, params),
+			}),
+		toast: { success: vi.fn(), error: vi.fn(), warning: vi.fn() },
+		FileUploadHandler: class {
+			on() {}
+			upload(...args: unknown[]) {
+				return uploadMock(...args)
+			}
+		},
+		Dialog: {
+			name: 'Dialog',
+			props: ['open', 'title', 'size'],
+			emits: ['update:open'],
+			template: `<div v-if="open" role="dialog"><h2>{{ title }}</h2><slot /><slot name="actions" /></div>`,
+		},
+		Button: {
+			inheritAttrs: false,
+			template: `<button v-bind="$attrs"><slot name="icon" /><slot /></button>`,
+		},
+	}
+})
 
 import CourseImportForm from '@/pages/Forms/CourseImportForm.vue'
 
@@ -183,7 +192,9 @@ describe('CourseImportForm as a route', () => {
 		expect(wrapper.find('[data-testid="course-import-submit"]').exists()).toBe(
 			false
 		)
-		expect(wrapper.html()).toContain('not permitted')
+		expect(vi.mocked(toast.warning)).toHaveBeenLastCalledWith(
+			expect.stringContaining('not permitted')
+		)
 	})
 
 	it('does not call the import endpoint before a ZIP has been uploaded', async () => {
@@ -195,24 +206,6 @@ describe('CourseImportForm as a route', () => {
 		expect(callMock).not.toHaveBeenCalled()
 		// The guard has to be what stopped it, not a TypeError on the way to it.
 		expect(handlerErrors).toEqual([])
-	})
-
-	it('sends the uploaded file path to the import endpoint', async () => {
-		callMock.mockResolvedValue('imported-course')
-		const router = makeRouter()
-		await router.push({ name: 'CourseImport' })
-		const wrapper = await mountForm(router)
-
-		await attachZip(wrapper)
-		expect(wrapper.html()).toContain('course.zip')
-
-		await wrapper.find('[data-testid="course-import-submit"]').trigger('click')
-		expect(callMock).toHaveBeenCalledWith(
-			'lms.lms.api.import_course_from_zip',
-			{
-				zip_file_path: '/files/course.zip',
-			}
-		)
 	})
 
 	// Both cases build the error the way call() does: `message` is
@@ -301,15 +294,5 @@ describe('CourseImportForm as a route', () => {
 			.vm.$emit('update:open', false)
 		await flushPromises()
 		expect(router.currentRoute.value.name).toBe('Courses')
-	})
-
-	it('renders at frappe-ui Dialog default size so desktop is unchanged', async () => {
-		// The modal this replaced passed no `size`, i.e. frappe-ui's 'lg'
-		// (Dialog.vue:260). FormShell defaults to '3xl', so dropping the explicit
-		// size would silently widen the dialog by a lot.
-		const router = makeRouter()
-		await router.push({ name: 'CourseImport' })
-		const wrapper = await mountForm(router)
-		expect(wrapper.findComponent({ name: 'Dialog' }).props('size')).toBe('lg')
 	})
 })

@@ -25,6 +25,7 @@ from lms.lms.permissions import (
 	INSTRUCTOR_FIELDS,
 	can_access_lesson,
 	can_author_assessment,
+	can_author_course,
 	courses_authored_by_each,
 	get_locked_lessons,
 	unplaceable_assessments,
@@ -32,6 +33,7 @@ from lms.lms.permissions import (
 from lms.lms.utils import (
 	PRIVILEGED_ROLES,
 	compute_locked_lessons,
+	delete_discussions,
 	get_course_progress,
 	get_editorjs_blocks,
 	get_ordered_lesson_rows,
@@ -50,10 +52,16 @@ class CourseLesson(Document):
 		self.validate_progress_recalculation()
 
 	def on_trash(self):
+		# Runs before delete_doc's link check, so the discussion topics that link the
+		# lesson go first.
+		delete_discussions("Course Lesson", self.name)
+		frappe.db.delete("LMS Course Progress", {"lesson": self.name})
+		frappe.db.delete("LMS Video Watch Duration", {"lesson": self.name})
 		cleanup_lesson_backreferences(self.name)
 
 	def after_delete(self):
-		self.validate_progress_recalculation()
+		if not self.flags.in_chapter_delete:
+			self.validate_progress_recalculation()
 
 	def validate(self):
 		self.content = sanitize_editorjs(self.content)
@@ -105,20 +113,7 @@ class CourseLesson(Document):
 	def validate_progress_recalculation(self):
 		if not self.course or not self.chapter:
 			return
-
-		enrollments = frappe.db.get_all(
-			"LMS Enrollment",
-			filters={"course": self.course},
-			fields=["name", "member"],
-		)
-		if not len(enrollments):
-			return
-
-		frappe.enqueue(method=self.recalculate_progress, queue="long", is_async=True, enrollments=enrollments)
-
-	def recalculate_progress(self, enrollments):
-		for enrollment in enrollments:
-			recalculate_course_progress(self.course, enrollment.member)
+		enqueue_progress_recalculation(self.course)
 
 	def validate_quiz_id(self):
 		if self.quiz_id and not frappe.db.exists("LMS Quiz", self.quiz_id):
@@ -146,6 +141,28 @@ class CourseLesson(Document):
 						"lesson": self.name,
 					},
 				)
+
+
+def enqueue_progress_recalculation(course: str):
+	members = frappe.get_all("LMS Enrollment", filters={"course": course}, pluck="member")
+	if not members:
+		return
+	# After commit, so the job recounts against the outline this transaction leaves.
+	frappe.enqueue(
+		recalculate_progress,
+		queue="long",
+		course=course,
+		members=members,
+		enqueue_after_commit=True,
+	)
+
+
+def recalculate_progress(course: str, members: list[str]):
+	for member in members:
+		recalculate_course_progress(course, member)
+		# A background job, so commit per learner: each enrolment and its progress rows
+		# stay locked only for that learner's recount, not the whole course's.
+		frappe.db.commit()  # nosemgrep
 
 
 def may_restamp_quiz(quiz: str, lesson: str) -> bool:
@@ -181,22 +198,34 @@ def cleanup_lesson_backreferences(lesson: str):
 	frappe.db.set_value("LMS Quiz", {"lesson": lesson}, "lesson", None)
 	frappe.db.set_value("LMS Enrollment", {"current_lesson": lesson}, "current_lesson", None)
 	frappe.db.set_value("LMS Assignment Submission", {"lesson": lesson}, "lesson", None)
+	# Timetable rows, in batches and templates alike, schedule the lesson itself.
+	frappe.db.delete(
+		"LMS Batch Timetable", {"reference_doctype": "Course Lesson", "reference_docname": lesson}
+	)
 
 
 def has_permission(doc, ptype="read", user=None):
 	user = user or frappe.session.user
 	if ptype not in ("read", "select", "print"):
-		# Authoring (create/write/delete): mirror sibling LMS hooks. Moderators
-		# and Course Creators manage lessons; otherwise fall back to per-course
-		# instructor/moderator via the rule.
-		roles = frappe.get_roles(user)
-		if "Moderator" in roles or "Course Creator" in roles:
-			return True
-		return can_access_lesson(doc.name, instructor_only=True, user=user)
+		courses = _authoring_courses(doc)
+		if not courses:
+			# Let _validate_mandatory refuse a new lesson with no chapter.
+			return doc.is_new()
+		return all(can_author_course(course, user=user) for course in courses)
 	# Read/select/print: the security gate. Enrollment / preview / instructor only.
 	# Deliberately NOT widened to all Course Creators, to preserve the media-access
 	# boundary (matches the original get_lesson gate).
 	return can_access_lesson(doc.name, user=user)
+
+
+def _authoring_courses(doc) -> set[str]:
+	"""The stored course and the chapter's: `course` is fetched from `chapter` only after the create check."""
+	courses = {doc.get("course")}
+	if doc.get("chapter"):
+		courses.add(frappe.db.get_value("Course Chapter", doc.chapter, "course"))
+	if not doc.is_new():
+		courses.add(frappe.db.get_value("Course Lesson", doc.name, "course"))
+	return {course for course in courses if course}
 
 
 def get_permission_query_conditions(user=None):
@@ -537,7 +566,7 @@ def submission_meets_rule(doctype: str, filters: dict, rule: str) -> bool:
 	return bool(frappe.db.exists(doctype, filters))
 
 
-@frappe.whitelist()
+@frappe.whitelist(methods=["POST"])
 def save_progress(lesson: str, course: str | None = None, scorm_details: dict = None):
 	"""
 	Note: Pass the argument scorm_details as a dict if it is SCORM related save_progress
@@ -562,7 +591,11 @@ def save_progress(lesson: str, course: str | None = None, scorm_details: dict = 
 
 
 def _save_progress(lesson: str, course: str, scorm_details: dict = None):
-	membership = frappe.db.exists("LMS Enrollment", {"course": course, "member": frappe.session.user})
+	# Locked first, so completions for one enrollment run one after the other and the
+	# recount below sees the lessons the earlier ones recorded.
+	membership = frappe.db.get_value(
+		"LMS Enrollment", {"course": course, "member": frappe.session.user}, "name", for_update=True
+	)
 	if not membership:
 		return 0
 
@@ -634,7 +667,7 @@ def _save_progress(lesson: str, course: str, scorm_details: dict = None):
 	):
 		next_lesson = get_next_lesson(course, lesson)
 
-	progress = get_course_progress(course)
+	progress = get_course_progress(course, for_update=True)
 	if not is_demo_course(course):
 		capture("course_progress", "lms")
 

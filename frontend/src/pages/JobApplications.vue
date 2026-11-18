@@ -91,7 +91,7 @@
 					@change="(val) => (emailForm.message = val)"
 					:editable="true"
 					:fixedMenu="true"
-					editorClass="prose-sm max-w-none border-b border-x border-outline-elevation-2 bg-surface-gray-2 rounded-b-5 py-1 px-2 min-h-[7rem]"
+					minHeight="7rem"
 				/>
 			</div>
 		</div>
@@ -116,6 +116,7 @@ import { sessionStore } from '../stores/session'
 import ListPage from '@/components/Layouts/ListPage.vue'
 import RichTextEditor from '@/components/RichTextEditor.vue'
 import { openExternal } from '@/utils/openExternal'
+import { submitResource } from '@/utils/resource'
 
 const dayjs = inject('$dayjs')
 const { brand } = sessionStore()
@@ -216,7 +217,8 @@ const openEmailModal = (applicant) => {
 }
 
 const sendEmail = (close) => {
-	emailResource.submit(
+	return submitResource(
+		emailResource,
 		{},
 		{
 			validate() {

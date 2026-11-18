@@ -57,12 +57,13 @@
 				v-model="languageFilter"
 				:options="languages"
 				:placeholder="__('Type')"
+				:aria-label="__('Type')"
 				@update:modelValue="updateList"
 			/>
 		</template>
 
 		<template #cell="{ column, value }">
-			<div v-if="column.key == 'modified'" class="text-sm text-ink-gray-5">
+			<div v-if="column.key == 'modified'" class="text-sm text-ink-gray-6">
 				{{ dayjs(value as string).format('MMM D, YYYY') }}
 			</div>
 			<div v-else>{{ value }}</div>
@@ -215,8 +216,7 @@ const showDeleteConfirmation = (
 				theme: 'red',
 				variant: 'solid',
 				onClick({ close }: { close: () => void }) {
-					deleteExercises(selections, unselectAll)
-					close()
+					return deleteExercises(selections, unselectAll).then(close)
 				},
 			},
 		],
@@ -224,7 +224,7 @@ const showDeleteConfirmation = (
 }
 
 const deleteExercises = (selections: Set<string>, unselectAll: () => void) => {
-	Array.from(selections).forEach(async (exerciseName) => {
+	const deletions = Array.from(selections).map((exerciseName) =>
 		call('lms.lms.api.delete_programming_exercise', {
 			exercise: exerciseName,
 		})
@@ -236,8 +236,9 @@ const deleteExercises = (selections: Set<string>, unselectAll: () => void) => {
 				toast.error(__(error.message || error))
 				console.error('Error deleting exercise:', error)
 			})
-	})
+	)
 	unselectAll()
+	return Promise.all(deletions)
 }
 
 // Watch, not a listener. TextInput emits on both input and change.

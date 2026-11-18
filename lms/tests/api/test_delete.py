@@ -1,7 +1,10 @@
+from contextlib import contextmanager
+from unittest.mock import patch
+
 import frappe
 from frappe.utils import add_days, nowdate
 
-from lms.lms.api import delete_category, delete_chapter, delete_course, delete_lesson
+from lms.lms.api import delete_batch, delete_category, delete_chapter, delete_course, delete_lesson
 from lms.lms.test_helpers import BaseTestUtils
 from lms.lms.utils import get_course_details
 
@@ -264,6 +267,64 @@ class TestChapterDeletion(DeletionTestBase):
 		self.assertIsNone(frappe.db.get_value("LMS Enrollment", enrollment.name, "current_lesson"))
 
 
+class TestChapterDeletionReferrers(DeletionTestBase):
+	"""Review finding c1: rows naming a lesson by dynamic link blocked the chapter delete."""
+
+	def setUp(self):
+		super().setUp()
+		self.chapter = self._add_chapter("Chapter 1", 1)
+		self.lesson = self._add_lesson(self.chapter, "Lesson 1", 1)
+
+	def test_timetable_rows_naming_a_lesson_go_with_it(self):
+		self._create_evaluator()
+		batch = self._create_batch(self.course.name)
+		batch.append("timetable", self._timetable_row())
+		# nosemgrep: lms-unjustified-ignore-permissions - test fixture seeding, not the permission under test
+		batch.save(ignore_permissions=True)
+		# nosemgrep: lms-unjustified-ignore-permissions - test fixture seeding, not the permission under test
+		template = frappe.get_doc(
+			{"doctype": "LMS Timetable Template", "title": "Template", "timetable": [self._timetable_row()]}
+		).insert(ignore_permissions=True)
+		frappe.set_user(self.instructor.name)
+
+		delete_chapter(self.chapter.name)
+
+		self.assertFalse(frappe.db.exists("Course Lesson", self.lesson.name))
+		for parent in (batch.name, template.name):
+			with self.subTest(parent=parent):
+				self.assertFalse(frappe.db.exists("LMS Batch Timetable", {"parent": parent}))
+		self.assertTrue(frappe.db.exists("LMS Batch", batch.name))
+		self.assertTrue(frappe.db.exists("LMS Timetable Template", template.name))
+
+	def test_progress_is_recounted_once_per_chapter_after_commit(self):
+		"""Review finding c2: each lesson's delete enqueued its own recount of every learner."""
+		self._add_lesson(self.chapter, "Lesson 2", 2)
+		self._create_enrollment(self.student.name, self.course.name)
+		frappe.set_user(self.instructor.name)
+
+		with patch("frappe.enqueue") as enqueue:
+			delete_chapter(self.chapter.name)
+
+		recounts = [
+			call
+			for call in enqueue.call_args_list
+			if call.args and getattr(call.args[0], "__name__", None) == "recalculate_progress"
+		]
+		self.assertEqual(len(recounts), 1)
+		self.assertEqual(recounts[0].kwargs["course"], self.course.name)
+		self.assertEqual(recounts[0].kwargs["members"], [self.student.name])
+		self.assertTrue(recounts[0].kwargs["enqueue_after_commit"])
+
+	def _timetable_row(self):
+		return {
+			"reference_doctype": "Course Lesson",
+			"reference_docname": self.lesson.name,
+			"date": nowdate(),
+			"start_time": "10:00:00",
+			"end_time": "11:00:00",
+		}
+
+
 class TestCourseDeletion(DeletionTestBase):
 	def setUp(self):
 		super().setUp()
@@ -455,3 +516,268 @@ class TestStudentCannotDelete(DeletionTestBase):
 				with self.assertRaises(frappe.PermissionError):
 					action()
 				self.assertTrue(frappe.db.exists(doctype, name))
+
+
+@contextmanager
+def refusing_unscoped_deletes():
+	"""Contain the red phase: an empty name reaching frappe.db.delete empties the table."""
+	original = frappe.db.delete
+
+	def guarded(doctype, filters=None, *args, **kwargs):
+		if not filters:
+			raise AssertionError(f"unscoped delete of {doctype}")
+		return original(doctype, filters, *args, **kwargs)
+
+	with patch.object(frappe.db, "delete", guarded):
+		yield
+
+
+class EmptyOrUnknownNameMixin:
+	"""Every delete endpoint refuses a blank or missing name and deletes nothing."""
+
+	def assert_refuses_blank_and_unknown_names(self, endpoint, doctype, survivor):
+		for name in ("", f"no-such-{frappe.generate_hash(length=8)}"):
+			with self.subTest(name=name):
+				with refusing_unscoped_deletes(), self.assertRaises(frappe.DoesNotExistError):
+					endpoint(name)
+				self.assertTrue(frappe.db.exists(doctype, survivor))
+
+
+class TestDeleteEndpointsArePostOnly(BaseTestUtils):
+	def test_every_delete_endpoint_refuses_get(self):
+		"""Regression from #1132 (cf014bca3): delete_chapter took GET, so a cross-site link
+		deleted a SCORM package. Added for audit finding #27."""
+		for endpoint in (delete_batch, delete_chapter, delete_course):
+			with self.subTest(endpoint=endpoint.__name__):
+				self.assertEqual(set(frappe.allowed_http_methods_for_whitelisted_func[endpoint]), {"POST"})
+
+
+class TestBatchDeletion(EmptyOrUnknownNameMixin, DeletionTestBase):
+	def setUp(self):
+		super().setUp()
+		self._create_evaluator()
+		self.title = f"Deletion Batch {frappe.generate_hash(length=8)}"
+		self.batch = self._create_batch(self.course.name, title=self.title)
+		self.batch.append(
+			"timetable_legends", {"reference_doctype": "Course Lesson", "color": "Red", "label": "L"}
+		)
+		# nosemgrep: lms-unjustified-ignore-permissions - test fixture seeding, not the permission under test
+		self.batch.save(ignore_permissions=True)
+
+	def _seed_dependants(self):
+		enrollment = self._create_batch_enrollment(self.student.name, self.batch.name)
+		# nosemgrep: lms-unjustified-ignore-permissions - test fixture seeding, not the permission under test
+		feedback = frappe.get_doc(
+			{
+				"doctype": "LMS Batch Feedback",
+				"member": self.student.name,
+				"batch": self.batch.name,
+				"feedback": "Good batch.",
+			}
+		).insert(ignore_permissions=True)
+		topic, reply = self._create_discussion("LMS Batch", self.batch.name)
+		with patch("lms.lms.doctype.lms_live_class.lms_live_class.LMSLiveClass.create_calendar_event"):
+			# nosemgrep: lms-unjustified-ignore-permissions - test fixture seeding, not the permission under test
+			live_class = frappe.get_doc(
+				{
+					"doctype": "LMS Live Class",
+					"title": "Kick-off",
+					"date": nowdate(),
+					"time": "10:00:00",
+					"duration": 60,
+					"timezone": "Asia/Kolkata",
+					"host": self.instructor.name,
+					"batch_name": self.batch.name,
+				}
+			).insert(ignore_permissions=True)
+		certificate = self._create_certificate(self.course.name, self.student.name)
+		frappe.db.set_value("LMS Certificate", certificate.name, "batch_name", self.batch.name)
+		return {
+			"LMS Batch Enrollment": enrollment.name,
+			"LMS Batch Feedback": feedback.name,
+			"Discussion Topic": topic.name,
+			"Discussion Reply": reply.name,
+			"LMS Live Class": live_class.name,
+		}, certificate
+
+	def _assert_cascaded(self, dependants, certificate):
+		self.assertFalse(frappe.db.exists("LMS Batch", self.batch.name))
+		for child in ("Course Instructor", "LMS Timetable Legend", "Batch Course"):
+			with self.subTest(child=child):
+				self.assertFalse(
+					frappe.db.exists(child, {"parent": self.batch.name, "parenttype": "LMS Batch"})
+				)
+		for doctype, name in dependants.items():
+			with self.subTest(doctype=doctype):
+				self.assertFalse(frappe.db.exists(doctype, name))
+		self.assertTrue(frappe.db.exists("LMS Certificate", certificate.name))
+		self.assertIsNone(frappe.db.get_value("LMS Certificate", certificate.name, "batch_name"))
+
+	def test_the_endpoint_leaves_no_orphans(self):
+		"""Regression from #1631 (6f9f27c03): the raw delete left dependants behind. Added for
+		audit finding #60."""
+		dependants, certificate = self._seed_dependants()
+		frappe.set_user(self.instructor.name)
+
+		delete_batch(self.batch.name)
+
+		self._assert_cascaded(dependants, certificate)
+
+	def test_a_batch_with_payments_is_refused_before_anything_is_deleted(self):
+		"""Review finding c1: delete_doc's dynamic-link check refused the batch only after
+		on_trash had deleted its enrolments, and named one payment in a raw message."""
+		dependants, _certificate = self._seed_dependants()
+		for _ in range(2):
+			self._create_batch_payment()
+		frappe.set_user(self.instructor.name)
+
+		with self.assertRaises(frappe.LinkExistsError) as caught:
+			delete_batch(self.batch.name)
+
+		self.assertIn("This batch has 2 payments, so it can't be deleted.", str(caught.exception))
+		self.assertTrue(frappe.db.exists("LMS Batch", self.batch.name))
+		for doctype, name in dependants.items():
+			with self.subTest(doctype=doctype):
+				self.assertTrue(frappe.db.exists(doctype, name))
+
+	def test_a_coupon_keeps_its_other_items(self):
+		"""Review finding c1: a coupon item naming the batch blocked its delete."""
+		# nosemgrep: lms-unjustified-ignore-permissions - test fixture seeding, not the permission under test
+		coupon = frappe.get_doc(
+			{
+				"doctype": "LMS Coupon",
+				"code": f"DEL{frappe.generate_hash(length=6)}".upper(),
+				"discount_type": "Percentage",
+				"percentage_discount": 10,
+				"applicable_items": [
+					{"reference_doctype": "LMS Batch", "reference_name": self.batch.name},
+					{"reference_doctype": "LMS Course", "reference_name": self.course.name},
+				],
+			}
+		).insert(ignore_permissions=True)
+		frappe.set_user(self.instructor.name)
+
+		delete_batch(self.batch.name)
+
+		self.assertFalse(frappe.db.exists("LMS Batch", self.batch.name))
+		self.assertEqual(
+			frappe.get_all("LMS Coupon Item", {"parent": coupon.name}, pluck="reference_name"),
+			[self.course.name],
+		)
+
+	def _create_batch_payment(self):
+		# nosemgrep: lms-unjustified-ignore-permissions - test fixture seeding, not the permission under test
+		return frappe.get_doc(
+			{
+				"doctype": "LMS Payment",
+				"member": self.student.name,
+				"billing_name": "Batch Payer",
+				"amount": 100,
+				"currency": "INR",
+				"payment_for_document_type": "LMS Batch",
+				"payment_for_document": self.batch.name,
+			}
+		).insert(ignore_permissions=True, ignore_mandatory=True)
+
+	def test_a_same_titled_batch_does_not_inherit_the_old_instructors(self):
+		"""Regression from #1631 (6f9f27c03), audit finding #60."""
+		frappe.set_user(self.instructor.name)
+		delete_batch(self.batch.name)
+		frappe.set_user("Administrator")
+
+		newcomer = self._create_user(
+			f"batch-newcomer-{frappe.generate_hash(length=8)}@example.com", "New", "Comer", ["Course Creator"]
+		)
+		recreated = self._create_batch(self.course.name, instructor=newcomer.name, title=self.title)
+
+		self.assertEqual(recreated.name, self.batch.name)
+		self.assertEqual(
+			frappe.get_all(
+				"Course Instructor", {"parent": recreated.name, "parenttype": "LMS Batch"}, pluck="instructor"
+			),
+			[newcomer.name],
+		)
+
+	def test_a_student_cannot_delete(self):
+		"""Guards can_modify_batch now that delete_doc skips DocPerms (#1631). Audit finding #60."""
+		frappe.set_user(self.student.name)
+		with self.assertRaises(frappe.PermissionError):
+			delete_batch(self.batch.name)
+		self.assertTrue(frappe.db.exists("LMS Batch", self.batch.name))
+
+	def test_a_blank_or_unknown_name_is_refused(self):
+		"""Regression from #1631 (6f9f27c03): a blank name emptied the table. Added for audit
+		finding #19."""
+		frappe.set_user(self.instructor.name)
+		self.assert_refuses_blank_and_unknown_names(delete_batch, "LMS Batch", self.batch.name)
+
+
+class TestBlankNamesOnCourseContent(EmptyOrUnknownNameMixin, DeletionTestBase):
+	def setUp(self):
+		super().setUp()
+		self.chapter = self._add_chapter("Chapter 1", 1)
+		frappe.set_user(self.instructor.name)
+
+	def test_delete_chapter_refuses_a_blank_or_unknown_name(self):
+		"""Regression from #1132 (cf014bca3), audit finding #19."""
+		self.assert_refuses_blank_and_unknown_names(delete_chapter, "Course Chapter", self.chapter.name)
+
+	def test_delete_course_refuses_a_blank_or_unknown_name(self):
+		"""Regression from #1100 (38e6e4345), audit finding #19."""
+		self.assert_refuses_blank_and_unknown_names(delete_course, "LMS Course", self.course.name)
+
+
+class TestDeskDeleteOfCourseContent(DeletionTestBase):
+	def setUp(self):
+		super().setUp()
+		self.chapter = self._add_chapter("Chapter 1", 1)
+		self.lesson = self._add_lesson(self.chapter, "Lesson 1", 1)
+		self.topic, self.reply = self._create_discussion("Course Lesson", self.lesson.name)
+		self._create_progress(self.student.name, self.course.name, self.lesson.name)
+
+	def _assert_outline_gone(self):
+		self.assertFalse(frappe.db.exists("Course Chapter", self.chapter.name))
+		self.assertFalse(frappe.db.exists("Chapter Reference", {"chapter": self.chapter.name}))
+		self.assertFalse(frappe.db.exists("Course Lesson", self.lesson.name))
+		self.assertFalse(frappe.db.exists("Lesson Reference", {"parent": self.chapter.name}))
+		self.assertFalse(frappe.db.exists("Discussion Topic", self.topic.name))
+		self.assertFalse(frappe.db.exists("Discussion Reply", self.reply.name))
+		self.assertFalse(frappe.db.exists("LMS Course Progress", {"lesson": self.lesson.name}))
+
+	def test_a_desk_chapter_delete_takes_its_lessons(self):
+		"""Regression from #1132: cleanup lived in the endpoint, so a Desk delete orphaned lessons.
+		Added for audit finding #60."""
+		frappe.delete_doc("Course Chapter", self.chapter.name)
+		self._assert_outline_gone()
+
+	def test_a_desk_course_delete_takes_its_outline_and_enrollments(self):
+		"""Regression from #1100: cleanup lived in the endpoint, so a Desk delete orphaned the outline.
+		Added for audit finding #60."""
+		enrollment = self._create_enrollment(self.student.name, self.course.name)
+
+		frappe.delete_doc("LMS Course", self.course.name)
+
+		self.assertFalse(frappe.db.exists("LMS Course", self.course.name))
+		self.assertFalse(frappe.db.exists("LMS Enrollment", enrollment.name))
+		self._assert_outline_gone()
+
+
+class TestCourseDeletionUpdatesPrograms(DeletionTestBase):
+	def test_program_course_count_drops_with_the_course(self):
+		"""Regression from #2537 (c5a86ebd9): the raw delete left course_count stale. Added for
+		audit finding #95."""
+		other = self._create_course(title=f"Program Sibling {frappe.generate_hash(length=8)}")
+		# nosemgrep: lms-unjustified-ignore-permissions - test fixture seeding, not the permission under test
+		program = frappe.get_doc(
+			{
+				"doctype": "LMS Program",
+				"title": f"Count Program {frappe.generate_hash(length=8)}",
+				"program_courses": [{"course": self.course.name}, {"course": other.name}],
+			}
+		).insert(ignore_permissions=True)
+		self.assertEqual(program.course_count, 2)
+		frappe.set_user(self.instructor.name)
+
+		delete_course(self.course.name)
+
+		self.assertEqual(frappe.db.get_value("LMS Program", program.name, "course_count"), 1)

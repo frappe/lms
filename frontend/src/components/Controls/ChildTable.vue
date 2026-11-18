@@ -22,7 +22,7 @@
 						v-for="(column, index) in columns"
 						:key="index"
 						role="columnheader"
-						class="text-sm text-ink-gray-5"
+						class="text-sm text-ink-gray-6"
 						:class="{ 'text-center': isCheckboxColumn(column) }"
 					>
 						{{ column }}
@@ -53,7 +53,7 @@
 							<input
 								v-model="row[key]"
 								:aria-label="cellLabel(key, rowIndex)"
-								class="py-1.5 px-2 w-full rounded-5 border border-outline-gray-2 bg-surface-base text-sm text-ink-gray-8 placeholder-ink-gray-4 transition-colors hover:border-outline-gray-3 hover:shadow-sm focus:border-outline-gray-4 focus:shadow-sm focus:outline-none focus:ring-0"
+								class="h-7 px-2 w-full rounded-4 border border-outline-gray-2 bg-surface-base text-sm text-ink-gray-8 placeholder-ink-gray-4 transition-colors hover:border-outline-gray-3 hover:shadow-sm focus:border-outline-gray-4 focus:shadow-sm focus:outline-none focus:ring-0"
 							/>
 						</div>
 					</template>

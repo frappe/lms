@@ -26,6 +26,7 @@ export interface ProgramMember {
     progress: number;
     idx: number;
     name: string;
+    creation?: string;
 }  
 
 export interface Programs {

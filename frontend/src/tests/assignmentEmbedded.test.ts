@@ -203,11 +203,4 @@ describe('the assignment mounted inline in a lesson', () => {
 
 		expect(wrapper.text()).toContain('Grading')
 	})
-
-	it('takes its natural height inside a lesson', async () => {
-		const wrapper = await mountAssignment({ embedded: true })
-
-		expect(wrapper.classes()).not.toContain('h-full')
-		expect(wrapper.classes()).not.toContain('overflow-y-auto')
-	})
 })

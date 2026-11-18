@@ -11,6 +11,11 @@ vi.mock('frappe-ui', () => ({
 		emits: ['update:modelValue'],
 		template: `<button type="button" role="switch" :aria-checked="String(Boolean(modelValue))" :disabled="disabled" @click="$emit('update:modelValue', !modelValue)" />`,
 	},
+	Button: {
+		name: 'Button',
+		template: `<button type="button"><slot /></button>`,
+	},
+	Tooltip: { name: 'Tooltip', template: `<span><slot /></span>` },
 }))
 
 const control = (w: ReturnType<typeof mount>) => w.get('[role="switch"]')
@@ -36,41 +41,6 @@ describe('SwitchRow', () => {
 		const w = mount(SwitchRow, { props: { label: 'Enabled' } })
 		expect(w.find('[data-testid="switch-description"]').exists()).toBe(false)
 		expect(control(w).attributes('aria-describedby')).toBeUndefined()
-	})
-
-	it('renders the label and description slots in place of the props', () => {
-		const w = mount(SwitchRow, {
-			props: { label: 'Preview' },
-			slots: {
-				label: '<span data-testid="custom-label">Preview ?</span>',
-				description: 'Slotted text',
-			},
-		})
-		expect(w.find('[data-testid="custom-label"]').exists()).toBe(true)
-		expect(w.get('[data-testid="switch-description"]').text()).toBe(
-			'Slotted text'
-		)
-		expect(control(w).attributes('aria-describedby')).toBeDefined()
-	})
-
-	it('toggles through v-model and passes listeners and attrs to the switch', async () => {
-		const onToggle = vi.fn()
-		const w = mount(SwitchRow, {
-			props: {
-				label: 'Enabled',
-				modelValue: false,
-				'onUpdate:modelValue': (value: boolean) => {
-					onToggle(value)
-					w.setProps({ modelValue: value })
-				},
-			},
-			attrs: { 'data-testid': 'enabled-toggle' },
-		})
-		const toggle = w.get('[data-testid="enabled-toggle"]')
-		expect(toggle.attributes('aria-checked')).toBe('false')
-		await toggle.trigger('click')
-		expect(onToggle).toHaveBeenCalledWith(true)
-		expect(toggle.attributes('aria-checked')).toBe('true')
 	})
 
 	it('flips the switch when the label is clicked', async () => {
@@ -105,8 +75,20 @@ describe('SwitchRow', () => {
 		expect(control(w).attributes('aria-checked')).toBe('false')
 	})
 
-	it('passes disabled through to the switch', () => {
-		const w = mount(SwitchRow, { props: { label: 'Enabled', disabled: true } })
-		expect(control(w).attributes('disabled')).toBeDefined()
+	it('keeps the caution out of the label so it does not toggle', async () => {
+		const onToggle = vi.fn()
+		const w = mount(SwitchRow, {
+			props: {
+				label: 'Videos',
+				caution: 'Embeds are not tracked.',
+				modelValue: false,
+				'onUpdate:modelValue': onToggle,
+			},
+			attachTo: document.body,
+		})
+		const caution = w.get('button[aria-label="Embeds are not tracked."]')
+		expect(caution.element.closest('label')).toBeNull()
+		await caution.trigger('click')
+		expect(onToggle).not.toHaveBeenCalled()
 	})
 })

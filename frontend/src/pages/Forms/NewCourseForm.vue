@@ -1,10 +1,12 @@
 <template>
-	<FormShell :title="__('New Course')" size="3xl" @close="close">
+	<FormShell
+		:title="__('New Course')"
+		size="3xl"
+		:message="refusal"
+		@close="close"
+	>
 		<template #default>
-			<div v-if="!canCreate" class="p-4 text-base text-ink-gray-6">
-				{{ __('You are not permitted to create a course.') }}
-			</div>
-			<div v-else data-testid="new-course-fields" class="text-base">
+			<div data-testid="new-course-fields" class="text-base">
 				<div class="grid grid-cols-1 md:grid-cols-2 gap-5 border-b pb-5 mb-5">
 					<FormControl
 						v-model="course.title"
@@ -62,7 +64,7 @@
 						<template #item-label="{ item }">
 							<div class="min-w-0 flex justify-between gap-2">
 								<div class="truncate">{{ item.label }}</div>
-								<div class="truncate text-xs text-ink-gray-5">
+								<div class="truncate text-xs text-ink-gray-6">
 									{{ item.value }}
 								</div>
 							</div>
@@ -94,26 +96,26 @@
 						/>
 						<RichTextEditor
 							:id="descriptionId"
+							:ariaLabelledby="descriptionLabelId"
 							:content="course.description"
 							@change="(val: string) => (course.description = val)"
 							:editable="true"
 							:fixedMenu="true"
-							editorClass="prose-sm max-w-none border-b border-x border-outline-elevation-2 bg-surface-base rounded-b-5 py-1 px-2 min-h-[7rem] max-h-[17rem] overflow-auto"
+							minHeight="7rem"
+							maxHeight="17rem"
 						/>
 					</div>
 				</div>
 			</div>
 		</template>
 		<template #actions>
-			<div v-if="canCreate" class="flex items-center justify-end">
-				<HeaderButton
-					data-testid="new-course-save"
-					:label="__('Create')"
-					variant="solid"
-					:loading="courses.insert.loading"
-					@click="saveCourse()"
-				/>
-			</div>
+			<HeaderButton
+				data-testid="new-course-save"
+				:label="__('Create')"
+				variant="solid"
+				:loading="courses.insert.loading"
+				@click="saveCourse()"
+			/>
 		</template>
 	</FormShell>
 	<NewMemberModal
@@ -201,6 +203,10 @@ const courses = createListResource({
 // are that. canCreateCourse() reads userResource.data, which is reactive, so
 // the computed settles once the user resource resolves.
 const canCreate = computed(() => canCreateCourse())
+
+const refusal = computed(() =>
+	canCreate.value ? null : __('You are not permitted to create a course.')
+)
 
 type Course = {
 	title: string
@@ -336,7 +342,7 @@ const onInstructorCreated = (newUser: any) => {
 }
 
 const saveCourse = () => {
-	if (!canCreate.value) return
+	if (!canCreate.value || courses.insert.loading) return
 	sanitizeStringFields(course.value as Record<string, unknown>)
 	const error = validateCourse({
 		doc: course.value,

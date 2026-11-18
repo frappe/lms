@@ -33,7 +33,7 @@
 				</template>
 			</Button>
 			<div
-				class="min-w-0 flex-1 text-center text-p-xs font-medium tabular-nums text-ink-gray-5"
+				class="min-w-0 flex-1 text-center text-p-xs font-medium tabular-nums text-ink-gray-6"
 			>
 				{{ lessonIndex }} / {{ lessonTotal }}
 			</div>
@@ -68,6 +68,7 @@
 					</div>
 					<Button
 						v-if="user.data && !lesson.data.disable_self_learning"
+						:loading="enrollment.loading"
 						@click="enrollStudent()"
 						variant="solid"
 					>
@@ -81,7 +82,10 @@
 					>
 						{{ __('Contact the Administrator to enroll for this course.') }}
 					</Badge>
-					<Button v-else @click="redirectToLogin()">
+					<Button
+						v-else
+						@click="redirectToLogin(getLmsRoute(`courses/${courseName}`))"
+					>
 						<template #prefix>
 							<span class="lucide-log-in size-4" />
 						</template>
@@ -121,18 +125,20 @@
 
 								<div
 									v-if="zenModeEnabled"
+									tabindex="0"
 									class="relative flex items-center gap-x-2 text-sm text-ink-gray-7 group w-fit mt-2"
 								>
 									<span>
 										{{ lesson.data.chapter_title }} -
 										{{ lesson.data.course_title }}
 									</span>
-									<span class="lucide-info size-3" />
+									<span class="lucide-info size-3" aria-hidden="true" />
+									<span class="sr-only">{{ progressLabel }}</span>
 									<div
-										class="hidden group-hover:block [@media(hover:none)]:block [@media(hover:none)]:static [@media(hover:none)]:mt-0 rounded-4 bg-surface-gray-10 px-2 py-1 text-xs text-ink-base shadow-xl absolute start-0 top-full mt-2"
+										class="hidden group-hover:block group-focus-within:block [@media(hover:none)]:block [@media(hover:none)]:static [@media(hover:none)]:mt-0 rounded-4 bg-surface-gray-10 px-2 py-1 text-xs text-ink-base shadow-xl absolute start-0 top-full mt-2"
+										aria-hidden="true"
 									>
-										{{ Math.ceil(lesson.data.membership.progress) }}%
-										{{ __('completed') }}
+										{{ progressLabel }}
 									</div>
 								</div>
 							</div>
@@ -161,6 +167,7 @@
 								class="flex items-center gap-x-2 mt-2 md:mt-0"
 							>
 								<Button
+									v-if="canUseDiscussions"
 									@click="showDiscussionsInZenMode()"
 									:label="__('Toggle discussions')"
 								>
@@ -203,7 +210,7 @@
 							"
 							class="bg-surface-gray-2 p-3 rounded-5 mt-6"
 						>
-							<h2 class="text-ink-gray-5 font-medium">
+							<h2 class="text-ink-gray-6 font-medium">
 								{{ __('Instructor Notes') }}
 							</h2>
 							<div
@@ -280,7 +287,7 @@
 							@updateNotes="updateNotes"
 						/>
 						<Discussions
-							v-else-if="allowDiscussions"
+							v-else-if="showDiscussions"
 							:title="'Questions'"
 							:doctype="'Course Lesson'"
 							:docname="lesson.data.name"
@@ -338,7 +345,7 @@
 		</BottomSheet>
 	</div>
 	<InlineLessonMenu
-		v-if="lesson.data?.name"
+		v-if="lesson.data?.name && canCreateNotes"
 		v-model="showInlineMenu"
 		:lesson="lesson.data?.name"
 		v-model:notes="notes"
@@ -404,9 +411,14 @@ import InlineLessonMenu from '@/components/Notes/InlineLessonMenu.vue'
 import { parseStoredEditorJs } from '@/utils/lessonForm'
 import { isLessonSelection } from '@/utils/lessonSelection'
 import { getLmsRoute } from '@/utils/basePath'
+import { redirectToLogin } from '@/utils/login'
+import {
+	canReadDiscussions,
+	hasDoctypePermission,
+} from '@/utils/doctypePermissions'
 import { provideStudentView } from '@/composables/useStudentView'
 import type { UserResource } from '@/composables/useStudentView'
-import type { Note, Notes as NotesResource } from '@/types'
+import type { Note, Notes as NotesResource, SessionUser } from '@/types'
 import { isInstructorOf } from '@/utils/instructors'
 import { allowSkipUpTo } from '@/utils/videoSkipGuard'
 import {
@@ -415,8 +427,10 @@ import {
 } from '@/utils/bunnyStreamPlayer'
 import {
 	holdLessonCompletion,
+	onLessonProgressMarked,
 	releaseLessonCompletion,
 } from '@/utils/markLessonProgress'
+import type { MarkedLesson } from '@/utils/markLessonProgress'
 
 interface LessonProgressEvent {
 	course: string
@@ -474,7 +488,7 @@ type Crumb = { label: string; route: RouteLocationRaw }
 
 const router = useRouter()
 const route = useRoute()
-const realUser = inject<UserResource>('$user')!
+const realUser = inject<UserResource & SessionUser>('$user')!
 // A component's own provide() is invisible to its own inject(), so read the
 // handles provideStudentView returns rather than calling useStudentView().
 const { isStudentView, mockedUser } = provideStudentView(
@@ -486,6 +500,28 @@ const { isStudentView, mockedUser } = provideStudentView(
 const user = mockedUser
 const socket = inject<LessonSocket>('$socket')!
 const allowDiscussions = ref(false)
+// The learners of this course and the people who run it, as can_access_topic
+// allows: previewing a lesson is not joining its community. Shared by the
+// Community tab and the zen-mode toggle.
+const canUseDiscussions = computed(
+	() =>
+		canReadDiscussions(user) &&
+		Boolean(lesson.data?.membership || isAdmin.value)
+)
+const showDiscussions = computed(
+	() => allowDiscussions.value && canUseDiscussions.value
+)
+// Notes belong to an enrolment: a learner previewing a lesson has none to keep.
+const canReadNotes = computed(
+	() =>
+		Boolean(lesson.data?.membership) &&
+		hasDoctypePermission(user, 'LMS Lesson Note')
+)
+const canCreateNotes = computed(
+	() =>
+		Boolean(lesson.data?.membership) &&
+		hasDoctypePermission(user, 'LMS Lesson Note', 'create')
+)
 const editor = ref<EditorJS | null>(null)
 const instructorEditor = ref<EditorJS | null>(null)
 const lessonProgress = ref(0)
@@ -525,7 +561,23 @@ onMounted(() => {
 	}
 	document.addEventListener('fullscreenchange', attachFullscreenEvent)
 	socket.on('update_lesson_progress', onLessonProgress)
+	stopListeningForMarkedLessons = onLessonProgressMarked(onLessonMarked)
 })
+
+let stopListeningForMarkedLessons: (() => void) | undefined
+
+// A quiz or an assignment marks its lesson through markLessonProgress(), so
+// this unlocks the next lesson even where realtime is unavailable.
+const onLessonMarked = (marked: MarkedLesson): void => {
+	if (marked.course !== props.courseName) return
+	if (
+		marked.completed &&
+		marked.chapterNumber === props.chapterNumber &&
+		marked.lessonNumber === props.lessonNumber
+	)
+		completedLesson.value = lesson.data?.name ?? null
+	outline.reload()
+}
 
 const onLessonProgress = (data: LessonProgressEvent): void => {
 	if (data.course !== props.courseName) return
@@ -555,6 +607,7 @@ onBeforeUnmount(() => {
 	// Without this the handler outlives the page, and every revisit adds another
 	// one — so a single progress event fires one outline reload per past visit.
 	socket.off('update_lesson_progress', onLessonProgress)
+	stopListeningForMarkedLessons?.()
 	if (collapsedByLesson) sidebarStore.isSidebarCollapsed = false
 	releaseLessonCompletion()
 	trackVideoWatchDuration()
@@ -778,6 +831,9 @@ const currentIndex = computed(() =>
 	lessonNumbers.value.indexOf(`${props.chapterNumber}-${props.lessonNumber}`)
 )
 const lessonTotal = computed(() => lessonNumbers.value.length)
+const progressLabel = computed(() =>
+	__('{0}% completed').format(Math.ceil(lesson.data?.membership?.progress ?? 0))
+)
 const lessonIndex = computed(() =>
 	currentIndex.value >= 0 ? currentIndex.value + 1 : 0
 )
@@ -1196,13 +1252,7 @@ const checkIfDiscussionsAllowed = () => {
 		}
 	}
 
-	if (
-		!hasQuiz.value &&
-		!zenModeEnabled.value &&
-		(lesson.data?.membership ||
-			user.data?.is_moderator ||
-			user.data?.is_instructor)
-	) {
+	if (!hasQuiz.value && !zenModeEnabled.value) {
 		allowDiscussions.value = true
 	} else {
 		allowDiscussions.value = false
@@ -1253,6 +1303,7 @@ const enrollment = createResource({
 })
 
 const enrollStudent = () => {
+	if (enrollment.loading) return
 	enrollment.submit(
 		{},
 		{
@@ -1327,7 +1378,7 @@ const scrollDiscussionsIntoView = () => {
 }
 
 const updateNotes = () => {
-	if (!user.data) return
+	if (!user.data || !canReadNotes.value) return
 	notes.update({
 		filters: {
 			lesson: lesson.data?.name,
@@ -1341,11 +1392,11 @@ const updateNotes = () => {
 // straight on a quiz lesson never flips allowDiscussions, so pushed tabs never
 // appeared, and tabs pushed on an earlier lesson stayed after moving on.
 const tabs = computed<LessonTab[]>(() => [
-	// Guests cannot save notes, so they get none.
-	...(user.data && !isAdmin.value
+	// Notes need an enrolment (see canReadNotes); admins don't keep them.
+	...(!isAdmin.value && canReadNotes.value
 		? [{ label: __('Notes'), value: 'Notes' }]
 		: []),
-	...(allowDiscussions.value
+	...(showDiscussions.value
 		? [{ label: __('Community'), value: 'Community' }]
 		: []),
 ])
@@ -1359,12 +1410,6 @@ watch(
 	},
 	{ immediate: true }
 )
-
-const redirectToLogin = () => {
-	window.location.href = `/login?redirect-to=${getLmsRoute(
-		`courses/${props.courseName}`
-	)}`
-}
 
 usePageMeta(() => {
 	return {

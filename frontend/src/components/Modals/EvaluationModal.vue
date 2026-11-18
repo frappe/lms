@@ -24,7 +24,7 @@
 						<div class="text-ink-gray-9 font-medium">
 							{{ __('Available Slots') }}
 						</div>
-						<div v-if="scheduleTimezone" class="text-sm text-ink-gray-5">
+						<div v-if="scheduleTimezone" class="text-sm text-ink-gray-6">
 							{{ __('All times in {0}').format(scheduleTimezone) }}
 						</div>
 					</div>
@@ -40,14 +40,14 @@
 									{{ dayjs(row.display_date).format('DD MMMM YYYY') }}
 								</div>
 								<div>&middot;</div>
-								<div class="text-ink-gray-5">
+								<div class="text-ink-gray-6">
 									{{ row.display_day }}
 								</div>
 								<template
 									v-if="row.display_timezone_label !== scheduleTimezone"
 								>
 									<div>&middot;</div>
-									<div class="text-ink-gray-5">
+									<div class="text-ink-gray-6">
 										{{ row.display_timezone_label }}
 									</div>
 								</template>
@@ -71,7 +71,7 @@
 									{{ formatTime(slot.display_end_time) }}
 									<sup
 										v-if="endsOnAnotherDay(slot, row)"
-										class="text-ink-gray-5 ms-0.5"
+										class="text-ink-gray-6 ms-0.5"
 									>
 										+1
 									</sup>
@@ -80,6 +80,7 @@
 						</div>
 					</div>
 				</div>
+				<ModalLoading v-else-if="slots.loading" />
 				<div v-else-if="!evaluation.course" class="text-ink-gray-7">
 					{{ __('Please select a course to view available slots.') }}
 				</div>
@@ -91,6 +92,7 @@
 	</Dialog>
 </template>
 <script setup>
+import ModalLoading from '@/components/ModalLoading.vue'
 import { call, createResource, Dialog, FormControl, toast } from 'frappe-ui'
 import { computed, ref, watch, inject } from 'vue'
 import { formatTime } from '@/utils'
@@ -132,7 +134,7 @@ function submitEvaluation(close) {
 		})
 		return
 	}
-	call('frappe.client.insert', {
+	return call('frappe.client.insert', {
 		doc: {
 			doctype: 'LMS Certificate Request',
 			batch_name: evaluation.value.batch,

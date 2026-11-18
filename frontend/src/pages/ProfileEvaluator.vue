@@ -227,7 +227,7 @@ const saveAvailability = createResource({
 }) as Resource<EvaluatorDetails>
 
 const save = async () => {
-	if (hasErrors.value || !details.value) return
+	if (saving.value || hasErrors.value || !details.value) return
 	saving.value = true
 	saveError.value = ''
 	// The time off row is hidden with no hours, so it saves as none.

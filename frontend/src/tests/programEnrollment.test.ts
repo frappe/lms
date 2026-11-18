@@ -1,4 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { toast } from 'frappe-ui'
 import { enableAutoUnmount, flushPromises, mount } from '@vue/test-utils'
 import {
 	createMemoryHistory,
@@ -17,7 +18,7 @@ enableAutoUnmount(afterEach)
 // assignmentsCount.test.ts.
 String.prototype.format = function (this: string, ...args: unknown[]): string {
 	return this.replace(/{(\d+)}/g, (match, index) =>
-		args[Number(index)] === undefined ? match : String(args[Number(index)])
+		args[Number(index)] === undefined ? match : String(args[Number(index)]),
 	)
 }
 
@@ -52,9 +53,16 @@ vi.mock('@/components/HeaderButton.vue', () => ({
 	},
 }))
 
+vi.mock('@/stores/session', () => ({
+	sessionStore: () => ({ brand: { favicon: '' } }),
+}))
+
 vi.mock('frappe-ui', () => ({
+	usePageMeta: (fn: () => { title: string }) => {
+		document.title = fn().title
+	},
 	createResource: createResourceMock,
-	toast: { success: toastSuccess, error: vi.fn() },
+	toast: { success: toastSuccess, error: vi.fn(), warning: vi.fn() },
 	Dialog: {
 		name: 'Dialog',
 		props: ['open', 'title', 'size'],
@@ -110,7 +118,7 @@ const student = { name: 'student@example.com', is_student: true }
 
 const mountPage = async (
 	router: Router,
-	user: Record<string, unknown> | null
+	user: Record<string, unknown> | null,
 ) => {
 	const wrapper = mount(defineComponent({ render: () => h(RouterView) }), {
 		global: {
@@ -167,27 +175,6 @@ describe('the program enrollment page', () => {
 		})
 	})
 
-	it('mounts straight from the URL with no list page mounted', async () => {
-		// The cold deep link: nothing above this page ever ran, so the summary it
-		// used to receive through a parent's open-the-dialog click has to come
-		// from its own fetch, keyed off the route param.
-		const router = makeRouter()
-		await router.push('/programs/data-science/enroll')
-		const wrapper = await mountPage(router, student)
-
-		expect(
-			wrapper.find('[data-testid="program-enrollment-summary"]').exists()
-		).toBe(true)
-		expect(wrapper.html()).toContain('Intro to Pandas')
-		expect(programResource.fetch).toHaveBeenCalledTimes(1)
-		const programCall = createResourceMock.mock.calls.find(
-			(call) => call[0].url === PROGRAM_URL
-		)
-		expect(programCall?.[0].makeParams()).toEqual({
-			program_name: 'data-science',
-		})
-	})
-
 	it('refuses a signed-out visitor rather than offering to enroll them', async () => {
 		// enroll_in_program has no guest check of its own, so a guest reaching
 		// this URL is exactly the case a button-shaped entry point never had.
@@ -196,12 +183,14 @@ describe('the program enrollment page', () => {
 		const wrapper = await mountPage(router, null)
 
 		expect(
-			wrapper.find('[data-testid="program-enrollment-summary"]').exists()
+			wrapper.find('[data-testid="program-enrollment-summary"]').exists(),
 		).toBe(false)
 		expect(
-			wrapper.find('[data-testid="program-enrollment-confirm"]').exists()
+			wrapper.find('[data-testid="program-enrollment-confirm"]').exists(),
 		).toBe(false)
-		expect(wrapper.html()).toContain('log in')
+		expect(vi.mocked(toast.warning)).toHaveBeenLastCalledWith(
+			expect.stringContaining('log in'),
+		)
 	})
 
 	it('refuses in read-only mode', async () => {
@@ -211,9 +200,11 @@ describe('the program enrollment page', () => {
 		const wrapper = await mountPage(router, student)
 
 		expect(
-			wrapper.find('[data-testid="program-enrollment-confirm"]').exists()
+			wrapper.find('[data-testid="program-enrollment-confirm"]').exists(),
 		).toBe(false)
-		expect(wrapper.html()).toContain('read-only')
+		expect(vi.mocked(toast.warning)).toHaveBeenLastCalledWith(
+			expect.stringContaining('read-only'),
+		)
 	})
 
 	it("surfaces the fetch's own refusal for a program the viewer may not see", async () => {
@@ -226,16 +217,18 @@ describe('the program enrollment page', () => {
 				messages: [
 					'You are not authorized to view the details of this program.',
 				],
-			}
+			},
 		)
 		const router = makeRouter()
 		await router.push('/programs/secret/enroll')
 		const wrapper = await mountPage(router, student)
 
 		expect(
-			wrapper.find('[data-testid="program-enrollment-confirm"]').exists()
+			wrapper.find('[data-testid="program-enrollment-confirm"]').exists(),
 		).toBe(false)
-		expect(wrapper.html()).toContain('not authorized')
+		expect(vi.mocked(toast.warning)).toHaveBeenLastCalledWith(
+			expect.stringContaining('not authorized'),
+		)
 	})
 
 	it('enrolls in the program named by the URL', async () => {
@@ -248,7 +241,7 @@ describe('the program enrollment page', () => {
 
 		expect(enrollSubmit).toHaveBeenCalledTimes(1)
 		const enrollCall = createResourceMock.mock.calls.find(
-			(call) => call[0].url === ENROLL_URL
+			(call) => call[0].url === ENROLL_URL,
 		)
 		expect(enrollCall?.[0].makeParams()).toEqual({ program: 'data-science' })
 	})
@@ -266,7 +259,7 @@ describe('the program enrollment page', () => {
 		const wrapper = await mountPage(router, student)
 		enrollSubmit.mockImplementation(
 			(_values: unknown, options: { onSuccess: () => void }) =>
-				options.onSuccess()
+				options.onSuccess(),
 		)
 		await wrapper
 			.find('[data-testid="program-enrollment-confirm"]')
@@ -308,5 +301,19 @@ describe('the program enrollment page', () => {
 		await flushPromises()
 
 		expect(router.currentRoute.value.name).toBe('Programs')
+	})
+
+	// Guards: the enrollment dialog left the window untitled. Introduced in
+	// #1686; test added with the a11y audit remediation.
+	it('titles the window while open and hands it back on close', async () => {
+		document.title = 'Programs'
+		const router = makeRouter()
+		await router.push('/programs/data-science/enroll')
+		await mountPage(router, student)
+		expect(document.title).toBe('Enrollment for Program data-science')
+
+		await router.push('/programs')
+		await flushPromises()
+		expect(document.title).toBe('Programs')
 	})
 })

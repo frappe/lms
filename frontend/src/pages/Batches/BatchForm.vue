@@ -207,11 +207,13 @@
 						>
 							<RichTextEditor
 								:id="batchDetailsId"
+								:ariaLabelledby="batchDetailsLabelId"
 								:content="batchDetail.doc.batch_details"
 								@change="(val: string) => updateBatchDetails(val)"
 								:editable="true"
 								:fixedMenu="true"
-								editorClass="prose-sm max-w-none border-b border-x border-outline-gray-2 hover:border-outline-gray-3 hover:shadow-sm focus-within:border-outline-gray-4 focus-within:shadow-sm rounded-b-5 py-1 px-2 min-h-[7rem] max-h-[16rem] overflow-y-scroll transition-colors"
+								minHeight="7rem"
+								maxHeight="16rem"
 							/>
 						</div>
 					</div>
@@ -526,6 +528,7 @@ const formatTime = (timeStr: string): string => {
 }
 
 const submitBatch = (): void => {
+	if (isSaving.value) return
 	const error = validateForm()
 	if (error) {
 		toast.error(error)
@@ -577,16 +580,15 @@ const deleteBatch = (): void => {
 				theme: 'red',
 				variant: 'solid',
 				onClick({ close }) {
-					trashBatch(close)
-					close()
+					return trashBatch(close)
 				},
 			},
 		],
 	})
 }
 
-const trashBatch = (close: () => void): void => {
-	call('lms.lms.api.delete_batch', {
+const trashBatch = (close: () => void): Promise<void> => {
+	return call('lms.lms.api.delete_batch', {
 		batch: props.batch.data?.name,
 	}).then(() => {
 		toast.success(__('Batch deleted successfully'))
@@ -637,9 +639,12 @@ const mediumOptions = computed(() => {
 	]
 })
 
+const isSaving = computed(() => batchDetail.setValue.loading)
+
 defineExpose({
 	submitBatch,
 	deleteBatch,
 	isDirty,
+	isSaving,
 })
 </script>

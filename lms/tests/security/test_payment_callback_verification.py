@@ -22,6 +22,7 @@ class TestPaymentCallbackVerification(BaseTestUtils):
 		super().setUpClass()
 		suffix = frappe.generate_hash(length=6)
 		instructor = cls._create_user(f"pcv-instr-{suffix}@example.com", "Pcv", "Instr", ["Course Creator"])
+		cls.instructor = instructor
 		cls.buyer = cls._create_user(f"pcv-buyer-{suffix}@example.com", "Pcv", "Buyer", ["LMS Student"])
 		cls.other = cls._create_user(f"pcv-other-{suffix}@example.com", "Pcv", "Other", ["LMS Student"])
 		cls.course = cls._create_course(f"PCV Course {suffix}", instructor.email)
@@ -66,6 +67,11 @@ class TestPaymentCallbackVerification(BaseTestUtils):
 
 	def _paid(self, payment):
 		return frappe.db.get_value("LMS Payment", payment.name, "payment_received")
+
+	def _enrolled_member(self, member, course=None):
+		return bool(
+			frappe.db.exists("LMS Enrollment", {"member": member, "course": (course or self.course).name})
+		)
 
 	def _enrolled(self, course=None):
 		return bool(
@@ -196,14 +202,91 @@ class TestPaymentCallbackVerification(BaseTestUtils):
 		self.assertEqual(calls, ["pay_x"])
 		self.assertEqual(self._paid(payment), 0)
 
-	def test_another_users_payment_is_refused(self):
+	def test_a_verified_payment_from_another_session_enrolls_its_member(self):
+		"""Razorpay vouches for the money, so the payment's member is enrolled and the
+		session that carried the callback gets nothing."""
 		payment = self._payment(member=self.other.email)
 		self.razorpay.add_payment("pay_x", receipt=payment.name, amount=PRICE * 100)
 
 		self._callback(payment)
 
-		self.assertEqual(self._paid(payment), 0)
+		self.assertEqual(self._paid(payment), 1)
+		self.assertTrue(self._enrolled_member(self.other.email))
 		self.assertFalse(self._enrolled())
+
+	def test_a_guest_callback_enrolls_the_member_who_paid(self):
+		"""Regression: a callback arriving as Guest enrolled Guest in the course and
+		left the learner who paid on the billing page."""
+		payment = self._payment()
+		self.razorpay.add_payment("pay_x", receipt=payment.name, amount=PRICE * 100)
+		frappe.set_user("Guest")
+
+		self._callback(payment)
+
+		self.assertEqual(self._paid(payment), 1)
+		self.assertTrue(self._enrolled())
+		self.assertFalse(self._enrolled_member("Guest"))
+
+	def test_a_guest_callback_marks_the_members_certificate_purchased(self):
+		frappe.set_user("Administrator")
+		enrollment = self._create_enrollment(self.buyer.email, self.course.name)
+		payment = self._payment()
+		payment.db_set("payment_for_certificate", 1)
+		self.razorpay.add_payment("pay_x", receipt=payment.name, amount=PRICE * 100)
+		frappe.set_user("Guest")
+
+		self._callback(payment)
+
+		self.assertEqual(
+			frappe.db.get_value("LMS Enrollment", enrollment.name, ["purchased_certificate", "payment"]),
+			(1, payment.name),
+		)
+		self.assertFalse(self._enrolled_member("Guest"))
+
+	def test_a_guest_callback_enrolls_the_member_in_a_paid_batch(self):
+		frappe.set_user("Administrator")
+		self._create_evaluator(self.instructor.email)
+		batch = self._create_batch(
+			self.course.name,
+			instructor=self.instructor.email,
+			title=f"PCV Batch {frappe.generate_hash(length=6)}",
+			evaluator=self.instructor.email,
+		)
+		batch.db_set({"paid_batch": 1, "amount": PRICE, "currency": "INR"})
+		payment = self._payment()
+		payment.db_set({"payment_for_document_type": "LMS Batch", "payment_for_document": batch.name})
+		self.razorpay.add_payment("pay_x", receipt=payment.name, amount=PRICE * 100)
+		frappe.set_user("Guest")
+
+		frappe.flags.data = {
+			"payment": payment.name,
+			"payment_gateway": "Razorpay",
+			"razorpay_payment_id": "pay_x",
+		}
+		try:
+			with patch("frappe.log_error", wraps=frappe.log_error) as log_error:
+				update_payment_record("LMS Batch", batch.name)
+		finally:
+			frappe.flags.data = None
+
+		self.assertEqual(self._paid(payment), 1)
+		enrollment = frappe.db.get_value(
+			"LMS Batch Enrollment", {"batch": batch.name, "member": self.buyer.email}, ["owner", "payment"]
+		)
+		self.assertEqual(enrollment, (self.buyer.email, payment.name))
+		self.assertFalse(frappe.db.exists("LMS Batch Enrollment", {"batch": batch.name, "member": "Guest"}))
+		# The confirmation is sent for the member, not refused for the Guest session.
+		log_error.assert_not_called()
+
+	def test_an_unverified_gateway_callback_from_another_session_is_refused(self):
+		"""Without a gateway lookup behind it, only the payment's own member may
+		complete a payment."""
+		payment = self._payment(member=self.other.email)
+
+		self._callback(payment, payment_gateway="PayPal", razorpay_payment_id=None)
+
+		self.assertEqual(self._paid(payment), 0)
+		self.assertFalse(self._enrolled_member(self.other.email))
 
 	def test_payment_for_another_course_is_refused(self):
 		cheap = self._payment(course=self.cheap_course, amount=10)

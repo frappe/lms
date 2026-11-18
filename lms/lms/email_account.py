@@ -203,7 +203,7 @@ def _apply_custom_server(email_doc, data: dict) -> None:
 		email_doc.login_id = login
 
 
-@frappe.whitelist()
+@frappe.whitelist(methods=["POST"])
 def create_email_account(data: dict) -> str:
 	frappe.only_for(SETTINGS_ROLE)
 	service = _validate_input(data)
@@ -256,7 +256,7 @@ def create_email_account(data: dict) -> str:
 		frappe.throw(str(e))
 
 
-@frappe.whitelist()
+@frappe.whitelist(methods=["POST"])
 def set_default_email_account(email_account: str = "", kind: str = "") -> dict:
 	"""Move the site-wide default inbox or default sender onto one account.
 

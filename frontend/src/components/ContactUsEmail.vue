@@ -15,16 +15,21 @@
 						:required="true"
 					/>
 					<RichTextEditor
+						:ariaLabelledby="messageLabelId"
 						:fixedMenu="true"
 						@change="(val) => (message = val)"
-						editorClass="prose-sm py-2 px-2 min-h-[200px] border-outline-gray-2 hover:border-outline-gray-3 rounded-b-5 bg-surface-gray-3"
+						minHeight="200px"
 					/>
 				</div>
 			</div>
 		</template>
 		<template #actions="{ close }">
 			<div class="pb-5 float-end">
-				<Button variant="solid" @click="sendMail(close)">
+				<Button
+					variant="solid"
+					:loading="contactUsEmail.loading"
+					@click="sendMail(close)"
+				>
 					{{ __('Send') }}
 				</Button>
 			</div>
@@ -32,10 +37,10 @@
 	</Dialog>
 </template>
 <script setup lang="ts">
-import { Button, call, Dialog, FormControl, toast } from 'frappe-ui'
+import { Button, createResource, Dialog, FormControl, toast } from 'frappe-ui'
 import { ref, useId } from 'vue'
 import { InputLabel } from 'frappe-ui/experimental'
-import { resourceErrorMessage } from '@/utils/resource'
+import { resourceErrorMessage, submitResource } from '@/utils/resource'
 import RichTextEditor from '@/components/RichTextEditor.vue'
 
 const messageLabelId = useId()
@@ -48,21 +53,28 @@ const message = ref('')
    request, and so an image pasted into the message is embedded into the mail
    itself. Its upload is private, and a /private/files/ URL in an email is
    served to nobody. */
+const contactUsEmail = createResource({
+	url: 'lms.lms.api.send_contact_us_email',
+})
+
 const sendMail = (close: Function) => {
-	call('lms.lms.api.send_contact_us_email', {
-		subject: subject.value,
-		content: message.value,
-	})
-		.then(() => {
-			toast.success(__('Email sent successfully'))
-			close()
-			subject.value = ''
-			message.value = ''
-		})
-		.catch((error: unknown) => {
-			// The dialog stays open: the message is worth keeping when the
-			// failure is something the sender can fix.
-			toast.error(resourceErrorMessage(error, __('Failed to send email')))
-		})
+	if (contactUsEmail.loading) return
+	submitResource(
+		contactUsEmail,
+		{ subject: subject.value, content: message.value },
+		{
+			onSuccess() {
+				toast.success(__('Email sent successfully'))
+				close()
+				subject.value = ''
+				message.value = ''
+			},
+			onError(error) {
+				// The dialog stays open: the message is worth keeping when the
+				// failure is something the sender can fix.
+				toast.error(resourceErrorMessage(error, __('Failed to send email')))
+			},
+		}
+	)
 }
 </script>

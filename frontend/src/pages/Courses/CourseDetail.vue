@@ -43,6 +43,7 @@
 					<HeaderButton
 						:label="__('Save')"
 						variant="solid"
+						:loading="courseFormRef.isSaving"
 						@click="courseFormRef.submitCourse()"
 					/>
 				</ShortcutTooltip>
@@ -142,7 +143,7 @@
 					</template>
 				</Button>
 				<div
-					class="min-w-0 flex-1 text-center text-p-xs font-medium tabular-nums text-ink-gray-5"
+					class="min-w-0 flex-1 text-center text-p-xs font-medium tabular-nums text-ink-gray-6"
 				>
 					<span v-if="courseEditorRef?.lessonTotal">
 						{{ courseEditorRef?.lessonIndex }} /
@@ -241,6 +242,8 @@ import type { FrappeResourceError } from 'frappe-ui'
 import { sessionStore } from '@/stores/session'
 import { useScreenSize } from '@/utils/composables'
 import { useTelemetry } from '@framework/ui/telemetry/index'
+import { useOnboarding } from '@framework/ui/components/Onboarding/index'
+import { seesOnboarding } from '@/utils/onboarding'
 import TabbedDetailPage from '@/components/Layouts/TabbedDetailPage.vue'
 import type { DetailTab } from '@/components/Layouts/TabbedDetailPage.vue'
 import CourseOverview from '@/pages/Courses/CourseOverview.vue'
@@ -327,6 +330,7 @@ type PublishResponse = {
 }
 
 const { capture } = useTelemetry()
+const onboarding = useOnboarding('learning')
 const publishToggle = createResource({
 	url: 'frappe.client.set_value',
 	makeParams() {
@@ -342,6 +346,8 @@ const publishToggle = createResource({
 		capture(published ? 'course_published' : 'course_unpublished', {
 			course: course.data?.name,
 		})
+		if (published && seesOnboarding(user.data))
+			onboarding?.updateOnboardingStep('publish_first_course')
 		toast.success(published ? __('Course published') : __('Course unpublished'))
 		const emptyQuizzes = data?.__onload?.quizzes_without_questions
 		if (emptyQuizzes?.length) {
@@ -377,6 +383,7 @@ const courseOptions = computed<CourseMenuItem[]>(() => {
 })
 
 function togglePublishCourse() {
+	if (publishToggle.loading) return
 	publishToggle.submit()
 }
 
@@ -422,6 +429,7 @@ const tabs = computed<DetailTab[]>(() => [
 		icon: 'lucide-list',
 		when: isAdmin.value,
 		flow: true,
+		rendersHeading: true,
 	},
 	{
 		key: 'dashboard',

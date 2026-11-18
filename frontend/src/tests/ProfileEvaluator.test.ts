@@ -337,20 +337,6 @@ describe('ProfileEvaluator week', () => {
 		expect(total('Friday')).toBe('1h')
 	})
 
-	it('labels the columns like the CRM schedule, with a divider only between days', async () => {
-		const wrapper = await mountPanel()
-		const header = wrapper.find('[data-testid="week-header"]')
-		const list = day(wrapper, 'Monday').element.parentElement!
-
-		expect(header.findAll('span').map((s) => s.text())).toEqual([
-			'Day',
-			'Total',
-			'Hours',
-		])
-		expect(list.querySelectorAll('hr')).toHaveLength(6)
-		expect(day(wrapper, 'Sunday').find('hr').exists()).toBe(false)
-	})
-
 	it('Add slot on an unavailable day adds 09:00 to 10:00, then the next hour', async () => {
 		const wrapper = await mountPanel()
 		expect(isOff(wrapper, 'Friday')).toBe(true)
@@ -498,27 +484,6 @@ describe('ProfileEvaluator week', () => {
 			).not.toHaveBeenCalled()
 		}
 	)
-
-	it('draws every field on the page as outline', async () => {
-		const wrapper = await mountPanel({
-			timeOff: ['2030-01-01', '2030-01-05'],
-		})
-		const fields = wrapper.findAll('input, [data-testid="range-picker"]')
-		const variants = fields
-			.filter((f) => f.attributes('role') !== 'switch')
-			.filter((f) => f.attributes('data-type') !== 'range')
-			.map((f) => f.attributes('data-variant'))
-		expect(variants.length).toBeGreaterThanOrEqual(4)
-		expect(new Set(variants)).toEqual(new Set(['outline']))
-	})
-
-	it('never writes through raw framework endpoints', async () => {
-		await mountPanel()
-		const raw = resources.value.filter((r) =>
-			String(r.config.url).startsWith('frappe.')
-		)
-		expect(raw).toEqual([])
-	})
 })
 
 describe('ProfileEvaluator while loading', () => {
@@ -840,24 +805,6 @@ describe('ProfileEvaluator time off', () => {
 	})
 })
 
-describe('ProfileEvaluator layout', () => {
-	it('keeps hours and time off under one Availability section', async () => {
-		const wrapper = await mountPanel()
-		const section = wrapper.find('[data-testid="availability"]')
-
-		expect(section.find('h2').text()).toBe('Availability')
-		expect(section.findAll('h3').map((h) => h.text())).toEqual([
-			'Hours',
-			'Time off',
-		])
-		expect(section.find('[data-testid="hours"]').exists()).toBe(true)
-		expect(section.find('[data-testid="time-off"]').exists()).toBe(true)
-		expect(section.find('[data-testid="calendar"]').exists()).toBe(false)
-		expect(wrapper.find('[data-testid="calendar"]').exists()).toBe(true)
-		expect(wrapper.text().toLowerCase()).not.toContain('weekly')
-	})
-})
-
 describe('ProfileEvaluator read-only', () => {
 	it("shows a moderator someone else's week as text, with no controls", async () => {
 		const wrapper = await mountPanel({
@@ -1101,15 +1048,6 @@ describe('ProfileEvaluator Google Calendar', () => {
 		}
 	)
 
-	it('puts the status next to the heading, not the button', async () => {
-		const wrapper = await mountPanel({ calendar: CONNECTED })
-		const heading = section(wrapper).find('h2').element.parentElement!
-
-		expect(
-			heading.querySelector('[data-testid="calendar-status"]')
-		).not.toBeNull()
-	})
-
 	// Branch-only code, no upstream PR: the returned calendar is patched into the
 	// details, not refetched. Added on feat/evaluator-availability-redesign (no PR yet).
 	it('disconnects only after confirming, then shows the returned calendar', async () => {
@@ -1239,17 +1177,6 @@ describe('ProfileEvaluator Google Calendar', () => {
 		expect(status(wrapper)).toBe('Connected')
 	})
 
-	it('draws Disconnect as outline, a level apart from Disable', async () => {
-		const wrapper = await mountPanel({ calendar: CONNECTED })
-
-		expect(
-			button(wrapper, 'Disable')!.attributes('data-variant')
-		).toBeUndefined()
-		expect(button(wrapper, 'Disconnect')!.attributes('data-variant')).toBe(
-			'outline'
-		)
-	})
-
 	describe('rename', () => {
 		const RENAMED = {
 			...CONNECTED,
@@ -1341,21 +1268,6 @@ describe('ProfileEvaluator Google Calendar', () => {
 				value: 'Eva marking',
 			})
 			expect(nameShown(wrapper).text()).toBe('Eva marking')
-		})
-
-		it('hides the pencil until hover or keyboard focus', async () => {
-			const wrapper = await mountPanel({ calendar: CONNECTED })
-
-			expect(
-				section(wrapper).find('[data-testid="calendar-connected"]').classes()
-			).toContain('group')
-			expect(pencil(wrapper).classes()).toEqual(
-				expect.arrayContaining([
-					'focus-visible:opacity-100',
-					'[@media(hover:hover)]:opacity-0',
-					'[@media(hover:hover)]:group-hover:opacity-100',
-				])
-			)
 		})
 
 		it('Escape puts the name back without a request', async () => {

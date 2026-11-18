@@ -8,6 +8,7 @@
 					variant="ghost"
 					:label="__('Refresh session')"
 					icon="lucide-refresh-ccw"
+					:loading="isRefreshingSession"
 					@click="reloadUser()"
 				/>
 			</template>
@@ -27,29 +28,44 @@
 						:open-to="profile.data.open_to"
 					/>
 				</div>
-				<div class="ms-6 mt-5">
+				<div class="mt-5 md:mt-0 md:ms-6 text-center md:text-start">
 					<h1 class="text-4xl-semibold text-ink-gray-9">
 						{{ profile.data.full_name }}
 					</h1>
-					<div class="text-base text-ink-gray-7 mt-1">
+					<div
+						v-if="profile.data.headline"
+						class="text-base text-ink-gray-7 mt-1"
+					>
 						{{ profile.data.headline }}
 					</div>
 					<ProfileSocialLinks
+						v-if="
+							profile.data.twitter ||
+							profile.data.linkedin ||
+							profile.data.github
+						"
 						:twitter="profile.data.twitter"
 						:linkedin="profile.data.linkedin"
 						:github="profile.data.github"
 					/>
 				</div>
-				<Button
+				<div
 					v-if="isSessionUser() && !readOnlyMode"
-					class="mt-3 sm:mt-0 md:ms-auto"
-					@click="editProfile()"
+					class="mt-3 flex items-center gap-2 sm:mt-0 md:ms-auto"
 				>
-					<template #prefix>
-						<span class="lucide-edit size-4 text-ink-gray-7" />
-					</template>
-					{{ __('Edit Profile') }}
-				</Button>
+					<Button @click="editProfile()">
+						<template #prefix>
+							<span class="lucide-edit size-4 text-ink-gray-7" />
+						</template>
+						{{ __('Edit Profile') }}
+					</Button>
+					<Button @click="showPasswordDialog = true">
+						<template #prefix>
+							<span class="lucide-key-round size-4 text-ink-gray-7" />
+						</template>
+						{{ __('Change password') }}
+					</Button>
+				</div>
 			</div>
 
 			<div class="mb-4 mt-10">
@@ -65,13 +81,16 @@
 				:key="profile.data?.username"
 			/>
 		</div>
+		<ChangePasswordDialog
+			v-if="isSessionUser()"
+			v-model:open="showPasswordDialog"
+		/>
 	</div>
 	<NotFound v-else-if="(profile.fetched || profile.error) && !profile.data" />
 </template>
 <script setup>
 import {
 	Button,
-	call,
 	createResource,
 	TabButtons,
 	toast,
@@ -90,13 +109,16 @@ import NotFound from '@/pages/NotFound.vue'
 import ProfileAvatar from '@/components/Profile/ProfileAvatar.vue'
 import ProfileCover from '@/components/Profile/ProfileCover.vue'
 import ProfileSocialLinks from '@/components/Profile/ProfileSocialLinks.vue'
+import ChangePasswordDialog from '@/components/Profile/ChangePasswordDialog.vue'
 import { openFormRoute } from '@/composables/useFormRoute'
+import { submitResource } from '@/utils/resource'
 
 const { user, brand } = sessionStore()
 const $user = inject('$user')
 const route = useRoute()
 const router = useRouter()
 const activeTab = ref('')
+const showPasswordDialog = ref(false)
 const readOnlyMode = window.read_only_mode
 const { isMobile } = useScreenSize()
 
@@ -278,18 +300,35 @@ const getTabButtons = () => {
 	return buttons
 }
 
+const clearSession = createResource({ url: 'frappe.sessions.clear' })
+
+const isRefreshingSession = computed(
+	() => clearSession.loading || $user.loading
+)
+
+const reportRefreshFailure = (err) => {
+	toast.error(__('Failed to refresh session'))
+	console.error(err)
+}
+
 const reloadUser = () => {
-	call('frappe.sessions.clear')
-		.then(() => {
-			$user.reload().then(() => {
-				profile.reload()
-				toast.success(__('Session refreshed successfully'))
-			})
-		})
-		.catch((err) => {
-			toast.error(__('Failed to refresh session'))
-			console.error(err)
-		})
+	if (isRefreshingSession.value) return
+	submitResource(
+		clearSession,
+		{},
+		{
+			onSuccess() {
+				return $user
+					.reload()
+					.then(() => {
+						profile.reload()
+						toast.success(__('Session refreshed successfully'))
+					})
+					.catch(reportRefreshFailure)
+			},
+			onError: reportRefreshFailure,
+		}
+	)
 }
 
 const breadcrumbs = computed(() => {

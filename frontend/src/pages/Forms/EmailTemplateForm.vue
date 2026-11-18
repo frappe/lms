@@ -1,10 +1,12 @@
 <template>
-	<FormShell :title="__('New Email Template')" size="lg" @close="close">
+	<FormShell
+		:title="__('New Email Template')"
+		size="lg"
+		:message="refusal"
+		@close="close"
+	>
 		<template #default>
-			<div v-if="refusal" class="p-4 text-base text-ink-gray-6">
-				{{ refusal }}
-			</div>
-			<div v-else data-testid="email-template-fields" class="space-y-4">
+			<div data-testid="email-template-fields" class="space-y-4">
 				<FormControl
 					v-model="template.name"
 					type="text"
@@ -45,11 +47,13 @@
 						:required="true"
 					/>
 					<RichTextEditor
+						:ariaLabelledby="contentLabelId"
 						:content="template.response"
 						:editable="true"
 						:fixedMenu="true"
 						:placeholder="richPlaceholder"
-						editorClass="prose-sm max-w-none border-b border-x border-outline-elevation-2 bg-surface-gray-2 rounded-b-5 py-1 px-2 min-h-[7rem] max-h-[18rem] overflow-y-auto"
+						minHeight="7rem"
+						maxHeight="18rem"
 						@change="(val) => (template.response = val)"
 					/>
 				</div>
@@ -57,7 +61,6 @@
 		</template>
 		<template #actions>
 			<HeaderButton
-				v-if="!refusal"
 				data-testid="email-template-save"
 				:label="__('Create')"
 				variant="solid"
@@ -163,7 +166,7 @@ const reloadTemplateList = () => {
 }
 
 const submit = () => {
-	if (refusal.value) return
+	if (refusal.value || createTemplate.loading) return
 	submitResource(
 		createTemplate,
 		{},

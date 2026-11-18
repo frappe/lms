@@ -21,18 +21,21 @@
 				v-model="filters.quiz"
 				align="end"
 				:placeholder="__('Filter by Quiz')"
+				:aria-label="__('Filter by Quiz')"
 			/>
 			<Link
 				doctype="User"
 				v-model="filters.member"
 				align="end"
 				:placeholder="__('Filter by Member')"
+				:aria-label="__('Filter by Member')"
 			/>
 			<Link
 				doctype="LMS Course"
 				v-model="filters.course"
 				align="end"
 				:placeholder="__('Filter by Course')"
+				:aria-label="__('Filter by Course')"
 			/>
 		</template>
 
@@ -44,17 +47,18 @@
 			<span v-else-if="column.key === 'percentage'">{{ value }}%</span>
 			<div
 				v-else-if="column.key === 'creation'"
-				class="text-sm text-ink-gray-5"
+				class="text-sm text-ink-gray-6"
 			>
 				{{ value }}
 			</div>
-			<div v-else>{{ value }}</div>
+			<div v-else class="truncate">{{ value }}</div>
 		</template>
 
 		<template #selection-actions="{ unselectAll, selections }">
 			<Button
 				variant="ghost"
 				:label="__('Delete')"
+				:loading="deleting"
 				@click="deleteSubmissions(selections, unselectAll)"
 			>
 				<template #prefix>
@@ -171,18 +175,21 @@ watch(
 	{ deep: true }
 )
 
-const { run: deleteSubmissions } = useBulkDeleteAction('LMS Quiz Submission', {
-	onDeleted: () => {
-		submissions.reload()
-	},
-	success: () => __('Submissions deleted successfully'),
-	partial: ({ failed, total, error }) =>
-		__('{0} of {1} submissions could not be deleted: {2}').format(
-			failed,
-			total,
-			error
-		),
-})
+const { deleting, run: deleteSubmissions } = useBulkDeleteAction(
+	'LMS Quiz Submission',
+	{
+		onDeleted: () => {
+			submissions.reload()
+		},
+		success: () => __('Submissions deleted successfully'),
+		partial: ({ failed, total, error }) =>
+			__('{0} of {1} submissions could not be deleted: {2}').format(
+				failed,
+				total,
+				error
+			),
+	}
+)
 
 const listOptions: ListViewOptions = {
 	selectable: true,

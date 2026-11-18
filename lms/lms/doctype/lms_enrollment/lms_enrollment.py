@@ -5,8 +5,11 @@ from contextlib import contextmanager
 
 import frappe
 from frappe import _
+from frappe.database.database import savepoint
 from frappe.model.document import Document
 from frappe.utils import ceil
+
+from lms.lms.locking import locked_count
 
 IDENTITY_FIELDS = ("course", "member", "enrollment_from_batch")
 
@@ -20,8 +23,9 @@ class LMSEnrollment(Document):
 
 	def enforce_member_ownership(self):
 		"""The member is the caller, unless the caller manages the course or the
-		row comes with a batch enrolment, which authorised its member already."""
-		if self.flags.via_batch_enrollment or self.managed_by_caller():
+		row comes with a batch enrolment or a verified payment, which authorised its
+		member already."""
+		if self.flags.via_batch_enrollment or self.flags.via_payment or self.managed_by_caller():
 			return
 		if self.member and self.member != frappe.session.user:
 			frappe.throw(_("You cannot enroll another user."), frappe.PermissionError)
@@ -61,6 +65,7 @@ class LMSEnrollment(Document):
 		update_program_progress(self.member)
 
 	def after_insert(self):
+		self.validate_against_committed_rows()
 		if self.member_type == "Student":
 			_update_course_enrollments(self.course, increment=True)
 
@@ -70,21 +75,23 @@ class LMSEnrollment(Document):
 
 	def validate_duplicate_enrollment(self):
 		# Lock the course row first: see the note in
-		# lms_batch_enrollment.validate_duplicate_members. Two concurrent
-		# enrolments in the same course both read "absent" without it.
+		# lms_batch_enrollment.validate_duplicate_members.
 		frappe.db.get_value("LMS Course", self.course, "name", for_update=True)
 
-		existing_enrollment = frappe.db.exists(
-			"LMS Enrollment",
-			{
-				"course": self.course,
-				"member": self.member,
-				"name": ["!=", self.name],
-			},
-		)
+		if frappe.db.exists("LMS Enrollment", {**self.duplicate_filters(), "name": ["!=", self.name]}):
+			self.throw_duplicate()
 
-		if existing_enrollment and existing_enrollment != self.name:
-			frappe.throw(_("Student is already enrolled in this course."))
+	def validate_against_committed_rows(self):
+		"""The duplicate check above reads a snapshot that misses a row committed while
+		this request waited on the course lock. Recount with a read that sees it."""
+		if locked_count("LMS Enrollment", self.duplicate_filters()) > 1:
+			self.throw_duplicate()
+
+	def duplicate_filters(self):
+		return {"course": self.course, "member": self.member}
+
+	def throw_duplicate(self):
+		frappe.throw(_("Student is already enrolled in this course."), AlreadyEnrolledError)
 
 	def validate_course_enrollment_eligibility(self):
 		course_details = frappe.db.get_value(
@@ -132,6 +139,26 @@ class LMSEnrollment(Document):
 
 			if not payment:
 				frappe.throw(_("You need to complete the payment for this course before enrolling."))
+
+
+class AlreadyEnrolledError(frappe.ValidationError):
+	"""The member already has this enrolment."""
+
+
+def save_unless_enrolled(doc: Document, **kwargs) -> bool:
+	"""Save a new course or batch enrolment, or do nothing if the member already has it.
+
+	validate's duplicate check reads this request's snapshot, so an enrolment another
+	request committed meanwhile surfaces only on insert, from the unique index or the
+	after-insert recount. A locking read before the insert would see it, but its gap
+	lock deadlocks concurrent enrolments into neighbouring courses or batches. So the
+	duplicate is rolled back to a savepoint here, with the message it raised."""
+	messages = len(frappe.local.message_log)
+	with savepoint(catch=(AlreadyEnrolledError, frappe.UniqueValidationError)):
+		doc.save(**kwargs)
+		return True
+	del frappe.local.message_log[messages:]
+	return False
 
 
 def validate_identity_unchanged(doc: Document, fields: tuple[str, ...]):

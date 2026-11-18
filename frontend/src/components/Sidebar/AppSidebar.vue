@@ -3,95 +3,93 @@
 		class="flex h-full flex-col justify-between transition-all duration-300 ease-in-out border-e bg-surface-sidebar overflow-x-hidden"
 		:class="sidebarStore.isSidebarCollapsed ? 'w-14' : 'w-56'"
 	>
-		<div
-			class="flex flex-col overflow-y-auto flex-1 min-h-0"
-			:class="sidebarStore.isSidebarCollapsed ? 'items-center' : ''"
-		>
-			<UserDropdown :isCollapsed="sidebarStore.isSidebarCollapsed" />
-			<div class="flex flex-col" v-if="sidebarSettings.data">
-				<div v-for="link in sidebarLinks" class="mx-2 my-2.5">
-					<div
-						v-if="!link.hideLabel"
-						class="mb-2 mt-3 flex cursor-pointer gap-1.5 px-1 text-p-base-medium text-ink-gray-5 transition-all duration-300 ease-in-out"
-					>
-						<span>{{ __(link.label) }}</span>
+		<ScrollArea class="min-h-0 flex-1">
+			<div
+				class="flex flex-col"
+				:class="sidebarStore.isSidebarCollapsed ? 'items-center' : ''"
+			>
+				<UserDropdown :isCollapsed="sidebarStore.isSidebarCollapsed" />
+				<div class="flex flex-col" v-if="sidebarSettings.data">
+					<div v-for="link in sidebarLinks" class="mx-2 my-2.5">
+						<div
+							v-if="!link.hideLabel"
+							class="mb-2 mt-3 flex cursor-pointer gap-1.5 px-1 text-p-base-medium text-ink-gray-6 transition-all duration-300 ease-in-out"
+						>
+							<span>{{ __(link.label) }}</span>
+						</div>
+						<nav class="space-y-1">
+							<div v-for="item in link.items">
+								<SidebarLink
+									:link="item"
+									:isCollapsed="sidebarStore.isSidebarCollapsed"
+								/>
+							</div>
+						</nav>
 					</div>
-					<nav class="space-y-1">
-						<div v-for="item in link.items">
+				</div>
+				<div
+					v-if="sidebarSettings.data?.web_pages?.length || isModerator"
+					class="mt-4"
+				>
+					<div
+						class="flex items-center justify-between pe-2 cursor-pointer"
+						:class="sidebarStore.isSidebarCollapsed ? 'ps-3' : 'ps-4'"
+						@click="toggleWebPages"
+					>
+						<div
+							v-if="!sidebarStore.isSidebarCollapsed"
+							class="flex items-center text-ink-gray-6 my-1"
+						>
+							<span class="grid h-5 w-6 flex-shrink-0 place-items-center">
+								<span
+									class="lucide-chevron-right h-4 w-4 text-ink-gray-9 transition-all duration-300 ease-in-out"
+									:class="{
+										'rotate-90': !sidebarStore.isWebpagesCollapsed,
+										'rtl:rotate-180': sidebarStore.isWebpagesCollapsed,
+									}"
+								/>
+							</span>
+							<span class="ms-2">
+								{{ __('More') }}
+							</span>
+						</div>
+						<Button
+							v-if="isModerator && !readOnlyMode"
+							variant="ghost"
+							@click="openPageModal()"
+						>
+							<template #icon>
+								<span class="lucide-plus h-4 w-4 text-ink-gray-7" />
+							</template>
+						</Button>
+					</div>
+					<div
+						v-if="sidebarSettings.data?.web_pages?.length"
+						class="flex flex-col transition-all duration-300 ease-in-out"
+						:class="!sidebarStore.isWebpagesCollapsed ? 'block' : 'hidden'"
+					>
+						<div
+							v-for="link in sidebarSettings.data.web_pages"
+							class="mx-2 my-0.5"
+						>
 							<SidebarLink
-								:link="item"
+								:link="link"
 								:isCollapsed="sidebarStore.isSidebarCollapsed"
+								:showControls="isModerator ? true : false"
+								@openModal="openPageModal"
+								@deletePage="deletePage"
 							/>
 						</div>
-					</nav>
-				</div>
-			</div>
-			<div
-				v-if="sidebarSettings.data?.web_pages?.length || isModerator"
-				class="mt-4"
-			>
-				<div
-					class="flex items-center justify-between pe-2 cursor-pointer"
-					:class="sidebarStore.isSidebarCollapsed ? 'ps-3' : 'ps-4'"
-					@click="toggleWebPages"
-				>
-					<div
-						v-if="!sidebarStore.isSidebarCollapsed"
-						class="flex items-center text-ink-gray-5 my-1"
-					>
-						<span class="grid h-5 w-6 flex-shrink-0 place-items-center">
-							<span
-								class="lucide-chevron-right h-4 w-4 text-ink-gray-9 transition-all duration-300 ease-in-out"
-								:class="{
-									'rotate-90': !sidebarStore.isWebpagesCollapsed,
-									'rtl:rotate-180': sidebarStore.isWebpagesCollapsed,
-								}"
-							/>
-						</span>
-						<span class="ms-2">
-							{{ __('More') }}
-						</span>
-					</div>
-					<Button
-						v-if="isModerator && !readOnlyMode"
-						variant="ghost"
-						@click="openPageModal()"
-					>
-						<template #icon>
-							<span class="lucide-plus h-4 w-4 text-ink-gray-7" />
-						</template>
-					</Button>
-				</div>
-				<div
-					v-if="sidebarSettings.data?.web_pages?.length"
-					class="flex flex-col transition-all duration-300 ease-in-out"
-					:class="!sidebarStore.isWebpagesCollapsed ? 'block' : 'hidden'"
-				>
-					<div
-						v-for="link in sidebarSettings.data.web_pages"
-						class="mx-2 my-0.5"
-					>
-						<SidebarLink
-							:link="link"
-							:isCollapsed="sidebarStore.isSidebarCollapsed"
-							:showControls="isModerator ? true : false"
-							@openModal="openPageModal"
-							@deletePage="deletePage"
-						/>
 					</div>
 				</div>
 			</div>
-		</div>
+		</ScrollArea>
 		<div class="m-2 flex flex-col gap-1">
 			<div
 				v-if="readOnlyMode && !sidebarStore.isSidebarCollapsed"
 				class="z-10 m-2 bg-surface-elevation-2 py-2.5 px-3 text-p-xs text-ink-gray-7 rounded-5"
 			>
-				{{
-					__(
-						'This site is being updated. You will not be able to make any changes. Full access will be restored shortly.'
-					)
-				}}
+				{{ readOnlyNotice }}
 			</div>
 			<div
 				v-if="
@@ -164,31 +162,45 @@
 					class="flex items-center flex-1 gap-3"
 					:class="sidebarStore.isSidebarCollapsed ? 'flex-col' : 'flex-row'"
 				>
-					<Tooltip v-if="readOnlyMode && sidebarStore.isSidebarCollapsed">
-						<span
-							class="lucide-circle-alert size-4 text-ink-gray-7 cursor-pointer"
-						/>
-						<template #content>
-							<div class="max-w-[30ch] text-center text-p-xs">
-								{{
-									__(
-										'This site is being updated. You will not be able to make any changes. Full access will be restored shortly.'
-									)
-								}}
-							</div>
-						</template>
-					</Tooltip>
+					<template v-if="readOnlyMode && sidebarStore.isSidebarCollapsed">
+						<Tooltip>
+							<span
+								class="lucide-circle-alert size-4 text-ink-gray-7 cursor-pointer"
+								aria-hidden="true"
+							/>
+							<template #content>
+								<div class="max-w-[30ch] text-center text-p-xs">
+									{{ readOnlyNotice }}
+								</div>
+							</template>
+						</Tooltip>
+						<span class="sr-only">{{ readOnlyNotice }}</span>
+					</template>
 					<Tooltip v-if="showOnboarding" :text="__('Help')">
-						<span
-							class="lucide-circle-help size-4 text-ink-gray-7 cursor-pointer"
+						<button
+							type="button"
+							class="flex"
+							:aria-label="__('Help')"
 							@click="toggleHelp"
-						/>
+						>
+							<span
+								class="lucide-circle-help size-4 text-ink-gray-7 cursor-pointer"
+								aria-hidden="true"
+							/>
+						</button>
 					</Tooltip>
 					<Tooltip :text="__('Powered by Frappe Learning')">
-						<span
-							class="lucide-zap size-4 text-ink-gray-7 cursor-pointer"
-							@click="redirectToWebsite()"
-						/>
+						<a
+							href="https://frappe.io/learning"
+							v-external
+							class="flex"
+							:aria-label="__('Powered by Frappe Learning')"
+						>
+							<span
+								class="lucide-zap size-4 text-ink-gray-7 cursor-pointer"
+								aria-hidden="true"
+							/>
+						</a>
 					</Tooltip>
 				</div>
 				<Tooltip
@@ -207,10 +219,10 @@
 						@click="toggleSidebar()"
 					/>
 				</Tooltip>
-				<span class="sr-only">{{ readOnlyNotice }}</span>
 			</div>
 		</div>
 		<HelpModal
+			class="getting-started"
 			data-testid="onboarding-help-modal"
 			v-if="showOnboarding && showHelpModal"
 			v-model="showHelpModal"
@@ -243,7 +255,7 @@ import { usersStore } from '@/stores/user'
 import { seesOnboarding } from '@/utils/onboarding'
 import { useSidebar } from '@/stores/sidebar'
 import { useSettings } from '@/stores/settings'
-import { Button, call, Tooltip, toast } from 'frappe-ui'
+import { Button, call, ScrollArea, Tooltip, toast } from 'frappe-ui'
 import PageModal from '@/components/Modals/PageModal.vue'
 import LMSLogo from '@/components/Icons/LMSLogo.vue'
 import { useRouter } from 'vue-router'
@@ -259,15 +271,7 @@ import {
 	onUnmounted,
 	computed,
 } from 'vue'
-import {
-	BookOpen,
-	CircleHelp,
-	FolderTree,
-	FileText,
-	UserPlus,
-	Users,
-	BookText,
-} from 'lucide-vue-next'
+import { BookOpen, FileText, Globe, Users } from 'lucide-vue-next'
 import { TrialBanner } from '@framework/ui/components/TrialBanner/index'
 import {
 	HelpModal,
@@ -287,7 +291,6 @@ import { pushSettingsHash } from '@/composables/useSettingsHash'
 import CollapseSidebar from '@/components/Icons/CollapseSidebar.vue'
 import SidebarLink from '@/components/Sidebar/SidebarLink.vue'
 import CommandPalette from '@/components/CommandPalette/CommandPalette.vue'
-import { openExternal } from '@/utils/openExternal'
 import {
 	loadUnreadCount,
 	unreadCount,
@@ -313,6 +316,9 @@ let onboardingDetails
 let isOnboardingStepsCompleted = false
 const readOnlyMode = window.read_only_mode
 const isRtl = document.documentElement.dir === 'rtl'
+const readOnlyNotice = __(
+	'This site is being updated. You will not be able to make any changes. Full access will be restored shortly.'
+)
 const openCourseForm = () => {
 	setFormSource('onboarding')
 	openFormRoute(router, { name: 'NewCourse' })
@@ -433,13 +439,9 @@ const getFirstCourse = async () => {
 	return await call('lms.lms.onboarding.get_first_course')
 }
 
-const getFirstBatch = async () => {
-	let firstBatch = localStorage.getItem('firstBatch')
-	if (firstBatch) return firstBatch
-	return await call('lms.lms.onboarding.get_first_batch')
-}
-
-const steps = reactive([
+// Five steps, in the order of the goal picked in setup: a course first for most,
+// a batch first for someone bringing their learners in.
+const allSteps = [
 	{
 		name: 'create_first_course',
 		title: __('Create your first course'),
@@ -453,31 +455,11 @@ const steps = reactive([
 		},
 	},
 	{
-		name: 'create_first_chapter',
-		title: __('Add your first chapter'),
-		icon: markRaw(h(FolderTree, iconProps)),
-		completed: false,
-		dependsOn: 'create_first_course',
-		onClick: async () => {
-			minimize.value = true
-			let course = await getFirstCourse()
-			if (course) {
-				router.push({
-					name: 'CourseDetail',
-					params: { courseName: course },
-					hash: '#editor',
-				})
-			} else {
-				openCourseForm()
-			}
-		},
-	},
-	{
 		name: 'create_first_lesson',
 		title: __('Add your first lesson'),
 		icon: markRaw(h(FileText, iconProps)),
 		completed: false,
-		dependsOn: 'create_first_chapter',
+		dependsOn: 'create_first_course',
 		onClick: async () => {
 			minimize.value = true
 			let course = await getFirstCourse()
@@ -493,14 +475,19 @@ const steps = reactive([
 		},
 	},
 	{
-		name: 'create_first_quiz',
-		title: __('Create your first quiz'),
-		icon: markRaw(h(CircleHelp, iconProps)),
+		name: 'publish_first_course',
+		title: __('Publish your course'),
+		icon: markRaw(h(Globe, iconProps)),
 		completed: false,
-		dependsOn: 'create_first_course',
-		onClick: () => {
+		dependsOn: 'create_first_lesson',
+		onClick: async () => {
 			minimize.value = true
-			router.push({ name: 'Quizzes' })
+			let course = await getFirstCourse()
+			if (course) {
+				router.push({ name: 'CourseDetail', params: { courseName: course } })
+			} else {
+				openCourseForm()
+			}
 		},
 	},
 	{
@@ -524,50 +511,39 @@ const steps = reactive([
 			openFormRoute(router, { name: 'NewBatch' })
 		},
 	},
-	{
-		name: 'add_batch_student',
-		title: __('Add students to your batch'),
-		icon: markRaw(h(UserPlus, iconProps)),
-		completed: false,
-		dependsOn: 'create_first_batch',
-		onClick: async () => {
-			minimize.value = true
-			let batch = await getFirstBatch()
-			if (batch) {
-				router.push({
-					name: 'BatchDetail',
-					params: {
-						batchName: batch,
-					},
-				})
-			} else {
-				router.push({ name: 'Batches' })
-			}
-		},
-	},
-	{
-		name: 'add_batch_course',
-		title: __('Add courses to your batch'),
-		icon: markRaw(h(BookText, iconProps)),
-		completed: false,
-		dependsOn: 'create_first_batch',
-		onClick: async () => {
-			minimize.value = true
-			let batch = await getFirstBatch()
-			if (batch) {
-				router.push({
-					name: 'BatchDetail',
-					params: {
-						batchName: batch,
-					},
-					hash: '#courses',
-				})
-			} else {
-				router.push({ name: 'Batches' })
-			}
-		},
-	},
-])
+].map((step) => reactive(step))
+
+const BATCH_FIRST = [
+	'create_first_batch',
+	'invite_students',
+	'create_first_course',
+	'create_first_lesson',
+	'publish_first_course',
+]
+
+const stepsFor = (goal) => {
+	if (goal !== 'Onboard my existing learners') return allSteps
+	return BATCH_FIRST.map((name) => allSteps.find((step) => step.name === name))
+}
+
+// The goal from this browser, else from the server, asked twice so one failed
+// request does not put the checklist in the wrong order for the visit.
+const firstGoal = async () => {
+	const saved = localStorage.getItem('lmsFirstGoal')
+	if (saved) return saved
+	for (const delay of [0, 2000]) {
+		if (delay) await new Promise((resolve) => setTimeout(resolve, delay))
+		try {
+			const goal = (await call('lms.lms.onboarding.get_setup_state'))
+				?.first_goal
+			if (goal) localStorage.setItem('lmsFirstGoal', goal)
+			return goal
+		} catch {
+			// Try once more.
+		}
+	}
+	return null
+}
 
 const articles = ref([
 	{
@@ -636,10 +612,13 @@ const articles = ref([
 	},
 ])
 
-const setUpOnboarding = () => {
+const setUpOnboarding = async () => {
 	if (seesOnboarding(userResource.data)) {
 		onboardingDetails = useOnboarding('learning')
-		onboardingDetails.setUp(steps)
+		const goal = onboardingDetails.isOnboardingStepsCompleted.value
+			? null
+			: await firstGoal()
+		onboardingDetails.setUp(stepsFor(goal))
 		isOnboardingStepsCompleted = onboardingDetails.isOnboardingStepsCompleted
 		showOnboarding.value = true
 	}
@@ -672,10 +651,6 @@ const updateSidebarLinks = () => {
 	updateUnreadCount()
 }
 
-const redirectToWebsite = () => {
-	openExternal('https://frappe.io/learning')
-}
-
 const isStudent = computed(() => {
 	return userResource.data?.is_student
 })
@@ -693,3 +668,10 @@ onUnmounted(() => {
 	window.removeEventListener('keydown', onKeyboardShortcut)
 })
 </script>
+
+<style scoped>
+.getting-started :deep(.overflow-y-auto) {
+	scrollbar-width: thin;
+	scrollbar-color: var(--outline-gray-3) transparent;
+}
+</style>

@@ -1,0 +1,257 @@
+{
+	"User": [
+		{
+			"fieldname": "country",
+			"fieldtype": "Link",
+			"insert_after": "username",
+			"label": "Country",
+			"options": "Country"
+		},
+		{
+			"fieldname": "verify_terms",
+			"fieldtype": "Check",
+			"insert_after": "country",
+			"label": "Acceptance for Terms and/or Policies"
+		},
+		{
+			"fieldname": "user_category",
+			"fieldtype": "Select",
+			"insert_after": "time_zone",
+			"label": "User Category",
+			"options": "\nBusiness Owner\nManager (Sales/Marketing/Customer)\nEmployee\nStudent\nFreelancer/Just looking\nOthers",
+			"translatable": 1
+		},
+		{
+			"fieldname": "cover_image",
+			"fieldtype": "Attach Image",
+			"insert_after": "user_category",
+			"label": "Cover Image"
+		},
+		{
+			"fieldname": "open_to",
+			"fieldtype": "Select",
+			"insert_after": "verify_terms",
+			"label": "Open to",
+			"options": "\nWork\nHiring"
+		},
+		{
+			"fieldname": "linkedin",
+			"fieldtype": "Data",
+			"insert_after": "mobile_no",
+			"label": "LinkedIn ID",
+			"translatable": 1
+		},
+		{
+			"fieldname": "github",
+			"fieldtype": "Data",
+			"insert_after": "linkedin",
+			"label": "Github ID",
+			"translatable": 1
+		},
+		{
+			"fieldname": "twitter",
+			"fieldtype": "Data",
+			"insert_after": "github",
+			"label": "Twitter ID",
+			"translatable": 1
+		},
+		{
+			"fieldname": "medium",
+			"fieldtype": "Data",
+			"insert_after": "twitter",
+			"label": "Medium ID",
+			"translatable": 1
+		},
+		{
+			"fieldname": "profession",
+			"fieldtype": "Data",
+			"insert_after": "medium",
+			"label": "Profession",
+			"translatable": 1
+		},
+		{
+			"description": "Private Information includes your Grade and Work Environment Preferences",
+			"fieldname": "hide_private",
+			"fieldtype": "Check",
+			"insert_after": "profession",
+			"label": "Hide my Private Information from others"
+		},
+		{
+			"fieldname": "education_details",
+			"fieldtype": "Section Break",
+			"insert_after": "hide_private",
+			"label": "Education Details"
+		},
+		{
+			"fieldname": "education",
+			"fieldtype": "Table",
+			"insert_after": "education_details",
+			"label": "Education",
+			"options": "Education Detail"
+		},
+		{
+			"fieldname": "work_experience_details",
+			"fieldtype": "Section Break",
+			"insert_after": "education",
+			"label": "Work Experience Details"
+		},
+		{
+			"fieldname": "work_experience",
+			"fieldtype": "Table",
+			"insert_after": "work_experience_details",
+			"label": "Work Experience",
+			"options": "Work Experience"
+		},
+		{
+			"fieldname": "internship",
+			"fieldtype": "Table",
+			"insert_after": "work_experience",
+			"label": "Volunteering or Internship",
+			"options": "Work Experience"
+		},
+		{
+			"fieldname": "certification_details",
+			"fieldtype": "Section Break",
+			"insert_after": "internship",
+			"label": "Certification Details"
+		},
+		{
+			"fieldname": "certification",
+			"fieldtype": "Table",
+			"insert_after": "certification_details",
+			"label": "Certification",
+			"options": "Certification"
+		},
+		{
+			"fieldname": "skill_details",
+			"fieldtype": "Section Break",
+			"insert_after": "certification",
+			"label": "Skill Details"
+		},
+		{
+			"fieldname": "skill",
+			"fieldtype": "Table MultiSelect",
+			"insert_after": "skill_details",
+			"label": "Skill",
+			"options": "Skills"
+		},
+		{
+			"fieldname": "carrer_preference_details",
+			"fieldtype": "Section Break",
+			"insert_after": "skill",
+			"label": "Career Preference Details"
+		},
+		{
+			"fieldname": "preferred_functions",
+			"fieldtype": "Table MultiSelect",
+			"insert_after": "carrer_preference_details",
+			"label": "Preferred Functions",
+			"options": "Preferred Function"
+		},
+		{
+			"fieldname": "preferred_location",
+			"fieldtype": "Data",
+			"insert_after": "preferred_functions",
+			"label": "Preferred Location"
+		},
+		{
+			"fieldname": "career_preference_column",
+			"fieldtype": "Column Break",
+			"insert_after": "preferred_location"
+		},
+		{
+			"fieldname": "preferred_industries",
+			"fieldtype": "Table MultiSelect",
+			"insert_after": "career_preference_column",
+			"label": "Preferred Industries",
+			"options": "Preferred Industry"
+		},
+		{
+			"fieldname": "dream_companies",
+			"fieldtype": "Data",
+			"insert_after": "preferred_industries",
+			"label": "Dream Companies"
+		},
+		{
+			"fieldname": "work_environment",
+			"fieldtype": "Section Break",
+			"insert_after": "dream_companies",
+			"label": "Work Environment"
+		},
+		{
+			"fieldname": "attire",
+			"fieldtype": "Select",
+			"insert_after": "work_environment",
+			"label": "Attire Preference",
+			"options": "Casual Wear\nFormal Wear"
+		},
+		{
+			"fieldname": "collaboration",
+			"fieldtype": "Select",
+			"insert_after": "attire",
+			"label": "Collaboration Preference",
+			"options": "Individual Work\nTeam Work\nBoth Individual and Team Work"
+		},
+		{
+			"fieldname": "role",
+			"fieldtype": "Select",
+			"insert_after": "collaboration",
+			"label": "Role Preference",
+			"options": "Clearly Defined Role\nUnstructured Role"
+		},
+		{
+			"fieldname": "work_environment_column",
+			"fieldtype": "Column Break",
+			"insert_after": "role"
+		},
+		{
+			"fieldname": "location_preference",
+			"fieldtype": "Select",
+			"insert_after": "work_environment_column",
+			"label": "Location Preference",
+			"options": "Travel\nOffice close to Home"
+		},
+		{
+			"fieldname": "time",
+			"fieldtype": "Select",
+			"insert_after": "location_preference",
+			"label": "Time Preference",
+			"options": "Flexible Time\nFixed 9-5"
+		},
+		{
+			"fieldname": "company_type",
+			"fieldtype": "Select",
+			"insert_after": "time",
+			"label": "Company Type",
+			"options": "Corporate Organization\nStartup Organization"
+		},
+		{
+			"fieldname": "headline",
+			"fieldtype": "Data",
+			"insert_after": "mute_sounds",
+			"label": "Headline",
+			"translatable": 1
+		},
+		{
+			"fieldname": "city",
+			"fieldtype": "Data",
+			"insert_after": "headline",
+			"label": "City",
+			"translatable": 1
+		},
+		{
+			"fieldname": "college",
+			"fieldtype": "Data",
+			"insert_after": "desk_theme",
+			"label": "College Name",
+			"translatable": 1
+		},
+		{
+			"fieldname": "branch",
+			"fieldtype": "Data",
+			"insert_after": "college",
+			"label": "Branch",
+			"translatable": 1
+		}
+	]
+}

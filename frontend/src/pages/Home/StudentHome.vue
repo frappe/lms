@@ -15,7 +15,7 @@
 						<div class="font-semibold text-ink-gray-9 leading-5 mb-1">
 							{{ cls.title }}
 						</div>
-						<div class="text-ink-gray-5 leading-5 mb-4">
+						<div class="text-ink-gray-6 leading-5 mb-4">
 							{{ cls.description }}
 						</div>
 						<LiveClassCard
@@ -42,7 +42,7 @@
 						name: 'Courses',
 					}"
 				>
-					<span class="flex items-center gap-x-1 text-ink-gray-5 text-xs">
+					<span class="flex items-center gap-x-1 text-ink-gray-6 text-xs">
 						<span>
 							{{ __('See all') }}
 						</span>
@@ -51,13 +51,12 @@
 				</router-link>
 			</div>
 			<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-				<router-link
+				<CourseCard
 					v-for="course in myCourses.data"
 					:key="course.name"
+					:course="course"
 					:to="{ name: 'CourseDetail', params: { courseName: course.name } }"
-				>
-					<CourseCard :course="course" />
-				</router-link>
+				/>
 			</div>
 		</div>
 
@@ -75,7 +74,7 @@
 						name: 'Batches',
 					}"
 				>
-					<span class="flex items-center gap-x-1 text-ink-gray-5 text-xs">
+					<span class="flex items-center gap-x-1 text-ink-gray-6 text-xs">
 						<span>
 							{{ __('See all') }}
 						</span>
@@ -84,13 +83,12 @@
 				</router-link>
 			</div>
 			<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-				<router-link
+				<BatchCard
 					v-for="batch in myBatches.data"
 					:key="batch.name"
+					:batch="batch"
 					:to="{ name: 'BatchDetail', params: { batchName: batch.name } }"
-				>
-					<BatchCard :batch="batch" />
-				</router-link>
+				/>
 			</div>
 		</div>
 	</div>

@@ -52,6 +52,7 @@
 				v-model="currentCategory"
 				:options="categories.filter((c) => c.value)"
 				:placeholder="__('Category')"
+				:ariaLabel="__('Category')"
 				@update:modelValue="updateBatches()"
 			/>
 			<ToggleFilter
@@ -74,11 +75,10 @@
 		</template>
 
 		<template #card="{ row }">
-			<router-link
+			<BatchCard
+				:batch="row"
 				:to="{ name: 'BatchDetail', params: { batchName: row.name } }"
-			>
-				<BatchCard :batch="row" />
-			</router-link>
+			/>
 		</template>
 	</ListPage>
 
@@ -119,7 +119,11 @@ const isAdmin = computed(() =>
 		(role) => user.data?.[role]
 	)
 )
-const currentTab = ref('upcoming')
+// A signed-in learner most often comes back for a batch they are in, and a
+// batch that has started is no longer under Upcoming.
+const currentTab = ref(
+	!isAdmin.value && is_student.value ? 'enrolled' : 'upcoming'
+)
 const orderBy = ref('start_date')
 const readOnlyMode = window.read_only_mode
 const router = useRouter()

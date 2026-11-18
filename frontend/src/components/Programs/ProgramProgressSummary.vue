@@ -35,6 +35,7 @@
 					<FormControl
 						v-model="searchFilter"
 						:placeholder="__('Search')"
+						:aria-label="__('Search')"
 						class="mb-4"
 					>
 						<template #prefix>
@@ -51,7 +52,7 @@
 							showTooltip: false,
 						}"
 					/>
-					<div v-else class="text-center text-ink-gray-5">
+					<div v-else class="text-center text-ink-gray-6">
 						{{ __('No members found.') }}
 					</div>
 				</div>

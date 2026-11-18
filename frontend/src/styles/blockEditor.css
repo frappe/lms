@@ -7,16 +7,14 @@
 	display: none;
 }
 
-/* Embeds and images are drawn like the assessment cards. The class goes on
-   the wrapper: Plyr replaces the element it initialises, and an iframe does not
-   clip its own corners everywhere. */
+/* Embeds and images get rounded corners, without the assessment cards' border.
+   The class goes on the wrapper: Plyr replaces the element it initialises, and
+   an iframe does not clip its own corners everywhere. */
 .embed-tool {
-	border: 1px solid var(--outline-gray-2);
 	border-radius: var(--radius-7);
 	overflow: hidden;
 }
 .cdx-simple-image__picture {
-	border: 1px solid var(--outline-gray-2);
 	border-radius: var(--radius-7);
 	overflow: hidden;
 }
@@ -127,6 +125,11 @@ body .codex-editor ::-moz-selection {
 	outline: none !important;
 }
 
+.codeBoxTextArea:focus-visible,
+.codeBoxSelectInput:focus-visible {
+	outline: 2px solid var(--outline-gray-5) !important;
+}
+
 .codeBoxSelectDropIcon {
 	position: absolute !important;
 	inset-inline-start: 10px !important;
@@ -192,7 +195,7 @@ iframe {
    per-rule overrides. */
 .tc-wrap {
 	--color-background: var(--surface-gray-2);
-	--color-text-secondary: var(--ink-gray-5);
+	--color-text-secondary: var(--ink-gray-6);
 	--color-border: var(--outline-gray-2);
 }
 
@@ -218,7 +221,6 @@ iframe {
 }
 
 .plyr--video {
-	border: 1px solid var(--outline-gray-2);
 	border-radius: 8px;
 }
 
@@ -228,7 +230,7 @@ iframe {
 .ce-popover {
 	--color-background: var(--surface-base);
 	--color-text-primary: var(--ink-gray-9);
-	--color-text-secondary: var(--ink-gray-5);
+	--color-text-secondary: var(--ink-gray-6);
 	--color-border: var(--outline-gray-2);
 	--color-border-icon: var(--outline-gray-2);
 	--color-border-icon-disabled: var(--outline-gray-1);
@@ -242,7 +244,7 @@ iframe {
 	background: var(--surface-base);
 }
 .ce-popover__nothing-found-message {
-	color: var(--ink-gray-5);
+	color: var(--ink-gray-6);
 }
 
 .ce-popover__container {

@@ -23,10 +23,14 @@
 								<span class="lucide-tag size-4" />
 								<span>{{ course.data.category }}</span>
 							</router-link>
-							<span class="lucide-dot size-5 text-ink-gray-7" />
 						</template>
 						<template v-if="Number(course.data.rating) > 0">
 							<div class="flex items-center gap-1">
+								<span
+									v-if="course.data.category"
+									aria-hidden="true"
+									class="lucide-dot size-5 shrink-0 me-2"
+								/>
 								<LucideStar class="size-4 text-transparent fill-ink-amber-7" />
 								<span class="font-medium text-ink-gray-9">{{
 									formatRating(course.data.rating)
@@ -35,22 +39,34 @@
 									({{ formatAmount(course.data.rating_count) }})
 								</span>
 							</div>
-							<span class="lucide-dot size-5 text-ink-gray-7" />
 						</template>
 						<template v-if="course.data.enrollments">
 							<div class="flex items-center gap-1.5">
+								<span
+									v-if="course.data.category || Number(course.data.rating) > 0"
+									aria-hidden="true"
+									class="lucide-dot size-5 shrink-0 me-1.5"
+								/>
 								<span class="lucide-users-round size-4" />
 								<span
 									>{{ formatAmount(course.data.enrollments) }}
 									{{ __('Students') }}</span
 								>
 							</div>
-							<span class="lucide-dot size-5 text-ink-gray-7" />
 						</template>
 						<div
 							v-if="course.data.instructors?.length"
 							class="flex items-center"
 						>
+							<span
+								v-if="
+									course.data.category ||
+									Number(course.data.rating) > 0 ||
+									course.data.enrollments
+								"
+								aria-hidden="true"
+								class="lucide-dot size-5 shrink-0 me-3"
+							/>
 							<span
 								class="h-6 me-1"
 								:class="{
@@ -92,7 +108,7 @@
 						<h2 class="text-3xl-semibold text-ink-gray-9">
 							{{ __('Course content') }}
 						</h2>
-						<div class="text-base text-ink-gray-5">
+						<div class="text-base text-ink-gray-6">
 							{{ outlineStats }}
 						</div>
 					</div>
@@ -106,7 +122,7 @@
 							v-else-if="!hasCourseContent"
 							class="flex items-center justify-center px-4 py-10 text-center"
 						>
-							<span class="text-sm text-ink-gray-5">
+							<span class="text-sm text-ink-gray-6">
 								{{ __('Course content coming soon!') }}
 							</span>
 						</div>

@@ -1,5 +1,8 @@
 <template>
 	<div class="">
+		<h1 class="sr-only">
+			{{ jobName == 'new' ? __('New Job') : jobDetails.doc?.job_title }}
+		</h1>
 		<PageHeader :breadcrumbs="breadcrumbs">
 			<template #actions>
 				<Badge v-if="isDirty" theme="amber">
@@ -9,6 +12,7 @@
 					<HeaderButton
 						:label="__('Save')"
 						variant="solid"
+						:loading="isSaving"
 						@click="saveJob()"
 					/>
 				</ShortcutTooltip>
@@ -41,23 +45,25 @@
 							:required="true"
 						/>
 					</div>
-					<div class="space-y-1.5">
+					<div class="mb-4 space-y-1.5">
 						<InputLabel
 							:id="descriptionLabelId"
 							:label="__('Description')"
 							:required="true"
 						/>
 						<RichTextEditor
+							:ariaLabelledby="descriptionLabelId"
 							:content="job.description"
 							@change="(val) => (job.description = val)"
 							:editable="true"
 							:fixedMenu="true"
-							editorClass="prose-sm max-w-none border-b border-x border-outline-elevation-2 bg-surface-gray-2 rounded-b-5 py-1 px-2 min-h-[20rem] max-h-[70vh] overflow-y-auto mb-4"
+							minHeight="20rem"
+							maxHeight="70vh"
 						/>
 					</div>
 				</div>
 				<div class="border-t lg:border-s lg:border-t-0 lg:h-[93vh]">
-					<div v-if="jobName != 'new'" class="p-5 space-y-5 border-b">
+					<div v-if="jobName != 'new'" class="py-5 lg:p-5 space-y-5 border-b">
 						<FormControl
 							v-model="job.status"
 							:label="__('Status')"
@@ -66,7 +72,7 @@
 							:required="true"
 						/>
 					</div>
-					<div class="p-5 space-y-5 border-b">
+					<div class="py-5 lg:p-5 space-y-5 border-b">
 						<h2 class="text-ink-gray-9 font-semibold">
 							{{ __('Location') }}
 						</h2>
@@ -82,7 +88,7 @@
 							:required="true"
 						/>
 					</div>
-					<div class="p-5 space-y-5">
+					<div class="py-5 lg:p-5 space-y-5">
 						<h2 class="text-ink-gray-9 font-semibold">
 							{{ __('Company Details') }}
 						</h2>
@@ -117,9 +123,9 @@
 <script setup>
 import {
 	Badge,
-	call,
 	FormControl,
 	createDocumentResource,
+	createResource,
 	usePageMeta,
 	toast,
 } from 'frappe-ui'
@@ -222,39 +228,49 @@ watch(
 	{ deep: true }
 )
 
+const newJob = createResource({ url: 'frappe.client.insert' })
+
+// jobDetails is undefined for a new job: createDocumentResource needs a name.
+const isSaving = computed(
+	() => newJob.loading || Boolean(jobDetails?.setValue.loading)
+)
+
 const saveJob = () => {
+	if (isSaving.value) return
 	validateJobFields()
-	if (jobDetails?.doc) {
-		editJobDetails()
-	} else {
-		createNewJob()
-	}
+	if (jobDetails?.doc) editJobDetails()
+	else createNewJob()
 }
 
 const createNewJob = () => {
-	call('frappe.client.insert', {
-		doc: {
-			doctype: 'Job Opportunity',
-			company_logo: job.company_logo,
-			...job,
+	return submitResource(
+		newJob,
+		{
+			doc: {
+				doctype: 'Job Opportunity',
+				company_logo: job.company_logo,
+				...job,
+			},
 		},
-	})
-		.then((data) => {
-			router.push({
-				name: 'JobDetail',
-				params: {
-					job: data.name,
-				},
-			})
-		})
-		.catch((err) => {
-			toast.error(err.messages?.[0] || err)
-			console.error(err)
-		})
+		{
+			onSuccess(data) {
+				router.push({
+					name: 'JobDetail',
+					params: {
+						job: data.name,
+					},
+				})
+			},
+			onError(err) {
+				toast.error(err.messages?.[0] || err)
+				console.error(err)
+			},
+		}
+	)
 }
 
 const editJobDetails = () => {
-	submitResource(
+	return submitResource(
 		jobDetails.setValue,
 		{
 			company_logo: job.company_logo,

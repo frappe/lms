@@ -1,11 +1,7 @@
 <template>
-	<FormShell :title="formTitle" size="lg" @close="close">
+	<FormShell :title="formTitle" size="lg" :message="refusal" @close="close">
 		<template #default>
-			<div v-if="!canManageAssignments" class="p-4 text-base text-ink-gray-6">
-				{{ __('You are not permitted to manage assignments.') }}
-			</div>
 			<fieldset
-				v-else
 				:disabled="!canEdit"
 				data-testid="assignment-fields"
 				class="m-0 min-w-0 space-y-4 border-0 p-0 text-base"
@@ -85,34 +81,30 @@
 						@change="(val: string) => (assignment.question = val)"
 						:editable="canEdit"
 						:fixedMenu="true"
-						editorClass="prose-sm max-w-none border-b border-x border-outline-elevation-2 bg-surface-gray-2 rounded-b-5 py-1 px-2 min-h-[10rem] max-h-[18rem] overflow-y-auto"
+						minHeight="10rem"
+						maxHeight="18rem"
 					/>
 				</div>
 			</fieldset>
 		</template>
 		<template #actions>
-			<div
-				v-if="canManageAssignments"
-				class="flex items-center justify-end gap-2"
-			>
-				<HeaderButton
-					v-if="assignmentID !== 'new'"
-					:route="{
-						name: 'AssignmentSubmissions',
-						query: { assignment: assignmentID },
-					}"
-					:label="__('Check Submissions')"
-					icon="lucide-clipboard-list"
-				/>
-				<HeaderButton
-					v-if="canEdit"
-					data-testid="assignment-save"
-					:label="isNew ? __('Create') : __('Save')"
-					variant="solid"
-					:loading="saving"
-					@click="saveAssignment"
-				/>
-			</div>
+			<HeaderButton
+				v-if="assignmentID !== 'new'"
+				:route="{
+					name: 'AssignmentSubmissions',
+					query: { assignment: assignmentID },
+				}"
+				:label="__('Check Submissions')"
+				icon="lucide-clipboard-list"
+			/>
+			<HeaderButton
+				v-if="canEdit"
+				data-testid="assignment-save"
+				:label="isNew ? __('Create') : __('Save')"
+				variant="solid"
+				:loading="saving"
+				@click="saveAssignment"
+			/>
 		</template>
 	</FormShell>
 </template>
@@ -175,6 +167,12 @@ const canManageAssignments = computed<boolean>(() => {
 		return false
 	return Boolean(user.data?.is_moderator || user.data?.is_instructor)
 })
+
+const refusal = computed(() =>
+	canManageAssignments.value
+		? null
+		: __('You are not permitted to manage assignments.')
+)
 
 interface AssignmentFields {
 	title: string
@@ -334,6 +332,7 @@ const updateAssignment = (): void => {
 }
 
 const saveAssignment = (): void => {
+	if (saving.value) return
 	if (!canManageAssignments.value || !canEdit.value) return
 	if (!validateFields()) return
 	if (isNew.value) newAssignment.submit()

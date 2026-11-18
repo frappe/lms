@@ -16,9 +16,12 @@
 			<template v-if="subtitle">
 				<span
 					data-testid="header-separator"
-					class="size-1 shrink-0 rounded-full bg-surface-gray-4"
-				/>
-				<span class="min-w-0 truncate text-xs text-ink-gray-5">
+					aria-hidden="true"
+					class="shrink-0 text-xs text-ink-gray-6"
+				>
+					·
+				</span>
+				<span class="min-w-0 truncate text-xs text-ink-gray-6">
 					{{ subtitle }}
 				</span>
 			</template>

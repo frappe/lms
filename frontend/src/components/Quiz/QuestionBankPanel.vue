@@ -77,7 +77,7 @@
 			</ResponsiveListView>
 			<div
 				v-if="!bank.loading && !displayRows.length"
-				class="py-10 text-center text-ink-gray-5"
+				class="py-10 text-center text-ink-gray-6"
 			>
 				{{ __('No questions found.') }}
 			</div>

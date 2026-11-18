@@ -1,19 +1,17 @@
 <template>
-	<FormShell :title="__('Edit Profile')" @close="close">
+	<FormShell
+		:title="__('Edit Profile')"
+		:loading="!refusal && !profileData"
+		:message="refusal"
+		@close="close"
+	>
 		<template #header-action>
 			<Badge v-if="isDirty" theme="amber">
 				{{ __('Not Saved') }}
 			</Badge>
 		</template>
 		<template #default>
-			<div v-if="refusal" class="p-4 text-base text-ink-gray-6">
-				{{ refusal }}
-			</div>
-			<div v-else-if="!profileData" class="p-4 text-base text-ink-gray-6">
-				{{ __('Loading...') }}
-			</div>
 			<div
-				v-else
 				data-testid="profile-fields"
 				class="grid grid-cols-1 gap-6 text-base md:grid-cols-2 md:gap-10"
 			>
@@ -55,22 +53,20 @@
 							:fixedMenu="true"
 							@change="(val) => (profile.bio = val)"
 							:content="profile.bio"
-							editorClass="prose-sm py-2 px-2 min-h-[280px] border-outline-gray-2 hover:border-outline-gray-3 rounded-b-5 bg-surface-gray-3"
+							minHeight="280px"
 						/>
 					</div>
 				</div>
 			</div>
 		</template>
 		<template #actions>
-			<div v-if="!refusal && profileData" class="flex items-center justify-end">
-				<HeaderButton
-					data-testid="profile-save"
-					:label="__('Save')"
-					variant="solid"
-					:loading="updateProfile.loading"
-					@click="saveProfile()"
-				/>
-			</div>
+			<HeaderButton
+				data-testid="profile-save"
+				:label="__('Save')"
+				variant="solid"
+				:loading="updateProfile.loading"
+				@click="saveProfile()"
+			/>
 		</template>
 	</FormShell>
 </template>
@@ -177,7 +173,7 @@ const validateMandatoryFields = () => {
 }
 
 const saveProfile = () => {
-	if (refusal.value || !profileData.value) return
+	if (refusal.value || !profileData.value || updateProfile.loading) return
 	if (validateMandatoryFields()) return
 
 	// Read before submitting: the computed is live against the parent resource,

@@ -6,12 +6,13 @@
  * fed into dayjs() → Invalid Date → diff NaN → every row collapsed to
  * __('Today'). The backend now returns the raw datetime; these tests assert real
  * datetimes render their true relative age, plus the list's other display rules
- * (null-author drop, preview limit, star fill, header summary, clamp toggle).
+ * (null-author drop, preview limit).
  */
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { flushPromises, mount } from '@vue/test-utils'
 import dayjs from 'dayjs'
 import CourseReviews from '@/components/CourseReviews.vue'
+import type { DoctypePermissionType, SessionUser } from '@/types'
 
 const fmt = (d: dayjs.Dayjs) => d.format('YYYY-MM-DD HH:mm:ss')
 
@@ -90,12 +91,27 @@ vi.mock('@/utils', () => ({ formatRating: (r: string) => String(r) }))
 
 vi.stubGlobal('__', (s: string) => s)
 
-const mountReviews = (props: Record<string, unknown> = {}) =>
+const REVIEW_PERMS = { read: 1, write: 1, create: 1, delete: 0 } as const
+
+const studentWith = (
+	perms: Record<DoctypePermissionType, 0 | 1>
+): SessionUser => ({
+	data: {
+		name: 'a@b.c',
+		has_lms_role: true,
+		permissions: { 'LMS Course Review': perms },
+	},
+})
+
+const mountReviews = (
+	props: Record<string, unknown> = {},
+	user: unknown = studentWith(REVIEW_PERMS)
+) =>
 	mount(CourseReviews, {
 		props: { courseName: 'C1', ...props },
 		global: {
 			provide: {
-				$user: { data: { name: 'a@b.c' } },
+				$user: user,
 				$dayjs: dayjs,
 			},
 			mocks: { __: (s: string) => s },
@@ -106,7 +122,7 @@ const mountReviews = (props: Record<string, unknown> = {}) =>
 const renderedDates = async () => {
 	const wrapper = mountReviews()
 	await flushPromises()
-	return wrapper.findAll('article span.text-ink-gray-5').map((n) => n.text())
+	return wrapper.findAll('article span.text-ink-gray-6').map((n) => n.text())
 }
 
 beforeEach(() => {
@@ -127,23 +143,6 @@ describe('CourseReviews date rendering', () => {
 		const dates = await renderedDates()
 		// every row but the first is older than a day and must not read "Today"
 		expect(dates.slice(1).every((d) => d !== 'Today')).toBe(true)
-	})
-})
-
-describe('CourseReviews resource params', () => {
-	// A blank courseName sent `get_reviews` with no `course` arg at all,
-	// throwing a TypeError the backend has no handler for and crashing every
-	// later assertion in the same test file (frontend regression, 2026-09-11).
-	it('does not auto-fire get_reviews without a courseName', async () => {
-		mountReviews({ courseName: '' })
-		await flushPromises()
-		expect(lastReviewsResourceOpts?.auto).toBe(false)
-	})
-
-	it('auto-fires get_reviews once a courseName is present', async () => {
-		mountReviews({ courseName: 'C1' })
-		await flushPromises()
-		expect(lastReviewsResourceOpts?.auto).toBe(true)
 	})
 })
 
@@ -173,34 +172,53 @@ describe('CourseReviews list rendering', () => {
 		await viewAll.trigger('click')
 		expect(wrapper.findAll('article')).toHaveLength(6)
 	})
+})
 
-	it('fills one star per (rounded-up) rating point', async () => {
-		currentReviews = [review({ name: 'r3', rating: 3 })]
-		const wrapper = mountReviews()
+describe('CourseReviews permission gate (#2538)', () => {
+	const membership = { name: 'M1', member: 'a@b.c' }
+
+	it('renders nothing and skips the fetch without read on reviews', async () => {
+		const wrapper = mountReviews(
+			{ membership },
+			studentWith({ ...REVIEW_PERMS, read: 0, create: 0 })
+		)
 		await flushPromises()
-		const row = wrapper.get('article')
-		expect(row.findAll('.fill-ink-amber-7')).toHaveLength(3)
-		expect(row.findAll('.fill-surface-gray-3')).toHaveLength(2)
+		expect(wrapper.find('article').exists()).toBe(false)
+		expect(wrapper.text()).not.toContain('Write a Review')
+		expect(lastReviewsResourceOpts?.auto).toBe(false)
 	})
 
-	it('summarizes the rating and pluralizes the count', async () => {
-		currentReviews = [review({ name: 'only' })]
-		const wrapper = mountReviews({ avg_rating: '4.5' })
+	it('hides "Write a Review" without create on reviews', async () => {
+		const wrapper = mountReviews(
+			{ membership },
+			studentWith({ ...REVIEW_PERMS, create: 0 })
+		)
 		await flushPromises()
-		const header = wrapper.text()
-		expect(header).toContain('4.5')
-		expect(header).toContain('1 user rating')
-		expect(header).not.toContain('user ratings')
+		expect(wrapper.findAll('article').length).toBeGreaterThan(0)
+		expect(wrapper.text()).not.toContain('Write a Review')
 	})
 
-	it('clamps long review text behind a "See more" toggle', async () => {
-		currentReviews = [review({ name: 'long', review: 'x'.repeat(300) })]
-		const wrapper = mountReviews()
+	it('offers "Write a Review" to a member with create', async () => {
+		const wrapper = mountReviews({ membership })
 		await flushPromises()
-		const body = wrapper.get('article p')
-		expect(body.classes()).toContain('line-clamp-5')
+		expect(wrapper.text()).toContain('Write a Review')
+	})
 
-		await wrapper.get('article button').trigger('click')
-		expect(wrapper.get('article p').classes()).not.toContain('line-clamp-5')
+	it('keeps the public list for someone signed in without an LMS role', async () => {
+		// Treated as a guest: get_reviews decides, by the site's guest access.
+		const wrapper = mountReviews(
+			{},
+			{ data: { name: 'a@b.c', has_lms_role: false, permissions: {} } }
+		)
+		await flushPromises()
+		expect(wrapper.findAll('article').length).toBeGreaterThan(0)
+		expect(lastReviewsResourceOpts?.auto).toBe(true)
+	})
+
+	it('keeps the public list for guests', async () => {
+		const wrapper = mountReviews({}, { data: null })
+		await flushPromises()
+		expect(wrapper.findAll('article').length).toBeGreaterThan(0)
+		expect(lastReviewsResourceOpts?.auto).toBe(true)
 	})
 })

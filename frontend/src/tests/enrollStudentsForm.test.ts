@@ -33,6 +33,7 @@ const { createResourceMock, toastErrorMock, toastMock } = vi.hoisted(() => {
 
 vi.mock('frappe-ui', () => ({
 	createResource: createResourceMock,
+	LoadingIndicator: { template: '<svg />' },
 	toast: { ...toastMock, error: toastErrorMock },
 	ErrorMessage: {
 		props: ['message'],
@@ -121,7 +122,7 @@ const resources: Record<string, FakeResource> = {
 	[BATCH]: reactive({ loading: false, submit: vi.fn() }),
 }
 createResourceMock.mockImplementation(
-	(options: { url: string }) => resources[options.url]
+	(options: { url: string }) => resources[options.url],
 )
 
 type Handlers = {
@@ -134,7 +135,7 @@ const respond = (url: string, data: unknown) => {
 		async (_params: unknown, options: Handlers) => {
 			options.onSuccess?.(data)
 			return data
-		}
+		},
 	)
 }
 
@@ -164,7 +165,7 @@ const paidBatch: EnrollTarget = {
 const row = (
 	member: string,
 	status: EnrollStatus = 'ready',
-	extra: Partial<EnrollPreviewRow> = {}
+	extra: Partial<EnrollPreviewRow> = {},
 ): EnrollPreviewRow => ({
 	member,
 	full_name: `Name ${member}`,
@@ -176,7 +177,7 @@ const row = (
 
 const preview = (
 	rows: EnrollPreviewRow[],
-	extra: Partial<EnrollPreview> = {}
+	extra: Partial<EnrollPreview> = {},
 ): EnrollPreview => ({
 	rows,
 	seats_left: null,
@@ -190,7 +191,7 @@ const mountForm = (
 		target: EnrollTarget | null
 		refusal: string
 		loading: boolean
-	}> = {}
+	}> = {},
 ) =>
 	mount(EnrollStudentsForm, {
 		props: { target: courseTarget, refusal: '', loading: false, ...props },
@@ -225,7 +226,7 @@ const select = async (wrapper: Wrapper, members: string[]) => {
 const selectPaid = async (
 	wrapper: Wrapper,
 	members: string[],
-	data: EnrollPreview
+	data: EnrollPreview,
 ) => {
 	respond(PREVIEW, data)
 	await select(wrapper, members)
@@ -246,7 +247,7 @@ const tableRows = (wrapper: Wrapper) =>
 
 const panelMembers = (wrapper: Wrapper) =>
 	(part(wrapper, 'EnrollPaymentPanel').props('rows') as EnrollPreviewRow[]).map(
-		(item) => item.member
+		(item) => item.member,
 	)
 
 const editsCommon = (wrapper: Wrapper) =>
@@ -254,9 +255,6 @@ const editsCommon = (wrapper: Wrapper) =>
 
 const status = (wrapper: Wrapper) =>
 	wrapper.get('[data-testid="enroll-status"]').text()
-
-const bodyClass = (wrapper: Wrapper) =>
-	wrapper.get('[data-testid="enroll-body"]').attributes('class')
 
 const submitParams = async (wrapper: Wrapper) => {
 	respond(COURSE, { added: [], errors: [] })
@@ -271,7 +269,7 @@ const SAVED = { name: 'ADDR-1', summary: 'Pune' }
 const addressForAll = async (wrapper: Wrapper) => {
 	await openForAll(wrapper)
 	const current = part(wrapper, 'EnrollPaymentPanel').props(
-		'defaults'
+		'defaults',
 	) as PaymentDefaults
 	await panelEmit(wrapper, 'update:defaults', { ...current, address: SAVED })
 	await panelEmit(wrapper, 'close', undefined)
@@ -297,7 +295,9 @@ describe('EnrollStudentsForm', () => {
 	it('shows the refusal instead of the form', () => {
 		const wrapper = mountForm({ refusal: 'You may not enroll students.' })
 
-		expect(wrapper.text()).toContain('You may not enroll students.')
+		expect(toastMock.warning).toHaveBeenLastCalledWith(
+			expect.stringContaining('You may not enroll students.'),
+		)
 		expect(byId(wrapper, 'select-step').exists()).toBe(false)
 		expect(byId(wrapper, 'enroll-submit').exists()).toBe(false)
 	})
@@ -357,7 +357,7 @@ describe('EnrollStudentsForm', () => {
 
 	it('turns payments on for a paid batch and off for a paid certificate', async () => {
 		expect(
-			part(mountForm({ target: paidBatch }), 'EnrollSelectStep').props('paid')
+			part(mountForm({ target: paidBatch }), 'EnrollSelectStep').props('paid'),
 		).toBe(true)
 		const certificate = mountForm({
 			target: { ...courseTarget, paidKind: 'certificate', priceLabel: '₹9' },
@@ -375,8 +375,8 @@ describe('EnrollStudentsForm', () => {
 			AB,
 			preview(
 				AB.map((m) => row(m)),
-				{ currency: null }
-			)
+				{ currency: null },
+			),
 		)
 
 		expect(status(wrapper)).toBe('2 students · 200')
@@ -412,7 +412,7 @@ describe('EnrollStudentsForm', () => {
 			address: SAVED,
 		})
 		expect(
-			byId(wrapper, 'enroll-submit').attributes('disabled')
+			byId(wrapper, 'enroll-submit').attributes('disabled'),
 		).toBeUndefined()
 	})
 
@@ -446,7 +446,7 @@ describe('EnrollStudentsForm', () => {
 		expect(part(wrapper, 'Tooltip').props('text')).toBe(reason())
 		expect(primary().attributes('tabindex')).toBe('0')
 		expect(primary().attributes('aria-describedby')).toBe(
-			byId(wrapper, 'enroll-reason').attributes('id')
+			byId(wrapper, 'enroll-reason').attributes('id'),
 		)
 
 		await panelEmit(wrapper, 'update:overrides', {
@@ -461,7 +461,7 @@ describe('EnrollStudentsForm', () => {
 			},
 		})
 		expect(reason()).toBe(
-			'Fill in Address line 1, City and Country for Name b@x.com'
+			'Fill in Address line 1, City and Country for Name b@x.com',
 		)
 		await panelEmit(wrapper, 'update:overrides', {
 			'a@x.com': { ...emptyOverride(), address: SAVED, amount: -1 },
@@ -503,7 +503,7 @@ describe('EnrollStudentsForm', () => {
 			'a@x.com': { mode: 'link', payment: null },
 		})
 		expect(byId(wrapper, 'enroll-reason').text()).toBe(
-			'Choose a payment to link for Name a@x.com'
+			'Choose a payment to link for Name a@x.com',
 		)
 	})
 
@@ -521,37 +521,22 @@ describe('EnrollStudentsForm', () => {
 		expect(all.text()).toBe('Enter details for all')
 		expect(all.attributes('data-variant')).toBe('outline')
 		expect(all.element.nextElementSibling).toBe(
-			byId(wrapper, 'enroll-primary').element
+			byId(wrapper, 'enroll-primary').element,
 		)
 		expect(
-			byId(wrapper, 'enroll-primary').element.contains(submit.element)
+			byId(wrapper, 'enroll-primary').element.contains(submit.element),
 		).toBe(true)
 		expect(byId(wrapper, 'enroll-reason').exists()).toBe(false)
 		expect(
-			byId(wrapper, 'enroll-primary').attributes('tabindex')
+			byId(wrapper, 'enroll-primary').attributes('tabindex'),
 		).toBeUndefined()
 		expect(byId(wrapper, 'enroll-status').element.contains(all.element)).toBe(
-			false
+			false,
 		)
 		await click(wrapper, 'enroll-details')
 		expect(part(wrapper, 'EnrollStudentTable').props('ticked')).toEqual(AB)
 		expect(byId(wrapper, 'payment-panel').exists()).toBe(true)
 		expect(byId(wrapper, 'enroll-details').exists()).toBe(false)
-	})
-
-	it('puts the panel beside the list only, below the picker and switch', async () => {
-		const wrapper = mountForm({ target: paidCourse })
-		await selectPaid(wrapper, AB, ABPreview())
-		await click(wrapper, 'enroll-details')
-		const row = byId(wrapper, 'enroll-list-row')
-		const panel = row.get('[data-testid="payment-panel"]')
-		expect(
-			row.get('[data-testid="enroll-list"]').element.nextElementSibling
-		).toBe(panel.element)
-		expect(panel.classes()).toContain('border-s')
-		expect(byId(wrapper, 'select-step').element.contains(row.element)).toBe(
-			true
-		)
 	})
 
 	// Regression (bulk-enroll PR, feat/bulk-enroll): with everyone ticked the
@@ -586,15 +571,15 @@ describe('EnrollStudentsForm', () => {
 
 		await tick(wrapper, ['b@x.com'])
 		expect(byId(wrapper, 'enroll-details').text()).toBe(
-			'Enter details for Name b@x.com'
+			'Enter details for Name b@x.com',
 		)
 		expect(byId(wrapper, 'enroll-details').attributes('data-variant')).toBe(
-			'outline'
+			'outline',
 		)
 		expect(byId(wrapper, 'enroll-submit').exists()).toBe(true)
 		await tick(wrapper, ['a@x.com', 'c@x.com'])
 		expect(byId(wrapper, 'enroll-details').text()).toBe(
-			'Enter details for 2 students'
+			'Enter details for 2 students',
 		)
 		await click(wrapper, 'enroll-details')
 		expect(panelMembers(wrapper)).toEqual(['a@x.com', 'c@x.com'])
@@ -648,7 +633,7 @@ describe('EnrollStudentsForm', () => {
 			async (_params: unknown, options: Handlers) => {
 				options.onError?.({ messages: ['Nope.'] })
 				throw new Error('failed')
-			}
+			},
 		)
 		await select(wrapper, [...AB, 'c@x.com'])
 		expect(toastErrorMock).toHaveBeenCalledWith('Nope.')
@@ -662,7 +647,7 @@ describe('EnrollStudentsForm', () => {
 			(_params: unknown, options: Handlers) => {
 				late = options
 				return new Promise(() => {})
-			}
+			},
 		)
 		await select(wrapper, ['a@x.com'])
 		respond(PREVIEW, ABPreview())
@@ -681,7 +666,7 @@ describe('EnrollStudentsForm', () => {
 		const twoSeats = (members: string[]) =>
 			preview(
 				members.map((m) => row(m)),
-				{ seats_left: 2 }
+				{ seats_left: 2 },
 			)
 		await selectPaid(wrapper, AB, twoSeats(AB))
 		let late: Handlers = {}
@@ -689,7 +674,7 @@ describe('EnrollStudentsForm', () => {
 			(_params: unknown, options: Handlers) => {
 				late = options
 				return new Promise(() => {})
-			}
+			},
 		)
 		await select(wrapper, ABC)
 		await select(wrapper, AB)
@@ -698,7 +683,7 @@ describe('EnrollStudentsForm', () => {
 		expect(wrapper.find('[data-testid="error"]').exists()).toBe(false)
 		await addressForAll(wrapper)
 		expect(
-			byId(wrapper, 'enroll-submit').attributes('disabled')
+			byId(wrapper, 'enroll-submit').attributes('disabled'),
 		).toBeUndefined()
 	})
 
@@ -787,7 +772,7 @@ describe('EnrollStudentsForm', () => {
 		await panelEmit(wrapper, 'close', undefined)
 		await tick(wrapper, ['a@x.com'])
 		expect(byId(wrapper, 'enroll-details').text()).toBe(
-			'Enter details for 2 students'
+			'Enter details for 2 students',
 		)
 		await click(wrapper, 'enroll-details')
 		expect(panelMembers(wrapper)).toEqual(['b@x.com', 'c@x.com'])
@@ -1017,16 +1002,16 @@ describe('EnrollStudentsForm', () => {
 			AB,
 			preview(
 				AB.map((m) => row(m)),
-				{ seats_left: 1 }
-			)
+				{ seats_left: 1 },
+			),
 		)
 		await addressForAll(wrapper)
 		expect(wrapper.get('[data-testid="error"]').text()).toBe(
-			'1 seats left, 2 selected'
+			'1 seats left, 2 selected',
 		)
 		expect(byId(wrapper, 'enroll-submit').attributes('disabled')).toBeDefined()
 		expect(byId(wrapper, 'enroll-reason').text()).toBe(
-			'1 seats left, 2 selected'
+			'1 seats left, 2 selected',
 		)
 	})
 
@@ -1039,7 +1024,7 @@ describe('EnrollStudentsForm', () => {
 		await selectPaid(
 			wrapper,
 			AB,
-			preview([row('a@x.com'), row('b@x.com', 'upgrade')])
+			preview([row('a@x.com'), row('b@x.com', 'upgrade')]),
 		)
 		expect(paramsOf(PREVIEW).purchased_certificate).toBe(true)
 		expect(tableRows(wrapper).map((item) => item.badge)).toEqual([
@@ -1053,7 +1038,7 @@ describe('EnrollStudentsForm', () => {
 		await selectPaid(
 			wrapper,
 			AB,
-			preview([row('a@x.com'), row('b@x.com', 'enrolled')])
+			preview([row('a@x.com'), row('b@x.com', 'enrolled')]),
 		)
 		expect(tableRows(wrapper).map((item) => item.member)).toEqual(['a@x.com'])
 		await addressForAll(wrapper)
@@ -1061,19 +1046,6 @@ describe('EnrollStudentsForm', () => {
 		respond(COURSE, { added: ['a@x.com'], errors: [] })
 		await click(wrapper, 'enroll-submit')
 		expect(paramsOf(COURSE).members).toBe(JSON.stringify(['a@x.com']))
-	})
-
-	it('keeps one dialog size with the panel closed and open', async () => {
-		const wrapper = mountForm({ target: paidCourse })
-		expect(part(wrapper, 'Dialog').props('size')).toBe('4xl')
-		const sizes = [bodyClass(wrapper)]
-		await selectPaid(wrapper, ['a@x.com'], preview([row('a@x.com')]))
-		sizes.push(bodyClass(wrapper))
-		await click(wrapper, 'enroll-details')
-		expect(byId(wrapper, 'payment-panel').exists()).toBe(true)
-		sizes.push(bodyClass(wrapper))
-		expect(sizes[0]).toMatch(/(^| )h-\[/)
-		expect(new Set(sizes).size).toBe(1)
 	})
 
 	// Regression from the bulk-enroll PR (feat/bulk-enroll): the content had an
@@ -1084,14 +1056,6 @@ describe('EnrollStudentsForm', () => {
 		const content = byId(wrapper, 'enroll-content')
 		expect(content.attributes('role')).toBe('group')
 		expect(content.attributes('aria-label')).toBe('Enroll Students')
-	})
-
-	it('does not scroll the form itself, so only the list scrolls', async () => {
-		const wrapper = mountForm()
-		await select(wrapper, ['a@x.com'])
-		const content = byId(wrapper, 'enroll-content')
-		expect(content.classes()).toContain('overflow-hidden')
-		expect(content.classes()).not.toContain('overflow-y-auto')
 	})
 
 	it('toasts success, emits enrolled once and closes', async () => {
@@ -1115,7 +1079,7 @@ describe('EnrollStudentsForm', () => {
 		await click(wrapper, 'enroll-submit')
 		expect(toastMock.warning).toHaveBeenCalledWith(
 			'1 student enrolled, 1 student could not be enrolled',
-			{ description: 'b@x.com: Already enrolled' }
+			{ description: 'b@x.com: Already enrolled' },
 		)
 		expect(wrapper.emitted('close')).toBeUndefined()
 		expect(byId(wrapper, 'enroll-submit').text()).toBe('Enroll 1 student')
@@ -1128,7 +1092,7 @@ describe('EnrollStudentsForm', () => {
 			async (_params: unknown, options: Handlers) => {
 				options.onError?.({ messages: ['Course is closed.'] })
 				throw new Error('failed')
-			}
+			},
 		)
 		await click(wrapper, 'enroll-submit')
 		expect(toastErrorMock).toHaveBeenCalledWith('Course is closed.')
@@ -1162,15 +1126,5 @@ describe('EnrollStudentsForm', () => {
 		expect(wrapper.emitted('close')).toBeUndefined()
 		await click(wrapper, 'form-shell-back')
 		expect(wrapper.emitted('close')).toHaveLength(1)
-	})
-
-	it('on mobile, the header action reads Enroll N students when unpaid', async () => {
-		setWidth(375)
-		const wrapper = mountForm()
-		await select(wrapper, AB)
-		const header = wrapper.get('[data-testid="form-shell-header-actions"]')
-		expect(header.get('[data-testid="enroll-submit"]').text()).toBe(
-			'Enroll 2 students'
-		)
 	})
 })

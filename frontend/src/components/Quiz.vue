@@ -128,9 +128,9 @@
 						<li
 							v-for="(tip, index) in introTips"
 							:key="index"
-							class="flex gap-x-2 text-p-base text-ink-gray-7"
+							class="flex items-baseline gap-x-2 text-p-base text-ink-gray-7"
 						>
-							<span class="shrink-0 font-mono text-ink-gray-4">
+							<span class="shrink-0 tabular-nums text-ink-gray-4">
 								{{ index + 1 }}
 							</span>
 							<span>{{ tip }}</span>
@@ -460,7 +460,7 @@
 									@change="(val) => (possibleAnswer = val)"
 									:editable="true"
 									:fixedMenu="true"
-									editorClass="prose-sm max-w-none border-b border-x border-outline-elevation-2 bg-surface-gray-2 rounded-b-5 py-1 px-2 min-h-[7rem]"
+									minHeight="7rem"
 									:ariaLabelledby="questionTextId"
 								/>
 							</div>
@@ -496,6 +496,7 @@
 											questionDetails.data.type != 'Open Ended'
 										"
 										variant="solid"
+										:loading="answerCheck.loading"
 										@click="checkAnswer()"
 									>
 										<span>{{ __('Check') }}</span>
@@ -849,6 +850,7 @@ import {
 } from 'frappe-ui'
 import type { FrappeResourceError } from 'frappe-ui'
 import { CalendarClock, CircleCheck, Lock, Timer } from 'lucide-vue-next'
+import { quizAnswerStorageKey } from '@/utils/quizStorage'
 import {
 	computed,
 	inject,
@@ -865,6 +867,7 @@ import { violationLabel } from '@/utils/proctoring'
 import { useAssessmentSchedule } from '@/composables/useAssessmentSchedule'
 import { quizScheduleNotice } from '@/utils/quizSchedule'
 import { markLessonProgress } from '@/utils/markLessonProgress'
+import { submitResource } from '@/utils/resource'
 import ResponsiveListView from '@/components/ResponsiveListView.vue'
 import RichTextEditor from '@/components/RichTextEditor.vue'
 import router from '@/router'
@@ -1041,7 +1044,7 @@ const sendSubmitBeacon = (reason: SubmissionReason): void => {
 	) {
 		const params = new URLSearchParams({
 			quiz: quiz.data.name,
-			results: localStorage.getItem(quiz.data.title) || '[]',
+			results: localStorage.getItem(answerStorageKey.value) || '[]',
 			violation_count: String(violationCount.value),
 			submission_reason: reason,
 		})
@@ -1094,6 +1097,10 @@ const quiz = createResource<QuizDetails>({
 		setupTimer()
 	},
 })
+
+const answerStorageKey = computed(() =>
+	quizAnswerStorageKey(user.data?.name, quiz.data?.name)
+)
 
 // A shared link reaches students who are not in a course or batch that uses the
 // quiz. The server refuses them, and without this the page rendered nothing.
@@ -1383,7 +1390,7 @@ const quizSubmission = createResource<QuizSubmissionResult>({
 	}) {
 		return {
 			quiz: quiz.data?.name,
-			results: localStorage.getItem(quiz.data?.title ?? '') || '[]',
+			results: localStorage.getItem(answerStorageKey.value) || '[]',
 			violation_count: values?.violation_count ?? violationCount.value,
 			submission_reason: values?.submission_reason ?? 'manual',
 			violation_events: serialiseViolationLog(),
@@ -1428,7 +1435,7 @@ const switchQuestion = (questionNumber: number): void => {
 }
 
 const readSavedAnswers = (): SavedAnswer[] | null =>
-	JSON.parse(localStorage.getItem(quiz.data?.title ?? '') ?? 'null')
+	JSON.parse(localStorage.getItem(answerStorageKey.value) ?? 'null')
 
 const loadSavedAnswers = (): void => {
 	const details = questionDetails.data
@@ -1484,7 +1491,7 @@ const startQuiz = () => {
 	if (!quiz.data || !questions.value.length) return
 	activeQuestion.value = 1
 	attemptStartedAt = Date.now()
-	localStorage.removeItem(quiz.data.title)
+	localStorage.removeItem(answerStorageKey.value)
 	// Neither in an author preview. Nothing may be submitted there, so a countdown
 	// would reach zero with no way to end the attempt and the camera would stay on
 	// with it, and a violation cap would do the same.
@@ -1668,7 +1675,12 @@ const getAnswers = (): Answer[] => {
 	return answers
 }
 
+const answerCheck = createResource({
+	url: 'lms.lms.doctype.lms_quiz.lms_quiz.check_answer',
+})
+
 const checkAnswer = (): void => {
+	if (answerCheck.loading) return
 	const answers = getAnswers()
 	const details = questionDetails.data
 	if (!quiz.data || !details) return
@@ -1677,35 +1689,39 @@ const checkAnswer = (): void => {
 		return
 	}
 
-	createResource({
-		url: 'lms.lms.doctype.lms_quiz.lms_quiz.check_answer',
-		params: {
+	submitResource<AnswerVerdict[] | AnswerVerdict>(
+		answerCheck,
+		{
 			quiz: quiz.data.name,
 			question: currentQuestion.value,
 			question_type: details.type,
 			answers: JSON.stringify(answers),
 		},
-		auto: true,
-		onSuccess(data: AnswerVerdict[] | AnswerVerdict) {
-			if (details.type == 'Choices' && Array.isArray(data)) {
-				selectedOptions.value.forEach((option, index) => {
-					if (option) {
-						showAnswers[index] = data[index]
-					} else if (data[index] == 2) {
-						showAnswers[index] = 2
-					} else {
-						showAnswers[index] = undefined
-					}
-				})
-			} else if (!Array.isArray(data)) {
-				showAnswers.push(data)
-			}
-			addToLocalStorage()
-			if (!quiz.data?.show_answers) {
-				resetQuestion()
-			}
-		},
-	})
+		{
+			onSuccess(data) {
+				if (details.type == 'Choices' && Array.isArray(data)) {
+					selectedOptions.value.forEach((option, index) => {
+						if (option) {
+							showAnswers[index] = data[index]
+						} else if (data[index] == 2) {
+							showAnswers[index] = 2
+						} else {
+							showAnswers[index] = undefined
+						}
+					})
+				} else if (!Array.isArray(data)) {
+					showAnswers.push(data)
+				}
+				addToLocalStorage()
+				if (!quiz.data?.show_answers) {
+					resetQuestion()
+				}
+			},
+			onError(error) {
+				console.error(error)
+			},
+		}
+	)
 }
 
 const addToLocalStorage = (): void => {
@@ -1727,7 +1743,7 @@ const addToLocalStorage = (): void => {
 	} else {
 		quizData = [questionData]
 	}
-	localStorage.setItem(quiz.data.title, JSON.stringify(quizData))
+	localStorage.setItem(answerStorageKey.value, JSON.stringify(quizData))
 }
 
 const nextQuestion = (): void => {

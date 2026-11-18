@@ -1,8 +1,9 @@
 <template>
-	<div class="text-lg-semibold mb-4 text-ink-gray-9">
+	<div :id="notesLabelId" class="text-lg-semibold mb-4 text-ink-gray-9">
 		{{ __('My Notes') }}
 	</div>
 	<RichTextEditor
+		:ariaLabelledby="notesLabelId"
 		:content="note"
 		:placeholder="__('Make notes for quick revision. Press / for menu.')"
 		@change="(val: string) => updateNoteText(val)"
@@ -10,17 +11,20 @@
 		:uploadArgs="{
 			private: true,
 		}"
-		editorClass="prose prose-sm min-h-[200px] max-w-none"
+		variant="ghost"
+		minHeight="200px"
+		editorClass="prose prose-sm max-w-none"
 	/>
 </template>
 <script setup lang="ts">
 import { useDebounceFn } from '@vueuse/core'
-import { inject, ref, onMounted, watch } from 'vue'
+import { inject, ref, onMounted, useId, watch } from 'vue'
 import type { Note, Notes } from '@/types'
 import type { FrappeResourceError } from 'frappe-ui'
 import { blockQuotesClick } from '@/utils/'
 import RichTextEditor from '@/components/RichTextEditor.vue'
 
+const notesLabelId = useId()
 const note = ref<string | null>(null)
 const currentNoteName = ref<string | null>(null)
 const user = inject<any>('$user')
@@ -68,7 +72,16 @@ const debouncedSave = useDebounceFn(() => {
 	saveNotes()
 }, 2000)
 
+// A save while the first insert is in flight would insert a second note, so it
+// waits and runs as an update once the insert lands.
+const creating = ref(false)
+const saveAfterCreate = ref(false)
+
 const saveNotes = () => {
+	if (creating.value) {
+		saveAfterCreate.value = true
+		return
+	}
 	if (currentNoteName.value) {
 		updateNote()
 	} else {
@@ -76,7 +89,15 @@ const saveNotes = () => {
 	}
 }
 
+const finishCreate = () => {
+	creating.value = false
+	if (!saveAfterCreate.value) return
+	saveAfterCreate.value = false
+	saveNotes()
+}
+
 const createNote = () => {
+	creating.value = true
 	notes.value?.insert.submit(
 		{
 			lesson: props.lesson,
@@ -89,9 +110,11 @@ const createNote = () => {
 			onSuccess(data: Note) {
 				currentNoteName.value = data.name || null
 				emit('updateNotes')
+				finishCreate()
 			},
 			onError(err: FrappeResourceError) {
 				console.error('Error creating note:', err)
+				finishCreate()
 			},
 		}
 	)

@@ -17,7 +17,7 @@
 							size="md"
 							icon-left="lucide-chevron-left"
 							:label="title"
-							class="-ms-2.5 !max-w-96 !justify-start !pe-0 text-p-2xl-semibold cursor-pointer hover:bg-transparent hover:opacity-70 focus:bg-transparent active:bg-transparent active:text-ink-gray-5"
+							class="-ms-2.5 !max-w-96 !justify-start !pe-0 text-p-2xl-semibold cursor-pointer hover:bg-transparent hover:opacity-70 focus:bg-transparent active:bg-transparent active:text-ink-gray-6"
 							@click="emit('back')"
 						/>
 						<h2 v-else class="text-p-2xl-semibold text-ink-gray-8">
@@ -39,7 +39,7 @@
 						size="sm"
 						:label="__('Enabled')"
 					/>
-					<div v-if="unsaved" class="flex items-center gap-x-1 text-ink-gray-5">
+					<div v-if="unsaved" class="flex items-center gap-x-1 text-ink-gray-6">
 						<span class="lucide-dot size-4" />
 						<span class="text-p-sm">{{ __('Not saved') }}</span>
 					</div>
