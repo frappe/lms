@@ -39,7 +39,7 @@ Keep the token: the site needs it in step 4.
 ```sh
 sudo cp lms-voice.service /etc/systemd/system/
 sudo systemctl enable --now lms-voice
-# Memory grows with use; restart it every night at 3 AM IST.
+# Memory grows and speech slows with use; restart it every 6 hours.
 sudo cp lms-voice-restart.service lms-voice-restart.timer /etc/systemd/system/
 sudo systemctl enable --now lms-voice-restart.timer
 ```

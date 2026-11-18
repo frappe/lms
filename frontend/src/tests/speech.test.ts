@@ -48,6 +48,15 @@ describe('speechText', () => {
 			speechText('The policy covers **everyone** [Policy · p.3], _always_.'),
 		).toBe('The policy covers everyone , always.')
 	})
+
+	it('drops a citation without a page too, but keeps a link', () => {
+		expect(speechText('Auditors never audit their own work. [Frappe QMS Manual V 2.1]')).toBe(
+			'Auditors never audit their own work.'
+		)
+		expect(speechText('See [the manual](https://example.com).')).toContain(
+			'the manual'
+		)
+	})
 })
 
 describe('splitSentences', () => {

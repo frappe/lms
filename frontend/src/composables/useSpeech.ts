@@ -39,10 +39,11 @@ export async function speechProviders(): Promise<string[]> {
 	return hostedProviders
 }
 
-/** Citations and markdown are for the eye; the voice reads plain sentences. */
+/** Citations and markdown are for the eye; the voice reads plain sentences. A citation is
+ * any bracketed source, with a page ([Manual · p.3]) or without one ([Manual V 2.1]). */
 export const speechText = (text: string): string =>
 	(text || '')
-		.replace(/\[[^\]]*·[^\]]*\]/g, '')
+		.replace(/\[[^\]]*\](?!\()/g, '')
 		.replace(/[*_#`>]/g, '')
 		.replace(/\s+/g, ' ')
 		.trim()

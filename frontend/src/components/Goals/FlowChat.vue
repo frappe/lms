@@ -588,10 +588,10 @@ watch(
 // In speak mode, the voice starts as soon as the first sentence of a streaming
 // reply is complete, instead of waiting for the whole reply: the biggest part of
 // the gap the learner feels. One turn can stream several replies (a line, an
-// exercise, another line), so each streamed reply keeps the part already queued,
-// and the finished turn only reads what is left of each. Without that the first
-// reply was read twice.
-let spokenCount = 0
+// exercise, another line). Each reply is read out as soon as it is complete, even while
+// the turn goes on, and `said` keeps how much of it the voice has had, so streamed
+// words are never read twice and a reply's checked ending is read once it is in.
+const said: Record<string, number> = {}
 let streamed: string[] = []
 let current = ''
 const closeStream = () => {
@@ -623,44 +623,59 @@ watch(loading, async (busy, was) => {
 	// A finished turn waiting on screen, such as an opening written ahead, is checked before
 	// it is said.
 	if (!running.value) await checkTurn()
-	primed.value = true
-	const replies = messages.value.filter(
-		(message) => message.role === 'assistant'
-	)
-	spokenCount = replies.length
 	const last = messages.value[messages.value.length - 1]
-	if (mode.value === 'speak' && !running.value && last?.role === 'assistant')
-		speech.enqueue(last.text, props.character || 'lumi')
+	markSaid()
+	if (!running.value && last?.role === 'assistant') said[last.key] = 0
+	primed.value = true
+	sayReplies()
 })
-watch(
-	() => [messages.value.length, running.value, checking.value] as const,
-	() => {
-		if (!primed.value || checking.value) return
-		const replies = messages.value.filter(
-			(message) => message.role === 'assistant'
-		)
-		if (mode.value === 'speak' && !running.value) {
-			closeStream()
-			for (const reply of replies.slice(spokenCount)) {
-				const said = streamed.findIndex(
-					(prefix) => prefix && reply.text.startsWith(prefix)
-				)
-				const skip = said >= 0 ? streamed.splice(said, 1)[0].length : 0
-				speech.enqueue(reply.text.slice(skip), props.character || 'lumi')
-			}
+const markSaid = () => {
+	for (const message of messages.value)
+		if (message.role === 'assistant') said[message.key] = message.text.length
+}
+const sayReplies = () => {
+	if (!primed.value || mode.value !== 'speak') return
+	for (const reply of messages.value) {
+		if (reply.role !== 'assistant') continue
+		if (said[reply.key] === undefined) {
+			// A reply seen complete for the first time: what streaming said of it counts.
+			if (current && reply.text.startsWith(current)) closeStream()
+			const i = streamed.findIndex(
+				(prefix) => prefix && reply.text.startsWith(prefix)
+			)
+			said[reply.key] = i >= 0 ? streamed.splice(i, 1)[0].length : 0
 		}
-		if (!running.value) {
-			spokenCount = replies.length
-			streamed = []
-			current = ''
+		if (reply.text.length > said[reply.key]) {
+			speech.enqueue(
+				reply.text.slice(said[reply.key]),
+				props.character || 'lumi'
+			)
+			said[reply.key] = reply.text.length
 		}
 	}
+	if (!running.value && !checking.value) {
+		streamed = []
+		current = ''
+	}
+}
+watch(
+	() =>
+		[
+			messages.value.map((m) => `${m.key}:${m.text.length}`).join(),
+			running.value,
+			checking.value,
+		] as const,
+	sayReplies
 )
+// Whether everything written so far has gone to the voice.
+const allSaid = () =>
+	mode.value !== 'speak' ||
+	messages.value.every(
+		(m) => m.role !== 'assistant' || (said[m.key] ?? -1) >= m.text.length
+	)
 watch(mode, (value) => {
 	rememberMode(value)
-	spokenCount = messages.value.filter(
-		(message) => message.role === 'assistant'
-	).length
+	markSaid()
 	if (value === 'type') speech.stop()
 })
 
@@ -674,10 +689,10 @@ const currentMoment = computed(() => {
 	return null
 })
 
-// What the stage shows: while the voice is still giving feedback on the last
-// answer, the answered exercise stays up. The next one appears once the whole reply
-// has streamed and the voice reaches its last sentence, which invites them to try
-// it, so the exercise arrives with her words instead of after a silence.
+// What the stage shows: while the voice is still explaining, the answered exercise stays
+// up and the next one waits, so the learner listens instead of reading ahead. The next one
+// appears the moment the voice has said everything written before it; the turn's last
+// model call, which only closes the turn, is not waited for.
 const shownMoment = ref<Moment | null>(null)
 watch(
 	() =>
@@ -685,11 +700,11 @@ watch(
 			currentMoment.value,
 			speech.speaking.value,
 			speech.remaining.value,
-			running.value,
+			messages.value.map((m) => `${m.key}:${m.text.length}`).join(),
 		] as const,
-	([target, speakingNow, left, busy]) => {
-		if (!shownMoment.value || (!busy && (!speakingNow || left === 0)))
-			shownMoment.value = target
+	([target, speakingNow, left]) => {
+		if (target === shownMoment.value) return
+		if (!speakingNow && left === 0 && allSaid()) shownMoment.value = target
 	},
 	{ immediate: true }
 )

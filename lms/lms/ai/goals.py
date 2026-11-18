@@ -522,6 +522,7 @@ def _open_lesson(assignment, activity, content: dict):
 			# nosemgrep: frappe-setuser - restores the learner after a system step
 			frappe.set_user(assignment.member)
 	goal = frappe.get_doc("LMS Goal", assignment.goal)
+	passages = _idea_passages(goal)
 	session = new_session(setup.TUTOR, title=activity.title, approval_mode="Auto-approve")
 	session.chat(
 		"BRIEF\n"
@@ -535,13 +536,66 @@ def _open_lesson(assignment, activity, content: dict):
 				"has_material": has_material(goal.name),
 				"their_situations": situations.recall(assignment),
 				"key_ideas": [
-					{"idea": idea["idea"], "heading": idea["heading"], "body": idea["body"]}
+					{
+						"idea": idea["idea"],
+						"heading": idea["heading"],
+						"body": idea["body"],
+						"from_the_material": passages.get(idea["idea"], []),
+					}
 					for idea in ideas.key_ideas(goal)
 				],
+				"what_the_practice_after_this_tests": _practice_tests(goal),
 			}
 		)
 	)
 	return session
+
+
+# Each passage handed to Lumi with a key idea is cut to this many characters.
+PASSAGE_CHARS = 900
+PASSAGES_PER_IDEA = 2
+
+
+def _idea_passages(goal) -> dict[int, list[str]]:
+	"""What the material says for each key idea. Lumi searched for it mid-lesson, and every
+	search made the learner wait, so it is found once per plan, before the lesson, and kept."""
+	if not has_material(goal.name):
+		return {}
+	key = f"lms:idea-passages:{goal.name}:{goal.modified}"
+	found = frappe.cache.get_value(key)
+	if found is None:
+		from lms.lms.ai.tools import _search
+
+		found = {}
+		for idea in ideas.key_ideas(goal):
+			hits = _search(goal.knowledge_base, f"{idea['heading']}. {idea['body']}")[:PASSAGES_PER_IDEA]
+			found[idea["idea"]] = [f"[{hit['source']}] {hit['content'][:PASSAGE_CHARS]}" for hit in hits]
+		frappe.cache.set_value(key, found, expires_in_sec=7 * 24 * 60 * 60)
+	return found
+
+
+def _practice_tests(goal) -> dict:
+	"""What the role-play and the check after the lesson ask of the learner, so the lesson
+	teaches it first."""
+	tests: dict = {}
+	for row in goal.activities:
+		content = json.loads(row.content or "{}")
+		if row.activity_type == "Role-play":
+			tests.setdefault("role_plays", []).append(
+				{
+					"task": content.get("learner_task"),
+					"graded_on": [
+						f"{c.get('criterion')}: {c.get('good')}" for c in content.get("rubric") or []
+					],
+				}
+			)
+		elif row.activity_type == "Check":
+			tests.setdefault("check_questions", []).extend(
+				f"{q.get('question')} Answer: {q['options'][q['answer_index']]}"
+				for q in content.get("questions") or []
+				if q.get("options") and 0 <= cint(q.get("answer_index")) < len(q["options"])
+			)
+	return tests
 
 
 def finish_teaching(session_name: str, user: str, summary: str) -> None:

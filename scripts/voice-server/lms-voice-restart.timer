@@ -1,10 +1,11 @@
 # /etc/systemd/system/lms-voice-restart.timer
-# The server's memory grows with use, so a nightly restart keeps it well under its cap.
+# The server's memory grows with use, and its speech slowed about four times over a day of
+# running (18 Nov 2026), so it restarts every 6 hours: 3 AM, 9 AM, 3 PM and 9 PM IST.
 [Unit]
-Description=Restart the Learning voice server every night at 3 AM IST
+Description=Restart the Learning voice server every 6 hours
 
 [Timer]
-OnCalendar=*-*-* 21:30:00 UTC
+OnCalendar=*-*-* 03,09,15,21:30:00 UTC
 Persistent=true
 
 [Install]

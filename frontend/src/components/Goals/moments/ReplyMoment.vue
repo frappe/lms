@@ -46,7 +46,7 @@
 				{{ result.their_words }}
 			</p>
 			<p class="mt-3 text-p-xs font-medium text-ink-gray-6">
-				{{ __('A good answer') }}
+				{{ __('A good answer covers') }}
 			</p>
 			<ul class="mt-0.5 space-y-0.5">
 				<li
@@ -54,7 +54,11 @@
 					:key="criterion"
 					class="flex items-start gap-2 text-p-sm text-ink-gray-7"
 				>
-					<span class="mt-1 size-3.5 shrink-0 lucide-check text-ink-gray-5" />
+					<!-- Plain bullets: a tick here read as a score for their answer. -->
+					<span
+						class="mt-2 size-1 shrink-0 rounded-full bg-surface-gray-5"
+						aria-hidden="true"
+					/>
 					{{ criterion }}
 				</li>
 			</ul>

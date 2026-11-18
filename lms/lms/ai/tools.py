@@ -382,11 +382,7 @@ def show_moment(moment: Moment, *, ctx: ToolContext) -> str:
 			"detail to the others, then call show_moment again straight away. Write no text before "
 			"it: the learner has already heard your line."
 		)
-	return _(
-		"Shown to the learner. End your turn with one short line inviting them to try it, "
-		"without asking them to explain why: they answer by tapping. Do not repeat what you "
-		"already said this turn."
-	)
+	return _("Shown to the learner. Your turn is over: write nothing more.")
 
 
 # The right option may run this much longer than the longest wrong one before it gives itself away.
