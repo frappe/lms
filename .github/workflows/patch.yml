@@ -37,7 +37,7 @@ jobs:
       - uses: actions/checkout@v6
       - uses: ./.github/actions/apt-install
         with:
-          packages: build-essential pkg-config libcups2-dev mariadb-client libmariadb-dev
+          packages: build-essential pkg-config cron libffi-dev libssl-dev libjpeg-dev libcairo2-dev libpango1.0-dev libcups2-dev mariadb-client libmariadb-dev
 
   test:
     name: Patch Test
@@ -106,7 +106,7 @@ jobs:
       - name: Install system dependencies
         uses: ./.github/actions/apt-install
         with:
-          packages: build-essential pkg-config libcups2-dev mariadb-client libmariadb-dev
+          packages: build-essential pkg-config cron libffi-dev libssl-dev libjpeg-dev libcairo2-dev libpango1.0-dev libcups2-dev mariadb-client libmariadb-dev
 
       - name: Build the oldest bench and seed the fixture
         run: |
