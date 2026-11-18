@@ -2078,11 +2078,7 @@ def send_batch_announcement(batch: str, subject: str, content: str, reply_to: st
 def _send_batch_announcement(batch: str, subject: str, content: str, reply_to: str):
 	from frappe.core.doctype.communication.email import _make
 
-<<<<<<< HEAD
-	make(
-=======
-	communication = _make(
->>>>>>> c505568 (fix(email): send LMS emails via _make after frappe#47825)
+	_make(
 		doctype="LMS Batch",
 		name=batch,
 		recipients=reply_to,
