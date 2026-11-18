@@ -85,7 +85,8 @@ def _delete_committed_user(user):
 	_delete_committed("User", user)
 	frappe.db.delete("DefaultValue", {"parent": user})
 	frappe.db.delete("Comment", {"reference_doctype": "User", "reference_name": user})
-	frappe.db.delete("Permission Log", {"for_doctype": "User", "for_document": user})
+	if frappe.db.table_exists("Permission Log"):
+		frappe.db.delete("Permission Log", {"for_doctype": "User", "for_document": user})
 
 
 class TestParallelApplications(BaseTestUtils):
