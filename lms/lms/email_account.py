@@ -70,7 +70,7 @@ def _validate_input(data: dict) -> str:
 	return service
 
 
-@frappe.whitelist()
+@frappe.whitelist(methods=["POST"])
 def create_email_account(data: dict) -> str:
 	frappe.has_permission("Email Account", "create", throw=True)
 	service = _validate_input(data)

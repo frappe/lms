@@ -51,6 +51,7 @@ from lms.lms.doctype.lms_enrollment.lms_enrollment import (
 	update_enrollment,
 	update_program_progress,
 )
+from lms.lms.html_sanitizer import sanitize_rich_text
 from lms.lms.md import find_macros
 
 RE_SLUG_NOTALLOWED = re.compile("[^a-z0-9]+")
@@ -669,7 +670,8 @@ def get_course_details_for_notification(topic: dict):
 	users.append(topic.owner)
 	users += instructors
 
-	subject = _("New reply on the topic {0} in course {1}").format(topic.title, course_title)
+	# Titles are stored as typed; the subject is rendered as HTML.
+	subject = _("New reply on the topic {0} in course {1}").format(escape_html(topic.title), course_title)
 	link = get_lesson_url(course, get_lesson_index(topic.reference_docname))
 
 	return subject, link, users
@@ -736,7 +738,7 @@ def notify_mentions_on_portal(doc: Document, topic: dict):
 	if topic.reference_doctype == "Course Lesson":
 		course = frappe.db.get_value("Course Lesson", topic.reference_docname, "course")
 		subject = _("{0} mentioned you in a comment in {1}").format(
-			frappe.bold(from_user_name), frappe.bold(topic.title)
+			frappe.bold(from_user_name), frappe.bold(escape_html(topic.title))
 		)
 		link = get_lesson_url(course, get_lesson_index(topic.reference_docname))
 	else:
@@ -2906,8 +2908,9 @@ def can_access_topic(doctype: str, docname: str) -> bool:
 	return True
 
 
-@frappe.whitelist()
+@frappe.whitelist(methods=["POST"])
 def get_discussion_topics(doctype: str, docname: str, single_thread: bool = False):
+	frappe.has_permission("Discussion Topic", "read", throw=True)
 	if not can_access_topic(doctype, docname):
 		frappe.throw(_("You are not authorized to view the discussion topics for this item."))
 
@@ -2970,6 +2973,7 @@ def create_discussion_topic(doctype: str, docname: str) -> str:
 
 @frappe.whitelist()
 def get_discussion_replies(topic: str):
+	frappe.has_permission("Discussion Reply", "read", throw=True)
 	topic_details = frappe.db.get_value(
 		"Discussion Topic", topic, ["reference_doctype", "reference_docname"], as_dict=True
 	)
@@ -3027,6 +3031,9 @@ def get_paid_course_details(docname: str) -> dict:
 		as_dict=True,
 	)
 
+	if not details:
+		frappe.throw(_("This course does not exist."), frappe.DoesNotExistError)
+
 	if not details.paid_course and not details.paid_certificate:
 		raise frappe.throw(_("This course is free."))
 
@@ -3040,6 +3047,9 @@ def get_paid_batch_details(docname: str) -> dict:
 		["title", "name", "paid_batch", "amount", "currency", "amount_usd"],
 		as_dict=True,
 	)
+
+	if not details:
+		frappe.throw(_("This batch does not exist."), frappe.DoesNotExistError)
 
 	if not details.paid_batch:
 		raise frappe.throw(_("To join this batch, please contact the Administrator."))
@@ -3667,6 +3677,9 @@ def get_program_details(program_name: str) -> dict:
 		],
 		as_dict=1,
 	)
+	# The page asks here, not the generic API: a learner can't filter the member
+	# rows by `member`, a field only the program's staff read.
+	program.is_member = bool(is_member)
 	program_courses = frappe.get_all(
 		"LMS Program Course", {"parent": program_name}, ["course"], order_by="idx"
 	)
@@ -3927,6 +3940,8 @@ def persona_captured():
 
 
 def validate_discussion_reply(doc: Document, method: str):
+	# Released frappe skips JSON-shaped HTML, and replies are mailed out as written.
+	doc.reply = sanitize_rich_text(doc.reply)
 	topic = frappe.db.get_value(
 		"Discussion Topic", doc.topic, ["reference_doctype", "reference_docname"], as_dict=True
 	)
