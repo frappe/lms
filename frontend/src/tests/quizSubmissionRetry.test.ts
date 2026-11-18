@@ -649,3 +649,59 @@ describe('Quiz.vue submission payload', () => {
 		wrapper.unmount()
 	})
 })
+
+// In-progress answers were saved under the quiz title, so the next person on a
+// shared browser, or a same-titled quiz, resumed them. Guards the per-user,
+// per-quiz storage key.
+describe('Quiz.vue saved answers', () => {
+	const mountAs = (name: string) =>
+		mount(Quiz, {
+			props: { quizName: 'quiz-a' },
+			global: {
+				provide: { $user: { data: { name } } },
+				mocks: { __: (s: string) => s },
+			},
+		})
+
+	const saveAnswerAs = async (name: string) => {
+		const wrapper = mountAs(name)
+		await flushPromises()
+		const vm = wrapper.vm as any
+		vm.startQuiz()
+		vm.addToLocalStorage()
+		wrapper.unmount()
+	}
+
+	const savedAnswersFor = async (name: string) => {
+		const wrapper = mountAs(name)
+		await flushPromises()
+		const saved = (wrapper.vm as any).readSavedAnswers()
+		wrapper.unmount()
+		return saved
+	}
+
+	beforeEach(() => {
+		localStorage.clear()
+		quizOverrides = {}
+	})
+
+	afterEach(() => {
+		quizOverrides = {}
+	})
+
+	it('restores them for the same learner on the same quiz', async () => {
+		await saveAnswerAs('ann@example.com')
+		expect(await savedAnswersFor('ann@example.com')).not.toBeNull()
+	})
+
+	it('does not hand them to another learner on the same browser', async () => {
+		await saveAnswerAs('ann@example.com')
+		expect(await savedAnswersFor('bob@example.com')).toBeNull()
+	})
+
+	it('does not hand them to another quiz with the same title', async () => {
+		await saveAnswerAs('ann@example.com')
+		quizOverrides = { name: 'quiz-b' }
+		expect(await savedAnswersFor('ann@example.com')).toBeNull()
+	})
+})

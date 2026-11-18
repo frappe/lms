@@ -431,9 +431,23 @@ export class Markdown {
 		const text = this.wrapper.textContent.trim()
 
 		if (this._isImage(text)) {
-			this._convertBlock('image', {
-				file: { url: this._extractImage(text).url },
-			})
+			const { url, alt } = this._extractImage(text)
+			this._replaceWithImage({ url, caption: escapeHTML(alt) })
+		}
+	}
+
+	// blocks.convert needs a conversionConfig on the image tool, and Enter has already
+	// moved the caret to a new block, so replace this block by its own index.
+	_replaceWithImage(data) {
+		for (let i = 0; i < this.api.blocks.getBlocksCount(); i++) {
+			if (
+				this.api.blocks
+					.getBlockByIndex(i)
+					?.holder?.contains(this.wrapper)
+			) {
+				this.api.blocks.insert('image', data, {}, i, false, true)
+				return
+			}
 		}
 	}
 

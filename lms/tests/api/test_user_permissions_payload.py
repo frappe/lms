@@ -3,6 +3,8 @@ import frappe
 from lms.lms.api import PERMISSION_DOCTYPES, get_user_info
 from lms.lms.test_helpers import BaseTestUtils
 
+GATED_FEATURE_DOCTYPES = ("LMS Course Review", "LMS Lesson Note", "Discussion Topic", "Discussion Reply")
+
 
 class TestUserPermissionsPayload(BaseTestUtils):
 	def tearDown(self):
@@ -44,3 +46,25 @@ class TestUserPermissionsPayload(BaseTestUtils):
 		self.assertEqual(set(info["permissions"]), set(PERMISSION_DOCTYPES))
 		for doctype in PERMISSION_DOCTYPES:
 			self.assertEqual(set(info["permissions"][doctype]), {"read", "write", "create", "delete"})
+
+	def test_student_gated_features_follow_their_doctype_permissions(self):
+		"""Reviews, lesson notes and discussions hide when the role loses read on
+		their doctype (#2538). A student holds if_owner DocPerms on all four, which
+		count at the doctype level, so the default is visible."""
+		student = self._create_user(
+			f"permgate-{frappe.generate_hash(length=6)}@example.com",
+			"Perm",
+			"Gate",
+			["LMS Student"],
+		)
+		frappe.set_user(student.name)
+		perms = get_user_info()["permissions"]
+		for doctype in GATED_FEATURE_DOCTYPES:
+			self.assertEqual(perms[doctype]["read"], 1, doctype)
+
+		frappe.set_user("Administrator")
+		frappe.get_doc("User", student.name).remove_roles("LMS Student")
+		frappe.set_user(student.name)
+		perms = get_user_info()["permissions"]
+		for doctype in GATED_FEATURE_DOCTYPES:
+			self.assertEqual(perms[doctype]["read"], 0, doctype)
