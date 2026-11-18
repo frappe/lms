@@ -49,10 +49,9 @@ class TestEnrollmentRaces(BaseTestUtils):
 
 	Two concurrent requests both read "absent" and both insert, so the check
 	cannot settle it on its own. A FOR UPDATE lock on the parent row makes the
-	second request wait until the first has committed, which is what protects
-	every site — there is no migration, so an already-installed site gets no
-	unique index. The index that after_install adds on a fresh install is the
-	backstop for what bypasses the controller entirely.
+	second request wait until the first has committed, and a locking recount after
+	the insert sees that commit (lms/tests/test_locked_reads.py runs the race). The
+	unique index is the backstop for what bypasses the controller entirely.
 
 	Neutralising the check is how the index is exercised in one process: it is
 	exactly the state both requests are in after their read.
@@ -130,7 +129,7 @@ class TestEnrollmentRaces(BaseTestUtils):
 		log = []
 		stubs = {"LMS Payment": frappe._dict(name=None, source=None)}
 		with self._logging_db(log, stubs=stubs):
-			enroll_in_course(self.course.name, "LMS-PAY-RACE-TEST")
+			enroll_in_course(self.course.name, "LMS-PAY-RACE-TEST", frappe.session.user)
 
 		created = frappe.db.get_value(
 			"LMS Enrollment", {"course": self.course.name, "member": frappe.session.user}

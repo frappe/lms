@@ -7,7 +7,7 @@ from unittest.mock import patch
 
 import frappe
 
-from lms.lms import utils
+from lms.lms import api, utils
 from lms.lms.test_helpers import BaseTestUtils
 
 
@@ -26,12 +26,19 @@ class TestDiscussionMentionScope(BaseTestUtils):
 		cls.muted = cls._create_user(f"dms-muted-{hash}@example.com", "Dms", "Muted", ["LMS Student"])
 		cls.outsider = cls._create_user(f"dms-out-{hash}@example.com", "Dms", "Out", ["LMS Student"])
 		frappe.db.set_value("User", cls.muted.name, "allowed_in_mentions", 0)
+		cls.evaluator = cls._create_user(f"dms-eval-{hash}@example.com", "Dms", "Eval", ["Batch Evaluator"])
+		cls.other_evaluator = cls._create_user(
+			f"dms-oeval-{hash}@example.com", "Dms", "Oeval", ["Batch Evaluator"]
+		)
+		cls._create_evaluator(cls.evaluator.name)
+		cls._create_evaluator(cls.other_evaluator.name)
 
 		cls.course = cls._create_course(f"Mention Scope {hash}", instructor=cls.author.name)
 		chapter = cls._create_chapter(f"Mention Scope {hash} chapter", cls.course.name)
 		cls._create_chapter_reference(cls.course.name, chapter.name)
 		cls.lesson = cls._create_lesson(f"Mention Scope {hash} lesson", chapter.name, cls.course.name)
 		cls._create_lesson_reference(chapter.name, cls.lesson.name)
+		cls.course.db_set("evaluator", cls.evaluator.name)
 		for user in (cls.poster, cls.peer, cls.muted):
 			cls._create_enrollment(user.name, cls.course.name)
 
@@ -109,3 +116,29 @@ class TestDiscussionMentionScope(BaseTestUtils):
 			utils.notify_mentions_via_email(reply, topic)
 
 		self.assertEqual([call.kwargs["recipients"] for call in sendmail.call_args_list], [self.peer.email])
+
+	def test_the_courses_evaluator_is_not_mentioned_on_its_lessons(self):
+		"""The course's evaluator cannot open its lessons (the lesson page shows them a
+		lock and no discussion), so neither suggest nor notify them."""
+		self.reply_as(self.poster.name, mention(self.evaluator.name) + mention(self.other_evaluator.name))
+		self.assertEqual(self.mentioned([self.evaluator, self.other_evaluator]), set())
+
+		people = api.get_all_users("Course Lesson", self.lesson.name)
+		self.assertNotIn(self.evaluator.username, people)
+
+	def test_everyone_mentionable_can_open_the_discussion(self):
+		"""A mention sends an email and a Notification Log linking to the discussion,
+		so each person suggested or notified must pass can_access_topic."""
+		topic = frappe._dict(reference_doctype="Course Lesson", reference_docname=self.lesson.name)
+		people = api.discussion_people("Course Lesson", self.lesson.name)
+		candidates = people | {self.evaluator.name, self.other_evaluator.name, self.outsider.name}
+		participants = {user for user in candidates if utils.is_topic_participant(user, topic)}
+		self.assertTrue(people)
+		self.assertEqual(participants, people)
+
+		for user in people:
+			frappe.set_user(user)
+			try:
+				self.assertTrue(utils.can_access_topic("Course Lesson", self.lesson.name), user)
+			finally:
+				frappe.set_user("Administrator")

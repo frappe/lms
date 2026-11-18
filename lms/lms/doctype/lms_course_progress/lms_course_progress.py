@@ -13,6 +13,7 @@ class LMSCourseProgress(Document):
 		# Guards updates too; before_insert also calls it so member is bound before the
 		# insert-time duplicate check below. The call is idempotent.
 		self.enforce_member_ownership()
+		self.lock_enrollment()
 
 	def before_insert(self):
 		self.enforce_member_ownership()
@@ -43,8 +44,24 @@ class LMSCourseProgress(Document):
 			)
 		self.member = frappe.session.user
 
+	def lock_enrollment(self):
+		"""Before this row is written: on_update and after_delete recount under the
+		enrolment lock, and _save_progress takes that lock before any progress row, so
+		taking it after the write would order the two locks the other way round."""
+		frappe.db.get_value(
+			"LMS Enrollment", {"course": self.course, "member": self.member}, "name", for_update=True
+		)
+
+	def on_trash(self):
+		self.lock_enrollment()
+
 	def on_update(self):
 		recalculate_course_progress(self.course, self.member)
 
 	def after_delete(self):
 		recalculate_course_progress(self.course, self.member)
+
+
+def on_doctype_update():
+	# count_completed_lessons_locked locks one enrolment's progress rows through it.
+	frappe.db.add_index("LMS Course Progress", ["member", "course"])
