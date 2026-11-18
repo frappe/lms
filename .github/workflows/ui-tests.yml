@@ -54,7 +54,7 @@ jobs:
     needs: plan
     if: >-
       !cancelled() && (github.event_name != 'pull_request' || needs.plan.outputs.run == 'true')
-    runs-on: ubuntu-latest
+    runs-on: frappe-arc
     timeout-minutes: 60
 
     services:
