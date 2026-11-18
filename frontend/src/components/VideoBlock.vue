@@ -14,7 +14,14 @@
 				class="ps-3 mt-1"
 			>
 				<span>
-					{{ index + 1 }}. <span class="font-semibold"> {{ quiz.quiz }} </span>
+					{{ index + 1 }}.
+					<button
+						type="button"
+						class="font-semibold underline underline-offset-2"
+						@click="attemptQuiz(quiz.quiz)"
+					>
+						{{ quiz.quiz }}
+					</button>
 				</span>
 				{{ __('at {0} minutes').format(formatTimestamp(quiz.time)) }}
 			</div>
@@ -128,6 +135,7 @@
 			v-if="showQuiz"
 			:quizName="currentQuiz"
 			:inVideo="true"
+			:autoStart="startQuizImmediately"
 			:backToVideo="resumeVideo"
 		/>
 		<div v-if="!readOnly">
@@ -142,19 +150,26 @@
 		:saveQuizzes="saveQuizzes"
 		:duration="duration"
 	/>
-	<Dialog v-model:open="showQuizLoader" size="sm" bare>
-		<template #default>
-			<div class="flex flex-col space-y-2 p-5 text-base leading-5">
-				<span class="font-semibold">
-					{{ __('Time for a Quiz') }}
-				</span>
-				<span>
-					{{
-						__(
-							'Complete the upcoming quiz to continue watching the video. The quiz will open in {0} {1}.'
-						).format(quizLoadTimer, quizLoadTimer === 1 ? 'second' : 'seconds')
-					}}
-				</span>
+	<Dialog
+		:open="showQuizLoader"
+		:dismissible="false"
+		size="sm"
+		:title="__('Time for a Quiz')"
+	>
+		<p class="text-base leading-5">
+			{{
+				__('The quiz will open in {0} {1}.').format(
+					quizLoadTimer,
+					quizLoadTimer === 1 ? 'second' : 'seconds'
+				)
+			}}
+		</p>
+		<template #actions>
+			<div class="flex justify-end gap-2">
+				<Button @click="skipQuiz">{{ __('Resume Video') }}</Button>
+				<Button variant="solid" @click="openQuiz(true)">
+					{{ __('Start Quiz') }}
+				</Button>
 			</div>
 		</template>
 	</Dialog>
@@ -188,6 +203,7 @@ let muted = ref(false)
 const showQuizModal = ref(false)
 const showQuiz = ref(false)
 const showQuizLoader = ref(false)
+const startQuizImmediately = ref(false)
 const quizLoadTimer = ref(0)
 const currentQuiz = ref(null)
 const nextQuiz = ref({})
@@ -241,28 +257,50 @@ const updateCurrentTime = () => {
 		}
 		videoRef.value.ontimeupdate = () => {
 			currentTime.value = videoRef.value?.currentTime || currentTime.value
-			if (currentTime.value >= nextQuiz.value.time) {
+			if (!currentQuiz.value && currentTime.value >= nextQuiz.value.time) {
 				videoRef.value.pause()
 				playing.value = false
-				videoRef.value.onTimeupdate = null
 				currentQuiz.value = nextQuiz.value.quiz
+				showQuizLoader.value = true
 				quizLoadTimer.value = 7
 			}
 		}
 	}, 0)
 }
 
-watch(quizLoadTimer, () => {
-	if (quizLoadTimer.value > 0) {
-		showQuizLoader.value = true
-		setTimeout(() => {
-			quizLoadTimer.value -= 1
-		}, 1000)
-	} else {
-		showQuizLoader.value = false
-		showQuiz.value = true
+watch(quizLoadTimer, (seconds, _, onCleanup) => {
+	if (!showQuizLoader.value) return
+	if (seconds === 0) {
+		openQuiz()
+		return
 	}
+	const timeout = setTimeout(() => quizLoadTimer.value--, 1000)
+	onCleanup(() => clearTimeout(timeout))
 })
+
+const closeQuizLoader = () => {
+	showQuizLoader.value = false
+	quizLoadTimer.value = 0
+}
+
+const openQuiz = (startImmediately = false) => {
+	closeQuizLoader()
+	startQuizImmediately.value = startImmediately
+	showQuiz.value = true
+}
+
+const attemptQuiz = (quiz) => {
+	pauseVideo()
+	currentQuiz.value = quiz
+	openQuiz(true)
+}
+
+const skipQuiz = () => {
+	closeQuizLoader()
+	currentQuiz.value = null
+	updateNextQuiz()
+	playVideo()
+}
 
 const resumeVideo = (restart = false) => {
 	showQuiz.value = false

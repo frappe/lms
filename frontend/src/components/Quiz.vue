@@ -941,6 +941,7 @@ const props = withDefaults(
 		// here would be real, notify, and spend one of the author's attempts.
 		preview?: boolean
 		inVideo?: boolean
+		autoStart?: boolean
 		backToVideo?: () => void
 	}>(),
 	{
@@ -1508,6 +1509,23 @@ const startQuiz = () => {
 	if (props.preview) return
 	if (quiz.data.duration) startTimer()
 	if (quiz.data.enable_proctoring) proctoringActive.value = true
+}
+
+if (props.autoStart) {
+	const stopAutoStart = watch(
+		() => !!quiz.data && questions.value.length > 0 && attemptsReady.value,
+		(ready) => {
+			if (!ready) return
+			stopAutoStart()
+			if (
+				!attemptsExhausted.value &&
+				!scheduleBlocked.value &&
+				!quiz.data?.enable_proctoring
+			) {
+				startQuiz()
+			}
+		}
+	)
 }
 
 // The stored log, read back after submitting. It is the same rows an instructor
