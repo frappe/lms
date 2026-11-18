@@ -2065,7 +2065,7 @@ def send_batch_announcement(batch: str, subject: str, content: str, reply_to: st
 		queue="long",
 		job_id=f"lms-batch-announcement-{batch}-{digest}",
 		deduplicate=True,
-		now=frappe.in_test,
+		now=frappe.flags.in_test,
 		batch=batch,
 		subject=subject,
 		content=content,
