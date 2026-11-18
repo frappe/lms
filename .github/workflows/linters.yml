@@ -38,11 +38,9 @@ jobs:
           restore-keys: |
             packages-
 
-      # pre-commit's own Node needs libatomic, which frappe-arc runners lack; it uses this one instead.
-      - uses: actions/setup-node@v6
-        with:
-          node-version: 24
-          check-latest: true
+      # pre-commit's own Node (for prettier and eslint) needs libatomic, which frappe-arc runners lack.
+      - name: Install libatomic
+        run: sudo apt-get update -qq && sudo apt-get install -y -qq --no-install-recommends libatomic1
 
       - name: Install and Run Pre-commit
         uses: pre-commit/action@v3.0.1
@@ -81,6 +79,11 @@ jobs:
       # Last, so a bad commit subject still gets the lint findings above.
       # --no-save and --ignore-scripts keep the tree the scans just saw clean:
       # a plain install rewrites package.json and runs the frontend install.
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          check-latest: true
+
       - name: Check commit titles
         run: |
           npm install --no-save --ignore-scripts @commitlint/cli @commitlint/config-conventional
