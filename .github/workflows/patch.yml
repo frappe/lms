@@ -96,6 +96,10 @@ jobs:
           node-version: 24
           check-latest: true
 
+      # frappe-arc runners have no yarn, and bench init needs it.
+      - name: Install Yarn
+        run: corepack enable && corepack prepare yarn@1.22.22 --activate
+
       - name: Add to Hosts
         run: echo "127.0.0.1 $SITE" | sudo tee -a /etc/hosts
 
