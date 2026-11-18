@@ -121,7 +121,9 @@ class LMSBatchEnrollment(Document):
 		# validate_against_committed_rows catches that.
 		frappe.db.get_value("LMS Batch", self.batch, "name", for_update=True)
 
-		if frappe.db.exists("LMS Batch Enrollment", {**self.duplicate_filters(), "name": ["!=", self.name or ""]}):
+		if frappe.db.exists(
+			"LMS Batch Enrollment", {**self.duplicate_filters(), "name": ["!=", self.name or ""]}
+		):
 			self.throw_duplicate()
 
 	def validate_against_committed_rows(self):
