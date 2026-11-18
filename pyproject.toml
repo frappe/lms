@@ -69,8 +69,13 @@ indent-style = "tab"
 docstring-code-format = true
 
 [tool.bench.frappe-dependencies]
+<<<<<<< HEAD
 frappe = ">=15.121.0,<16.0.0"
 payments = ">=0.0.1,<1.0.0"
+=======
+frappe = ">=17.0.0-dev,<18.0.0"
+payments = ">=0.0.1,<18.0.0"
+>>>>>>> c46f6d5 (fix: accept payments releases numbered by framework version)
 
 [tool.bench.assets]
 build_dir = "./frontend"
