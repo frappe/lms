@@ -2,12 +2,20 @@
 	<FormShell
 		:title="__('Generate Certificates')"
 		size="lg"
-		:loading="loadingBatch"
+		:loading="loadingBatch || failedBatch"
 		:message="refusal"
 		@close="close"
 	>
+		<template #loading>
+			<FormLoadState
+				kind="certificates"
+				:failed="failedBatch && !loadingBatch"
+				class="min-h-[24.5rem]"
+				@retry="batch.reload().catch(() => {})"
+			/>
+		</template>
 		<template #default>
-			<div data-testid="bulk-certificates-fields" class="space-y-4">
+			<div data-testid="bulk-certificates-fields" class="min-h-[24.5rem] space-y-4">
 				<Link
 					v-model="details.evaluator"
 					:label="__('Evaluator')"
@@ -68,6 +76,7 @@ import { createResource, FormControl, toast } from 'frappe-ui'
 import { useRoute } from 'vue-router'
 import BooleanSwitch from '@/components/Controls/BooleanSwitch.vue'
 import FormShell from '@/components/FormShell.vue'
+import FormLoadState from '@/components/FormLoadState.vue'
 import HeaderButton from '@/components/HeaderButton.vue'
 import Link from '@/components/Controls/Link.vue'
 import {
@@ -103,6 +112,7 @@ const { close } = useFormRoute(
 const batch = useBatchDetails(() => props.batchName)
 
 const loadingBatch = computed(() => !batch.data && batch.loading)
+const failedBatch = computed(() => !batch.data && Boolean(batch.error))
 
 const isAdmin = computed(() =>
 	Boolean(
