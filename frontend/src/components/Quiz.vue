@@ -140,19 +140,11 @@
 					</ol>
 				</div>
 
-				<div v-if="!scheduleBlocked || inVideo" class="space-y-3.5 p-3.5">
-					<template v-if="scheduleBlocked">
-						<Button @click="props.backToVideo()">{{
-							__('Resume Video')
-						}}</Button>
-					</template>
-					<template v-else-if="!questions.length">
+				<div v-if="!scheduleBlocked" class="space-y-3.5 p-3.5">
+					<template v-if="!questions.length">
 						<p class="text-p-base text-ink-gray-6">
 							{{ __('This quiz has no questions available yet.') }}
 						</p>
-						<Button v-if="inVideo" @click="props.backToVideo()">{{
-							__('Resume Video')
-						}}</Button>
 					</template>
 					<template v-else-if="attemptsUnknown">
 						<p class="text-p-base text-ink-gray-6">
@@ -163,9 +155,6 @@
 							}}
 						</p>
 						<div class="flex items-center gap-2">
-							<Button v-if="inVideo" @click="props.backToVideo()">
-								{{ __('Resume Video') }}
-							</Button>
 							<Button :loading="attempts.loading" @click="attempts.reload()">
 								{{ __('Try again') }}
 							</Button>
@@ -182,9 +171,6 @@
 								)
 							}}
 						</FeedbackBanner>
-						<Button v-if="inVideo" @click="props.backToVideo()">{{
-							__('Resume Video')
-						}}</Button>
 					</template>
 					<div
 						v-if="
@@ -282,9 +268,6 @@
 							</template>
 						</span>
 						<div class="flex items-center gap-2">
-							<Button v-if="inVideo" @click="props.backToVideo()">{{
-								__('Resume Video')
-							}}</Button>
 							<Button
 								variant="solid"
 								:disabled="!!quiz.data.enable_proctoring && !cameraReady"
@@ -941,7 +924,6 @@ const props = withDefaults(
 		// here would be real, notify, and spend one of the author's attempts.
 		preview?: boolean
 		inVideo?: boolean
-		autoStart?: boolean
 		backToVideo?: () => void
 	}>(),
 	{
@@ -1509,23 +1491,6 @@ const startQuiz = () => {
 	if (props.preview) return
 	if (quiz.data.duration) startTimer()
 	if (quiz.data.enable_proctoring) proctoringActive.value = true
-}
-
-if (props.autoStart) {
-	const stopAutoStart = watch(
-		() => !!quiz.data && questions.value.length > 0 && attemptsReady.value,
-		(ready) => {
-			if (!ready) return
-			stopAutoStart()
-			if (
-				!attemptsExhausted.value &&
-				!scheduleBlocked.value &&
-				!quiz.data?.enable_proctoring
-			) {
-				startQuiz()
-			}
-		}
-	)
 }
 
 // The stored log, read back after submitting. It is the same rows an instructor
