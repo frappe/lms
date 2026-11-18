@@ -30,14 +30,14 @@ jobs:
       ${{ github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
       || (github.event.action == 'closed' && github.event.pull_request.merged
       && contains(github.event.pull_request.labels.*.name, 'fixes-develop')) }}
-    runs-on: ubuntu-latest
+    runs-on: frappe-arc
     steps:
       # Only the helper is checked out, from the default branch: pull request code never runs here.
       - uses: actions/checkout@v4
         with:
           ref: ${{ github.event.repository.default_branch }}
           sparse-checkout: .github/helper
-      - run: python .github/helper/branch_status.py start ${{ github.event_name != 'schedule' && 'all' || '' }}
+      - run: python3 .github/helper/branch_status.py start ${{ github.event_name != 'schedule' && 'all' || '' }}
         env:
           GH_TOKEN: ${{ github.token }}
 
@@ -47,7 +47,7 @@ jobs:
       ${{ github.event.action != 'closed'
       && (!contains(fromJSON('["labeled", "unlabeled"]'), github.event.action)
       || contains(fromJSON('["fixes-develop", "Run Server Tests", "Run UI Tests", "Run Frontend Tests"]'), github.event.label.name)) }}
-    runs-on: ubuntu-latest
+    runs-on: frappe-arc
     concurrency:
       group: branch-status-${{ github.event.pull_request.number || github.event.workflow_run.head_sha || 'all' }}
       cancel-in-progress: true
@@ -56,6 +56,10 @@ jobs:
         with:
           ref: ${{ github.event.repository.default_branch }}
           sparse-checkout: .github/helper
+      - name: Install gh
+        if: ${{ github.event.action == 'labeled' }}
+        # frappe-arc runners have no gh CLI.
+        run: sudo apt-get update -qq && sudo apt-get install -y -qq --no-install-recommends gh
       # The suites' plan job reads labels live, so a re-run picks up the one just added.
       - name: Run the suites when a test label is added
         if: ${{ github.event.action == 'labeled' }}
@@ -71,9 +75,9 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           HEAD_SHA: ${{ github.event.pull_request.head.sha }}
       - run: |
-          if [ -n "$PR" ]; then python .github/helper/branch_status.py pr "$PR"
-          elif [ "$RUN_EVENT" = pull_request ]; then python .github/helper/branch_status.py commit "$RUN_SHA"
-          else python .github/helper/branch_status.py refresh
+          if [ -n "$PR" ]; then python3 .github/helper/branch_status.py pr "$PR"
+          elif [ "$RUN_EVENT" = pull_request ]; then python3 .github/helper/branch_status.py commit "$RUN_SHA"
+          else python3 .github/helper/branch_status.py refresh
           fi
         env:
           GH_TOKEN: ${{ github.token }}

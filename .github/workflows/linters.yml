@@ -15,7 +15,7 @@ jobs:
   # a second job mostly waits in the org-wide runner queue.
   linters:
     name: Linters
-    runs-on: ubuntu-latest
+    runs-on: frappe-arc
     timeout-minutes: 15
     if: github.event_name == 'pull_request'
 
@@ -87,7 +87,7 @@ jobs:
 
   deps-vulnerable-check:
     name: 'Vulnerable Dependency Check'
-    runs-on: ubuntu-latest
+    runs-on: frappe-arc
     timeout-minutes: 10
 
     steps:

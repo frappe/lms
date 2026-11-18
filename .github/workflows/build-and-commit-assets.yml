@@ -17,7 +17,7 @@ permissions:
 jobs:
   build-assets:
     name: Build assets and upload to release
-    runs-on: ubuntu-latest
+    runs-on: frappe-arc
     env:
       # Vite/esbuild builds of large SPAs can exceed Node's default heap and
       # abort with "JavaScript heap out of memory" (exit 134) even when the
@@ -65,6 +65,9 @@ jobs:
             --exclude=node_modules --exclude=.gitkeep \
             -C apps/lms/lms/public .
 
+      - name: Install gh
+        # frappe-arc runners have no gh CLI.
+        run: sudo apt-get update -qq && sudo apt-get install -y -qq --no-install-recommends gh
       - name: Upload to rolling release
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
