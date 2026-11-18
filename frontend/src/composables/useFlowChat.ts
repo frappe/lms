@@ -176,7 +176,7 @@ export function useFlowChat(
 		const found: Record<string, Record<string, any>> = {}
 		for (const row of rows.value) {
 			if (row.type !== 'user_message') continue
-			const text = textOf(row.content)
+			const text = textOf(row.content).split(SYSTEM_NOTE)[0]
 			if (!text.startsWith(MOMENT_RESULT)) continue
 			try {
 				const result = JSON.parse(text.slice(MOMENT_RESULT.length))

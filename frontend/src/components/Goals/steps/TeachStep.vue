@@ -149,6 +149,8 @@
 				:tool-labels="toolLabels()"
 				hide-first-message
 				voice
+				one-question
+				run-method="lms.lms.ai.api.lesson_reply"
 				:message-actions="['simpler', 'replay', 'source']"
 				:commands="commands"
 				:waiting-text="__('{0} is reading your answer', [TUTOR_NAME])"

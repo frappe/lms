@@ -6,6 +6,19 @@ export type ActivityType = 'Lesson' | 'Scenario' | 'Role-play' | 'Check'
 // reply. Matches counts_as_reply on the server, which enforces the limit.
 const REPEAT_REQUEST =
 	/\b(repeat|say (that|it) again|pardon|didn'?t (catch|hear)|come again)\b/i
+/** The words before the sentence that holds the first question: what may be shown and
+ * spoken of a reply before the server has checked that it asks only one thing. */
+export const beforeQuestion = (text: string): string => {
+	const mark = (text || '').indexOf('?')
+	if (mark < 0) return text || ''
+	const start = Math.max(
+		text.lastIndexOf('.', mark),
+		text.lastIndexOf('!', mark),
+		text.lastIndexOf('\n', mark)
+	)
+	return text.slice(0, start + 1).trimEnd()
+}
+
 export const countsAsReply = (text: string): boolean =>
 	(text || '').trim().split(/\s+/).filter(Boolean).length >= 6 &&
 	!REPEAT_REQUEST.test(text || '')

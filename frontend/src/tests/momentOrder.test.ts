@@ -76,3 +76,14 @@ describe('role-play replies', () => {
 		).toBe(true)
 	})
 })
+
+describe('one question at a time', () => {
+	it('holds back everything from the sentence with the first question', async () => {
+		const { beforeQuestion } = await import('@/utils/goals')
+		expect(beforeQuestion('Good catch. Where is it logged? Who signed?')).toBe(
+			'Good catch.'
+		)
+		expect(beforeQuestion('Where is it logged?')).toBe('')
+		expect(beforeQuestion('No question here.')).toBe('No question here.')
+	})
+})

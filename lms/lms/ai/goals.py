@@ -7,7 +7,7 @@ import frappe
 from frappe import _
 from frappe.utils import cint, flt, getdate, now_datetime, today
 
-from lms.lms.ai import characters, ideas, material, openings, setup, situations
+from lms.lms.ai import characters, ideas, material, one_question, openings, setup, situations
 
 PRACTICE_TYPES = ("Scenario", "Check", "Role-play")
 
@@ -466,7 +466,9 @@ def _opening(session_name: str) -> str | None:
 	if frappe.db.exists("Flow Run", {"session": session_name, "status": "Running"}):
 		return None
 	replies = [turn["text"] for turn in turns if turn["speaker"] == "Character"]
-	return replies[-1] if replies else None
+	if not replies:
+		return None
+	return one_question.check_turn(session_name).get(replies[-1].strip(), replies[-1])
 
 
 def start_roleplay(assignment_name: str, index: int) -> str:
@@ -965,9 +967,27 @@ def roleplay_reply(session: str, message: str) -> dict:
 	limit = roleplay_exchanges(content)
 	if replies >= limit or len(said) >= 2 * limit:
 		frappe.throw(_("That's all your replies. See how you did."), title=_("Conversation Over"))
-	if replies + 1 == limit and counts_as_reply(message):
+	last = replies + 1 == limit and counts_as_reply(message)
+	message = one_question.with_what_they_saw(session, message)
+	if last:
 		message = message + SYSTEM_NOTE + LAST_REPLY_NOTE
 	return run(session, message)
+
+
+def lesson_reply(session: str, message: str) -> dict:
+	"""Send the learner's reply in a lesson, with what they saw of a reply that was shortened."""
+	from frappe.flow.api.api import run
+
+	if not frappe.db.exists("LMS Goal Evidence", {"flow_session": session, "member": frappe.session.user}):
+		frappe.throw(_("This conversation is not one of your lessons."), frappe.PermissionError)
+	return run(session, one_question.with_what_they_saw(session, message))
+
+
+def checked_turn(session: str) -> dict[str, str]:
+	"""The latest turn of the learner's lesson or role-play, held to one question."""
+	if frappe.db.get_value("Flow Session", session, "owner") != frappe.session.user:
+		frappe.throw(_("This conversation is not yours."), frappe.PermissionError)
+	return one_question.check_turn(session)
 
 
 def transcription_hint(session: str, user: str) -> str:

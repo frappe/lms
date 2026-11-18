@@ -514,6 +514,17 @@ def record_moment(
 
 
 @frappe.whitelist(methods=["POST"])
+def lesson_reply(session: str, message: str) -> dict:
+	return goals.lesson_reply(session, message)
+
+
+@frappe.whitelist(methods=["POST"])
+def checked_turn(session: str) -> dict:
+	"""Called when a turn ends: the replies to show instead, when it asked more than one thing."""
+	return goals.checked_turn(session)
+
+
+@frappe.whitelist(methods=["POST"])
 def prepare_conversation(assignment: str, index: int) -> dict:
 	"""Called while a lesson or role-play shows its start screen, until the opening is written."""
 	return goals.prepare_conversation(assignment, int(index))

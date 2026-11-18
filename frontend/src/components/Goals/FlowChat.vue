@@ -313,7 +313,14 @@
 
 <script setup lang="ts">
 import { computed, inject, nextTick, ref, toRef, watch } from 'vue'
-import { Avatar, Button, ErrorMessage, TabButtons, Textarea } from 'frappe-ui'
+import {
+	Avatar,
+	Button,
+	call,
+	ErrorMessage,
+	TabButtons,
+	Textarea,
+} from 'frappe-ui'
 // @ts-expect-error markdown-it ships no type declarations
 import MarkdownIt from 'markdown-it'
 import {
@@ -337,6 +344,7 @@ import CharacterAvatar from './CharacterAvatar.vue'
 import CitationPreview from './CitationPreview.vue'
 import VoiceStage from './VoiceStage.vue'
 import { type CharacterKey } from '@/utils/characters'
+import { beforeQuestion } from '@/utils/goals'
 
 const props = withDefaults(
 	defineProps<{
@@ -363,6 +371,9 @@ const props = withDefaults(
 		commands?: { name: string; label: string; message: string }[]
 		/** What the wait reads while a reply is on its way. */
 		waitingText?: string
+		/** Hold each turn to one question: what follows the first question waits for the
+		 * server's check when the turn ends, and a turn that asked twice is shown rewritten. */
+		oneQuestion?: boolean
 	}>(),
 	{
 		assistantName: 'AI',
@@ -380,6 +391,7 @@ const props = withDefaults(
 		waitingText: '',
 		character: undefined,
 		runMethod: undefined,
+		oneQuestion: false,
 	}
 )
 
@@ -409,9 +421,9 @@ const render = (text: string): string => {
 }
 
 const {
-	messages,
+	messages: savedMessages,
 	results,
-	partial,
+	partial: streamedText,
 	activeTool,
 	running,
 	error,
@@ -420,6 +432,54 @@ const {
 } = useFlowChat(toRef(props, 'session'), {
 	hideFirstMessage: props.hideFirstMessage,
 	runMethod: props.runMethod,
+})
+
+// One question per turn. While a turn is still coming, and until the server has checked it,
+// only the words before its first question show and are spoken; then the checked replies
+// replace the originals wherever they appear.
+const checking = ref(false)
+const checked = ref<Record<string, string>>({})
+const holding = computed(
+	() => props.oneQuestion && (running.value || checking.value)
+)
+const messages = computed(() => {
+	const lastLearner = savedMessages.value.findLastIndex(
+		(message) => message.role === 'user'
+	)
+	return savedMessages.value
+		.map((message, i) => {
+			if (message.role !== 'assistant') return message
+			const text =
+				checked.value[message.text.trim()] ??
+				(holding.value && i > lastLearner
+					? beforeQuestion(message.text)
+					: message.text)
+			return text === message.text ? message : { ...message, text }
+		})
+		.filter(
+			(message) =>
+				message.text || message.moments.length || message.role === 'user'
+		)
+})
+const partial = computed(() =>
+	props.oneQuestion ? beforeQuestion(streamedText.value) : streamedText.value
+)
+const checkTurn = async () => {
+	if (!props.oneQuestion || !props.session) return
+	checking.value = true
+	try {
+		const shown = await call('lms.lms.ai.api.checked_turn', {
+			session: props.session,
+		})
+		checked.value = { ...checked.value, ...(shown || {}) }
+	} catch {
+		// Without the check the turn shows as written: better than holding it back.
+	} finally {
+		checking.value = false
+	}
+}
+watch(running, (busy, was) => {
+	if (was && !busy) void checkTurn()
 })
 
 const draft = ref('')
@@ -489,12 +549,22 @@ watch(
 			voiceTools.listening.value,
 			voiceTools.transcribing.value,
 			primed.value,
+			checking.value,
 		] as const,
-	([currentMode, speakingNow, busy, listening, transcribing, loaded]) => {
+	([
+		currentMode,
+		speakingNow,
+		busy,
+		listening,
+		transcribing,
+		loaded,
+		beingChecked,
+	]) => {
 		// Until the saved messages are in and the last reply is queued to be said again, the
 		// mic would open over the voice and hear it as the learner.
 		if (
 			!loaded ||
+			beingChecked ||
 			currentMode !== 'speak' ||
 			held.value ||
 			speakingNow ||
@@ -547,9 +617,12 @@ watch(partial, (text) => {
 // Reopening a conversation must not read the whole history aloud. Once the saved messages
 // have loaded, they count as heard, except the last reply when it is still waiting for an
 // answer: that one is said again, so the learner knows where they left off.
-watch(loading, (busy, was) => {
+watch(loading, async (busy, was) => {
 	// The first load to finish is the saved history; anything after it is new.
 	if (primed.value || busy || !was) return
+	// A finished turn waiting on screen, such as an opening written ahead, is checked before
+	// it is said.
+	if (!running.value) await checkTurn()
 	primed.value = true
 	const replies = messages.value.filter(
 		(message) => message.role === 'assistant'
@@ -560,9 +633,9 @@ watch(loading, (busy, was) => {
 		speech.enqueue(last.text, props.character || 'lumi')
 })
 watch(
-	() => [messages.value.length, running.value] as const,
+	() => [messages.value.length, running.value, checking.value] as const,
 	() => {
-		if (!primed.value) return
+		if (!primed.value || checking.value) return
 		const replies = messages.value.filter(
 			(message) => message.role === 'assistant'
 		)

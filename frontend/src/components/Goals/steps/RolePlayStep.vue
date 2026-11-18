@@ -131,6 +131,7 @@
 						voice
 						:read-only="outOfReplies"
 						run-method="lms.lms.ai.api.roleplay_reply"
+						one-question
 						@messages="
 							(replies) => (turns = replies.filter(countsAsReply).length)
 						"
