@@ -428,9 +428,9 @@ def get_application_users(applications: list | str) -> list:
 @frappe.whitelist(methods=["POST"])
 @rate_limit(limit=60, seconds=60 * 60)
 def send_job_application_email(application: str, subject: str, message: str):
-	"""Email an applicant, as the job's poster or a Moderator. The address is looked
-	up here so the poster never holds it, and the mail goes to nobody else."""
-	from frappe.core.doctype.communication.email import make
+	"""Email an applicant, as the job's poster, with whom the application is shared. The
+	address is looked up here so the poster never holds it, and the mail goes to nobody else."""
+	from frappe.core.doctype.communication.email import _make
 
 	for value in (application, subject, message):
 		if not isinstance(value, str):
@@ -439,7 +439,8 @@ def send_job_application_email(application: str, subject: str, message: str):
 	row = frappe.db.get_value("LMS Job Application", application, ["job", "user"], as_dict=True)
 	if not row or not posted_job(row.job):
 		frappe.throw(_("Only the job's poster can email an applicant."), frappe.PermissionError)
-	return make(
+	frappe.has_permission("LMS Job Application", "email", doc=application, throw=True)
+	return _make(
 		doctype="LMS Job Application",
 		name=application,
 		recipients=row.user,
@@ -447,6 +448,7 @@ def send_job_application_email(application: str, subject: str, message: str):
 		content=message,
 		send_email=1,
 		now=True,
+		add_signature=False,
 	)
 
 
@@ -2059,9 +2061,13 @@ def send_batch_announcement(batch: str, subject: str, content: str, reply_to: st
 
 
 def _send_batch_announcement(batch: str, subject: str, content: str, reply_to: str):
-	from frappe.core.doctype.communication.email import make
+	from frappe.core.doctype.communication.email import _make
 
+<<<<<<< HEAD
 	make(
+=======
+	communication = _make(
+>>>>>>> c505568 (fix(email): send LMS emails via _make after frappe#47825)
 		doctype="LMS Batch",
 		name=batch,
 		recipients=reply_to,
@@ -2069,6 +2075,7 @@ def _send_batch_announcement(batch: str, subject: str, content: str, reply_to: s
 		subject=subject,
 		content=content,
 		send_email=1,
+		add_signature=False,
 	)
 
 
