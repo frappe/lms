@@ -374,14 +374,13 @@ class TestUserEmailDisclosure(BaseTestUtils):
 			self._as(self.student, lambda: unwrapped(["like", "%"]))
 
 	def test_job_poster_emails_an_applicant_without_their_address(self):
-		for poster in (self.other, self.moderator):
-			with self.subTest(poster=poster), patch("frappe.core.doctype.communication.email.make") as make:
-				self._as(poster, lambda: api.send_job_application_email(self.application, "Hi", "Body"))
-				self.assertEqual(make.call_args.kwargs["recipients"], self.student)
-				self.assertEqual(make.call_args.kwargs["name"], self.application)
-				# Nobody is copied in: the poster's address is the sender's own.
-				self.assertNotIn("cc", make.call_args.kwargs)
-				self.assertNotIn("bcc", make.call_args.kwargs)
+		with patch("frappe.core.doctype.communication.email._make") as make:
+			self._as(self.other, lambda: api.send_job_application_email(self.application, "Hi", "Body"))
+		self.assertEqual(make.call_args.kwargs["recipients"], self.student)
+		self.assertEqual(make.call_args.kwargs["name"], self.application)
+		# Nobody is copied in: the poster's address is the sender's own.
+		self.assertNotIn("cc", make.call_args.kwargs)
+		self.assertNotIn("bcc", make.call_args.kwargs)
 
 	def test_only_the_jobs_poster_can_email_the_applicant(self):
 		outsider = self._create_user(
@@ -389,10 +388,53 @@ class TestUserEmailDisclosure(BaseTestUtils):
 		).name
 		# The applicant reads their own application; that is not enough.
 		for caller in (self.student, outsider):
-			with self.subTest(caller=caller), patch("frappe.core.doctype.communication.email.make") as make:
+			with self.subTest(caller=caller), patch("frappe.core.doctype.communication.email._make") as make:
 				with self.assertRaises(frappe.PermissionError):
 					self._as(caller, lambda: api.send_job_application_email(self.application, "Hi", "Body"))
 				make.assert_not_called()
+
+	def test_a_poster_without_desk_access_emails_the_applicant(self):
+		"""Not mocked: frappe's make refuses every caller who is not a System User."""
+		self.assertEqual(frappe.db.get_value("User", self.other, "user_type"), "Website User")
+		with patch.dict(frappe.local.flags, {"mute_emails": True}):
+			sent = self._as(
+				self.other, lambda: api.send_job_application_email(self.application, "Hi", "Body")
+			)
+
+		communication = frappe.db.get_value(
+			"Communication", sent["name"], ["reference_doctype", "reference_name", "recipients"], as_dict=True
+		)
+		self.assertEqual(
+			communication,
+			{
+				"reference_doctype": "LMS Job Application",
+				"reference_name": self.application,
+				"recipients": self.student,
+			},
+		)
+
+	def test_a_caller_without_email_permission_on_the_application_is_refused(self):
+		"""The email permission make checked: a poster the application is not shared
+		with, and a Moderator, who holds no permission on LMS Job Application."""
+		unshared = self._insert_raw(
+			"LMS Job Application", owner=self.student, user=self.student, job=self.job
+		)
+		for caller, application in ((self.other, unshared), (self.moderator, self.application)):
+			with (
+				self.subTest(caller=caller),
+				patch.dict(frappe.local.flags, {"mute_emails": True}),
+				self.assertRaises(frappe.PermissionError),
+			):
+				self._as(caller, lambda: api.send_job_application_email(application, "Hi", "Body"))
+		self.assertFalse(
+			frappe.db.exists(
+				"Communication",
+				{
+					"reference_doctype": "LMS Job Application",
+					"reference_name": ["in", [unshared, self.application]],
+				},
+			)
+		)
 
 	def test_mentionable_people_are_the_contexts_members_and_staff_by_username(self):
 		def usernames(*users):
@@ -420,7 +462,7 @@ class TestUserEmailDisclosure(BaseTestUtils):
 
 	def test_announcement_bccs_the_students_on_the_server(self):
 		with patch(
-			"frappe.core.doctype.communication.email.make", return_value={"name": "not-saved"}
+			"frappe.core.doctype.communication.email._make", return_value={"name": "not-saved"}
 		) as make:
 			self._as(
 				self.moderator,
@@ -446,7 +488,7 @@ class TestUserEmailDisclosure(BaseTestUtils):
 		self.assertEqual(first["queue"], "long")
 
 	def test_a_student_cannot_send_an_announcement(self):
-		with patch("frappe.core.doctype.communication.email.make") as make:
+		with patch("frappe.core.doctype.communication.email._make") as make:
 			with self.assertRaises(frappe.PermissionError):
 				self._as(
 					self.student, lambda: api.send_batch_announcement(self.batch, "Hi", "Body", "r@x.com")
