@@ -5,6 +5,8 @@ name: Branch Tests
 # request gets a status showing whether its branch passes. A pull request labelled fixes-develop
 # runs the suites itself, and its status turns green once the suites failing on its branch pass.
 # Scheduled workflows run only from the default branch, so this file lives on develop alone.
+# When a full run fails, the Raven channel behind the RAVEN_BRANCH_TESTS_WEBHOOK secret is told,
+# with the pull requests merged since the suite last passed and their authors.
 
 on:
   schedule:
@@ -80,3 +82,20 @@ jobs:
           PR: ${{ github.event.pull_request.number }}
           RUN_EVENT: ${{ github.event.workflow_run.event }}
           RUN_SHA: ${{ github.event.workflow_run.head_sha }}
+
+  alert:
+    name: Alert Raven
+    if: >-
+      ${{ github.event_name == 'workflow_run' && github.event.workflow_run.event == 'workflow_dispatch'
+      && github.event.workflow_run.conclusion == 'failure' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.repository.default_branch }}
+          sparse-checkout: .github/helper
+      - run: python .github/helper/branch_status.py alert "$RUN_ID"
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RUN_ID: ${{ github.event.workflow_run.id }}
+          RAVEN_WEBHOOK_URL: ${{ secrets.RAVEN_BRANCH_TESTS_WEBHOOK }}
