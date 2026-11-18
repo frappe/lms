@@ -2,7 +2,7 @@ from unittest.mock import patch
 
 import frappe
 
-from lms.lms.api import get_announcements
+from lms.lms.api import get_announcements, send_batch_announcement
 from lms.lms.test_helpers import BaseTestUtils
 
 
@@ -97,3 +97,24 @@ class TestBatchAnnouncementsScope(BaseTestUtils):
 		finally:
 			frappe.set_user("Administrator")
 		self.assertNotIn("user", rows[0])
+
+	def test_an_instructor_without_desk_access_sends_an_announcement(self):
+		"""Not mocked: frappe's make refuses every caller who is not a System User."""
+		self.assertEqual(frappe.db.get_value("User", self.instructor, "user_type"), "Website User")
+		frappe.set_user(self.instructor)
+		try:
+			with patch.dict(frappe.local.flags, {"mute_emails": True}):
+				send_batch_announcement(self.batch, "Sent without desk access", "Body", self.instructor)
+		finally:
+			frappe.set_user("Administrator")
+
+		bcc = frappe.db.get_value(
+			"Communication",
+			{
+				"reference_doctype": "LMS Batch",
+				"reference_name": self.batch,
+				"subject": "Sent without desk access",
+			},
+			"bcc",
+		)
+		self.assertEqual(bcc, self.student)
