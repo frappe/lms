@@ -16,7 +16,10 @@
 			/>
 		</template>
 		<template #default>
-			<div data-testid="live-class-fields" class="min-h-[22rem] flex flex-col gap-4">
+			<div
+				data-testid="live-class-fields"
+				class="min-h-[22rem] flex flex-col gap-4"
+			>
 				<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
 					<div class="space-y-4">
 						<FormControl

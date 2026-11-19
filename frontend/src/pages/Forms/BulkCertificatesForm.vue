@@ -15,7 +15,10 @@
 			/>
 		</template>
 		<template #default>
-			<div data-testid="bulk-certificates-fields" class="min-h-[24.5rem] space-y-4">
+			<div
+				data-testid="bulk-certificates-fields"
+				class="min-h-[24.5rem] space-y-4"
+			>
 				<Link
 					v-model="details.evaluator"
 					:label="__('Evaluator')"
