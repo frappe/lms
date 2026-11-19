@@ -11,7 +11,16 @@ from frappe import _
 from frappe.desk.doctype.notification_log.notification_log import make_notification_logs
 from frappe.model.document import Document
 from frappe.query_builder import Bracket
-from frappe.utils import add_days, cint, format_datetime, get_time, getdate, nowdate
+from frappe.utils import (
+	add_days,
+	cint,
+	format_datetime,
+	get_email_address,
+	get_email_addresses,
+	get_time,
+	getdate,
+	nowdate,
+)
 from pypika.terms import LiteralValue
 
 from lms.lms.permissions import (
@@ -343,7 +352,9 @@ def send_email_notification_for_published_batch(batch):
 	brand_logo = frappe.db.get_single_value("Website Settings", "banner_image")
 	subject = _("A new course has been published on {0}").format(brand_name)
 	template = "published_batch_notification"
-	students = frappe.get_all("User", {"enabled": 1}, pluck="name")
+	students = frappe.get_all(
+		"User", {"enabled": 1, "name": ("not in", frappe.STANDARD_USERS)}, pluck="email"
+	)
 	instructors = get_instructors("LMS Batch", batch.name)
 
 	args = {
@@ -361,7 +372,7 @@ def send_email_notification_for_published_batch(batch):
 	}
 
 	frappe.sendmail(
-		recipients=instructors,
+		recipients=get_email_addresses(instructor.name for instructor in instructors),
 		bcc=students,
 		subject=subject,
 		template=template,
@@ -707,7 +718,7 @@ def send_mail(batch, student):
 	}
 
 	frappe.sendmail(
-		recipients=student.member,
+		recipients=get_email_address(student.member),
 		subject=subject,
 		template=template,
 		args=args,

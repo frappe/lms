@@ -8,7 +8,15 @@ import requests
 from frappe import _
 from frappe.model.document import Document
 from frappe.query_builder import Bracket
-from frappe.utils import cint, format_date, format_time, get_datetime, now_datetime, nowdate
+from frappe.utils import (
+	cint,
+	format_date,
+	format_time,
+	get_datetime,
+	get_email_address,
+	now_datetime,
+	nowdate,
+)
 from pypika.terms import LiteralValue
 
 from lms.lms.doctype.lms_batch.lms_batch import ZOOM_REQUEST_TIMEOUT_SECONDS, authenticate
@@ -223,15 +231,15 @@ def ensure_calendar_can_send_invites(calendar):
 		)
 
 
-def add_event_participants(event, emails):
-	for email in emails:
+def add_event_participants(event, users):
+	for user in users:
 		# nosemgrep: lms-unjustified-ignore-permissions - a self-enrolling learner has no create permission on Event Participants; the boundary is the enrollment
 		frappe.get_doc(
 			{
 				"doctype": "Event Participants",
 				"reference_doctype": "User",
-				"reference_docname": email,
-				"email": email,
+				"reference_docname": user,
+				"email": get_email_address(user),
 				"parent": event.name,
 				"parenttype": "Event",
 				"parentfield": "event_participants",
@@ -364,7 +372,7 @@ def invite_missing_learners(live_class: str) -> bool:
 	if event.event_type != "Private":
 		return True
 
-	invited = {guest.email for guest in event.event_participants}
+	invited = {guest.reference_docname for guest in event.event_participants}
 	learners = frappe.get_all("LMS Batch Enrollment", {"batch": batch}, pluck="member")
 	missing = [learner for learner in learners if learner not in invited]
 	if not missing:
@@ -509,7 +517,7 @@ def send_mail(live_class, student):
 	}
 
 	frappe.sendmail(
-		recipients=student.member,
+		recipients=get_email_address(student.member),
 		subject=subject,
 		template=template,
 		args=args,

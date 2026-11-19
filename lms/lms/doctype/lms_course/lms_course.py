@@ -7,7 +7,7 @@ import frappe
 from frappe import _
 from frappe.desk.doctype.notification_log.notification_log import make_notification_logs
 from frappe.model.document import Document
-from frappe.utils import cint, comma_and, escape_html, flt, today
+from frappe.utils import cint, comma_and, escape_html, flt, get_email_addresses, today
 
 from lms.lms.doctype.course_lesson.course_lesson import get_valid_question_count
 
@@ -198,15 +198,16 @@ class LMSCourse(Document):
 		}
 
 		for user in interested_users:
+			email, first_name = frappe.db.get_value("User", user.user, ["email", "first_name"])
 			# sendmail only writes the Email Queue row, so the email commits or rolls
 			# back together with email_sent below.
 			try:
 				frappe.sendmail(
-					recipients=user.user,
+					recipients=email,
 					subject=subject,
 					header=[subject, "green"],
 					template="lms_course_interest",
-					args={**args, "first_name": frappe.db.get_value("User", user.user, "first_name")},
+					args={**args, "first_name": first_name},
 				)
 			except frappe.OutgoingEmailError:
 				# No outgoing email account: launch the course anyway and leave the
@@ -278,7 +279,9 @@ def send_email_notification_for_published_courses(courses):
 	brand_logo = frappe.db.get_single_value("Website Settings", "banner_image")
 	subject = _("A new course has been published on {0}").format(brand_name)
 	template = "published_course_notification"
-	students = frappe.get_all("User", {"enabled": 1}, pluck="name")
+	students = frappe.get_all(
+		"User", {"enabled": 1, "name": ("not in", frappe.STANDARD_USERS)}, pluck="email"
+	)
 
 	for course in courses:
 		instructors = get_instructors("LMS Course", course.name)
@@ -293,7 +296,7 @@ def send_email_notification_for_published_courses(courses):
 		}
 
 		frappe.sendmail(
-			recipients=instructors,
+			recipients=get_email_addresses(instructor.name for instructor in instructors),
 			bcc=students,
 			subject=subject,
 			template=template,

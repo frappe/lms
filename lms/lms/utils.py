@@ -25,6 +25,7 @@ from frappe.utils import (
 	fmt_money,
 	format_datetime,
 	get_datetime,
+	get_email_address,
 	get_frappe_version,
 	get_fullname,
 	get_system_timezone,
@@ -1373,7 +1374,7 @@ def get_billing_country(country: str | None = None) -> str | None:
 
 	address_country = frappe.get_all(
 		"Address",
-		filters={"email_id": frappe.session.user},
+		filters={"email_id": get_email_address()},
 		pluck="country",
 		order_by="creation desc",
 		limit=1,

@@ -1,5 +1,6 @@
 import frappe
 from frappe import _
+from frappe.utils import get_email_address
 
 from lms.lms import telemetry
 from lms.lms.utils import (
@@ -112,7 +113,7 @@ def get_payment_link(
 		"description": f"{address.billing_name}'s payment for {title}",
 		"reference_doctype": doctype,
 		"reference_docname": docname,
-		"payer_email": frappe.session.user,
+		"payer_email": get_email_address(),
 		"payer_name": address.billing_name,
 		"currency": currency,
 		"payment_gateway": payment_gateway,
@@ -213,7 +214,7 @@ def get_redirect_url(doctype: str, docname: str, payment_for_certificate: int) -
 
 
 def save_address(address: dict) -> str:
-	filters = {"email_id": frappe.session.user}
+	filters = {"email_id": get_email_address()}
 	exists = frappe.db.exists("Address", filters)
 	if exists:
 		address_doc = frappe.get_last_doc("Address", filters=filters)
@@ -226,7 +227,7 @@ def save_address(address: dict) -> str:
 			"address_title": frappe.db.get_value("User", frappe.session.user, "full_name"),
 			"address_type": "Billing",
 			"is_primary_address": 1,
-			"email_id": frappe.session.user,
+			"email_id": get_email_address(),
 		}
 	)
 	address_doc.save(ignore_permissions=True)

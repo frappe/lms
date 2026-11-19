@@ -5,7 +5,7 @@ import frappe
 from frappe import _
 from frappe.email.doctype.email_template.email_template import get_email_template
 from frappe.model.document import Document
-from frappe.utils import add_days, flt, nowdate
+from frappe.utils import add_days, flt, get_email_address, get_email_addresses, nowdate
 from pypika import functions as fn
 
 from lms.lms.utils import get_lms_route
@@ -186,8 +186,8 @@ def send_mail(payment):
 	)
 
 	frappe.sendmail(
-		recipients=payment.member,
-		cc=instructors,
+		recipients=get_email_address(payment.member),
+		cc=get_email_addresses(instructors),
 		subject=subject,
 		template=template if not custom_template else None,
 		content=content if custom_template else None,

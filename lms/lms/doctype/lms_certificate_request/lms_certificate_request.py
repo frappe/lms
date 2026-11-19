@@ -16,6 +16,7 @@ from frappe.utils import (
 	format_date,
 	format_time,
 	get_datetime,
+	get_email_address,
 	get_fullname,
 	get_system_timezone,
 	get_time,
@@ -218,8 +219,8 @@ class LMSCertificateRequest(Document):
 			}
 
 			frappe.sendmail(
-				recipients=[self.member],
-				cc=[self.evaluator],
+				recipients=[get_email_address(self.member)],
+				cc=[get_email_address(self.evaluator)],
 				subject=subject,
 				template=template,
 				args=args,
@@ -362,13 +363,14 @@ def create_event(evaluation: dict):
 def add_participants(evaluation: dict, event: Document):
 	participants = [evaluation.member, evaluation.evaluator]
 	for participant in participants:
-		contact_name = frappe.db.get_value("Contact", {"email_id": participant}, "name")
+		email = get_email_address(participant)
+		contact_name = frappe.db.get_value("Contact", {"email_id": email}, "name")
 		frappe.get_doc(
 			{
 				"doctype": "Event Participants",
 				"reference_doctype": "Contact",
 				"reference_docname": contact_name,
-				"email": participant,
+				"email": email,
 				"parent": event.name,
 				"parenttype": "Event",
 				"parentfield": "event_participants",

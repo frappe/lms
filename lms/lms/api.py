@@ -31,6 +31,8 @@ from frappe.utils import (
 	flt,
 	format_date,
 	get_datetime,
+	get_email_address,
+	get_email_addresses,
 	get_fullname,
 	get_string_between,
 	get_system_timezone,
@@ -225,7 +227,7 @@ def validate_billing_access(billing_type: str, name: str):
 
 	address = frappe.db.get_value(
 		"Address",
-		{"email_id": frappe.session.user},
+		{"email_id": get_email_address()},
 		[
 			"name",
 			"address_title as billing_name",
@@ -450,7 +452,7 @@ def send_job_application_email(application: str, subject: str, message: str):
 	return _make(
 		doctype="LMS Job Application",
 		name=application,
-		recipients=row.user,
+		recipients=get_email_address(row.user),
 		subject=subject,
 		content=message,
 		send_email=1,
@@ -2114,7 +2116,7 @@ def _send_batch_announcement(batch: str, subject: str, content: str, reply_to: s
 		doctype="LMS Batch",
 		name=batch,
 		recipients=reply_to,
-		bcc=", ".join(get_batch_members(batch)),
+		bcc=", ".join(get_email_addresses(get_batch_members(batch))),
 		subject=subject,
 		content=content,
 		send_email=1,
@@ -2744,7 +2746,7 @@ def cancel_evaluation(evaluation: dict):
 	events = frappe.get_all(
 		"Event Participants",
 		{
-			"email": evaluation.member,
+			"email": get_email_address(evaluation.member),
 		},
 		["parent", "name"],
 	)
@@ -2799,7 +2801,7 @@ def send_contact_us_email(subject: str, content: str) -> str:
 			"communication_medium": "Email",
 			"subject": subject,
 			"content": content,
-			"sender": frappe.session.user,
+			"sender": get_email_address(),
 			"sender_full_name": get_fullname(frappe.session.user),
 			"recipients": recipient,
 			"sent_or_received": "Sent",
@@ -2818,7 +2820,7 @@ def send_contact_us_email(subject: str, content: str) -> str:
 
 	frappe.sendmail(
 		recipients=[recipient],
-		sender=frappe.session.user,
+		sender=get_email_address(),
 		subject=subject,
 		content=body,
 		inline_images=inline_images,

@@ -8,7 +8,7 @@ from typing import Literal
 
 import frappe
 from frappe import _
-from frappe.utils import cint, flt
+from frappe.utils import cint, flt, get_email_address
 from pypika.terms import ExistsCriterion
 
 from lms.lms.permissions import can_author_batch, can_author_course
@@ -346,7 +346,7 @@ def create_billing_address(member: str, billing_name: str, address: dict[str, st
 			"doctype": "Address",
 			"address_type": "Billing",
 			"address_title": billing_name,
-			"email_id": member,
+			"email_id": get_email_address(member),
 			**address,
 			"links": [{"link_doctype": "User", "link_name": member}],
 		}
