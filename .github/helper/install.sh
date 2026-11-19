@@ -56,7 +56,9 @@ import json, os
 path = os.path.join("sites", os.environ["SITE_NAME"], "site_config.json")
 with open(path) as f:
     config = json.load(f)
-config.update({"allow_tests": True, "block_endpoints": 1})
+# Frappe 16 throttles user creation past 60 users an hour even in tests (develop skips it there,
+# frappe/frappe#44847), and the suite creates far more, so a late test fails with "Throttled".
+config.update({"allow_tests": True, "block_endpoints": 1, "throttle_user_limit": 100000})
 with open(path, "w") as f:
     json.dump(config, f, indent=1)
 EOF
