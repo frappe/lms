@@ -38,6 +38,7 @@ from frappe.utils import (
 	get_system_timezone,
 	get_time,
 	get_user_by_email,
+	get_user_display_id,
 	getdate,
 	now,
 	strip_html,
@@ -2801,7 +2802,7 @@ def send_contact_us_email(subject: str, content: str) -> str:
 			"communication_medium": "Email",
 			"subject": subject,
 			"content": content,
-			"sender": get_email_address(),
+			"sender": get_user_display_id(),
 			"sender_full_name": get_fullname(frappe.session.user),
 			"recipients": recipient,
 			"sent_or_received": "Sent",
@@ -2820,7 +2821,7 @@ def send_contact_us_email(subject: str, content: str) -> str:
 
 	frappe.sendmail(
 		recipients=[recipient],
-		sender=get_email_address(),
+		sender=get_user_display_id(),
 		subject=subject,
 		content=body,
 		inline_images=inline_images,
