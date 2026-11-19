@@ -12,12 +12,14 @@ Usage:
     python branch_status.py pr <number>   # one pull request
     python branch_status.py commit <sha>  # the pull requests whose head is this commit
     python branch_status.py alert <run>   # tell Raven when this full run failed, and which pull requests may have caused it
+    python branch_status.py alerts        # tell Raven of every full run that failed since the last hourly check
 
 The alert posts to the Raven incoming webhook in RAVEN_WEBHOOK_URL, or prints the message when it is unset.
 """
 
 import json
 import os
+import re
 import sys
 import time
 import urllib.error
@@ -260,6 +262,19 @@ def merged_between(branch, good_sha, bad_sha):
 	return sorted(pulls.values(), key=lambda pr: pr["merged_at"])
 
 
+# The most recent pull requests an alert lists; a branch that has failed for long lists dozens.
+ALERT_PULLS = 10
+BACKPORT = re.compile(r"\(backport #(\d+)\)")
+
+
+def owner(pr):
+	"""Who to ask about a pull request: for a backport opened by a bot, the original's author."""
+	original = BACKPORT.search(pr["title"])
+	if pr["user"]["type"] == "Bot" and original:
+		return gh(f"repos/{REPO}/pulls/{original.group(1)}")["user"]["login"]
+	return pr["user"]["login"]
+
+
 def alert(run_id):
 	"""Tell Raven that a full run on a tested branch failed, with the pull requests merged since the
 	suite last passed there, and their authors."""
@@ -288,12 +303,11 @@ def alert(run_id):
 	else:
 		# The branch also moves with Frappe, so these are suspects, not a verdict.
 		lines.append(f"Merged since it last passed at `{passed['head_sha'][:7]}`:")
-		lines.append(
-			"\n".join(
-				f"- [#{pr['number']} {pr['title']}]({pr['html_url']}) by {pr['user']['login']}"
-				for pr in pulls
-			)
-		)
+		shown = pulls[-ALERT_PULLS:]
+		listed = [f"- [#{pr['number']} {pr['title']}]({pr['html_url']}) by {owner(pr)}" for pr in shown]
+		if len(pulls) > len(shown):
+			listed.append(f"- and {len(pulls) - len(shown)} earlier ones")
+		lines.append("\n".join(listed))
 		lines.append("If none of these touch the failing test, check Frappe's recent changes.")
 	message = "\n\n".join(lines)
 
@@ -309,6 +323,25 @@ def alert(run_id):
 	)
 	with urllib.request.urlopen(request, timeout=30):
 		print(f"Raven told: {suite} failed on {branch}")
+
+
+def alert_failures():
+	"""Tell Raven of the full runs that finished failing since the previous hourly check. Runs this
+	workflow starts with its own token finish without a workflow_run event, so the next check finds
+	them instead. Each run falls between two checks once, so it is told once."""
+	checks = gh(
+		f"repos/{REPO}/actions/workflows/branch-status.yml/runs", params={"event": "schedule", "per_page": 5}
+	)["workflow_runs"]
+	this = os.environ.get("GITHUB_RUN_ID")
+	previous = next((check for check in checks if str(check["id"]) != this), None)
+	if not previous:
+		return
+	since = previous["run_started_at"]
+	for branch in BRANCHES:
+		for workflow in SUITES:
+			for run in branch_runs(workflow, branch):
+				if run["status"] == "completed" and run["updated_at"] >= since:
+					alert(run["id"])
 
 
 def refresh():
@@ -327,6 +360,8 @@ if __name__ == "__main__":
 		post(gh(f"repos/{REPO}/pulls/{sys.argv[2]}"))
 	elif command == "alert":
 		alert(sys.argv[2])
+	elif command == "alerts":
+		alert_failures()
 	elif command == "commit":
 		query = f"repo:{REPO} is:pr is:open sha:{sys.argv[2]}"
 		for item in search(query):
