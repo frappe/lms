@@ -37,6 +37,7 @@ from frappe.utils import (
 	get_string_between,
 	get_system_timezone,
 	get_time,
+	get_user_by_email,
 	getdate,
 	now,
 	strip_html,
@@ -2072,8 +2073,7 @@ def get_announcements(batch: str):
 	communications = [row for row in communications if row.user in staff]
 
 	for communication in communications:
-		del communication["user"]
-		communication.image = frappe.get_cached_value("User", communication.sender, "user_image")
+		communication.image = frappe.get_cached_value("User", communication.pop("user"), "user_image")
 
 	return hide_user_emails(communications, "sender", "recipients", "cc")
 
@@ -2900,13 +2900,13 @@ def add_member(
 	User, so this is the one way in, and it only ever makes a website user. The
 	profile is saved in the same request, so a failed save adds nobody."""
 	frappe.only_for("Moderator")
-	# Lowercased as User names are, so the duplicate check below matches them.
+	# Lowercased as User emails are, so the duplicate check below matches them.
 	email = (email or "").strip().lower()
 	# validate_email_address returns every valid address it finds, joined by
 	# commas, so a list of addresses would pass a plain truth check.
 	if "," in email or frappe.utils.validate_email_address(email) != email:
 		frappe.throw(_("Enter a valid email address."))
-	if frappe.db.exists("User", email):
+	if get_user_by_email(email):
 		frappe.throw(_("{0} is already a member.").format(frappe.bold(email)), frappe.DuplicateEntryError)
 
 	user = frappe.get_doc(
@@ -4582,8 +4582,8 @@ def clear_demo_data():
 		delete_course(demo_course[0])
 
 	users = ["ash@ipp.com", "john.doe@example.com", "jane.smith@example.com", "jannat@example.com"]
-	for user in users:
-		if frappe.db.exists("User", user):
+	for email in users:
+		if user := get_user_by_email(email):
 			frappe.delete_doc("User", user, ignore_permissions=True)
 
 	frappe.db.set_single_value("LMS Settings", "demo_data_present", False)

@@ -14,6 +14,7 @@ from frappe.utils import (
 	format_time,
 	get_datetime,
 	get_email_address,
+	get_user_by_email,
 	now_datetime,
 	nowdate,
 )
@@ -570,7 +571,7 @@ def create_attendance(live_class, data):
 	for participant in data:
 		doc = frappe.new_doc("LMS Live Class Participant")
 		doc.live_class = live_class.name
-		doc.member = participant.get("user_email")
+		doc.member = get_user_by_email(participant.get("user_email", ""))
 		doc.joined_at = get_datetime(participant.get("join_time"))
 		doc.left_at = get_datetime(participant.get("leave_time"))
 		doc.duration = get_minutes(participant.get("duration"))
