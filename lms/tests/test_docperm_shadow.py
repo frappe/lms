@@ -5,6 +5,7 @@ import io
 from contextlib import redirect_stdout
 
 import frappe
+from frappe.permissions import rights
 from frappe.tests import IntegrationTestCase
 
 from lms.lms.docperm_shadow import (
@@ -57,7 +58,7 @@ class TestDocPermShadow(IntegrationTestCase):
 		self.touched_doctypes.add(doctype)
 		return row.role, permlevel
 
-	def add_custom_docperm(self, doctype: str, role: str) -> None:
+	def add_custom_docperm(self, doctype: str, role: str, **values) -> None:
 		"""What frappe writes the moment an admin saves a row in Role Permissions Manager."""
 		perm = frappe.new_doc("Custom DocPerm")
 		perm.update(
@@ -67,12 +68,21 @@ class TestDocPermShadow(IntegrationTestCase):
 				"parentfield": "permissions",
 				"role": role,
 				"read": 1,
+				**values,
 			}
 		)
 		# nosemgrep: lms-unjustified-ignore-permissions - stands in for the admin action under test
 		perm.insert(ignore_permissions=True)
 		self.added_custom_perms.append(perm.name)
 		self.touched_doctypes.add(doctype)
+
+	def get_shipped_grants(self, doctype: str, role: str, permlevel: int, fields=rights) -> frappe._dict:
+		return frappe.db.get_value(
+			"DocPerm",
+			{"parent": doctype, "role": role, "permlevel": permlevel},
+			list(fields),
+			as_dict=True,
+		)
 
 	def get_alert(self) -> str:
 		log = self.get_latest_alerts(fields=["method", "error"])
@@ -103,6 +113,39 @@ class TestDocPermShadow(IntegrationTestCase):
 
 		self.assertIn("LMS Course", shadowed)
 		self.assertEqual(shadowed["LMS Course"], [(role, permlevel)])
+
+	def test_equivalent_custom_permlevel_grants_are_not_reported(self):
+		role, permlevel = self.ship_permlevel_row("LMS Course")
+		shipped = self.get_shipped_grants("LMS Course", role, permlevel, fields=[*rights, "if_owner"])
+		self.add_custom_docperm("LMS Course", role, permlevel=permlevel, **shipped)
+
+		self.assertNotIn("LMS Course", get_shadowed_permlevel_rows())
+
+	def test_custom_permlevel_with_missing_write_is_still_reported(self):
+		role, permlevel = self.ship_permlevel_row("LMS Course")
+		shipped = self.get_shipped_grants("LMS Course", role, permlevel)
+		self.assertEqual(shipped.write, 1)
+		shipped.write = 0
+		self.add_custom_docperm("LMS Course", role, permlevel=permlevel, **shipped)
+
+		self.assertIn((role, permlevel), get_shadowed_permlevel_rows()["LMS Course"])
+
+	def test_split_custom_grants_together_cover_the_shipped_grants(self):
+		role, permlevel = self.ship_permlevel_row("LMS Course")
+		shipped = self.get_shipped_grants("LMS Course", role, permlevel)
+		self.assertEqual(shipped.write, 1)
+		shipped.write = 0
+		self.add_custom_docperm("LMS Course", role, permlevel=permlevel, **shipped)
+		self.add_custom_docperm("LMS Course", role, permlevel=permlevel, read=0, write=1)
+
+		self.assertNotIn("LMS Course", get_shadowed_permlevel_rows())
+
+	def test_custom_owner_only_grant_does_not_cover_an_unrestricted_grant(self):
+		role, permlevel = self.ship_permlevel_row("LMS Course")
+		shipped = self.get_shipped_grants("LMS Course", role, permlevel)
+		self.add_custom_docperm("LMS Course", role, permlevel=permlevel, if_owner=1, **shipped)
+
+		self.assertIn((role, permlevel), get_shadowed_permlevel_rows()["LMS Course"])
 
 	def test_a_custom_docperm_without_a_shipped_permlevel_row_is_not_reported(self):
 		self.add_custom_docperm("LMS Batch", "Moderator")
