@@ -1,46 +1,81 @@
 /**
- * PendingInvites.vue: Settings > Invites, the people invited who have not accepted yet.
- * The list layout is stubbed to its rows and columns, so the test reads what it would
- * draw and runs a row's menu actions directly.
+ * PendingInvites.vue: Settings > Invites, laid out like Helpdesk's invite page. The fields are
+ * plain elements here, so the test types into them, submits, and reads what the page shows.
  */
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { defineComponent, h, reactive } from 'vue'
 import { flushPromises, mount } from '@vue/test-utils'
-import type { SettingsListColumn, SettingsListRow } from '@/types'
 
-const toast = vi.hoisted(() => ({ success: vi.fn(), error: vi.fn() }))
-const createDialog = vi.hoisted(() => vi.fn())
+const toast = vi.hoisted(() => ({ success: vi.fn(), error: vi.fn(), info: vi.fn() }))
+const onboarding = vi.hoisted(() => ({ updateOnboardingStep: vi.fn() }))
 const invites = vi.hoisted(() => ({ store: null as any }))
 
-vi.mock('frappe-ui', () => ({ toast, call: vi.fn() }))
-vi.mock('@/utils', () => ({ cleanError: (message: string) => message }))
-vi.mock('@/utils/dialogs', () => ({ createDialog }))
+vi.mock('frappe-ui', () => ({
+	toast,
+	call: vi.fn(),
+	Button: defineComponent({
+		props: ['label', 'ariaLabel', 'type', 'disabled'],
+		emits: ['click'],
+		setup: (props, { emit }) => () =>
+			h(
+				'button',
+				{
+					type: props.type || 'button',
+					disabled: props.disabled,
+					'aria-label': props.ariaLabel,
+					onClick: () => emit('click'),
+				},
+				props.label
+			),
+	}),
+	ErrorMessage: defineComponent({
+		props: ['message'],
+		setup: (props) => () => h('p', { class: 'error' }, props.message),
+	}),
+	FormControl: defineComponent({
+		props: ['modelValue', 'type', 'options'],
+		emits: ['update:modelValue'],
+		setup: (props, { emit }) => () =>
+			h(
+				props.type === 'select' ? 'select' : 'textarea',
+				{
+					value: props.modelValue,
+					onInput: (event: Event) =>
+						emit('update:modelValue', (event.target as HTMLInputElement).value),
+					onChange: (event: Event) =>
+						emit('update:modelValue', (event.target as HTMLInputElement).value),
+				},
+				(props.options || []).map((option: { value: string; label: string }) =>
+					h('option', { value: option.value }, option.label)
+				)
+			),
+	}),
+}))
+vi.mock('@/utils', () => ({
+	cleanError: (message: string) => message,
+	validateEmail: (email: string) => /^\S+@\S+\.\S+$/.test(email),
+}))
+vi.mock('@/utils/basePath', () => ({ getLmsBasePath: () => 'lms' }))
+vi.mock('@/utils/dialogs', () => ({ createDialog: vi.fn() }))
 vi.mock('@framework/ui/components/InviteUser/index', () => ({
 	useInviteUser: () => invites.store,
+}))
+vi.mock('@framework/ui/components/Onboarding/index', () => ({
+	useOnboarding: () => onboarding,
 }))
 vi.mock('@/components/Settings/Members/Members.vue', () => ({
 	default: defineComponent({ render: () => null }),
 }))
-vi.mock('@/components/Layouts/EmptyStateLayout.vue', () => ({
-	default: defineComponent({ render: () => null }),
-}))
-vi.mock('@/components/Layouts/settings/desktop/SettingsList.vue', () => ({
-	default: defineComponent({
-		name: 'SettingsList',
-		props: ['columns', 'rows', 'search', 'emptyContent'],
-		emits: ['update:search'],
-		setup: (props) => () =>
-			h(
-				'ul',
-				props.rows.map((row: SettingsListRow) => h('li', row.email))
-			),
-	}),
+vi.mock('@/components/Layouts/settings/desktop/SettingsLayout.vue', () => ({
+	default: defineComponent({ setup: (_, { slots }) => () => h('div', slots.default?.()) }),
 }))
 
-const PENDING = [
-	{ name: 'inv-1', email: 'asha@example.com', roles: ['Batch Evaluator'] },
-	{ name: 'inv-2', email: 'ravi@example.com', roles: ['LMS Student'] },
-]
+const RESULT = {
+	invited_emails: [] as string[],
+	pending_invite_emails: [] as string[],
+	accepted_invite_emails: [] as string[],
+	disabled_user_emails: [] as string[],
+}
 
 async function mountPage() {
 	const { default: PendingInvites } = await import(
@@ -48,87 +83,94 @@ async function mountPage() {
 	)
 	return mount(PendingInvites, {
 		props: { label: 'Invites' },
-		global: { mocks: { __: (text: string) => text } },
+		global: { mocks: { __: (globalThis as any).__ } },
 	})
 }
 
 type Page = Awaited<ReturnType<typeof mountPage>>
 
-const list = (wrapper: Page) => wrapper.findComponent({ name: 'SettingsList' })
-const shown = (wrapper: Page) => wrapper.findAll('li').map((item) => item.text())
-
-function menu(wrapper: Page, email: string) {
-	const columns = list(wrapper).props('columns') as SettingsListColumn[]
-	const actions = columns.find((column) => column.type === 'actions')
-	const row = PENDING.find((invite) => invite.email === email)!
-	return actions?.type === 'actions' ? actions.options(row) : []
-}
-
-function confirmDialog() {
-	const close = vi.fn()
-	createDialog.mock.calls[0][0].actions[0].onClick({ close })
-	return close
+async function invite(wrapper: Page, emails: string, role?: string) {
+	await wrapper.find('textarea').setValue(emails)
+	if (role) await wrapper.find('select').setValue(role)
+	await wrapper.find('form').trigger('submit')
+	await flushPromises()
 }
 
 describe('PendingInvites', () => {
 	beforeEach(() => {
 		vi.clearAllMocks()
 		invites.store = reactive({
-			pendingInvites: [...PENDING],
-			loading: false,
+			pendingInvites: [
+				{ name: 'inv-1', email: 'asha@example.com', roles: ['Batch Evaluator'] },
+			],
+			inviting: false,
+			cancellingName: null,
 			load: vi.fn(),
-			resend: vi.fn(async () => {}),
+			invite: vi.fn(async (emails: string) => ({
+				...RESULT,
+				invited_emails: emails.split(', '),
+			})),
 			cancel: vi.fn(async () => {}),
 		})
 	})
 
-	it('loads the pending invites and lists them', async () => {
+	it('lists the pending invites with their role', async () => {
 		const wrapper = await mountPage()
 
 		expect(invites.store.load).toHaveBeenCalled()
-		expect(shown(wrapper)).toEqual(['asha@example.com', 'ravi@example.com'])
+		expect(wrapper.find('li').text()).toContain('asha@example.com')
+		expect(wrapper.find('li').text()).toContain('(Evaluator)')
 	})
 
-	it('narrows the list by email as the search changes', async () => {
+	it('invites every email with the chosen role and clears the box', async () => {
 		const wrapper = await mountPage()
-		list(wrapper).vm.$emit('update:search', 'ASHA')
-		await flushPromises()
+		await invite(wrapper, 'ravi@example.com, neha@example.com ', 'Course Creator')
 
-		expect(shown(wrapper)).toEqual(['asha@example.com'])
+		expect(invites.store.invite).toHaveBeenCalledWith(
+			'ravi@example.com, neha@example.com',
+			['Course Creator']
+		)
+		expect(toast.success).toHaveBeenCalledWith('2 invited')
+		expect(onboarding.updateOnboardingStep).toHaveBeenCalledWith('invite_students')
+		expect((wrapper.find('textarea').element as HTMLTextAreaElement).value).toBe('')
 	})
 
-	it('resends an invite from the row menu', async () => {
+	it('names the emails it cannot send to, and sends nothing', async () => {
 		const wrapper = await mountPage()
-		menu(wrapper, 'asha@example.com')[0].onClick()
-		await flushPromises()
+		await invite(wrapper, 'ravi@example.com, not-an-email')
 
-		expect(invites.store.resend).toHaveBeenCalledWith('inv-1')
-		expect(toast.success).toHaveBeenCalledWith('Invite sent again to asha@example.com')
+		expect(invites.store.invite).not.toHaveBeenCalled()
+		expect(wrapper.find('.error').text()).toBe('Check these emails: not-an-email')
 	})
 
-	it('cancels an invite only once the dialog is confirmed', async () => {
+	it('says who was already invited instead of inviting them again', async () => {
+		invites.store.invite = vi.fn(async () => ({
+			...RESULT,
+			pending_invite_emails: ['asha@example.com'],
+		}))
 		const wrapper = await mountPage()
-		menu(wrapper, 'ravi@example.com')[1].onClick()
-		expect(invites.store.cancel).not.toHaveBeenCalled()
+		await invite(wrapper, 'asha@example.com')
 
-		const close = confirmDialog()
-		await flushPromises()
-
-		expect(invites.store.cancel).toHaveBeenCalledWith('inv-2')
-		expect(close).toHaveBeenCalled()
+		expect(toast.success).not.toHaveBeenCalled()
+		expect(toast.info).toHaveBeenCalledWith('Already invited: asha@example.com')
 	})
 
-	it('keeps the dialog open and says why when cancelling fails', async () => {
-		invites.store.cancel = vi.fn(async () => {
-			throw { messages: ['Invitation not found'] }
+	it('shows the server error under the form when sending fails', async () => {
+		invites.store.invite = vi.fn(async () => {
+			throw { messages: ['Not permitted'] }
 		})
 		const wrapper = await mountPage()
-		menu(wrapper, 'ravi@example.com')[1].onClick()
+		await invite(wrapper, 'ravi@example.com')
 
-		const close = confirmDialog()
+		expect(wrapper.find('.error').text()).toBe('Not permitted')
+	})
+
+	it('cancels an invite from its row', async () => {
+		const wrapper = await mountPage()
+		await wrapper.find('li button').trigger('click')
 		await flushPromises()
 
-		expect(close).not.toHaveBeenCalled()
-		expect(toast.error).toHaveBeenCalledWith('Invitation not found')
+		expect(invites.store.cancel).toHaveBeenCalledWith('inv-1')
+		expect(toast.success).toHaveBeenCalledWith('Invite to asha@example.com cancelled')
 	})
 })

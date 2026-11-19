@@ -138,48 +138,6 @@ export const memberColumns = (
 	},
 ]
 
-export interface InviteRowActions {
-	resend: (row: SettingsListRow) => void
-	cancel: (row: SettingsListRow) => void
-}
-
-/** Invites sent but not yet accepted. Accepted ones are members already. */
-export const inviteColumns = (
-	actions: InviteRowActions
-): SettingsListColumn[] => [
-	{
-		key: 'invitee',
-		label: __('Invited'),
-		type: 'stacked',
-		primary: (row) => row.email,
-		avatar: (row) => ({ label: row.email }),
-	},
-	{
-		key: 'roles',
-		label: __('Roles'),
-		type: 'badge',
-		badges: roleBadges,
-	},
-	{
-		key: 'actions',
-		type: 'actions',
-		ariaLabel: (row) => __('Actions for {0}').format(row.email),
-		options: (row) => [
-			{
-				label: __('Resend invite'),
-				icon: 'lucide-send',
-				onClick: () => actions.resend(row),
-			},
-			{
-				label: __('Cancel invite'),
-				icon: 'lucide-x',
-				theme: 'red',
-				onClick: () => actions.cancel(row),
-			},
-		],
-	},
-]
-
 export const memberError = (
 	error: FrappeResourceError,
 	fallback: string
