@@ -15,7 +15,7 @@
 				v-model="emails"
 				type="textarea"
 				:label="__('Invite by email')"
-				placeholder="asha@example.com, ravi@example.com"
+				placeholder="user1@example.com, user2@example.com, ..."
 				:description="__('Separate emails with commas.')"
 			/>
 			<FormControl
