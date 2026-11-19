@@ -46,6 +46,8 @@ export const speechText = (text: string): string =>
 		.replace(/\[[^\]]*\](?!\()/g, '')
 		.replace(/[*_#`>]/g, '')
 		.replace(/\s+/g, ' ')
+		// A citation cut from before a full stop leaves a space the caption would show.
+		.replace(/\s+([.,!?;:])/g, '$1')
 		.trim()
 
 // The voice server makes about 45 characters a second and one request at a time, so chunks
@@ -53,6 +55,13 @@ export const speechText = (text: string): string =>
 const CHUNK_LENGTH = 120
 // The opening words go out on their own, cut at a pause, so the voice starts within a second.
 const FIRST_CHUNK = 60
+// How long one chunk's audio may take to arrive before the browser voice says it instead.
+const FETCH_TIMEOUT_MS = 12000
+// A clip that never reports its end is let go this long after it should have finished.
+const END_GRACE_MS = 1500
+// The longest a chunk can take to say, for a clip or browser voice that never reports anything.
+const MAX_CHUNK_MS = 30000
+
 // The chunk playing and the one after it. More only queues work on the server that a
 // barge-in throws away, and the next reply then waits behind it.
 const PREFETCH = 2
@@ -106,6 +115,8 @@ const requestAudio = async (
 	if (provider === 'browser' || !(await speechProviders()).length) return null
 	return fetch('/api/method/lms.lms.ai.api.speech', {
 		method: 'POST',
+		// A voice that does not answer must not hold the lesson: the browser voice takes over.
+		signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
 		headers: {
 			'Content-Type': 'application/json',
 			'X-Frappe-CSRF-Token':
@@ -203,12 +214,25 @@ export function useSpeech() {
 		try {
 			if (token !== generation) return
 			audio = new Audio(url)
+			const clip = audio
 			await new Promise<void>((resolve) => {
-				audio!.onended = () => resolve()
-				audio!.onerror = () => resolve()
+				// Some players never send `ended` (a stalled stream, a device change); the
+				// lesson waits for this clip, so it is let go once it should have finished.
+				let timer = setTimeout(resolve, MAX_CHUNK_MS)
+				clip.onloadedmetadata = () => {
+					if (!Number.isFinite(clip.duration)) return
+					clearTimeout(timer)
+					timer = setTimeout(resolve, clip.duration * 1000 + END_GRACE_MS)
+				}
+				const done = () => {
+					clearTimeout(timer)
+					resolve()
+				}
+				clip.onended = done
+				clip.onerror = done
 				// Autoplay can be refused on a reload with no gesture yet; skip the audio,
 				// keep the caption.
-				audio!.play().catch(() => resolve())
+				clip.play().catch(done)
 			})
 		} finally {
 			URL.revokeObjectURL(url)
@@ -233,8 +257,18 @@ export function useSpeech() {
 			}
 			utterance.pitch = profile.pitch
 			utterance.rate = profile.rate
-			utterance.onend = () => resolve()
-			utterance.onerror = () => resolve()
+			// Browsers sometimes drop `end` for a long utterance; it is let go after it should
+			// have finished, at about fifteen characters a second.
+			const timer = setTimeout(
+				resolve,
+				Math.min(MAX_CHUNK_MS, (sentence.length / 15) * 1000 + END_GRACE_MS * 2)
+			)
+			const done = () => {
+				clearTimeout(timer)
+				resolve()
+			}
+			utterance.onend = done
+			utterance.onerror = done
 			window.speechSynthesis.speak(utterance)
 		})
 

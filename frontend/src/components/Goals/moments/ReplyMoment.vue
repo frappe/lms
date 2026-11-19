@@ -22,7 +22,7 @@
 			<FormControl
 				v-model="text"
 				type="textarea"
-				class="mt-3"
+				class="mt-3 [&_textarea]:resize-none"
 				:rows="3"
 				:placeholder="__('Say it the way you would say it')"
 				:aria-label="moment.prompt"

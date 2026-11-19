@@ -46,7 +46,7 @@ describe('speechText', () => {
 	it('drops citations and markdown, which are for the eye', () => {
 		expect(
 			speechText('The policy covers **everyone** [Policy · p.3], _always_.'),
-		).toBe('The policy covers everyone , always.')
+		).toBe('The policy covers everyone, always.')
 	})
 
 	it('drops a citation without a page too, but keeps a link', () => {

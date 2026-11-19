@@ -1028,20 +1028,82 @@ def roleplay_reply(session: str, message: str) -> dict:
 	return run(session, message)
 
 
+# Sent by the page, hidden like a moment's result, when a lesson turn left the learner nothing to
+# answer. Kept in step with KEEP_GOING in useFlowChat.ts.
+KEEP_GOING = "KEEP_GOING"
+KEEP_GOING_NOTE = (
+	"Your last turn ended without a question or an exercise, so the learner has nothing to answer. "
+	"Carry on from where you stopped: ask your next question, or show the next exercise. Do not "
+	"repeat what you already said."
+)
+
+
 def lesson_reply(session: str, message: str) -> dict:
 	"""Send the learner's reply in a lesson, with what they saw of a reply that was shortened."""
 	from frappe.flow.api.api import run
 
+	from lms.lms.ai.tools import free_turn_moment
+
 	if not frappe.db.exists("LMS Goal Evidence", {"flow_session": session, "member": frappe.session.user}):
 		frappe.throw(_("This conversation is not one of your lessons."), frappe.PermissionError)
+	free_turn_moment(session)
+	if message.strip() == KEEP_GOING:
+		message = KEEP_GOING + SYSTEM_NOTE + KEEP_GOING_NOTE
 	return run(session, one_question.with_what_they_saw(session, message))
 
 
-def checked_turn(session: str) -> dict[str, str]:
-	"""The latest turn of the learner's lesson or role-play, held to one question."""
+def checked_turn(session: str) -> dict:
+	"""The latest turn of the learner's lesson or role-play, held to one question, and whether a
+	lesson turn stopped with nothing for the learner to answer."""
 	if frappe.db.get_value("Flow Session", session, "owner") != frappe.session.user:
 		frappe.throw(_("This conversation is not yours."), frappe.PermissionError)
-	return one_question.check_turn(session)
+	shown = one_question.check_turn(session)
+	return {"shown": shown, "stalled": _stalled(session, shown)}
+
+
+def _stalled(session: str, shown: dict[str, str]) -> bool:
+	"""Whether the latest turn of a lesson still being taught left the learner nothing to answer."""
+	evidence = frappe.db.get_value(
+		"LMS Goal Evidence",
+		{"flow_session": session, "activity_type": "Lesson"},
+		"status",
+	)
+	if evidence is None or evidence == "Graded":
+		return False
+	rows = frappe.get_all(
+		"Flow Session Message",
+		filters={"parent": session},
+		fields=["role", "content", "tool_calls", "tool_call_id"],
+		order_by="idx asc",
+	)
+	return turn_stalled(rows, shown)
+
+
+def turn_stalled(rows: list[dict], shown: dict[str, str]) -> bool:
+	"""A turn that asked nothing and showed no exercise, from the session's messages in order and
+	what the one-question check made of its replies. A turn answering a keep-going nudge counts
+	as settled, so the page never loops."""
+	from lms.lms.ai.tools import NOT_SHOWN
+
+	last_user = max((i for i, row in enumerate(rows) if row["role"] == "user"), default=-1)
+	if last_user < 0 or (rows[last_user]["content"] or "").startswith(KEEP_GOING):
+		return False
+	turn = rows[last_user + 1 :]
+	texts = [(row["content"] or "").strip() for row in turn if row["role"] == "assistant"]
+	if any("?" in shown.get(text, text) for text in texts if text):
+		return False
+	calls = {
+		call.get("id"): call.get("name") or call.get("function", {}).get("name") or ""
+		for row in turn
+		if row["role"] == "assistant"
+		for call in json.loads(row.get("tool_calls") or "[]")
+	}
+	return not any(
+		row["role"] == "tool"
+		and "show_moment" in calls.get(row.get("tool_call_id"), "")
+		and not (row["content"] or "").startswith(NOT_SHOWN)
+		for row in turn
+	)
 
 
 def transcription_hint(session: str, user: str) -> str:

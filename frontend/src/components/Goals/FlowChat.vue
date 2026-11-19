@@ -4,7 +4,7 @@
 			v-if="mode === 'speak'"
 			:character="character || 'lumi'"
 			:assistant-name="assistantName"
-			:caption="speech.caption.value"
+			:caption="speech.caption.value || (running ? '' : lastLine)"
 			:speaking="speech.speaking.value"
 			:running="running"
 			:thinking-label="toolLabel"
@@ -324,6 +324,7 @@ import {
 // @ts-expect-error markdown-it ships no type declarations
 import MarkdownIt from 'markdown-it'
 import {
+	KEEP_GOING,
 	MOMENT_RESULT,
 	useFlowChat,
 	type ChatMessage,
@@ -336,7 +337,8 @@ import {
 	useVoice,
 	type VoiceMode,
 } from '@/composables/useVoice'
-import { useSpeech } from '@/composables/useSpeech'
+import { splitSentences, useSpeech } from '@/composables/useSpeech'
+import { createSpeechFeed } from '@/composables/useSpeechFeed'
 import dayjs from '@/utils/dayjs'
 import MomentBlock from './moments/MomentBlock.vue'
 import { safeUrl } from '@/utils/safeUrl'
@@ -344,7 +346,7 @@ import CharacterAvatar from './CharacterAvatar.vue'
 import CitationPreview from './CitationPreview.vue'
 import VoiceStage from './VoiceStage.vue'
 import { type CharacterKey } from '@/utils/characters'
-import { beforeQuestion } from '@/utils/goals'
+import { oneAsk, streamingShown, withoutQuestions } from '@/utils/oneQuestion'
 
 const props = withDefaults(
 	defineProps<{
@@ -422,56 +424,77 @@ const render = (text: string): string => {
 
 const {
 	messages: savedMessages,
+	turn: currentTurn,
 	results,
 	partial: streamedText,
 	activeTool,
 	running,
 	error,
 	loading,
-	send,
+	send: sendRaw,
 } = useFlowChat(toRef(props, 'session'), {
 	hideFirstMessage: props.hideFirstMessage,
 	runMethod: props.runMethod,
 })
 
-// One question per turn. While a turn is still coming, and until the server has checked it,
-// only the words before its first question show and are spoken; then the checked replies
-// replace the originals wherever they appear.
+// One question per turn, applied as the words arrive with the same rules the server checks a
+// finished turn by (utils/oneQuestion.ts), so a question shows and is spoken the moment it is
+// written. What the server returns from its check wins wherever it differs.
 const checking = ref(false)
 const checked = ref<Record<string, string>>({})
-const holding = computed(
-	() => props.oneQuestion && (running.value || checking.value)
-)
-const messages = computed(() => {
-	const lastLearner = savedMessages.value.findLastIndex(
-		(message) => message.role === 'user'
-	)
-	return savedMessages.value
-		.map((message, i) => {
-			if (message.role !== 'assistant') return message
-			const text =
-				checked.value[message.text.trim()] ??
-				(holding.value && i > lastLearner
-					? beforeQuestion(message.text)
-					: message.text)
+const shownText = computed(() => {
+	const shown = new Map<string, string>()
+	if (!props.oneQuestion) return shown
+	const asked = new Set<number>()
+	for (const message of savedMessages.value) {
+		if (message.role !== 'assistant') continue
+		const text =
+			checked.value[message.text.trim()] ??
+			(asked.has(message.turn)
+				? withoutQuestions(message.text)
+				: oneAsk(message.text))
+		if (text.includes('?')) asked.add(message.turn)
+		shown.set(message.key, text)
+	}
+	return shown
+})
+const messages = computed(() =>
+	savedMessages.value
+		.map((message) => {
+			const text = shownText.value.get(message.key) ?? message.text
 			return text === message.text ? message : { ...message, text }
 		})
 		.filter(
 			(message) =>
 				message.text || message.moments.length || message.role === 'user'
 		)
-})
-const partial = computed(() =>
-	props.oneQuestion ? beforeQuestion(streamedText.value) : streamedText.value
 )
+// Whether the turn being written has already asked its question.
+const turnAsked = computed(() =>
+	messages.value.some(
+		(message) =>
+			message.role === 'assistant' &&
+			message.turn === currentTurn.value &&
+			message.text.includes('?')
+	)
+)
+const streaming = computed(() =>
+	props.oneQuestion
+		? streamingShown(streamedText.value, turnAsked.value)
+		: { text: streamedText.value, complete: false }
+)
+const partial = computed(() => streaming.value.text)
 const checkTurn = async () => {
 	if (!props.oneQuestion || !props.session) return
 	checking.value = true
 	try {
-		const shown = await call('lms.lms.ai.api.checked_turn', {
+		const turn = (await call('lms.lms.ai.api.checked_turn', {
 			session: props.session,
-		})
-		checked.value = { ...checked.value, ...(shown || {}) }
+		})) as { shown?: Record<string, string>; stalled?: boolean } | null
+		checked.value = { ...checked.value, ...(turn?.shown || {}) }
+		// A lesson turn that left nothing to answer would leave the learner waiting: the tutor
+		// is nudged once to carry on. The server never flags the turn after a nudge.
+		if (turn?.stalled) void sendRaw(KEEP_GOING)
 	} catch {
 		// Without the check the turn shows as written: better than holding it back.
 	} finally {
@@ -526,13 +549,16 @@ const modes = [
 const speech = useSpeech()
 const held = ref(false)
 
+// Paused means silent: the voice stops and nothing new is said until the learner taps again,
+// when it says whatever arrived meanwhile and then listens.
 const toggleListening = () => {
 	if (held.value) {
 		held.value = false
-		speech.stop()
-		voiceTools.listen((text) => send(text))
+		feed.resume(assistantReplies())
+		if (!speech.speaking.value) voiceTools.listen((text) => send(text))
 	} else {
 		held.value = true
+		feed.pause()
 		speech.stop()
 		voiceTools.stopListening()
 	}
@@ -571,7 +597,9 @@ watch(
 			busy ||
 			listening ||
 			transcribing ||
-			awaitingAnswer.value
+			// An exercise waiting for its tap, on stage or about to be: the mic stays shut.
+			awaitingAnswer.value ||
+			!!currentMoment.value
 		)
 			return
 		if (props.disabled || props.readOnly) return
@@ -585,34 +613,23 @@ watch(
 	}
 )
 
-// In speak mode, the voice starts as soon as the first sentence of a streaming
-// reply is complete, instead of waiting for the whole reply: the biggest part of
-// the gap the learner feels. One turn can stream several replies (a line, an
-// exercise, another line). Each reply is read out as soon as it is complete, even while
-// the turn goes on, and `said` keeps how much of it the voice has had, so streamed
-// words are never read twice and a reply's checked ending is read once it is in.
-const said: Record<string, number> = {}
-let streamed: string[] = []
-let current = ''
-const closeStream = () => {
-	if (current) streamed.push(current)
-	current = ''
-}
+// What the voice says. A turn reaches the page as streamed words, as saved replies and as
+// replies held to one question; the feed says each of its sentences once, whichever copy
+// arrives first, so nothing is read twice. The voice starts on the first finished sentence
+// of a streaming reply instead of waiting for all of it.
+const feed = createSpeechFeed((text) =>
+	speech.enqueue(text, props.character || 'lumi')
+)
+const assistantReplies = () =>
+	messages.value
+		.filter((message) => message.role === 'assistant')
+		.map((message) => ({ key: message.key, text: message.text }))
+const voiceOn = () => mode.value === 'speak' && primed.value
+
 watch(partial, (text) => {
-	if (mode.value !== 'speak') return
-	if (!text || !text.startsWith(current)) closeStream()
-	if (!text) return
-	// The very first words of a turn may go at a comma, before the sentence ends: the voice
-	// then starts on a short phrase while the rest is still being written.
-	const settled =
-		text.slice(current.length).match(/^[\s\S]*[.!?](?=\s)/) ||
-		(!current && !streamed.length
-			? text.match(/^[^.!?]{20,60}?[,;:](?=\s)/)
-			: null)
-	if (settled) {
-		speech.enqueue(settled[0], props.character || 'lumi')
-		current += settled[0]
-	}
+	if (!voiceOn()) return
+	// A stream that ends on its finished question is complete: the question goes out now.
+	feed.streaming(text, streaming.value.complete)
 })
 // Reopening a conversation must not read the whole history aloud. Once the saved messages
 // have loaded, they count as heard, except the last reply when it is still waiting for an
@@ -624,40 +641,15 @@ watch(loading, async (busy, was) => {
 	// it is said.
 	if (!running.value) await checkTurn()
 	const last = messages.value[messages.value.length - 1]
-	markSaid()
-	if (!running.value && last?.role === 'assistant') said[last.key] = 0
+	const again = !running.value && last?.role === 'assistant' ? last.key : null
+	feed.newTurn(
+		assistantReplies()
+			.map((reply) => reply.key)
+			.filter((key) => key !== again)
+	)
 	primed.value = true
-	sayReplies()
+	if (voiceOn()) feed.settled(assistantReplies())
 })
-const markSaid = () => {
-	for (const message of messages.value)
-		if (message.role === 'assistant') said[message.key] = message.text.length
-}
-const sayReplies = () => {
-	if (!primed.value || mode.value !== 'speak') return
-	for (const reply of messages.value) {
-		if (reply.role !== 'assistant') continue
-		if (said[reply.key] === undefined) {
-			// A reply seen complete for the first time: what streaming said of it counts.
-			if (current && reply.text.startsWith(current)) closeStream()
-			const i = streamed.findIndex(
-				(prefix) => prefix && reply.text.startsWith(prefix)
-			)
-			said[reply.key] = i >= 0 ? streamed.splice(i, 1)[0].length : 0
-		}
-		if (reply.text.length > said[reply.key]) {
-			speech.enqueue(
-				reply.text.slice(said[reply.key]),
-				props.character || 'lumi'
-			)
-			said[reply.key] = reply.text.length
-		}
-	}
-	if (!running.value && !checking.value) {
-		streamed = []
-		current = ''
-	}
-}
 watch(
 	() =>
 		[
@@ -665,28 +657,75 @@ watch(
 			running.value,
 			checking.value,
 		] as const,
-	sayReplies
+	() => {
+		if (voiceOn()) feed.settled(assistantReplies())
+	}
 )
-// Whether everything written so far has gone to the voice.
-const allSaid = () =>
-	mode.value !== 'speak' ||
-	messages.value.every(
-		(m) => m.role !== 'assistant' || (said[m.key] ?? -1) >= m.text.length
+// Once the voice has finished, the stage keeps the last thing said, usually the question, so the
+// learner can read it again while they answer.
+const lastLine = computed(() => {
+	const reply = messages.value.findLast(
+		(message) =>
+			message.role === 'assistant' &&
+			message.text &&
+			message.turn === currentTurn.value
 	)
+	return reply ? splitSentences(reply.text).at(-1) || '' : ''
+})
+// Whether everything written so far has gone to the voice.
+const allSaid = () => mode.value !== 'speak' || feed.allSaid(assistantReplies())
 watch(mode, (value) => {
 	rememberMode(value)
-	markSaid()
+	// Switching to the voice must not read out what is already on screen.
+	feed.newTurn(assistantReplies().map((reply) => reply.key))
 	if (value === 'type') speech.stop()
 })
 
-// The stage shows one activity at a time: the newest the learner has not answered.
-const currentMoment = computed(() => {
-	for (let i = messages.value.length - 1; i >= 0; i--) {
-		for (const item of messages.value[i].moments) {
-			if (!results.value[item.id]) return item
-		}
+// Every message from the learner starts a turn; what was said before it is never said again.
+// A keep-going nudge continues the same turn, so it goes straight out.
+const send = (text: string) => {
+	feed.newTurn(messages.value.map((message) => message.key))
+	timing.start()
+	return sendRaw(text)
+}
+
+// How long each turn takes to reach the learner, in the console, when a developer turns it on
+// with localStorage['lms.goals.timing'] = '1'. Off, it records nothing.
+const timing = (() => {
+	let on = false
+	try {
+		on = window.localStorage.getItem('lms.goals.timing') === '1'
+	} catch {
+		on = false
 	}
-	return null
+	let sent = 0
+	let marks: Record<string, number> = {}
+	const mark = (name: string) => {
+		if (on && sent && marks[name] === undefined)
+			marks[name] = Math.round(performance.now() - sent)
+	}
+	watch(streamedText, (text) => text && mark('first words'))
+	watch(speech.speaking, (speaking) => speaking && mark('voice starts'))
+	watch(running, (busy, was) => {
+		if (!on || !sent || busy || !was) return
+		mark('turn ends')
+		console.info('[Lumi timing] ms after sending', { ...marks })
+		sent = 0
+	})
+	return {
+		start() {
+			if (!on) return
+			sent = performance.now()
+			marks = {}
+		},
+	}
+})()
+
+// The stage shows one activity at a time: the newest, until it is answered. An older one left
+// unanswered was replaced before it was answered, so it never comes back.
+const currentMoment = computed(() => {
+	const newest = messages.value.flatMap((message) => message.moments).at(-1)
+	return newest && !results.value[newest.id] ? newest : null
 })
 
 // What the stage shows: while the voice is still explaining, the answered exercise stays
@@ -701,10 +740,22 @@ watch(
 			speech.speaking.value,
 			speech.remaining.value,
 			messages.value.map((m) => `${m.key}:${m.text.length}`).join(),
+			// A reopened lesson counts its history as heard only once it has loaded: an exercise
+			// still waiting for its answer must then come up, or the learner has nothing to tap.
+			primed.value,
+			mode.value,
+			held.value,
+			running.value,
+			checking.value,
 		] as const,
 	([target, speakingNow, left]) => {
 		if (target === shownMoment.value) return
-		if (!speakingNow && left === 0 && allSaid()) shownMoment.value = target
+		// An answered exercise stays up, marked, until the tutor has finished reacting to it:
+		// the learner hears about their answer while they can still see it.
+		const reacting =
+			!target && !!shownMoment.value && (running.value || checking.value)
+		if (!speakingNow && left === 0 && allSaid() && !reacting)
+			shownMoment.value = target
 	},
 	{ immediate: true }
 )
@@ -740,6 +791,11 @@ const micStatus = computed(() => {
 // The tutor reads the answer as a hidden message and replies to it.
 const answerMoment = (payload: Record<string, unknown>) => {
 	if (running.value || results.value[payload.id as string]) return
+	// Answering is the learner back at it: a pause ends, so they hear the reaction.
+	if (held.value) {
+		held.value = false
+		feed.resume(assistantReplies())
+	}
 	voiceTools.transcript.value = ''
 	emit('moment', payload)
 	send(MOMENT_RESULT + JSON.stringify(payload))

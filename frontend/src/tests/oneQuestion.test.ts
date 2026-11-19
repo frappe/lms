@@ -1,0 +1,60 @@
+/**
+ * utils/oneQuestion: the page's copy of lms/lms/ai/one_question.py. The examples are the ones
+ * test_one_question.py checks, so the page and the server hold a turn to the same question.
+ */
+import { describe, expect, it } from 'vitest'
+import { oneAsk, shownTurn, streamingShown, withoutQuestions } from '@/utils/oneQuestion'
+
+describe('one question per turn', () => {
+	it('keeps only the first ask', () => {
+		expect(oneAsk('Fine. So which system did you log it in, and what is the reference?')).toBe(
+			'Fine. So which system did you log it in?'
+		)
+		expect(oneAsk('What is the ticket number? And what date was it logged?')).toBe(
+			'What is the ticket number?'
+		)
+		const eitherOr = 'Do you fix it yourself, or does someone else decide?'
+		expect(oneAsk(eitherOr)).toBe(eitherOr)
+	})
+
+	it('leaves a turn with one question alone', () => {
+		expect(shownTurn(['Good catch. Where would you look first?'])).toEqual([
+			'Good catch. Where would you look first?',
+		])
+		expect(shownTurn(['Where would you look first? Take your time.'])).toEqual([
+			'Where would you look first? Take your time.',
+		])
+	})
+
+	it('cuts a joined ask and stops at the first question', () => {
+		expect(shownTurn(['Fine. Which system did you log it in, and what is the reference?'])).toEqual([
+			'Fine. Which system did you log it in?',
+		])
+		expect(shownTurn(['Right. Where is it logged? Who signed it off?'])).toEqual([
+			'Right. Where is it logged?',
+		])
+	})
+
+	it('takes the question out of a later message in the turn', () => {
+		expect(shownTurn(['Good. Where did you log it?', 'Noted. And who checked your fix?'])).toEqual([
+			'Good. Where did you log it?',
+			'Noted.',
+		])
+		expect(withoutQuestions('Here it is. Ready?')).toBe('Here it is.')
+	})
+
+	it('lets the first question out while the reply is still streaming', () => {
+		expect(streamingShown('Good. Where did you log it', false)).toEqual({
+			text: 'Good. Where did you log it',
+			complete: false,
+		})
+		expect(streamingShown('Good. Where did you log it, and who checked it? Take', false)).toEqual({
+			text: 'Good. Where did you log it?',
+			complete: true,
+		})
+		expect(streamingShown('Noted. And who checked your fix? Here it', true)).toEqual({
+			text: 'Noted. Here it',
+			complete: false,
+		})
+	})
+})

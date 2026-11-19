@@ -50,6 +50,7 @@
 		     strip below. -->
 		<div v-if="moment" class="min-h-0 flex-1 overflow-y-auto pb-3">
 			<MomentBlock
+				:key="moment.id"
 				:id="moment.id"
 				:moment="moment.moment"
 				:result="result"

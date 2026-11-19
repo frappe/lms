@@ -382,7 +382,28 @@ def show_moment(moment: Moment, *, ctx: ToolContext) -> str:
 			"detail to the others, then call show_moment again straight away. Write no text before "
 			"it: the learner has already heard your line."
 		)
+	if not _claim_turn_moment(ctx.session_id):
+		# A second exercise in one turn would replace the first on screen before it is answered.
+		return NOT_SHOWN + _(
+			"An exercise is already on screen this turn. Write nothing more and wait for their answer."
+		)
 	return _("Shown to the learner. Your turn is over: write nothing more.")
+
+
+def _turn_moment_key(session: str) -> str:
+	return f"lms:turn-moment:{session}"
+
+
+def _claim_turn_moment(session: str) -> bool:
+	"""Whether this is the turn's first exercise. The learner's next message frees the turn."""
+	# Set-if-absent in one step: a model can send two show_moment calls in one response.
+	key = frappe.cache.make_key(_turn_moment_key(session))
+	# nosemgrep: frappe-cache-breaks-multitenancy - make_key prefixes the site's db_name; set_value has no nx
+	return bool(frappe.cache.set(key, 1, nx=True, ex=AGREED_TTL))
+
+
+def free_turn_moment(session: str) -> None:
+	frappe.cache.delete(frappe.cache.make_key(_turn_moment_key(session)))
 
 
 # The right option may run this much longer than the longest wrong one before it gives itself away.
@@ -419,9 +440,13 @@ def remember_situation(
 	from lms.lms.ai import situations
 
 	kept = situations.remember(_teaching_assignment(ctx), situation)
+	# The reply may or may not have asked yet; telling the model it had made it start the
+	# reply again in a second message, saying the same thing twice.
 	return _(
-		"Kept silently. Do not mention keeping it; just use it. Your reply already asked your "
-		"question, so end your turn now and write nothing more. Their situations so far: {0}"
+		"Kept silently. Do not mention keeping it; just use it. If your reply already asked its "
+		"question, end your turn now and write nothing more. If not, ask it next, carrying on "
+		"from your last sentence: never repeat or rephrase what you already said. Their "
+		"situations so far: {0}"
 	).format(" | ".join(kept))
 
 
@@ -451,9 +476,15 @@ def confirm_idea(
 	from lms.lms.ai.ideas import confirm
 
 	left = confirm(_teaching_assignment(ctx), idea, needed_teaching)
+	# The checklist on the page ticks itself; saying "I'll tick that off" only interrupts.
 	if left:
-		return _("Confirmed. Still to confirm: {0}.").format(", ".join(str(i) for i in left))
-	return _("All key ideas confirmed. Call finish_teaching when you are ready.")
+		return _("Confirmed. Never mention ticking, marking or confirming it. Still to confirm: {0}.").format(
+			", ".join(str(i) for i in left)
+		)
+	return _(
+		"All key ideas confirmed. Never mention ticking or marking them. Call finish_teaching when "
+		"you are ready."
+	)
 
 
 @tool
@@ -477,7 +508,11 @@ def finish_teaching(
 			"; ".join(f"{idea['idea']}: {idea['heading']}" for idea in missing)
 		)
 	finish(ctx.session_id, ctx.user, summary)
-	return _("Teaching marked as done. Tell the learner they are ready to practise.")
+	# The page shows its own "You're ready to practise" card under the last reply.
+	return _(
+		"Teaching marked as done. The page now shows them a card that says they are ready to "
+		"practise, so do not say it. Your reply already closed the lesson: write nothing more."
+	)
 
 
 @tool

@@ -11,6 +11,7 @@ class TestExerciseConsent(IntegrationTestCase):
 	def setUp(self):
 		self.ctx = ToolContext(session_id="consent-test-session", agent="lms/Learning Tutor", user="Guest")
 		frappe.cache.delete_value(tools._agreed_key(self.ctx.session_id))
+		tools.free_turn_moment(self.ctx.session_id)
 
 	def _show(self) -> str:
 		return tools.show_moment.func({"kind": "choose"}, ctx=self.ctx)

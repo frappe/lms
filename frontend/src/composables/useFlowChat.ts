@@ -13,12 +13,18 @@ export interface ChatMessage {
 	text: string
 	tools: string[]
 	moments: Moment[]
+	/** Which turn it belongs to: every message from the learner, shown or hidden, starts one. */
+	turn: number
 	/** When it was sent, in seconds since the epoch. */
 	ts?: number
 }
 
 /** A learner's answer to an interactive moment travels as a user message with this prefix. */
 export const MOMENT_RESULT = 'MOMENT_RESULT '
+/** Sent, never shown, when a lesson turn left the learner nothing to answer. Kept in step with goals.py. */
+export const KEEP_GOING = 'KEEP_GOING'
+const hidden = (text: string) =>
+	text.startsWith(MOMENT_RESULT) || text.startsWith(KEEP_GOING)
 // The server's note on a role-play's last reply; never shown. Kept in step with goals.py.
 const SYSTEM_NOTE = '\n\n[SYSTEM NOTE] '
 // The start of a show_moment the server refused. Kept in step with tools.py.
@@ -39,6 +45,8 @@ interface FlowRow {
 }
 
 const API = 'frappe.flow.api.api'
+// How long a running reply may stay silent before the log is read to see where it stands.
+const SILENCE_MS = 15000
 
 /** Model provider errors are long and technical; say what happened and what to do. */
 const friendly = (message?: string | null): string | null => {
@@ -111,6 +119,8 @@ export function useFlowChat(
 	let subscribed: string | null = null
 	let poller: ReturnType<typeof setInterval> | null = null
 	let sending = false
+	let lastEventAt = 0
+	let watchdog: ReturnType<typeof setInterval> | null = null
 
 	// What the server said to each tool call. A moment shows only once the server took it:
 	// one refused, because the learner has not agreed to exercises yet, never appears.
@@ -129,37 +139,47 @@ export function useFlowChat(
 	const messages = computed<ChatMessage[]>(() => {
 		const out: ChatMessage[] = []
 		let firstUserSkipped = !hideFirstMessage
+		// A reply that starts with a tool call and writes its words in the next message is one
+		// message on screen. A learner's message, shown or not, ends that: a reply after an
+		// exercise answer is a new message, never the end of the turn before it.
+		let mergeable = false
+		let turn = 0
 		for (const row of rows.value) {
 			if (row.subagent_id) continue
 			if (row.type === 'user_message') {
+				mergeable = false
+				turn += 1
 				if (!firstUserSkipped) {
 					firstUserSkipped = true
 					continue
 				}
 				const text = textOf(row.content).split(SYSTEM_NOTE)[0]
-				if (text.startsWith(MOMENT_RESULT)) continue
+				if (hidden(text)) continue
 				out.push({
 					key: `u${row.seq}`,
 					role: 'user',
 					text,
 					tools: [],
 					moments: [],
+					turn,
 					ts: row.ts,
 				})
 			} else if (row.type === 'assistant_message') {
 				const text = textOf(row.content)
 				const last = out[out.length - 1]
-				if (last?.role === 'assistant' && !last.text) {
+				if (mergeable && last?.role === 'assistant' && !last.text) {
 					last.text = text
 					last.tools.push(...toolsOf(row.content))
 					last.moments.push(...momentsOf(row.content).filter(shown))
 				} else {
+					mergeable = true
 					out.push({
 						key: `a${row.seq}`,
 						role: 'assistant',
 						text,
 						tools: toolsOf(row.content),
 						moments: momentsOf(row.content).filter(shown),
+						turn,
 						ts: row.ts,
 					})
 				}
@@ -170,6 +190,13 @@ export function useFlowChat(
 				message.text || message.moments.length || message.role === 'user',
 		)
 	})
+
+	/** The turn being written now: one per message from the learner, shown or hidden. */
+	const turn = computed(
+		() =>
+			rows.value.filter((row) => !row.subagent_id && row.type === 'user_message')
+				.length,
+	)
 
 	/** Each answered moment's result, keyed by the moment's id. */
 	const results = computed<Record<string, Record<string, any>>>(() => {
@@ -189,6 +216,7 @@ export function useFlowChat(
 	})
 
 	const apply = (row: FlowRow) => {
+		lastEventAt = Date.now()
 		if (row.subagent_id) return
 		if (typeof row.seq === 'number') {
 			if (row.seq <= cursor) return
@@ -304,6 +332,24 @@ export function useFlowChat(
 		}
 	})
 
+	// A reply whose end never reaches us (a dropped socket event) would leave the chat thinking
+	// forever. While a reply runs and nothing has arrived for a while, the log decides.
+	watch(running, (busy) => {
+		if (busy && !watchdog) {
+			lastEventAt = Date.now()
+			watchdog = setInterval(() => {
+				if (!sending && Date.now() - lastEventAt > SILENCE_MS) {
+					lastEventAt = Date.now()
+					void load()
+				}
+			}, SILENCE_MS / 3)
+		}
+		if (!busy && watchdog) {
+			clearInterval(watchdog)
+			watchdog = null
+		}
+	})
+
 	const send = async (text: string) => {
 		if (!session.value || !text.trim()) return
 		running.value = true
@@ -330,10 +376,12 @@ export function useFlowChat(
 		socket?.off('flow:resync', onResync)
 		unsubscribe()
 		if (poller) clearInterval(poller)
+		if (watchdog) clearInterval(watchdog)
 	})
 
 	return {
 		messages,
+		turn,
 		results,
 		partial,
 		activeTool,

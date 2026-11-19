@@ -5,7 +5,10 @@
 			class="h-40 animate-pulse rounded-7 bg-surface-gray-2"
 		/>
 		<div v-else-if="data.data" class="space-y-4">
-			<div class="flex flex-wrap items-center gap-2 text-p-sm text-ink-gray-6">
+			<div
+				v-if="!untouched"
+				class="flex flex-wrap items-center gap-2 text-p-sm text-ink-gray-6"
+			>
 				<Badge :theme="statusTheme(data.data.assignment.status)">{{
 					__(
 						data.data.assignment.status === 'Assigned'
@@ -52,7 +55,7 @@
 				</div>
 			</div>
 			<p v-if="!data.data.evidence.length" class="text-p-sm text-ink-gray-6">
-				{{ __('Nothing recorded yet.') }}
+				{{ __('No progress yet.') }}
 			</p>
 			<div
 				v-for="row in data.data.evidence"
@@ -160,6 +163,19 @@ const needsSignOff = computed(
 	() =>
 		props.signOffRequired && data.data && !data.data.assignment.signed_off_by
 )
+
+// Someone who has not begun: a status, a zero score and an empty list all say the same thing,
+// so the dialog says it once.
+const untouched = computed(() => {
+	const assignment = data.data?.assignment
+	return (
+		!!assignment &&
+		!data.data.evidence.length &&
+		assignment.status === 'Assigned' &&
+		!assignment.acknowledged_on &&
+		!assignment.signed_off_by
+	)
+})
 
 const transcript = (row: { response?: string }) => {
 	try {
