@@ -17,7 +17,7 @@ function deleteErrorMessage(error: FrappeResourceError | undefined): string {
 // One request per row, all in flight together, so the caller refetches once; a
 // list resource's own `delete` refetches inside every success. Settled, not
 // all: one rejection would take the reload.
-async function bulkDeleteDocs(
+export async function bulkDeleteDocs(
 	doctype: string,
 	selections: Set<string>
 ): Promise<BulkDeleteResult> {

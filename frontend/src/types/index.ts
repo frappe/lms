@@ -3,6 +3,7 @@
 // wholesale and their names are not curated for collisions.
 export * from './api'
 export * from './coupons'
+export * from './dashboard'
 export * from './email'
 export * from './enrollment'
 export * from './listPage'

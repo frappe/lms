@@ -25,7 +25,8 @@
    "in_standard_filter": 1,
    "label": "Live Class",
    "options": "LMS Live Class",
-   "reqd": 1
+   "reqd": 1,
+   "search_index": 1
   },
   {
    "fieldname": "member",
@@ -33,7 +34,8 @@
    "in_standard_filter": 1,
    "label": "Member",
    "options": "User",
-   "reqd": 1
+   "reqd": 1,
+   "search_index": 1
   },
   {
    "fetch_from": "member.full_name",
@@ -89,7 +91,7 @@
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2026-01-14 08:54:21.421321",
+ "modified": "2026-11-13 18:00:00.000000",
  "modified_by": "sayali@frappe.io",
  "module": "LMS",
  "name": "LMS Live Class Participant",

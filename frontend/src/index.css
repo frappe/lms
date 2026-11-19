@@ -52,6 +52,17 @@ main#main-content {
 	z-index: 1;
 }
 
+/* Dialog's size scale steps from 896px to 1024px; the student, feedback and
+   analytics export sheets are 960px. */
+[data-slot='content']:has(> [data-course-student-sheet]),
+[data-slot='content']:has(> [data-batch-student-sheet]),
+[data-slot='content']:has(> [data-feedback-sheet]),
+[data-slot='content']:has(> [data-analytics-export-sheet]) {
+	max-width: 960px;
+	border-radius: 12px;
+	box-shadow: var(--elevation-2xl);
+}
+
 /* A tall dropdown menu otherwise overflows the viewport and clips its last rows. */
 .menu-content[data-slot='content'] {
 	max-height: var(--reka-popper-available-height);
@@ -69,4 +80,18 @@ main#main-content {
 /* frappe-ui's --ink-gray-2 bullets are near-invisible; match the ink-gray-4 counters. */
 .prose {
 	--tw-prose-bullets: var(--ink-gray-4);
+}
+
+/* frappe-ui hides a hovered row's dividers so its hover surface floats free,
+   but only draws that surface from `sm` on a hover-capable pointer. Elsewhere
+   (a tapped row on a phone stays :hover) keep the dividers. */
+@media (max-width: 639px), (hover: none) {
+	[data-slot='list-row']
+		+ [data-slot='list-row'][data-interactive]:hover
+		[data-slot='list-divider'],
+	[data-slot='list-row'][data-interactive]:hover
+		+ [data-slot='list-row'][data-slot]
+		[data-slot='list-divider'] {
+		opacity: 1;
+	}
 }

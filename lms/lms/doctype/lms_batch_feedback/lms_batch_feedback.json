@@ -30,7 +30,8 @@
    "in_list_view": 1,
    "label": "Batch",
    "options": "LMS Batch",
-   "reqd": 1
+   "reqd": 1,
+   "search_index": 1
   },
   {
    "fieldname": "feedback",
@@ -76,7 +77,7 @@
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2026-01-14 08:53:38.088168",
+ "modified": "2026-11-03 13:02:12.849947",
  "modified_by": "sayali@frappe.io",
  "module": "LMS",
  "name": "LMS Batch Feedback",

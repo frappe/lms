@@ -4202,6 +4202,19 @@ def get_editorjs_blocks(content):
 	return valid_blocks
 
 
+def _latest_exercise_submissions(exercises: list, member: str) -> dict:
+	"""The member's latest submission of each programming exercise, by exercise."""
+	latest = {}
+	for row in frappe.get_all(
+		"LMS Programming Exercise Submission",
+		filters={"exercise": ["in", [name for name in exercises if name] or [""]], "member": member},
+		fields=["name", "status", "exercise", "exercise_title", "creation"],
+		order_by="creation desc",
+	):
+		latest.setdefault(row.exercise, row)
+	return latest
+
+
 # EditorJS nests a handful of levels, and a nested list adds two per level.
 # Anything deeper is not lesson content, and walking it could exhaust the stack.
 MAX_EDITORJS_DEPTH = 32

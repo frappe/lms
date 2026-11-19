@@ -1,0 +1,101 @@
+{% autoescape true %}
+{%- set start = "right" if rtl else "left" -%}
+{%- set end = "left" if rtl else "right" -%}
+{%- set ink = "color: #171717;" -%}
+{%- set muted = "color: #6b6b6b;" -%}
+{%- set section = "font-size: 14px; font-weight: 600; color: #171717; margin: 28px 0 10px 0;" -%}
+{%- set cell = "padding: 7px 8px; border-bottom: 1px solid #ededed; vertical-align: top; text-align: " ~ start ~ ";" -%}
+{%- set head = "padding: 7px 8px; border-bottom: 1px solid #dcdcdc; font-weight: 600; font-size: 11px; color: #6b6b6b; text-align: " ~ start ~ "; white-space: nowrap;" -%}
+{%- set track = "background-color: #f3f3f3; height: 10px; border-radius: 5px; width: 100%;" -%}
+{%- set bar = "background-color: #383838; height: 10px; border-radius: 5px;" -%}
+<div dir="{{ 'rtl' if rtl else 'ltr' }}" style="width: 100%; background-color: #ffffff; {{ ink }} font-family: 'Inter', 'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif; font-size: 12px; line-height: 1.45;">
+	<div style="font-size: 11px; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; {{ muted }}">{{ report.kind_label }}</div>
+	<div style="font-size: 22px; font-weight: 600; margin-top: 4px; {{ ink }}">{{ report.title }}</div>
+	<div style="margin-top: 6px; {{ muted }}">{{ _("Time frame") }}: {{ report.time_frame }} &#183; {{ _("Generated on {0}").format(report.generated_on) }}</div>
+
+	<table style="width: 100%; border-collapse: separate; border-spacing: 0; margin-top: 22px; table-layout: fixed;">
+		<tr>
+			{%- for kpi in report.kpis %}
+			<td style="padding: 0; padding-{{ end }}: {{ '0' if loop.last else '10px' }}; vertical-align: top;">
+				<div style="border: 1px solid #e2e2e2; border-radius: 10px; padding: 12px 14px;">
+					<div style="font-size: 11px; {{ muted }}">{{ kpi.label }}</div>
+					<div style="font-size: 24px; font-weight: 600; margin-top: 4px; {{ ink }}">{% if kpi.value is none %}&#8212;{% else %}{{ "%g" | format(kpi.value) }}{{ kpi.suffix }}{% endif %}</div>
+				</div>
+			</td>
+			{%- endfor %}
+		</tr>
+	</table>
+
+	<div style="{{ section }}">{{ _("Completion funnel") }}</div>
+	<table style="width: 100%; border-collapse: collapse; table-layout: fixed;">
+		{%- for step in report.funnel %}
+		<tr>
+			<td style="width: 26%; padding: 5px 0; padding-{{ end }}: 8px; {{ ink }}">{{ step.label }}</td>
+			<td style="padding: 5px 0;">
+				<div style="{{ track }}"><div style="{{ bar }} width: {{ step.percent or 0 }}%;"></div></div>
+			</td>
+			<td style="width: 16%; padding: 5px 0; padding-{{ start }}: 12px; white-space: nowrap; text-align: {{ end }}; {{ ink }}">
+				{{ step.count }} <span style="{{ muted }}">{% if step.percent is not none %}({{ "%g" | format(step.percent) }}%){% endif %}</span>
+			</td>
+		</tr>
+		{%- endfor %}
+	</table>
+
+	{%- if report.classes is not none %}
+	<div style="{{ section }}">{{ _("Attendance by class") }}</div>
+	{%- if report.classes %}
+	<table style="width: 100%; border-collapse: collapse; table-layout: fixed;">
+		<tr>
+			<th style="{{ head }} width: 34%;">{{ _("Class") }}</th>
+			<th style="{{ head }} width: 16%;">{{ _("Date") }}</th>
+			<th style="{{ head }}">{{ _("Attendance") }}</th>
+			<th style="{{ head }} width: 16%; text-align: {{ end }};">{{ _("Attended") }}</th>
+		</tr>
+		{%- for row in report.classes %}
+		<tr>
+			<td style="{{ cell }}">{{ row.title }}</td>
+			<td style="{{ cell }} {{ muted }} white-space: nowrap;">{{ row.date }}</td>
+			<td style="{{ cell }} vertical-align: middle;">
+				<div style="{{ track }}"><div style="{{ bar }} width: {{ row.percent or 0 }}%;"></div></div>
+			</td>
+			<td style="{{ cell }} text-align: {{ end }}; white-space: nowrap;">
+				{{ row.attended }} <span style="{{ muted }}">{% if row.percent is not none %}({{ "%g" | format(row.percent) }}%){% endif %}</span>
+			</td>
+		</tr>
+		{%- endfor %}
+	</table>
+	{%- else %}
+	<div style="{{ muted }}">{{ _("No live classes have been held yet.") }}</div>
+	{%- endif %}
+	{%- endif %}
+
+	<div style="{{ section }}">{{ _("Students") }} <span style="font-weight: 400; {{ muted }}">({{ report.table_rows | length }})</span></div>
+	{%- if report.table_rows %}
+	<table style="width: 100%; border-collapse: collapse; font-size: 11px;">
+		<thead style="display: table-header-group;">
+			<tr>
+				{%- for column in report.table_header %}
+				<th style="{{ head }}">{{ column }}</th>
+				{%- endfor %}
+			</tr>
+		</thead>
+		<tbody>
+			{%- for row in rows %}
+			<tr style="page-break-inside: avoid;">
+				{%- for value in row %}
+				<td style="{{ cell }}{% if loop.first %} font-weight: 500;{% else %} {{ muted }}{% endif %}">{{ value if value is not none else "" }}</td>
+				{%- endfor %}
+			</tr>
+			{%- endfor %}
+		</tbody>
+	</table>
+	{%- if hidden_note %}
+	<div style="margin-top: 8px; {{ muted }}">{{ hidden_note }}</div>
+	{%- endif %}
+	{%- else %}
+	<div style="{{ muted }}">{{ _("No students enrolled in this time frame.") }}</div>
+	{%- endif %}
+
+	<div style="margin-top: 24px; padding-top: 10px; border-top: 1px solid #ededed; font-size: 11px; {{ muted }}">{{ report.note }}</div>
+</div>
+{% endautoescape %}
