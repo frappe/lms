@@ -2428,7 +2428,7 @@ def get_country_code():
 	try:
 		res = requests.get(
 			f"http://ip-api.com/json/{ip}",
-			 timeout=3,
+			timeout=3,
 		)
 		data = res.json()
 		if data.get("status") != "fail":
