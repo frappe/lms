@@ -12,15 +12,9 @@ import postcss from 'postcss'
 const ROOT = resolve(__dirname, '../..')
 
 const WEARERS = [
-<<<<<<< HEAD
 	'src/components/Layouts/PageHeader.vue',
 	'src/components/Layouts/MobilePageLayout.vue',
-	'src/components/FormShell.vue',
-=======
-	'src/components/Layouts/pages/PageHeader.vue',
-	'src/components/Layouts/pages/mobile/MobilePageLayout.vue',
 	'src/components/MobilePage.vue',
->>>>>>> 8f06a53 (feat: redesign the course and batch dashboards)
 	'src/components/SkeletonLoader.vue',
 ]
 
