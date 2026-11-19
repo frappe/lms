@@ -74,6 +74,9 @@ web_include_js = []
 after_install = "lms.install.after_install"
 after_sync = "lms.install.after_sync"
 before_uninstall = "lms.install.before_uninstall"
+# On Frappe Cloud, the owner's first login finishes the desk wizard from the region saved at
+# sign-up, so they land in Learning's own setup page instead.
+setup_wizard_auto_complete = True
 # Runs after every setup, including one finished at login on Frappe Cloud, without forcing
 # the desk wizard the way setup_wizard_complete would.
 setup_wizard_success = "lms.demo.demo_data.create_demo_data"
