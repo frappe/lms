@@ -4,6 +4,7 @@
 		:steps="steps"
 		:labels="labels"
 		:back-button="false"
+		preview-side="start"
 		@finish="finish"
 	>
 		<template #brand>
@@ -40,6 +41,12 @@
 					<SetupInvite
 						v-else-if="step.type === 'invite'"
 						:can-go-back="canGoBack"
+						:first-role="
+							answers.first_milestone === 'Onboard my existing learners'
+								? 'Batch Evaluator'
+								: 'Course Creator'
+						"
+						@invitees="(emails) => (invitees = emails)"
 						@done="done"
 						@skip="skip"
 						@back="back"
@@ -47,6 +54,7 @@
 					<PasswordStep
 						v-else-if="step.type === 'password'"
 						:labels="passwordLabels"
+						@input="(length) => (passwordLength = length)"
 						@done="done"
 					/>
 				</div>
@@ -88,8 +96,24 @@
 			/>
 		</template>
 
-		<template #preview>
-			<SetupPreview />
+		<template #preview="{ step }">
+			<SetupPreviewFrame
+				side="start"
+				:app-width="1024"
+				:expanded="handingOver"
+				@expanded="openApp"
+			>
+				<SetupPreview
+					:step="step"
+					:answers="answers"
+					:email="user.data?.email || user.data?.name || ''"
+					:user-name="user.data?.full_name || ''"
+					:password-length="passwordLength"
+					:invitees="invitees"
+					:handing-over="handingOver"
+					:landing="landing"
+				/>
+			</SetupPreviewFrame>
 		</template>
 	</SetupFlow>
 	<div
@@ -110,16 +134,24 @@
 </template>
 
 <script setup>
-import { Button, call, createResource, toast, usePageMeta } from 'frappe-ui'
+import {
+	Button,
+	call,
+	createListResource,
+	createResource,
+	toast,
+	usePageMeta,
+} from 'frappe-ui'
 import {
 	ChoiceStep,
 	ListStep,
 	PasswordStep,
 	SetupFlow,
+	SetupPreviewFrame,
 	TelemetryConsent,
 } from '@framework/ui/components/SetupFlow/index'
 import { useTelemetry } from '@framework/ui/telemetry/index'
-import { computed, inject, reactive } from 'vue'
+import { computed, inject, reactive, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import LMSLogo from '@/components/Icons/LMSLogo.vue'
 import PersonaToolIcon from '@/components/PersonaToolIcon.vue'
@@ -132,6 +164,15 @@ const router = useRouter()
 const { capture } = useTelemetry()
 
 const answers = reactive({})
+
+const passwordLength = ref(0)
+const invitees = ref([])
+const handingOver = ref(false)
+const landing = ref(null)
+// Long enough for the swap to the site's own list to finish before the window grows.
+const LANDING_SWAP_MS = 500
+const TOOL_PICK_MS = 800
+const dayjs = inject('$dayjs')
 let goalRoute = { name: 'Home' }
 
 const setupState = createResource({
@@ -208,8 +249,18 @@ const passwordLabels = computed(() => ({
 	failed: __('That password could not be saved. Try another.'),
 }))
 
-function pick(step, option, done) {
+async function pick(step, option, done) {
 	answers[step.key] = option.value
+	// The preview answers a tool pick, the import it would use or New Course, before
+	// the step moves on. Below lg there is no preview to wait for.
+	if (
+		step.key === 'current_tool' &&
+		window.matchMedia?.('(min-width: 1024px)').matches
+	) {
+		await new Promise((resolve) => setTimeout(resolve, TOOL_PICK_MS))
+		// Picked again or cleared meanwhile: that pick moves on, or none does.
+		if (answers[step.key] !== option.value) return
+	}
 	done({ choice: option.value })
 }
 
@@ -250,9 +301,58 @@ async function finish() {
 			responses: JSON.stringify({ site: user.data?.sitename, ...answers }),
 		}).catch(() => {})
 	}
-	// A full load, so the getting-started checklist, set up when the app
-	// first loaded, is built again in the order of the goal just picked.
-	window.location.href = router.resolve(goalRoute).href
+	// Below lg the preview is hidden, so there is nothing to grow into the app.
+	if (!window.matchMedia?.('(min-width: 1024px)').matches) return openApp()
+	await showSite()
+	handingOver.value = true
+}
+
+// The preview's samples give way to the site's own courses or batches, the rows the page
+// it opens will list, so the owner lands on what they saw last.
+async function showSite() {
+	const toBatches = goalRoute.name === 'Batches'
+	try {
+		const rows = await siteList(toBatches).reload()
+		landing.value = {
+			view: toBatches ? 'Batches' : 'Courses',
+			rows: rows || [],
+		}
+		await new Promise((resolve) => setTimeout(resolve, LANDING_SWAP_MS))
+	} catch {
+		// The page itself shows the real list a moment later; hand over as things are.
+	}
+}
+
+// The list the page opens with: same resource and cache key as the Courses or Batches
+// page, which reuses it, so the page has its rows on arrival instead of loading cards.
+// Keep these options in step with that page's own `createListResource`.
+function siteList(toBatches) {
+	const shared = { pageLength: 24, start: 0 }
+	return toBatches
+		? createListResource({
+				...shared,
+				doctype: 'LMS Batch',
+				url: 'lms.lms.utils.get_batches',
+				cache: ['batches', user.data?.name],
+				filters: {
+					end_date: ['>=', dayjs().format('YYYY-MM-DD')],
+					published: 1,
+				},
+				orderBy: 'start_date',
+		  })
+		: createListResource({
+				...shared,
+				doctype: 'LMS Course',
+				url: 'lms.lms.utils.get_courses',
+				cache: ['courses', user.data?.name],
+				filters: { published: 1, upcoming: 0, live: 1 },
+		  })
+}
+
+// No full load: the app's sidebar, which builds the getting-started checklist in the
+// order of the goal just saved, mounts with the page it opens.
+function openApp() {
+	router.replace(goalRoute)
 }
 
 usePageMeta(() => ({ title: __('Set up Frappe Learning') }))

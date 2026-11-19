@@ -7,9 +7,18 @@ import { describe, expect, it, vi, beforeEach } from 'vitest'
 import { defineComponent, h } from 'vue'
 import { flushPromises, mount } from '@vue/test-utils'
 
-const { callMock, captureMock, replaceMock, toastError, setupState } =
-	vi.hoisted(() => ({
+const {
+	callMock,
+	captureMock,
+	listResourceMock,
+	replaceMock,
+	toastError,
+	setupState,
+} = vi.hoisted(() => ({
 		callMock: vi.fn(() => Promise.resolve()),
+		listResourceMock: vi.fn((_options: Record<string, unknown>) => ({
+			reload: () => Promise.resolve([{ name: 'demo-batch' }]),
+		})),
 		captureMock: vi.fn(),
 		replaceMock: vi.fn(),
 		toastError: vi.fn(),
@@ -19,6 +28,7 @@ const { callMock, captureMock, replaceMock, toastError, setupState } =
 vi.mock('frappe-ui', () => ({
 	Button: defineComponent({ setup: () => () => h('button') }),
 	call: callMock,
+	createListResource: listResourceMock,
 	createResource: (options: { onSuccess?: (data: unknown) => void }) => {
 		options.onSuccess?.(setupState.data)
 		return { fetched: true, data: setupState.data }
@@ -63,9 +73,10 @@ vi.mock('@framework/ui/components/SetupFlow/index', () => ({
 					onClick: () => emit('choose', props.options[1]),
 				}),
 	}),
+	SetupPreviewFrame: defineComponent({ setup: () => () => h('div') }),
 	PasswordStep: defineComponent({
 		props: ['labels'],
-		emits: ['done'],
+		emits: ['done', 'input'],
 		setup:
 			(_props, { emit }) =>
 			() =>
@@ -76,6 +87,7 @@ vi.mock('@framework/ui/components/SetupFlow/index', () => ({
 			steps: { type: Array, required: true },
 			labels: Object,
 			backButton: Boolean,
+			previewSide: String,
 		},
 		emits: ['finish'],
 		setup(props: { steps: { type: string }[] }, { slots, emit }) {
@@ -100,7 +112,12 @@ const mountPage = async () => {
 	const { default: Setup } = await import('@/pages/Setup.vue')
 	return mount(Setup, {
 		global: {
-			provide: { $user: { data: { sitename: 'learn.example.com' } } },
+			provide: {
+				$user: {
+					data: { name: 'owner@example.com', sitename: 'learn.example.com' },
+				},
+				$dayjs: () => ({ format: () => '2026-11-18' }),
+			},
 			stubs: { LMSLogo: true, PersonaToolIcon: true },
 		},
 	})
@@ -133,7 +150,9 @@ describe('Setup', () => {
 		expect(localStorage.getItem('lmsFirstGoal')).toBe(
 			'Onboard my existing learners'
 		)
-		expect(window.location.href).toBe('/lms/Batches')
+		// In the app, not a full load: the sidebar that builds the checklist mounts with it.
+		expect(replaceMock).toHaveBeenCalledWith({ name: 'Batches' })
+		expect(window.location.href).toBe('')
 	})
 
 	it('stays on the page and says so when saving fails', async () => {
@@ -151,6 +170,7 @@ describe('Setup', () => {
 			'Pick one of the goals shown in setup.'
 		)
 		expect(window.location.href).toBe('')
+		expect(replaceMock).not.toHaveBeenCalled()
 		expect(localStorage.getItem('lmsFirstGoal')).toBeNull()
 		expect(callMock).not.toHaveBeenCalledWith(
 			'lms.lms.api.capture_user_persona',
@@ -199,5 +219,23 @@ describe('Setup', () => {
 		await mountPage()
 		expect(givenSteps[0].name).toBe('password')
 		expect(givenSteps.at(-1)?.name).toBe('invite_team')
+	})
+
+	it('fills the list the landing page reuses, so it opens without loading cards', async () => {
+		window.matchMedia = vi.fn(() => ({ matches: true })) as unknown as typeof window.matchMedia
+		const wrapper = await mountPage()
+		await wrapper.find('.goal').trigger('click')
+		flow.finish()
+		await flushPromises()
+
+		expect(listResourceMock).toHaveBeenCalledWith(
+			expect.objectContaining({
+				url: 'lms.lms.utils.get_batches',
+				cache: ['batches', 'owner@example.com'],
+				filters: { end_date: ['>=', '2026-11-18'], published: 1 },
+			})
+		)
+		// @ts-expect-error jsdom has no matchMedia; the other tests run as a narrow screen.
+		delete window.matchMedia
 	})
 })

@@ -3,7 +3,7 @@
 
 import frappe
 
-from lms.demo.demo_data import create_demo_data
+from lms.demo.demo_data import DEMO_BATCH_TITLE, create_demo_data
 from lms.lms.api import clear_demo_data
 from lms.lms.test_helpers import BaseTestUtils
 
@@ -36,3 +36,22 @@ class TestDemoData(BaseTestUtils):
 
 		self.assertFalse(frappe.db.exists("User", DEMO_INSTRUCTOR))
 		self.assertTrue(frappe.db.exists("User", self.real_user.name))
+
+	def test_demo_data_includes_a_published_batch_for_the_demo_course(self):
+		"""Setup lands an owner on Batches when they start by onboarding learners; a new site
+		should show the sample batch there, as it shows the sample course on Courses."""
+		create_demo_data()
+
+		batch = frappe.get_doc("LMS Batch", {"title": DEMO_BATCH_TITLE})
+		self.assertTrue(batch.published)
+		self.assertTrue(batch.notification_sent)
+		self.assertGreaterEqual(str(batch.end_date), frappe.utils.today())
+		course = frappe.db.get_value("LMS Course", {"title": "A guide to Frappe Learning"})
+		self.assertEqual([row.course for row in batch.courses], [course])
+		self.assertEqual(frappe.db.count("LMS Batch Enrollment", {"batch": batch.name}), 3)
+
+	def test_clear_demo_data_removes_the_demo_batch(self):
+		create_demo_data()
+		clear_demo_data()
+
+		self.assertFalse(frappe.db.exists("LMS Batch", {"title": DEMO_BATCH_TITLE}))
