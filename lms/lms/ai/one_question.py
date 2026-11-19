@@ -19,6 +19,15 @@ JOINED_ASK = re.compile(
 	r"are|was|were|have|has|should)\b",
 	re.I,
 )
+# The tutor saying what it is about to do with its own tools ("I'll confirm that one.") is noise
+# to the learner: the page shows their progress. Prompts and tool replies alone did not stop it.
+NARRATION = re.compile(
+	r"^(?:\w+,\s*(?:and\s+)?)?(?:I['’]?ll|I will|let me|I['’]?m going to|I am going to)\s+"
+	r"(?:now\s+)?(?:confirm|tick|mark)\b",
+	re.I,
+)
+# Longer than this, a sentence is teaching something, whatever it starts with.
+NARRATION_WORDS = 8
 # What the learner saw stays known for this long, for the next message to carry.
 SEEN_FOR = 24 * 60 * 60
 
@@ -29,7 +38,8 @@ def check_turn(session_name: str) -> dict[str, str]:
 	changed = {}
 	asked = False
 	for text in texts:
-		shown = _without_questions(text) if asked else one_ask(text)
+		plain = without_narration(text)
+		shown = _without_questions(plain) if asked else one_ask(plain)
 		asked = asked or "?" in shown
 		if shown != text:
 			changed[text] = shown
@@ -68,6 +78,22 @@ def one_ask(text: str) -> str:
 	if joined:
 		question = question[: joined.start()].rstrip(" ,;") + "?"
 	return (text[:start] + question).strip()
+
+
+def without_narration(text: str) -> str:
+	"""The reply without sentences that only announce a tool call, such as "I'll tick that off."."""
+	sentences = re.findall(r"[^.!?]+[.!?]*", text or "")
+	kept = [s.strip() for s in sentences if not _narrates(s.strip())]
+	return text if len(kept) == len(sentences) else " ".join(kept).strip()
+
+
+def _narrates(sentence: str) -> bool:
+	"""A short statement, never a question, that only says what the tutor is about to tick."""
+	return (
+		bool(NARRATION.search(sentence))
+		and not sentence.endswith("?")
+		and len(sentence.split()) <= NARRATION_WORDS
+	)
 
 
 def _without_questions(text: str) -> str:

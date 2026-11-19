@@ -111,7 +111,7 @@
 
 		<!-- Alpha: the finish is the one moment every tester reaches, so the team's questions live here. -->
 		<section
-			v-if="ready"
+			v-if="ready || triedEverything"
 			class="mt-7 flex flex-col gap-8 border-t border-outline-gray-1 pt-7"
 			aria-labelledby="alpha-feedback"
 		>
@@ -368,6 +368,11 @@ const agreed = ref(false)
 const saving = ref(false)
 const showCertificate = ref(false)
 const ready = computed(() => props.assignment.status === 'Ready')
+// The team wants to hear from everyone who went all the way through, passed or not: a learner
+// who did not pass has the most to tell them.
+const triedEverything = computed(
+	() => props.activities.length > 0 && props.activities.every((a) => a.done)
+)
 
 // The alpha questions. The stored values are these English strings, which match the
 // doctype's Select options; the screen shows them translated.

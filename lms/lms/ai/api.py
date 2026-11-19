@@ -530,6 +530,11 @@ def prepare_conversation(assignment: str, index: int) -> dict:
 	return goals.prepare_conversation(assignment, int(index))
 
 
+@frappe.whitelist()
+def roleplay_points(session: str) -> list[int]:
+	return goals.roleplay_points(session)
+
+
 @frappe.whitelist(methods=["POST"])
 def start_roleplay(assignment: str, index: int) -> str:
 	return goals.start_roleplay(assignment, int(index))

@@ -34,18 +34,11 @@
 				:aria-expanded="showIdeas"
 				@click="showIdeas = !showIdeas"
 			>
-				<span class="flex gap-0.5" aria-hidden="true">
-					<span
-						v-for="idea in ideas"
-						:key="idea.idea"
-						class="h-1 w-3.5 rounded-full"
-						:class="idea.confirmed ? 'bg-surface-green-5' : 'bg-surface-gray-3'"
-					/>
-				</span>
-				<span class="hidden sm:inline">{{
-					__('{0} of {1} key ideas').format(confirmed, ideas.length)
-				}}</span>
-				<span class="sm:hidden">{{ `${confirmed}/${ideas.length}` }}</span>
+				<ProgressTiles
+					:done="confirmed"
+					:total="ideas.length"
+					:label="__('{0} of {1} key ideas').format(confirmed, ideas.length)"
+				/>
 				<span
 					class="size-3.5"
 					:class="showIdeas ? 'lucide-chevron-up' : 'lucide-chevron-down'"
@@ -201,6 +194,7 @@ import type { Socket } from 'socket.io-client'
 import FlowChat from '@/components/Goals/FlowChat.vue'
 import CharacterAvatar from '@/components/Goals/CharacterAvatar.vue'
 import KeyIdeas, { type KeyIdea } from '@/components/Goals/KeyIdeas.vue'
+import ProgressTiles from '@/components/Goals/ProgressTiles.vue'
 import { useOpening } from '@/composables/useOpening'
 import {
 	preferredMode,

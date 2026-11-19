@@ -60,7 +60,17 @@ afterEach(() => {
 })
 
 describe('listening', () => {
-	it("uses the browser's engine when it has one, without asking the server", async () => {
+	it("records for the site's transcriber first, even when the browser has an engine", async () => {
+		;(window as any).webkitSpeechRecognition = FakeRecognition
+		const voice = await load()
+		voice.listen(() => {})
+		await flush()
+		expect(call).toHaveBeenCalledWith('lms.lms.ai.api.transcription_available')
+		expect(getUserMedia).toHaveBeenCalled()
+	})
+
+	it("uses the browser's engine when the site has no transcriber", async () => {
+		call.mockResolvedValueOnce(false)
 		;(window as any).webkitSpeechRecognition = FakeRecognition
 		const voice = await load()
 		voice.listen(() => {})
@@ -78,19 +88,21 @@ describe('listening', () => {
 		expect(getUserMedia).toHaveBeenCalled()
 	})
 
-	it('moves the same turn to the server when the engine fails', async () => {
+	it('says so when the only engine fails, instead of listening to nothing', async () => {
+		call.mockResolvedValueOnce(false)
 		;(window as any).webkitSpeechRecognition = FakeRecognition
 		const voice = await load()
 		voice.listen(() => {})
 		await flush()
 		engines[0].onerror?.({ error: 'network' })
 		await flush()
-		expect(getUserMedia).toHaveBeenCalledTimes(1)
-		expect(voice.error.value).toBeNull()
-		expect(voice.blocked.value).toBe(false)
+		expect(getUserMedia).not.toHaveBeenCalled()
+		expect(voice.error.value).toContain('network')
+		expect(voice.listening.value).toBe(false)
 	})
 
-	it('asks for the microphone, not the server, when access is denied', async () => {
+	it('asks for the microphone when access is denied', async () => {
+		call.mockResolvedValueOnce(false)
 		;(window as any).webkitSpeechRecognition = FakeRecognition
 		const voice = await load()
 		voice.listen(() => {})

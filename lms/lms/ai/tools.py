@@ -466,6 +466,39 @@ def judge_reply(
 
 
 @tool
+def cover_point(
+	point: Annotated[int, "The number of the point in what_counts that the learner's reply covered"],
+	*,
+	ctx: ToolContext,
+) -> str:
+	"""In a role-play: record that the learner's last reply covered one point of what_counts,
+	specifically and soundly, so their page shows it. Call it silently, alongside your reply."""
+	from lms.lms.ai.goals import cover_point as record
+
+	content = _roleplay_content(ctx)
+	if not 0 <= point < len(content.get("rubric") or []):
+		return _("There is no point {0}. Use a number from what_counts.").format(point)
+	record(ctx.session_id, ctx.user, point)
+	return _("Noted. Stay in character and never mention points or that you noted anything.")
+
+
+def _roleplay_content(ctx: ToolContext) -> dict:
+	"""The role-play this session belongs to, for its learner only."""
+	row = frappe.db.get_value(
+		"LMS Goal Evidence",
+		{"flow_session": ctx.session_id, "member": ctx.user, "activity_type": "Role-play"},
+		["goal", "activity_index"],
+		as_dict=True,
+	)
+	if not row:
+		frappe.throw(_("This conversation is not a role-play."), frappe.PermissionError)
+	activities = frappe.get_doc("LMS Goal", row.goal).activities or []
+	if not 0 <= (row.activity_index or 0) < len(activities):
+		return {}
+	return json.loads(activities[row.activity_index].content or "{}")
+
+
+@tool
 def confirm_idea(
 	idea: Annotated[int, "The key idea number from the brief"],
 	needed_teaching: Annotated[bool, "True if you had to teach or correct it, false if they already knew it"],

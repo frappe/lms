@@ -102,6 +102,7 @@ def ensure_agents() -> None:
 				model=model,
 				description="Plays a character in a learning role-play.",
 				instructions=prompts.ROLE_PLAY,
+				tools=[tools.cover_point],
 				max_iterations=4,
 				auto_approve=True,
 			),

@@ -3,7 +3,13 @@
  * test_one_question.py checks, so the page and the server hold a turn to the same question.
  */
 import { describe, expect, it } from 'vitest'
-import { oneAsk, shownTurn, streamingShown, withoutQuestions } from '@/utils/oneQuestion'
+import {
+	oneAsk,
+	shownTurn,
+	streamingShown,
+	withoutNarration,
+	withoutQuestions,
+} from '@/utils/oneQuestion'
 
 describe('one question per turn', () => {
 	it('keeps only the first ask', () => {
@@ -56,5 +62,22 @@ describe('one question per turn', () => {
 			text: 'Noted. Here it',
 			complete: false,
 		})
+	})
+
+	it('drops a sentence that only announces a tool call', () => {
+		expect(withoutNarration("Good, you went straight to the deadline. I'll confirm that one.")).toBe(
+			'Good, you went straight to the deadline.'
+		)
+		expect(withoutNarration('Right. I\u2019ll tick that off.')).toBe('Right.')
+		expect(withoutNarration('I will mark the assembly point idea done. What next?')).toBe(
+			'What next?'
+		)
+		const mentions = 'So you can confirm you are reading the current one.'
+		expect(withoutNarration(mentions)).toBe(mentions)
+		expect(shownTurn(["Spot on. I'll confirm that idea now."])).toEqual(['Spot on.'])
+		const teaching =
+			'Let me mark the steps you got right before we look at the order of the rest.'
+		expect(withoutNarration(teaching)).toBe(teaching)
+		expect(withoutNarration('Let me confirm, is it Friday?')).toBe('Let me confirm, is it Friday?')
 	})
 })

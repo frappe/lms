@@ -1117,14 +1117,31 @@ def transcription_hint(session: str, user: str) -> str:
 	if not row:
 		return ""
 	goal = frappe.get_doc("LMS Goal", row.goal)
-	words = [goal.title]
-	words += [idea["heading"] for idea in ideas.key_ideas(goal)]
+	key_ideas = ideas.key_ideas(goal)
+	# The names the material uses come first: without them Whisper hears "Frappe" as "Flappy".
+	words = proper_names([f"{idea['heading']}. {idea['body'] or ''}" for idea in key_ideas])
+	words += [goal.title]
+	words += [idea["heading"] for idea in key_ideas]
 	activities = goal.activities or []
 	if 0 <= (row.activity_index or 0) < len(activities):
 		content = characters.name_cast(json.loads(activities[row.activity_index].content or "{}"))
 		words += [content.get("character"), content.get("setting")]
 	words += [member.get("name") for member in characters.CAST.values()]
 	return ". ".join(dict.fromkeys(word.strip().rstrip(".") for word in words if word))[:600]
+
+
+def proper_names(texts: list[str], limit: int = 15) -> list[str]:
+	"""The names a text uses most: capitalised words that do not just start a sentence, and
+	acronyms, such as the organisation, its documents and its teams."""
+	counts: dict[str, int] = {}
+	for text in texts:
+		for sentence in re.split(r"(?<=[.!?:])\s+", text or ""):
+			for word in re.findall(r"\b[A-Z][\w-]*[A-Za-z0-9]", sentence)[1:]:
+				counts[word] = counts.get(word, 0) + 1
+			first = re.match(r"\s*([A-Z]{2,}[\w-]*)", sentence)
+			if first:
+				counts[first.group(1)] = counts.get(first.group(1), 0) + 1
+	return sorted(counts, key=lambda word: -counts[word])[:limit]
 
 
 # A greeting or "can you repeat that?" is not an answer, so it does not use up a reply.
@@ -1162,8 +1179,41 @@ def _roleplay_brief(content: dict, learner_situations: list[str] | None = None) 
 			"what_the_learner_must_do": content.get("learner_task"),
 			"your_opening_line": content.get("opening_line"),
 			"learner_replies": roleplay_exchanges(content),
+			"what_counts": [
+				{"point": i, "criterion": row.get("criterion"), "good": row.get("good")}
+				for i, row in enumerate(content.get("rubric") or [])
+			],
 		}
 	)
+
+
+# The points of a role-play the learner has covered, as the character judged them while talking.
+POINTS_TTL = 7 * 24 * 60 * 60
+
+
+def _points_key(session: str) -> str:
+	return f"lms:roleplay-points:{session}"
+
+
+def covered_points(session: str) -> list[int]:
+	return sorted(frappe.cache.get_value(_points_key(session)) or [])
+
+
+def cover_point(session: str, user: str, point: int) -> list[int]:
+	"""Record one covered point and tell the learner's page."""
+	covered = sorted({*covered_points(session), int(point)})
+	frappe.cache.set_value(_points_key(session), covered, expires_in_sec=POINTS_TTL)
+	frappe.publish_realtime(
+		"lms_roleplay_points", {"session": session, "points": covered}, user=user, after_commit=False
+	)
+	return covered
+
+
+def roleplay_points(session: str) -> list[int]:
+	"""The points of the learner's role-play covered so far."""
+	if frappe.db.get_value("Flow Session", session, "owner") != frappe.session.user:
+		frappe.throw(_("This conversation is not yours."), frappe.PermissionError)
+	return covered_points(session)
 
 
 def _transcript(session_name: str) -> list[dict]:

@@ -4,7 +4,7 @@
 			v-if="mode === 'speak'"
 			:character="character || 'lumi'"
 			:assistant-name="assistantName"
-			:caption="speech.caption.value || (running ? '' : lastLine)"
+			:caption="speech.caption.value || (voiceIdle ? lastLine : '')"
 			:speaking="speech.speaking.value"
 			:running="running"
 			:thinking-label="toolLabel"
@@ -346,7 +346,12 @@ import CharacterAvatar from './CharacterAvatar.vue'
 import CitationPreview from './CitationPreview.vue'
 import VoiceStage from './VoiceStage.vue'
 import { type CharacterKey } from '@/utils/characters'
-import { oneAsk, streamingShown, withoutQuestions } from '@/utils/oneQuestion'
+import {
+	oneAsk,
+	streamingShown,
+	withoutNarration,
+	withoutQuestions,
+} from '@/utils/oneQuestion'
 
 const props = withDefaults(
 	defineProps<{
@@ -448,11 +453,10 @@ const shownText = computed(() => {
 	const asked = new Set<number>()
 	for (const message of savedMessages.value) {
 		if (message.role !== 'assistant') continue
+		const plain = withoutNarration(message.text)
 		const text =
 			checked.value[message.text.trim()] ??
-			(asked.has(message.turn)
-				? withoutQuestions(message.text)
-				: oneAsk(message.text))
+			(asked.has(message.turn) ? withoutQuestions(plain) : oneAsk(plain))
 		if (text.includes('?')) asked.add(message.turn)
 		shown.set(message.key, text)
 	}
@@ -662,7 +666,16 @@ watch(
 	}
 )
 // Once the voice has finished, the stage keeps the last thing said, usually the question, so the
-// learner can read it again while they answer.
+// learner can read it again while they answer. Never before: a line shown ahead of the voice
+// reads as a different sentence from the one being said.
+const voiceIdle = computed(
+	() =>
+		!running.value &&
+		!checking.value &&
+		!speech.speaking.value &&
+		speech.remaining.value === 0 &&
+		allSaid()
+)
 const lastLine = computed(() => {
 	const reply = messages.value.findLast(
 		(message) =>

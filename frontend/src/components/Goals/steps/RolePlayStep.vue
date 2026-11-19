@@ -35,13 +35,21 @@
 						}}
 					</div>
 				</div>
-				<Button
-					v-if="stage === 'chat' && !outOfReplies"
-					:disabled="turns < MIN_REPLIES"
-					:loading="finishing"
-					:title="
-						turns < MIN_REPLIES ? __('Reply at least twice first') : undefined
+				<ProgressTiles
+					v-if="stage === 'chat' && points.length"
+					class="rounded-4 border border-outline-gray-2 px-2.5 py-1.5 text-p-xs text-ink-gray-8"
+					:done="covered.length"
+					:total="points.length"
+					:label="
+						__('{0} of {1} points covered').format(
+							covered.length,
+							points.length
+						)
 					"
+				/>
+				<Button
+					v-if="stage === 'chat' && !outOfReplies && canFinish"
+					:loading="finishing"
 					:label="__('I\'m done')"
 					@click="finish"
 				/>
@@ -102,7 +110,7 @@
 							<p class="flex-1 text-p-sm text-ink-gray-6">
 								{{
 									__(
-										'Reply in your own words, the way you would for real. You get {0} replies, and can press "I\'m done" after your second.',
+										'Reply in your own words, the way you would for real. You get {0} replies. Once you have covered every point that counts, you can finish early.',
 										[exchanges]
 									)
 								}}
@@ -402,6 +410,7 @@ import {
 import type { Socket } from 'socket.io-client'
 import FlowChat from '@/components/Goals/FlowChat.vue'
 import CharacterAvatar from '@/components/Goals/CharacterAvatar.vue'
+import ProgressTiles from '@/components/Goals/ProgressTiles.vue'
 import { useOpening } from '@/composables/useOpening'
 import { preferredMode, useVoice } from '@/composables/useVoice'
 import { CAST_NAMES, castTrait, isCastKey } from '@/utils/characters'
@@ -451,6 +460,36 @@ const finishing = ref(false)
 const MIN_REPLIES = 2
 const exchanges = computed(() => Number(content.value.exchanges) || 4)
 const outOfReplies = computed(() => turns.value >= exchanges.value)
+
+// The points that count, ticked off by the character as the learner covers them. Finishing early
+// is for a learner who has covered them all; a role-play without points keeps the old rule.
+const points = computed<string[]>(() => content.value.criteria || [])
+const covered = ref<number[]>([])
+const canFinish = computed(() =>
+	points.value.length
+		? covered.value.length >= points.value.length
+		: turns.value >= MIN_REPLIES
+)
+const loadPoints = async () => {
+	if (!session.value) return
+	try {
+		covered.value = (await call('lms.lms.ai.api.roleplay_points', {
+			session: session.value,
+		})) as number[]
+	} catch {
+		covered.value = []
+	}
+}
+watch(session, () => {
+	covered.value = []
+	void loadPoints()
+})
+const onPoints = (data: { session?: string; points?: number[] }) => {
+	if (data?.session && data.session === session.value)
+		covered.value = data.points || []
+}
+socket?.on('lms_roleplay_points', onPoints)
+onBeforeUnmount(() => socket?.off('lms_roleplay_points', onPoints))
 const showQuotes = ref(false)
 
 const passMark = computed(() => props.activity.content?.pass_mark || 70)

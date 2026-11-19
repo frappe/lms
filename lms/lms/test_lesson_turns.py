@@ -100,3 +100,40 @@ class TestStalledTurn(IntegrationTestCase):
 			_row("assistant", "And that wraps it up."),
 		]
 		self.assertFalse(goals.turn_stalled(rows, {}))
+
+
+class TestRolePlayPoints(IntegrationTestCase):
+	"""The points a role-play's learner has covered, as the character marks them."""
+
+	def setUp(self):
+		self.session = "points-test-session"
+		frappe.cache.delete_value(goals._points_key(self.session))
+
+	def tearDown(self):
+		frappe.cache.delete_value(goals._points_key(self.session))
+
+	def test_points_add_up_once_each_in_order(self):
+		goals.cover_point(self.session, "Guest", 2)
+		goals.cover_point(self.session, "Guest", 0)
+		self.assertEqual(goals.cover_point(self.session, "Guest", 2), [0, 2])
+		self.assertEqual(goals.covered_points(self.session), [0, 2])
+
+	def test_only_the_learner_who_owns_the_session_can_read_them(self):
+		with self.assertRaises(frappe.PermissionError):
+			goals.roleplay_points(self.session)
+
+
+class TestTranscriptionHint(IntegrationTestCase):
+	"""Whisper is told the names the material uses, so it writes them right."""
+
+	def test_the_names_the_material_uses_come_first(self):
+		names = goals.proper_names(
+			[
+				"Your part in the Frappe QMS. The Quality Manual FRA-QM-01 is kept on Frappe's drive.",
+				"QMS audits: every team at Frappe reports incidents to the Quality Team.",
+			]
+		)
+		self.assertEqual(names[:2], ["Frappe", "QMS"])
+		self.assertIn("FRA-QM-01", names)
+		self.assertNotIn("Your", names)
+		self.assertNotIn("The", names)

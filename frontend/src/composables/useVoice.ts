@@ -122,9 +122,12 @@ export function useVoice() {
 		transcript.value = ''
 		error.value = null
 		listening.value = true
+		// The site's own transcriber comes first: it is told the names the lesson uses, so it
+		// writes "Frappe" where the browser's engine heard "Flappy". The browser's engine is the
+		// fallback, and still shows the words live while the site's transcriber records.
 		void (async () => {
-			if (RecognitionClass && !engineFailed) engineTurn(onDone)
-			else if (await serverSTT()) recordTurn(onDone)
+			if (await serverSTT()) recordTurn(onDone)
+			else if (RecognitionClass && !engineFailed) engineTurn(onDone)
 			else listening.value = false
 		})()
 	}

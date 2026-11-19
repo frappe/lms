@@ -50,3 +50,23 @@ class TestOneQuestion(IntegrationTestCase):
 		self.assertTrue(sent.startswith("In the Helpdesk." + goals.SYSTEM_NOTE))
 		self.assertIn("Where is it logged?", sent)
 		self.assertEqual(one_question.with_what_they_saw("one-q-session", "Next."), "Next.")
+
+	def test_a_sentence_that_only_announces_a_tool_call_is_dropped(self):
+		self.assertEqual(
+			one_question.without_narration("Good, you went straight to the deadline. I'll confirm that one."),
+			"Good, you went straight to the deadline.",
+		)
+		self.assertEqual(one_question.without_narration("Right. I\u2019ll tick that off."), "Right.")
+		self.assertEqual(
+			one_question.without_narration("I will mark the assembly point idea done. What next?"),
+			"What next?",
+		)
+		mentions = "So you can confirm you are reading the current one."
+		self.assertEqual(one_question.without_narration(mentions), mentions)
+		reply = "Spot on. I'll confirm that idea now."
+		self.assertEqual(self._check([reply]), {reply: "Spot on."})
+		teaching = "Let me mark the steps you got right before we look at the order of the rest."
+		self.assertEqual(one_question.without_narration(teaching), teaching)
+		self.assertEqual(
+			one_question.without_narration("Let me confirm, is it Friday?"), "Let me confirm, is it Friday?"
+		)

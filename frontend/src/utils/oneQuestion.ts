@@ -9,6 +9,29 @@
 const JOINED_ASK =
 	/,\s*and\s+(what|which|who|whom|whose|where|when|why|how|do|does|did|can|could|would|will|is|are|was|were|have|has|should)\b/i
 
+// The tutor saying what it is about to do with its own tools ("I'll confirm that one.") is noise
+// to the learner: the page shows their progress.
+const NARRATION =
+	/^(?:\w+,\s*(?:and\s+)?)?(?:I['’]?ll|I will|let me|I['’]?m going to|I am going to)\s+(?:now\s+)?(?:confirm|tick|mark)\b/i
+
+// Longer than this, a sentence is teaching something, whatever it starts with.
+const NARRATION_WORDS = 8
+
+/** A short statement, never a question, that only says what the tutor is about to tick. */
+const narrates = (sentence: string): boolean =>
+	NARRATION.test(sentence) &&
+	!sentence.endsWith('?') &&
+	sentence.split(/\s+/).length <= NARRATION_WORDS
+
+/** The reply without sentences that only announce a tool call, such as "I'll tick that off.". */
+export function withoutNarration(text: string): string {
+	const sentences = (text || '').match(/[^.!?]+[.!?]*/g) || []
+	const kept = sentences
+		.map((sentence) => sentence.trim())
+		.filter((sentence) => !narrates(sentence))
+	return kept.length === sentences.length ? text : kept.join(' ').trim()
+}
+
 /** The reply up to the end of its first question, with any second ask joined to it cut off. */
 export function oneAsk(text: string): string {
 	text = text || ''
@@ -40,7 +63,8 @@ export function withoutQuestions(text: string): string {
 /** What the learner sees of a turn's replies, in order. */
 export function shownTurn(replies: string[]): string[] {
 	let asked = false
-	return replies.map((text) => {
+	return replies.map((reply) => {
+		const text = withoutNarration(reply)
 		const shown = asked ? withoutQuestions(text) : oneAsk(text)
 		asked = asked || shown.includes('?')
 		return shown
@@ -53,9 +77,10 @@ export function shownTurn(replies: string[]): string[] {
  * has asked, questions are dropped. `complete` says the text ends on a finished question.
  */
 export function streamingShown(
-	text: string,
+	streamed: string,
 	turnAsked: boolean
 ): { text: string; complete: boolean } {
+	const text = withoutNarration(streamed)
 	if (turnAsked) return { text: withoutQuestions(text), complete: false }
 	const end = (text || '').indexOf('?')
 	if (end < 0) return { text: text || '', complete: false }
