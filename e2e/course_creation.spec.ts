@@ -121,8 +121,9 @@ test.describe("Course Creation", () => {
 		// Tags. A new tag is the `Create "<tag>"` option CourseDetailsSection
 		// adds once the query reaches it, and reka only highlights that option
 		// a tick later, so an Enter pressed straight after typing can select
-		// nothing. Click the option itself, then wait for the trigger to list
-		// the tag before typing the next one.
+		// nothing. Click the option itself, and redo the pick when the click
+		// lands on an option the list was re-rendering: the trigger then still
+		// reads "Add tag" instead of listing the tag.
 		const tagsTrigger = page
 			.locator("label")
 			.filter({ hasText: "Tags" })
@@ -135,10 +136,17 @@ test.describe("Course Creation", () => {
 		);
 		const added: string[] = [];
 		for (const tag of ["Learning", "Frappe", "ERPNext"]) {
-			await tagInput.fill(tag);
-			await page.getByRole("option", { name: `Create "${tag}"` }).click();
 			added.push(tag);
-			await expect(tagsTrigger).toHaveText(added.join(", "));
+			await expect(async () => {
+				if (!(await tagInput.isVisible())) await tagsTrigger.click();
+				await tagInput.fill(tag);
+				await page
+					.getByRole("option", { name: `Create "${tag}"` })
+					.click({ timeout: 5000 });
+				await expect(tagsTrigger).toHaveText(added.join(", "), {
+					timeout: 5000,
+				});
+			}).toPass({ timeout: 20000 });
 		}
 		await page.keyboard.press("Escape");
 

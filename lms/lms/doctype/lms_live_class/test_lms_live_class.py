@@ -447,12 +447,16 @@ class TestLMSLiveClass(BaseTestUtils):
 			{"document_type": "LMS Live Class", "document_name": live_class.name},
 			pluck="for_user",
 		)
-		# Once each. The class's host and owner are Administrator, who Frappe never
-		# notifies of their own doing, so here only the batch's instructors are told.
+		# Once each, and only the hosts: the batch's instructors, and the class's host and
+		# owner. Those two are Administrator here, whom older Frappe versions skipped as
+		# its user ID is not its email, so the test does not count on them either way.
 		instructors = frappe.get_all(
 			"Course Instructor", {"parenttype": "LMS Batch", "parent": self.batch.name}, pluck="instructor"
 		)
-		self.assertCountEqual(notices, instructors)
+		hosts = {live_class.host, live_class.owner, *instructors} - {None}
+		self.assertEqual(len(notices), len(set(notices)))
+		self.assertLessEqual(set(instructors), set(notices))
+		self.assertLessEqual(set(notices), hosts)
 
 	def test_a_notice_that_fails_is_sent_on_the_next_try(self):
 		"""Failed is never retried, so it must wait for the hosts' notice."""

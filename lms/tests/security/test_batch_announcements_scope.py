@@ -111,12 +111,34 @@ class TestBatchAnnouncementsScope(BaseTestUtils):
 
 		frappe.set_user(self.instructor)
 		try:
-			with patch("frappe.core.doctype.communication.email.make", side_effect=make):
+			with patch("frappe.core.doctype.communication.email._make", side_effect=make):
 				send_batch_announcement(self.batch, "Sent through the form", "Body", self.instructor)
 		finally:
 			frappe.set_user("Administrator")
 
 		self.assertIn("Sent through the form", self._subjects_as(self.student))
+
+	def test_an_instructor_without_desk_access_sends_an_announcement(self):
+		"""Not mocked: frappe's make refuses every caller who is not a System User."""
+		self.assertEqual(frappe.db.get_value("User", self.instructor, "user_type"), "Website User")
+		frappe.set_user(self.instructor)
+		try:
+			with patch.dict(frappe.local.flags, {"mute_emails": True}):
+				send_batch_announcement(self.batch, "Sent without desk access", "Body", self.instructor)
+		finally:
+			frappe.set_user("Administrator")
+
+		communication = frappe.db.get_value(
+			"Communication",
+			{
+				"reference_doctype": "LMS Batch",
+				"reference_name": self.batch,
+				"subject": "Sent without desk access",
+			},
+			["lms_batch_announcement", "bcc"],
+			as_dict=True,
+		)
+		self.assertEqual(communication, {"lms_batch_announcement": 1, "bcc": self.student})
 
 	def test_the_patch_marks_past_announcements_only(self):
 		self._mail("Past announcement", user=self.instructor, announcement=0, bcc=self.student)

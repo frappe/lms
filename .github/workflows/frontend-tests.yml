@@ -20,11 +20,14 @@ jobs:
   plan:
     name: Plan
     if: github.event_name == 'pull_request'
-    runs-on: ubuntu-latest
+    runs-on: frappe-arc
     timeout-minutes: 5
     outputs:
       run: ${{ steps.plan.outputs.run }}
     steps:
+      - name: Install gh
+        # frappe-arc runners have no gh CLI.
+        run: sudo apt-get update -qq && sudo apt-get install -y -qq --no-install-recommends gh
       # Pull requests into develop and the hotfix branches skip this suite: it runs every hour
       # on the branch instead (branch-status.yml on develop), and on the release pull request.
       # A label runs it on one pull request. Labels are read live, so a re-run sees a new one.
@@ -49,7 +52,7 @@ jobs:
     needs: plan
     if: >-
       !cancelled() && (github.event_name != 'pull_request' || needs.plan.outputs.run == 'true')
-    runs-on: ubuntu-latest
+    runs-on: frappe-arc
     timeout-minutes: 15
     steps:
       # The bench layout, because frontend/package.json declares
@@ -73,6 +76,13 @@ jobs:
           ref: develop
           path: apps/frappe
           sparse-checkout: ui
+
+      # frappe-arc runners have no yarn, and setup-node's yarn cache needs it to find the cache.
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 24
+      - name: Install yarn
+        run: npm install --global yarn
 
       - uses: actions/setup-node@v6
         with:
