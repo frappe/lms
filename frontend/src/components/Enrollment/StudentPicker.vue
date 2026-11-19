@@ -125,8 +125,7 @@ const keyOf = (member: string): string => member.toLowerCase()
 const remember = (rows: readonly StudentOption[]) => {
 	for (const row of rows) {
 		known.set(keyOf(row.value), row)
-		// The description is the user's email, which pasted addresses look up.
-		known.set(keyOf(row.description), row)
+		if (row.email) known.set(keyOf(row.email), row)
 	}
 }
 

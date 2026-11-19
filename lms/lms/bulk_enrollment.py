@@ -541,6 +541,7 @@ def search_users(
 			"value": user.name,
 			"label": user.full_name or user.name,
 			"description": user.email,
+			"email": user.email,
 			"image": user.user_image,
 		}
 		for user in query.run(as_dict=True)
