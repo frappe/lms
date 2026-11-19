@@ -23,7 +23,6 @@
 				type="select"
 				:label="__('Role')"
 				:options="roleOptions"
-				:description="roleDescription"
 			/>
 			<ErrorMessage :message="error" />
 			<Button
@@ -69,7 +68,7 @@
 <script setup lang="ts">
 import { Button, ErrorMessage, FormControl, toast } from 'frappe-ui'
 import type { FrappeResourceError } from 'frappe-ui'
-import { computed, onMounted, ref } from 'vue'
+import { onMounted, ref } from 'vue'
 import { useInviteUser } from '@framework/ui/components/InviteUser/index'
 import { useOnboarding } from '@framework/ui/components/Onboarding/index'
 import SettingsLayout from '@/components/Layouts/settings/desktop/SettingsLayout.vue'
@@ -99,10 +98,6 @@ const roleOptions = ROLE_ROWS.map((row) => ({
 	label: row.label(),
 	value: row.role,
 }))
-
-const roleDescription = computed(
-	() => ROLE_ROWS.find((row) => row.role === role.value)?.description() ?? ''
-)
 
 const rolesLabel = (roles: string[]) =>
 	roles
