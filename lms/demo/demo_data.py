@@ -3,6 +3,7 @@ import json
 import frappe
 
 from lms.lms.doctype.lms_course.lms_course import update_course_statistics
+from lms.lms.telemetry import DEMO_BATCH_TITLE
 from lms.lms.utils import create_user, get_course_progress
 
 
@@ -53,6 +54,7 @@ def _create_demo_data():
 	create_progress(course, student, 3)
 	create_progress(course, student1, 2)
 	create_progress(course, student2, 4)
+	create_batch(course, [student, student1, student2])
 	frappe.db.set_single_value("LMS Settings", "demo_data_present", 1)
 
 
@@ -99,6 +101,39 @@ def create_course():
  """
 	course.save()
 	return course
+
+
+def create_batch(course, students):
+	filters = {"title": DEMO_BATCH_TITLE}
+	if frappe.db.exists("LMS Batch", filters):
+		return frappe.get_doc("LMS Batch", filters)
+
+	start = frappe.utils.add_days(frappe.utils.getdate(), 7)
+	batch = frappe.new_doc("LMS Batch")
+	batch.update(
+		{
+			"title": DEMO_BATCH_TITLE,
+			"description": "Learners take the demo course together, with a live class every week.",
+			"batch_details": "<p>A sample batch: learners go through the demo course together, on a schedule, with live classes and evaluations.</p>",
+			"start_date": start,
+			"end_date": frappe.utils.add_days(start, 30),
+			"start_time": "10:00:00",
+			"end_time": "11:00:00",
+			"timezone": frappe.utils.get_system_timezone(),
+			"seat_count": 20,
+			"published": 1,
+			# Sample content: publishing it must not email every user on the site.
+			"notification_sent": 1,
+			"instructors": [{"instructor": course.instructors[0].instructor}],
+			"courses": [{"course": course.name}],
+		}
+	)
+	batch.insert()
+	for student in students:
+		frappe.get_doc(
+			{"doctype": "LMS Batch Enrollment", "member": student.name, "batch": batch.name}
+		).insert()
+	return batch
 
 
 def create_instructor():

@@ -82,7 +82,7 @@ setup_wizard_auto_complete = True
 setup_wizard_success = "lms.demo.demo_data.create_demo_data"
 
 # Who may invite through the framework's User Invitation, and the roles they can give.
-_invitable_roles = ["Moderator", "Course Creator", "LMS Student"]
+_invitable_roles = ["Moderator", "Course Creator", "Batch Evaluator", "LMS Student"]
 user_invitation = {
 	"allowed_roles": {"System Manager": _invitable_roles, "Moderator": _invitable_roles},
 }

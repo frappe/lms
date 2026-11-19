@@ -14,7 +14,7 @@
 		<!-- An href makes the Button an anchor that opens in a new tab. -->
 		<Button
 			v-if="docs"
-			variant="ghost"
+			variant="subtle"
 			:href="safeUrl(docs)"
 			:label="__('Read the docs')"
 			@click="act('docs')"

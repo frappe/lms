@@ -69,6 +69,7 @@ from lms.lms.doctype.lms_certificate_evaluation.lms_certificate_evaluation impor
 from lms.lms.html_sanitizer import sanitize_rich_text
 from lms.lms.permissions import is_site_administrator
 from lms.lms.sidebar import LEGACY_VISIBILITY_FIELDS, ROW_FIELDS, get_sidebar_rows
+from lms.lms.telemetry import DEMO_BATCH_TITLE
 from lms.lms.utils import (
 	LMS_ROLES,
 	_latest_exercise_submissions,
@@ -4573,6 +4574,9 @@ def clear_demo_data():
 	quiz_title = "Do you know Frappe Learning?"
 	if frappe.db.exists("LMS Quiz", {"title": quiz_title}):
 		frappe.db.delete("LMS Quiz", {"title": quiz_title})
+
+	for demo_batch in frappe.get_all("LMS Batch", {"title": DEMO_BATCH_TITLE}, pluck="name"):
+		delete_batch(demo_batch)
 
 	demo_course = frappe.get_all("LMS Course", {"title": "A guide to Frappe Learning"}, pluck="name")
 
