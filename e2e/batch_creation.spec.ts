@@ -243,8 +243,9 @@ test.describe("Batch Creation", () => {
 			.or(page.getByRole("tab"))
 			.filter({ hasText: "Dashboard" })
 			.click();
-		// Exact: the empty dashboard also offers "Enroll Students".
-		await button(page, /^Enroll$/).click();
+		// A batch with no students shows only the empty state's Enroll students;
+		// the header's Enroll appears once the dashboard has data.
+		await button(page, /^Enroll students$/i).click();
 		// The Enroll Students dialog picks students with a MultiSelect, the same
 		// trigger + content-body search as the Instructors field above. Typing
 		// the unique email narrows the results to the student made above.
