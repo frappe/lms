@@ -15,7 +15,7 @@ jobs:
   # a second job mostly waits in the org-wide runner queue.
   linters:
     name: Linters
-    runs-on: ubuntu-latest
+    runs-on: frappe-arc
     timeout-minutes: 15
     if: github.event_name == 'pull_request'
 
@@ -37,6 +37,10 @@ jobs:
           key: packages-linters-${{ hashFiles('**/*requirements.txt', '**/pyproject.toml', '**/setup.py') }}
           restore-keys: |
             packages-
+
+      # pre-commit's own Node (for prettier and eslint) needs libatomic, which frappe-arc runners lack.
+      - name: Install libatomic
+        run: sudo apt-get update -qq && sudo apt-get install -y -qq --no-install-recommends libatomic1
 
       - name: Install and Run Pre-commit
         uses: pre-commit/action@v3.0.1
@@ -87,7 +91,7 @@ jobs:
 
   deps-vulnerable-check:
     name: 'Vulnerable Dependency Check'
-    runs-on: ubuntu-latest
+    runs-on: frappe-arc
     timeout-minutes: 10
 
     steps:

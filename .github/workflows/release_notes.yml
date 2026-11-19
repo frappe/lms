@@ -22,9 +22,12 @@ permissions:
 jobs:
   regen-notes:
     name: 'Regenerate release notes'
-    runs-on: ubuntu-latest
+    runs-on: frappe-arc
 
     steps:
+    - name: Install gh
+      # frappe-arc runners have no gh CLI.
+      run: sudo apt-get update -qq && sudo apt-get install -y -qq --no-install-recommends gh
     - name: Update notes
       run: |
         NEW_NOTES=$(gh api --method POST -H "Accept: application/vnd.github+json"  /repos/frappe/lms/releases/generate-notes  -f tag_name=$RELEASE_TAG \

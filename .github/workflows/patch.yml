@@ -31,18 +31,18 @@ jobs:
   seed-apt-cache:
     name: Seed apt cache
     if: github.event_name == 'push'
-    runs-on: ubuntu-latest
+    runs-on: frappe-arc
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@v6
       - uses: ./.github/actions/apt-install
         with:
-          packages: libcups2-dev mariadb-client libmariadb-dev
+          packages: build-essential pkg-config cron libffi-dev libssl-dev libjpeg-dev libcairo2-dev libpango1.0-dev libcups2-dev mariadb-client libmariadb-dev
 
   test:
     name: Patch Test
     if: github.event_name != 'push'
-    runs-on: ubuntu-latest
+    runs-on: frappe-arc
     timeout-minutes: 60
 
     services:
@@ -96,13 +96,17 @@ jobs:
           node-version: 24
           check-latest: true
 
+      # frappe-arc runners have no yarn, and bench init needs it.
+      - name: Install Yarn
+        run: corepack enable && corepack prepare yarn@1.22.22 --activate
+
       - name: Add to Hosts
         run: echo "127.0.0.1 $SITE" | sudo tee -a /etc/hosts
 
       - name: Install system dependencies
         uses: ./.github/actions/apt-install
         with:
-          packages: libcups2-dev mariadb-client libmariadb-dev
+          packages: build-essential pkg-config cron libffi-dev libssl-dev libjpeg-dev libcairo2-dev libpango1.0-dev libcups2-dev mariadb-client libmariadb-dev
 
       - name: Build the oldest bench and seed the fixture
         run: |
