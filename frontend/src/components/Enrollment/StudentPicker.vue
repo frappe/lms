@@ -123,7 +123,11 @@ const targetParams = () => ({
 const keyOf = (member: string): string => member.toLowerCase()
 
 const remember = (rows: readonly StudentOption[]) => {
-	for (const row of rows) known.set(keyOf(row.value), row)
+	for (const row of rows) {
+		known.set(keyOf(row.value), row)
+		// The description is the user's email, which pasted addresses look up.
+		known.set(keyOf(row.description), row)
+	}
 }
 
 let requestId = 0

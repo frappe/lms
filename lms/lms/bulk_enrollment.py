@@ -523,7 +523,7 @@ def search_users(
 	User = frappe.qb.DocType("User")
 	query = (
 		frappe.qb.from_(User)
-		.select(User.name, User.full_name, User.user_image)
+		.select(User.name, User.email, User.full_name, User.user_image)
 		.where(User.enabled == 1)
 		.where(User.name.notin(("Administrator", "Guest")))
 	)
@@ -531,16 +531,16 @@ def search_users(
 		query = query.where(User.user_type != "System User")
 	query = query.where(~ExistsCriterion(_blocking_enrollment(doctype, docname, include_enrolled)))
 	if names is not None:
-		query = query.where(User.name.isin(names)).orderby(User.name)
+		query = query.where(User.name.isin(names) | User.email.isin(names)).orderby(User.name)
 	else:
 		if txt:
-			query = query.where(User.full_name.like(f"%{txt}%") | User.name.like(f"%{txt}%"))
+			query = query.where(User.full_name.like(f"%{txt}%") | User.email.like(f"%{txt}%"))
 		query = query.orderby(User.full_name).orderby(User.name).limit(min(page_length, MAX_SEARCH_RESULTS))
 	return [
 		{
 			"value": user.name,
 			"label": user.full_name or user.name,
-			"description": user.name,
+			"description": user.email,
 			"image": user.user_image,
 		}
 		for user in query.run(as_dict=True)

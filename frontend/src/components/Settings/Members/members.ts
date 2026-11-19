@@ -106,7 +106,7 @@ export const memberColumns = (
 		label: __('User'),
 		type: 'stacked',
 		primary: (row) => row.full_name,
-		secondary: (row) => row.name,
+		secondary: (row) => row.email,
 		avatar: (row) => ({ image: row.user_image, label: row.full_name }),
 	},
 	{

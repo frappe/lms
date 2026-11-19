@@ -75,7 +75,7 @@ import {
 import { cleanError } from '@/utils'
 import type { Resource, SessionUser } from '@/types'
 
-type MemberRow = { name: string; roles?: string[] }
+type MemberRow = { name: string; email: string; roles?: string[] }
 
 const props = defineProps<{ memberID: string }>()
 
@@ -121,7 +121,7 @@ const ROLE_MAP = Object.fromEntries(
 ) as Record<MemberRoleKey, string>
 
 const member = reactive({
-	email: isEdit.value ? props.memberID : '',
+	email: '',
 	first_name: '',
 	last_name: '',
 })
@@ -160,6 +160,7 @@ const memberRow = computed<MemberRow | null>(() =>
 watch(
 	memberRow,
 	(found) => {
+		if (found) member.email = found.email
 		const current = found?.roles ?? []
 		for (const key of Object.keys(ROLE_MAP) as (keyof typeof roles)[]) {
 			roles[key] = current.includes(ROLE_MAP[key])
