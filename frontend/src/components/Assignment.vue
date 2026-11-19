@@ -118,7 +118,9 @@
 											validateFile(
 												file,
 												true,
-												(assignment.data?.type ?? '').toLowerCase()
+												assignment.data?.type === 'Video'
+													? 'assignment-video'
+													: (assignment.data?.type ?? '').toLowerCase()
 											)
 									"
 									@success="(file) => saveSubmission(file)"
@@ -311,7 +313,7 @@ import {
 	useKeyboardShortcuts,
 } from '@/composables/useKeyboardShortcuts'
 import router from '@/router'
-import { validateFile } from '@/utils'
+import { assignmentVideoExtensions, validateFile } from '@/utils'
 import RichTextEditor from '@/components/RichTextEditor.vue'
 import { safeUrl } from '@/utils/safeUrl'
 import { audioUploadExtensions } from '@/utils/audio'
@@ -552,7 +554,7 @@ const getType = (): string[] | undefined => {
 	} else if (type == 'Audio') {
 		return audioUploadExtensions.map((extension) => `.${extension}`)
 	} else if (type == 'Video') {
-		return ['video/*']
+		return assignmentVideoExtensions.map((extension) => `.${extension}`)
 	}
 }
 

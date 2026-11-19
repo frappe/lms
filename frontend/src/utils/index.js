@@ -728,6 +728,8 @@ export function singularize(word) {
 	)
 }
 
+export const assignmentVideoExtensions = ['mp4', 'mov']
+
 export const validateFile = async (
 	file,
 	showToast = true,
@@ -755,6 +757,15 @@ export const validateFile = async (
 		return error(
 			__('Upload an audio file: {0}.').format(
 				audioUploadExtensions.join(', ')
+			)
+		)
+	} else if (
+		fileType === 'assignment-video' &&
+		!assignmentVideoExtensions.includes(extension)
+	) {
+		return error(
+			__('Upload a video file: {0}.').format(
+				assignmentVideoExtensions.join(', ')
 			)
 		)
 	} else if (
