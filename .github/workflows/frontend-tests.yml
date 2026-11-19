@@ -77,6 +77,13 @@ jobs:
           path: apps/frappe
           sparse-checkout: ui
 
+      # frappe-arc runners have no yarn, and setup-node's yarn cache needs it to find the cache.
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 24
+      - name: Install yarn
+        run: npm install --global yarn
+
       - uses: actions/setup-node@v6
         with:
           node-version: 24

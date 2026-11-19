@@ -45,6 +45,13 @@ jobs:
           # frontend/src/socket imports socketio_port from this file at build time
           echo '{"socketio_port": 9000}' > sites/common_site_config.json
 
+      # frappe-arc runners have no yarn, and setup-node's yarn cache needs it to find the cache.
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - name: Install yarn
+        run: npm install --global yarn
+
       - uses: actions/setup-node@v4
         with:
           node-version: 24
