@@ -1,17 +1,21 @@
 name: Branch Tests
 
 # Pull requests into develop and the hotfix branches skip the server, UI and frontend suites. They
-# run here instead, every hour on develop and version-16 when new commits need them, and each open pull
+# run here instead, on develop and version-16 when new commits need them, and each open pull
 # request gets a status showing whether its branch passes. A pull request labelled fixes-develop
 # runs the suites itself, and its status turns green once the suites failing on its branch pass.
-# Scheduled workflows run only from the default branch, so this file lives on develop alone.
-# The hourly check also tells the Raven channel behind the RAVEN_BRANCH_TESTS_WEBHOOK secret of each full
-# run that failed since the previous check, with the pull requests merged since the suite last
-# passed and their authors.
+# A check runs after each push to develop. GitHub often delays or drops scheduled runs, so the
+# schedule is only a backstop, and it is what picks up version-16. Scheduled workflows run only
+# from the default branch, so this file lives on develop alone, and a push to version-16 starts nothing.
+# Each check waits for the full runs it started, then tells the Raven channel behind the
+# RAVEN_BRANCH_TESTS_WEBHOOK secret of each suite whose latest run failed, with the pull requests
+# merged since the suite last passed and their authors.
 
 on:
   schedule:
-    - cron: "23 * * * *"
+    - cron: "23 */3 * * *"
+  push:
+    branches: [develop]
   pull_request_target:
     branches: [develop, version-16-hotfix]
     types: [opened, synchronize, reopened, labeled, unlabeled, closed]
@@ -30,25 +34,35 @@ jobs:
   run-suites:
     name: Run Full Suites
     if: >-
-      ${{ github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+      ${{ contains(fromJSON('["schedule", "push", "workflow_dispatch"]'), github.event_name)
       || (github.event.action == 'closed' && github.event.pull_request.merged
       && contains(github.event.pull_request.labels.*.name, 'fixes-develop')) }}
     runs-on: frappe-arc
+    # Two checks at once could both start the suites on the same commit.
+    concurrency:
+      group: branch-suites-start
+      cancel-in-progress: false
     steps:
       # Only the helper is checked out, from the default branch: pull request code never runs here.
       - uses: actions/checkout@v4
         with:
           ref: ${{ github.event.repository.default_branch }}
           sparse-checkout: .github/helper
-      - run: python3 .github/helper/branch_status.py start ${{ github.event_name != 'schedule' && 'all' || '' }}
+      - run: python3 .github/helper/branch_status.py start ${{ !contains(fromJSON('["schedule", "push"]'), github.event_name) && 'all' || '' }}
         env:
           GH_TOKEN: ${{ github.token }}
 
   alert:
     name: Tell Raven of Failed Runs
     # Its own job on GitHub's runners: it holds the webhook secret, which stays off frappe-arc.
-    if: ${{ github.event_name == 'schedule' }}
+    needs: run-suites
+    if: ${{ contains(fromJSON('["schedule", "push", "workflow_dispatch"]'), github.event_name) }}
     runs-on: ubuntu-latest
+    timeout-minutes: 90
+    # A newer check waits for the newer runs, so the older wait is no longer needed.
+    concurrency:
+      group: branch-suites-alert
+      cancel-in-progress: true
     steps:
       - uses: actions/checkout@v4
         with:
