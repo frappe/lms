@@ -1,7 +1,10 @@
 import { defineAsyncComponent, h, markRaw } from 'vue'
 import type { SettingsGroup } from '@/types/settingsSchema'
 import Categories from '@/components/Settings/Categories.vue'
-import { membersSettingsPage } from '@/components/Settings/Members/members'
+import {
+	invitesSettingsPage,
+	membersSettingsPage,
+} from '@/components/Settings/Members/members'
 import { emailAccountsPage } from '@/components/Settings/EmailAccount/emailAccounts'
 import { emailTemplateSettingsPage } from '@/components/Settings/EmailTemplate/emailTemplate'
 import { sidebarSettingsPage } from '@/components/Settings/Sidebar/sidebar'
@@ -322,6 +325,12 @@ export const settingsTree: SettingsGroup[] = [
 				icon: 'lucide-user',
 				records: true,
 				page: membersSettingsPage,
+			},
+			{
+				label: __('Invites'),
+				slug: 'invites',
+				icon: 'lucide-mail',
+				page: invitesSettingsPage,
 			},
 		],
 	},
