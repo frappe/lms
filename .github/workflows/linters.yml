@@ -104,4 +104,6 @@ jobs:
       - name: Install and run pip-audit
         run: |
           pip install pip-audit
-          pip-audit --desc on .
+          # Its default cache sits under the home folder, which platformdirs refuses on this
+          # self-hosted runner ("writable by another user"); the job's own temp folder is fine.
+          pip-audit --desc on --cache-dir "$RUNNER_TEMP/pip-audit-cache" .
