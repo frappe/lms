@@ -26,9 +26,14 @@ vi.mock('frappe-ui', () => ({
 	toast: { error: toastError },
 	usePageMeta: vi.fn(),
 }))
-vi.mock('@framework/ui/telemetry/index', () => ({
-	useTelemetry: () => ({ capture: captureMock }),
-}))
+const telemetry = vi.hoisted(() => ({ on: null as unknown as { value: boolean } }))
+vi.mock('@framework/ui/telemetry/index', async () => {
+	const { reactive, ref } = await import('vue')
+	telemetry.on = ref(true)
+	return {
+		useTelemetry: () => reactive({ capture: captureMock, isEnabled: telemetry.on }),
+	}
+})
 vi.mock('@/components/Setup/SetupPreview.vue', () => ({
 	default: defineComponent({ setup: () => () => h('div') }),
 }))
@@ -111,6 +116,7 @@ describe('Setup', () => {
 		callMock.mockReset()
 		callMock.mockImplementation(() => Promise.resolve())
 		replaceMock.mockClear()
+		captureMock.mockClear()
 		toastError.mockClear()
 		setupState.data = { can_send_email: true }
 		Object.defineProperty(window, 'location', {
@@ -199,5 +205,34 @@ describe('Setup', () => {
 		await mountPage()
 		expect(givenSteps[0].name).toBe('password')
 		expect(givenSteps.at(-1)?.name).toBe('invite_team')
+	})
+
+	describe('the start event, which telemetry drops while it loads', () => {
+		it('is sent once telemetry is on, when it was still off as setup opened', async () => {
+			setupState.data = { can_send_email: true, needs_questions: true }
+			await import('@framework/ui/telemetry/index')
+			telemetry.on.value = false
+			try {
+				await mountPage()
+				await flushPromises()
+				expect(captureMock).not.toHaveBeenCalledWith('setup_started')
+
+				telemetry.on.value = true
+				await flushPromises()
+				expect(captureMock).toHaveBeenCalledWith('setup_started')
+				expect(captureMock).toHaveBeenCalledWith('setup_step_viewed', {
+					step: 'usage_context',
+				})
+			} finally {
+				telemetry.on.value = true
+			}
+		})
+
+		it('is left to SetupFlow when telemetry was already on', async () => {
+			setupState.data = { can_send_email: true, needs_questions: true }
+			await mountPage()
+			await flushPromises()
+			expect(captureMock).not.toHaveBeenCalledWith('setup_started')
+		})
 	})
 })
