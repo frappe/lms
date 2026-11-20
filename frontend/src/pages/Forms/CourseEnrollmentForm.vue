@@ -8,7 +8,7 @@
 	/>
 </template>
 <script setup lang="ts">
-import { createResource, getCachedListResource } from 'frappe-ui'
+import { createResource, getCachedResource } from 'frappe-ui'
 import { computed, inject } from 'vue'
 import { useRoute } from 'vue-router'
 import EnrollStudentsForm from '@/components/Enrollment/EnrollStudentsForm.vue'
@@ -90,10 +90,12 @@ const target = computed<EnrollTarget | null>(() => {
 	}
 })
 
-// The list the enrollments land in lives on the tab behind this form. Null on a deep
-// link, where that tab was never mounted — correct, since it fetches on mount.
-const reloadStudents = () => {
-	getCachedListResource(['courseProgress', props.courseName])?.reload()
+// The list and counts this page inserted into live on the tab behind it. Null
+// on a deep link, where that tab was never mounted — correct, since it fetches
+// on mount.
+const reloadStudents = (): void => {
+	getCachedResource(['courseProgress', props.courseName])?.reload()
+	getCachedResource(['courseDashboardStats', props.courseName])?.reload()
 }
 
 // The dashboard's Enrolled stat reads CourseDetail's course resource, which has
