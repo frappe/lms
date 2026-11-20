@@ -326,6 +326,16 @@
 						variant="outline"
 					/>
 					<BooleanSwitch
+						v-model="doc.enforce_fullscreen"
+						size="sm"
+						:label="__('Enforce Full Screen')"
+						:description="
+							__(
+								'Require full-screen mode while taking this quiz (available for both proctored and non-proctored quizzes).'
+							)
+						"
+					/>
+					<BooleanSwitch
 						v-model="doc.enable_proctoring"
 						size="sm"
 						:label="__('Enable Proctoring')"
@@ -967,8 +977,10 @@ watch(hasOpenEnded, (present) => {
 watch(
 	() => quizDetails.value.doc?.enable_proctoring,
 	(enabled) => {
-		if (enabled && !quizDetails.value.doc.max_violations) {
-			quizDetails.value.doc.max_violations = 3
+		if (enabled) {
+			if (!quizDetails.value.doc.max_violations) {
+				quizDetails.value.doc.max_violations = 3
+			}
 		}
 	}
 )
