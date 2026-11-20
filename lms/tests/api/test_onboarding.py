@@ -117,19 +117,28 @@ class TestFirstPassword(BaseTestUtils):
 		frappe.set_user("Administrator")
 		super().tearDown()
 
+	def system_settings(self, **values):
+		"""System Settings read as these values, without saving them: saving needs a language and
+		time zone, which a CI site that never ran the setup wizard does not have."""
+		read = frappe.get_system_settings
+		return patch(
+			"frappe.get_system_settings",
+			side_effect=lambda key: values[key] if key in values else read(key),
+		)
+
 	def as_trial_site(self):
 		return patch.dict(
 			frappe.conf, {"pilot_endpoint": "https://pilot.example.com", "pilot_auth_token": "t"}
 		)
 
 	def test_a_trial_owner_without_a_password_is_asked_for_one(self):
-		with self.as_trial_site(), self.change_settings("System Settings", login_with_email_link=1):
+		with self.as_trial_site(), self.system_settings(login_with_email_link=1):
 			self.assertTrue(needs_password_setup(self.owner.name))
 
 	def test_the_password_step_saves_on_a_trial_site(self):
 		from frappe.utils.password import check_password
 
-		with self.as_trial_site(), self.change_settings("System Settings", login_with_email_link=1):
+		with self.as_trial_site(), self.system_settings(login_with_email_link=1):
 			frappe.set_user(self.owner.name)
 			set_first_password("Eastern_43A1W")
 			frappe.set_user("Administrator")
@@ -150,7 +159,7 @@ class TestFirstPassword(BaseTestUtils):
 
 	def test_not_asked_where_a_password_cannot_sign_in(self):
 		self.assertFalse(needs_password_setup("Administrator"))
-		with self.change_settings("System Settings", disable_user_pass_login=1):
+		with self.system_settings(disable_user_pass_login=1):
 			self.assertFalse(needs_password_setup(self.owner.name))
 		self.owner.append("social_logins", {"provider": "google", "userid": "1234"})
 		self.owner.save()
