@@ -261,6 +261,9 @@ scheduler_events = {
 override_whitelisted_methods = {
 	# Finishes Google Calendar sign-in started from an evaluator's Slots tab.
 	"frappe.integrations.doctype.google_calendar.google_calendar.google_callback": "lms.lms.api.google_calendar_callback",
+	# The framework's setup password step saves through this, which also asks on Frappe Cloud v2
+	# and sites with email login links; drop it once the framework's own check does.
+	"frappe.core.doctype.user.user.set_first_password": "lms.lms.onboarding.set_first_password",
 }
 #
 # each overriding function accepts a `data` argument;
