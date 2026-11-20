@@ -106,7 +106,7 @@
    "fieldtype": "Select",
    "in_list_view": 1,
    "label": "Type",
-   "options": "Document\nPDF\nURL\nImage\nText\nAudio"
+   "options": "Document\nPDF\nURL\nImage\nText\nAudio\nVideo"
   },
   {
    "fetch_from": "assignment.question",

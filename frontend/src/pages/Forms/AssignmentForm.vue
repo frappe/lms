@@ -342,6 +342,7 @@ const saveAssignment = (): void => {
 const assignmentOptions = computed(() => {
 	return [
 		{ label: __('PDF'), value: 'PDF' },
+		{ label: __('Video'), value: 'Video' },
 		{ label: __('Image'), value: 'Image' },
 		{ label: __('Document'), value: 'Document' },
 		{ label: __('Audio'), value: 'Audio' },

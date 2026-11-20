@@ -118,7 +118,9 @@
 											validateFile(
 												file,
 												true,
-												(assignment.data?.type ?? '').toLowerCase()
+												assignment.data?.type === 'Video'
+													? 'assignment-video'
+													: (assignment.data?.type ?? '').toLowerCase()
 											)
 									"
 									@success="(file) => saveSubmission(file)"
@@ -311,10 +313,10 @@ import {
 	useKeyboardShortcuts,
 } from '@/composables/useKeyboardShortcuts'
 import router from '@/router'
-import { validateFile } from '@/utils'
+import { assignmentVideoExtensions, validateFile } from '@/utils'
 import RichTextEditor from '@/components/RichTextEditor.vue'
 import { safeUrl } from '@/utils/safeUrl'
-import { AUDIO_EXTENSIONS } from '@/utils/audio'
+import { audioUploadExtensions } from '@/utils/audio'
 import AudioBlock from '@/components/AudioBlock.vue'
 import { useAssessmentSchedule } from '@/composables/useAssessmentSchedule'
 import type { ScheduledAssessment } from '@/composables/useAssessmentSchedule'
@@ -326,7 +328,7 @@ type SubmissionStatus = 'Not Graded' | 'Pass' | 'Fail'
 interface AssignmentDetails extends ScheduledAssessment {
 	title: string
 	question: string
-	type: 'Document' | 'PDF' | 'URL' | 'Image' | 'Text' | 'Audio'
+	type: 'Document' | 'PDF' | 'URL' | 'Image' | 'Text' | 'Audio' | 'Video'
 }
 
 interface SubmissionDoc {
@@ -550,7 +552,9 @@ const getType = (): string[] | undefined => {
 	} else if (type == 'PDF') {
 		return ['.pdf']
 	} else if (type == 'Audio') {
-		return ['audio/*', ...AUDIO_EXTENSIONS.map((extension) => `.${extension}`)]
+		return audioUploadExtensions.map((extension) => `.${extension}`)
+	} else if (type == 'Video') {
+		return assignmentVideoExtensions.map((extension) => `.${extension}`)
 	}
 }
 
@@ -621,7 +625,7 @@ const statusTheme = computed(() => {
 })
 
 const showUploader = (): boolean => {
-	return ['PDF', 'Image', 'Document', 'Audio'].includes(
+	return ['PDF', 'Image', 'Document', 'Audio', 'Video'].includes(
 		assignment.data?.type ?? ''
 	)
 }

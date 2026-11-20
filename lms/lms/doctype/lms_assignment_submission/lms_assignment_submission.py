@@ -13,7 +13,7 @@ from lms.lms.schedule_utils import assert_within_schedule
 from lms.lms.utils import PRIVILEGED_ROLES, get_attachable_files, get_lms_route, validate_attachable_file
 
 # The files an Audio assignment's player can play, as frontend/src/utils/audio.ts lists them.
-AUDIO_EXTENSIONS = (".mp3", ".wav", ".ogg", ".m4a", ".aac")
+AUDIO_EXTENSIONS = (".mp3", ".wav", ".ogg", ".m4a", ".aac", ".oga", ".opus", ".weba")
 
 
 class LMSAssignmentSubmission(Document):
