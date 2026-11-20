@@ -137,3 +137,21 @@ class TestTranscriptionHint(IntegrationTestCase):
 		self.assertIn("FRA-QM-01", names)
 		self.assertNotIn("Your", names)
 		self.assertNotIn("The", names)
+
+
+class TestRolePlayEnding(IntegrationTestCase):
+	"""A role-play with points to cover goes on until they are covered, and always ends."""
+
+	content = {"exchanges": 4, "rubric": [{"criterion": "Records it"}, {"criterion": "Plans the fix"}]}
+
+	def test_points_double_the_replies_it_can_take(self):
+		self.assertEqual(goals.roleplay_reply_cap(self.content), 8)
+		self.assertEqual(goals.roleplay_reply_cap({"exchanges": 8, "rubric": [{}]}), 12)
+		self.assertEqual(goals.roleplay_reply_cap({"exchanges": 4}), 4)
+
+	def test_each_reply_names_the_points_still_open(self):
+		note = goals.points_note(self.content, [0])
+		self.assertIn("1. Plans the fix", note)
+		self.assertNotIn("Records it", note)
+		self.assertEqual(goals.points_note(self.content, [0, 1]), goals.ALL_COVERED_NOTE)
+		self.assertEqual(goals.points_note({"exchanges": 4}, []), "")

@@ -611,6 +611,12 @@ def transcription_available() -> bool:
 	return bool(transcripts.speech_service())
 
 
+@frappe.whitelist()
+def spoken_names(session: str) -> list[str]:
+	"""The names a conversation of the learner's uses; empty for anyone else's."""
+	return goals.spoken_names(session, frappe.session.user)
+
+
 @frappe.whitelist(methods=["POST"])
 @rate_limit(limit=30, seconds=60)
 def transcribe(session: str | None = None) -> dict:

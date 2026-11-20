@@ -1,6 +1,7 @@
 import { onBeforeUnmount, ref } from 'vue'
 import { call } from 'frappe-ui'
 import type { VoiceProfile } from '@/utils/characters'
+import { withNames } from '@/utils/spokenNames'
 
 type Recognition = {
 	lang: string
@@ -60,8 +61,19 @@ let sidecarSTT: boolean | null = null
 
 // The conversation being spoken in, so transcription can expect its words.
 let transcribeSession: string | null = null
+// The names this conversation uses, such as "Frappe", so a misheard one ("Flappy") is put right.
+let spokenNames: string[] = []
 export const setTranscribeSession = (session: string | null | undefined) => {
+	if ((session || null) === transcribeSession) return
 	transcribeSession = session || null
+	spokenNames = []
+	if (!transcribeSession) return
+	const asked = transcribeSession
+	call('lms.lms.ai.api.spoken_names', { session: asked })
+		.then((names: string[]) => {
+			if (asked === transcribeSession) spokenNames = names || []
+		})
+		.catch(() => {})
 }
 
 /** Whether the voice sidecar can transcribe, asked once per page. */
@@ -82,7 +94,8 @@ let engineFailed = false
 
 /**
  * Speaking and listening. Listening prefers the browser's own speech engine: it writes
- * the words while the learner talks, so the turn is ready the moment they stop. Without
+ * the words while the learner talks, so the turn is ready the moment they stop, and the
+ * conversation's own names put right what it mishears. Without
  * one (Firefox), or once it fails, the site's Whisper sidecar records the turn and
  * transcribes it. Speaking stays with the site's voice and falls back to the browser's.
  */
@@ -122,12 +135,11 @@ export function useVoice() {
 		transcript.value = ''
 		error.value = null
 		listening.value = true
-		// The site's own transcriber comes first: it is told the names the lesson uses, so it
-		// writes "Frappe" where the browser's engine heard "Flappy". The browser's engine is the
-		// fallback, and still shows the words live while the site's transcriber records.
+		// The browser's engine comes first: it writes the words while the learner talks, so the
+		// turn is ready the moment they stop. The site's transcriber took 4 to 6 seconds a turn.
 		void (async () => {
-			if (await serverSTT()) recordTurn(onDone)
-			else if (RecognitionClass && !engineFailed) engineTurn(onDone)
+			if (RecognitionClass && !engineFailed) engineTurn(onDone)
+			else if (await serverSTT()) recordTurn(onDone)
 			else listening.value = false
 		})()
 	}
@@ -304,7 +316,8 @@ export function useVoice() {
 			endTurn = null
 			if (settleTimer) clearTimeout(settleTimer)
 			listening.value = false
-			const text = transcript.value.trim()
+			const text = withNames(transcript.value.trim(), spokenNames)
+			transcript.value = text
 			if (send && text) onDone(text)
 		}
 		endTurn = commit

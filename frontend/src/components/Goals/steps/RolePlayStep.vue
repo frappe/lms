@@ -26,9 +26,11 @@
 							[
 								content.character_role,
 								temperament || __('role-play'),
-								stage === 'chat'
-									? __('{0} of {1} replies', [turns, exchanges])
-									: stepLabel,
+								stage !== 'chat'
+									? stepLabel
+									: points.length
+									? ''
+									: __('{0} of {1} replies', [turns, exchanges]),
 							]
 								.filter(Boolean)
 								.join(' · ')
@@ -48,7 +50,9 @@
 					"
 				/>
 				<Button
-					v-if="stage === 'chat' && !outOfReplies && canFinish"
+					v-if="
+						stage === 'chat' && !points.length && !ended && turns >= MIN_REPLIES
+					"
 					:loading="finishing"
 					:label="__('I\'m done')"
 					@click="finish"
@@ -110,7 +114,9 @@
 							<p class="flex-1 text-p-sm text-ink-gray-6">
 								{{
 									__(
-										'Reply in your own words, the way you would for real. You get {0} replies. Once you have covered every point that counts, you can finish early.',
+										points.length
+											? 'Reply in your own words, the way you would for real. The conversation goes on until you have covered every point that counts.'
+											: 'Reply in your own words, the way you would for real. You get {0} replies, and can press "I\'m done" after your second.',
 										[exchanges]
 									)
 								}}
@@ -137,7 +143,7 @@
 						:placeholder="__('Reply to {0}').format(characterName)"
 						hide-first-message
 						voice
-						:read-only="outOfReplies"
+						:read-only="ended"
 						run-method="lms.lms.ai.api.roleplay_reply"
 						one-question
 						@messages="
@@ -151,7 +157,7 @@
 						</template>
 					</FlowChat>
 					<div
-						v-if="outOfReplies"
+						v-if="ended"
 						class="mx-auto w-full max-w-[820px] px-4 pb-4 sm:px-6 sm:pb-5"
 					>
 						<div
@@ -159,9 +165,13 @@
 						>
 							<span class="text-p-sm text-ink-gray-7">
 								{{
-									__(
-										"That's all your replies. See how you did with {0}."
-									).format(characterName)
+									allCovered
+										? __(
+												'You covered every point. See how you did with {0}.'
+										  ).format(characterName)
+										: __(
+												"That's all your replies. See how you did with {0}."
+										  ).format(characterName)
 								}}
 							</span>
 							<Button
@@ -459,17 +469,18 @@ const finishing = ref(false)
 // The learner's replies. FlowChat leaves the hidden brief out of its count.
 const MIN_REPLIES = 2
 const exchanges = computed(() => Number(content.value.exchanges) || 4)
+// The server sends the most replies: with points to cover, the conversation goes on until they
+// are all covered, up to that many.
 const outOfReplies = computed(() => turns.value >= exchanges.value)
 
 // The points that count, ticked off by the character as the learner covers them. Finishing early
 // is for a learner who has covered them all; a role-play without points keeps the old rule.
 const points = computed<string[]>(() => content.value.criteria || [])
 const covered = ref<number[]>([])
-const canFinish = computed(() =>
-	points.value.length
-		? covered.value.length >= points.value.length
-		: turns.value >= MIN_REPLIES
+const allCovered = computed(
+	() => points.value.length > 0 && covered.value.length >= points.value.length
 )
+const ended = computed(() => outOfReplies.value || allCovered.value)
 const loadPoints = async () => {
 	if (!session.value) return
 	try {

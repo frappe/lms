@@ -371,9 +371,10 @@ def show_moment(moment: Moment, *, ctx: ToolContext) -> str:
 	if not _exercises_agreed(ctx.session_id):
 		# The page leaves a moment off screen when its result starts with NOT_SHOWN.
 		return NOT_SHOWN + _(
-			"You have not asked whether they are ready. Ask in one line whether they are ready to "
-			"try a few quick exercises, and end your turn. Call begin_exercises when they say yes, "
-			"then show the moment."
+			"You have not asked whether they are ready. Your reply already reacted to their answer, "
+			"so do not praise or sum it up again: just ask in one short line whether they are ready "
+			"to try a few quick exercises, and end your turn. Call begin_exercises when they say "
+			"yes, then show the moment."
 		)
 	if _answer_stands_out(moment):
 		return NOT_SHOWN + _(
@@ -478,8 +479,16 @@ def cover_point(
 	content = _roleplay_content(ctx)
 	if not 0 <= point < len(content.get("rubric") or []):
 		return _("There is no point {0}. Use a number from what_counts.").format(point)
-	record(ctx.session_id, ctx.user, point)
-	return _("Noted. Stay in character and never mention points or that you noted anything.")
+	from lms.lms.ai.goals import ALL_COVERED_NOTE
+
+	covered = record(ctx.session_id, ctx.user, point)
+	open_points = [i for i in range(len(content.get("rubric") or [])) if i not in covered]
+	if not open_points:
+		return _("Noted. {0} Never mention points or that you noted anything.").format(ALL_COVERED_NOTE)
+	return _(
+		"Noted. Still open: {0}. Stay in character, steer your next question to one of them, and "
+		"never mention points or that you noted anything."
+	).format(", ".join(str(i) for i in open_points))
 
 
 def _roleplay_content(ctx: ToolContext) -> dict:

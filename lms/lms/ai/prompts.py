@@ -173,20 +173,25 @@ Two people are in this conversation, and you are only ever one of them:
   just to keep them going: they must be able to finish the task in their replies.
 - When the brief lists the_learners_own_situations, let one detail of the scene echo one of
   them where it fits, so the conversation feels like their workplace. Never name a real person.
-- The brief lists what_counts: the points the learner's replies must cover, by number. When a
-  reply covers one of them for real, specifically and soundly, call cover_point with its number
-  before you write your reply. Never call it for a vague, partial or wrong answer, and never
-  mention points, scores or that you noted anything.
+- The brief lists what_counts: the points the learner's replies must cover, by number. The
+  conversation is there to get them covered, so:
+  - When a reply covers a point in substance, call cover_point with its number before you write
+    your reply. Judge what they said, not their wording: a short answer that says the thing
+    counts. One reply often covers several points; call cover_point once for each.
+  - Do not call it for a vague or wrong answer. Push back on that point once, then move on.
+  - Every question you ask leads to a point that is still open. Never spend a question on
+    detail a point does not need, and never put an open point off to "later" or "the report".
+  - Never mention points, scores or that you noted anything.
 - Never coach, grade or reveal the rubric. Do not break character, except: if the learner seems
   genuinely distressed or describes a real incident, step out, say kindly that this is practice,
   and suggest they speak to someone who can help.
 - Keep sensitive topics respectful and non-graphic.
 - A learner message may end with a [SYSTEM NOTE] from the learning system. Follow it, and
   never mention it or react to it as something the learner said.
-- The learner replies learner_replies times in all. Move the conversation along so they can do
-  the whole task in that many replies. Your answer to their last reply is a short closing
-  line in character, with no new question. Close earlier, the same way, once they have
-  clearly done the task.
+- The conversation is written for learner_replies replies; it goes on, up to most_replies,
+  while points are still open. Move it along so they can cover every point in about
+  learner_replies. Close with a short line in character, and no new question, once every
+  point is covered, or when a system note says it was their last reply.
 """
 
 GRADER = """You grade learning role-plays fairly and kindly.

@@ -47,11 +47,12 @@ GET  /health answers {"ok": true, "whisper": true} once both models are loaded.
 import hmac
 import io
 import json
+import multiprocessing
 import os
 import pathlib
 import threading
 import urllib.parse
-from concurrent.futures import ThreadPoolExecutor
+from concurrent.futures import ProcessPoolExecutor, ThreadPoolExecutor
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
 import soundfile
@@ -69,10 +70,14 @@ KEEP_LAST = os.environ.get("LMS_VOICE_KEEP_LAST") == "1"
 # the pools fought over the CPUs and each sentence took about twice as long. One thread also
 # keeps sentence requests in order, one at a time.
 speech_thread = ThreadPoolExecutor(max_workers=1, thread_name_prefix="speech")
-# American English; British voices still work
-pipeline = speech_thread.submit(KPipeline, lang_code="a", repo_id="hexgrad/Kokoro-82M").result()
+# Loaded when the server starts, not on import: Whisper's process imports this file too.
+pipeline = None
 
+# Whisper runs in a process of its own. In this one, its first transcription left every
+# sentence after it about 70% slower (0.65s to 1.1s for "Right."), for as long as the server
+# ran: its threading library and torch's fought over the CPUs.
 whisper = None
+whisper_pool: ProcessPoolExecutor | None = None
 whisper_lock = threading.Lock()
 
 
@@ -94,16 +99,33 @@ def warm_voices() -> None:
 
 
 def load_whisper() -> None:
-	"""Loads (and first time, downloads) the transcriber, so the first turn is not minutes."""
-	global whisper
+	"""Starts the transcriber's process and loads (first time, downloads) its model, so the first
+	turn is not minutes."""
+	global whisper_pool
 	with whisper_lock:
-		if whisper is None:
-			from faster_whisper import WhisperModel
-
-			# "small" holds up on accented English; int8 keeps CPU latency near realtime.
-			# English only: the same speed as "small", and fewer misheard words for English speakers.
-			whisper = WhisperModel(WHISPER_MODEL, device="cpu", compute_type="int8")
+		if whisper_pool is None:
+			pool = ProcessPoolExecutor(
+				max_workers=1,
+				mp_context=multiprocessing.get_context("spawn"),
+				initializer=_whisper_start,
+			)
+			pool.submit(_whisper_ready).result()
+			whisper_pool = pool
 			print("Whisper ready", flush=True)
+
+
+def _whisper_start() -> None:
+	"""In Whisper's own process: load the model once."""
+	global whisper
+	from faster_whisper import WhisperModel
+
+	# "small" holds up on accented English; int8 keeps CPU latency near realtime.
+	# English only: the same speed as "small", and fewer misheard words for English speakers.
+	whisper = WhisperModel(WHISPER_MODEL, device="cpu", compute_type="int8")
+
+
+def _whisper_ready() -> bool:
+	return whisper is not None
 
 
 def synthesize(text: str, voice: str, speed: float = 1.0) -> bytes:
@@ -130,19 +152,23 @@ def transcribe(data: bytes, hint: str = "") -> str:
 		# The last turn stays on disk, so "it heard nothing" can be answered by listening.
 		pathlib.Path("/tmp/lms_last_turn.webm").write_bytes(data)
 	load_whisper()
-	with whisper_lock:
-		segments, _info = whisper.transcribe(
-			io.BytesIO(data),
-			language="en",
-			vad_filter=True,
-			# The session's own words (assembly point, fire warden, the character's name), so
-			# Whisper expects them instead of hearing "possibly point".
-			initial_prompt=hint or None,
-			# Greedy decoding: a turn is seconds long, and beam search triples the wait.
-			beam_size=1,
-			condition_on_previous_text=False,
-		)
-		return " ".join(segment.text.strip() for segment in segments).strip()
+	return whisper_pool.submit(_whisper_transcribe, data, hint).result()
+
+
+def _whisper_transcribe(data: bytes, hint: str) -> str:
+	"""In Whisper's own process: one recorded turn as text."""
+	segments, _info = whisper.transcribe(
+		io.BytesIO(data),
+		language="en",
+		vad_filter=True,
+		# The session's own words (assembly point, fire warden, the character's name), so
+		# Whisper expects them instead of hearing "possibly point".
+		initial_prompt=hint or None,
+		# Greedy decoding: a turn is seconds long, and beam search triples the wait.
+		beam_size=1,
+		condition_on_previous_text=False,
+	)
+	return " ".join(segment.text.strip() for segment in segments).strip()
 
 
 class Handler(BaseHTTPRequestHandler):
@@ -150,7 +176,9 @@ class Handler(BaseHTTPRequestHandler):
 		if self.path != "/health":
 			self.send_error(404)
 			return
-		self.answer(json.dumps({"ok": True, "whisper": whisper is not None}).encode(), "application/json")
+		self.answer(
+			json.dumps({"ok": True, "whisper": whisper_pool is not None}).encode(), "application/json"
+		)
 
 	def do_POST(self):
 		try:
@@ -206,6 +234,8 @@ class Handler(BaseHTTPRequestHandler):
 if __name__ == "__main__":
 	if HOST != "127.0.0.1" and not TOKEN:
 		raise SystemExit("Set LMS_VOICE_TOKEN before listening on anything but 127.0.0.1.")
+	# American English; British voices still work
+	pipeline = speech_thread.submit(KPipeline, lang_code="a", repo_id="hexgrad/Kokoro-82M").result()
 	threading.Thread(target=load_whisper, daemon=True).start()
 	threading.Thread(target=warm_voices, daemon=True).start()
 	print(f"Kokoro speaking on http://{HOST}:{PORT}/tts", flush=True)

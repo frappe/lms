@@ -68,6 +68,31 @@ class TestAlphaFeedback(BaseTestUtils):
 		)
 		self.assertFalse(session_state(self.assignment.name)["feedback_given"])
 
+	def test_a_learner_who_tried_every_part_but_did_not_pass_can_answer(self):
+		self.assignment.db_set("status", "In Progress")
+		goal = frappe.get_doc("LMS Goal", self.assignment.goal)
+		goal.append(
+			"activities", {"activity_type": "Role-play", "title": "Talk to the auditor", "content": "{}"}
+		)
+		goal.save()
+		evidence = frappe.get_doc(
+			{
+				"doctype": "LMS Goal Evidence",
+				"assignment": self.assignment.name,
+				"goal": goal.name,
+				"member": self.learner.name,
+				"activity_index": 0,
+				"activity_type": "Role-play",
+				"status": "Graded",
+				"score": 49,
+			}
+		).insert()
+		frappe.set_user(self.learner.name)
+		submit_alpha_feedback(self.assignment.name, {"future": "Yes, this is it"})
+		self.assertTrue(frappe.db.exists("LMS Alpha Feedback", {"assignment": self.assignment.name}))
+		frappe.set_user("Administrator")
+		evidence.delete()
+
 	def test_fields_the_doctype_does_not_have_are_ignored(self):
 		frappe.set_user(self.learner.name)
 		submit_alpha_feedback(

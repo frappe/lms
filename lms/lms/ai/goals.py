@@ -357,9 +357,9 @@ ALPHA_FEEDBACK_KEYS = ("member", "goal", "assignment")
 
 def save_alpha_feedback(assignment_name: str, values: dict) -> None:
 	"""What a tester tells the Learning team on the finish page: one record per assignment,
-	their own only, once the skill is finished, rewritten if they answer again."""
+	their own only, once they passed or tried every part, rewritten if they answer again."""
 	assignment = get_assignment(assignment_name)
-	if assignment.status != "Ready":
+	if assignment.status != "Ready" and not _tried_everything(assignment):
 		frappe.throw(_("Finish the skill first, then tell us how it went."), frappe.ValidationError)
 	meta = frappe.get_meta("LMS Alpha Feedback")
 	answers = {
@@ -887,7 +887,7 @@ def _learner_view(index: int, row, evidence) -> dict:
 			for key in ("cast", "character", "character_role", "setting", "learner_task", "pass_mark")
 		} | {
 			"criteria": [c.get("criterion") for c in content.get("rubric") or []],
-			"exchanges": roleplay_exchanges(content),
+			"exchanges": roleplay_reply_cap(content),
 		}
 	return {
 		"index": index,
@@ -908,6 +908,13 @@ def _learner_view(index: int, row, evidence) -> dict:
 		},
 		"done": _is_done(row, evidence),
 	}
+
+
+def _tried_everything(assignment) -> bool:
+	"""Every part has a result, passed or not: the same rule the finish page shows the form by."""
+	activities = frappe.get_doc("LMS Goal", assignment.goal).activities or []
+	evidence = _evidence_by_index(assignment.name)
+	return bool(activities) and all(_is_done(row, evidence.get(i)) for i, row in enumerate(activities))
 
 
 def _is_done(row, evidence) -> bool:
@@ -996,6 +1003,10 @@ def move_evidence(goal: str, moves: dict[int, int]) -> None:
 # Added by the server to the learner's last reply, so the character knows to close. The chat
 # and the grader never see it. Kept in step with SYSTEM_NOTE in useFlowChat.ts.
 SYSTEM_NOTE = "\n\n[SYSTEM NOTE] "
+ALL_COVERED_NOTE = (
+	"The learner has covered every point. Answer with a short closing line in character, and ask "
+	"no new question."
+)
 LAST_REPLY_NOTE = (
 	"That was the learner's last reply. Answer it with a short closing line in character, "
 	"and ask no new question."
@@ -1018,14 +1029,30 @@ def roleplay_reply(session: str, message: str) -> dict:
 	content = json.loads(activities[row.activity_index].content or "{}")
 	said = [turn["text"] for turn in _transcript(session) if turn["speaker"] == "Learner"]
 	replies = sum(1 for text in said if counts_as_reply(text))
-	limit = roleplay_exchanges(content)
+	limit = roleplay_reply_cap(content)
 	if replies >= limit or len(said) >= 2 * limit:
 		frappe.throw(_("That's all your replies. See how you did."), title=_("Conversation Over"))
 	last = replies + 1 == limit and counts_as_reply(message)
 	message = one_question.with_what_they_saw(session, message)
 	if last:
 		message = message + SYSTEM_NOTE + LAST_REPLY_NOTE
+	elif note := points_note(content, covered_points(session)):
+		message = message + SYSTEM_NOTE + note
 	return run(session, message)
+
+
+def points_note(content: dict, covered: list[int]) -> str:
+	"""What the character still has to steer the learner to, sent with each of their replies."""
+	rubric = content.get("rubric") or []
+	open_points = [f"{i}. {row.get('criterion')}" for i, row in enumerate(rubric) if i not in covered]
+	if not rubric:
+		return ""
+	if not open_points:
+		return ALL_COVERED_NOTE
+	return (
+		"Points still to cover: " + "; ".join(open_points) + ". If this reply covers any of them, "
+		"call cover_point for each. Then steer your next question to one that is still open."
+	)
 
 
 # Sent by the page, hidden like a moment's result, when a lesson turn left the learner nothing to
@@ -1108,6 +1135,17 @@ def turn_stalled(rows: list[dict], shown: dict[str, str]) -> bool:
 
 def transcription_hint(session: str, user: str) -> str:
 	"""Words Whisper should expect in this conversation: the skill, its key ideas, the cast."""
+	return ". ".join(_conversation_words(session, user))[:600]
+
+
+def spoken_names(session: str, user: str) -> list[str]:
+	"""The names of this conversation, so the page can put a misheard one right: the ones its
+	material uses and the cast's. Headings are left out: their first words are not names."""
+	names = _conversation_words(session, user, names_only=True)
+	return [name for name in names if re.fullmatch(r"[A-Z][\w-]+", name)][:40]
+
+
+def _conversation_words(session: str, user: str, names_only: bool = False) -> list[str]:
 	row = frappe.db.get_value(
 		"LMS Goal Evidence",
 		{"flow_session": session, "member": user},
@@ -1115,19 +1153,22 @@ def transcription_hint(session: str, user: str) -> str:
 		as_dict=True,
 	)
 	if not row:
-		return ""
+		return []
 	goal = frappe.get_doc("LMS Goal", row.goal)
 	key_ideas = ideas.key_ideas(goal)
 	# The names the material uses come first: without them Whisper hears "Frappe" as "Flappy".
 	words = proper_names([f"{idea['heading']}. {idea['body'] or ''}" for idea in key_ideas])
-	words += [goal.title]
-	words += [idea["heading"] for idea in key_ideas]
+	if not names_only:
+		words += [goal.title]
+		words += [idea["heading"] for idea in key_ideas]
 	activities = goal.activities or []
 	if 0 <= (row.activity_index or 0) < len(activities):
 		content = characters.name_cast(json.loads(activities[row.activity_index].content or "{}"))
-		words += [content.get("character"), content.get("setting")]
+		words += (
+			[content.get("character")] if names_only else [content.get("character"), content.get("setting")]
+		)
 	words += [member.get("name") for member in characters.CAST.values()]
-	return ". ".join(dict.fromkeys(word.strip().rstrip(".") for word in words if word))[:600]
+	return list(dict.fromkeys(word.strip().rstrip(".") for word in words if word))
 
 
 def proper_names(texts: list[str], limit: int = 15) -> list[str]:
@@ -1155,8 +1196,15 @@ def counts_as_reply(text: str) -> bool:
 
 
 def roleplay_exchanges(content: dict) -> int:
-	"""How many times the learner replies before the conversation closes."""
+	"""How many replies the role-play is written for."""
 	return min(max(int(content.get("exchanges") or ROLEPLAY_EXCHANGES), 2), 8)
+
+
+def roleplay_reply_cap(content: dict) -> int:
+	"""The most replies a learner gets. With points to cover, the conversation goes on until
+	they are all covered, up to twice the replies it is written for, so it always ends."""
+	exchanges = roleplay_exchanges(content)
+	return min(exchanges * 2, 12) if content.get("rubric") else exchanges
 
 
 def _roleplay_brief(content: dict, learner_situations: list[str] | None = None) -> str:
@@ -1179,6 +1227,7 @@ def _roleplay_brief(content: dict, learner_situations: list[str] | None = None) 
 			"what_the_learner_must_do": content.get("learner_task"),
 			"your_opening_line": content.get("opening_line"),
 			"learner_replies": roleplay_exchanges(content),
+			"most_replies": roleplay_reply_cap(content),
 			"what_counts": [
 				{"point": i, "criterion": row.get("criterion"), "good": row.get("good")}
 				for i, row in enumerate(content.get("rubric") or [])
