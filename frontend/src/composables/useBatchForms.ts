@@ -75,7 +75,8 @@ export type BatchDetailsResource = {
 	data: BatchDetails | null
 	loading: boolean
 	fetched: boolean
-	reload: () => void
+	error?: unknown
+	reload: () => Promise<BatchDetails | null>
 }
 
 /**

@@ -36,9 +36,10 @@
 				<slot v-else />
 			</div>
 		</template>
-		<template v-if="!loading" #actions>
+		<template v-if="!loading || $slots.loading" #actions>
 			<div class="flex justify-end gap-2">
-				<slot name="actions" />
+				<slot v-if="!loading" name="actions" />
+				<div v-else class="h-7" aria-hidden="true" />
 			</div>
 		</template>
 	</Dialog>

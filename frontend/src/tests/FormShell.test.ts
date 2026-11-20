@@ -68,6 +68,22 @@ describe('FormShell', () => {
 		expect(wrapper.emitted('close')).toHaveLength(1)
 	})
 
+	it('reserves the desktop footer while a custom loading state is visible', async () => {
+		const wrapper = mountShell(1024, { loading: '<div class="skeleton" />' })
+		await wrapper.setProps({ loading: true })
+
+		expect(wrapper.find('.skeleton').exists()).toBe(true)
+		expect(wrapper.find('.fields').exists()).toBe(false)
+		expect(wrapper.find('.save').exists()).toBe(false)
+		expect(wrapper.find('.h-7[aria-hidden="true"]').exists()).toBe(true)
+
+		await wrapper.setProps({ loading: false })
+
+		expect(wrapper.find('.skeleton').exists()).toBe(false)
+		expect(wrapper.find('.fields').exists()).toBe(true)
+		expect(wrapper.find('.save').exists()).toBe(true)
+	})
+
 	it('emits close when the desktop Dialog is dismissed', async () => {
 		const wrapper = mountShell(1024)
 		wrapper.findComponent(Dialog).vm.$emit('update:open', false)

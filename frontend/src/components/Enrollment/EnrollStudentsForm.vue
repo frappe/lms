@@ -3,11 +3,18 @@
 		:title="__('Enroll Students')"
 		size="4xl"
 		position="top"
-		:loading
+		:loading="loading || failed"
 		:message="refusal"
-		:statusClass="bodyHeight"
 		@close="onClose"
 	>
+		<template #loading>
+			<FormLoadState
+				kind="enrollment"
+				:failed="failed && !loading"
+				:class="bodyHeight"
+				@retry="emit('retry')"
+			/>
+		</template>
 		<DefinePanel>
 			<EnrollPaymentPanel
 				ref="panelRef"
@@ -149,6 +156,7 @@ import { ErrorMessage, Tooltip, createResource, toast } from 'frappe-ui'
 import type { FrappeResourceError } from 'frappe-ui'
 import { computed, nextTick, ref, useId, watch } from 'vue'
 import FormShell from '@/components/FormShell.vue'
+import FormLoadState from '@/components/FormLoadState.vue'
 import HeaderButton from '@/components/HeaderButton.vue'
 import EnrollPaymentPanel from '@/components/Enrollment/EnrollPaymentPanel.vue'
 import EnrollSelectStep from '@/components/Enrollment/EnrollSelectStep.vue'
@@ -198,10 +206,12 @@ const props = defineProps<{
 	target: EnrollTarget | null
 	refusal: string
 	loading: boolean
+	failed?: boolean
 }>()
 
 const emit = defineEmits<{
 	close: []
+	retry: []
 	enrolled: [result: BulkEnrollResult]
 }>()
 
@@ -222,7 +232,7 @@ const panelOpen = ref<boolean>(false)
 const ticked = ref<string[]>([])
 const previewLoading = ref<boolean>(false)
 const { isMobile } = useScreenSize()
-// Fixed so the dialog keeps its size from the spinner to the loaded list.
+// Fixed so the dialog keeps its size from the skeleton to the loaded list.
 const bodyHeight = computed<string>(() =>
 	isMobile.value ? 'h-full' : 'h-[min(32rem,calc(80dvh-17rem))]'
 )
