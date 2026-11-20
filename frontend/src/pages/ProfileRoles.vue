@@ -24,6 +24,7 @@ import {
 	noRoles,
 	type MemberRoleKey,
 } from '@/components/Settings/Members/members'
+import { resourceErrorMessage } from '@/utils/resource'
 
 const roles = reactive(noRoles())
 const readOnlyMode = window.read_only_mode
@@ -55,14 +56,20 @@ watch(
 )
 
 const onToggle = async (key: MemberRoleKey, value: boolean) => {
-	roles[key] = value
 	const row = ROLE_ROWS.find((r) => r.key === key)
 	if (!row) return
-	await call('lms.lms.api.save_role', {
-		user: props.profile.data?.name,
-		role: row.role,
-		value,
-	})
+	roles[key] = value
+	try {
+		await call('lms.lms.api.save_role', {
+			user: props.profile.data?.name,
+			role: row.role,
+			value,
+		})
+	} catch (error) {
+		roles[key] = !value
+		toast.error(resourceErrorMessage(error, __('Could not update the role')))
+		return
+	}
 	toast.success(__('Role updated successfully'))
 }
 </script>
