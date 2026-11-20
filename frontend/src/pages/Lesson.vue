@@ -184,7 +184,10 @@
 							</div>
 						</div>
 
-						<div v-if="!zenModeEnabled" class="flex items-center mt-4 md:mt-2">
+						<div
+							v-if="!zenModeEnabled"
+							class="isolate flex items-center mt-4 md:mt-2"
+						>
 							<span
 								class="h-6 me-1"
 								:class="{
