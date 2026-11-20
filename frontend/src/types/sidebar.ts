@@ -1,6 +1,6 @@
 import type { Component } from 'vue'
 
-export type SidebarLinkAction = 'commandPalette'
+export type SidebarLinkAction = 'commandPalette' | 'flow'
 
 export interface SidebarLink {
 	label: string

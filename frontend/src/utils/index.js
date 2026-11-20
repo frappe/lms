@@ -1,5 +1,7 @@
 import { call, toast } from 'frappe-ui'
 import { AUDIO_EXTENSIONS } from '@/utils/audio'
+import { markRaw } from 'vue'
+import FlowIcon from '@/components/Icons/FlowIcon.vue'
 import { ASSESSMENT_BLOCK_SELECTOR } from '@/utils/blockMount'
 import { Quiz } from '@/utils/quiz'
 import { Program } from '@/utils/program'
@@ -540,6 +542,15 @@ const getSidebarItems = (forMobile = false) => {
 					panel: 'notifications',
 					condition: () => {
 						return !forMobile && userResource?.data
+					},
+				},
+				{
+					label: 'Flow',
+					icon: markRaw(FlowIcon),
+					action: 'flow',
+					shortcut: 'Mod+I',
+					condition: () => {
+						return !forMobile && userResource?.data?.can_use_flow
 					},
 				},
 			],
