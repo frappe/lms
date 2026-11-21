@@ -15,7 +15,16 @@
 			</div>
 		</div>
 	</AssessmentCard>
-	<div v-else-if="quiz.data" class="space-y-4">
+	<div
+		v-else-if="quiz.data"
+		ref="quizContainer"
+		data-testid="quiz-fullscreen-container"
+		class="quiz-container space-y-4 bg-surface-base"
+		:class="{
+			'fullscreen-quiz min-h-screen overflow-y-auto w-full p-4 md:py-8':
+				isFullscreenActive,
+		}"
+	>
 		<AssessmentCard>
 			<AssessmentCardHeader
 				icon="lucide-circle-help"
@@ -260,6 +269,26 @@
 							</div>
 						</div>
 					</div>
+
+					<!-- Alert for non-proctored full-screen enforced quizzes -->
+					<Alert
+						v-if="
+							!quiz.data.enable_proctoring &&
+							isFullscreenEnforced &&
+							attemptsReady &&
+							!attemptsExhausted &&
+							!scheduleBlocked
+						"
+						theme="blue"
+						:title="__('Full-screen required')"
+						class="mb-4"
+					>
+						{{
+							__(
+								'This quiz requires full-screen mode. Starting the quiz will enter full-screen mode.'
+							)
+						}}
+					</Alert>
 
 					<!-- Last, after the camera and the rules: the learner reads them and sees the
 					     camera turn ready on the way to the button it unlocks. -->
@@ -712,6 +741,83 @@
 				:options="getSubmissionOptions()"
 			/>
 		</div>
+
+		<!-- Full-screen requirement modal -->
+		<Teleport :to="fullscreenTeleportTarget">
+			<div
+				v-if="
+					isFullscreenEnforced &&
+					activeQuestion > 0 &&
+					!quizSubmission.data &&
+					!isSubmitting &&
+					!showSubmissionConfirmation &&
+					!showLeaveConfirmation &&
+					showFullscreenWarning
+				"
+				class="fixed inset-0 z-[100] flex items-center justify-center bg-black-overlay-700 backdrop-blur-sm p-4 text-center"
+				role="dialog"
+				aria-modal="true"
+				aria-labelledby="quiz-fullscreen-title"
+			>
+				<div
+					class="w-full max-w-md rounded-7 border border-outline-gray-2 bg-surface-base p-6 text-ink-gray-9 shadow-2xl"
+				>
+					<div
+						class="mx-auto mb-4 flex size-12 items-center justify-center rounded-full bg-surface-red-2 text-ink-red-5"
+					>
+						<span class="lucide-maximize size-6" />
+					</div>
+					<h3
+						id="quiz-fullscreen-title"
+						class="text-lg font-semibold text-ink-gray-9"
+					>
+						{{
+							isSidePanelOpen
+								? __('Browser Side Panel Detected')
+								: __('Full-Screen Mode Required')
+						}}
+					</h3>
+					<p class="mt-2 text-sm text-ink-gray-6">
+						{{
+							isSidePanelOpen
+								? __(
+										'A browser side panel (such as Ask Gemini or Bookmarks) is open. Please close the side panel to continue the exam.'
+								  )
+								: quiz.data?.enable_proctoring
+								? __(
+										'This exam has to stay in full-screen. Return to full-screen to continue.'
+								  )
+								: __(
+										'This quiz requires full-screen mode. Return to full-screen to continue.'
+								  )
+						}}
+					</p>
+					<div class="mt-6 flex flex-col gap-2.5">
+						<Button
+							variant="solid"
+							theme="red"
+							size="md"
+							class="w-full justify-center"
+							@click="isSidePanelOpen ? checkSidePanel(true) : goFullScreen()"
+						>
+							{{
+								isSidePanelOpen
+									? __('I Closed the Side Panel')
+									: __('Return to Full-Screen')
+							}}
+						</Button>
+						<Button
+							variant="subtle"
+							size="md"
+							class="w-full justify-center"
+							@click="handleFullscreenExitLeave"
+						>
+							{{ __('Leave Quiz') }}
+						</Button>
+					</div>
+				</div>
+			</div>
+		</Teleport>
 	</div>
 	<EmptyStateLayout
 		v-else-if="quiz.error"
@@ -861,13 +967,15 @@ import {
 	nextTick,
 	onMounted,
 	onUnmounted,
+	provide,
 	reactive,
 	ref,
 	useId,
 	watch,
 } from 'vue'
+import { useFullscreen } from '@vueuse/core'
 import { timeAgo } from '@/utils/format'
-import { violationLabel } from '@/utils/proctoring'
+import { FULLSCREEN_EXIT_GRACE_MS, violationLabel } from '@/utils/proctoring'
 import { useAssessmentSchedule } from '@/composables/useAssessmentSchedule'
 import { quizScheduleNotice } from '@/utils/quizSchedule'
 import { markLessonProgress } from '@/utils/markLessonProgress'
@@ -942,17 +1050,211 @@ const props = withDefaults(
 		preview?: boolean
 		inVideo?: boolean
 		backToVideo?: () => void
+		fromLesson?: boolean
+		isEmbeddedInLesson?: boolean
 	}>(),
 	{
 		preview: false,
 		inVideo: false,
 		backToVideo: () => {},
+		fromLesson: false,
+		isEmbeddedInLesson: false,
 	}
 )
+
+const quizContainer = ref<HTMLElement | null>(null)
+const {
+	isFullscreen: isFullscreenActive,
+	enter: enterFullscreen,
+	exit: exitFullscreen,
+} = useFullscreen(quizContainer, { autoExit: true })
+
+const exitFullscreenSafe = async (): Promise<void> => {
+	try {
+		if (isFullscreenActive.value) {
+			await exitFullscreen()
+		}
+	} catch (e) {
+		console.warn('Failed to exit fullscreen with useFullscreen:', e)
+	}
+	if (typeof document !== 'undefined') {
+		const doc = document as any
+		if (
+			doc.fullscreenElement ||
+			doc.webkitFullscreenElement ||
+			doc.mozFullScreenElement ||
+			doc.msFullscreenElement
+		) {
+			try {
+				if (doc.exitFullscreen) {
+					await doc.exitFullscreen()
+				} else if (doc.webkitExitFullscreen) {
+					doc.webkitExitFullscreen()
+				} else if (doc.mozCancelFullScreen) {
+					doc.mozCancelFullScreen()
+				} else if (doc.msExitFullscreen) {
+					doc.msExitFullscreen()
+				}
+			} catch (e) {
+				console.warn('Native exitFullscreen failed:', e)
+			}
+		}
+	}
+}
+
+const fullscreenTeleportTarget = computed(() => {
+	if (typeof document !== 'undefined') {
+		const fsEl =
+			document.fullscreenElement ||
+			(document as unknown as { webkitFullscreenElement?: Element })
+				.webkitFullscreenElement
+		if (fsEl) return fsEl
+	}
+	return 'body'
+})
+
+const showFullscreenWarning = ref(false)
+const isSidePanelOpen = ref(false)
+let fullscreenGraceTimer: ReturnType<typeof setTimeout> | null = null
+let sidePanelInterval: ReturnType<typeof setInterval> | null = null
+
+const checkSidePanel = (interactive = false) => {
+	if (!isFullscreenEnforced.value) {
+		isSidePanelOpen.value = false
+		return
+	}
+	if (typeof window !== 'undefined') {
+		const screenDiff = (window.screen?.width || 0) - window.innerWidth
+		const outerDiff = (window.outerWidth || 0) - window.innerWidth
+		const sidePanelDetected = screenDiff > 80 || outerDiff > 80
+
+		if (sidePanelDetected) {
+			isSidePanelOpen.value = true
+			showFullscreenWarning.value = true
+			if (interactive) {
+				toast.error(
+					__(
+						'Side panel is still open. Please close it in your browser to continue.'
+					)
+				)
+			}
+		} else {
+			isSidePanelOpen.value = false
+			if (interactive) {
+				void goFullScreen()
+			} else if (
+				isFullscreenActive.value &&
+				showFullscreenWarning.value &&
+				!fullscreenGraceTimer
+			) {
+				showFullscreenWarning.value = false
+			}
+		}
+	}
+}
+
+// Direct frappe-ui overlays (such as the submission confirmation and leave
+// dialogs) into the active full-screen container so they appear in front of the
+// browser's top-layer fullscreen element instead of hidden behind on <body>.
+provide(
+	Symbol.for('frappe-ui:portal-target'),
+	computed(() => (isFullscreenActive.value ? quizContainer.value : undefined))
+)
+
+const isFullscreenEnforced = computed<boolean>(() => {
+	if (
+		props.preview ||
+		props.inVideo ||
+		props.fromLesson ||
+		props.isEmbeddedInLesson
+	) {
+		return false
+	}
+	return Boolean(quiz.data?.enforce_fullscreen)
+})
+
+const goFullScreen = async (): Promise<void> => {
+	checkSidePanel()
+	if (isSidePanelOpen.value) {
+		toast.error(
+			__('Please close the browser side panel before returning to full-screen.')
+		)
+		return
+	}
+	try {
+		await enterFullscreen()
+	} catch (e) {
+		console.warn('Failed to enter fullscreen:', e)
+	}
+}
+
+watch(isFullscreenActive, (active) => {
+	if (!isFullscreenEnforced.value) return
+
+	const quizInProgress =
+		activeQuestion.value > 0 &&
+		!quizSubmission.data &&
+		!isSubmitting.value &&
+		!submitting
+
+	if (!active && quizInProgress) {
+		showFullscreenWarning.value = true
+
+		if (quiz.data?.enable_proctoring && proctoringActive.value) {
+			if (!fullscreenGraceTimer) {
+				fullscreenGraceTimer = setTimeout(() => {
+					fullscreenGraceTimer = null
+					if (!isFullscreenActive.value && showFullscreenWarning.value) {
+						handleViolation('fullscreen_exit')
+					}
+				}, FULLSCREEN_EXIT_GRACE_MS)
+			}
+		}
+		if (sidePanelInterval) {
+			clearInterval(sidePanelInterval)
+			sidePanelInterval = null
+		}
+	} else if (active) {
+		if (fullscreenGraceTimer) {
+			clearTimeout(fullscreenGraceTimer)
+			fullscreenGraceTimer = null
+		}
+		// Reflow in Chromium can take up to ~300ms to update window.innerWidth
+		checkSidePanel()
+		setTimeout(() => checkSidePanel(), 100)
+		setTimeout(() => checkSidePanel(), 300)
+		setTimeout(() => checkSidePanel(), 600)
+		if (!sidePanelInterval) {
+			sidePanelInterval = setInterval(() => checkSidePanel(), 500)
+		}
+	}
+})
+
+const handleFullscreenExitLeave = (): void => {
+	showFullscreenWarning.value = false
+	if (fullscreenGraceTimer) {
+		clearTimeout(fullscreenGraceTimer)
+		fullscreenGraceTimer = null
+	}
+	if (sidePanelInterval) {
+		clearInterval(sidePanelInterval)
+		sidePanelInterval = null
+	}
+	beginSubmitting()
+	if (quiz.data?.enable_proctoring) {
+		recordCurrentAttempt()
+		submissionReason.value = 'left_page'
+		submitQuiz('left_page')
+	} else {
+		recordCurrentAttempt()
+		submitQuiz('manual')
+	}
+}
 
 onMounted(() => {
 	window.addEventListener('pagehide', handlePageHide)
 	window.addEventListener('beforeunload', handleBeforeUnload)
+	window.addEventListener('resize', checkSidePanel)
 })
 
 // Leaving a proctored attempt for another page in the app was a free way out to
@@ -1009,6 +1311,15 @@ onUnmounted(() => {
 	removeLeaveGuard()
 	window.removeEventListener('pagehide', handlePageHide)
 	window.removeEventListener('beforeunload', handleBeforeUnload)
+	window.removeEventListener('resize', checkSidePanel)
+	if (fullscreenGraceTimer) {
+		clearTimeout(fullscreenGraceTimer)
+		fullscreenGraceTimer = null
+	}
+	if (sidePanelInterval) {
+		clearInterval(sidePanelInterval)
+		sidePanelInterval = null
+	}
 	stopTimer()
 })
 
@@ -1499,6 +1810,9 @@ watch(
 const startQuiz = () => {
 	if (scheduleBlocked.value) return
 	if (!quiz.data || !questions.value.length) return
+	if (isFullscreenEnforced.value && !isFullscreenActive.value) {
+		goFullScreen()
+	}
 	activeQuestion.value = 1
 	attemptStartedAt = Date.now()
 	localStorage.removeItem(answerStorageKey.value)
@@ -1526,6 +1840,9 @@ const storedViolationLog = createResource<StoredViolationRow[]>({
 watch(
 	() => quizSubmission.data,
 	async (submission) => {
+		if (submission) {
+			void exitFullscreenSafe()
+		}
 		if (!submission || !submissionReason.value) return
 		await nextTick()
 		summaryHeading.value?.focus()
@@ -1801,8 +2118,18 @@ const submitQuiz = (reason: SubmissionReason = 'manual'): void => {
 	// One submit at a time: the timer can expire, or Submit be pressed, while a
 	// submit (a leave, say) is still on its way, and a second would be recorded too.
 	if (submitting) return
-	submissionReason.value = reason
+	showFullscreenWarning.value = false
+	if (fullscreenGraceTimer) {
+		clearTimeout(fullscreenGraceTimer)
+		fullscreenGraceTimer = null
+	}
+	if (sidePanelInterval) {
+		clearInterval(sidePanelInterval)
+		sidePanelInterval = null
+	}
+	void exitFullscreenSafe()
 	beginSubmitting()
+	submissionReason.value = reason
 	if (!quiz.data?.show_answers) {
 		if (questionDetails.data?.type == 'Open Ended' || getAnswers().length) {
 			addToLocalStorage()
@@ -1833,6 +2160,7 @@ const createSubmission = (reason: SubmissionReason = 'manual'): void => {
 			onSuccess() {
 				endSubmitting(true)
 				proctoringActive.value = false
+				void exitFullscreenSafe()
 				if (props.quizName !== submittedQuiz) return
 				markLessonProgress()
 				if (quiz.data && quiz.data.max_attempts) attempts.reload()
@@ -1885,6 +2213,18 @@ const resetQuiz = () => {
 	attemptStartedAt = null
 	endSubmitting(false)
 	submissionReason.value = ''
+	showFullscreenWarning.value = false
+	if (fullscreenGraceTimer) {
+		clearTimeout(fullscreenGraceTimer)
+		fullscreenGraceTimer = null
+	}
+	if (sidePanelInterval) {
+		clearInterval(sidePanelInterval)
+		sidePanelInterval = null
+	}
+	if (isFullscreenActive.value) {
+		void exitFullscreenSafe()
+	}
 	populateQuestions()
 	setupTimer()
 }

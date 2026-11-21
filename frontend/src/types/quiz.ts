@@ -32,6 +32,7 @@ export interface QuizDetails {
 	show_submission_history?: 0 | 1
 	shuffle_questions?: 0 | 1
 	limit_questions_to?: number
+	enforce_fullscreen?: 0 | 1
 	enable_proctoring?: 0 | 1
 	max_violations: number
 	enable_negative_marking?: 0 | 1
