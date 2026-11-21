@@ -281,7 +281,11 @@ describe('the member form route', () => {
 			// and strip every role the member holds.
 			expect(save(wrapper).attributes('disabled')).toBeDefined()
 
-			lookup.data = { name: MEMBER, roles: ['LMS Student', 'Course Creator'] }
+			lookup.data = {
+				name: MEMBER,
+				email: MEMBER,
+				roles: ['LMS Student', 'Course Creator'],
+			}
 			await flushPromises()
 
 			expect(save(wrapper).attributes('disabled')).toBeUndefined()
@@ -294,7 +298,7 @@ describe('the member form route', () => {
 			expect(switchNamed(wrapper, 'Moderator').attributes('aria-checked')).toBe(
 				'false',
 			)
-			// The email is the route param, not something the parent handed over.
+			// The email comes from get_member, not something the parent handed over.
 			expect(
 				(
 					wrapper.find('[data-testid="field-Email"] input')

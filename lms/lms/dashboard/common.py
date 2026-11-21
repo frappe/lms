@@ -528,10 +528,11 @@ def _send_reminder(
 			_("A reminder already went to this student in the last day."),
 			title=_("Reminder already sent"),
 		)
-	student_name = frappe.db.get_value("User", member, "full_name") or member
+	full_name, email = frappe.db.get_value("User", member, ["full_name", "email"])
+	student_name = full_name or member
 	try:
 		frappe.sendmail(
-			recipients=member,
+			recipients=email,
 			subject=_("Pick up where you left off in {0}").format(title),
 			template="progress_reminder",
 			args={

@@ -6,7 +6,7 @@ from frappe import _
 from frappe.email.doctype.email_template.email_template import get_email_template
 from frappe.model.document import Document
 from frappe.model.naming import make_autoname
-from frappe.utils import nowdate
+from frappe.utils import get_email_address, nowdate
 from pypika import Case
 
 from lms.lms.permissions import can_author_batch, can_author_course, is_site_administrator
@@ -55,7 +55,7 @@ class LMSCertificate(Document):
 			subject = email_template.get("subject")
 			content = email_template.get("message")
 		frappe.sendmail(
-			recipients=self.member,
+			recipients=get_email_address(self.member),
 			subject=subject,
 			template=template if not custom_template else None,
 			content=content if custom_template else None,

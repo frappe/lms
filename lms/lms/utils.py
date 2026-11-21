@@ -25,11 +25,13 @@ from frappe.utils import (
 	fmt_money,
 	format_datetime,
 	get_datetime,
+	get_email_address,
 	get_frappe_version,
 	get_fullname,
 	get_system_timezone,
 	get_time,
 	get_url,
+	get_user_by_email,
 	getdate,
 	nowtime,
 	rounded,
@@ -213,9 +215,9 @@ def create_user(
 	ignore_permissions=False,
 ):
 	validate_email_address(email, True)
-	existing_user = frappe.db.exists("User", email)
+	existing_user = get_user_by_email(email)
 	if existing_user:
-		return frappe.get_doc("User", email)
+		return frappe.get_doc("User", existing_user)
 
 	first_name, last_name, full_name = process_user_names(first_name, last_name, full_name)
 	user_doc = create_user_document(
@@ -1373,7 +1375,7 @@ def get_billing_country(country: str | None = None) -> str | None:
 
 	address_country = frappe.get_all(
 		"Address",
-		filters={"email_id": frappe.session.user},
+		filters={"email_id": get_email_address()},
 		pluck="country",
 		order_by="creation desc",
 		limit=1,
@@ -2722,7 +2724,6 @@ def get_batch_student_progress(member: str, batch: str) -> dict:
 
 	details = get_batch_student_details(member)
 	calculate_student_progress(batch, details)
-	details.pop("email", None)
 	return hide_user_emails([details], "name")[0]
 
 
@@ -2823,7 +2824,7 @@ def get_batch_student_details(student: str) -> dict:
 	details = frappe.db.get_value(
 		"User",
 		student,
-		["full_name", "email", "username", "last_active", "user_image", "name"],
+		["full_name", "username", "last_active", "user_image", "name"],
 		as_dict=True,
 	)
 	details.last_active = format_datetime(details.last_active, "dd MMM YY")
@@ -2860,7 +2861,7 @@ def calculate_course_progress(batch_courses: list, details: dict):
 	for course in batch_courses:
 		progress = (
 			frappe.db.get_value(
-				"LMS Enrollment", {"course": course.course, "member": details.email}, "progress"
+				"LMS Enrollment", {"course": course.course, "member": details.name}, "progress"
 			)
 			or 0
 		)
@@ -2879,7 +2880,7 @@ def calculate_assessment_progress(assessments: list, details: dict):
 	for assessment in assessments:
 		title = frappe.db.get_value(assessment.assessment_type, assessment.assessment_name, "title")
 		assessment_info = has_submitted_assessment(
-			assessment.assessment_name, assessment.assessment_type, details.email
+			assessment.assessment_name, assessment.assessment_type, details.name
 		)
 		assessment_info.title = title
 		details.assessments.append(assessment_info)

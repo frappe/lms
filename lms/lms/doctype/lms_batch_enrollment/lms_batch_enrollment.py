@@ -8,6 +8,7 @@ from frappe import _
 from frappe.email.doctype.email_template.email_template import get_email_template
 from frappe.model.document import Document
 from frappe.query_builder import Bracket
+from frappe.utils import get_email_address
 from pypika.terms import LiteralValue
 
 from lms.lms.doctype.lms_enrollment.lms_enrollment import (
@@ -235,7 +236,7 @@ def send_mail(doc):
 		content = email_template.get("message")
 
 	frappe.sendmail(
-		recipients=doc.member,
+		recipients=get_email_address(doc.member),
 		subject=subject,
 		template=template if not custom_template else None,
 		content=content if custom_template else None,

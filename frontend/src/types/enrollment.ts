@@ -78,6 +78,7 @@ export interface StudentOption {
 	value: string
 	label: string
 	description: string
+	email?: string
 	image: string | null
 }
 

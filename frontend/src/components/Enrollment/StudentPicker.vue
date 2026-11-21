@@ -123,7 +123,10 @@ const targetParams = () => ({
 const keyOf = (member: string): string => member.toLowerCase()
 
 const remember = (rows: readonly StudentOption[]) => {
-	for (const row of rows) known.set(keyOf(row.value), row)
+	for (const row of rows) {
+		known.set(keyOf(row.value), row)
+		if (row.email) known.set(keyOf(row.email), row)
+	}
 }
 
 let requestId = 0

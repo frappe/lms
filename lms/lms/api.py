@@ -31,10 +31,13 @@ from frappe.utils import (
 	flt,
 	format_date,
 	get_datetime,
+	get_email_address,
+	get_email_addresses,
 	get_fullname,
 	get_string_between,
 	get_system_timezone,
 	get_time,
+	get_user_by_email,
 	getdate,
 	now,
 	strip_html,
@@ -225,7 +228,7 @@ def validate_billing_access(billing_type: str, name: str):
 
 	address = frappe.db.get_value(
 		"Address",
-		{"email_id": frappe.session.user},
+		{"email_id": get_email_address()},
 		[
 			"name",
 			"address_title as billing_name",
@@ -450,7 +453,7 @@ def send_job_application_email(application: str, subject: str, message: str):
 	return _make(
 		doctype="LMS Job Application",
 		name=application,
-		recipients=row.user,
+		recipients=get_email_address(row.user),
 		subject=subject,
 		content=message,
 		send_email=1,
@@ -1714,7 +1717,7 @@ def update_chapter_index(chapter: str, course: str, idx: int):
 # Matches SETTINGS_PAGE_LENGTH in the frontend, which pages `start` by this.
 MEMBERS_PAGE_LENGTH = 13
 
-MEMBER_FIELDS = ["name", "full_name", "user_image", "username", "last_active"]
+MEMBER_FIELDS = ["name", "email", "full_name", "user_image", "username", "last_active"]
 
 
 def member_roles(member: str) -> list[str]:
@@ -2070,8 +2073,7 @@ def get_announcements(batch: str):
 	communications = [row for row in communications if row.user in staff]
 
 	for communication in communications:
-		del communication["user"]
-		communication.image = frappe.get_cached_value("User", communication.sender, "user_image")
+		communication.image = frappe.get_cached_value("User", communication.pop("user"), "user_image")
 
 	return hide_user_emails(communications, "sender", "recipients", "cc")
 
@@ -2114,7 +2116,7 @@ def _send_batch_announcement(batch: str, subject: str, content: str, reply_to: s
 		doctype="LMS Batch",
 		name=batch,
 		recipients=reply_to,
-		bcc=", ".join(get_batch_members(batch)),
+		bcc=", ".join(get_email_addresses(get_batch_members(batch))),
 		subject=subject,
 		content=content,
 		send_email=1,
@@ -2744,7 +2746,7 @@ def cancel_evaluation(evaluation: dict):
 	events = frappe.get_all(
 		"Event Participants",
 		{
-			"email": evaluation.member,
+			"email": get_email_address(evaluation.member),
 		},
 		["parent", "name"],
 	)
@@ -2799,7 +2801,7 @@ def send_contact_us_email(subject: str, content: str) -> str:
 			"communication_medium": "Email",
 			"subject": subject,
 			"content": content,
-			"sender": frappe.session.user,
+			"sender": get_email_address(),
 			"sender_full_name": get_fullname(frappe.session.user),
 			"recipients": recipient,
 			"sent_or_received": "Sent",
@@ -2818,7 +2820,7 @@ def send_contact_us_email(subject: str, content: str) -> str:
 
 	frappe.sendmail(
 		recipients=[recipient],
-		sender=frappe.session.user,
+		sender=None if frappe.session.user in frappe.STANDARD_USERS else get_email_address(),
 		subject=subject,
 		content=body,
 		inline_images=inline_images,
@@ -2898,13 +2900,13 @@ def add_member(
 	User, so this is the one way in, and it only ever makes a website user. The
 	profile is saved in the same request, so a failed save adds nobody."""
 	frappe.only_for("Moderator")
-	# Lowercased as User names are, so the duplicate check below matches them.
+	# Lowercased as User emails are, so the duplicate check below matches them.
 	email = (email or "").strip().lower()
 	# validate_email_address returns every valid address it finds, joined by
 	# commas, so a list of addresses would pass a plain truth check.
 	if "," in email or frappe.utils.validate_email_address(email) != email:
 		frappe.throw(_("Enter a valid email address."))
-	if frappe.db.exists("User", email):
+	if get_user_by_email(email):
 		frappe.throw(_("{0} is already a member.").format(frappe.bold(email)), frappe.DuplicateEntryError)
 
 	user = frappe.get_doc(
@@ -4580,8 +4582,8 @@ def clear_demo_data():
 		delete_course(demo_course[0])
 
 	users = ["ash@ipp.com", "john.doe@example.com", "jane.smith@example.com", "jannat@example.com"]
-	for user in users:
-		if frappe.db.exists("User", user):
+	for email in users:
+		if user := get_user_by_email(email):
 			frappe.delete_doc("User", user, ignore_permissions=True)
 
 	frappe.db.set_single_value("LMS Settings", "demo_data_present", False)
@@ -4632,7 +4634,7 @@ def search_users_by_role(
 	else:
 		or_filters = [
 			["full_name", "like", f"%{txt}%"],
-			["name", "like", f"%{txt}%"],
+			["email", "like", f"%{txt}%"],
 		]
 
 	results = frappe.get_all(
