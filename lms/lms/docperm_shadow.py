@@ -35,7 +35,7 @@ def get_shadowed_permlevel_rows() -> dict[str, list[tuple[str, int]]]:
 	custom_rows = frappe.get_all(
 		"Custom DocPerm",
 		filters={"parent": ("in", candidates)},
-		fields=["parent", "role", "permlevel", "if_owner", *rights],
+		fields=["parent", "role", "permlevel", *rights],
 		limit_page_length=0,
 	)
 	if not custom_rows:
@@ -51,7 +51,7 @@ def get_shadowed_permlevel_rows() -> dict[str, list[tuple[str, int]]]:
 			"parenttype": "DocType",
 			"permlevel": (">", 0),
 		},
-		fields=["parent", "role", "permlevel", "if_owner", *rights],
+		fields=["parent", "role", "permlevel", *rights],
 		order_by="parent asc, permlevel asc, role asc",
 		limit_page_length=0,
 	)
@@ -82,12 +82,8 @@ def warn_about_shadowed_permlevels() -> None:
 
 def _custom_rows_cover(shipped, custom_rows: list) -> bool:
 	"""Whether the Custom DocPerm rows replacing a shipped row still carry every grant it
-	made. Owner-only access cannot stand in for an unrestricted shipped grant."""
-	return all(
-		any(perm.get(ptype) and (shipped.if_owner or not perm.if_owner) for perm in custom_rows)
-		for ptype in rights
-		if shipped.get(ptype)
-	)
+	made. Frappe ignores `if_owner` above permlevel 0, so it does not narrow these rows."""
+	return all(any(perm.get(ptype) for perm in custom_rows) for ptype in rights if shipped.get(ptype))
 
 
 def _get_lms_doctypes() -> set[str]:

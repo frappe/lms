@@ -140,12 +140,15 @@ class TestDocPermShadow(IntegrationTestCase):
 
 		self.assertNotIn("LMS Course", get_shadowed_permlevel_rows())
 
-	def test_custom_owner_only_grant_does_not_cover_an_unrestricted_grant(self):
+	def test_an_owner_only_flag_on_a_permlevel_row_does_not_narrow_it(self):
+		"""Frappe applies `if_owner` only at permlevel 0 and clears it on save above that.
+		A row saved before that still carries the flag, so set it directly."""
 		role, permlevel = self.ship_permlevel_row("LMS Course")
 		shipped = self.get_shipped_grants("LMS Course", role, permlevel)
-		self.add_custom_docperm("LMS Course", role, permlevel=permlevel, if_owner=1, **shipped)
+		self.add_custom_docperm("LMS Course", role, permlevel=permlevel, **shipped)
+		frappe.db.set_value("Custom DocPerm", self.added_custom_perms[-1], "if_owner", 1)
 
-		self.assertIn((role, permlevel), get_shadowed_permlevel_rows()["LMS Course"])
+		self.assertNotIn("LMS Course", get_shadowed_permlevel_rows())
 
 	def test_a_custom_docperm_without_a_shipped_permlevel_row_is_not_reported(self):
 		self.add_custom_docperm("LMS Batch", "Moderator")

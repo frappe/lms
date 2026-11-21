@@ -5,8 +5,6 @@
 
 **Easy to use, open source, Learning Management System**
 
-![Tests](https://img.shields.io/endpoint?url=https://dashboard.cypress.io/badge/simple/vandxn/main&style=flat&logo=cypress)
-
 </div>
 
 

@@ -6,6 +6,7 @@
 		:back-button="false"
 		preview-side="start"
 		@finish="finish"
+		@vue:mounted="sendStartIfLost"
 	>
 		<template #brand>
 			<div
@@ -151,7 +152,7 @@ import {
 	TelemetryConsent,
 } from '@framework/ui/components/SetupFlow/index'
 import { useTelemetry } from '@framework/ui/telemetry/index'
-import { computed, inject, reactive, ref } from 'vue'
+import { computed, inject, reactive, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import LMSLogo from '@/components/Icons/LMSLogo.vue'
 import PersonaToolIcon from '@/components/PersonaToolIcon.vue'
@@ -161,7 +162,8 @@ import { setupQuestions } from '@/utils/setupQuestions'
 
 const user = inject('$user')
 const router = useRouter()
-const { capture } = useTelemetry()
+const telemetry = useTelemetry()
+const { capture } = telemetry
 
 const answers = reactive({})
 
@@ -353,6 +355,24 @@ function siteList(toBatches) {
 // order of the goal just saved, mounts with the page it opens.
 function openApp() {
 	router.replace(goalRoute)
+}
+
+// SetupFlow sends setup_started and the first step's view as it opens, and telemetry drops
+// events until it has loaded, which on a new site's first page is often later. When it is
+// still off as SetupFlow opens, both are sent once it is on. Drop this when the framework's
+// SetupFlow waits for telemetry itself.
+function sendStartIfLost() {
+	if (telemetry.isEnabled) return
+	const firstStep = steps.value[0]?.name
+	const stop = watch(
+		() => telemetry.isEnabled,
+		(on) => {
+			if (!on) return
+			stop()
+			capture('setup_started')
+			capture('setup_step_viewed', { step: firstStep })
+		}
+	)
 }
 
 usePageMeta(() => ({ title: __('Set up Frappe Learning') }))
