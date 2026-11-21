@@ -2820,7 +2820,7 @@ def send_contact_us_email(subject: str, content: str) -> str:
 
 	frappe.sendmail(
 		recipients=[recipient],
-		sender=get_email_address(),
+		sender=None if frappe.session.user in frappe.STANDARD_USERS else get_email_address(),
 		subject=subject,
 		content=body,
 		inline_images=inline_images,
