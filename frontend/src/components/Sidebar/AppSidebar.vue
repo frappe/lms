@@ -83,6 +83,7 @@
 			<TrialBanner
 				v-if="isV1CloudAdmin()"
 				:isSidebarCollapsed="sidebarStore.isSidebarCollapsed"
+				:afterUpgrade="() => capture('upgrade_plan_from_trial_banner')"
 			/>
 			<TrialCard v-if="!sidebarStore.isSidebarCollapsed" />
 			<GettingStartedBanner
