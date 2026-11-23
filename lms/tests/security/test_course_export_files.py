@@ -108,9 +108,13 @@ class TestCourseExportFiles(BaseTestUtils):
 
 	def test_a_row_naming_the_victims_url_after_a_newer_case_variant_does_not_export_it(self):
 		secret = self._upload(self.victim, f"secret-{self.hash}.txt")
-		# A newer own case-variant row satisfies frappe's one-row private-file check.
+		# A newer own case-variant row satisfied frappe's one-row private-file check before frappe matched exact urls.
 		self._upload(self.creator, f"SECRET-{self.hash}.txt")
-		forged = self._forge_row(secret.file_url)
+		try:
+			forged = self._forge_row(secret.file_url)
+		except frappe.PermissionError:
+			return
+
 		self.assertEqual(forged.file_url, secret.file_url)
 		self._cite_in_lesson(secret.file_url)
 
