@@ -231,6 +231,17 @@ function onOpen(open: unknown): void {
 
 const onQuery = useDebounceFn((txt: unknown) => reload(txt as string), 300)
 
+// A type picker can switch the doctype (Add Assessment, coupon items, transactions):
+// the options loaded for the old one must go, and an open dropdown loads the new one.
+watch(
+	() => [props.doctype, props.query],
+	() => {
+		loaded = false
+		options.reset()
+		if (isOpen.value) reload('')
+	}
+)
+
 // Settings drawer (UserDropdown) is where users add Categories, Course
 // Evaluators, etc. Refresh options once it closes so newly-created
 // linked records show up without a full reload.
