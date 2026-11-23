@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: frappe\n"
 "Report-Msgid-Bugs-To: jannat@frappe.io\n"
 "POT-Creation-Date: 2026-11-06 21:11+0000\n"
-"PO-Revision-Date: 2026-11-16 13:00\n"
+"PO-Revision-Date: 2026-11-23 14:08\n"
 "Last-Translator: jannat@frappe.io\n"
 "Language-Team: Swedish\n"
 "MIME-Version: 1.0\n"
@@ -2648,7 +2648,7 @@ msgstr "Kurs Registrering"
 
 #: frontend/src/pages/Statistics.vue:26
 msgid "Course Enrollments"
-msgstr "Kursregistreringar"
+msgstr "Kurs Registreringar"
 
 #. Name of a DocType
 #: lms/lms/doctype/course_evaluator/course_evaluator.json:89
@@ -5109,7 +5109,7 @@ msgstr "Om denna e-post kan användas får du ett e-postmeddelande med nästa st
 
 #: lms/templates/emails/mentor_request_creation_email.html:5
 msgid "If you are not any more interested to mentor the course"
-msgstr "Om du inte längre är intresserad av att vara mentor för kurs"
+msgstr "Om du inte längre är intresserad av att vara handledare för kurs"
 
 #: lms/templates/emails/lms_day1_next_step.html:10
 msgid "If you get stuck, just reply to this email and I will help you."
@@ -5446,7 +5446,7 @@ msgstr "Bjud in första deltagare till {0}"
 
 #: frontend/src/components/Sidebar/AppSidebar.vue:512
 msgid "Invite your team and students"
-msgstr "Bjud in ditt lag och dina deltagare"
+msgstr "Bjud in Användare och Deltagare"
 
 #: frontend/src/pages/Batches/components/LiveClass.vue:77
 msgid "Invites not sent"
@@ -6523,17 +6523,17 @@ msgstr "Märken:"
 #. Label of a Int field in DocType 'LMS Quiz'
 #: frontend/src/pages/Quizzes.vue:224 lms/lms/doctype/lms_quiz/lms_quiz.json:62
 msgid "Max Attempts"
-msgstr "Maximalt antal försök"
+msgstr "Högst antal försök"
 
 #. Label of a Int field in DocType 'LMS Quiz'
 #: frontend/src/pages/Forms/QuizForm.vue:342
 #: lms/lms/doctype/lms_quiz/lms_quiz.json:156
 msgid "Max Violations"
-msgstr "Maximalt antal överträdelser"
+msgstr "Högst antal överträdelser"
 
 #: frontend/src/pages/Forms/QuizForm.vue:256
 msgid "Maximum Attempts"
-msgstr "Maximalt Antal Försök"
+msgstr "Högst Antal Försök"
 
 #. Label of a Select field in DocType 'LMS Batch'
 #: frontend/src/pages/Batches/BatchForm.vue:171
@@ -11260,7 +11260,7 @@ msgstr "Denna kupong har gått ut."
 
 #: lms/lms/utils.py:3103 lms/lms/utils.py:3516
 msgid "This coupon has reached its maximum usage limit."
-msgstr "Denna kupong har nått sin maximala inlösenantal."
+msgstr "Denna kupong har nått högsta inlösen antal."
 
 #: lms/lms/utils.py:3112
 #, python-brace-format
@@ -12876,7 +12876,7 @@ msgstr "Du har blivit registrerad på denna kurs"
 #: lms/lms/doctype/lms_quiz_submission/lms_quiz_submission.py:76
 #, python-brace-format
 msgid "You have exceeded the maximum number of attempts ({0}) for this quiz"
-msgstr "Du har överskridit det maximala antalet försök ({0}) för denna frågesport"
+msgstr "Du har överskridit högst antalet försök ({0}) för denna frågesport"
 
 #: lms/lms/doctype/lms_quiz_submission/lms_quiz_submission.py:126
 #, python-brace-format
