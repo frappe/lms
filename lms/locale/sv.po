@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: frappe\n"
 "Report-Msgid-Bugs-To: jannat@frappe.io\n"
 "POT-Creation-Date: 2026-11-13 21:45+0000\n"
-"PO-Revision-Date: 2026-11-16 12:56\n"
+"PO-Revision-Date: 2026-11-23 14:08\n"
 "Last-Translator: jannat@frappe.io\n"
 "Language-Team: Swedish\n"
 "MIME-Version: 1.0\n"
@@ -321,7 +321,7 @@ msgstr "Lägg till Kapitel"
 
 #: lms/lms/doctype/lms_batch/lms_batch.py:283
 msgid "Add a Google Calendar to the selected Google Meet account to use it for live classes."
-msgstr "Lägg till en Google Kalender till vald Google Meet konto för att kunna använda det till lektioner."
+msgstr "Lägg till Google Kalender till vald Google Meet konto för att kunna använda det till lektioner."
 
 #: lms/lms/doctype/lms_live_class/lms_live_class.py:194
 msgid "Add a Google Calendar to this Google Meet account to schedule classes."
@@ -2697,7 +2697,7 @@ msgstr "Kupong uppdaterad"
 #: lms/lms/report/course_progress_summary/course_progress_summary.py:51
 #: lms/lms/workspace/learning/learning.json:39
 msgid "Course"
-msgstr "Utbildning"
+msgstr "Kurs"
 
 #. Name of a DocType
 #. Label of the chapter (Link) field in DocType 'Course Lesson'
@@ -5299,7 +5299,7 @@ msgstr "Om denna e-post kan användas får du ett e-postmeddelande med nästa st
 
 #: lms/templates/emails/mentor_request_creation_email.html:5
 msgid "If you are not any more interested to mentor the course"
-msgstr "Om du inte längre är intresserad av att vara mentor för kurs"
+msgstr "Om du inte längre är intresserad av att vara handledare för kurs"
 
 #: lms/templates/emails/lms_day1_next_step.html:10
 msgid "If you get stuck, just reply to this email and I will help you."
@@ -5643,11 +5643,11 @@ msgstr "Bjud in första deltagare till {0}"
 
 #: frontend/src/pages/Setup.vue:179
 msgid "Invite your team"
-msgstr "Bjud in Lag"
+msgstr "Bjud in Användare"
 
 #: frontend/src/components/Sidebar/AppSidebar.vue:334
 msgid "Invite your team and students"
-msgstr "Bjud in ditt lag och dina deltagare"
+msgstr "Bjud in Användare och Deltagare"
 
 #: frontend/src/pages/Batches/components/LiveClass.vue:77
 msgid "Invites not sent"
@@ -6743,17 +6743,17 @@ msgstr "Märken:"
 #. Label of the max_attempts (Int) field in DocType 'LMS Quiz'
 #: frontend/src/pages/Quizzes.vue:224 lms/lms/doctype/lms_quiz/lms_quiz.json:62
 msgid "Max Attempts"
-msgstr "Maximalt antal försök"
+msgstr "Högst antal försök"
 
 #. Label of the max_violations (Int) field in DocType 'LMS Quiz'
 #: frontend/src/pages/Forms/QuizForm.vue:342
 #: lms/lms/doctype/lms_quiz/lms_quiz.json:156
 msgid "Max Violations"
-msgstr "Maximalt antal överträdelser"
+msgstr "Högst antal överträdelser"
 
 #: frontend/src/pages/Forms/QuizForm.vue:256
 msgid "Maximum Attempts"
-msgstr "Maximalt Antal Försök"
+msgstr "Högst Antal Försök"
 
 #. Label of the medium (Select) field in DocType 'LMS Batch'
 #: frontend/src/pages/Batches/BatchForm.vue:171
@@ -11748,7 +11748,7 @@ msgstr "Denna kupong har gått ut."
 
 #: lms/lms/utils.py:3169 lms/lms/utils.py:3588
 msgid "This coupon has reached its maximum usage limit."
-msgstr "Denna kupong har nått sin maximala inlösenantal."
+msgstr "Denna kupong har nått högsta inlösen antal."
 
 #: lms/lms/utils.py:3178
 #, python-brace-format
@@ -13398,7 +13398,7 @@ msgstr "Du har blivit registrerad på denna kurs"
 #: lms/lms/doctype/lms_quiz_submission/lms_quiz_submission.py:76
 #, python-brace-format
 msgid "You have exceeded the maximum number of attempts ({0}) for this quiz"
-msgstr "Du har överskridit det maximala antalet försök ({0}) för denna frågesport"
+msgstr "Du har överskridit högst antalet försök ({0}) för denna frågesport"
 
 #: lms/lms/doctype/lms_quiz_submission/lms_quiz_submission.py:126
 #, python-brace-format
