@@ -32,8 +32,6 @@ export interface LMSSettings {
 	show_usd_equivalent?: 0 | 1
 	/**	Primary Countries : Table MultiSelect - Payment Country	*/
 	exception_country?: PaymentCountry[]
-	/**	Apply Rounding on Equivalent : Check	*/
-	apply_rounding?: 0 | 1
 	/**	Batch Confirmation Template : Link - Email Template	*/
 	batch_confirmation_template?: string
 	/**	Courses : Check	*/

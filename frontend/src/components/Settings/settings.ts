@@ -366,14 +366,6 @@ export const settingsTree: SettingsGroup[] = [
 									),
 								},
 								{
-									label: __('Apply rounding on equivalent'),
-									name: 'apply_rounding',
-									type: 'checkbox',
-									description: __(
-										'If enabled, it applies rounding on the USD equivalent amount.'
-									),
-								},
-								{
 									label: __('Payment Gateway'),
 									name: 'payment_gateway',
 									type: 'link',

@@ -1354,15 +1354,7 @@ def check_multicurrency(amount: float, currency: str, country: str = None, amoun
 
 	# Conversion logic starts here. Exchange rate is fetched and amount is converted.
 	exchange_rate = get_current_exchange_rate(currency, "USD")
-	amount = flt(amount * exchange_rate, 2)
-	currency = "USD"
-
-	# Check if the amount should be rounded and then apply rounding
-	apply_rounding = settings.apply_rounding
-	if apply_rounding and amount % 100 != 0:
-		amount = amount + 100 - amount % 100
-
-	return rounded(amount), currency
+	return rounded(amount * exchange_rate), "USD"
 
 
 def get_billing_country(country: str | None = None) -> str | None:
