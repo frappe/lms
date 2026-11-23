@@ -125,6 +125,7 @@ def get_user_info():
 		user.site_info = current_site_info()
 	user.cloud_settings = get_cloud_settings_context()
 	user.permissions = _doctype_permissions()
+	user.can_use_flow = can_use_flow()
 	return user
 
 
@@ -135,6 +136,11 @@ def get_cloud_settings_context() -> dict:
 		# Frappe without Cloud Settings is older than any Frappe Cloud v2 site.
 		return {"enabled": False}
 	return get_boot_context()
+
+
+def can_use_flow() -> bool:
+	"""Matches the check Frappe's Flow launcher makes before adding its panel to the page."""
+	return bool(frappe.db.exists("DocType", "Flow Session")) and frappe.has_permission("Flow Session", "read")
 
 
 PERMISSION_DOCTYPES = (

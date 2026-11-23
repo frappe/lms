@@ -1,6 +1,8 @@
+from unittest.mock import patch
+
 import frappe
 
-from lms.lms.api import PERMISSION_DOCTYPES, get_user_info
+from lms.lms.api import PERMISSION_DOCTYPES, can_use_flow, get_user_info
 from lms.lms.test_helpers import BaseTestUtils
 
 GATED_FEATURE_DOCTYPES = ("LMS Course Review", "LMS Lesson Note", "Discussion Topic", "Discussion Reply")
@@ -68,3 +70,16 @@ class TestUserPermissionsPayload(BaseTestUtils):
 		perms = get_user_info()["permissions"]
 		for doctype in GATED_FEATURE_DOCTYPES:
 			self.assertEqual(perms[doctype]["read"], 0, doctype)
+
+	def test_flow_follows_flow_session_read_permission(self):
+		"""The sidebar shows Flow only where Frappe's launcher adds its panel:
+		Flow Session exists and the user may read it."""
+		frappe.set_user("Administrator")
+		self.assertIn("can_use_flow", get_user_info())
+		with patch("frappe.db.exists", return_value=None):
+			self.assertFalse(can_use_flow())
+		with patch("frappe.db.exists", return_value="Flow Session"):
+			with patch("frappe.has_permission", return_value=True):
+				self.assertTrue(can_use_flow())
+			with patch("frappe.has_permission", return_value=False):
+				self.assertFalse(can_use_flow())

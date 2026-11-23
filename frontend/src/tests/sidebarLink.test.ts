@@ -1,7 +1,7 @@
 /**
  * SidebarLink maps an LMS sidebar link onto frappe-ui's SidebarItem. Every
  * branch the hand-built row's click handler had is pinned here, so the port
- * cannot drop one: palette, notifications, router route, contact form,
+ * cannot drop one: palette, Flow, notifications, router route, contact form,
  * same-tab and new-tab externals, and relative web routes.
  */
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
@@ -62,6 +62,7 @@ beforeEach(() => {
 afterEach(() => {
 	wrapper?.unmount()
 	wrapper = undefined
+	delete window.flow
 })
 
 describe('SidebarLink', () => {
@@ -69,6 +70,19 @@ describe('SidebarLink', () => {
 		const { wrapper } = await build({ action: 'commandPalette' })
 		await control(wrapper).trigger('click')
 		expect(settings.isCommandPaletteOpen).toBe(true)
+	})
+
+	it("toggles Frappe's Flow panel", async () => {
+		const toggle = vi.fn()
+		window.flow = { toggle }
+		const { wrapper } = await build({ action: 'flow', shortcut: 'Mod+I' })
+		await control(wrapper).trigger('click')
+		expect(toggle).toHaveBeenCalledOnce()
+	})
+
+	it('does nothing on the Flow row when the launcher is absent', async () => {
+		const { wrapper } = await build({ action: 'flow' })
+		await expect(control(wrapper).trigger('click')).resolves.not.toThrow()
 	})
 
 	it('toggles notifications and keeps the outside-click marker', async () => {

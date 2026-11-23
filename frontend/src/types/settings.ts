@@ -14,6 +14,7 @@ export interface User {
 		is_evaluator: boolean
 		is_instructor: boolean
 		is_fc_site: boolean
+		can_use_flow: boolean
 	}
 }
 

@@ -73,6 +73,8 @@ const target = computed<Target>(() => {
 	const { action, panel, to, open_in_new_window } = props.link
 	if (action === 'commandPalette')
 		return { onClick: () => (settingsStore.isCommandPaletteOpen = true) }
+	// The panel Frappe's Flow launcher adds to the page
+	if (action === 'flow') return { onClick: () => window.flow?.toggle() }
 	if (panel === 'notifications') return { onClick: toggleNotifications }
 	if (!to) return {}
 	if (router.hasRoute(to)) return { route: { name: to } }
