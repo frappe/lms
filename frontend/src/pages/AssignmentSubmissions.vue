@@ -25,7 +25,11 @@ const user = inject<SessionUser>('$user')!
 const router = useRouter()
 
 onMounted(() => {
-	if (!user.data?.is_instructor && !user.data?.is_moderator) {
+	if (
+		!user.data?.is_instructor &&
+		!user.data?.is_moderator &&
+		!user.data?.is_evaluator
+	) {
 		router.push({ name: 'Courses' })
 		return
 	}
