@@ -3,11 +3,15 @@ const AUDIO_MIME: Record<string, string> = {
 	mp3: 'audio/mpeg',
 	wav: 'audio/wav',
 	ogg: 'audio/ogg',
+	oga: 'audio/ogg',
+	opus: 'audio/ogg',
+	weba: 'audio/webm',
 	m4a: 'audio/mp4',
 	aac: 'audio/aac',
 }
 
 export const AUDIO_EXTENSIONS = Object.keys(AUDIO_MIME)
+export const audioUploadExtensions = ['m4a', 'ogg', 'oga', 'opus', 'weba']
 
 export const isAudioType = (type: string | null | undefined): boolean =>
 	!!type && Object.hasOwn(AUDIO_MIME, type.toLowerCase())
