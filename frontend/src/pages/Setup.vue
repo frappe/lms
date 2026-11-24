@@ -134,7 +134,7 @@
 					<template #tab-icon>
 						<img
 							v-if="brand.logo"
-							:src="brand.logo"
+							:src="safeUrl(brand.logo)"
 							alt=""
 							class="size-full object-cover"
 						/>
@@ -207,6 +207,7 @@ import {
 	TelemetryConsent,
 } from '@framework/ui/components/SetupFlow/index'
 import { useTelemetry } from '@framework/ui/telemetry/index'
+import { safeUrl } from '@/utils/safeUrl'
 import { computed, inject, reactive, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import LMSLogo from '@/components/Icons/LMSLogo.vue'

@@ -47,7 +47,7 @@
 				>
 					<span class="truncate text-base text-ink-gray-8">
 						{{ invite.email }}
-						<span class="text-ink-gray-5"
+						<span class="text-ink-gray-6"
 							>({{ rolesLabel(invite.roles) }})</span
 						>
 					</span>

@@ -26,7 +26,7 @@
 					<template #prefix>
 						<img
 							v-if="brandLogo"
-							:src="brandLogo"
+							:src="safeUrl(brandLogo)"
 							alt=""
 							class="size-full rounded object-cover"
 						/>
@@ -214,6 +214,7 @@ import {
 	SetupPreviewSwap,
 } from '@framework/ui/components/SetupFlow/index'
 import * as icons from 'lucide-vue-next'
+import { safeUrl } from '@/utils/safeUrl'
 import { computed, nextTick, onBeforeUnmount, ref, watch } from 'vue'
 import ToggleFilter from '@/components/Controls/ToggleFilter.vue'
 import CourseCard from '@/components/CourseCard.vue'
