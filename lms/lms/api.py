@@ -2801,7 +2801,9 @@ def send_contact_us_email(subject: str, content: str) -> str:
 			"communication_medium": "Email",
 			"subject": subject,
 			"content": content,
-			"sender": get_email_address(),
+			"sender": (
+				frappe.session.user if frappe.session.user in frappe.STANDARD_USERS else get_email_address()
+			),
 			"sender_full_name": get_fullname(frappe.session.user),
 			"recipients": recipient,
 			"sent_or_received": "Sent",
