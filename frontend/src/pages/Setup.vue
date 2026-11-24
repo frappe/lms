@@ -6,7 +6,6 @@
 		:back-button="false"
 		preview-side="end"
 		@finish="finish"
-		@vue:mounted="sendStartIfLost"
 	>
 		<template #brand>
 			<div
@@ -219,8 +218,7 @@ import { setupQuestions } from '@/utils/setupQuestions'
 
 const user = inject('$user')
 const router = useRouter()
-const telemetry = useTelemetry()
-const { capture } = telemetry
+const { capture } = useTelemetry()
 
 const answers = reactive({})
 
@@ -491,24 +489,6 @@ function siteList(toBatches) {
 // order of the goal just saved, mounts with the page it opens.
 function openApp() {
 	router.replace(goalRoute)
-}
-
-// SetupFlow sends setup_started and the first step's view as it opens, and telemetry drops
-// events until it has loaded, which on a new site's first page is often later. When it is
-// still off as SetupFlow opens, both are sent once it is on. Drop this when the framework's
-// SetupFlow waits for telemetry itself.
-function sendStartIfLost() {
-	if (telemetry.isEnabled) return
-	const firstStep = steps.value[0]?.name
-	const stop = watch(
-		() => telemetry.isEnabled,
-		(on) => {
-			if (!on) return
-			stop()
-			capture('setup_started')
-			capture('setup_step_viewed', { step: firstStep })
-		}
-	)
 }
 
 // The tab shows the logo as soon as it is uploaded, and keeps it when setup opens the app.
