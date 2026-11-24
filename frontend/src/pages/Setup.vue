@@ -111,10 +111,10 @@
 			/>
 		</template>
 
-		<template #preview="{ step }">
+		<template #preview="{ step, side }">
 			<div class="relative h-full">
 				<SetupPreviewFrame
-					side="end"
+					:side="side"
 					:expanded="handingOver"
 					:url="previewUrl(step)"
 					:tabs="[
