@@ -3,6 +3,8 @@
 		v-if="step?.type === 'password'"
 		:email="email"
 		:password-length="passwordLength"
+		:ready="passwordReady"
+		:email-link="false"
 		:labels="loginLabels"
 	>
 		<template #logo>
@@ -16,13 +18,19 @@
 			:ariaLabel="__('Preview')"
 			class="border-e"
 		>
-			<div class="py-2">
+			<div class="py-2" data-preview-cursor="brand">
 				<SidebarHeader
-					:title="__('Learning')"
+					:title="brandName.trim() || __('Learning')"
 					:subtitle="convertToTitleCase(userName)"
 				>
 					<template #prefix>
-						<LMSLogo class="size-full" />
+						<img
+							v-if="brandLogo"
+							:src="brandLogo"
+							alt=""
+							class="size-full rounded object-cover"
+						/>
+						<LMSLogo v-else class="size-full" />
 					</template>
 				</SidebarHeader>
 			</div>
@@ -134,7 +142,10 @@
 							/>
 						</template>
 						<template #card="{ row }">
-							<CourseCard :course="row" />
+							<div class="relative h-full" data-preview-cursor="card">
+								<CourseCard :course="row" />
+								<Badge v-if="examples" v-bind="EXAMPLE_BADGE" />
+							</div>
 						</template>
 					</ListPage>
 					<ListPage
@@ -174,7 +185,10 @@
 							</FormControl>
 						</template>
 						<template #card="{ row }">
-							<BatchCard :batch="row" />
+							<div class="relative h-full" data-preview-cursor="card">
+								<BatchCard :batch="row" />
+								<Badge v-if="examples" v-bind="EXAMPLE_BADGE" />
+							</div>
 						</template>
 					</ListPage>
 				</div>
@@ -185,6 +199,7 @@
 
 <script setup>
 import {
+	Badge,
 	Button,
 	FormControl,
 	ItemListRow,
@@ -220,6 +235,10 @@ const props = defineProps({
 	/** Under the app name in the sidebar header, as the app shows the signed-in user. */
 	userName: { type: String, default: '' },
 	passwordLength: { type: Number, default: 0 },
+	passwordReady: { type: Boolean, default: false },
+	/** The name and logo being typed on the brand step, shown in the sidebar header as they will be. */
+	brandName: { type: String, default: '' },
+	brandLogo: { type: String, default: '' },
 	invitees: { type: Array, default: () => [] },
 	/** True while the preview grows into the app, so the page takes the app's own columns. */
 	handingOver: { type: Boolean, default: false },
@@ -286,6 +305,20 @@ const view = computed(
 	() => props.landing?.view || (goal.value === ONBOARD ? 'Batches' : 'Courses')
 )
 const samples = computed(() => samplesFor(usage.value))
+// Before the usage question the samples are the demo course and batch setup creates. After
+// it they are made up for that kind of organization, so they say so until the site's own
+// rows replace them.
+const examples = computed(() => Boolean(usage.value) && !props.landing)
+// The preview shows the app at about two thirds of its size, so the badge is drawn a little
+// larger than in the app to stay readable. Subtle, so it reads as a label and not an action.
+const EXAMPLE_BADGE = {
+	label: __('Example'),
+	theme: 'gray',
+	variant: 'subtle',
+	size: 'lg',
+	class:
+		'absolute end-4 top-4 z-10 origin-top-right scale-110 rtl:origin-top-left',
+}
 const links = getSidebarLinks()
 
 const invited = (roles) =>
@@ -350,7 +383,6 @@ const loginLabels = computed(() => ({
 	password: __('Password'),
 	forgot: __('Forgot password?'),
 	submit: __('Continue'),
-	emailLink: __('Login with Email Link'),
 }))
 
 // michelle.dsouza@example.com shows as Michelle Dsouza, as the person would once signed up.

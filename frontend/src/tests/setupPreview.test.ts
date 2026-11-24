@@ -18,6 +18,7 @@ const passthrough = (name: string, props: string[] = []) =>
 	})
 
 vi.mock('frappe-ui', () => ({
+	Badge: passthrough('Badge', ['label']),
 	Button: defineComponent({
 		name: 'Button',
 		setup:
@@ -44,6 +45,7 @@ vi.mock('@framework/ui/components/SetupFlow/index', () => ({
 	SetupPreviewLogin: passthrough('SetupPreviewLogin', [
 		'email',
 		'passwordLength',
+		'emailLink',
 		'labels',
 	]),
 	SetupPreviewSwap: passthrough('SetupPreviewSwap'),
@@ -126,6 +128,7 @@ describe('SetupPreview', () => {
 
 		expect(login.props('email')).toBe('owner@example.com')
 		expect(login.props('passwordLength')).toBe(5)
+		expect(login.props('emailLink')).toBe(false)
 		expect(wrapper.findComponent({ name: 'Sidebar' }).exists()).toBe(false)
 	})
 
@@ -235,6 +238,21 @@ describe('SetupPreview', () => {
 		expect(activeLink(wrapper)).toEqual(['Batches'])
 		expect(wrapper.findComponent({ name: 'BatchCard' }).props('batch')).toEqual(demoBatch)
 		expect(courses(wrapper)).toEqual([])
+	})
+
+	it('marks the made-up cards as examples, not the demo course or the site’s own rows', async () => {
+		const badges = (wrapper: Awaited<ReturnType<typeof preview>>) =>
+			wrapper.findAllComponents({ name: 'Badge' }).map((b) => b.props('label'))
+
+		expect(badges(await preview({}))).toEqual([])
+		expect(badges(await preview({ answers: { usage_context: 'School' } }))).toEqual([
+			'Example',
+		])
+		const landed = await preview({
+			answers: { usage_context: 'School' },
+			landing: { view: 'Courses', rows: [{ name: 'demo', title: 'A guide to Frappe Learning' }] },
+		})
+		expect(badges(landed)).toEqual([])
 	})
 
 	it('opens the Import menu on the tool question and points at where the pick starts', async () => {

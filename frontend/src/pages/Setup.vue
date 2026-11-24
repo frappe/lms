@@ -4,7 +4,7 @@
 		:steps="steps"
 		:labels="labels"
 		:back-button="false"
-		preview-side="start"
+		preview-side="end"
 		@finish="finish"
 		@vue:mounted="sendStartIfLost"
 	>
@@ -52,10 +52,24 @@
 						@skip="skip"
 						@back="back"
 					/>
+					<BrandStep
+						v-else-if="step.type === 'brand'"
+						v-model:name="brand.name"
+						v-model:logo="brand.logo"
+						:labels="brandLabels"
+						:max-length="140"
+						:save="saveBrand"
+						@done="done"
+					>
+						<template #placeholder>
+							<LMSLogo class="size-full" />
+						</template>
+					</BrandStep>
 					<PasswordStep
 						v-else-if="step.type === 'password'"
 						:labels="passwordLabels"
 						@input="(length) => (passwordLength = length)"
+						@ready="(ready) => (passwordReady = ready)"
 						@done="done"
 					/>
 				</div>
@@ -91,30 +105,70 @@
 				app-name="lms"
 				class="mx-auto w-full max-w-md"
 				:label="
-					__('Share anonymous usage data to help improve Frappe Learning')
+					__('Help improve Frappe Learning by sharing anonymous usage data')
 				"
 				:error-message="__('Could not save your choice. Please try again.')"
 			/>
 		</template>
 
 		<template #preview="{ step }">
-			<SetupPreviewFrame
-				side="start"
-				:app-width="1024"
-				:expanded="handingOver"
-				@expanded="openApp"
-			>
-				<SetupPreview
-					:step="step"
-					:answers="answers"
-					:email="user.data?.email || user.data?.name || ''"
-					:user-name="user.data?.full_name || ''"
-					:password-length="passwordLength"
-					:invitees="invitees"
-					:handing-over="handingOver"
-					:landing="landing"
-				/>
-			</SetupPreviewFrame>
+			<div class="relative h-full">
+				<SetupPreviewFrame
+					side="end"
+					:expanded="handingOver"
+					:url="previewUrl(step)"
+					:tabs="[
+						{
+							key: 'app',
+							title: brand.name.trim() || __('Frappe Learning'),
+							active: true,
+						},
+					]"
+					:user="{
+						name: user.data?.full_name || '',
+						image: user.data?.user_image,
+					}"
+					:cursor="handingOver ? null : previewCursor(step)"
+					@expanded="openApp"
+				>
+					<template #tab-icon>
+						<img
+							v-if="brand.logo"
+							:src="brand.logo"
+							alt=""
+							class="size-full object-cover"
+						/>
+						<LMSLogo v-else class="size-full" />
+					</template>
+					<SetupPreview
+						:step="step"
+						:answers="answers"
+						:email="user.data?.email || user.data?.name || ''"
+						:user-name="user.data?.full_name || ''"
+						:password-length="passwordLength"
+						:password-ready="passwordReady"
+						:brand-name="brand.name"
+						:brand-logo="brand.logo"
+						:invitees="invitees"
+						:handing-over="handingOver"
+						:landing="landing"
+					/>
+				</SetupPreviewFrame>
+				<!-- Centred under the window, in the frame's bottom padding; the window starts 5rem in. -->
+				<Transition
+					enter-active-class="transition-opacity duration-300"
+					leave-active-class="transition-opacity duration-300"
+					enter-from-class="opacity-0"
+					leave-to-class="opacity-0"
+				>
+					<p
+						v-if="exampleCaption(step)"
+						class="pointer-events-none absolute inset-x-0 bottom-0 flex h-20 items-center justify-center ps-20 text-base text-ink-gray-6"
+					>
+						{{ exampleCaption(step) }}
+					</p>
+				</Transition>
+			</div>
 		</template>
 	</SetupFlow>
 	<div
@@ -144,6 +198,7 @@ import {
 	usePageMeta,
 } from 'frappe-ui'
 import {
+	BrandStep,
 	ChoiceStep,
 	ListStep,
 	PasswordStep,
@@ -158,6 +213,7 @@ import LMSLogo from '@/components/Icons/LMSLogo.vue'
 import PersonaToolIcon from '@/components/PersonaToolIcon.vue'
 import SetupInvite from '@/components/Setup/SetupInvite.vue'
 import SetupPreview from '@/components/Setup/SetupPreview.vue'
+import { sessionStore } from '@/stores/session'
 import { setupQuestions } from '@/utils/setupQuestions'
 
 const user = inject('$user')
@@ -168,6 +224,22 @@ const { capture } = telemetry
 const answers = reactive({})
 
 const passwordLength = ref(0)
+const passwordReady = ref(false)
+const { branding } = sessionStore()
+// Prefilled from Brand settings, unless it is still Frappe's own name. Branding may still be
+// loading when the page opens; fill what the owner has not typed yet, so a save never clears a
+// logo the site already has.
+const brand = reactive({ name: '', logo: '' })
+watch(
+	() => branding.data,
+	(data) => {
+		if (!data) return
+		if (!brand.name && data.app_name !== 'Frappe')
+			brand.name = data.app_name || ''
+		brand.logo ||= data.banner_image?.file_url || data.app_logo?.file_url || ''
+	},
+	{ immediate: true }
+)
 const invitees = ref([])
 const handingOver = ref(false)
 const landing = ref(null)
@@ -211,6 +283,16 @@ const allSteps = computed(() => [
 		: []),
 	...(setupState.data?.needs_questions === false
 		? []
+		: [
+				{
+					name: 'brand',
+					type: 'brand',
+					title: __("What's your organization called?"),
+					subtitle: __('Learners see this name and logo everywhere.'),
+				},
+		  ]),
+	...(setupState.data?.needs_questions === false
+		? []
 		: setupQuestions().map((question) => ({
 				...question,
 				name: question.key,
@@ -244,12 +326,65 @@ const labels = computed(() => ({
 const passwordLabels = computed(() => ({
 	label: __('Password'),
 	placeholder: __('At least 8 characters'),
-	hint: '',
+	hint: __(
+		'At least 8 characters. Mixing in numbers and symbols makes it stronger.'
+	),
 	show: __('Show'),
 	hide: __('Hide'),
 	save: __('Save and continue'),
 	failed: __('That password could not be saved. Try another.'),
 }))
+
+const brandLabels = computed(() => ({
+	logoLabel: __('Logo'),
+	// The Learning logo shows until one is uploaded, so there is always a logo to replace.
+	upload: __('Replace'),
+	reupload: __('Replace'),
+	remove: __('Remove'),
+	nameLabel: __('Organization or team name'),
+	namePlaceholder: __('Acme Academy'),
+	save: __('Continue'),
+	notAnImage: __('Choose an image file.'),
+	uploadFailed: __('That logo could not be uploaded. Try another.'),
+	failed: __('Your name and logo could not be saved. Try again.'),
+}))
+
+// Where the preview's pointer rests on each step: the part of the app that step changes.
+function previewCursor(step) {
+	if (step?.type === 'password')
+		return '[data-slot="setup-preview-login-submit"]'
+	if (step?.type === 'brand') return '[data-preview-cursor="brand"]'
+	return '[data-preview-cursor="card"]'
+}
+
+// The address of the page the preview shows: sign-in first, then the list setup lands on.
+function previewUrl(step) {
+	const site = window.location.host
+	if (step?.type === 'password') return `${site}/login`
+	return `${site}/lms/${previewsBatches() ? 'batches' : 'courses'}`
+}
+
+function previewsBatches() {
+	return (
+		landing.value?.view === 'Batches' ||
+		(!landing.value &&
+			answers.first_milestone === 'Onboard my existing learners')
+	)
+}
+
+// Made-up cards follow the usage answer; until then the preview shows the real demo course.
+function exampleCaption(step) {
+	if (step?.type === 'password' || !answers.usage_context) return ''
+	if (landing.value || handingOver.value) return ''
+	return previewsBatches()
+		? __('An example of how your batches will look')
+		: __('An example of how your courses will look')
+}
+
+async function saveBrand({ name, logo }) {
+	await call('lms.lms.onboarding.save_brand', { name, logo })
+	branding.reload()
+}
 
 async function pick(step, option, done) {
 	answers[step.key] = option.value
@@ -375,5 +510,9 @@ function sendStartIfLost() {
 	)
 }
 
-usePageMeta(() => ({ title: __('Set up Frappe Learning') }))
+// The tab shows the logo as soon as it is uploaded, and keeps it when setup opens the app.
+usePageMeta(() => ({
+	title: __('Set up Frappe Learning'),
+	...(brand.logo ? { icon: brand.logo } : {}),
+}))
 </script>

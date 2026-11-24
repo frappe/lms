@@ -129,7 +129,7 @@ export function samplesFor(usage) {
 						'New joiners learn the tools, the team and how work gets done.'
 					),
 				],
-				'Neha Kapoor',
+				'Sara Thomas',
 				{ card_gradient: 'Violet' }
 			),
 		'Customer Academy': () =>

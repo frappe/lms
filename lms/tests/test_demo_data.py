@@ -1,6 +1,8 @@
 # Copyright (c) 2026, Frappe and Contributors
 # See license.txt
 
+from unittest.mock import patch
+
 import frappe
 
 from lms.demo.demo_data import DEMO_BATCH_TITLE, create_demo_data
@@ -55,3 +57,30 @@ class TestDemoData(BaseTestUtils):
 		clear_demo_data()
 
 		self.assertFalse(frappe.db.exists("LMS Batch", {"title": DEMO_BATCH_TITLE}))
+
+	def test_setup_can_run_again_on_a_site_that_kept_its_sample_course(self):
+		"""A site set up again kept the sample course and its review; the second run
+		failed on that review and left the owner's login going on as the sample learner."""
+		create_demo_data()
+		user = frappe.session.user
+
+		with patch("frappe.log_error") as log_error:
+			create_demo_data()
+
+		log_error.assert_not_called()
+		self.assertEqual(frappe.session.user, user)
+		course = frappe.db.get_value("LMS Course", {"title": "A guide to Frappe Learning"})
+		self.assertEqual(frappe.db.count("LMS Course Review", {"course": course}), 1)
+
+	def test_a_failed_demo_leaves_the_request_as_the_user_who_ran_it(self):
+		def fails_as_the_learner(course, student):
+			frappe.session.user = student.name
+			raise frappe.ValidationError
+
+		user = frappe.session.user
+		with (
+			patch("lms.demo.demo_data.create_reviews", side_effect=fails_as_the_learner),
+			patch("frappe.log_error"),
+		):
+			create_demo_data()
+		self.assertEqual(frappe.session.user, user)

@@ -1,103 +1,89 @@
 /**
- * SetupInvite.vue: the setup step that invites the owner's first people. The inputs are
- * plain elements here, so the test types into them and reads what the step reports.
+ * SetupInvite.vue: Learning's invite step. The rows, checks and sending order are the
+ * framework's InviteStep, tested there; this covers what Learning adds: its roles, the
+ * invitation it sends through, and what happens once people are invited.
  */
-import { describe, expect, it, vi } from 'vitest'
-import { defineComponent, h, nextTick } from 'vue'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { defineComponent, h } from 'vue'
 import { mount } from '@vue/test-utils'
 
-vi.mock('frappe-ui', () => ({
-	Button: defineComponent({
-		props: ['ariaLabel'],
-		setup:
-			(props, { slots }) =>
-			() =>
-				h('button', { 'aria-label': props.ariaLabel }, slots.default?.()),
+const { invite, toast, updateOnboardingStep } = vi.hoisted(() => ({
+	invite: vi.fn(),
+	toast: { success: vi.fn() },
+	updateOnboardingStep: vi.fn(),
+}))
+
+vi.mock('frappe-ui', () => ({ toast }))
+vi.mock('@framework/ui/components/SetupFlow/index', () => ({
+	InviteStep: defineComponent({
+		name: 'InviteStep',
+		props: ['roles', 'defaultRole', 'firstRole', 'send', 'labels', 'canGoBack'],
+		setup: () => () => h('div'),
 	}),
-	ErrorMessage: defineComponent({ setup: () => () => h('p') }),
-	FormControl: defineComponent({
-		props: ['modelValue', 'type', 'options'],
-		emits: ['update:modelValue'],
-		setup:
-			(props, { emit }) =>
-			() =>
-				h('input', {
-					'data-type': props.type,
-					value: props.modelValue,
-					onInput: (event: Event) =>
-						emit('update:modelValue', (event.target as HTMLInputElement).value),
-				}),
-	}),
-	toast: { success: vi.fn(), error: vi.fn() },
 }))
 vi.mock('@framework/ui/components/InviteUser/index', () => ({
-	useInviteUser: () => ({ invite: vi.fn() }),
+	useInviteUser: () => ({ invite }),
 }))
 vi.mock('@framework/ui/components/Onboarding/index', () => ({
-	useOnboarding: () => ({}),
+	useOnboarding: () => ({ updateOnboardingStep }),
 }))
-vi.mock('@/utils', () => ({ validateEmail: (email: string) => email.includes('@') }))
 vi.mock('@/utils/basePath', () => ({ getLmsBasePath: () => 'lms' }))
 
 async function mountStep(props: Record<string, unknown> = {}) {
 	const { default: SetupInvite } = await import('@/components/Setup/SetupInvite.vue')
-	return mount(SetupInvite, { props, global: { mocks: { __: (text: string) => text } } })
+	const wrapper = mount(SetupInvite, {
+		props,
+		global: { mocks: { __: (text: string) => text } },
+	})
+	return { wrapper, step: wrapper.findComponent({ name: 'InviteStep' }) }
 }
 
-async function type(input: Element, value: string) {
-	;(input as HTMLInputElement).value = value
-	input.dispatchEvent(new Event('input'))
-	await nextTick()
-}
+beforeEach(() => {
+	invite.mockReset()
+	toast.success.mockReset()
+	updateOnboardingStep.mockReset()
+})
 
 describe('SetupInvite', () => {
-	it('starts with a Course Creator, then a Student', async () => {
-		const wrapper = await mountStep()
-		const roles = wrapper.findAll('input[data-type="select"]')
-
-		expect(roles.map((role) => (role.element as HTMLInputElement).value)).toEqual([
-			'Course Creator',
+	it('offers Learning’s roles, with students by default and the goal’s role first', async () => {
+		const { step } = await mountStep({ firstRole: 'Batch Evaluator' })
+		expect(step.props('roles').map((role: { value: string }) => role.value)).toEqual([
 			'LMS Student',
+			'Course Creator',
+			'Batch Evaluator',
+			'Moderator',
 		])
+		expect(step.props('defaultRole')).toBe('LMS Student')
+		expect(step.props('firstRole')).toBe('Batch Evaluator')
 	})
 
-	it('reports each typed person with their role, and again when a role changes', async () => {
-		const wrapper = await mountStep()
-		const [email, role] = wrapper.findAll('input').map((input) => input.element)
-
-		await type(email, 'asha@example.com')
-		await type(role, 'Moderator')
-
-		expect(wrapper.emitted('invitees')).toEqual([
-			[[{ email: 'asha@example.com', role: 'Course Creator' }]],
-			[[{ email: 'asha@example.com', role: 'Moderator' }]],
+	it('sends through the framework invitation and reports disabled accounts as failed', async () => {
+		invite.mockResolvedValue({
+			invited_emails: ['a@example.com'],
+			disabled_user_emails: ['b@example.com'],
+		})
+		const { step } = await mountStep()
+		const outcome = await step.props('send')('Course Creator', [
+			'a@example.com',
+			'b@example.com',
 		])
+		expect(invite).toHaveBeenCalledWith('a@example.com, b@example.com', ['Course Creator'])
+		expect(outcome).toEqual({ invited: 1, failed: ['b@example.com'] })
 	})
 
-	it('starts with the role the goal suggests, until a name is typed', async () => {
-		const wrapper = await mountStep({ firstRole: 'Batch Evaluator' })
-		const firstRole = () => (wrapper.find('input[data-type="select"]').element as HTMLInputElement).value
-		expect(firstRole()).toBe('Batch Evaluator')
-
-		await wrapper.setProps({ firstRole: 'Course Creator' })
-		expect(firstRole()).toBe('Course Creator')
-
-		await type(wrapper.find('input').element, 'asha@example.com')
-		await wrapper.setProps({ firstRole: 'Batch Evaluator' })
-		expect(firstRole()).toBe('Course Creator')
+	it('says how many were invited, ticks the checklist and moves on', async () => {
+		const { wrapper, step } = await mountStep()
+		step.vm.$emit('done', { invited: 2, roles: ['LMS Student'] })
+		expect(toast.success).toHaveBeenCalledTimes(1)
+		expect(updateOnboardingStep).toHaveBeenCalledWith('invite_students')
+		expect(wrapper.emitted('done')?.[0]).toEqual([{ invited: 2, roles: ['LMS Student'] }])
 	})
 
-	it('removes a row, and keeps the last one', async () => {
-		const wrapper = await mountStep()
-		const removeButtons = () => wrapper.findAll('button[aria-label^="Remove"]')
-		expect(removeButtons()).toHaveLength(2)
-
-		await type(wrapper.find('input[data-type="email"]').element, 'asha@example.com')
-		await removeButtons()[0].trigger('click')
-
-		const roles = wrapper.findAll('input[data-type="select"]')
-		expect(roles.map((role) => (role.element as HTMLInputElement).value)).toEqual(['LMS Student'])
-		expect(wrapper.emitted('invitees')?.at(-1)).toEqual([[]])
-		expect(removeButtons()).toHaveLength(0)
+	it('moves on quietly when nobody new was invited', async () => {
+		const { wrapper, step } = await mountStep()
+		step.vm.$emit('done', { invited: 0, roles: ['LMS Student'] })
+		expect(toast.success).not.toHaveBeenCalled()
+		expect(updateOnboardingStep).not.toHaveBeenCalled()
+		expect(wrapper.emitted('done')).toHaveLength(1)
 	})
 })

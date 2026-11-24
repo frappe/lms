@@ -10,6 +10,7 @@ from lms.lms.utils import create_user, get_course_progress
 def create_demo_data(setup_args: dict | None = None):
 	# Sample content, not the site's own: kept out of product telemetry.
 	frappe.flags.in_lms_demo = True
+	user = frappe.session.user
 	frappe.db.savepoint("lms_demo_data")
 	try:
 		_create_demo_data()
@@ -20,6 +21,8 @@ def create_demo_data(setup_args: dict | None = None):
 		frappe.log_error(title="Demo course could not be created")
 	finally:
 		frappe.flags.in_lms_demo = False
+		# The rest of the request, often the owner's login, must not go on as a sample learner.
+		frappe.session.user = user
 
 
 def _create_demo_data():
@@ -355,13 +358,19 @@ def create_quiz_questions(question, option_1, is_correct_1, option_2, is_correct
 
 
 def create_reviews(course, student):
+	# Setup can run again on a site that kept its sample course, and a learner reviews it once.
+	if frappe.db.exists("LMS Course Review", {"course": course.name, "owner": student.name}):
+		return
+	user = frappe.session.user
 	frappe.session.user = student.name
-	review = frappe.new_doc("LMS Course Review")
-	review.course = course.name
-	review.rating = 0.8
-	review.review = "This is a great course to get started with Frappe Learning. The content is well-structured and easy to follow."
-	review.save()
-	frappe.session.user = "Administrator"
+	try:
+		review = frappe.new_doc("LMS Course Review")
+		review.course = course.name
+		review.rating = 0.8
+		review.review = "This is a great course to get started with Frappe Learning. The content is well-structured and easy to follow."
+		review.save()
+	finally:
+		frappe.session.user = user
 	update_course_statistics()
 
 

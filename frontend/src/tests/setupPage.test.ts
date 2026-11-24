@@ -15,15 +15,15 @@ const {
 	toastError,
 	setupState,
 } = vi.hoisted(() => ({
-		callMock: vi.fn(() => Promise.resolve()),
-		listResourceMock: vi.fn((_options: Record<string, unknown>) => ({
-			reload: () => Promise.resolve([{ name: 'demo-batch' }]),
-		})),
-		captureMock: vi.fn(),
-		replaceMock: vi.fn(),
-		toastError: vi.fn(),
-		setupState: { data: { can_send_email: true } as Record<string, unknown> },
-	}))
+	callMock: vi.fn(() => Promise.resolve()),
+	listResourceMock: vi.fn((_options: Record<string, unknown>) => ({
+		reload: () => Promise.resolve([{ name: 'demo-batch' }]),
+	})),
+	captureMock: vi.fn(),
+	replaceMock: vi.fn(),
+	toastError: vi.fn(),
+	setupState: { data: { can_send_email: true } as Record<string, unknown> },
+}))
 
 vi.mock('frappe-ui', () => ({
 	Button: defineComponent({ setup: () => () => h('button') }),
@@ -47,6 +47,15 @@ vi.mock('@framework/ui/telemetry/index', async () => {
 vi.mock('@/components/Setup/SetupPreview.vue', () => ({
 	default: defineComponent({ setup: () => () => h('div') }),
 }))
+const brandReload = vi.fn()
+vi.mock('@/stores/session', () => ({
+	sessionStore: () => ({
+		branding: {
+			data: { app_name: 'Frappe', banner_image: null },
+			reload: brandReload,
+		},
+	}),
+}))
 vi.mock('@/components/Setup/SetupInvite.vue', () => ({
 	default: defineComponent({ setup: () => () => h('div') }),
 }))
@@ -60,6 +69,8 @@ vi.mock('vue-router', () => ({
 let flow: { done: (details?: object) => void; finish: () => void }
 
 let givenSteps: { name: string; type: string; required?: boolean }[] = []
+// The step the stand-in flow shows; by default the password, else the goal.
+let shownType: string | null = null
 
 vi.mock('@framework/ui/components/SetupFlow/index', () => ({
 	TelemetryConsent: defineComponent({ setup: () => () => h('div') }),
@@ -79,6 +90,20 @@ vi.mock('@framework/ui/components/SetupFlow/index', () => ({
 				}),
 	}),
 	SetupPreviewFrame: defineComponent({ setup: () => () => h('div') }),
+	BrandStep: defineComponent({
+		props: ['labels', 'save', 'name', 'logo'],
+		emits: ['done', 'update:name', 'update:logo'],
+		setup:
+			(props, { emit }) =>
+			() =>
+				h('button', {
+					class: 'brand',
+					onClick: () =>
+						props
+							.save({ name: 'Acme Academy', logo: '/files/acme.png' })
+							.then(() => emit('done')),
+				}),
+	}),
 	PasswordStep: defineComponent({
 		props: ['labels'],
 		emits: ['done', 'input'],
@@ -98,6 +123,7 @@ vi.mock('@framework/ui/components/SetupFlow/index', () => ({
 		setup(props: { steps: { type: string }[] }, { slots, emit }) {
 			givenSteps = props.steps as typeof givenSteps
 			const goal =
+				props.steps.find((step) => step.type === shownType) ||
 				props.steps.find((step) => step.type === 'password') ||
 				props.steps.find((step) => step.type === 'outcome')
 			return () =>
@@ -154,7 +180,7 @@ describe('Setup', () => {
 			first_goal: 'Onboard my existing learners',
 		})
 		expect(localStorage.getItem('lmsFirstGoal')).toBe(
-			'Onboard my existing learners'
+			'Onboard my existing learners',
 		)
 		// In the app, not a full load: the sidebar that builds the checklist mounts with it.
 		expect(replaceMock).toHaveBeenCalledWith({ name: 'Batches' })
@@ -164,8 +190,10 @@ describe('Setup', () => {
 	it('stays on the page and says so when saving fails', async () => {
 		callMock.mockImplementation((method: string) =>
 			method === 'lms.lms.onboarding.save_setup'
-				? Promise.reject({ messages: ['Pick one of the goals shown in setup.'] })
-				: Promise.resolve()
+				? Promise.reject({
+						messages: ['Pick one of the goals shown in setup.'],
+					})
+				: Promise.resolve(),
 		)
 		const wrapper = await mountPage()
 		await wrapper.find('.goal').trigger('click')
@@ -173,14 +201,14 @@ describe('Setup', () => {
 		await flushPromises()
 
 		expect(toastError).toHaveBeenCalledWith(
-			'Pick one of the goals shown in setup.'
+			'Pick one of the goals shown in setup.',
 		)
 		expect(window.location.href).toBe('')
 		expect(replaceMock).not.toHaveBeenCalled()
 		expect(localStorage.getItem('lmsFirstGoal')).toBeNull()
 		expect(callMock).not.toHaveBeenCalledWith(
 			'lms.lms.api.capture_user_persona',
-			expect.anything()
+			expect.anything(),
 		)
 	})
 
@@ -224,11 +252,31 @@ describe('Setup', () => {
 		}
 		await mountPage()
 		expect(givenSteps[0].name).toBe('password')
+		expect(givenSteps[1].name).toBe('brand')
 		expect(givenSteps.at(-1)?.name).toBe('invite_team')
 	})
 
+	it('saves the name and logo through the setup endpoint', async () => {
+		setupState.data = { can_send_email: true, needs_questions: true }
+		shownType = 'brand'
+		try {
+			const wrapper = await mountPage()
+			await wrapper.find('.brand').trigger('click')
+			await flushPromises()
+			expect(callMock).toHaveBeenCalledWith('lms.lms.onboarding.save_brand', {
+				name: 'Acme Academy',
+				logo: '/files/acme.png',
+			})
+			expect(brandReload).toHaveBeenCalled()
+		} finally {
+			shownType = null
+		}
+	})
+
 	it('fills the list the landing page reuses, so it opens without loading cards', async () => {
-		window.matchMedia = vi.fn(() => ({ matches: true })) as unknown as typeof window.matchMedia
+		window.matchMedia = vi.fn(() => ({
+			matches: true,
+		})) as unknown as typeof window.matchMedia
 		const wrapper = await mountPage()
 		await wrapper.find('.goal').trigger('click')
 		flow.finish()
@@ -239,7 +287,7 @@ describe('Setup', () => {
 				url: 'lms.lms.utils.get_batches',
 				cache: ['batches', 'owner@example.com'],
 				filters: { end_date: ['>=', '2026-11-18'], published: 1 },
-			})
+			}),
 		)
 		// @ts-expect-error jsdom has no matchMedia; the other tests run as a narrow screen.
 		delete window.matchMedia
@@ -258,8 +306,9 @@ describe('Setup', () => {
 				telemetry.on.value = true
 				await flushPromises()
 				expect(captureMock).toHaveBeenCalledWith('setup_started')
+				// The first step, which on a site with a password is the brand step.
 				expect(captureMock).toHaveBeenCalledWith('setup_step_viewed', {
-					step: 'usage_context',
+					step: 'brand',
 				})
 			} finally {
 				telemetry.on.value = true
