@@ -84,6 +84,7 @@ export interface StudentOption {
 
 export interface StudentRow {
 	member: string
+	email?: string
 	name: string
 	image: string | null
 	payment: string

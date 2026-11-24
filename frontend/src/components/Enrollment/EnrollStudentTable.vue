@@ -60,12 +60,12 @@
 										data-testid="student-sub"
 										class="truncate text-sm text-ink-gray-6"
 									>
-										{{ compact ? row.payment : row.member }}
+										{{ compact ? row.payment : row.email || row.member }}
 									</span>
 								</div>
 							</ListCell>
 							<ListCell v-if="!paid" class="text-base text-ink-gray-6">
-								<span class="truncate">{{ row.member }}</span>
+								<span class="truncate">{{ row.email || row.member }}</span>
 							</ListCell>
 							<template v-else-if="!compact">
 								<ListCell data-col="payment" class="text-base text-ink-gray-7">
