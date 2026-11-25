@@ -1,12 +1,12 @@
 name: Branch Tests
 
 # Pull requests into develop and the hotfix branches skip the server, UI and frontend suites. They
-# run here instead, on develop and version-16 when new commits need them, and each open pull
-# request gets a status showing whether its branch passes. A pull request labelled fixes-develop
+# run here instead, on develop, version-16-hotfix and version-16 when new commits need them, and
+# each open pull request gets a status showing whether its branch passes. A pull request labelled fixes-develop
 # runs the suites itself, and its status turns green once the suites failing on its branch pass.
 # A check runs after each push to develop. GitHub often delays or drops scheduled runs, so the
-# schedule is only a backstop, and it is what picks up version-16. Scheduled workflows run only
-# from the default branch, so this file lives on develop alone, and a push to version-16 starts nothing.
+# schedule is only a backstop, and it is what picks up the version-16 branches. Scheduled workflows run
+# only from the default branch, so this file lives on develop alone, and a push to them starts nothing.
 # Each check waits for the full runs it started, then tells the Raven channel behind the
 # RAVEN_BRANCH_TESTS_WEBHOOK secret of each suite whose latest run failed, with the pull requests
 # merged since the suite last passed and their authors.

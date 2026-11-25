@@ -1,6 +1,6 @@
 """
-Run the full server, UI and frontend suites on develop and version-16 after each push to develop and every
-three hours, and post a status on the
+Run the full server, UI and frontend suites on develop, version-16-hotfix and version-16 after each push to
+develop and every three hours, and post a status on the
 pull requests waiting to land there. Pull requests skip those suites, so this status is how they
 see the branch: failing while the latest full run on it failed, unless the pull request carries
 the fix label and the failing suites passed on it.
@@ -31,8 +31,14 @@ from functools import cache
 REPO = os.environ["GITHUB_REPOSITORY"]
 FIX_LABEL = "fixes-develop"
 
-# Each tested branch, and the bases of the pull requests that land on it.
-BRANCHES = {"develop": ("develop",), "version-16": ("version-16-hotfix",)}
+# Each tested branch, and the bases of the pull requests that land on it. A pull request into
+# version-16-hotfix reaches version-16 only with the next release, so its status shows the
+# hotfix branch, the first one listed for its base.
+BRANCHES = {
+	"develop": ("develop",),
+	"version-16-hotfix": ("version-16-hotfix",),
+	"version-16": ("version-16-hotfix",),
+}
 # Each suite's workflow and its one test job.
 SUITES = {
 	"ci.yml": "Server Tests",
@@ -383,6 +389,8 @@ def refresh():
 	for branch, bases in BRANCHES.items():
 		print(f"{branch}: failing {list(failing_suites(branch)) or 'nothing'}")
 		for base in bases:
+			if tested_branch(base) != branch:
+				continue
 			for pr in open_pulls(base):
 				post(pr)
 
