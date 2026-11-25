@@ -5,6 +5,7 @@ from datetime import timedelta
 from unittest.mock import patch
 
 import frappe
+from frappe.cache_manager import clear_defaults_cache
 from frappe.utils import now_datetime
 
 from lms.lms.day1_email import SENT_KEY, Day1Email, first_admin, send_day1_email
@@ -32,6 +33,9 @@ class TestSendDay1Email(BaseTestUtils):
 	def setUp(self):
 		super().setUp()
 		frappe.db.set_default(SENT_KEY, None)
+		# A test rolled back leaves its value in the defaults cache, and unsetting a key that is
+		# not stored no longer clears that cache, so the next test would read it.
+		clear_defaults_cache("__default")
 
 	def run_job(self, admin=None, site_info=None, conf=ON_FC, step=None):
 		admin = admin or admin_row()
