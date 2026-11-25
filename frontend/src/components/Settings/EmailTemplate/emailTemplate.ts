@@ -75,28 +75,29 @@ const form = recordForm({
 			fields: [
 				{
 					name: 'name',
-					label: 'Name',
+					label: __('Name'),
 					type: 'text',
 					fullWidth: true,
 					reqd: true,
 				},
 				{
 					name: 'subject',
-					label: 'Subject',
+					label: __('Subject'),
 					type: 'text',
 					fullWidth: true,
 					reqd: true,
 				},
 				{
 					name: 'use_html',
-					label: 'Use HTML',
+					label: __('Use HTML'),
 					type: 'checkbox',
-					description:
-						'Write the content as raw HTML/Jinja instead of the rich text editor.',
+					description: __(
+						'Write the content as raw HTML/Jinja instead of the rich text editor.'
+					),
 				},
 				{
 					name: 'response',
-					label: 'Content',
+					label: __('Content'),
 					type: 'richtext',
 					rows: CONTENT_ROWS,
 					reqd: true,
@@ -104,7 +105,7 @@ const form = recordForm({
 				},
 				{
 					name: 'response_html',
-					label: 'Content',
+					label: __('Content'),
 					type: 'code',
 					mode: 'htmlmixed',
 					rows: CONTENT_ROWS,

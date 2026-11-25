@@ -83,7 +83,7 @@
 								</template>
 							</Draggable>
 						</ListRows>
-						<ListSelectBanner>
+						<ListSelectBanner class="lms-select-banner">
 							<template #actions="{ unselectAll, selections }">
 								<div class="flex gap-2">
 									<Button
@@ -613,7 +613,7 @@ const deleteProgram = () => {
 const courseColumns = computed(() => {
 	return [
 		{
-			label: 'Title',
+			label: __('Title'),
 			key: isNew.value ? 'course' : 'course_title',
 			width: 1,
 		},
@@ -623,13 +623,13 @@ const courseColumns = computed(() => {
 const memberColumns = computed(() => {
 	return [
 		{
-			label: 'Member',
+			label: __('Member'),
 			key: 'member',
 			width: 3,
 			align: 'left',
 		},
 		{
-			label: 'Full Name',
+			label: __('Full Name'),
 			key: 'full_name',
 			width: 3,
 			align: 'left',

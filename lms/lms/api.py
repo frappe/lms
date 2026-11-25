@@ -1,6 +1,7 @@
 """API methods for the LMS."""
 
 import hashlib
+import io
 import json
 import os
 import re
@@ -19,8 +20,9 @@ from frappe.integrations.frappe_providers.frappecloud_billing import (
 	current_site_info,
 	is_fc_site,
 )
+from frappe.query_builder.functions import Cast_
 from frappe.rate_limiter import rate_limit
-from frappe.translate import get_all_translations
+from frappe.translate import get_all_translations, get_user_lang
 from frappe.utils import (
 	add_days,
 	cint,
@@ -67,8 +69,10 @@ from lms.lms.doctype.lms_certificate_evaluation.lms_certificate_evaluation impor
 from lms.lms.html_sanitizer import sanitize_rich_text
 from lms.lms.permissions import is_site_administrator
 from lms.lms.sidebar import LEGACY_VISIBILITY_FIELDS, ROW_FIELDS, get_sidebar_rows
+from lms.lms.telemetry import demo_batch
 from lms.lms.utils import (
 	LMS_ROLES,
+	_latest_exercise_submissions,
 	attach_file_to_doc,
 	can_access_topic,
 	can_modify_batch,
@@ -146,6 +150,7 @@ def get_user_info():
 		user.site_info = current_site_info()
 	user.cloud_settings = get_cloud_settings_context()
 	user.permissions = _doctype_permissions()
+	user.can_use_flow = can_use_flow()
 	return user
 
 
@@ -156,6 +161,11 @@ def get_cloud_settings_context() -> dict:
 		# Frappe without Cloud Settings is older than any Frappe Cloud v2 site.
 		return {"enabled": False}
 	return get_boot_context()
+
+
+def can_use_flow() -> bool:
+	"""Matches the check Frappe's Flow launcher makes before adding its panel to the page."""
+	return bool(frappe.db.exists("DocType", "Flow Session")) and frappe.has_permission("Flow Session", "read")
 
 
 PERMISSION_DOCTYPES = (
@@ -232,13 +242,11 @@ def _doctype_permissions():
 	return out
 
 
+# nosemgrep: frappe-semgrep-rules.rules.security.guest-whitelisted-method - returns only the UI's translation catalogue, which guests have always been served
 @frappe.whitelist(allow_guest=True)
 def get_translations():
-	if frappe.session.user != "Guest":
-		language = frappe.db.get_value("User", frappe.session.user, "language")
-	else:
-		language = frappe.db.get_single_value("System Settings", "language")
-	return get_all_translations(language)
+	# The user's language, else the system's, as Desk resolves it.
+	return get_all_translations(get_user_lang())
 
 
 @frappe.whitelist()
@@ -458,9 +466,9 @@ def get_application_users(applications: list | str) -> list:
 @frappe.whitelist(methods=["POST"])
 @rate_limit(limit=60, seconds=60 * 60)
 def send_job_application_email(application: str, subject: str, message: str):
-	"""Email an applicant, as the job's poster or a Moderator. The address is looked
-	up here so the poster never holds it, and the mail goes to nobody else."""
-	from frappe.core.doctype.communication.email import make
+	"""Email an applicant, as the job's poster, with whom the application is shared. The
+	address is looked up here so the poster never holds it, and the mail goes to nobody else."""
+	from frappe.core.doctype.communication.email import _make
 
 	for value in (application, subject, message):
 		if not isinstance(value, str):
@@ -469,7 +477,8 @@ def send_job_application_email(application: str, subject: str, message: str):
 	row = frappe.db.get_value("LMS Job Application", application, ["job", "user"], as_dict=True)
 	if not row or not posted_job(row.job):
 		frappe.throw(_("Only the job's poster can email an applicant."), frappe.PermissionError)
-	return make(
+	frappe.has_permission("LMS Job Application", "email", doc=application, throw=True)
+	return _make(
 		doctype="LMS Job Application",
 		name=application,
 		recipients=row.user,
@@ -477,6 +486,7 @@ def send_job_application_email(application: str, subject: str, message: str):
 		content=message,
 		send_email=1,
 		now=True,
+		add_signature=False,
 	)
 
 
@@ -609,6 +619,7 @@ def get_file_info(file_url):
 	return file_info
 
 
+# nosemgrep: frappe-semgrep-rules.rules.security.guest-whitelisted-method - returns the site name and logos every public page already shows
 @frappe.whitelist(allow_guest=True)
 def get_branding():
 	"""Get branding details."""
@@ -620,7 +631,8 @@ def get_branding():
 	for field in fields:
 		value = frappe.get_cached_value("Website Settings", None, field)
 		if field in image_fields and value:
-			file_info = get_file_info(value)
+			# A logo kept as an asset path has no File row; send its URL so it is not lost.
+			file_info = get_file_info(value) or {"file_name": value.rsplit("/", 1)[-1], "file_url": value}
 			settings.update({field: json.loads(json.dumps(file_info))})
 		else:
 			settings.update({field: value})
@@ -2070,6 +2082,8 @@ def get_announcements(batch: str):
 			"communication_type": "Communication",
 			"communication_medium": "Email",
 			"sent_or_received": "Sent",
+			# Staff mail one colleague from the batch too; only a broadcast is an announcement.
+			"lms_batch_announcement": 1,
 		},
 		fields=[
 			"subject",
@@ -2127,9 +2141,9 @@ def send_batch_announcement(batch: str, subject: str, content: str, reply_to: st
 
 
 def _send_batch_announcement(batch: str, subject: str, content: str, reply_to: str):
-	from frappe.core.doctype.communication.email import make
+	from frappe.core.doctype.communication.email import _make
 
-	make(
+	communication = _make(
 		doctype="LMS Batch",
 		name=batch,
 		recipients=reply_to,
@@ -2137,6 +2151,10 @@ def _send_batch_announcement(batch: str, subject: str, content: str, reply_to: s
 		subject=subject,
 		content=content,
 		send_email=1,
+		add_signature=False,
+	)
+	frappe.db.set_value(
+		"Communication", communication["name"], "lms_batch_announcement", 1, update_modified=False
 	)
 
 
@@ -4412,7 +4430,34 @@ def get_lesson_completion_stats(course: str):
 		.run(as_dict=True)
 	)
 
+	watch_seconds = _average_watch_seconds(course)
+	for row in rows:
+		row.watch_seconds = watch_seconds.get(row.lesson_name)
 	return rows
+
+
+def _average_watch_seconds(course: str) -> dict:
+	"""Seconds of video a student who watched the lesson watched in it, on average.
+
+	A lesson can hold several videos, so each student's time is summed first."""
+	Watch = frappe.qb.DocType("LMS Video Watch Duration")
+	per_member = (
+		frappe.qb.from_(Watch)
+		.select(
+			Watch.lesson,
+			fn.Sum(Cast_(Watch.watch_time, "DECIMAL(12,2)")).as_("seconds"),
+		)
+		.where(Watch.course == course)
+		.groupby(Watch.lesson, Watch.member)
+		.as_("per_member")
+	)
+	return {
+		lesson: round(flt(seconds))
+		for lesson, seconds in frappe.qb.from_(per_member)
+		.select(per_member.lesson, fn.Avg(per_member.seconds))
+		.groupby(per_member.lesson)
+		.run()
+	}
 
 
 @frappe.whitelist()
@@ -4498,21 +4543,12 @@ def get_course_assignment_progress(course: str, member: str):
 
 def get_course_programming_exercise_progress(course: str, member: str):
 	exercises = get_assessment_from_lesson(course, "program")
+	latest = _latest_exercise_submissions(exercises, member)
 	submissions = []
 
 	for exercise in exercises:
-		exercise_subs = frappe.get_all(
-			"LMS Programming Exercise Submission",
-			{
-				"exercise": exercise,
-				"member": member,
-			},
-			["name", "status", "exercise", "exercise_title"],
-			order_by="creation desc",
-			limit=1,
-		)
-		if len(exercise_subs):
-			submissions.append(exercise_subs[0])
+		if exercise in latest:
+			submissions.append(latest[exercise])
 		else:
 			submissions.append(
 				{
@@ -4584,6 +4620,10 @@ def clear_demo_data():
 	quiz_title = "Do you know Frappe Learning?"
 	if frappe.db.exists("LMS Quiz", {"title": quiz_title}):
 		frappe.db.delete("LMS Quiz", {"title": quiz_title})
+
+	batch = demo_batch()
+	if batch and frappe.db.exists("LMS Batch", batch):
+		delete_batch(batch)
 
 	demo_course = frappe.get_all("LMS Course", {"title": "A guide to Frappe Learning"}, pluck="name")
 
@@ -4683,6 +4723,28 @@ def export_course_as_file(course_name: str) -> str:
 		frappe.throw(_("You do not have permission to export this course."), frappe.PermissionError)
 
 	return export_course_zip(course_name, as_file=True)
+
+
+@frappe.whitelist(methods=["POST"])
+def upload_zip():
+	"""Save a course archive or a SCORM package as a private File of the caller's.
+
+	upload_file refuses a ZIP from anyone without desk access, which is every LMS
+	role, so the people who build courses could not upload either."""
+	frappe.only_for(["Moderator", "Course Creator"])
+	upload = frappe.request.files.get("file")
+	if not upload or not (upload.filename or "").lower().endswith(".zip"):
+		frappe.throw(_("Please upload a ZIP file."))
+
+	content = upload.stream.read()
+	if not zipfile.is_zipfile(io.BytesIO(content)):
+		frappe.throw(_("This file is not a valid ZIP archive."))
+
+	# Inserted under the caller's own File permissions; File applies the size limit.
+	file = frappe.get_doc(
+		{"doctype": "File", "file_name": upload.filename, "is_private": 1, "content": content}
+	).insert()
+	return file.as_dict()
 
 
 @frappe.whitelist(methods=["POST"])

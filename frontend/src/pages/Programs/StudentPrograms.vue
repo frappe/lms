@@ -27,15 +27,21 @@
 							<div class="flex items-center gap-x-1">
 								<span class="lucide-book-open size-3" />
 								<span>
-									{{ program.course_count }}
-									{{ program.course_count == 1 ? __('course') : __('courses') }}
+									{{
+										program.course_count == 1
+											? __('1 course')
+											: __('{0} courses').format(program.course_count)
+									}}
 								</span>
 							</div>
 							<div class="flex items-center gap-x-1">
 								<span class="lucide-user size-4" />
 								<span>
-									{{ program.member_count || 0 }}
-									{{ program.member_count == 1 ? __('member') : __('members') }}
+									{{
+										program.member_count == 1
+											? __('1 member')
+											: __('{0} members').format(program.member_count || 0)
+									}}
 								</span>
 							</div>
 						</div>
@@ -43,14 +49,14 @@
 						<div v-if="Object.keys(program).includes('progress')" class="mt-5">
 							<ProgressBar :progress="program.progress" />
 							<div class="text-sm text-ink-gray-7 mt-1">
-								{{ Math.ceil(program.progress) }}% {{ __('completed') }}
+								{{ __('{0}% completed').format(Math.ceil(program.progress)) }}
 							</div>
 						</div>
 					</button>
 				</div>
 				<div v-else class="flex-1">
 					<EmptyStateLayout
-						:name="convertToTitleCase(category) + ' Programs'"
+						:name="__('{0} Programs').format(__(convertToTitleCase(category)))"
 						icon="lucide-graduation-cap"
 					/>
 				</div>

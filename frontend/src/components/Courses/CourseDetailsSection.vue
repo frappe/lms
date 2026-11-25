@@ -17,7 +17,7 @@
 				:label="__('Category')"
 				:placeholder="__('Select category')"
 				:inlineCreate="true"
-				inlineCreatePlaceholder="Category name"
+				:inlineCreatePlaceholder="__('Category name')"
 				:onCreate="onCreateCategory"
 				variant="outline"
 				@update:modelValue="markDirty()"
@@ -128,7 +128,7 @@ const tagOptions = computed<TagOption[]>(() => {
 	}))
 	const q = tagQuery.value.trim()
 	if (q && !parsedTags.value.includes(q)) {
-		return [...selected, { label: `${__('Create')} "${q}"`, value: q }]
+		return [...selected, { label: __('Create "{0}"').format(q), value: q }]
 	}
 	return selected
 })

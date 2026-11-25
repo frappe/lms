@@ -6,7 +6,7 @@
 		:options="options"
 		:size="size"
 		:variant="variant"
-		:placeholder="placeholder"
+		:placeholder="placeholder || __('Select option')"
 		:disabled="disabled"
 		:emptyText="emptyText"
 		:required="required"

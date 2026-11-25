@@ -1,6 +1,7 @@
 import { mount } from '@vue/test-utils'
 import { describe, expect, it, vi } from 'vitest'
 import StudentLessonSidebar from '@/components/StudentLessonSidebar.vue'
+import { translate } from './helpers/translate'
 
 const outline = vi.hoisted(() => [
 	{
@@ -46,7 +47,7 @@ vi.mock('frappe-ui', () => ({
 	},
 }))
 
-vi.stubGlobal('__', (s: string) => s)
+vi.stubGlobal('__', translate)
 
 const mountSidebar = () =>
 	mount(StudentLessonSidebar, {
@@ -57,7 +58,7 @@ const mountSidebar = () =>
 			selectedLessonNumber: '1-2',
 		},
 		global: {
-			mocks: { __: (s: string) => s },
+			mocks: { __: translate },
 			stubs: {
 				'router-link': {
 					props: ['to'],
@@ -120,7 +121,7 @@ describe('StudentLessonSidebar without progress', () => {
 				withProgress: false,
 			},
 			global: {
-				mocks: { __: (s: string) => s },
+				mocks: { __: translate },
 				stubs: { 'router-link': { template: '<a><slot /></a>' } },
 			},
 		})

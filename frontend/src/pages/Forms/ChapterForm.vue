@@ -8,7 +8,7 @@
 		<template #default>
 			<div data-testid="chapter-fields" class="space-y-4 text-base">
 				<FormControl
-					label="Title"
+					:label="__('Title')"
 					v-model="chapter.title"
 					:required="true"
 					autocomplete="off"
@@ -29,6 +29,7 @@
 						v-if="!chapter.scorm_package"
 						:fileTypes="['.zip']"
 						:private="true"
+						:uploadEndpoint="ZIP_UPLOAD_ENDPOINT"
 						:validateFile="validateFile"
 						@success="(file) => (chapter.scorm_package = file)"
 						@failure="onUploadFailure"
@@ -99,6 +100,7 @@ import { computed, inject, onMounted, reactive, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { getFileSize } from '@/utils/'
 import { resourceErrorMessage, submitResource } from '@/utils/resource'
+import { ZIP_UPLOAD_ENDPOINT } from '@/utils/zipUpload'
 import { useTelemetry } from '@framework/ui/telemetry/index'
 import { takeFormSource } from '@/composables/formTracking'
 import FormShell from '@/components/FormShell.vue'

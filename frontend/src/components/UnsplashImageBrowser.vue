@@ -5,7 +5,7 @@
 		</template>
 		<template #default>
 			<div
-				class="absolute start-1/2 mt-3 max-w-sm -translate-x-1/2 transform rounded-6 bg-surface-base px-4 sm:px-0 lg:max-w-3xl"
+				class="absolute start-1/2 mt-3 max-w-sm -translate-x-1/2 rtl:translate-x-1/2 transform rounded-6 bg-surface-base px-4 sm:px-0 lg:max-w-3xl"
 			>
 				<div
 					class="overflow-hidden rounded-6 p-3 shadow-2xl ring-1 ring-outline-gray-2"
@@ -14,7 +14,7 @@
 						<div class="flex-1">
 							<TextInput
 								type="text"
-								placeholder="search by keyword"
+								:placeholder="__('Search by keyword')"
 								:aria-label="__('Search by keyword')"
 								v-model="search"
 								:debounce="300"
@@ -29,7 +29,11 @@
 							>
 								<div class="w-full text-center">
 									<Button @click="openFileSelector" :loading="uploading">
-										{{ uploading ? `Uploading ${progress}%` : 'Upload Image' }}
+										{{
+											uploading
+												? __('Uploading {0}%').format(progress)
+												: __('Upload Image')
+										}}
 									</Button>
 								</div>
 							</template>

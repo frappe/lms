@@ -381,7 +381,7 @@ class TestLessonLockingIntegration(BaseTestUtils):
 
 	def test_scorm_renderer_serves_bytes_once_the_chapter_is_unlocked(self):
 		self._enable()
-		chapter, _lesson = self._add_scorm_chapter()
+		chapter, scorm_lesson = self._add_scorm_chapter()
 		for lesson in self.lessons:
 			self._complete(lesson.name)
 
@@ -389,7 +389,7 @@ class TestLessonLockingIntegration(BaseTestUtils):
 
 		renderer = SCORMRenderer(path=f"scorm/{self.course.name}/{chapter.name}/index.html")
 
-		self.assertIsNone(renderer._check_permission(self.course.name, chapter.name))
+		self.assertEqual(renderer._check_permission(self.course.name, chapter.name), scorm_lesson.name)
 
 	def test_outline_withholds_the_package_of_a_locked_scorm_chapter(self):
 		"""The chapter row still carries launch_file in the database — _add_scorm_chapter

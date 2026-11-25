@@ -10,7 +10,7 @@
 						{{ __('Brand Name') }}
 					</div>
 					<div class="text-p-sm text-ink-gray-6">
-						{{ __('Set the name of your brand. Appears in the left sidebar.') }}
+						{{ __('Set the name of your brand. Appears in the sidebar.') }}
 					</div>
 				</div>
 				<div
@@ -34,7 +34,7 @@
 				:label="__('Brand Logo')"
 				:description="
 					__(
-						'Appears in the left sidebar. Recommended size is 32x32 px in PNG or SVG'
+						'Appears in the sidebar. Recommended size is 32x32 px in PNG or SVG'
 					)
 				"
 				:image_url="branding.data.banner_image?.file_url || ''"

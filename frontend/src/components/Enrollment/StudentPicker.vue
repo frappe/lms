@@ -221,9 +221,11 @@ const overflowCount = computed<number>(() =>
 	Math.max(0, members.value.length - MAX_AVATARS)
 )
 
-const capMessageText = __('You can enroll up to {0} students at a time.', [
-	MAX_STUDENTS,
-])
+const capArgs = [MAX_STUDENTS]
+const capMessageText = __(
+	'You can enroll up to {0} students at a time.',
+	capArgs
+)
 
 const pickerModel = computed<string[]>({
 	get: () => members.value.map((member) => optionFor(member).value),

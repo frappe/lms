@@ -17,7 +17,7 @@
 				v-else-if="column.key === 'status'"
 				:theme="value === 'Passed' ? 'green' : 'red'"
 			>
-				{{ value }}
+				{{ __(value) }}
 			</Badge>
 			<div
 				v-else-if="column.key === 'modified'"
@@ -91,12 +91,12 @@ const config: SubmissionsConfig = {
 		{
 			key: 'exercise',
 			doctype: 'LMS Programming Exercise',
-			placeholder: 'Filter by Exercise',
+			placeholder: __('Filter by Exercise'),
 		},
-		{ key: 'member', doctype: 'User', placeholder: 'Filter by Member' },
+		{ key: 'member', doctype: 'User', placeholder: __('Filter by Member') },
 		{
 			key: 'status',
-			placeholder: 'Filter by Status',
+			placeholder: __('Filter by Status'),
 			options: [
 				{ label: '', value: '' },
 				{ label: __('Passed'), value: 'Passed' },
@@ -124,9 +124,9 @@ const config: SubmissionsConfig = {
 			params: { exerciseID: value },
 		}),
 	},
-	title: 'Submissions',
-	pageTitle: 'Programming Exercise Submissions',
-	emptyName: 'Programming Exercise Submissions',
+	title: __('Submissions'),
+	pageTitle: __('Programming Exercise Submissions'),
+	emptyName: __('Programming Exercise Submissions'),
 	emptyIcon: 'lucide-file-code',
 	emptyTitle: __('No submissions yet'),
 	emptyDescription: __(

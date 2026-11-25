@@ -131,8 +131,8 @@ test.describe("Batch Creation", () => {
 		// Back to the batch list to create the batch.
 		await page.goto("/lms/batches");
 
-		// Create batch
-		await button(page, "New Batch").click();
+		// Create batch. The header's: an empty list offers its own New Batch.
+		await page.locator("header").getByRole("button", { name: "New Batch" }).click();
 
 		const field = (label: string) =>
 			page.locator("label").filter({ hasText: label }).locator("xpath=..");
@@ -243,8 +243,9 @@ test.describe("Batch Creation", () => {
 			.or(page.getByRole("tab"))
 			.filter({ hasText: "Dashboard" })
 			.click();
-		// Exact: the empty dashboard also offers "Enroll Students".
-		await button(page, /^Enroll$/).click();
+		// A batch with no students shows only the empty state's Enroll students;
+		// the header's Enroll appears once the dashboard has data.
+		await button(page, /^Enroll students$/i).click();
 		// The Enroll Students dialog picks students with a MultiSelect, the same
 		// trigger + content-body search as the Instructors field above. Typing
 		// the unique email narrows the results to the student made above.

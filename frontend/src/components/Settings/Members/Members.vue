@@ -8,7 +8,7 @@
 		:has-next-page="list.hasNextPage"
 		v-model:search="list.search"
 		searchable
-		empty-name="Users"
+		:empty-name="__('Users')"
 		empty-icon="lucide-user"
 		@new="openForm(null)"
 		@load-more="list.loadMore()"

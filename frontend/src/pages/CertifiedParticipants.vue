@@ -7,7 +7,7 @@
 		:has-next-page="participants.hasNextPage"
 		row-key="key"
 		v-model:page-length="pageLength"
-		empty-name="Certified Members"
+		:empty-name="__('Certified Members')"
 		empty-icon="lucide-badge-check"
 		:empty-title="emptyState?.title"
 		:empty-description="emptyState?.description"
@@ -31,7 +31,9 @@
 			</Button>
 		</template>
 
-		<template #name> {{ memberCount }} {{ __('Certified Members') }} </template>
+		<template #name>
+			{{ __('{0} Certified Members').format(memberCount) }}
+		</template>
 
 		<template #filters>
 			<FormControl
@@ -81,7 +83,8 @@
 						</div>
 						<div class="line-clamp-1 text-sm leading-5">
 							{{
-								row.headline || 'Joined ' + serverTime(row.creation).fromNow()
+								row.headline ||
+								__('Joined {0}').format(serverTime(row.creation).fromNow())
 							}}
 						</div>
 					</div>
@@ -92,11 +95,10 @@
 							<template #prefix>
 								<span class="lucide-graduation-cap size-3" />
 							</template>
-							{{ row.certificate_count }}
 							{{
 								row.certificate_count > 1
-									? __('certificates')
-									: __('certificate')
+									? __('{0} certificates').format(row.certificate_count)
+									: __('1 certificate')
 							}}
 						</Badge>
 					</div>

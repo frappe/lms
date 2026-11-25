@@ -1,359 +1,341 @@
 <template>
-	<div v-if="batch?.data" class="p-5">
-		<!-- Four zeros say nothing before the first student, so the empty state stands alone. -->
-		<div
-			v-if="!showStudentsEmptyState"
-			class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-8"
-		>
-			<NumberChartGraph
-				:title="__('Enrolled')"
-				:value="formatAmount(studentCount.data) || 0"
-			/>
-
-			<NumberChartGraph
-				:title="__('Certified')"
-				:value="certificationCount.data || 0"
-			/>
-
-			<NumberChartGraph
-				:title="__('Courses')"
-				:value="batch?.data?.courses?.length || 0"
-			/>
-
-			<NumberChartGraph
-				:title="__('Assessments')"
-				:value="batch?.data?.assessments?.length || 0"
-			/>
-		</div>
-
-		<EmptyStateLayout
-			v-if="showStudentsEmptyState"
-			class="min-h-[40vh] sm:min-h-[75vh]"
-			name="Students"
-			icon="lucide-users"
-			width="lg"
-			:title="__('No students in this batch yet')"
+	<div
+		v-if="batch?.data"
+		class="flex flex-col p-5 lg:min-h-0 lg:flex-1 lg:overflow-y-auto"
+	>
+		<LoadError v-if="statsError" :error="statsError" @retry="stats.reload()" />
+		<DashboardEmptyState
+			v-else-if="showStudentsEmptyState"
 			:description="
 				__(
-					'Enroll students to follow how each one moves through the courses and assessments in this batch.'
+					'Enrolled students, their progress and attendance will show up here.'
 				)
 			"
-		>
-			<Button
-				v-if="canAddStudents"
-				variant="subtle"
-				:label="__('Enroll Students')"
-				@click="openStudentForm"
-			>
-				<template #prefix>
-					<span class="lucide-plus size-4" />
-				</template>
-			</Button>
-		</EmptyStateLayout>
+			@enroll="openEnroll"
+		/>
 		<div
 			v-else
-			class="grid grid-cols-1 lg:grid-cols-[3fr_2fr] gap-5 items-start"
+			class="grid grid-cols-1 gap-5 lg:min-h-[30rem] lg:flex-1 lg:grid-cols-[minmax(0,1fr)_22rem] min-[1400px]:grid-cols-[minmax(0,1fr)_26rem] 2xl:grid-cols-[minmax(0,1fr)_30rem]"
 		>
-			<div class="border rounded-6 py-3 px-4 order-2 lg:order-1">
-				<div class="flex items-center justify-between gap-x-2 mb-3">
-					<h2 class="text-lg-semibold text-ink-gray-9">
-						{{ __('Students') }}
-					</h2>
-					<div class="flex items-center gap-x-2">
-						<FormControl
-							v-model="searchFilter"
-							:placeholder="__('Search')"
-							:aria-label="__('Search')"
-							type="text"
-						>
-							<template #prefix>
-								<span class="lucide-search size-4 text-ink-gray-5" />
-							</template>
-						</FormControl>
-					</div>
-				</div>
-				<div class="sm:max-h-[63vh] sm:overflow-y-auto">
-					<ResponsiveListView
-						v-if="students.loading || students.data?.length"
-						:columns="studentColumns"
-						:rows="students.data || []"
-						row-key="name"
-						:options="studentListOptions"
-					>
-						<template #cell="{ column, row, value }">
-							<span
-								v-if="column.key === 'member_name'"
-								class="flex items-center gap-2"
-							>
-								<Avatar
-									:image="row.member_image as string"
-									:label="String(value)"
-									size="sm"
-								/>
-								<span class="min-w-0 truncate">{{ value }}</span>
-							</span>
-							<span v-else-if="column.key === 'creation'">
-								{{ dayjs(value as string).format('DD MMM YYYY') }}
-							</span>
-							<span v-else>{{ value }}</span>
-						</template>
-					</ResponsiveListView>
-					<div v-else class="min-h-[200px]">
-						<EmptyStateLayout
-							name="Students"
-							icon="lucide-users"
-							:title="
-								searchFilter
-									? __('No students match your search')
-									: __('No students enrolled yet')
-							"
-							:description="
-								searchFilter
-									? __('Try a different name')
-									: __('Enroll students to track their progress here')
-							"
-						/>
-					</div>
-					<div
-						v-if="students.data && students.hasNextPage"
-						class="flex justify-center my-3"
-					>
-						<Button @click="students.next()">
-							{{ __('Load More') }}
-						</Button>
-					</div>
+			<div class="flex min-w-0 flex-col gap-5 lg:min-h-0">
+				<DashboardKpiCards :kpis="kpis" :loading="!stats.data">
+					<template #empty-on_track>
+						<span class="text-3xl-semibold text-ink-gray-4">—</span>
+						<span class="text-sm text-ink-gray-6">{{ startsText }}</span>
+					</template>
+				</DashboardKpiCards>
+				<div class="flex min-w-0 flex-1 flex-col lg:min-h-0">
+					<BatchStudentsPanel
+						v-model:stage="stage"
+						v-model:class-filter="classFilter"
+						:batch-name="batchName"
+						@view-progress="openProgress"
+						@removed="reloadAfterRemoval"
+					/>
 				</div>
 			</div>
-
-			<div class="order-1 lg:order-2 space-y-5">
-				<ChartCard v-if="showProgressChart" class="h-[300px]">
-					<BarChart
-						v-if="filteredChartData.length"
-						:data="filteredChartData"
-						x="task"
-						y="value"
-						:title="__('Batch Summary')"
-						:subtitle="__('Progress of students in courses and assessments')"
-						:x-axis="{ title: __('Tasks'), type: 'category' }"
-						:y-axis="{
-							title: __('Number of Students'),
-							echartOptions: { minInterval: 1 },
-						}"
-					/>
-					<ChartEmptyState
-						v-else
-						:title="__('Batch Summary')"
-						:subtitle="__('Progress of students in courses and assessments')"
-						:message="
-							__(
-								'Bars show up here as students finish the courses and assessments in this batch.'
-							)
-						"
-						icon="lucide-chart-column"
-					/>
-				</ChartCard>
-
-				<div class="p-4 border rounded-6">
-					<BatchFeedback
-						v-if="batch.data"
-						:batch="batch.data.name"
-						:can-manage="Boolean(batch.data?.can_manage)"
-					/>
-				</div>
+			<div class="flex min-w-0 flex-col gap-5 lg:min-h-0 lg:overflow-y-auto">
+				<BatchFeedbackPanel
+					class="lg:min-h-0"
+					:batch-name="batchName"
+					:feedback="stats.data?.feedback ?? null"
+				/>
+				<BatchFunnelPanel
+					class="h-60 lg:h-auto lg:min-h-[12rem] lg:flex-1"
+					:funnel="stats.data?.funnel ?? null"
+					:active-filter="stage"
+					@select-stage="selectStage"
+				/>
+				<BatchAttendancePanel
+					v-if="!stats.data || stats.data.attendance.held"
+					class="h-80 lg:h-auto lg:min-h-[13rem] lg:flex-[1.4]"
+					:attendance="stats.data?.attendance ?? null"
+					:enrolled="stats.data?.enrolled ?? 0"
+					:active="classFilter"
+					@select="selectClass"
+				/>
 			</div>
 		</div>
 	</div>
-	<BatchStudentProgress
-		v-if="showProgressModal"
+	<BatchStudentSheet
+		v-if="showProgressModal && stats.data"
 		v-model="showProgressModal"
-		:student="currentStudent"
-		:batch="batch?.data?.name"
+		:batch-name="batchName"
+		:enrollment="currentStudent"
+		:state="stats.data.timeline.state"
+		:start-date="stats.data.timeline.start_date"
+		@removed="reloadAfterSheetRemoval"
 	/>
 </template>
 <script setup lang="ts">
-import {
-	createResource,
-	createListResource,
-	FormControl,
-	Avatar,
-	Button,
-} from 'frappe-ui'
-import { BarChart, ChartCard } from 'frappe-ui/charts'
-import {
-	computed,
-	getCurrentInstance,
-	inject,
-	onMounted,
-	ref,
-	watch,
-} from 'vue'
+import { createResource, getCachedResource } from 'frappe-ui'
+import { computed, inject, ref } from 'vue'
 import type dayjsType from 'dayjs'
-import { formatAmount } from '@/utils'
-import BatchFeedback from '@/pages/Batches/components/BatchFeedback.vue'
-import ChartEmptyState from '@/components/ChartEmptyState.vue'
-import BatchStudentProgress from '@/pages/Batches/components/BatchStudentProgress.vue'
-import NumberChartGraph from '@/components/NumberChartGraph.vue'
-import ResponsiveListView from '@/components/ResponsiveListView.vue'
-import EmptyStateLayout from '@/components/Layouts/EmptyStateLayout.vue'
-import type { ListColumn, ListRow, ListViewOptions } from '@/types'
+import DashboardKpiCards from '@/components/Dashboard/DashboardKpiCards.vue'
+import DashboardEmptyState from '@/components/Dashboard/DashboardEmptyState.vue'
+import LoadError from '@/components/LoadError.vue'
 import { openBatchForm } from '@/composables/useBatchForms'
-
-const dayjs = inject<typeof dayjsType>('$dayjs')!
-const searchFilter = ref<string | null>(null)
-const showProgressModal = ref<boolean>(false)
-const currentStudent = ref<any>(null)
+import { syncDashboardState } from '@/composables/dashboard/useDashboard'
+import router from '@/router'
+import BatchAttendancePanel from '@/pages/Batches/components/BatchAttendancePanel.vue'
+import BatchFunnelPanel from '@/pages/Batches/components/BatchFunnelPanel.vue'
+import BatchStudentsPanel from '@/pages/Batches/components/BatchStudentsPanel.vue'
+import BatchFeedbackPanel from '@/pages/Batches/components/BatchFeedbackPanel.vue'
+import BatchStudentSheet from '@/pages/Batches/components/BatchStudentSheet.vue'
+import {
+	percentChange,
+	sparklineOf,
+	toggleFilter,
+} from '@/utils/dashboard/charts'
+import { BATCH_FILTER_GROUPS, groupOf } from '@/utils/dashboard/filters'
+import { firstLoadError } from '@/utils/loadError'
+import type {
+	BatchDashboardStats,
+	BatchFilter,
+	BatchStudentRow,
+	ClassAttendanceFilter,
+	DashboardKpi as Kpi,
+} from '@/types'
 
 const props = defineProps<{
-	batch: { [key: string]: any } | null
+	batch: {
+		data: Record<string, any> | null
+		reload: () => void
+	} | null
 }>()
 
-const chartData = createResource({
-	url: 'lms.lms.utils.get_batch_chart_data',
-	cache: ['batch_chart_data', props.batch?.data?.name],
-	params: { batch: props.batch?.data?.name },
-	auto: true,
-})
-
-const certificationCount = createResource({
-	url: 'frappe.client.get_count',
-	cache: ['batch_certificate_count', props.batch?.data?.name],
-	params: {
-		doctype: 'LMS Certificate',
-		filters: { batch_name: props.batch?.data?.name },
-	},
-	auto: true,
-})
-
-// The Enrolled card used to read the batch's student list, refreshed by the
-// enrollment modal calling batch.reload() on the resource it was handed. The
-// routed form has no such handle — get_batch_details deliberately carries no
-// cache key (useBatchForms.ts) — so the count comes from its own cached
-// resource, shaped like certificationCount above, which the form can reach by
-// key. The two numbers are identical: get_batch_details builds `student_count`
-// from exactly this get_all with no further filter.
-const studentCount = createResource({
-	url: 'frappe.client.get_count',
-	cache: ['batch_student_count', props.batch?.data?.name],
-	params: {
-		doctype: 'LMS Batch Enrollment',
-		filters: { batch: props.batch?.data?.name },
-	},
-	auto: true,
-})
-
-const students = createListResource({
-	doctype: 'LMS Batch Enrollment',
-	filters: {
-		batch: props.batch?.data?.name,
-	},
-	fields: [
-		'name',
-		'member_name',
-		'member_username',
-		'member_image',
-		'creation',
-	],
-	orderBy: 'creation desc',
-	auto: true,
-	// Named so BatchStudentForm can reload it through getCachedListResource
-	// after inserting. Keyed by batch, because BatchDetail is per-batch.
-	cache: ['batchStudents', props.batch?.data?.name],
-})
-
-const filteredChartData = computed(() =>
-	(chartData.data || []).filter((item: { value: number }) => item.value > 0)
+const dayjs = inject<typeof dayjsType>('$dayjs')!
+const reloadBatchDetails = inject<(() => void) | null>(
+	'reloadBatchDetails',
+	null
 )
 
-const studentFilters = (): Record<string, any> => {
-	const filters: Record<string, any> = {
-		batch: props.batch?.data?.name,
-	}
+const batchName: string = props.batch?.data?.name ?? ''
+const stage = ref<BatchFilter | null>(null)
+const classFilter = ref<ClassAttendanceFilter | null>(null)
+const showProgressModal = ref<boolean>(false)
+const currentStudent = ref<string>('')
 
-	if (searchFilter.value) {
-		filters.member_name = ['like', `%${searchFilter.value}%`]
-	}
-
-	return filters
-}
-
-watch(searchFilter, () => {
-	students.update({ filters: studentFilters() })
-	students.reload()
+// `batchDashboardStats` lets BatchStudentForm refresh the counts too.
+const stats = createResource<BatchDashboardStats>({
+	url: 'lms.lms.dashboard.batch.get_batch_dashboard_stats',
+	params: { batch: batchName },
+	cache: ['batchDashboardStats', batchName],
+	auto: true,
 })
 
-// The cache key deliberately outlives this component so the student form can
-// reload the list after inserting — but the filters ride along with it, while
-// `searchFilter` is a component-local ref that starts empty on every mount. A
-// remount would otherwise show the previous visit's search results underneath
-// a blank search box. Only re-syncs when they actually disagree, so a first
-// mount does not fetch twice.
-onMounted(() => {
-	const desired = studentFilters()
+// A failed reload keeps the stats on screen; only a first load fails the body.
+const statsError = computed(() => firstLoadError(stats))
 
-	if (JSON.stringify(students.filters) !== JSON.stringify(desired)) {
-		students.update({ filters: desired })
-		students.reload()
-	}
-})
-
-const studentColumns = computed<ListColumn[]>(() => {
-	return [
-		{
-			label: __('Name'),
-			key: 'member_name',
-			width: '40%',
-		},
-		{
-			label: __('Enrolled On'),
-			key: 'creation',
-			align: 'left',
-		},
-	]
-})
-
-const studentListOptions: ListViewOptions = {
-	selectable: false,
-	showTooltip: false,
-	onRowClick: (row: ListRow) => {
-		// member_username is copied at enrollment and goes stale on a rename.
-		currentStudent.value = row.name
-		showProgressModal.value = true
-	},
-}
-
-const showProgressChart = computed(
-	() =>
-		students.data?.length &&
-		(props.batch?.data?.courses?.length ||
-			props.batch?.data?.assessments?.length)
+const showStudentsEmptyState = computed<boolean>(
+	() => stats.data?.enrolled === 0
 )
 
-const user = inject<any>('$user', null)
-// Read on click, not at setup: the dashboard also renders where no router is installed.
-const instance = getCurrentInstance()
+syncDashboardState(() => {
+	if (statsError.value) return 'failed'
+	if (!stats.data) return 'loading'
+	return showStudentsEmptyState.value ? 'empty' : 'ready'
+})
 
-// Same people as the header's Add Student button.
-const canAddStudents = computed(
-	() =>
-		!(window as any).read_only_mode &&
-		Boolean(
-			user?.data?.is_moderator ||
-				user?.data?.is_evaluator ||
-				props.batch?.data?.can_manage
-		)
-)
-
-function openStudentForm() {
-	const { $router, $route } = instance!.proxy!
+const openEnroll = (): void => {
 	openBatchForm(
-		$router,
+		router,
 		'NewBatchStudent',
-		props.batch?.data?.name,
-		$route.hash
+		batchName,
+		router.currentRoute.value.hash
 	)
 }
 
-const showStudentsEmptyState = computed(
-	() => !students.loading && !students.data?.length && !searchFilter.value
+const percentOf = (part: number, whole: number): number =>
+	whole ? Math.round((part / whole) * 100) : 0
+
+// A card filters the student list to the students it counts and stays pressed
+// while the list shows any filter of its group; pressing it again clears the
+// filter. Students counts everyone, so it only clears.
+const filterBy = (filter: BatchFilter | null, label: string) => {
+	const pressed =
+		filter !== null &&
+		stage.value !== null &&
+		groupOf(BATCH_FILTER_GROUPS, filter).includes(stage.value)
+	return {
+		label,
+		pressed,
+		onSelect: () => {
+			classFilter.value = null
+			stage.value = pressed ? null : filter
+		},
+	}
+}
+
+// The titles while the batch runs, which the cards also show while they load.
+const KPI_TITLES = () => ({
+	students: __('Students'),
+	onTrack: __('On track'),
+	atRisk: __('At risk'),
+	certified: __('Certified'),
+})
+
+const studentsKpi = (data: BatchDashboardStats): Kpi => ({
+	key: 'students',
+	title: KPI_TITLES().students,
+	value: data.enrolled,
+	target: data.seat_count || undefined,
+	delta: percentChange(data.deltas.enrollments),
+	deltaSuffix: '%',
+	fallbackCaption: data.seat_count
+		? __('{0} seats left').format(
+				Math.max(data.seat_count - data.enrolled, 0).toLocaleString()
+		  )
+		: __('No signups in the month before'),
+	sparkline: sparklineOf(data.weekly.enrollments, 'bar'),
+	select: filterBy(null, __('Show all students')),
+})
+
+const ended = computed<boolean>(() => stats.data?.timeline.state === 'ended')
+
+// Once the batch is over, being on schedule means having finished, and the
+// students still behind are the ones who did not.
+const onTrackKpi = (data: BatchDashboardStats): Kpi =>
+	ended.value
+		? {
+				key: 'on_track',
+				title: __('Completed'),
+				value: percentOf(data.counts.completed, data.enrolled),
+				suffix: '%',
+				delta: null,
+				fallbackCaption: __('{0} finished all courses').format(
+					data.counts.completed.toLocaleString()
+				),
+				select: filterBy('completed', __('Show students who finished')),
+				sparkline: sparklineOf(data.weekly.lessons_completed, 'area'),
+		  }
+		: {
+				key: 'on_track',
+				title: KPI_TITLES().onTrack,
+				value:
+					data.timeline.state === 'upcoming'
+						? null
+						: percentOf(data.counts.on_track, data.enrolled),
+				suffix: '%',
+				delta: null,
+				fallbackCaption: __('{0} behind schedule').format(
+					data.counts.behind.toLocaleString()
+				),
+				select: filterBy('on_track', __('Show students on track')),
+				sparkline: sparklineOf(data.weekly.lessons_completed, 'area'),
+		  }
+
+const riskFilter = computed<BatchFilter>(() =>
+	ended.value ? 'behind' : 'at_risk'
 )
+
+const riskFilterLabel = computed<string>(() => {
+	if (stage.value === riskFilter.value) return __('Show all students')
+	return ended.value
+		? __('Show students who did not finish')
+		: __('Show students at risk')
+})
+
+const atRiskKpi = (data: BatchDashboardStats): Kpi => {
+	const value = ended.value ? data.counts.behind : data.counts.at_risk
+	return {
+		key: 'at_risk',
+		title: ended.value ? __('Incomplete') : KPI_TITLES().atRisk,
+		value,
+		color: value ? 'var(--ink-amber-7)' : undefined,
+		delta: null,
+		negativeIsBetter: true,
+		fallbackCaption: ended.value
+			? __('Did not finish all courses')
+			: __('Low attendance or idle 14+ days'),
+		select: filterBy(riskFilter.value, riskFilterLabel.value),
+		sparkline: sparklineOf(data.weekly.idle, 'line'),
+	}
+}
+
+const startsText = computed<string>(() => {
+	const start = stats.data?.timeline.start_date
+	return start
+		? __('Starts {0}').format(dayjs(start).format('D MMM'))
+		: __('The batch has not started')
+})
+
+const certifiedCaption = (data: BatchDashboardStats): string => {
+	const { passed, scheduled } = data.evaluations
+	if (passed || scheduled)
+		return __('{0} passed · {1} scheduled').format(
+			passed.toLocaleString(),
+			scheduled.toLocaleString()
+		)
+	const close = data.timeline.evaluation_end_date
+	if (close && !dayjs(close).isBefore(dayjs(), 'day'))
+		return __('Evaluations close {0}').format(dayjs(close).format('D MMM'))
+	return __('{0}% of students').format(
+		String(percentOf(data.counts.certified, data.enrolled))
+	)
+}
+
+const certifiedKpi = (data: BatchDashboardStats): Kpi => ({
+	key: 'certified',
+	title: KPI_TITLES().certified,
+	value: data.counts.certified,
+	target: data.enrolled,
+	delta: percentChange(data.deltas.certificates),
+	deltaSuffix: '%',
+	fallbackCaption: certifiedCaption(data),
+	sparkline: sparklineOf(data.weekly.certificates, 'bar'),
+	select: filterBy('certified', __('Show certified students')),
+})
+
+const kpis = computed<Kpi[]>(() => {
+	const data = stats.data
+	if (!data)
+		return Object.values(KPI_TITLES()).map((title) => ({
+			key: title,
+			title,
+			value: null,
+			delta: null,
+			fallbackCaption: '',
+		}))
+	return [
+		studentsKpi(data),
+		onTrackKpi(data),
+		atRiskKpi(data),
+		certifiedKpi(data),
+	]
+})
+
+const selectStage = (value: BatchFilter | null): void => {
+	classFilter.value = null
+	stage.value = toggleFilter(stage.value, value)
+}
+
+// One filter at a time: a class picked on the attendance chart replaces the
+// stage, and picking the same part of the same bar again clears it.
+const selectClass = (filter: ClassAttendanceFilter): void => {
+	stage.value = null
+	const current = classFilter.value
+	classFilter.value =
+		current?.liveClass === filter.liveClass &&
+		current.attendance === filter.attendance
+			? null
+			: filter
+}
+
+// The enrollment, which get_batch_student_progress resolves within the batch;
+// member_username is copied at enrollment and goes stale on a rename.
+const openProgress = (student: BatchStudentRow): void => {
+	currentStudent.value = student.enrollment
+	showProgressModal.value = true
+}
+
+const reloadAfterRemoval = (): void => {
+	stats.reload()
+	reloadBatchDetails?.()
+}
+
+const reloadAfterSheetRemoval = (): void => {
+	reloadAfterRemoval()
+	getCachedResource(['batchDashboardStudents', batchName])?.reload()
+}
 </script>

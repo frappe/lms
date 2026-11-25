@@ -1,5 +1,7 @@
 import { call, toast } from 'frappe-ui'
 import { AUDIO_EXTENSIONS } from '@/utils/audio'
+import { markRaw } from 'vue'
+import FlowIcon from '@/components/Icons/FlowIcon.vue'
 import { ASSESSMENT_BLOCK_SELECTOR } from '@/utils/blockMount'
 import { Quiz } from '@/utils/quiz'
 import { Program } from '@/utils/program'
@@ -49,12 +51,7 @@ export function formatTime(timeString) {
 	if (!timeString) return ''
 	const [hour, minute] = timeString.split(':').map(Number)
 	const dummyDate = new Date(0, 0, 0, hour, minute)
-	const formattedTime = new Intl.DateTimeFormat('en-US', {
-		hour: 'numeric',
-		minute: 'numeric',
-		hour12: true,
-	}).format(dummyDate)
-	return formattedTime
+	return dayjs(dummyDate).format('h:mm A')
 }
 
 export function formatNumber(number) {
@@ -155,7 +152,7 @@ export function getEditorTools(
 			// sanitizer then strips). Headings take the same toolbar as text.
 			inlineToolbar: INLINE_TOOLBAR_ORDER,
 			config: {
-				placeholder: 'Header',
+				placeholder: __('Header'),
 			},
 		},
 		list: {
@@ -546,6 +543,15 @@ const getSidebarItems = (forMobile = false) => {
 					panel: 'notifications',
 					condition: () => {
 						return !forMobile && userResource?.data
+					},
+				},
+				{
+					label: 'Flow',
+					icon: markRaw(FlowIcon),
+					action: 'flow',
+					shortcut: 'Mod+I',
+					condition: () => {
+						return !forMobile && userResource?.data?.can_use_flow
 					},
 				},
 			],

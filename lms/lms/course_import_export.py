@@ -609,7 +609,7 @@ def sanitize_string(
 
 def validate_user_email(user):
 	if not user.get("email") or not validate_email_address(user["email"]):
-		frappe.throw(f"Invalid email for user creation: {user.get('email')}")
+		frappe.throw(_("Invalid email for user creation: {0}").format(user.get("email")))
 
 
 def get_user_names(user):

@@ -7,7 +7,10 @@ import {
 	it,
 	vi,
 } from 'vitest'
-import { flushPromises, mount } from '@vue/test-utils'
+import { config, flushPromises, mount } from '@vue/test-utils'
+import { translate } from './helpers/translate'
+
+config.global.mocks.__ = translate
 
 // `new pdfjsLib.PDFWorker({ port })` reaches the REAL pdf.js class here even
 // though `getDocument` is mocked, so pdf.js spins up its in-process fallback

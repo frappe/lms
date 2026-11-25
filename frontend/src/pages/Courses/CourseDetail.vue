@@ -100,8 +100,34 @@
 				</Button>
 			</template>
 			<Button
-				v-if="tab?.key === 'dashboard' && course.data && isMobile"
-				variant="outline"
+				v-if="
+					tab?.key === 'dashboard' && dashboardState === 'ready' && isMobile
+				"
+				variant="subtle"
+				class="!size-9"
+				:label="__('Export analytics')"
+				:tooltip="__('Export analytics')"
+				@click="exportAnalytics()"
+			>
+				<template #icon>
+					<span class="lucide-download size-4" />
+				</template>
+			</Button>
+			<Button
+				v-else-if="tab?.key === 'dashboard' && dashboardState === 'ready'"
+				variant="subtle"
+				@click="exportAnalytics()"
+			>
+				<template #prefix>
+					<span class="lucide-download size-4" />
+				</template>
+				{{ __('Export analytics') }}
+			</Button>
+			<Button
+				v-if="
+					tab?.key === 'dashboard' && dashboardState === 'ready' && isMobile
+				"
+				variant="solid"
 				class="!size-9"
 				:label="__('Enroll')"
 				:tooltip="__('Enroll')"
@@ -112,8 +138,8 @@
 				</template>
 			</Button>
 			<Button
-				v-else-if="tab?.key === 'dashboard' && course.data"
-				variant="outline"
+				v-else-if="tab?.key === 'dashboard' && dashboardState === 'ready'"
+				variant="solid"
 				@click="openEnrollForm()"
 			>
 				<template #prefix>
@@ -141,7 +167,7 @@
 					@click="courseEditorRef?.goPrev()"
 				>
 					<template #icon>
-						<span class="lucide-chevron-left size-4" />
+						<span class="lucide-chevron-left size-4 rtl:rotate-180" />
 					</template>
 				</Button>
 				<div
@@ -160,7 +186,7 @@
 					@click="courseEditorRef?.goNext()"
 				>
 					<template #icon>
-						<span class="lucide-chevron-right size-4" />
+						<span class="lucide-chevron-right size-4 rtl:rotate-180" />
 					</template>
 				</Button>
 			</div>
@@ -215,6 +241,12 @@
 		</template>
 	</TabbedDetailPage>
 	<LessonHelp v-model="showLessonHelp" />
+	<ExportAnalyticsDialog
+		v-if="exportMounted"
+		v-model:open="showExport"
+		kind="course"
+		:name="courseName"
+	/>
 
 	<router-view />
 </template>
@@ -255,9 +287,11 @@ import CourseDashboard from '@/pages/Courses/CourseDashboard.vue'
 import CourseEditor from '@/pages/Courses/CourseEditor.vue'
 import CourseForm from '@/pages/Courses/CourseForm.vue'
 import LessonHelp from '@/components/LessonHelp.vue'
+import ExportAnalyticsDialog from '@/components/Dashboard/ExportAnalyticsDialog.vue'
 import ShortcutTooltip from '@/components/ShortcutTooltip.vue'
 import HeaderButton from '@/components/HeaderButton.vue'
 import { openFormRoute } from '@/composables/useFormRoute'
+import { provideDashboardState } from '@/composables/dashboard/useDashboard'
 import type { CourseDetails, Resource, SessionUser } from '@/types'
 import { isInstructorOf } from '@/utils/instructors'
 
@@ -268,6 +302,8 @@ const router: Router = useRouter()
 const route = useRoute()
 const user = inject<SessionUser>('$user')!
 const { isMobile } = useScreenSize()
+
+const dashboardState = provideDashboardState()
 
 interface EditorSelection {
 	chapterNumber: string
@@ -436,6 +472,15 @@ function openEnrollForm() {
 		hash: route.hash,
 		query: { ...route.query },
 	})
+}
+
+const showExport = ref(false)
+// Mounted on first use: most visits to the dashboard never export.
+const exportMounted = ref(false)
+
+function exportAnalytics(): void {
+	exportMounted.value = true
+	showExport.value = true
 }
 
 const props = defineProps<{

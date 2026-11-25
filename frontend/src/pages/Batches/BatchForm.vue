@@ -149,7 +149,11 @@
 							doctype="User"
 							url="lms.lms.api.search_users_by_role"
 							:searchParams="{
-								roles: JSON.stringify(['Batch Evaluator', 'Course Creator']),
+								roles: JSON.stringify([
+									'Moderator',
+									'Course Creator',
+									'Batch Evaluator',
+								]),
 							}"
 							:label="__('Instructors')"
 							:placeholder="__('Select instructors')"
@@ -209,6 +213,7 @@
 								:id="batchDetailsId"
 								:ariaLabelledby="batchDetailsLabelId"
 								:content="batchDetail.doc.batch_details"
+								:uploadArgs="{ private: false }"
 								@change="(val: string) => updateBatchDetails(val)"
 								:editable="true"
 								:fixedMenu="true"
@@ -280,7 +285,6 @@
 							v-model="batchDetail.doc.meta_image"
 							:label="__('Meta Image')"
 							type="image"
-							:required="false"
 						/>
 					</div>
 				</div>

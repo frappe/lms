@@ -21,11 +21,14 @@ dayjs.extend(isSameOrAfter)
 dayjs.extend(utc)
 dayjs.extend(timezone)
 
+// The Vite dev server renders <html lang> but not the window boot keys.
+const lang = window.lang || document.documentElement.lang
+
 if (
 	document.documentElement.dir === 'rtl' &&
-	['ar', 'he', 'fa', 'ur'].includes(window.lang)
+	['ar', 'he', 'fa', 'ur'].includes(lang)
 ) {
-	dayjs.locale(window.lang)
+	dayjs.locale(lang)
 }
 
 // Server datetimes are naive and in the site's timezone, not the browser's.

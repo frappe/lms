@@ -127,14 +127,14 @@ const form = recordForm({
 			fields: [
 				{
 					name: 'account_name',
-					label: 'Account Name',
+					label: __('Account Name'),
 					type: 'text',
 					reqd: true,
 				},
 				{
 					name: 'member',
-					label: 'Member',
-					description: 'The evaluator whose meetings this account books',
+					label: __('Member'),
+					description: __('The evaluator whose meetings this account books'),
 					type: 'link',
 					doctype: 'Course Evaluator',
 					reqd: true,
@@ -142,8 +142,8 @@ const form = recordForm({
 				},
 				{
 					name: 'google_calendar',
-					label: 'Google Calendar',
-					description: 'The calendar this account books its meetings on',
+					label: __('Google Calendar'),
+					description: __('The calendar this account books its meetings on'),
 					type: 'link',
 					doctype: 'Google Calendar',
 					reqd: true,
@@ -186,7 +186,7 @@ export const googleMeetSettingsPage: ListPage = {
 	},
 	columns,
 	searchable: true,
-	empty: { name: 'Google Meet Settings', icon: 'lucide-presentation' },
+	empty: { name: __('Google Meet Settings'), icon: 'lucide-presentation' },
 	create: { detail: form.forNew() },
 	rowDetail: form.forRecord(),
 	requiresGoogleCalendar: true,

@@ -1,21 +1,26 @@
 <template>
-	<FrappeUIProvider>
-		<Layout class="isolate text-p-base">
-			<router-view :route="background" />
-		</Layout>
-		<router-view v-if="background" />
-		<NotificationPanel />
-		<ContinueCoursePanel
-			v-if="canHaveDraft"
-			:user="userResource.data.name"
-			:besideHelp="helpPanelOpen"
-		/>
-		<InstallPrompt v-if="isMobile && !settings.data?.disable_pwa" />
-		<Dialogs />
-	</FrappeUIProvider>
+	<!-- Reka stamps dir="ltr" on tabs, radio groups and menus unless told. -->
+	<ConfigProvider :dir="textDirection()">
+		<FrappeUIProvider>
+			<Layout class="isolate text-p-base">
+				<router-view :route="background" />
+			</Layout>
+			<router-view v-if="background" />
+			<NotificationPanel />
+			<ContinueCoursePanel
+				v-if="canHaveDraft"
+				:user="userResource.data.name"
+				:besideHelp="helpPanelOpen"
+			/>
+			<InstallPrompt v-if="isMobile && !settings.data?.disable_pwa" />
+			<Dialogs />
+		</FrappeUIProvider>
+	</ConfigProvider>
 </template>
 <script setup>
 import { FrappeUIProvider } from 'frappe-ui'
+import { ConfigProvider } from 'reka-ui'
+import { textDirection } from '@/utils/textDirection'
 import { Dialogs } from '@/utils/dialogs'
 import { computed } from 'vue'
 import { useScreenSize } from './utils/composables'

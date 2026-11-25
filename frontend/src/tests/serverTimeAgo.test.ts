@@ -21,7 +21,7 @@ describe('relative times of naive server datetimes', () => {
 
 	it('reads them in the site timezone, not the browser one', () => {
 		;(window as any).timezone = { system: 'Asia/Riyadh' }
-		expect(timeAgo(MINUTE_AGO_IN_RIYADH)).toBe('1 minute ago')
+		expect(timeAgo(MINUTE_AGO_IN_RIYADH)).toBe('a minute ago')
 		expect(serverTime(MINUTE_AGO_IN_RIYADH).fromNow()).toBe('a minute ago')
 	})
 
@@ -29,6 +29,6 @@ describe('relative times of naive server datetimes', () => {
 		expect(serverTime('2026-10-16 14:29:00').fromNow()).toBe(
 			dayjs('2026-10-16 14:29:00').fromNow()
 		)
-		expect(timeAgo('2026-10-16 14:29:00')).toBe('1 minute ago')
+		expect(timeAgo('2026-10-16 14:29:00')).toBe('a minute ago')
 	})
 })

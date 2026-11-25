@@ -4,7 +4,7 @@ import frappe
 from bs4 import BeautifulSoup
 from frappe import _
 from frappe.core.api.file import get_max_file_size
-from frappe.translate import get_user_lang
+from frappe.translate import get_translation_version, get_user_lang
 from frappe.utils import get_system_timezone
 from frappe.utils.data import escape_html
 from frappe.utils.telemetry import capture
@@ -50,6 +50,7 @@ def get_boot():
 			"lms_path": get_lms_path(),
 			"lang": lang,
 			"text_direction": resolve_text_direction(lang),
+			"translations_version": get_translation_version(),
 			"date_format": frappe.get_system_settings("date_format"),
 			"timezone": {"system": get_system_timezone()},
 		}

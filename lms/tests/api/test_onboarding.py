@@ -7,7 +7,10 @@ from lms.lms.onboarding import (
 	FIRST_GOAL,
 	get_first_course,
 	get_setup_state,
+	needs_password_setup,
+	save_brand,
 	save_setup,
+	set_first_password,
 )
 from lms.lms.test_helpers import BaseTestUtils
 
@@ -99,3 +102,139 @@ class TestOnboarding(BaseTestUtils):
 		frappe.set_user(manager.name)
 		self.assertRaises(frappe.ValidationError, save_setup, "<script>alert(1)</script>")
 		self.assertIsNone(frappe.db.get_default(FIRST_GOAL))
+
+	def test_a_system_manager_names_the_site_without_being_a_website_manager(self):
+		frappe.db.set_single_value("Website Settings", {"favicon": None, "app_logo": None})
+		owner = self._create_user(
+			"brand.owner@example.com", "Brand", "Owner", roles=["System Manager", "Moderator"]
+		)
+		logo = frappe.get_doc(
+			{"doctype": "File", "file_name": "acme-brand.png", "content": b"logo", "is_private": 0}
+		).insert()
+		self.addCleanup(frappe.delete_doc, "File", logo.name, force=True)
+		frappe.set_user(owner.name)
+		save_brand("  Acme Academy ", logo.file_url)
+		frappe.set_user("Administrator")
+
+		settings = frappe.get_single("Website Settings")
+		self.assertEqual(settings.app_name, "Acme Academy")
+		self.assertEqual(settings.app_logo, logo.file_url)
+		self.assertEqual(settings.banner_image, logo.file_url)
+		self.assertEqual(settings.favicon, logo.file_url)
+
+	def test_the_logo_becomes_the_tab_icon_only_when_the_site_has_none_of_its_own(self):
+		owner = self._create_user("brand.owner3@example.com", "Brand", "Owner", roles=["System Manager"])
+		files = [
+			frappe.get_doc(
+				{"doctype": "File", "file_name": f"brand-{n}.png", "content": b"logo", "is_private": 0}
+			).insert()
+			for n in ("own-icon", "logo")
+		]
+		for file in files:
+			self.addCleanup(frappe.delete_doc, "File", file.name, force=True)
+		frappe.db.set_single_value("Website Settings", "favicon", files[0].file_url)
+
+		frappe.set_user(owner.name)
+		save_brand("Acme Academy", files[1].file_url)
+		frappe.set_user("Administrator")
+		self.assertEqual(frappe.db.get_single_value("Website Settings", "favicon"), files[0].file_url)
+
+	def test_naming_the_site_is_only_for_system_managers(self):
+		moderator = self._create_user(
+			"brand.moderator@example.com", "Brand", "Moderator", roles=["Moderator"]
+		)
+		frappe.set_user(moderator.name)
+		self.assertRaises(frappe.PermissionError, save_brand, "Acme Academy")
+
+	def test_only_an_uploaded_logo_is_kept(self):
+		owner = self._create_user("brand.owner2@example.com", "Brand", "Owner", roles=["System Manager"])
+		frappe.set_user(owner.name)
+		self.assertRaises(
+			frappe.ValidationError, save_brand, "Acme Academy", "https://elsewhere.example.com/logo.png"
+		)
+
+	def test_the_logo_the_site_already_shows_is_kept_without_a_file(self):
+		asset = "/assets/lms/images/brand-test-logo.png"
+		frappe.db.set_single_value("Website Settings", {"banner_image": asset, "app_logo": asset})
+		owner = self._create_user("brand.owner4@example.com", "Brand", "Owner", roles=["System Manager"])
+		frappe.set_user(owner.name)
+		save_brand("Acme Academy", asset)
+		frappe.set_user("Administrator")
+		self.assertEqual(frappe.db.get_single_value("Website Settings", "app_logo"), asset)
+
+	def test_branding_sends_a_logo_that_has_no_file(self):
+		"""Setup prefills the logo from get_branding, so a logo with no File row must come back
+		too, or saving the step would clear it."""
+		from lms.lms.api import get_branding
+
+		asset = "/assets/lms/images/brand-test-logo.png"
+		frappe.db.set_single_value("Website Settings", {"banner_image": asset, "app_logo": asset})
+
+		branding = get_branding()
+
+		self.assertEqual(branding.banner_image["file_url"], asset)
+		self.assertEqual(branding.app_logo["file_url"], asset)
+
+
+class TestFirstPassword(BaseTestUtils):
+	"""A Frappe Cloud trial owner arrives signed in without a password, on a v2 site with email
+	login links on, which Frappe's own check skips; Learning's setup still asks for one."""
+
+	def setUp(self):
+		super().setUp()
+		self.owner = self._create_user(
+			"cloud.owner@example.com", "Cloud", "Owner", roles=["System Manager"], user_type="System User"
+		)
+		frappe.db.delete("__Auth", {"doctype": "User", "name": self.owner.name})
+
+	def tearDown(self):
+		frappe.set_user("Administrator")
+		super().tearDown()
+
+	def system_settings(self, **values):
+		"""System Settings read as these values, without saving them: saving needs a language and
+		time zone, which a CI site that never ran the setup wizard does not have."""
+		read = frappe.get_system_settings
+		return patch(
+			"frappe.get_system_settings",
+			side_effect=lambda key: values[key] if key in values else read(key),
+		)
+
+	def as_trial_site(self):
+		return patch.dict(
+			frappe.conf, {"pilot_endpoint": "https://pilot.example.com", "pilot_auth_token": "t"}
+		)
+
+	def test_a_trial_owner_without_a_password_is_asked_for_one(self):
+		with self.as_trial_site(), self.system_settings(login_with_email_link=1):
+			self.assertTrue(needs_password_setup(self.owner.name))
+
+	def test_the_password_step_saves_on_a_trial_site(self):
+		from frappe.utils.password import check_password
+
+		with self.as_trial_site(), self.system_settings(login_with_email_link=1):
+			frappe.set_user(self.owner.name)
+			set_first_password("Eastern_43A1W")
+			frappe.set_user("Administrator")
+			self.assertFalse(needs_password_setup(self.owner.name))
+		self.assertEqual(check_password(self.owner.name, "Eastern_43A1W"), self.owner.name)
+
+	def test_the_framework_password_step_reaches_learnings_check(self):
+		overrides = frappe.get_hooks("override_whitelisted_methods")
+		self.assertEqual(
+			overrides.get("frappe.core.doctype.user.user.set_first_password"),
+			["lms.lms.onboarding.set_first_password"],
+		)
+
+	def test_a_user_with_a_password_cannot_use_it(self):
+		update_password(self.owner.name, "Eastern_43A1W")
+		frappe.set_user(self.owner.name)
+		self.assertRaises(frappe.PermissionError, set_first_password, "Another_43A1W")
+
+	def test_not_asked_where_a_password_cannot_sign_in(self):
+		self.assertFalse(needs_password_setup("Administrator"))
+		with self.system_settings(disable_user_pass_login=1):
+			self.assertFalse(needs_password_setup(self.owner.name))
+		self.owner.append("social_logins", {"provider": "google", "userid": "1234"})
+		self.owner.save()
+		self.assertFalse(needs_password_setup(self.owner.name))

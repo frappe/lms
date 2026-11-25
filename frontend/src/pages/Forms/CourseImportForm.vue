@@ -98,6 +98,7 @@
 // (Dialog.vue:260), which is what this rendered at before it had a URL, while
 // FormShell defaults to 3xl. Without it the desktop dialog changes width.
 import { createResource, FileUploadHandler, toast } from 'frappe-ui'
+import { ZIP_UPLOAD_ENDPOINT } from '@/utils/zipUpload'
 import { computed, ref } from 'vue'
 import FormShell from '@/components/FormShell.vue'
 import HeaderButton from '@/components/HeaderButton.vue'
@@ -183,6 +184,7 @@ const uploadFile = (e: Event) => {
 	uploader
 		.upload(file, {
 			private: true,
+			upload_endpoint: ZIP_UPLOAD_ENDPOINT,
 		})
 		.then((data: any) => {
 			zip.value = data
@@ -224,7 +226,7 @@ const importZip = () => {
 				toast.error(
 					resourceErrorMessage(
 						error,
-						__('Error importing course') + ': ' + error.message
+						__('Error importing course: {0}').format(error.message)
 					)
 				)
 				console.error('Error importing course:', error)

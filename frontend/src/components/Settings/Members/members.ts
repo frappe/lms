@@ -4,6 +4,7 @@ import { markRaw } from 'vue'
 // @ts-expect-error utils/dialogs.js is still plain JS, so it has no declarations
 import { createDialog } from '@/utils/dialogs'
 import Members from '@/components/Settings/Members/Members.vue'
+import PendingInvites from '@/components/Settings/Members/PendingInvites.vue'
 import { cleanError } from '@/utils'
 import type { CustomPage, SelectOption } from '@/types/settingsSchema'
 import type { SettingsListColumn, SettingsListRow } from '@/types'
@@ -113,13 +114,7 @@ export const memberColumns = (
 		key: 'roles',
 		label: __('Roles'),
 		type: 'badge',
-		badges: (row) =>
-			((row.roles || []) as string[])
-				.filter((role) => ROLE_LABELS[role])
-				.map((role) => ({
-					label: ROLE_LABELS[role](),
-					theme: 'gray' as const,
-				})),
+		badges: roleBadges,
 	},
 	{
 		key: 'actions',
@@ -200,4 +195,17 @@ export const membersSettingsPage: CustomPage = {
 	get component() {
 		return markRaw(Members)
 	},
+}
+
+export const invitesSettingsPage: CustomPage = {
+	kind: 'custom',
+	get component() {
+		return markRaw(PendingInvites)
+	},
+}
+
+function roleBadges(row: SettingsListRow) {
+	return ((row.roles || []) as string[])
+		.filter((role) => ROLE_LABELS[role])
+		.map((role) => ({ label: ROLE_LABELS[role](), theme: 'gray' as const }))
 }

@@ -12,7 +12,7 @@
 		<div class="space-y-0.5 bg-surface-base px-3 py-2">
 			<dt class="text-xs text-ink-gray-6">{{ __('Time limit') }}</dt>
 			<dd class="text-base font-medium text-ink-gray-9">
-				{{ duration ? `${duration} ${__('min')}` : __('None') }}
+				{{ duration ? __('{0} min').format(duration) : __('None') }}
 			</dd>
 		</div>
 		<div v-if="questions" class="space-y-0.5 bg-surface-base px-3 py-2">

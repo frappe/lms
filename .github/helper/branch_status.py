@@ -1,5 +1,6 @@
 """
-Run the full server, UI and frontend suites on develop and version-16 every hour, and post a status on the
+Run the full server, UI and frontend suites on develop, version-16-hotfix and version-16 after each push to
+develop and every three hours, and post a status on the
 pull requests waiting to land there. Pull requests skip those suites, so this status is how they
 see the branch: failing while the latest full run on it failed, unless the pull request carries
 the fix label and the failing suites passed on it.
@@ -11,10 +12,17 @@ Usage:
     python branch_status.py refresh       # every open pull request into a tested branch
     python branch_status.py pr <number>   # one pull request
     python branch_status.py commit <sha>  # the pull requests whose head is this commit
+    python branch_status.py alert <run>   # tell Raven when this full run failed, and which pull requests may have caused it
+    python branch_status.py alerts        # wait for the full runs, then tell Raven of each suite whose latest run failed
+    python branch_status.py badges        # write each tested branch's README badge to the badges branch
+
+The alert posts to the Raven incoming webhook in RAVEN_WEBHOOK_URL, or prints the message when it is unset.
 """
 
+import base64
 import json
 import os
+import re
 import sys
 import time
 import urllib.error
@@ -25,8 +33,14 @@ from functools import cache
 REPO = os.environ["GITHUB_REPOSITORY"]
 FIX_LABEL = "fixes-develop"
 
-# Each tested branch, and the bases of the pull requests that land on it.
-BRANCHES = {"develop": ("develop",), "version-16": ("version-16-hotfix",)}
+# Each tested branch, and the bases of the pull requests that land on it. A pull request into
+# version-16-hotfix reaches version-16 only with the next release, so its status shows the
+# hotfix branch, the first one listed for its base.
+BRANCHES = {
+	"develop": ("develop",),
+	"version-16-hotfix": ("version-16-hotfix",),
+	"version-16": ("version-16-hotfix",),
+}
 # Each suite's workflow and its one test job.
 SUITES = {
 	"ci.yml": "Server Tests",
@@ -218,7 +232,9 @@ def start(force):
 		for workflow in SUITES:
 			last = next(iter(branch_runs(workflow, branch)), None)
 			if not force and last:
-				if last["status"] != "completed" or last["head_sha"] == head:
+				# Full runs of a suite on a branch share a concurrency group: a new one waits for the
+				# running one, so a commit that lands mid-run is not left for the next check.
+				if last["head_sha"] == head:
 					continue
 				changes = gh(f"repos/{REPO}/compare/{last['head_sha']}...{head}")["files"]
 				files = [
@@ -241,10 +257,221 @@ def start(force):
 			print(f"{workflow} on {branch}: started on {head[:7]}")
 
 
+def merged_between(branch, good_sha, bad_sha):
+	"""The pull requests merged into the branch between a passing and a failing commit, or None
+	when there are too many commits to list."""
+	compare = gh(f"repos/{REPO}/compare/{good_sha}...{bad_sha}")
+	if compare["total_commits"] > len(compare["commits"]):
+		return None
+	bases = (branch, *BRANCHES[branch])
+	pulls = {}
+	for commit in compare["commits"]:
+		for pr in gh(f"repos/{REPO}/commits/{commit['sha']}/pulls"):
+			# The hotfix-into-release merge only carries the others; it is not a cause of its own.
+			if pr["merged_at"] and pr["base"]["ref"] in bases and pr["head"]["ref"] not in bases:
+				pulls[pr["number"]] = pr
+	return sorted(pulls.values(), key=lambda pr: pr["merged_at"])
+
+
+# The most recent pull requests an alert lists; a branch that has failed for long lists dozens.
+ALERT_PULLS = 10
+BACKPORT = re.compile(r"\(backport #(\d+)\)")
+
+
+def owner(pr):
+	"""Who to ask about a pull request: for a backport opened by a bot, the original's author."""
+	original = BACKPORT.search(pr["title"])
+	if pr["user"]["type"] == "Bot" and original:
+		return gh(f"repos/{REPO}/pulls/{original.group(1)}")["user"]["login"]
+	return pr["user"]["login"]
+
+
+def alert(run_id):
+	"""Tell Raven that a full run on a tested branch failed, with the pull requests merged since the
+	suite last passed there, and their authors."""
+	run = gh(f"repos/{REPO}/actions/runs/{run_id}")
+	branch, workflow = run["head_branch"], os.path.basename(run["path"])
+	if run["event"] != "workflow_dispatch" or branch not in BRANCHES or workflow not in SUITES:
+		return
+	state, job_url = suite_result(run, workflow)
+	if state != "failure" or told(run):
+		return
+
+	earlier = [r for r in branch_runs(workflow, branch) if r["created_at"] < run["created_at"]]
+	passed = next((r for r in earlier if suite_result(r, workflow)[0] == "success"), None)
+	suite = SUITES[workflow]
+	lines = [f"**{suite} failed on {branch}** at `{run['head_sha'][:7]}`. [See the failed run]({job_url})"]
+	pulls = passed and merged_between(branch, passed["head_sha"], run["head_sha"])
+	if not passed:
+		lines.append("No earlier passing run to compare with.")
+	elif pulls is None:
+		lines.append(f"Too many commits since it last passed at `{passed['head_sha'][:7]}` to list.")
+	elif not pulls:
+		lines.append(
+			f"No pull request was merged since it last passed at `{passed['head_sha'][:7]}`. "
+			"A Frappe change is the likely cause."
+		)
+	else:
+		# The branch also moves with Frappe, so these are suspects, not a verdict.
+		lines.append(f"Merged since it last passed at `{passed['head_sha'][:7]}`:")
+		shown = pulls[-ALERT_PULLS:]
+		listed = [f"- [#{pr['number']} {pr['title']}]({pr['html_url']}) by {owner(pr)}" for pr in shown]
+		if len(pulls) > len(shown):
+			listed.append(f"- and {len(pulls) - len(shown)} earlier ones")
+		lines.append("\n".join(listed))
+		lines.append("If none of these touch the failing test, check Frappe's recent changes.")
+	message = "\n\n".join(lines)
+
+	webhook = os.environ.get("RAVEN_WEBHOOK_URL")
+	if not webhook:
+		print(message)
+		return
+	request = urllib.request.Request(
+		webhook,
+		data=json.dumps({"content": message}).encode(),
+		method="POST",
+		# frappe.io's proxy refuses urllib's default User-Agent with a 403.
+		headers={"Content-Type": "application/json", "User-Agent": "frappe-lms-branch-tests"},
+	)
+	with urllib.request.urlopen(request, timeout=30):
+		print(f"Raven told: {suite} failed on {branch}")
+	mark_told(run, job_url)
+
+
+# How long a check waits for the full runs to finish. The UI suite alone may take an hour.
+ALERT_WAIT = 80 * 60
+
+
+def alert_failures():
+	"""Wait for the full runs on the tested branches to finish, then tell Raven of each suite whose
+	latest run failed. Runs this workflow starts with its own token finish without a workflow_run
+	event, so the check that started them waits for them instead."""
+	deadline = time.time() + ALERT_WAIT
+	time.sleep(30)  # A run just dispatched takes a moment to show in the list.
+	while time.time() < deadline and any(
+		run["status"] != "completed"
+		for branch in BRANCHES
+		for workflow in SUITES
+		for run in branch_runs(workflow, branch)[:5]
+	):
+		time.sleep(60)
+	for branch in BRANCHES:
+		for workflow in SUITES:
+			run = latest_finished(workflow, branch)
+			if run:
+				alert(run["id"])
+
+
+def latest_finished(workflow, branch):
+	return next((r for r in branch_runs(workflow, branch) if suite_result(r, workflow)[0] != "pending"), None)
+
+
+def told_context(run):
+	return f"Raven alert: {SUITES[os.path.basename(run['path'])]}"
+
+
+def told(run):
+	"""Was Raven told of this suite failing on this commit? Each check looks at the latest runs
+	again, so a failure would be told once per check without this mark."""
+	statuses = gh(f"repos/{REPO}/commits/{run['head_sha']}/status")["statuses"]
+	return any(status["context"] == told_context(run) for status in statuses)
+
+
+def mark_told(run, job_url):
+	fields = {
+		"state": "failure",
+		"context": told_context(run),
+		"description": "The team was told on Raven",
+		"target_url": job_url,
+	}
+	gh(f"repos/{REPO}/statuses/{run['head_sha']}", method="POST", body=fields)
+
+
+# The branch the README badges read from: one Shields endpoint file per tested branch. Not
+# "badges", which names a Learning feature.
+BADGES_BRANCH = "branch-test-badges"
+# Short names for the badge, which has room for a few words.
+SUITE_NAMES = {"ci.yml": "Server", "ui-tests.yml": "UI", "frontend-tests.yml": "Vitest"}
+
+
+def badge(branch):
+	"""The branch's badge, in Shields' endpoint format: passing, which suites fail, or no runs yet."""
+	failing = failing_suites(branch)
+	if failing:
+		message, color = ", ".join(SUITE_NAMES[w] for w in failing) + " failing", "red"
+	elif not any(latest_finished(workflow, branch) for workflow in SUITES):
+		message, color = "no runs yet", "lightgrey"
+	else:
+		message, color = "passing", "brightgreen"
+	return {"schemaVersion": 1, "label": branch, "message": message, "color": color}
+
+
+def badges_branch_exists():
+	try:
+		gh(f"repos/{REPO}/git/ref/heads/{BADGES_BRANCH}", attempts=1)
+		return True
+	except urllib.error.HTTPError as e:
+		if e.code == 404:
+			return False
+		raise
+
+
+def create_badges_branch(files):
+	"""Start the branch with these files, in a commit with no parent, so it shares no history with
+	the code. GitHub cannot make an empty tree, so the first badges go in this first commit."""
+	tree = gh(
+		f"repos/{REPO}/git/trees",
+		method="POST",
+		body={
+			"tree": [{"path": p, "mode": "100644", "type": "blob", "content": c} for p, c in files.items()]
+		},
+	)
+	commit = gh(
+		f"repos/{REPO}/git/commits",
+		method="POST",
+		body={"message": "ci: start the branch test badges", "tree": tree["sha"], "parents": []},
+	)
+	gh(
+		f"repos/{REPO}/git/refs",
+		method="POST",
+		body={"ref": f"refs/heads/{BADGES_BRANCH}", "sha": commit["sha"]},
+	)
+
+
+def write_badges():
+	"""Write each tested branch's badge to the branch-test-badges branch, committing only what changed."""
+	files = {f"{branch}.json": json.dumps(badge(branch), indent=2) + "\n" for branch in BRANCHES}
+	if not badges_branch_exists():
+		create_badges_branch(files)
+		print(f"started {BADGES_BRANCH}")
+		return
+	for path, content in files.items():
+		try:
+			current = gh(f"repos/{REPO}/contents/{path}", params={"ref": BADGES_BRANCH}, attempts=1)
+		except urllib.error.HTTPError as e:
+			if e.code != 404:
+				raise
+			current = None
+		if current and base64.b64decode(current["content"]).decode() == content:
+			continue
+		message = json.loads(content)["message"]
+		body = {
+			"message": f"ci: {path.removesuffix('.json')} {message}",
+			"content": base64.b64encode(content.encode()).decode(),
+			"branch": BADGES_BRANCH,
+		}
+		if current:
+			body["sha"] = current["sha"]
+		gh(f"repos/{REPO}/contents/{path}", method="PUT", body=body)
+		print(f"{path}: {message}")
+
+
 def refresh():
 	for branch, bases in BRANCHES.items():
 		print(f"{branch}: failing {list(failing_suites(branch)) or 'nothing'}")
 		for base in bases:
+			if tested_branch(base) != branch:
+				continue
 			for pr in open_pulls(base):
 				post(pr)
 
@@ -255,6 +482,12 @@ if __name__ == "__main__":
 		start("all" in sys.argv[2:])
 	elif command == "pr":
 		post(gh(f"repos/{REPO}/pulls/{sys.argv[2]}"))
+	elif command == "alert":
+		alert(sys.argv[2])
+	elif command == "alerts":
+		alert_failures()
+	elif command == "badges":
+		write_badges()
 	elif command == "commit":
 		query = f"repo:{REPO} is:pr is:open sha:{sys.argv[2]}"
 		for item in search(query):

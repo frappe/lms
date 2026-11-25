@@ -5,8 +5,6 @@
 
 **Easy to use, open source, Learning Management System**
 
-![Tests](https://img.shields.io/endpoint?url=https://dashboard.cypress.io/badge/simple/vandxn/main&style=flat&logo=cypress)
-
 </div>
 
 
@@ -18,6 +16,12 @@
 	<a href="https://frappe.io/learning">Website</a>
 	-
 	<a href="https://docs.frappe.io/learning">Documentation</a>
+</div>
+<br />
+<div align="center">
+	<a href="https://github.com/frappe/lms/actions?query=branch%3Adevelop+event%3Aworkflow_dispatch"><img src="https://img.shields.io/endpoint?url=https%3A%2F%2Fraw.githubusercontent.com%2Ffrappe%2Flms%2Fbranch-test-badges%2Fdevelop.json" alt="develop branch tests" /></a>
+	<a href="https://github.com/frappe/lms/actions?query=branch%3Aversion-16-hotfix+event%3Aworkflow_dispatch"><img src="https://img.shields.io/endpoint?url=https%3A%2F%2Fraw.githubusercontent.com%2Ffrappe%2Flms%2Fbranch-test-badges%2Fversion-16-hotfix.json" alt="version-16-hotfix branch tests" /></a>
+	<a href="https://github.com/frappe/lms/actions?query=branch%3Aversion-16+event%3Aworkflow_dispatch"><img src="https://img.shields.io/endpoint?url=https%3A%2F%2Fraw.githubusercontent.com%2Ffrappe%2Flms%2Fbranch-test-badges%2Fversion-16.json" alt="version-16 branch tests" /></a>
 </div>
 
 ## Frappe Learning
@@ -73,6 +77,16 @@ In 2021, we were looking for a Learning Management System to launch Mon.School f
 
 - [**Frappe UI**](https://github.com/frappe/frappe-ui): A Vue-based UI library, to provide a modern user interface.
 
+### Compatibility
+
+| Learning branch | Stability | Frappe branch |
+| :-------------- | :-------- | :------------ |
+| version-15      | stable    | version-15    |
+| version-16      | stable    | version-16    |
+| develop         | unstable  | develop       |
+
+`main` stopped at v2.69 and gets no more updates. Move to `version-15` or `version-16`, the one that matches your Frappe version.
+
 ## Production Setup
 
 ### Managed Hosting
@@ -82,7 +96,7 @@ You can try [Frappe Cloud](https://frappecloud.com), a simple, user-friendly and
 It takes care of installation, setup, upgrades, monitoring, maintenance and support of your Frappe deployments. It is a fully featured developer platform with an ability to manage and control multiple Frappe deployments.
 
 <div>
-	<a href="https://frappecloud.com/lms/signup" target="_blank">
+	<a href="https://dashboard.frappe.io/dashboard/signup?product=lms" target="_blank">
 		<picture>
 			<source media="(prefers-color-scheme: dark)" srcset="https://frappe.io/files/try-on-fc-white.png">
 			<img src="https://frappe.io/files/try-on-fc-black.png" alt="Try on Frappe Cloud" height="28" />

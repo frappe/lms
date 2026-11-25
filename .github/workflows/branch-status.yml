@@ -1,14 +1,22 @@
 name: Branch Tests
 
 # Pull requests into develop and the hotfix branches skip the server, UI and frontend suites. They
-# run here instead, every hour on develop and version-16 when new commits need them, and each open pull
-# request gets a status showing whether its branch passes. A pull request labelled fixes-develop
+# run here instead, on develop, version-16-hotfix and version-16 when new commits need them, and
+# each open pull request gets a status showing whether its branch passes. A pull request labelled fixes-develop
 # runs the suites itself, and its status turns green once the suites failing on its branch pass.
-# Scheduled workflows run only from the default branch, so this file lives on develop alone.
+# A check runs after each push to develop. GitHub often delays or drops scheduled runs, so the
+# schedule is only a backstop, and it is what picks up the version-16 branches. Scheduled workflows run
+# only from the default branch, so this file lives on develop alone, and a push to them starts nothing.
+# Each check waits for the full runs it started, then tells the Raven channel behind the
+# RAVEN_BRANCH_TESTS_WEBHOOK secret of each suite whose latest run failed, with the pull requests
+# merged since the suite last passed and their authors.
+# Then it writes each branch's result to the branch-test-badges branch, which the README's badges read.
 
 on:
   schedule:
-    - cron: "23 * * * *"
+    - cron: "23 */3 * * *"
+  push:
+    branches: [develop]
   pull_request_target:
     branches: [develop, version-16-hotfix]
     types: [opened, synchronize, reopened, labeled, unlabeled, closed]
@@ -27,17 +35,66 @@ jobs:
   run-suites:
     name: Run Full Suites
     if: >-
-      ${{ github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+      ${{ contains(fromJSON('["schedule", "push", "workflow_dispatch"]'), github.event_name)
       || (github.event.action == 'closed' && github.event.pull_request.merged
       && contains(github.event.pull_request.labels.*.name, 'fixes-develop')) }}
-    runs-on: ubuntu-latest
+    runs-on: frappe-arc
+    # Two checks at once could both start the suites on the same commit.
+    concurrency:
+      group: branch-suites-start
+      cancel-in-progress: false
     steps:
       # Only the helper is checked out, from the default branch: pull request code never runs here.
       - uses: actions/checkout@v4
         with:
           ref: ${{ github.event.repository.default_branch }}
           sparse-checkout: .github/helper
-      - run: python .github/helper/branch_status.py start ${{ github.event_name != 'schedule' && 'all' || '' }}
+      - run: python3 .github/helper/branch_status.py start ${{ !contains(fromJSON('["schedule", "push"]'), github.event_name) && 'all' || '' }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+
+  alert:
+    name: Tell Raven of Failed Runs
+    # Its own job on GitHub's runners: it holds the webhook secret, which stays off frappe-arc.
+    needs: run-suites
+    if: ${{ contains(fromJSON('["schedule", "push", "workflow_dispatch"]'), github.event_name) }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    # A newer check waits for the newer runs, so the older wait is no longer needed.
+    concurrency:
+      group: branch-suites-alert
+      cancel-in-progress: true
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.repository.default_branch }}
+          sparse-checkout: .github/helper
+      - run: python3 .github/helper/branch_status.py alerts
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RAVEN_WEBHOOK_URL: ${{ secrets.RAVEN_BRANCH_TESTS_WEBHOOK }}
+
+  badges:
+    name: Update Badges
+    # After the alert job has waited for the full runs, so each badge shows their result.
+    needs: alert
+    if: ${{ !cancelled() && contains(fromJSON('["schedule", "push", "workflow_dispatch"]'), github.event_name) }}
+    runs-on: ubuntu-latest
+    # The one job that writes to the repository, and only to the branch-test-badges branch. It holds no secret,
+    # and runs only the default branch's helper.
+    permissions:
+      contents: write
+      actions: read
+      pull-requests: read
+    concurrency:
+      group: branch-badges
+      cancel-in-progress: true
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.repository.default_branch }}
+          sparse-checkout: .github/helper
+      - run: python3 .github/helper/branch_status.py badges
         env:
           GH_TOKEN: ${{ github.token }}
 
@@ -47,7 +104,7 @@ jobs:
       ${{ github.event.action != 'closed'
       && (!contains(fromJSON('["labeled", "unlabeled"]'), github.event.action)
       || contains(fromJSON('["fixes-develop", "Run Server Tests", "Run UI Tests", "Run Frontend Tests"]'), github.event.label.name)) }}
-    runs-on: ubuntu-latest
+    runs-on: frappe-arc
     concurrency:
       group: branch-status-${{ github.event.pull_request.number || github.event.workflow_run.head_sha || 'all' }}
       cancel-in-progress: true
@@ -56,6 +113,10 @@ jobs:
         with:
           ref: ${{ github.event.repository.default_branch }}
           sparse-checkout: .github/helper
+      - name: Install gh
+        if: ${{ github.event.action == 'labeled' }}
+        # frappe-arc runners have no gh CLI.
+        run: sudo apt-get update -qq && sudo apt-get install -y -qq --no-install-recommends gh
       # The suites' plan job reads labels live, so a re-run picks up the one just added.
       - name: Run the suites when a test label is added
         if: ${{ github.event.action == 'labeled' }}
@@ -71,9 +132,9 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           HEAD_SHA: ${{ github.event.pull_request.head.sha }}
       - run: |
-          if [ -n "$PR" ]; then python .github/helper/branch_status.py pr "$PR"
-          elif [ "$RUN_EVENT" = pull_request ]; then python .github/helper/branch_status.py commit "$RUN_SHA"
-          else python .github/helper/branch_status.py refresh
+          if [ -n "$PR" ]; then python3 .github/helper/branch_status.py pr "$PR"
+          elif [ "$RUN_EVENT" = pull_request ]; then python3 .github/helper/branch_status.py commit "$RUN_SHA"
+          else python3 .github/helper/branch_status.py refresh
           fi
         env:
           GH_TOKEN: ${{ github.token }}

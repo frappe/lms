@@ -79,7 +79,7 @@
 							</h1>
 							<div class="text-sm text-ink-gray-6 font-semibold">
 								{{ job.data.company_name }} - {{ job.data.location }},
-								{{ job.data.country }}
+								{{ __(job.data.country) }}
 							</div>
 						</div>
 					</div>
@@ -95,7 +95,7 @@
 							<template #prefix>
 								<span class="lucide-clipboard-type size-3 text-ink-gray-7" />
 							</template>
-							{{ job.data.type }}
+							{{ __(job.data.type) }}
 						</Badge>
 						<Badge v-if="job.data?.work_mode" size="lg">
 							<template #prefix>
@@ -103,14 +103,17 @@
 									class="lucide-briefcase-business size-3 text-ink-gray-7"
 								/>
 							</template>
-							{{ job.data.work_mode }}
+							{{ __(job.data.work_mode) }}
 						</Badge>
 						<Badge v-if="applicantCount" size="lg">
 							<template #prefix>
 								<span class="lucide-square-user-round size-3 text-ink-gray-7" />
 							</template>
-							{{ applicantCount }}
-							{{ applicantCount == 1 ? __('applicant') : __('applicants') }}
+							{{
+								applicantCount == 1
+									? __('1 applicant')
+									: __('{0} applicants').format(applicantCount)
+							}}
 						</Badge>
 					</div>
 				</div>

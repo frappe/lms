@@ -202,7 +202,7 @@ export const buildYouRows = (options: {
 	// No rows, no heading: a bar that already holds every destination should not
 	// leave an empty "Pages" behind.
 	const pages: MobileRowGroup[] = pageRows.length
-		? [{ key: 'Pages', label: 'Pages', rows: pageRows }]
+		? [{ key: 'Pages', label: __('Pages'), rows: pageRows }]
 		: []
 
 	const settingsRows: MobileRow[] = []

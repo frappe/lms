@@ -58,36 +58,41 @@ const show = defineModel()
 const helpTopics = [
 	{
 		key: 'instructor_notes',
-		title: 'What are Instructor Notes?',
-		description:
-			'Instructor Notes are private notes that only instructors can see. They can be used to provide additional context or guidance for the lesson.',
+		title: __('What are Instructor Notes?'),
+		description: __(
+			'Instructor Notes are private notes that only instructors can see. They can be used to provide additional context or guidance for the lesson.'
+		),
 	},
 	{
 		key: 'quiz',
-		title: 'How to add a Quiz?',
-		description:
-			'Click on the add icon in the editor and select Quiz from the menu. It opens up a dialog, where you can either select a quiz from the list or create a new quiz. When you select the Create New option it redirects you to the quiz creation page.',
+		title: __('How to add a Quiz?'),
+		description: __(
+			'Click on the add icon in the editor and select Quiz from the menu. It opens up a dialog, where you can either select a quiz from the list or create a new quiz. When you select the Create New option it redirects you to the quiz creation page.'
+		),
 		video: '/assets/lms/frontend/Quiz.mp4',
 	},
 	{
 		key: 'upload',
-		title: 'How to upload content from your system?',
-		description:
-			'To upload Image, Video, Audio or PDF from your system, click on the add icon and select upload from the menu. Then choose the file you want to add to the lesson and it gets added to your lesson.',
+		title: __('How to upload content from your system?'),
+		description: __(
+			'To upload Image, Video, Audio or PDF from your system, click on the add icon and select upload from the menu. Then choose the file you want to add to the lesson and it gets added to your lesson.'
+		),
 		video: '/assets/lms/frontend/Upload.mp4',
 	},
 	{
 		key: 'youtube',
-		title: 'How to add a YouTube Video?',
-		description:
-			'Copy the URL of the video from YouTube and paste it in the editor.',
+		title: __('How to add a YouTube Video?'),
+		description: __(
+			'Copy the URL of the video from YouTube and paste it in the editor.'
+		),
 		video: '/assets/lms/frontend/Youtube.mp4',
 	},
 	{
 		key: 'remove',
-		title: 'How to remove an embed?',
-		description:
-			'To remove an embed like YouTube or Vimeo, put your cursor on the line below the embed, then drag your mouse cursor upwards to select the embed. Once the embed is selected press BackSpace.',
+		title: __('How to remove an embed?'),
+		description: __(
+			'To remove an embed like YouTube or Vimeo, put your cursor on the line below the embed, then drag your mouse cursor upwards to select the embed. Once the embed is selected press BackSpace.'
+		),
 		video: '/assets/lms/frontend/Remove.mp4',
 	},
 ]

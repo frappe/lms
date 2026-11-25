@@ -58,7 +58,7 @@
 							>
 								{{
 									uploading
-										? `${__('Uploading')} ${progress}%`
+										? __('Uploading {0}%').format(progress)
 										: modelValue
 										? __('Replace')
 										: __('Upload')
@@ -124,7 +124,6 @@ const props = withDefaults(
 	}>(),
 	{
 		type: 'image',
-		required: true,
 		shape: 'square',
 		size: 'md',
 	}

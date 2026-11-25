@@ -15,7 +15,7 @@
 		<Tooltip
 			v-if="openTo"
 			:text="openTo === 'Work' ? __('Open to Work') : __('Hiring')"
-			side="right"
+			:side="inlineEndSide()"
 		>
 			<div class="absolute bottom-3 end-1 p-0.5 bg-surface-base rounded-full">
 				<div
@@ -43,6 +43,7 @@
 </template>
 <script setup lang="ts">
 import { Tooltip } from 'frappe-ui'
+import { inlineEndSide } from '@/utils/textDirection'
 import { safeUrl } from '@/utils/safeUrl'
 
 defineProps<{

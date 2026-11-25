@@ -37,7 +37,7 @@ const props = withDefaults(
 )
 
 const computedTitle = computed(
-	() => props.title || __('No {0} Found').format(props.name)
+	() => props.title || __('No {0} Found').format(__(props.name))
 )
 
 const computedDescription = computed(

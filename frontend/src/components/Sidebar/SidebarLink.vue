@@ -9,7 +9,7 @@
 		:data-notifications-trigger="link.panel === 'notifications' ? '' : null"
 		@click="target.onClick?.()"
 	>
-		<Tooltip :text="__(link.label)" side="right" :hoverDelay="1500">
+		<Tooltip :text="__(link.label)" :side="inlineEndSide()" :hoverDelay="1500">
 			<span class="truncate text-p-sm">
 				{{ __(link.label) }}
 			</span>
@@ -30,6 +30,7 @@
 </template>
 <script setup lang="ts">
 import { KeyboardShortcut, SidebarItem, Tooltip } from 'frappe-ui'
+import { inlineEndSide } from '@/utils/textDirection'
 import { computed, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import ContactUsEmail from '@/components/ContactUsEmail.vue'
@@ -72,6 +73,8 @@ const target = computed<Target>(() => {
 	const { action, panel, to, open_in_new_window } = props.link
 	if (action === 'commandPalette')
 		return { onClick: () => (settingsStore.isCommandPaletteOpen = true) }
+	// The panel Frappe's Flow launcher adds to the page
+	if (action === 'flow') return { onClick: () => window.flow?.toggle() }
 	if (panel === 'notifications') return { onClick: toggleNotifications }
 	if (!to) return {}
 	if (router.hasRoute(to)) return { route: { name: to } }

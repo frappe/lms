@@ -2,6 +2,7 @@
 	<CodeEditor v-model="code" :extensions="extensions">
 		<CodeEditorContent
 			data-testid="exercise-code-editor"
+			dir="ltr"
 			:class="['h-full', contentClass]"
 			:style="{ '--code-radius': '0', '--code-bg': 'var(--surface-base)' }"
 		/>

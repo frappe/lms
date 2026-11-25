@@ -20,6 +20,13 @@ from frappe.utils.telemetry.pulse.client import is_enabled as pulse_enabled
 
 DEMO_COURSE_TITLE = "A guide to Frappe Learning"
 DEMO_QUIZ_TITLE = "Do you know Frappe Learning?"
+DEMO_BATCH_TITLE = "Course Builders Cohort"
+DEMO_BATCH_KEY = "lms_demo_batch"
+
+
+def demo_batch() -> str | None:
+	"""The batch the demo created, kept by name: a real batch may have the same title."""
+	return frappe.db.get_default(DEMO_BATCH_KEY) or None
 
 
 def tracking() -> bool:
@@ -144,12 +151,15 @@ def assignment_created(doc, method=None):
 
 @tracked
 def batch_saved(doc, method=None):
+	if doc.title == DEMO_BATCH_TITLE:
+		return
+	own_batches = {"title": ["!=", DEMO_BATCH_TITLE]}
 	if doc.get_doc_before_save() is None:
-		send("batch_created", doc, {})
+		send("batch_created", doc, own_batches)
 	if turned_on(doc, "published"):
-		send("batch_published", doc, {"published": 1})
+		send("batch_published", doc, {**own_batches, "published": 1})
 	if turned_on(doc, "paid_batch"):
-		send("paid_batch_created", doc, {"paid_batch": 1})
+		send("paid_batch_created", doc, {**own_batches, "paid_batch": 1})
 
 
 @tracked
@@ -167,7 +177,10 @@ def enrolled_in_course(doc, method=None):
 
 @tracked
 def enrolled_in_batch(doc, method=None):
-	send("enrolled_in_batch", doc, {})
+	demo = frappe.db.get_value("LMS Batch", {"title": DEMO_BATCH_TITLE}, "name")
+	if doc.batch == demo:
+		return
+	send("enrolled_in_batch", doc, {"batch": ["!=", demo]} if demo else {})
 
 
 @tracked

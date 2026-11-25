@@ -12,7 +12,7 @@
 				class="-ms-3 shrink-0 rounded-4 p-1.5 text-ink-gray-9 transition-colors hover:bg-surface-gray-2"
 				@click="emit('back')"
 			>
-				<span class="lucide-chevron-left size-4 block" />
+				<span class="lucide-chevron-left size-4 block rtl:rotate-180" />
 			</button>
 			<h1 class="min-w-0 flex-1 truncate text-lg-medium text-ink-gray-9">
 				{{ title }}

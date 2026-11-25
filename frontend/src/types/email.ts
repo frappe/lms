@@ -11,6 +11,8 @@ export interface RenderField {
 
 export interface EmailService {
 	name: string
+	/** Shown in place of `name` when the name is a word, not a brand. */
+	label?: string
 	icon: string
 	/** One line, shown next to the name once the provider is picked. */
 	description: string

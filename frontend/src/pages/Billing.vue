@@ -7,7 +7,7 @@
 					<div class="h-fit bg-surface-gray-2 rounded-5 p-5 space-y-4">
 						<div class="space-y-1">
 							<div class="text-ink-gray-6 uppercase text-xs">
-								{{ __('Payment for ') }} {{ type }}:
+								{{ paymentForLabel }}
 							</div>
 							<div class="leading-5 text-ink-gray-9">
 								{{ orderSummary.data.title }}
@@ -226,7 +226,9 @@
 		<div v-else-if="access.data?.message">
 			<NotPermitted
 				:text="access.data.message"
-				:buttonLabel="type == 'course' ? 'Checkout Course' : 'Checkout Batch'"
+				:buttonLabel="
+					type == 'course' ? __('Checkout Course') : __('Checkout Batch')
+				"
 				:buttonLink="
 					type == 'course'
 						? getLmsRoute(`courses/${name}`)
@@ -289,6 +291,12 @@ const props = defineProps({
 		type: String,
 		required: true,
 	},
+})
+
+const paymentForLabel = computed(() => {
+	if (props.type == 'batch') return __('Payment for batch:')
+	if (props.type == 'certificate') return __('Payment for certificate:')
+	return __('Payment for course:')
 })
 
 const access = createResource({

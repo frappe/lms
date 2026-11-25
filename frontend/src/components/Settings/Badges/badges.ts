@@ -180,25 +180,27 @@ const form = recordForm({
 			fields: [
 				{
 					name: 'title',
-					label: 'Title',
-					description: 'The name this badge is awarded and displayed under.',
+					label: __('Title'),
+					description: __(
+						'The name this badge is awarded and displayed under.'
+					),
 					type: 'text',
 					fullWidth: true,
-					placeholder: 'e.g. Course Champion',
+					placeholder: __('e.g. Course Champion'),
 					reqd: true,
 				},
 				{
 					name: 'description',
-					label: 'Description',
+					label: __('Description'),
 					type: 'textarea',
 					rows: 3,
-					placeholder: 'What is this badge awarded for?',
+					placeholder: __('What is this badge awarded for?'),
 					reqd: true,
 				},
 				{
 					name: 'image',
-					label: 'Badge Image',
-					description: 'Shown wherever this badge is awarded.',
+					label: __('Badge Image'),
+					description: __('Shown wherever this badge is awarded.'),
 					type: 'upload',
 					icon: 'lucide-award',
 					// A badge is shown to every learner who earns one, so public is
@@ -209,18 +211,18 @@ const form = recordForm({
 			],
 		},
 		{
-			label: 'Assignment rules',
+			label: __('Assignment rules'),
 			fields: [
 				{
 					name: 'grant_only_once',
-					label: 'Grant Only Once',
-					description: 'Each user can only receive this badge one time.',
+					label: __('Grant Only Once'),
+					description: __('Each user can only receive this badge one time.'),
 					type: 'checkbox',
 				},
 				{
 					name: 'reference_doctype',
-					label: 'Assign For',
-					description: 'The record whose events award this badge.',
+					label: __('Assign For'),
+					description: __('The record whose events award this badge.'),
 					type: 'select',
 					get options() {
 						return referenceDoctypeOptions()
@@ -229,8 +231,8 @@ const form = recordForm({
 				},
 				{
 					name: 'user_field',
-					label: 'Assign To',
-					description: 'Which user on that record receives it.',
+					label: __('Assign To'),
+					description: __('Which user on that record receives it.'),
 					type: 'select',
 					get options() {
 						return userFieldOptions()
@@ -239,9 +241,10 @@ const form = recordForm({
 				},
 				{
 					name: 'event',
-					label: 'Event',
-					description:
-						'What awards it: a new record, a changed value, or a manual assignment.',
+					label: __('Event'),
+					description: __(
+						'What awards it: a new record, a changed value, or a manual assignment.'
+					),
 					type: 'select',
 					get options() {
 						return eventOptions()
@@ -250,7 +253,7 @@ const form = recordForm({
 				},
 				{
 					name: 'condition',
-					label: 'Condition',
+					label: __('Condition'),
 					get description() {
 						return conditionHint()
 					},

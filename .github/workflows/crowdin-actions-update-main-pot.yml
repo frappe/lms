@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - develop
-      - main-hotfix
       - version-16-hotfix
       - version-15-hotfix
     paths:

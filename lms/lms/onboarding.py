@@ -1,5 +1,7 @@
 import frappe
 from frappe import _
+from frappe.rate_limiter import rate_limit
+from frappe.utils import today
 
 ONBOARDING_ROLES = ("System Manager", "Moderator")
 
@@ -52,20 +54,84 @@ def get_setup_state() -> dict:
 	}
 
 
-def needs_password_setup() -> bool:
-	"""A Frappe Cloud site owner arrives signed in but with no password; on a framework that knows
-	the case, the setup flow asks for one first."""
-	try:
-		from frappe.core.doctype.user.user import needs_password_setup as framework_says
-	except ImportError:
+def needs_password_setup(user: str | None = None) -> bool:
+	"""A Frappe Cloud site owner arrives signed in but with no password, and the setup flow asks
+	for one first. Frappe's own check skips Frappe Cloud v2 and sites with email login links,
+	which is every trial site, so Learning asks wherever a password can be used to sign in."""
+	from frappe.utils.password import has_password
+
+	user = user or frappe.session.user
+	if user in ("Administrator", "Guest") or has_password(user):
 		return False
-	return bool(framework_says())
+	if frappe.get_system_settings("disable_user_pass_login"):
+		return False
+	if frappe.db.get_single_value("LDAP Settings", "enabled"):
+		return False
+	return not frappe.db.exists(
+		"User Social Login",
+		{"parenttype": "User", "parent": user, "provider": ["!=", "frappe"], "userid": ["is", "set"]},
+	)
+
+
+@frappe.whitelist(methods=["POST"])
+@rate_limit(limit=5, seconds=60)
+def set_first_password(new_password: str) -> None:
+	"""Frappe's set_first_password with Learning's check, so the framework's password step saves
+	on the sites Frappe's own check skips. hooks.py points the framework's method here."""
+	from frappe.core.doctype.user.user import handle_password_test_fail, test_password_strength
+	from frappe.utils.password import update_password
+
+	try:
+		from frappe.utils.password import MAX_PASSWORD_SIZE
+	except ImportError:
+		from frappe.auth import MAX_PASSWORD_SIZE
+
+	if frappe.request and frappe.get_request_header("Authorization"):
+		frappe.throw(_("Set your first password from a signed-in browser."), frappe.PermissionError)
+	if not new_password or not new_password.strip():
+		frappe.throw(_("Enter a password."), title=_("Invalid Password"))
+	if len(new_password) > MAX_PASSWORD_SIZE:
+		frappe.throw(_("{0} size exceeded the maximum allowed size.").format(_("New Password")))
+	if not needs_password_setup():
+		frappe.throw(_("You already have a password. Change it from your settings."), frappe.PermissionError)
+	user = frappe.get_doc("User", frappe.session.user)
+	feedback = test_password_strength(
+		new_password,
+		user_data=(user.first_name, user.middle_name, user.last_name, user.email, user.birth_date),
+	)
+	if feedback and not feedback.get("feedback", {}).get("password_policy_validation_passed", False):
+		handle_password_test_fail(feedback)
+	update_password(user.name, new_password, logout_all_sessions=False)
+	frappe.db.set_value("User", user.name, {"last_password_reset_date": today(), "reset_password_key": ""})
 
 
 def can_send_email() -> bool:
 	from frappe.email.doctype.email_account.email_account import EmailAccount
 
 	return bool(EmailAccount.find_default_outgoing())
+
+
+@frappe.whitelist(methods=["POST"])
+def save_brand(name: str, logo: str | None = None) -> None:
+	"""The name and logo from setup, kept where Brand settings keeps them. Setup is for a System
+	Manager, and a new site's owner is not a Website Manager, the only role that may write them."""
+	frappe.only_for("System Manager")
+	name = (name or "").strip()
+	if not name:
+		frappe.throw(_("Enter your organization's name."))
+	settings = frappe.get_single("Website Settings")
+	# The logo the site already shows was prefilled, and may be an asset path with no File.
+	current = {settings.banner_image, settings.app_logo} - {None, ""}
+	if logo and logo not in current and not frappe.db.exists("File", {"file_url": logo}):
+		frappe.throw(_("Upload the logo again."))
+	# The logo is the browser tab's icon too, unless the site chose a favicon of its own.
+	if not settings.favicon or settings.favicon == settings.app_logo:
+		settings.favicon = logo or None
+	settings.app_name = name
+	settings.banner_image = logo or None
+	settings.app_logo = logo or None
+	# nosemgrep: lms-unjustified-ignore-permissions - only_for("System Manager") above; Website Settings is Website Manager only
+	settings.save(ignore_permissions=True)
 
 
 @frappe.whitelist(methods=["POST"])

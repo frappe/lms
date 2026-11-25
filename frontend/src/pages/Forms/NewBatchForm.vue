@@ -91,7 +91,11 @@
 							doctype="User"
 							url="lms.lms.api.search_users_by_role"
 							:searchParams="{
-								roles: JSON.stringify(['Batch Evaluator', 'Course Creator']),
+								roles: JSON.stringify([
+									'Moderator',
+									'Course Creator',
+									'Batch Evaluator',
+								]),
 							}"
 							:label="__('Instructors')"
 							:placeholder="__('Select instructors')"
@@ -122,6 +126,7 @@
 								:id="batchDetailsId"
 								:ariaLabelledby="batchDetailsLabelId"
 								:content="batch.batch_details"
+								:uploadArgs="{ private: false }"
 								@change="(val: string) => (batch.batch_details = val)"
 								:editable="true"
 								:fixedMenu="true"

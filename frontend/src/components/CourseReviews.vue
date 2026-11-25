@@ -10,12 +10,12 @@
 					{{ avg_rating ? formatRating(avg_rating) : '0' }}
 				</span>
 				<span class="text-lg text-ink-gray-7">
-					{{ __('course rating') }} &amp;
-					{{ reviews.data?.length || 0 }}
 					{{
 						(reviews.data?.length || 0) === 1
-							? __('user rating')
-							: __('user ratings')
+							? __('course rating & 1 user rating')
+							: __('course rating & {0} user ratings').format(
+									reviews.data?.length || 0
+							  )
 					}}
 				</span>
 			</div>
@@ -204,11 +204,13 @@ function formatReviewDate(date: string) {
 	const d = dayjs(date)
 	const months = dayjs().diff(d, 'month')
 	if (months >= 1) {
-		return `${months} ${months === 1 ? __('month ago') : __('months ago')}`
+		return months === 1
+			? __('1 month ago')
+			: __('{0} months ago').format(months)
 	}
 	const days = dayjs().diff(d, 'day')
 	if (days >= 1) {
-		return `${days} ${days === 1 ? __('day ago') : __('days ago')}`
+		return days === 1 ? __('1 day ago') : __('{0} days ago').format(days)
 	}
 	return __('Today')
 }

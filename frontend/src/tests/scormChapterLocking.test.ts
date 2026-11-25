@@ -8,9 +8,6 @@ import { flushPromises, mount, type VueWrapper } from '@vue/test-utils'
 
 const replaceMock = vi.hoisted(() => vi.fn())
 const toastError = vi.hoisted(() => vi.fn())
-// URLs whose submit answers onError instead of onSuccess, so a resource can be made
-// to fail the way the network makes it fail. Empty for every other test.
-const failing = vi.hoisted(() => new Set<string>())
 const created = vi.hoisted(() => ({
 	list: [] as any[],
 }))
@@ -29,13 +26,6 @@ vi.mock('frappe-ui', async () => {
 				loading: false,
 				_config: config,
 				submit: vi.fn((_params: any, handlers: any) => {
-					if (failing.has(config?.url)) {
-						const error = new Error(`${config.url} refused`)
-						resource.error = error
-						config?.onError?.(error)
-						handlers?.onError?.(error)
-						return Promise.resolve()
-					}
 					config?.onSuccess?.(resource.data)
 					handlers?.onSuccess?.(resource.data)
 					return Promise.resolve()
@@ -49,6 +39,10 @@ vi.mock('frappe-ui', async () => {
 		call: vi.fn(() => Promise.resolve()),
 		toast: { error: toastError, success: vi.fn() },
 		usePageMeta: vi.fn(),
+		LoadingIndicator: {
+			name: 'LoadingIndicator',
+			template: '<span data-testid="loading" />',
+		},
 		Button: {
 			name: 'Button',
 			template: `<button><slot name="prefix" /><slot name="icon" /><slot /></button>`,
@@ -88,14 +82,16 @@ import SCORMChapter from '@/pages/SCORMChapter.vue'
 const PLAYBACK_URL =
 	'lms.lms.doctype.course_chapter.course_chapter.get_scorm_playback'
 const OUTLINE_URL = 'lms.lms.utils.get_course_outline'
-const PROGRESS_URL = 'frappe.client.get_value'
-const LAUNCH_FILE = '/private/scorm/COURSE-1/SCORM%20Chapter/index.html'
+const LAUNCH_FILE =
+	'/scorm-play/0123456789abcdef0123456789abcdef/COURSE-1/CH-SCORM/index.html'
 
 const findResource = (url: string) =>
 	created.list.find((resource) => resource._config.url === url)
 
 async function mountChapter() {
 	const wrapper = mount(SCORMChapter, {
+		// In the document, so the iframe has a window a package message can come from.
+		attachTo: document.body,
 		props: { courseName: 'COURSE-1', chapterName: 'CH-SCORM' },
 		global: {
 			mocks: { __: translateStub },
@@ -118,8 +114,7 @@ const playbackAnswer = (overrides: Record<string, unknown> = {}) => ({
 	...overrides,
 })
 
-// The server answering is what starts the page: it submits the progress lookup, and
-// only then does the iframe mount.
+// The server answering is what starts the page: the iframe mounts on its answer.
 async function answerPlayback(payload: Record<string, unknown>) {
 	const playback = findResource(PLAYBACK_URL)
 	playback.data = payload
@@ -144,11 +139,25 @@ const gatedOutline = [
 
 let wrapper: VueWrapper
 
+// What the SCORM API inlined into the sandboxed package posts to the player.
+const postFromPackage = (
+	data: Record<string, unknown>,
+	origin = 'null'
+) => {
+	const source = wrapper.find('iframe').element as HTMLIFrameElement
+	window.dispatchEvent(
+		new MessageEvent('message', {
+			data: { source: 'lms-scorm', ...data },
+			origin,
+			source: source.contentWindow,
+		})
+	)
+}
+
 beforeEach(() => {
 	created.list.length = 0
 	replaceMock.mockReset()
 	toastError.mockReset()
-	failing.clear()
 })
 
 afterEach(() => {
@@ -251,16 +260,6 @@ describe('SCORMChapter.vue plays what the server says it may play', () => {
 		}
 	})
 
-	it('holds the iframe back until the progress lookup answers', async () => {
-		// The SCORM API hands the package cmi.suspend_data out of that lookup, so a
-		// frame mounted before it lands would resume the student from nothing.
-		wrapper = await mountChapter()
-		findResource(PLAYBACK_URL).data = playbackAnswer()
-		await flushPromises()
-
-		expect(wrapper.find('iframe').exists()).toBe(false)
-	})
-
 	it('tells a chapter with no lesson apart from an account with no enrolment', async () => {
 		// delete_lesson drops the Lesson Reference and leaves the chapter, so the server
 		// refuses the package. Read as a missing enrolment it asks the course's own
@@ -277,40 +276,6 @@ describe('SCORMChapter.vue plays what the server says it may play', () => {
 		expect((wrapper.vm as any).isNotEntitled).toBe(false)
 	})
 
-	it('plays the package when the resume lookup fails, rather than nothing at all', async () => {
-		// readyToRender was set only in progress.onSuccess and progress had no onError, so
-		// a failed read on a chapter the server called playable matched no branch at all —
-		// hasNoPackage is false too — and the student got a blank page under the header.
-		wrapper = await mountChapter()
-		failing.add(PROGRESS_URL)
-		await answerPlayback(playbackAnswer())
-
-		expect(wrapper.find('iframe').attributes('src')).toBe(LAUNCH_FILE)
-		for (const notice of [
-			'This lesson is locked',
-			'This chapter has no lesson to play yet',
-			'You are not enrolled in this course',
-			'This lesson has no content to play yet',
-		]) {
-			expect(wrapper.text()).not.toContain(notice)
-		}
-	})
-
-	it('says the resume point was lost rather than restarting the lesson in silence', async () => {
-		// The server has already decided playability, so the frame goes up either way.
-		// What is lost is cmi.suspend_data, which restarts a package that may be long;
-		// silence reads as progress destroyed rather than progress not loaded.
-		wrapper = await mountChapter()
-		failing.add(PROGRESS_URL)
-		await answerPlayback(playbackAnswer())
-
-		expect(toastError).toHaveBeenCalledTimes(1)
-		expect(toastError.mock.calls[0][0]).toContain('saved progress')
-		expect(toastError.mock.calls[0][1].description).toContain(
-			'from the beginning'
-		)
-	})
-
 	it('saves progress against the lesson the server named', async () => {
 		// The other half of the move off the chapter doc: saveProgress read
 		// chapter.doc.lessons[0].lesson, a child table the permlevel read no longer
@@ -319,15 +284,47 @@ describe('SCORMChapter.vue plays what the server says it may play', () => {
 		call.mockClear()
 		wrapper = await mountChapter()
 		await answerPlayback(playbackAnswer())
-		// SCORMChapter's SCORM API console.logs every GET and SET it serves.
-		vi.spyOn(console, 'log').mockImplementation(() => {})
-		;(window as any).API.LMSSetValue('cmi.core.lesson_status', 'passed')
+		postFromPackage({ key: 'cmi.core.lesson_status', value: 'passed' })
 		await flushPromises()
 
 		expect(call).toHaveBeenCalledWith(
 			'lms.lms.doctype.course_lesson.course_lesson.save_progress',
 			expect.objectContaining({ lesson: 'L-SCORM', course: 'COURSE-1' })
 		)
+	})
+
+	it('plays the package in a sandbox without the site origin', async () => {
+		// The package is the course author's markup. With allow-same-origin it would
+		// run on the LMS origin with the viewer's session.
+		wrapper = await mountChapter()
+		await answerPlayback(playbackAnswer())
+
+		const frame = wrapper.find('iframe')
+		expect(frame.attributes('sandbox')).toContain('allow-scripts')
+		expect(frame.attributes('sandbox')).not.toContain('allow-same-origin')
+		expect(frame.attributes('sandbox')).not.toContain('allow-top-navigation')
+		expect(frame.attributes('referrerpolicy')).toBe('no-referrer')
+		expect((window as any).API).toBeUndefined()
+	})
+
+	it('ignores progress messages that do not come from the package', async () => {
+		const { call } = (await import('frappe-ui')) as any
+		call.mockClear()
+		wrapper = await mountChapter()
+		await answerPlayback(playbackAnswer())
+		const passed = {
+			source: 'lms-scorm',
+			key: 'cmi.core.lesson_status',
+			value: 'passed',
+		}
+
+		window.dispatchEvent(
+			new MessageEvent('message', { data: passed, origin: 'null', source: window })
+		)
+		postFromPackage(passed, 'http://evil.example')
+		await flushPromises()
+
+		expect(call).not.toHaveBeenCalled()
 	})
 
 	it('leaves for the course when the chapter does not resolve', async () => {

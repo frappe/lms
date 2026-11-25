@@ -74,12 +74,15 @@ web_include_js = []
 after_install = "lms.install.after_install"
 after_sync = "lms.install.after_sync"
 before_uninstall = "lms.install.before_uninstall"
+# On Frappe Cloud, the owner's first login finishes the desk wizard from the region saved at
+# sign-up, so they land in Learning's own setup page instead.
+setup_wizard_auto_complete = True
 # Runs after every setup, including one finished at login on Frappe Cloud, without forcing
 # the desk wizard the way setup_wizard_complete would.
 setup_wizard_success = "lms.demo.demo_data.create_demo_data"
 
 # Who may invite through the framework's User Invitation, and the roles they can give.
-_invitable_roles = ["Moderator", "Course Creator", "LMS Student"]
+_invitable_roles = ["Moderator", "Course Creator", "Batch Evaluator", "LMS Student"]
 user_invitation = {
 	"allowed_roles": {"System Manager": _invitable_roles, "Moderator": _invitable_roles},
 }
@@ -266,6 +269,9 @@ scheduler_events = {
 override_whitelisted_methods = {
 	# Finishes Google Calendar sign-in started from an evaluator's Slots tab.
 	"frappe.integrations.doctype.google_calendar.google_calendar.google_callback": "lms.lms.api.google_calendar_callback",
+	# The framework's setup password step saves through this, which also asks on Frappe Cloud v2
+	# and sites with email login links; drop it once the framework's own check does.
+	"frappe.core.doctype.user.user.set_first_password": "lms.lms.onboarding.set_first_password",
 }
 #
 # each overriding function accepts a `data` argument;

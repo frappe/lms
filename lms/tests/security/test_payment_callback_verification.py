@@ -11,6 +11,7 @@ from razorpay.errors import BadRequestError, ServerError
 
 from lms.lms.test_helpers import BaseTestUtils
 from lms.lms.utils import PAYMENT_RECHECKS, recheck_payment, update_payment_record
+from lms.tests.fixtures.gateway import record_gateway_request
 from lms.tests.fixtures.razorpay import mock_razorpay
 
 PRICE = 5000
@@ -305,3 +306,80 @@ class TestPaymentCallbackVerification(BaseTestUtils):
 		self._callback(expensive, payment_gateway="Stripe", stripe_token_id="tok_x")
 
 		self.assertEqual(self._paid(expensive), 0)
+
+	def _stripe_callback(self, payment):
+		self._callback(payment, payment_gateway="Stripe", razorpay_payment_id=None, stripe_token_id="tok_x")
+
+	def test_a_completed_charge_at_the_full_price_enrolls(self):
+		payment = self._payment()
+		record_gateway_request(payment)
+
+		self._stripe_callback(payment)
+
+		self.assertEqual(self._paid(payment), 1)
+		self.assertTrue(self._enrolled())
+
+	def test_a_charge_below_the_price_is_refused(self):
+		"""The checkout page posts the amount the gateway charges, so a buyer can
+		pay a fraction of the price."""
+		payment = self._payment()
+		record_gateway_request(payment, amount=1)
+
+		self._stripe_callback(payment)
+
+		self.assertEqual(self._paid(payment), 0)
+		self.assertFalse(self._enrolled())
+
+	def test_a_charge_a_fraction_of_a_cent_below_the_price_is_refused(self):
+		"""Rounded to cents it matches the price, but the gateway truncates it and
+		charges a cent less."""
+		payment = self._payment()
+		record_gateway_request(payment, amount=f"{PRICE - 0.001:.3f}")
+
+		self._stripe_callback(payment)
+
+		self.assertEqual(self._paid(payment), 0)
+
+	def test_a_total_with_gst_beyond_cents_enrolls(self):
+		"""GST leaves the total with more decimals than cents, and the checkout URL
+		carries it as the float's own text."""
+		total = 99.99 * 1.18
+		payment = self._payment(amount=total)
+		record_gateway_request(payment, amount=str(total))
+
+		self._stripe_callback(payment)
+
+		self.assertEqual(self._paid(payment), 1)
+
+	def test_a_charge_in_another_currency_is_refused(self):
+		payment = self._payment()
+		record_gateway_request(payment, currency="USD")
+
+		self._stripe_callback(payment)
+
+		self.assertEqual(self._paid(payment), 0)
+
+	def test_a_charge_the_gateway_did_not_complete_is_refused(self):
+		payment = self._payment()
+		record_gateway_request(payment, status="Failed")
+
+		self._stripe_callback(payment)
+
+		self.assertEqual(self._paid(payment), 0)
+
+	def test_a_charge_for_another_payment_is_refused(self):
+		cheap = self._payment(course=self.cheap_course, amount=10)
+		expensive = self._payment()
+		record_gateway_request(cheap)
+
+		self._stripe_callback(expensive)
+
+		self.assertEqual(self._paid(expensive), 0)
+
+	def test_a_callback_with_no_charge_behind_it_is_refused(self):
+		payment = self._payment()
+
+		self._stripe_callback(payment)
+
+		self.assertEqual(self._paid(payment), 0)
+		self.assertFalse(self._enrolled())

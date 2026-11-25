@@ -1,10 +1,10 @@
 <template>
 	<div
-		class="text-sm absolute bg-surface-elevation-2 border rounded-5 z-10 w-44"
+		class="text-sm absolute bg-surface-elevation-2 border rounded-5 z-10 w-44 rtl:-translate-x-full"
 		:style="{
 			display: top > 0 ? 'block' : 'none',
 			top: top + 'px',
-			insetInlineStart: left + 'px',
+			left: left + 'px',
 		}"
 	>
 		<div class="space-y-2 py-2">
@@ -62,6 +62,7 @@ import { computed, inject, ref, watch } from 'vue'
 import type { Note, Notes } from '@/types'
 import type { FrappeResourceError } from 'frappe-ui'
 import { blockQuotesClick, highlightText } from '@/utils'
+import { isRtl } from '@/utils/textDirection'
 
 const user = inject<any>('$user')
 const show = defineModel()
@@ -108,7 +109,11 @@ const updateMenuPosition = () => {
 	const offsetX = window.scrollX
 
 	top.value = Math.floor(rect.top + offsetY - 40)
-	left.value = Math.floor(rect.right + offsetX + 10)
+	// Viewport coordinates are physical; in RTL the menu ends 10px left of the
+	// selection, its own width taken off by rtl:-translate-x-full.
+	left.value = isRtl()
+		? Math.floor(rect.left + offsetX - 10)
+		: Math.floor(rect.right + offsetX + 10)
 }
 
 const resetMenuPosition = () => {

@@ -133,6 +133,7 @@
 			<TrialBanner
 				v-if="isV1CloudAdmin()"
 				:isSidebarCollapsed="sidebarStore.isSidebarCollapsed"
+				:afterUpgrade="() => capture('upgrade_plan_from_trial_banner')"
 			/>
 			<TrialCard v-if="!sidebarStore.isSidebarCollapsed" />
 			<GettingStartedBanner
@@ -165,28 +166,32 @@
 				:active="false"
 				:onClick="toggleHelp"
 			/>
-			<SidebarCollapseToggle
-				class="mt-1"
-				:aria-label="
-					sidebarStore.isSidebarCollapsed ? __('Expand') : __('Collapse')
-				"
-			/>
+			<SidebarCollapseButton class="mt-1" />
 		</div>
-		<HelpModal
-			class="getting-started"
-			data-testid="onboarding-help-modal"
-			v-if="showOnboarding && showHelpModal"
-			v-model="showHelpModal"
-			v-model:articles="articles"
-			appName="learning"
-			title="Frappe Learning"
-			:logo="LMSLogo"
-			:afterSkip="(step) => capture('onboarding_step_skipped_' + step)"
-			:afterSkipAll="() => capture('onboarding_steps_skipped')"
-			:afterReset="(step) => capture('onboarding_step_reset_' + step)"
-			:afterResetAll="() => capture('onboarding_steps_reset')"
-			docsLink="https://docs.frappe.io/learning"
-		/>
+		<!-- Fades in, so landing from setup does not end on a panel popping up. -->
+		<Transition
+			appear
+			enter-active-class="transition-opacity duration-500 ease-out motion-reduce:transition-none"
+			enter-from-class="opacity-0"
+			leave-active-class="transition-opacity duration-150 ease-in motion-reduce:transition-none"
+			leave-to-class="opacity-0"
+		>
+			<HelpModal
+				class="getting-started"
+				data-testid="onboarding-help-modal"
+				v-if="showOnboarding && showHelpModal"
+				v-model="showHelpModal"
+				v-model:articles="articles"
+				appName="learning"
+				title="Frappe Learning"
+				:logo="LMSLogo"
+				:afterSkip="(step) => capture('onboarding_step_skipped_' + step)"
+				:afterSkipAll="() => capture('onboarding_steps_skipped')"
+				:afterReset="(step) => capture('onboarding_step_reset_' + step)"
+				:afterResetAll="() => capture('onboarding_steps_reset')"
+				docsLink="https://docs.frappe.io/learning"
+			/>
+		</Transition>
 		<IntermediateStepModal
 			v-model="showIntermediateModal"
 			:currentStep="currentStep"
@@ -211,7 +216,6 @@ import {
 	ScrollArea,
 	Sidebar,
 	SidebarCard,
-	SidebarCollapseToggle,
 	SidebarItem,
 	SidebarSection,
 	Tooltip,
@@ -248,6 +252,7 @@ import UserDropdown from '@/components/Sidebar/UserDropdown.vue'
 import TrialCard from '@/components/Sidebar/TrialCard.vue'
 import { isV1CloudAdmin } from '@/composables/cloudSettings'
 import SidebarLink from '@/components/Sidebar/SidebarLink.vue'
+import SidebarCollapseButton from '@/components/Sidebar/SidebarCollapseButton.vue'
 import CommandPalette from '@/components/CommandPalette/CommandPalette.vue'
 import { pushSettingsHash } from '@/composables/useSettingsHash'
 import {

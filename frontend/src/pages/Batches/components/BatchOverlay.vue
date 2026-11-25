@@ -16,9 +16,9 @@
 						: 'w-fit mb-4'
 				"
 				:label="
-					batch.data.seats_left +
-					' ' +
-					(batch.data.seats_left > 1 ? __('Seats Left') : __('Seat Left'))
+					batch.data.seats_left > 1
+						? __('{0} seats left').format(batch.data.seats_left)
+						: __('1 seat left')
 				"
 			/>
 			<Badge
@@ -40,7 +40,7 @@
 				class="flex items-center mb-3 text-ink-gray-7"
 			>
 				<span class="lucide-book-open h-4 w-4 me-2" />
-				<span> {{ batch.data.courses.length }} {{ __('Courses') }} </span>
+				<span>{{ __('{0} courses').format(batch.data.courses.length) }}</span>
 			</div>
 			<div class="flex items-center mb-3 text-ink-gray-7">
 				<span class="lucide-calendar h-4 w-4 me-2" />
@@ -52,7 +52,7 @@
 			</div>
 			<div class="flex items-center mb-3 text-ink-gray-7">
 				<span class="lucide-clock h-4 w-4 me-2" />
-				<span dir="ltr">
+				<span dir="auto">
 					{{ formatTime(batch.data.start_time) }} -
 					{{ formatTime(batch.data.end_time) }}
 				</span>

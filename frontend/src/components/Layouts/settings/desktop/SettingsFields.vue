@@ -58,7 +58,7 @@
 								:required="field.reqd"
 								:aria-label="__(field.label)"
 								:aria-describedby="describedBy(field)"
-								:placeholder="field.placeholder || __(field.label)"
+								:placeholder="__(field.placeholder || field.label)"
 							/>
 						</div>
 						<InputDescription
@@ -82,7 +82,7 @@
 								:aria-labelledby="labelId(field)"
 								:aria-required="field.reqd"
 								:fixed-menu="true"
-								:placeholder="field.placeholder || __(field.label)"
+								:placeholder="__(field.placeholder || field.label)"
 								min-height="7rem"
 								max-height="13rem"
 								@change="(value) => onRichText(field, value)"
@@ -117,7 +117,7 @@
 							:placeholder="
 								hasStoredSecret(field)
 									? __('Saved, leave blank to keep it')
-									: field.placeholder || __(field.label)
+									: __(field.placeholder || field.label)
 							"
 							@update:model-value="(value) => setSecret(field, value)"
 						/>
@@ -153,7 +153,7 @@
 							class="mt-1 w-full"
 							:aria-label="__(field.label)"
 							:aria-describedby="describedBy(field)"
-							:placeholder="field.placeholder || __(field.label)"
+							:placeholder="__(field.placeholder || field.label)"
 						/>
 						<InputDescription
 							v-if="field.description"
@@ -280,7 +280,8 @@
 							<Select
 								v-else-if="field.type == 'select'"
 								:model-value="displayValue(field)"
-								:options="field.options"
+								:options="selectOptions(field)"
+								:placeholder="__('Select option')"
 								:disabled="field.disabled"
 								:aria-label="__(field.label)"
 								class="w-48"
@@ -308,7 +309,7 @@
 									:disabled="field.disabled"
 									class="w-full"
 									:aria-label="isPicker(field) ? undefined : __(field.label)"
-									:placeholder="field.placeholder || __(field.label)"
+									:placeholder="__(field.placeholder || field.label)"
 								/>
 							</div>
 						</div>
@@ -536,6 +537,14 @@ const displayValue = (field) =>
 	isBlank(props.data[field.name]) && field.displayFallback !== undefined
 		? field.displayFallback
 		: props.data[field.name]
+
+// Options are stored values; their labels are translated here.
+const selectOptions = (field) =>
+	field.options.map((option) =>
+		typeof option === 'string'
+			? { label: __(option), value: option }
+			: { ...option, label: __(option.label) }
+	)
 
 // The user picked it, so it is written like any other value — including when
 // what they picked is the fallback they were already being shown.

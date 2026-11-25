@@ -35,9 +35,17 @@
 				{{ batch.data?.published ? __('Unpublish') : __('Publish') }}
 			</Button>
 			<HeaderButton
-				v-if="tab?.key === 'dashboard' && isAdmin"
+				v-if="tab?.key === 'dashboard' && isAdmin && dashboardState === 'ready'"
+				:label="__('Export analytics')"
+				icon="lucide-download"
+				variant="subtle"
+				@click="exportAnalytics"
+			/>
+			<HeaderButton
+				v-if="tab?.key === 'dashboard' && isAdmin && dashboardState === 'ready'"
 				:label="__('Enroll')"
 				icon="lucide-plus"
+				variant="solid"
 				@click="openStudentForm"
 			/>
 			<HeaderButton
@@ -89,11 +97,25 @@
 			</div>
 		</template>
 	</TabbedDetailPage>
+	<ExportAnalyticsDialog
+		v-if="exportMounted"
+		v-model:open="showExport"
+		kind="batch"
+		:name="batchName"
+	/>
 
 	<router-view />
 </template>
 <script setup>
-import { computed, inject, markRaw, provide, useTemplateRef, watch } from 'vue'
+import {
+	computed,
+	inject,
+	markRaw,
+	provide,
+	ref,
+	useTemplateRef,
+	watch,
+} from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import {
 	Badge,
@@ -114,11 +136,13 @@ import Announcements from '@/pages/Batches/components/Announcements.vue'
 import BatchForm from '@/pages/Batches/BatchForm.vue'
 import Discussions from '@/components/Discussions.vue'
 import HeaderButton from '@/components/HeaderButton.vue'
+import ExportAnalyticsDialog from '@/components/Dashboard/ExportAnalyticsDialog.vue'
 import ShortcutTooltip from '@/components/ShortcutTooltip.vue'
 import SkeletonLoader from '@/components/SkeletonLoader.vue'
 import TabbedDetailPage from '@/components/Layouts/pages/TabbedDetailPage.vue'
 import NotFound from '@/pages/NotFound.vue'
 import { openBatchForm } from '@/composables/useBatchForms'
+import { provideDashboardState } from '@/composables/dashboard/useDashboard'
 import { canReadDiscussions } from '@/utils/doctypePermissions'
 
 const router = useRouter()
@@ -131,6 +155,8 @@ const { isMobile } = useScreenSize()
 const user = inject('$user')
 const page = useTemplateRef('page')
 const readOnlyMode = window.read_only_mode
+
+const dashboardState = provideDashboardState()
 
 const props = defineProps({
 	batchName: {
@@ -239,6 +265,15 @@ const openAnnouncementModal = () => {
 
 const openStudentForm = () => {
 	openBatchForm(router, 'NewBatchStudent', props.batchName, route.hash)
+}
+
+const showExport = ref(false)
+// Mounted on first use: most visits to the dashboard never export.
+const exportMounted = ref(false)
+
+const exportAnalytics = () => {
+	exportMounted.value = true
+	showExport.value = true
 }
 
 const publishToggle = createResource({

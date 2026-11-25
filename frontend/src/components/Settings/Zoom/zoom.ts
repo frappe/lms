@@ -94,23 +94,30 @@ const form = recordForm({
 			fields: [
 				{
 					name: 'account_name',
-					label: 'Account Name',
+					label: __('Account Name'),
 					type: 'text',
 					reqd: true,
 				},
-				{ name: 'account_id', label: 'Account ID', type: 'text', reqd: true },
-				{ name: 'client_id', label: 'Client ID', type: 'text', reqd: true },
+				{
+					name: 'account_id',
+					label: __('Account ID'),
+					type: 'text',
+					reqd: true,
+				},
+				{ name: 'client_id', label: __('Client ID'), type: 'text', reqd: true },
 				{
 					name: 'client_secret',
-					label: 'Client Secret',
+					label: __('Client Secret'),
 					type: 'password',
 					placeholder: '************',
 					reqd: true,
 				},
 				{
 					name: 'member',
-					label: 'Member',
-					description: 'The evaluator whose meetings these credentials host',
+					label: __('Member'),
+					description: __(
+						'The evaluator whose meetings these credentials host'
+					),
 					type: 'link',
 					doctype: 'Course Evaluator',
 					reqd: true,

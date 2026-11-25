@@ -9,7 +9,7 @@
 		:loading="quizzes.list.loading"
 		:has-next-page="quizzes.hasNextPage"
 		v-model:search="search"
-		empty-name="Quizzes"
+		:empty-name="__('Quizzes')"
 		empty-icon="lucide-circle-help"
 		:empty-title="emptyState?.title"
 		:empty-description="emptyState?.description"

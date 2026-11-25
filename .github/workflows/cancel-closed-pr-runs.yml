@@ -10,9 +10,12 @@ permissions:
 jobs:
   cancel:
     name: Cancel runs of the closed pull request
-    runs-on: ubuntu-latest
+    runs-on: frappe-arc
     timeout-minutes: 5
     steps:
+      - name: Install gh
+        # frappe-arc runners have no gh CLI.
+        run: sudo apt-get update -qq && sudo apt-get install -y -qq --no-install-recommends gh
       # No checkout: this job runs with write access, so it never touches PR code.
       # By branch, not by the last commit: an earlier commit's run is still
       # queued when a later commit skipped that workflow.

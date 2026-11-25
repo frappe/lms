@@ -115,8 +115,8 @@ describe('the programming-exercise submissions page', () => {
 		const badges = wrapper.findAll('[data-theme]')
 		expect(badges).toHaveLength(2)
 		expect(badges.map((b) => [b.attributes('data-theme'), b.text()])).toEqual([
-			['green', 'Passed'],
-			['red', 'Failed'],
+			['green', 't:Passed'],
+			['red', 't:Failed'],
 		])
 
 		expect(wrapper.text()).toContain('an hour ago')

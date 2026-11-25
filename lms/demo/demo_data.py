@@ -3,12 +3,14 @@ import json
 import frappe
 
 from lms.lms.doctype.lms_course.lms_course import update_course_statistics
+from lms.lms.telemetry import DEMO_BATCH_KEY, DEMO_BATCH_TITLE, demo_batch
 from lms.lms.utils import create_user, get_course_progress
 
 
 def create_demo_data(setup_args: dict | None = None):
 	# Sample content, not the site's own: kept out of product telemetry.
 	frappe.flags.in_lms_demo = True
+	user = frappe.session.user
 	frappe.db.savepoint("lms_demo_data")
 	try:
 		_create_demo_data()
@@ -19,6 +21,8 @@ def create_demo_data(setup_args: dict | None = None):
 		frappe.log_error(title="Demo course could not be created")
 	finally:
 		frappe.flags.in_lms_demo = False
+		# The rest of the request, often the owner's login, must not go on as a sample learner.
+		frappe.session.user = user
 
 
 def _create_demo_data():
@@ -53,6 +57,7 @@ def _create_demo_data():
 	create_progress(course, student, 3)
 	create_progress(course, student1, 2)
 	create_progress(course, student2, 4)
+	create_batch(course, [student, student1, student2])
 	frappe.db.set_single_value("LMS Settings", "demo_data_present", 1)
 
 
@@ -99,6 +104,46 @@ def create_course():
  """
 	course.save()
 	return course
+
+
+def create_batch(course, students):
+	existing = demo_batch()
+	if existing and frappe.db.exists("LMS Batch", existing):
+		return frappe.get_doc("LMS Batch", existing)
+
+	start = frappe.utils.add_days(frappe.utils.getdate(), 7)
+	batch = frappe.new_doc("LMS Batch")
+	batch.update(
+		{
+			"title": DEMO_BATCH_TITLE,
+			"description": "Learners take the demo course together, with a live class every week.",
+			"batch_details": "<p>A sample batch: learners go through the demo course together, on a schedule, with live classes and evaluations.</p>",
+			"start_date": start,
+			"end_date": frappe.utils.add_days(start, 30),
+			"start_time": "10:00:00",
+			"end_time": "11:00:00",
+			"timezone": frappe.utils.get_system_timezone(),
+			"seat_count": 20,
+			"published": 1,
+			# Sample content: publishing it must not email every user on the site.
+			"notification_sent": 1,
+			"instructors": [{"instructor": course.instructors[0].instructor}],
+			"courses": [{"course": course.name}],
+		}
+	)
+	batch.insert()
+	frappe.db.set_default(DEMO_BATCH_KEY, batch.name)
+	for student in students:
+		frappe.get_doc(
+			{
+				"doctype": "LMS Batch Enrollment",
+				"member": student.name,
+				"batch": batch.name,
+				# Sample learners: no confirmation mail from the site's email account.
+				"confirmation_email_sent": 1,
+			}
+		).insert()
+	return batch
 
 
 def create_instructor():
@@ -320,13 +365,19 @@ def create_quiz_questions(question, option_1, is_correct_1, option_2, is_correct
 
 
 def create_reviews(course, student):
+	# Setup can run again on a site that kept its sample course, and a learner reviews it once.
+	if frappe.db.exists("LMS Course Review", {"course": course.name, "owner": student.name}):
+		return
+	user = frappe.session.user
 	frappe.session.user = student.name
-	review = frappe.new_doc("LMS Course Review")
-	review.course = course.name
-	review.rating = 0.8
-	review.review = "This is a great course to get started with Frappe Learning. The content is well-structured and easy to follow."
-	review.save()
-	frappe.session.user = "Administrator"
+	try:
+		review = frappe.new_doc("LMS Course Review")
+		review.course = course.name
+		review.rating = 0.8
+		review.review = "This is a great course to get started with Frappe Learning. The content is well-structured and easy to follow."
+		review.save()
+	finally:
+		frappe.session.user = user
 	update_course_statistics()
 
 

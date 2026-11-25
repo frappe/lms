@@ -28,7 +28,7 @@ export const gatewayList = {
 }
 
 export const emptyState = {
-	name: 'Payment Gateways',
+	name: __('Payment Gateways'),
 	icon: 'lucide-dollar-sign',
 }
 
