@@ -17,6 +17,12 @@
 	-
 	<a href="https://docs.frappe.io/learning">Documentation</a>
 </div>
+<br />
+<div align="center">
+	<a href="https://github.com/frappe/lms/actions?query=branch%3Adevelop+event%3Aworkflow_dispatch"><img src="https://img.shields.io/endpoint?url=https%3A%2F%2Fraw.githubusercontent.com%2Ffrappe%2Flms%2Fbranch-test-badges%2Fdevelop.json" alt="develop branch tests" /></a>
+	<a href="https://github.com/frappe/lms/actions?query=branch%3Aversion-16-hotfix+event%3Aworkflow_dispatch"><img src="https://img.shields.io/endpoint?url=https%3A%2F%2Fraw.githubusercontent.com%2Ffrappe%2Flms%2Fbranch-test-badges%2Fversion-16-hotfix.json" alt="version-16-hotfix branch tests" /></a>
+	<a href="https://github.com/frappe/lms/actions?query=branch%3Aversion-16+event%3Aworkflow_dispatch"><img src="https://img.shields.io/endpoint?url=https%3A%2F%2Fraw.githubusercontent.com%2Ffrappe%2Flms%2Fbranch-test-badges%2Fversion-16.json" alt="version-16 branch tests" /></a>
+</div>
 
 ## Frappe Learning
 Frappe Learning is an easy-to-use learning system that helps you bring structure to your content.
