@@ -21,6 +21,12 @@ from frappe.utils.telemetry.pulse.client import is_enabled as pulse_enabled
 DEMO_COURSE_TITLE = "A guide to Frappe Learning"
 DEMO_QUIZ_TITLE = "Do you know Frappe Learning?"
 DEMO_BATCH_TITLE = "Course Builders Cohort"
+DEMO_BATCH_KEY = "lms_demo_batch"
+
+
+def demo_batch() -> str | None:
+	"""The batch the demo created, kept by name: a real batch may have the same title."""
+	return frappe.db.get_default(DEMO_BATCH_KEY) or None
 
 
 def tracking() -> bool:

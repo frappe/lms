@@ -69,7 +69,7 @@ from lms.lms.doctype.lms_certificate_evaluation.lms_certificate_evaluation impor
 from lms.lms.html_sanitizer import sanitize_rich_text
 from lms.lms.permissions import is_site_administrator
 from lms.lms.sidebar import LEGACY_VISIBILITY_FIELDS, ROW_FIELDS, get_sidebar_rows
-from lms.lms.telemetry import DEMO_BATCH_TITLE
+from lms.lms.telemetry import demo_batch
 from lms.lms.utils import (
 	LMS_ROLES,
 	_latest_exercise_submissions,
@@ -600,7 +600,8 @@ def get_branding():
 	for field in fields:
 		value = frappe.get_cached_value("Website Settings", None, field)
 		if field in image_fields and value:
-			file_info = get_file_info(value)
+			# A logo kept as an asset path has no File row; send its URL so it is not lost.
+			file_info = get_file_info(value) or {"file_name": value.rsplit("/", 1)[-1], "file_url": value}
 			settings.update({field: json.loads(json.dumps(file_info))})
 		else:
 			settings.update({field: value})
@@ -4575,8 +4576,9 @@ def clear_demo_data():
 	if frappe.db.exists("LMS Quiz", {"title": quiz_title}):
 		frappe.db.delete("LMS Quiz", {"title": quiz_title})
 
-	for demo_batch in frappe.get_all("LMS Batch", {"title": DEMO_BATCH_TITLE}, pluck="name"):
-		delete_batch(demo_batch)
+	batch = demo_batch()
+	if batch and frappe.db.exists("LMS Batch", batch):
+		delete_batch(batch)
 
 	demo_course = frappe.get_all("LMS Course", {"title": "A guide to Frappe Learning"}, pluck="name")
 

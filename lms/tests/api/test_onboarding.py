@@ -162,6 +162,19 @@ class TestOnboarding(BaseTestUtils):
 		frappe.set_user("Administrator")
 		self.assertEqual(frappe.db.get_single_value("Website Settings", "app_logo"), asset)
 
+	def test_branding_sends_a_logo_that_has_no_file(self):
+		"""Setup prefills the logo from get_branding, so a logo with no File row must come back
+		too, or saving the step would clear it."""
+		from lms.lms.api import get_branding
+
+		asset = "/assets/lms/images/brand-test-logo.png"
+		frappe.db.set_single_value("Website Settings", {"banner_image": asset, "app_logo": asset})
+
+		branding = get_branding()
+
+		self.assertEqual(branding.banner_image["file_url"], asset)
+		self.assertEqual(branding.app_logo["file_url"], asset)
+
 
 class TestFirstPassword(BaseTestUtils):
 	"""A Frappe Cloud trial owner arrives signed in without a password, on a v2 site with email

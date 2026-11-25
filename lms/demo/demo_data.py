@@ -3,7 +3,7 @@ import json
 import frappe
 
 from lms.lms.doctype.lms_course.lms_course import update_course_statistics
-from lms.lms.telemetry import DEMO_BATCH_TITLE
+from lms.lms.telemetry import DEMO_BATCH_KEY, DEMO_BATCH_TITLE, demo_batch
 from lms.lms.utils import create_user, get_course_progress
 
 
@@ -107,9 +107,9 @@ def create_course():
 
 
 def create_batch(course, students):
-	filters = {"title": DEMO_BATCH_TITLE}
-	if frappe.db.exists("LMS Batch", filters):
-		return frappe.get_doc("LMS Batch", filters)
+	existing = demo_batch()
+	if existing and frappe.db.exists("LMS Batch", existing):
+		return frappe.get_doc("LMS Batch", existing)
 
 	start = frappe.utils.add_days(frappe.utils.getdate(), 7)
 	batch = frappe.new_doc("LMS Batch")
@@ -132,9 +132,16 @@ def create_batch(course, students):
 		}
 	)
 	batch.insert()
+	frappe.db.set_default(DEMO_BATCH_KEY, batch.name)
 	for student in students:
 		frappe.get_doc(
-			{"doctype": "LMS Batch Enrollment", "member": student.name, "batch": batch.name}
+			{
+				"doctype": "LMS Batch Enrollment",
+				"member": student.name,
+				"batch": batch.name,
+				# Sample learners: no confirmation mail from the site's email account.
+				"confirmation_email_sent": 1,
+			}
 		).insert()
 	return batch
 
