@@ -414,11 +414,12 @@ def get_public_instructors(doctype: str, docname: str) -> list:
 
 
 def hide_user_emails(rows: list, *fields: str) -> list:
-	"""A User's name is their login email. Drop each of `fields` that names another
-	user, whatever the caller's roles; the caller keeps their own."""
+	"""Drop each of `fields` that names another user by ID or email, whatever the
+	caller's roles; the caller keeps their own."""
+	own = {frappe.session.user, frappe.utils.get_email_address()}
 	for row in rows:
 		for field in fields:
-			if row.get(field) != frappe.session.user:
+			if row.get(field) not in own:
 				row.pop(field, None)
 	return rows
 
