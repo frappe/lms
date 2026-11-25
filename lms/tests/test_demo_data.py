@@ -6,8 +6,8 @@ from unittest.mock import patch
 import frappe
 
 from lms.demo.demo_data import DEMO_BATCH_TITLE, create_demo_data
-from lms.lms.telemetry import demo_batch
 from lms.lms.api import clear_demo_data
+from lms.lms.telemetry import demo_batch
 from lms.lms.test_helpers import BaseTestUtils
 
 DEMO_INSTRUCTOR = "jannat@example.com"
@@ -58,7 +58,9 @@ class TestDemoData(BaseTestUtils):
 		"""The demo's learners are sample addresses: the site's email account must not mail them."""
 		create_demo_data()
 
-		sent = frappe.get_all("LMS Batch Enrollment", {"batch": demo_batch()}, pluck="confirmation_email_sent")
+		sent = frappe.get_all(
+			"LMS Batch Enrollment", {"batch": demo_batch()}, pluck="confirmation_email_sent"
+		)
 		self.assertEqual(sent, [1, 1, 1])
 
 	def test_clear_demo_data_removes_the_demo_batch(self):
@@ -70,7 +72,9 @@ class TestDemoData(BaseTestUtils):
 
 	def test_clear_demo_data_keeps_a_real_batch_with_the_demo_title(self):
 		"""A real batch may share the demo batch's title, say a copy of it; only the demo goes."""
-		instructor = self._create_user("cohort.lead@example.com", "Cohort", "Lead", ["Moderator"], "System User")
+		instructor = self._create_user(
+			"cohort.lead@example.com", "Cohort", "Lead", ["Moderator"], "System User"
+		)
 		course = self._create_course(title="Real Cohort Course", instructor=instructor.name)
 		real = frappe.get_doc(
 			{
