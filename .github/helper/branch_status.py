@@ -322,7 +322,8 @@ def alert(run_id):
 		webhook,
 		data=json.dumps({"content": message}).encode(),
 		method="POST",
-		headers={"Content-Type": "application/json"},
+		# frappe.io's proxy refuses urllib's default User-Agent with a 403.
+		headers={"Content-Type": "application/json", "User-Agent": "frappe-lms-branch-tests"},
 	)
 	with urllib.request.urlopen(request, timeout=30):
 		print(f"Raven told: {suite} failed on {branch}")
