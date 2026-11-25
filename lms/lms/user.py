@@ -114,6 +114,8 @@ def set_country_from_ip(login_manager: object = None, user: str = None):
 
 
 def on_login(login_manager):
+	# Frappe v15/v16's email-link login keeps the email as typed (frappe/frappe#46538).
+	login_manager.user = frappe.db.get_value("User", login_manager.user, "name") or login_manager.user
 	default_app = frappe.db.get_single_value("System Settings", "default_app")
 	if default_app == "lms":
 		frappe.local.response["home_page"] = get_lms_route()
