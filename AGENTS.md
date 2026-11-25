@@ -75,7 +75,8 @@ yarn test-local       # Playwright with its UI
   They run every hour on `develop`, `version-16-hotfix` and `version-16`, started by Branch Tests
   (`branch-status.yml`), which lives on `develop` alone because GitHub runs scheduled
   workflows only from the default branch. The pull request shows the result as Develop
-  status or Version-16-hotfix status. Label a pull request
+  status or Version-16-hotfix status, and the README's badges show each branch, read from the
+  `branch-test-badges` branch that Branch Tests writes. Label a pull request
   `Run Server Tests`, `Run UI Tests` or `Run Frontend Tests` to run a suite on it. A pull request that fixes a
   failing branch is labelled `fixes-develop`: it runs the full suites, and its status
   turns green once the failing ones pass on it.

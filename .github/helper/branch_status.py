@@ -14,10 +14,12 @@ Usage:
     python branch_status.py commit <sha>  # the pull requests whose head is this commit
     python branch_status.py alert <run>   # tell Raven when this full run failed, and which pull requests may have caused it
     python branch_status.py alerts        # wait for the full runs, then tell Raven of each suite whose latest run failed
+    python branch_status.py badges        # write each tested branch's README badge to the badges branch
 
 The alert posts to the Raven incoming webhook in RAVEN_WEBHOOK_URL, or prints the message when it is unset.
 """
 
+import base64
 import json
 import os
 import re
@@ -385,6 +387,85 @@ def mark_told(run, job_url):
 	gh(f"repos/{REPO}/statuses/{run['head_sha']}", method="POST", body=fields)
 
 
+# The branch the README badges read from: one Shields endpoint file per tested branch. Not
+# "badges", which names a Learning feature.
+BADGES_BRANCH = "branch-test-badges"
+# Short names for the badge, which has room for a few words.
+SUITE_NAMES = {"ci.yml": "Server", "ui-tests.yml": "UI", "frontend-tests.yml": "Vitest"}
+
+
+def badge(branch):
+	"""The branch's badge, in Shields' endpoint format: passing, which suites fail, or no runs yet."""
+	failing = failing_suites(branch)
+	if failing:
+		message, color = ", ".join(SUITE_NAMES[w] for w in failing) + " failing", "red"
+	elif not any(latest_finished(workflow, branch) for workflow in SUITES):
+		message, color = "no runs yet", "lightgrey"
+	else:
+		message, color = "passing", "brightgreen"
+	return {"schemaVersion": 1, "label": branch, "message": message, "color": color}
+
+
+def badges_branch_exists():
+	try:
+		gh(f"repos/{REPO}/git/ref/heads/{BADGES_BRANCH}", attempts=1)
+		return True
+	except urllib.error.HTTPError as e:
+		if e.code == 404:
+			return False
+		raise
+
+
+def create_badges_branch(files):
+	"""Start the branch with these files, in a commit with no parent, so it shares no history with
+	the code. GitHub cannot make an empty tree, so the first badges go in this first commit."""
+	tree = gh(
+		f"repos/{REPO}/git/trees",
+		method="POST",
+		body={
+			"tree": [{"path": p, "mode": "100644", "type": "blob", "content": c} for p, c in files.items()]
+		},
+	)
+	commit = gh(
+		f"repos/{REPO}/git/commits",
+		method="POST",
+		body={"message": "ci: start the branch test badges", "tree": tree["sha"], "parents": []},
+	)
+	gh(
+		f"repos/{REPO}/git/refs",
+		method="POST",
+		body={"ref": f"refs/heads/{BADGES_BRANCH}", "sha": commit["sha"]},
+	)
+
+
+def write_badges():
+	"""Write each tested branch's badge to the branch-test-badges branch, committing only what changed."""
+	files = {f"{branch}.json": json.dumps(badge(branch), indent=2) + "\n" for branch in BRANCHES}
+	if not badges_branch_exists():
+		create_badges_branch(files)
+		print(f"started {BADGES_BRANCH}")
+		return
+	for path, content in files.items():
+		try:
+			current = gh(f"repos/{REPO}/contents/{path}", params={"ref": BADGES_BRANCH}, attempts=1)
+		except urllib.error.HTTPError as e:
+			if e.code != 404:
+				raise
+			current = None
+		if current and base64.b64decode(current["content"]).decode() == content:
+			continue
+		message = json.loads(content)["message"]
+		body = {
+			"message": f"ci: {path.removesuffix('.json')} {message}",
+			"content": base64.b64encode(content.encode()).decode(),
+			"branch": BADGES_BRANCH,
+		}
+		if current:
+			body["sha"] = current["sha"]
+		gh(f"repos/{REPO}/contents/{path}", method="PUT", body=body)
+		print(f"{path}: {message}")
+
+
 def refresh():
 	for branch, bases in BRANCHES.items():
 		print(f"{branch}: failing {list(failing_suites(branch)) or 'nothing'}")
@@ -405,6 +486,8 @@ if __name__ == "__main__":
 		alert(sys.argv[2])
 	elif command == "alerts":
 		alert_failures()
+	elif command == "badges":
+		write_badges()
 	elif command == "commit":
 		query = f"repo:{REPO} is:pr is:open sha:{sys.argv[2]}"
 		for item in search(query):
