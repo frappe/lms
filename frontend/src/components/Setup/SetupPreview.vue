@@ -56,7 +56,8 @@
 					:key="view + usage + Boolean(landing)"
 					class="flex min-h-0 flex-1 flex-col"
 					:class="[
-						!handingOver && 'two-columns',
+						ACTIVE_TAB_ON_ITSELF,
+						!handingOver && 'app-columns',
 						staffUpdated && 'staff-updated',
 					]"
 				>
@@ -124,7 +125,6 @@
 								:options="courseTabs"
 								:model-value="'live'"
 								class="!w-fit shrink-0"
-								:class="ACTIVE_TAB_ON_ITSELF"
 							/>
 							<FormControl
 								:placeholder="__('Search')"
@@ -172,7 +172,6 @@
 								:options="batchTabs"
 								:model-value="'active'"
 								class="!w-fit shrink-0"
-								:class="ACTIVE_TAB_ON_ITSELF"
 							/>
 							<FormControl
 								:placeholder="__('Search')"
@@ -428,9 +427,15 @@ onBeforeUnmount(() => clearTimeout(staffTimer))
 
 <style scoped>
 /* The list's columns follow the browser width, which is the whole screen here, not the
-   preview. Two columns give the cards the size they have in the app. */
-.two-columns :deep(.grid.gap-5) {
-	grid-template-columns: repeat(2, minmax(0, 1fr));
+   preview. Cards take the width the app gives them on this screen: the screen less the
+   224px sidebar and the list's padding and gaps, over the app's three or four columns. */
+.app-columns :deep(.grid.gap-5) {
+	grid-template-columns: repeat(auto-fill, calc((100vw - 304px) / 3));
+}
+@media (min-width: 1536px) {
+	.app-columns :deep(.grid.gap-5) {
+		grid-template-columns: repeat(auto-fill, calc((100vw - 324px) / 4));
+	}
 }
 
 /* The app's menus open in one quick fade. The preview's Import menu opens slower, growing
