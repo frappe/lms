@@ -149,7 +149,11 @@
 							doctype="User"
 							url="lms.lms.api.search_users_by_role"
 							:searchParams="{
-								roles: JSON.stringify(['Batch Evaluator', 'Course Creator']),
+								roles: JSON.stringify([
+									'Moderator',
+									'Course Creator',
+									'Batch Evaluator',
+								]),
 							}"
 							:label="__('Instructors')"
 							:placeholder="__('Select instructors')"

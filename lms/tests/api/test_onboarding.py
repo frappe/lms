@@ -8,6 +8,7 @@ from lms.lms.onboarding import (
 	get_first_course,
 	get_setup_state,
 	needs_password_setup,
+	save_brand,
 	save_setup,
 	set_first_password,
 )
@@ -101,6 +102,78 @@ class TestOnboarding(BaseTestUtils):
 		frappe.set_user(manager.name)
 		self.assertRaises(frappe.ValidationError, save_setup, "<script>alert(1)</script>")
 		self.assertIsNone(frappe.db.get_default(FIRST_GOAL))
+
+	def test_a_system_manager_names_the_site_without_being_a_website_manager(self):
+		frappe.db.set_single_value("Website Settings", {"favicon": None, "app_logo": None})
+		owner = self._create_user(
+			"brand.owner@example.com", "Brand", "Owner", roles=["System Manager", "Moderator"]
+		)
+		logo = frappe.get_doc(
+			{"doctype": "File", "file_name": "acme-brand.png", "content": b"logo", "is_private": 0}
+		).insert()
+		self.addCleanup(frappe.delete_doc, "File", logo.name, force=True)
+		frappe.set_user(owner.name)
+		save_brand("  Acme Academy ", logo.file_url)
+		frappe.set_user("Administrator")
+
+		settings = frappe.get_single("Website Settings")
+		self.assertEqual(settings.app_name, "Acme Academy")
+		self.assertEqual(settings.app_logo, logo.file_url)
+		self.assertEqual(settings.banner_image, logo.file_url)
+		self.assertEqual(settings.favicon, logo.file_url)
+
+	def test_the_logo_becomes_the_tab_icon_only_when_the_site_has_none_of_its_own(self):
+		owner = self._create_user("brand.owner3@example.com", "Brand", "Owner", roles=["System Manager"])
+		files = [
+			frappe.get_doc(
+				{"doctype": "File", "file_name": f"brand-{n}.png", "content": b"logo", "is_private": 0}
+			).insert()
+			for n in ("own-icon", "logo")
+		]
+		for file in files:
+			self.addCleanup(frappe.delete_doc, "File", file.name, force=True)
+		frappe.db.set_single_value("Website Settings", "favicon", files[0].file_url)
+
+		frappe.set_user(owner.name)
+		save_brand("Acme Academy", files[1].file_url)
+		frappe.set_user("Administrator")
+		self.assertEqual(frappe.db.get_single_value("Website Settings", "favicon"), files[0].file_url)
+
+	def test_naming_the_site_is_only_for_system_managers(self):
+		moderator = self._create_user(
+			"brand.moderator@example.com", "Brand", "Moderator", roles=["Moderator"]
+		)
+		frappe.set_user(moderator.name)
+		self.assertRaises(frappe.PermissionError, save_brand, "Acme Academy")
+
+	def test_only_an_uploaded_logo_is_kept(self):
+		owner = self._create_user("brand.owner2@example.com", "Brand", "Owner", roles=["System Manager"])
+		frappe.set_user(owner.name)
+		self.assertRaises(
+			frappe.ValidationError, save_brand, "Acme Academy", "https://elsewhere.example.com/logo.png"
+		)
+
+	def test_the_logo_the_site_already_shows_is_kept_without_a_file(self):
+		asset = "/assets/lms/images/brand-test-logo.png"
+		frappe.db.set_single_value("Website Settings", {"banner_image": asset, "app_logo": asset})
+		owner = self._create_user("brand.owner4@example.com", "Brand", "Owner", roles=["System Manager"])
+		frappe.set_user(owner.name)
+		save_brand("Acme Academy", asset)
+		frappe.set_user("Administrator")
+		self.assertEqual(frappe.db.get_single_value("Website Settings", "app_logo"), asset)
+
+	def test_branding_sends_a_logo_that_has_no_file(self):
+		"""Setup prefills the logo from get_branding, so a logo with no File row must come back
+		too, or saving the step would clear it."""
+		from lms.lms.api import get_branding
+
+		asset = "/assets/lms/images/brand-test-logo.png"
+		frappe.db.set_single_value("Website Settings", {"banner_image": asset, "app_logo": asset})
+
+		branding = get_branding()
+
+		self.assertEqual(branding.banner_image["file_url"], asset)
+		self.assertEqual(branding.app_logo["file_url"], asset)
 
 
 class TestFirstPassword(BaseTestUtils):

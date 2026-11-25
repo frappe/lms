@@ -112,6 +112,29 @@ def can_send_email() -> bool:
 
 
 @frappe.whitelist(methods=["POST"])
+def save_brand(name: str, logo: str | None = None) -> None:
+	"""The name and logo from setup, kept where Brand settings keeps them. Setup is for a System
+	Manager, and a new site's owner is not a Website Manager, the only role that may write them."""
+	frappe.only_for("System Manager")
+	name = (name or "").strip()
+	if not name:
+		frappe.throw(_("Enter your organization's name."))
+	settings = frappe.get_single("Website Settings")
+	# The logo the site already shows was prefilled, and may be an asset path with no File.
+	current = {settings.banner_image, settings.app_logo} - {None, ""}
+	if logo and logo not in current and not frappe.db.exists("File", {"file_url": logo}):
+		frappe.throw(_("Upload the logo again."))
+	# The logo is the browser tab's icon too, unless the site chose a favicon of its own.
+	if not settings.favicon or settings.favicon == settings.app_logo:
+		settings.favicon = logo or None
+	settings.app_name = name
+	settings.banner_image = logo or None
+	settings.app_logo = logo or None
+	# nosemgrep: lms-unjustified-ignore-permissions - only_for("System Manager") above; Website Settings is Website Manager only
+	settings.save(ignore_permissions=True)
+
+
+@frappe.whitelist(methods=["POST"])
 def save_setup(first_goal: str | None = None) -> None:
 	"""Mark setup as answered, and keep the goal for the checklist."""
 	frappe.only_for("System Manager")

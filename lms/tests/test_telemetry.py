@@ -22,6 +22,7 @@ class TestTelemetry(BaseTestUtils):
 			"Learner",
 			["LMS Student"],
 		)
+		cls._create_evaluator(cls.instructor.name)
 
 	def setUp(self):
 		super().setUp()
@@ -89,6 +90,46 @@ class TestTelemetry(BaseTestUtils):
 		self._create_enrollment(self.learner.name, course.name)
 
 		self.assertEqual(self._events(), [])
+
+	def test_the_demo_batch_and_its_learners_are_not_sent(self):
+		course = self._course(title=telemetry.DEMO_COURSE_TITLE, published=1)
+		batch = self._create_batch(
+			course.name,
+			instructor=self.instructor.name,
+			title=telemetry.DEMO_BATCH_TITLE,
+			evaluator=self.instructor.name,
+		)
+		self._create_batch_enrollment(self.learner.name, batch.name)
+
+		self.assertEqual(self._events(), [])
+
+	def test_the_demo_batch_does_not_make_the_first_real_batch_a_second(self):
+		# A site whose only batch is the demo one; the test's rollback brings the rest back.
+		frappe.db.delete("LMS Batch Enrollment")
+		frappe.db.delete("LMS Batch")
+		course = self._course(published=1)
+		demo = self._create_batch(
+			course.name,
+			instructor=self.instructor.name,
+			title=telemetry.DEMO_BATCH_TITLE,
+			evaluator=self.instructor.name,
+		)
+		self._create_batch_enrollment(self.learner.name, demo.name)
+		frappe.db.delete(
+			"DefaultValue",
+			{"defkey": ["in", [f"lms_telemetry_sent:{e}" for e in ("batch_created", "enrolled_in_batch")]]},
+		)
+
+		batch = self._create_batch(
+			course.name,
+			instructor=self.instructor.name,
+			title=f"Telemetry Batch {frappe.generate_hash(length=8)}",
+			evaluator=self.instructor.name,
+		)
+		self._create_batch_enrollment(self.learner.name, batch.name)
+
+		self.assertEqual(self._first("batch_created"), [True])
+		self.assertEqual(self._first("enrolled_in_batch"), [True])
 
 	def test_nothing_is_sent_while_the_demo_is_created(self):
 		frappe.flags.in_lms_demo = True
