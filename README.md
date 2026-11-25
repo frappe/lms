@@ -71,6 +71,16 @@ In 2021, we were looking for a Learning Management System to launch Mon.School f
 
 - [**Frappe UI**](https://github.com/frappe/frappe-ui): A Vue-based UI library, to provide a modern user interface.
 
+### Compatibility
+
+| Learning branch | Stability | Frappe branch |
+| :-------------- | :-------- | :------------ |
+| version-15      | stable    | version-15    |
+| version-16      | stable    | version-16    |
+| develop         | unstable  | develop       |
+
+`main` stopped at v2.69 and gets no more updates. Move to `version-15` or `version-16`, the one that matches your Frappe version.
+
 ## Production Setup
 
 ### Managed Hosting
