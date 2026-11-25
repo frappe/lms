@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
   "label": "develop",
-  "message": "passing",
-  "color": "brightgreen"
+  "message": "UI failing",
+  "color": "red"
 }
