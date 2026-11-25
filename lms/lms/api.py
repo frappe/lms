@@ -589,6 +589,7 @@ def get_file_info(file_url):
 	return file_info
 
 
+# nosemgrep: frappe-semgrep-rules.rules.security.guest-whitelisted-method - returns the site name and logos every public page already shows
 @frappe.whitelist(allow_guest=True)
 def get_branding():
 	"""Get branding details."""
