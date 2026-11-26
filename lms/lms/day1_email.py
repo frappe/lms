@@ -59,7 +59,7 @@ class Day1Email:
 		if not step:
 			return
 		frappe.sendmail(
-			recipients=self.admin.name,
+			recipients=self.admin.email,
 			subject=step["subject"],
 			template="lms_day1_next_step",
 			args={"first_name": self.admin.first_name or _("there"), **step},
@@ -138,7 +138,7 @@ def first_admin():
 			["enabled", "=", 1],
 			["user_type", "=", "System User"],
 		],
-		fields=["name", "first_name", "creation", "last_active"],
+		fields=["name", "email", "first_name", "creation", "last_active"],
 		order_by="`tabUser`.`creation` asc",
 		limit=1,
 	)

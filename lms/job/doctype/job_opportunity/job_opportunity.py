@@ -41,7 +41,7 @@ def update_job_openings():
 # inboxes with report emails for the cost of one API call each.
 @rate_limit(key="job", limit=5, seconds=60 * 60)
 def report(job: str, reason: str):
-	system_managers = get_system_managers(only_name=True)
+	system_managers = get_system_managers(only_email=True)
 	user = frappe.db.get_value("User", frappe.session.user, "full_name")
 	subject = _("User {0} has reported the job post {1}").format(user, job)
 	args = {

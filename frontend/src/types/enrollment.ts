@@ -78,11 +78,13 @@ export interface StudentOption {
 	value: string
 	label: string
 	description: string
+	email?: string
 	image: string | null
 }
 
 export interface StudentRow {
 	member: string
+	email?: string
 	name: string
 	image: string | null
 	payment: string

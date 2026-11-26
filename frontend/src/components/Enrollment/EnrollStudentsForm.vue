@@ -356,6 +356,7 @@ const tableRows = (students: StudentOption[]): StudentRow[] => {
 			const linking = choice?.mode === 'link'
 			return {
 				member,
+				email: student.email,
 				name: row?.full_name || student.label,
 				image: row?.user_image ?? student.image,
 				payment: listPaymentLabel(choice, payment) || NONE,

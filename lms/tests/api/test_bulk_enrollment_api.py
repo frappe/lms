@@ -1198,6 +1198,7 @@ class TestSearchUsersToEnroll(BulkEnrollmentQueryCase):
 				"value": self.students[1],
 				"label": "Bulk QStudent1",
 				"description": self.students[1],
+				"email": self.students[1],
 				"image": None,
 			},
 		)

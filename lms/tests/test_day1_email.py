@@ -19,6 +19,7 @@ def admin_row(hours_old=24, quiet_hours=None, email="day1-admin@example.com"):
 	last_active = None if quiet_hours is None else now_datetime() - timedelta(hours=quiet_hours)
 	return frappe._dict(
 		name=email,
+		email=email,
 		first_name="Asha",
 		creation=now_datetime() - timedelta(hours=hours_old),
 		last_active=last_active,
