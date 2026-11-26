@@ -4137,6 +4137,12 @@ def validate_batch_access(batch: str):
 	if has_evaluator_role():
 		return
 
+	from lms.lms.permissions import can_author_batch
+
+	# The batch's own instructors and tagged evaluators reply too, not only its students.
+	if can_author_batch(batch):
+		return
+
 	enrollment_exists = frappe.db.exists(
 		"LMS Batch Enrollment", {"member": frappe.session.user, "batch": batch}
 	)
