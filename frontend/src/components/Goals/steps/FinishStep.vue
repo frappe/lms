@@ -201,7 +201,7 @@
 							/>
 						</li>
 					</ul>
-					<div class="flex flex-col gap-2">
+					<div v-if="!TYPING_ONLY" class="flex flex-col gap-2">
 						<span class="text-p-sm text-ink-gray-6">{{
 							__('About the voices')
 						}}</span>
@@ -338,6 +338,7 @@ import {
 	Rating,
 } from 'frappe-ui'
 import CharacterAvatar from '@/components/Goals/CharacterAvatar.vue'
+import { TYPING_ONLY } from '@/composables/useVoice'
 import { TUTOR_NAME } from '@/utils/characters'
 import dayjs from '@/utils/dayjs'
 
@@ -383,7 +384,7 @@ const FUTURE = [
 	'No, I like traditional courses',
 ]
 const COMPARED = ['Worse', 'About the same', 'Better', 'Much better']
-const PARTS = [
+const ALL_PARTS = [
 	{
 		key: 'teaching',
 		label: __("Lumi's teaching"),
@@ -400,6 +401,7 @@ const PARTS = [
 		hint: __('Lumi and the role-play speaking out loud'),
 	},
 ] as const
+const PARTS = ALL_PARTS.filter((part) => !TYPING_ONLY || part.key !== 'voices')
 const VOICE_NOTES = [
 	'Sounded natural',
 	'Too slow',

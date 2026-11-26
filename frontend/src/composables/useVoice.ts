@@ -24,6 +24,11 @@ type Recognition = {
 
 export type VoiceMode = 'type' | 'speak'
 
+// TEMP: typing only while colleagues test the typed conversation. Speaking, the
+// Speak/Type choice and the voice questions all come back when this is false. Tests keep
+// voice on so its behaviour stays covered.
+export const TYPING_ONLY = import.meta.env.MODE !== 'test'
+
 // Words that leave a thought open: a turn ending on one of them is someone pausing to think.
 const OPEN_ENDINGS =
 	/\b(and|but|or|so|because|like|um|uh|er|the|a|an|to|of|for|with|that|which|when|if|is|was|my|i|we|then|also)$/i
@@ -41,6 +46,7 @@ const MODE_KEY = 'lms.goals.voice-mode'
 
 /** How this learner likes to talk to Lumi and the cast, remembered in their own browser only. */
 export const preferredMode = (): VoiceMode | null => {
+	if (TYPING_ONLY) return 'type'
 	try {
 		const value = window.localStorage.getItem(MODE_KEY)
 		return value === 'speak' || value === 'type' ? value : null
@@ -105,9 +111,9 @@ export function useVoice() {
 			.SpeechRecognition ||
 		(window as unknown as { webkitSpeechRecognition?: new () => Recognition })
 			.webkitSpeechRecognition
-	const canListen = Boolean(
-		RecognitionClass || navigator.mediaDevices?.getUserMedia,
-	)
+	const canListen =
+		!TYPING_ONLY &&
+		Boolean(RecognitionClass || navigator.mediaDevices?.getUserMedia)
 	const canSpeak = 'speechSynthesis' in window
 
 	const listening = ref(false)

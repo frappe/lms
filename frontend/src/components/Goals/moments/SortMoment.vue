@@ -22,7 +22,7 @@
 							type="button"
 							role="radio"
 							:disabled="!!result"
-							class="rounded-4 border px-2 py-1 text-p-xs transition-colors"
+							class="rounded-4 border px-2 py-1 text-p-xs transition-colors disabled:cursor-default"
 							:class="chipClass(i, b)"
 							:aria-checked="placed[i] === b"
 							@click="place(i, b)"
@@ -111,11 +111,10 @@ const chipClass = (i: number, b: number) => {
 		return mine
 			? 'border-outline-gray-5 bg-surface-gray-7 text-ink-gray-1'
 			: 'border-outline-gray-2 bg-surface-base text-ink-gray-7 hover:bg-surface-gray-1'
-	const right = items[i].bucket === b
-	if (mine && right)
-		return 'border-outline-green-2 bg-surface-base text-ink-green-3'
-	if (mine) return 'border-outline-amber-2 bg-surface-base text-ink-amber-3'
-	if (right) return 'border-dashed border-outline-green-2 text-ink-gray-7'
-	return 'border-outline-gray-1 text-ink-gray-6 opacity-60'
+	// After the check their pick keeps its solid look and the row's colour says right or wrong.
+	if (mine) return 'border-outline-gray-5 bg-surface-gray-7 text-ink-gray-1'
+	if (items[i].bucket === b)
+		return 'border-dashed border-outline-gray-5 bg-surface-base text-ink-gray-8'
+	return 'border-outline-gray-2 bg-surface-base text-ink-gray-6'
 }
 </script>

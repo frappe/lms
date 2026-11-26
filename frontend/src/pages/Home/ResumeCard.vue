@@ -1,7 +1,7 @@
 <template>
 	<section
 		:aria-label="label || __('Pick up where you left off')"
-		class="relative flex flex-wrap items-center gap-5 rounded-6 bg-surface-gray-1 px-5 py-4 transition-colors hover:bg-surface-gray-2"
+		class="relative flex flex-wrap items-center gap-5 rounded-6 bg-surface-gray-1 px-5 py-4 transition-colors hover:bg-surface-gray-2 sm:-mx-5"
 	>
 		<div class="flex min-w-0 flex-[1_1_320px] flex-col gap-2">
 			<div class="text-p-xs text-ink-gray-6">

@@ -19,9 +19,7 @@
 			</template>
 		</VoiceStage>
 		<div v-else ref="scroller" class="flex-1 overflow-y-auto">
-			<div
-				class="mx-auto flex w-full max-w-[820px] flex-col gap-1 px-4 py-5 sm:px-6"
-			>
+			<div class="flex w-full flex-col gap-1 px-4 py-5 sm:px-6">
 				<slot name="before" />
 				<div v-if="loading && !messages.length" class="space-y-3">
 					<div class="h-4 w-2/3 animate-pulse rounded-4 bg-surface-gray-2" />
@@ -81,11 +79,18 @@
 									>{{ dayjs.unix(message.ts).format('LT') }}</time
 								>
 							</div>
+							<!-- A long reply arrives as short messages, one per paragraph, like a chat. -->
 							<div
 								v-if="message.text && message.role === 'assistant'"
-								class="prose prose-sm max-w-none text-p-base text-ink-gray-8 prose-p:my-1 prose-ul:my-1"
-								v-safe-html:rich="render(message.text)"
-							/>
+								class="flex flex-col gap-3"
+							>
+								<div
+									v-for="(part, p) in paragraphs(message.text)"
+									:key="p"
+									class="prose prose-sm max-w-none text-p-base text-ink-gray-8 prose-p:my-1 prose-ul:my-1"
+									v-safe-html:rich="render(part)"
+								/>
+							</div>
 							<p
 								v-else-if="message.text"
 								class="mt-0.5 whitespace-pre-wrap text-p-base text-ink-gray-8"
@@ -155,10 +160,14 @@
 						<div class="text-p-sm font-semibold text-ink-gray-9">
 							{{ assistantName }}
 						</div>
-						<div
-							class="prose prose-sm max-w-none text-p-base text-ink-gray-8 prose-p:my-1"
-							v-safe-html:rich="render(partial)"
-						/>
+						<div class="flex flex-col gap-3">
+							<div
+								v-for="(part, p) in paragraphs(partial)"
+								:key="p"
+								class="prose prose-sm max-w-none text-p-base text-ink-gray-8 prose-p:my-1"
+								v-safe-html:rich="render(part)"
+							/>
+						</div>
 					</div>
 				</div>
 				<ErrorMessage v-if="error" :message="error" />
@@ -166,10 +175,7 @@
 			</div>
 		</div>
 		<CitationPreview :container="scroller" />
-		<div
-			v-if="!readOnly"
-			class="mx-auto w-full max-w-[820px] px-4 pb-4 sm:px-6 sm:pb-5"
-		>
+		<div v-if="!readOnly" class="w-full px-4 pb-4 sm:px-6 sm:pb-5">
 			<div
 				v-if="running && !partial && mode !== 'speak'"
 				class="flex items-center gap-2 px-1 pb-2 text-p-xs text-ink-gray-6"
@@ -409,6 +415,12 @@ const emit = defineEmits<{
 }>()
 
 const markdown = new MarkdownIt({ linkify: true, breaks: true })
+// Blank lines split a reply into separate chat messages; a list stays whole with its lead-in.
+const paragraphs = (text: string): string[] =>
+	(text || '')
+		.split(/\n{2,}(?![ \t]*(?:[-*+]|\d+\.)\s)/)
+		.map((part) => part.trim())
+		.filter(Boolean)
 // A citation like [Policy · p.3] becomes a link that opens the document at that page.
 const sourceLink = inject<((source: string) => string | null) | null>(
 	'goalSourceLink',
