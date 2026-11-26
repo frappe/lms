@@ -888,7 +888,7 @@ def google_callback_uri() -> str:
 
 	return (
 		f"{get_request_site_address(full_address=True)}"
-		f"?cmd={google_callback.__module__}.{google_callback.__qualname__}"
+		f"/api/method/{google_callback.__module__}.{google_callback.__qualname__}"
 	)
 
 
