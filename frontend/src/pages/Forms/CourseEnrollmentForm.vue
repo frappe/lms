@@ -3,6 +3,8 @@
 		:target="target"
 		:refusal="refusal"
 		:loading="loadingCourse"
+		:failed="!course.data && Boolean(course.error)"
+		@retry="course.reload().catch(() => {})"
 		@close="close"
 		@enrolled="onEnrolled"
 	/>

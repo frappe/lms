@@ -2,12 +2,20 @@
 	<FormShell
 		:title="__('New Announcement')"
 		size="xl"
-		:loading="loadingBatch"
+		:loading="loadingBatch || failedBatch"
 		:message="refusal"
 		@close="close"
 	>
+		<template #loading>
+			<FormLoadState
+				kind="announcement"
+				:failed="failedBatch && !loadingBatch"
+				class="min-h-[27.75rem]"
+				@retry="batch.reload().catch(() => {})"
+			/>
+		</template>
 		<template #default>
-			<div data-testid="announcement-fields">
+			<div data-testid="announcement-fields" class="min-h-[27.75rem]">
 				<FormLayout v-model:doc="doc" :layout="layout" />
 			</div>
 		</template>
@@ -28,6 +36,7 @@ import { FormLayout, CommitKey, NO_COMMIT } from '@framework/ui/FormLayout'
 import { computed, inject, provide, ref } from 'vue'
 import { useRoute } from 'vue-router'
 import FormShell from '@/components/FormShell.vue'
+import FormLoadState from '@/components/FormLoadState.vue'
 import HeaderButton from '@/components/HeaderButton.vue'
 import RichTextEditorField from '@/components/FormLayout/RichTextEditorField.vue'
 import {
@@ -71,6 +80,7 @@ const { close } = useFormRoute(
 const batch = useBatchDetails(() => props.batchName)
 
 const loadingBatch = computed(() => !batch.data && batch.loading)
+const failedBatch = computed(() => !batch.data && Boolean(batch.error))
 
 const isAdmin = computed(() =>
 	Boolean(

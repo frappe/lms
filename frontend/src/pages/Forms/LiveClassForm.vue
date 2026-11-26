@@ -3,12 +3,23 @@
 		:title="__('New Live Class')"
 		size="xl"
 		position="top"
-		:loading="loadingBatch"
+		:loading="loadingBatch || failedBatch"
 		:message="refusal"
 		@close="close"
 	>
+		<template #loading>
+			<FormLoadState
+				kind="live-class"
+				:failed="failedBatch && !loadingBatch"
+				class="min-h-[22rem]"
+				@retry="batch.reload().catch(() => {})"
+			/>
+		</template>
 		<template #default>
-			<div data-testid="live-class-fields" class="flex flex-col gap-4">
+			<div
+				data-testid="live-class-fields"
+				class="min-h-[22rem] flex flex-col gap-4"
+			>
 				<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
 					<div class="space-y-4">
 						<FormControl
@@ -113,6 +124,7 @@ import { getTimezones, getUserTimezone, openSettings } from '@/utils/'
 import { canManageGoogleIntegrations } from '@/components/Settings/GoogleApi/googleApi'
 import { canManageGoogleMeet } from '@/components/Settings/GoogleMeet/googleMeet'
 import FormShell from '@/components/FormShell.vue'
+import FormLoadState from '@/components/FormLoadState.vue'
 import HeaderButton from '@/components/HeaderButton.vue'
 import {
 	batchRouteLocation,
@@ -149,6 +161,7 @@ const { close } = useFormRoute(
 const batch = useBatchDetails(() => props.batchName)
 
 const loadingBatch = computed(() => !batch.data && batch.loading)
+const failedBatch = computed(() => !batch.data && Boolean(batch.error))
 
 const conferencingProvider = computed(
 	() => batch.data?.conferencing_provider || null

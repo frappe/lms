@@ -3,6 +3,8 @@
 		:target="target"
 		:refusal="refusal"
 		:loading="loadingBatch"
+		:failed="!batch.data && Boolean(batch.error)"
+		@retry="batch.reload().catch(() => {})"
 		@close="close"
 		@enrolled="onEnrolled"
 	/>
