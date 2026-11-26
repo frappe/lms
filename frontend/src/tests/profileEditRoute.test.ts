@@ -60,7 +60,16 @@ const { stub } = vi.hoisted(() => ({
 }))
 vi.mock('@/components/Controls/Link.vue', stub)
 vi.mock('@/components/Controls/Uploader.vue', stub)
-vi.mock('@/components/RichTextEditor.vue', stub)
+// Named so a test can stand in for the editor and send what it sends: the
+// content arrives through `change`, not v-model.
+vi.mock('@/components/RichTextEditor.vue', () => ({
+	default: {
+		name: 'RichTextEditor',
+		props: ['content'],
+		emits: ['change'],
+		render: () => null,
+	},
+}))
 vi.mock('@/components/Layouts/pages/PageHeader.vue', stub)
 // Rendered rather than nulled: the form's Save carries its data-testid on this
 // component, so a null stub takes the button out of the DOM entirely.
@@ -115,11 +124,15 @@ const mountForm = (router: Router, username: string) =>
 		},
 	})
 
+// The form's own set_value resource: `makeParams` is what a save would post.
 const saveResource = () => {
 	const index = createResourceMock.mock.calls.findIndex(
 		([options]) => options.url === 'frappe.client.set_value',
 	)
-	return createResourceMock.mock.results[index].value
+	return {
+		makeParams: createResourceMock.mock.calls[index][0].makeParams,
+		submit: createResourceMock.mock.results[index].value.submit,
+	}
 }
 
 // The route components are lazy imports, so a navigation started by a close
@@ -326,5 +339,43 @@ describe('the profile edit route', () => {
 		expect(toast.error).toHaveBeenCalledWith(
 			'Please fill the mandatory fields: First Name',
 		)
+	})
+
+	// The editor sends an emptied document as `<p></p>`, never '', so typing
+	// into an empty Bio and deleting it again left "Not Saved" on.
+	it('stays pristine when the Bio is typed into and emptied again', async () => {
+		const router = makeRouter()
+		await router.push(`/user/${USERNAME}/edit`)
+		const wrapper = mountForm(router, USERNAME)
+		await flushPromises()
+
+		const bio = wrapper.findComponent({ name: 'RichTextEditor' })
+		bio.vm.$emit('change', '<p>a</p>')
+		await flushPromises()
+		expect(wrapper.text()).toContain('Not Saved')
+
+		bio.vm.$emit('change', '<p></p>')
+		await flushPromises()
+		expect(wrapper.text()).not.toContain('Not Saved')
+	})
+
+	// Saved as markup, an emptied Bio counts as filled in: the About tab shows a
+	// blank block instead of "No introduction".
+	it('saves an emptied Bio as empty, not as editor markup', async () => {
+		profileResource.data!.bio = '<p>Old bio</p>'
+		const router = makeRouter()
+		await router.push(`/user/${USERNAME}/edit`)
+		const wrapper = mountForm(router, USERNAME)
+		await flushPromises()
+
+		wrapper
+			.findComponent({ name: 'RichTextEditor' })
+			.vm.$emit('change', '<p></p>')
+		await flushPromises()
+		await wrapper.get('[data-testid="profile-save"]').trigger('click')
+
+		const { makeParams, submit } = saveResource()
+		expect(submit).toHaveBeenCalledOnce()
+		expect(makeParams().fieldname.bio).toBe('')
 	})
 })

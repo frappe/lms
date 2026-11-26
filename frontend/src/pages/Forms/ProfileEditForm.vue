@@ -54,7 +54,7 @@
 						<RichTextEditor
 							:ariaLabelledby="bioLabelId"
 							:fixedMenu="true"
-							@change="(val) => (profile.bio = val)"
+							@change="setBio"
 							:content="profile.bio"
 							minHeight="280px"
 						/>
@@ -143,6 +143,11 @@ const profile = reactive({
 
 // Every key above is a User fieldname except `image`, which edits `user_image`.
 const serverField = (key) => (key === 'image' ? 'user_image' : key)
+
+const EMPTY_EDITOR_HTML = '<p></p>'
+const setBio = (html) => {
+	profile.bio = html === EMPTY_EDITOR_HTML ? '' : html
+}
 
 const hasLanguageChanged = computed(
 	() => profile.language !== (profileData.value?.language ?? '')
