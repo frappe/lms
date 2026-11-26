@@ -779,7 +779,7 @@ class TestEvaluatorCalendarSettings(BaseTestUtils):
 		# The real URI is built from the request, which tests don't have.
 		uri = patch(
 			"lms.lms.api.google_callback_uri",
-			return_value="https://lms.test/?cmd=frappe.integrations.doctype.google_calendar.google_calendar.google_callback",
+			return_value="https://lms.test/api/method/frappe.integrations.doctype.google_calendar.google_calendar.google_callback",
 		)
 		uri.start()
 		self.addCleanup(uri.stop)
