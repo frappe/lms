@@ -2967,6 +2967,9 @@ def check_can_manage_member(member: str):
 @frappe.whitelist(methods=["POST"])
 def save_role(user: str, role: str, value: int):
 	frappe.only_for("Moderator")
+	if not isinstance(user, str) or user in ("Administrator", "Guest") or not frappe.db.exists("User", user):
+		frappe.throw(_("Member {0} does not exist.").format(user), frappe.DoesNotExistError)
+	check_can_manage_member(user)
 	if role not in LMS_ROLES:
 		frappe.throw(_("You do not have permission to modify this role."), frappe.PermissionError)
 
