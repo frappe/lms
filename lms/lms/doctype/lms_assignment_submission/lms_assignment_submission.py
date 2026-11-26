@@ -26,6 +26,7 @@ class LMSAssignmentSubmission(Document):
 		self.validate_duplicates()
 		self.validate_url()
 		self.validate_audio_attachment()
+		self.keep_graded_attachment()
 		validate_attachable_file(self, "assignment_attachment")
 		self.validate_status()
 
@@ -115,7 +116,42 @@ class LMSAssignmentSubmission(Document):
 
 	def on_update(self):
 		self.validate_private_attachments()
+		self.remove_replaced_attachment()
 		self.complete_lessons_on_pass()
+
+	def keep_graded_attachment(self):
+		"""A learner can't replace the file of a graded submission, so what was graded is never deleted."""
+		if self.is_new() or PRIVILEGED_ROLES & set(frappe.get_roles()):
+			return
+		before = self.get_doc_before_save()
+		if before and before.status in ("Pass", "Fail") and self.has_value_changed("assignment_attachment"):
+			frappe.throw(_("This submission has been graded, so its file can't be replaced."))
+
+	def remove_replaced_attachment(self):
+		"""Delete the File a new upload replaces.
+
+		Only a File attached to this submission's assignment_attachment is deleted,
+		so a file used elsewhere (an image in the answer, another document) stays.
+		Frappe removes the bytes on disk after commit, and only when no other File
+		row uses the same URL.
+		"""
+		before = self.get_doc_before_save()
+		old_url = before.get("assignment_attachment") if before else None
+		if not old_url or old_url == self.assignment_attachment:
+			return
+		replaced = frappe.get_all(
+			"File",
+			filters={
+				"file_url": old_url,
+				"attached_to_doctype": self.doctype,
+				"attached_to_name": self.name,
+				"attached_to_field": "assignment_attachment",
+			},
+			pluck="name",
+		)
+		for name in replaced:
+			# nosemgrep: lms-unjustified-ignore-permissions - the learner saving the submission owns its attachment; only this submission's replaced file is removed
+			frappe.delete_doc("File", name, ignore_permissions=True)
 
 	def complete_lessons_on_pass(self):
 		if self.status != "Pass" or not self.has_value_changed("status"):
