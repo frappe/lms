@@ -294,13 +294,13 @@ describe('Scheduled quiz start screen', () => {
 		wrapper.unmount()
 	})
 
-	it('keeps Resume Video beside Try again in a video', async () => {
+	it('requires the quiz when attempts fail to load in a video', async () => {
 		resourceState.response = scheduledQuizResponse(openWindow)
 		resourceState.attemptsFail = true
 		const wrapper = await mountQuiz({ inVideo: true, backToVideo: vi.fn() })
 
 		const labels = wrapper.findAll('button').map((button) => button.text())
-		expect(labels).toContain('Resume Video')
+		expect(labels).not.toContain('Resume Video')
 		expect(labels).toContain('Try again')
 		wrapper.unmount()
 	})

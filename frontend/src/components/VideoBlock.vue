@@ -142,7 +142,7 @@
 		:saveQuizzes="saveQuizzes"
 		:duration="duration"
 	/>
-	<Dialog v-model:open="showQuizLoader" size="sm" bare>
+	<Dialog v-model:open="showQuizLoader" :dismissible="false" size="sm" bare>
 		<template #default>
 			<div class="flex flex-col space-y-2 p-5 text-base leading-5">
 				<span class="font-semibold">
@@ -244,7 +244,7 @@ const updateCurrentTime = () => {
 			if (currentTime.value >= nextQuiz.value.time) {
 				videoRef.value.pause()
 				playing.value = false
-				videoRef.value.onTimeupdate = null
+				videoRef.value.ontimeupdate = null
 				currentQuiz.value = nextQuiz.value.quiz
 				quizLoadTimer.value = 7
 			}
@@ -252,12 +252,13 @@ const updateCurrentTime = () => {
 	}, 0)
 }
 
-watch(quizLoadTimer, () => {
+watch(quizLoadTimer, (_, __, onCleanup) => {
 	if (quizLoadTimer.value > 0) {
 		showQuizLoader.value = true
-		setTimeout(() => {
+		const timeout = setTimeout(() => {
 			quizLoadTimer.value -= 1
 		}, 1000)
+		onCleanup(() => clearTimeout(timeout))
 	} else {
 		showQuizLoader.value = false
 		showQuiz.value = true

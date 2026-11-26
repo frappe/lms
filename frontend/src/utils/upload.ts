@@ -115,6 +115,7 @@ export class Upload {
 	renderFile(file: UploadedFile): void {
 		this.wrapper.className = 'not-prose my-5'
 		if (this.isVideo(file.file_type)) {
+			this.wrapper.normalize = () => undefined
 			const app = createApp(VideoBlock, {
 				file: file.file_url,
 				readOnly: this.readOnly,
@@ -128,6 +129,7 @@ export class Upload {
 			app.use(translationPlugin)
 			app.config.globalProperties.$dialog = createDialog
 			app.mount(this.wrapper)
+			this.app = app
 			return
 		} else if (this.isAudio(file.file_type)) {
 			const app = createApp(AudioBlock, {

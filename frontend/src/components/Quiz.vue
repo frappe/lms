@@ -140,19 +140,11 @@
 					</ol>
 				</div>
 
-				<div v-if="!scheduleBlocked || inVideo" class="space-y-3.5 p-3.5">
-					<template v-if="scheduleBlocked">
-						<Button @click="props.backToVideo()">{{
-							__('Resume Video')
-						}}</Button>
-					</template>
-					<template v-else-if="!questions.length">
+				<div v-if="!scheduleBlocked" class="space-y-3.5 p-3.5">
+					<template v-if="!questions.length">
 						<p class="text-p-base text-ink-gray-6">
 							{{ __('This quiz has no questions available yet.') }}
 						</p>
-						<Button v-if="inVideo" @click="props.backToVideo()">{{
-							__('Resume Video')
-						}}</Button>
 					</template>
 					<template v-else-if="attemptsUnknown">
 						<p class="text-p-base text-ink-gray-6">
@@ -163,9 +155,6 @@
 							}}
 						</p>
 						<div class="flex items-center gap-2">
-							<Button v-if="inVideo" @click="props.backToVideo()">
-								{{ __('Resume Video') }}
-							</Button>
 							<Button :loading="attempts.loading" @click="attempts.reload()">
 								{{ __('Try again') }}
 							</Button>
@@ -182,9 +171,6 @@
 								)
 							}}
 						</FeedbackBanner>
-						<Button v-if="inVideo" @click="props.backToVideo()">{{
-							__('Resume Video')
-						}}</Button>
 					</template>
 					<div
 						v-if="
@@ -282,9 +268,6 @@
 							</template>
 						</span>
 						<div class="flex items-center gap-2">
-							<Button v-if="inVideo" @click="props.backToVideo()">{{
-								__('Resume Video')
-							}}</Button>
 							<Button
 								variant="solid"
 								:disabled="!!quiz.data.enable_proctoring && !cameraReady"
