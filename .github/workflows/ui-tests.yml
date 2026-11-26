@@ -133,7 +133,11 @@ jobs:
 
       - name: Install Playwright browsers
         working-directory: /home/runner/pilot/benches/frappe-bench/apps/lms
-        run: npx playwright install --with-deps chromium
+        run: |
+          # --with-deps runs apt-get install on the runner's package list, which can name
+          # versions the Ubuntu mirror has already replaced (404 on fetch).
+          sudo apt-get update -qq
+          npx playwright install --with-deps chromium
 
       - name: UI Tests
         working-directory: /home/runner/pilot/benches/frappe-bench/apps/lms
