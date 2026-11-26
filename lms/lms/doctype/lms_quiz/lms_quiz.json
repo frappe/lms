@@ -16,6 +16,7 @@
   "total_marks",
   "passing_percentage",
   "duration",
+  "enforce_fullscreen",
   "enable_proctoring",
   "max_violations",
   "enable_scheduling",
@@ -141,6 +142,12 @@
    "fieldname": "duration",
    "fieldtype": "Data",
    "label": "Duration (in minutes)"
+  },
+  {
+   "default": "0",
+   "fieldname": "enforce_fullscreen",
+   "fieldtype": "Check",
+   "label": "Enforce Full Screen"
   },
   {
    "default": "0",

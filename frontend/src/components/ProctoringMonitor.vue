@@ -64,10 +64,9 @@
 
 		<!-- Monitoring phase: the quiz header shows the count; the camera
 		     itself floats over the quiz so the student can see what is being
-		     watched. Teleported to the body so no scroll container or stacking
-		     context along the way can clip it. -->
+		     watched. Teleported to the active fullscreen element if available, otherwise body. -->
 		<template v-if="phase === 'monitoring'">
-			<Teleport to="body">
+			<Teleport :to="teleportTarget">
 				<div class="fixed bottom-4 end-4 z-50 flex flex-col items-end gap-2">
 					<!-- Collapsed to nothing rather than hidden: detection reads frames
 					     off this element, and a display:none video stops feeding them.
@@ -136,6 +135,35 @@ const emit = defineEmits([
 
 const videoEl = ref(null)
 
+const isFullscreen = ref(
+	typeof document !== 'undefined' &&
+		Boolean(document.fullscreenElement || document.webkitFullscreenElement)
+)
+
+const onFullscreenChange = () => {
+	isFullscreen.value = Boolean(
+		document.fullscreenElement || document.webkitFullscreenElement
+	)
+}
+
+const teleportTarget = computed(() => {
+	if (typeof document !== 'undefined' && isFullscreen.value) {
+		const fsEl = document.fullscreenElement || document.webkitFullscreenElement
+		if (fsEl) return fsEl
+	}
+	return 'body'
+})
+
+watch(teleportTarget, async () => {
+	await nextTick()
+	if (videoEl.value && stream) {
+		if (videoEl.value.srcObject !== stream) {
+			videoEl.value.srcObject = stream
+		}
+		videoEl.value.play?.().catch(() => {})
+	}
+})
+
 // Whether the floating preview is collapsed during the quiz. Purely visual —
 // the stream and the detection loop keep running either way.
 const minimized = ref(false)
@@ -187,6 +215,14 @@ const setMinimized = async (value) => {
 // ─── Lifecycle ───────────────────────────────────────────────────────────────
 
 onMounted(async () => {
+	;[
+		'fullscreenchange',
+		'webkitfullscreenchange',
+		'mozfullscreenchange',
+		'MSFullscreenChange',
+	].forEach((evt) => {
+		document.addEventListener(evt, onFullscreenChange)
+	})
 	await startCamera()
 	// Monitoring instance mounts with active=true — skip setup, go straight to monitoring
 	if (props.active) {
@@ -200,6 +236,14 @@ onMounted(async () => {
 })
 
 onUnmounted(() => {
+	;[
+		'fullscreenchange',
+		'webkitfullscreenchange',
+		'mozfullscreenchange',
+		'MSFullscreenChange',
+	].forEach((evt) => {
+		document.removeEventListener(evt, onFullscreenChange)
+	})
 	stopAll()
 })
 
