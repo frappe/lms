@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Learning VERSION\n"
 "Report-Msgid-Bugs-To: jannat@frappe.io\n"
-"POT-Creation-Date: 2026-11-20 22:27+0000\n"
-"PO-Revision-Date: 2026-11-20 22:27+0000\n"
+"POT-Creation-Date: 2026-11-27 23:51+0000\n"
+"PO-Revision-Date: 2026-11-27 23:51+0000\n"
 "Last-Translator: jannat@frappe.io\n"
 "Language-Team: jannat@frappe.io\n"
 "MIME-Version: 1.0\n"
@@ -67,6 +67,10 @@ msgstr ""
 
 #: frontend/src/components/CourseReviews.vue:213
 msgid "1 day ago"
+msgstr ""
+
+#: frontend/src/components/Setup/SetupInvite.vue:52
+msgid "1 invite could not be sent"
 msgstr ""
 
 #: frontend/src/components/CourseCard.vue:194
@@ -151,18 +155,6 @@ msgstr ""
 msgid "1 warning"
 msgstr ""
 
-#: frontend/src/components/Setup/SetupPreview.vue:158
-msgid "11:00 AM"
-msgstr ""
-
-#: frontend/src/components/Setup/SetupPreview.vue:100
-msgid "3 of 5 done"
-msgstr ""
-
-#: frontend/src/components/Setup/SetupPreview.vue:225
-msgid "3 of 5 done, 4 min left"
-msgstr ""
-
 #. Paragraph text in the Learning Workspace
 #: lms/lms/workspace/learning/learning.json:17
 msgid "<a href=\"/app/lms-settings/LMS%20Settings\">LMS Settings</a>"
@@ -227,11 +219,15 @@ msgstr ""
 msgid "A course is chapters with lessons inside. Create the first chapter, then add lessons to it."
 msgstr ""
 
-#: lms/lms/api.py:1145
+#: lms/lms/api.py:1154
 msgid "A date is required."
 msgstr ""
 
-#: frontend/src/components/Settings/settings.ts:135
+#: frontend/src/utils/setupPreviewData.js:203
+msgid "A guide to Frappe Learning"
+msgstr ""
+
+#: frontend/src/components/Settings/settings.ts:138
 msgid "A lesson is marked complete only once the selected items are done."
 msgstr ""
 
@@ -289,11 +285,11 @@ msgstr ""
 msgid "A submission for {0} by {1} already exists."
 msgstr ""
 
-#: lms/lms/api.py:1128
+#: lms/lms/api.py:1137
 msgid "A time is required."
 msgstr ""
 
-#: frontend/src/components/Settings/settings.ts:142
+#: frontend/src/components/Settings/settings.ts:145
 msgid "A video that fails to load, or comes from Cloudflare Stream, Google Drive, Aparat or another embedded link, cannot be tracked, so its lesson completes on the completion time instead."
 msgstr ""
 
@@ -360,6 +356,11 @@ msgstr ""
 msgid "Account Name"
 msgstr ""
 
+#: frontend/src/components/Settings/Members/PendingInvites.vue:143
+#, python-brace-format
+msgid "Account disabled: {0}"
+msgstr ""
+
 #: frontend/src/components/Settings/EmailAccount/emailAccounts.ts:149
 msgid "Account name"
 msgstr ""
@@ -370,6 +371,10 @@ msgstr ""
 
 #: frontend/src/pages/ProfileAbout.vue:17
 msgid "Achievements"
+msgstr ""
+
+#: frontend/src/pages/Setup.vue:344
+msgid "Acme Academy"
 msgstr ""
 
 #: frontend/src/components/Controls/ChildTable.vue:205
@@ -384,7 +389,7 @@ msgstr ""
 #: frontend/src/components/Settings/EmailTemplate/emailTemplate.ts:34
 #: frontend/src/components/Settings/GoogleCalendar/googleCalendar.ts:60
 #: frontend/src/components/Settings/GoogleMeet/googleMeet.ts:106
-#: frontend/src/components/Settings/Members/members.ts:127
+#: frontend/src/components/Settings/Members/members.ts:122
 #: frontend/src/components/Settings/PaymentGateways/paymentGateways.ts:88
 #: frontend/src/components/Settings/Raven/WorkspaceChannels.vue:163
 #: frontend/src/components/Settings/Raven/WorkspaceList.vue:172
@@ -398,6 +403,7 @@ msgid "Actions for {0}"
 msgstr ""
 
 #: frontend/src/components/Settings/Raven/WorkspaceList.vue:107
+#: frontend/src/components/Setup/SetupPreview.vue:373
 #: frontend/src/pages/Batches/Batches.vue:342
 msgid "Active"
 msgstr ""
@@ -407,6 +413,7 @@ msgstr ""
 msgid "Active (7 days)"
 msgstr ""
 
+#: frontend/src/components/Setup/SetupPreview.vue:154
 #: frontend/src/pages/Batches/Batches.vue:342
 msgid "Active Batches"
 msgstr ""
@@ -518,7 +525,7 @@ msgid "Add a billing address for {0}"
 msgstr ""
 
 #: frontend/src/components/ContinueCoursePanel.vue:124
-#: frontend/src/components/Sidebar/AppSidebar.vue:422
+#: frontend/src/components/Sidebar/AppSidebar.vue:432
 msgid "Add a chapter"
 msgstr ""
 
@@ -529,7 +536,7 @@ msgstr ""
 #: frontend/src/components/CourseEditorEmptyState.vue:116
 #: frontend/src/components/CourseEditorEmptyState.vue:157
 #: frontend/src/components/CourseEditorEmptyState.vue:175
-#: frontend/src/components/Sidebar/AppSidebar.vue:423 lms/lms/day1_email.py:93
+#: frontend/src/components/Sidebar/AppSidebar.vue:433 lms/lms/day1_email.py:93
 msgid "Add a lesson"
 msgstr ""
 
@@ -537,7 +544,7 @@ msgstr ""
 msgid "Add a lesson with content"
 msgstr ""
 
-#: frontend/src/components/Sidebar/AppSidebar.vue:437
+#: frontend/src/components/Sidebar/AppSidebar.vue:447
 msgid "Add a program"
 msgstr ""
 
@@ -564,7 +571,7 @@ msgstr ""
 msgid "Add an assignment to your lesson"
 msgstr ""
 
-#: frontend/src/components/Setup/SetupInvite.vue:31
+#: frontend/src/components/Setup/SetupInvite.vue:41
 msgid "Add another"
 msgstr ""
 
@@ -674,7 +681,7 @@ msgstr ""
 msgid "Add the people who should take this program. They get every course in it."
 msgstr ""
 
-#: frontend/src/pages/Setup.vue:185
+#: frontend/src/pages/Setup.vue:307
 msgid "Add the people who will build courses with you, or your first learners."
 msgstr ""
 
@@ -683,7 +690,7 @@ msgid "Add to Notes"
 msgstr ""
 
 #: frontend/src/components/CourseEditorEmptyState.vue:153
-#: frontend/src/components/Sidebar/AppSidebar.vue:319
+#: frontend/src/components/Sidebar/AppSidebar.vue:329
 msgid "Add your first lesson"
 msgstr ""
 
@@ -765,13 +772,17 @@ msgstr ""
 msgid "Administrator"
 msgstr ""
 
-#: frontend/src/components/Settings/settings.ts:565
+#: frontend/src/components/Settings/settings.ts:574
 msgid "Advanced"
 msgstr ""
 
 #: frontend/src/components/Quiz.vue:249
 #, python-brace-format
 msgid "After {0} {1}, the quiz will be automatically submitted."
+msgstr ""
+
+#: frontend/src/utils/setupPreviewData.js:87
+msgid "Algorithms Bootcamp"
 msgstr ""
 
 #: frontend/src/utils/inline/TextAlign.ts:161
@@ -787,11 +798,12 @@ msgid "Align right"
 msgstr ""
 
 #: frontend/src/components/Modals/FeedbackModal.vue:481
-#: frontend/src/components/Settings/Members/members.ts:37
+#: frontend/src/components/Settings/Members/members.ts:38
 #: frontend/src/components/Settings/Raven/WorkspaceList.vue:106
 msgid "All"
 msgstr ""
 
+#: frontend/src/components/Setup/SetupPreview.vue:67
 #: frontend/src/pages/Courses/Courses.vue:4 lms/lms/widgets/BreadCrumb.html:3
 msgid "All Courses"
 msgstr ""
@@ -878,8 +890,18 @@ msgstr ""
 msgid "Allows users to pick a profile cover image from Unsplash. https://unsplash.com/documentation#getting-started."
 msgstr ""
 
+#: frontend/src/components/Settings/Members/PendingInvites.vue:142
+#, python-brace-format
+msgid "Already a user: {0}"
+msgstr ""
+
 #: lms/lms/dashboard/course.py:894
 msgid "Already certified"
+msgstr ""
+
+#: frontend/src/components/Settings/Members/PendingInvites.vue:141
+#, python-brace-format
+msgid "Already invited: {0}"
 msgstr ""
 
 #: frontend/src/components/CourseCreatorCard.vue:49
@@ -939,6 +961,14 @@ msgstr ""
 msgid "An email can carry at most {0} images. Please send the rest separately."
 msgstr ""
 
+#: frontend/src/pages/Setup.vue:379
+msgid "An example of how your batches will look"
+msgstr ""
+
+#: frontend/src/pages/Setup.vue:380
+msgid "An example of how your courses will look"
+msgstr ""
+
 #: frontend/src/pages/Forms/QuizForm.vue:136
 msgid "An open-ended question can't be mixed with other types, and live answer-reveal is turned off for this quiz."
 msgstr ""
@@ -983,7 +1013,7 @@ msgstr ""
 msgid "Announcements reach everyone enrolled in this batch. Enroll students first, then send them updates like a schedule change or a class reminder."
 msgstr ""
 
-#: lms/lms/api.py:787
+#: lms/lms/api.py:796
 msgid "Another calendar already has this name. Pick a different one."
 msgstr ""
 
@@ -1015,7 +1045,7 @@ msgstr ""
 msgid "Anyone matching these is kept in this channel, and in its workspace."
 msgstr ""
 
-#: frontend/src/utils/index.js:268
+#: frontend/src/utils/index.js:270
 msgid "Aparat embed"
 msgstr ""
 
@@ -1041,7 +1071,7 @@ msgstr ""
 msgid "Application Form Link"
 msgstr ""
 
-#: lms/lms/api.py:444
+#: lms/lms/api.py:451
 msgid "Application, subject and message must be strings."
 msgstr ""
 
@@ -1054,7 +1084,7 @@ msgstr ""
 msgid "Applications - {0}"
 msgstr ""
 
-#: lms/lms/api.py:412
+#: lms/lms/api.py:419
 msgid "Applications must be a list of names."
 msgstr ""
 
@@ -1071,7 +1101,7 @@ msgid "Apply"
 msgstr ""
 
 #. Label of the apply_gst (Check) field in DocType 'LMS Settings'
-#: frontend/src/components/Settings/settings.ts:386
+#: frontend/src/components/Settings/settings.ts:395
 #: lms/lms/doctype/lms_settings/lms_settings.json:187
 msgid "Apply GST for India"
 msgstr ""
@@ -1085,7 +1115,7 @@ msgstr ""
 msgid "Apply for this job"
 msgstr ""
 
-#: frontend/src/components/Settings/settings.ts:369
+#: frontend/src/components/Settings/settings.ts:378
 msgid "Apply rounding on equivalent"
 msgstr ""
 
@@ -1098,6 +1128,7 @@ msgstr ""
 msgid "Apps"
 msgstr ""
 
+#: frontend/src/components/Setup/SetupPreview.vue:375
 #: frontend/src/pages/Batches/Batches.vue:349
 msgid "Archived"
 msgstr ""
@@ -1128,6 +1159,10 @@ msgstr ""
 
 #: frontend/src/components/Quiz.vue:737
 msgid "Are you sure you want to submit the quiz?"
+msgstr ""
+
+#: frontend/src/utils/setupPreviewData.js:81
+msgid "Arrays to graphs, with weekly problem sets and a project."
 msgstr ""
 
 #: frontend/src/pages/Batches/components/BatchDashboard.vue:11
@@ -1198,7 +1233,7 @@ msgstr ""
 
 #. Label of the assessments (Table) field in DocType 'Course Lesson'
 #. Label of the show_assessments (Check) field in DocType 'LMS Settings'
-#: frontend/src/components/Sidebar/AppSidebar.vue:440
+#: frontend/src/components/Sidebar/AppSidebar.vue:450
 #: frontend/src/pages/Batches/components/Assessments.vue:5
 #: frontend/src/pages/Batches/components/BatchStudentSheet.vue:111
 #: frontend/src/pages/Batches/components/BatchStudentSheet.vue:120
@@ -1292,7 +1327,7 @@ msgstr ""
 msgid "Assignment deleted successfully"
 msgstr ""
 
-#: lms/lms/api.py:396 lms/lms/utils.py:2555
+#: lms/lms/api.py:403 lms/lms/utils.py:2555
 msgid "Assignment must be a string."
 msgstr ""
 
@@ -1314,9 +1349,9 @@ msgid "Assignment will appear at the bottom of the lesson."
 msgstr ""
 
 #: frontend/src/components/Settings/Sidebar/sidebar.ts:32
-#: frontend/src/components/Settings/settings.ts:151
-#: frontend/src/components/Settings/settings.ts:182
-#: frontend/src/components/Sidebar/AppSidebar.vue:444
+#: frontend/src/components/Settings/settings.ts:154
+#: frontend/src/components/Settings/settings.ts:185
+#: frontend/src/components/Sidebar/AppSidebar.vue:454
 #: frontend/src/pages/AssignmentSubmission.vue:69
 #: frontend/src/pages/AssignmentSubmissions.vue:103
 #: frontend/src/pages/Assignments.vue:13 frontend/src/pages/Assignments.vue:302
@@ -1326,8 +1361,12 @@ msgstr ""
 msgid "Assignments"
 msgstr ""
 
-#: frontend/src/pages/Setup.vue:205
+#: frontend/src/pages/Setup.vue:327
 msgid "At least 8 characters"
+msgstr ""
+
+#: frontend/src/pages/Setup.vue:328
+msgid "At least 8 characters. Mixing in numbers and symbols makes it stronger."
 msgstr ""
 
 #: lms/lms/doctype/lms_coupon/lms_coupon.py:30
@@ -1342,7 +1381,7 @@ msgstr ""
 msgid "At least one test case is required for the programming exercise."
 msgstr ""
 
-#: lms/lms/api.py:178
+#: lms/lms/api.py:185
 #, python-brace-format
 msgid "At most {0} documents per request"
 msgstr ""
@@ -1515,8 +1554,8 @@ msgstr ""
 #: frontend/src/components/Layouts/pages/PageHeader.vue:9
 #: frontend/src/components/Layouts/pages/mobile/MobilePageLayout.vue:11
 #: frontend/src/components/MobilePage.vue:24
-#: frontend/src/components/Setup/SetupInvite.vue:55
-#: frontend/src/pages/Setup.vue:70 frontend/src/pages/Setup.vue:193
+#: frontend/src/components/Setup/SetupInvite.vue:46
+#: frontend/src/pages/Setup.vue:91 frontend/src/pages/Setup.vue:315
 msgid "Back"
 msgstr ""
 
@@ -1549,7 +1588,7 @@ msgstr ""
 msgid "Badge Assignment"
 msgstr ""
 
-#: frontend/src/components/Settings/settings.ts:220
+#: frontend/src/components/Settings/settings.ts:223
 msgid "Badge Assignments"
 msgstr ""
 
@@ -1605,7 +1644,7 @@ msgstr ""
 msgid "Badge {0} not found"
 msgstr ""
 
-#: frontend/src/components/Settings/settings.ts:213
+#: frontend/src/components/Settings/settings.ts:216
 msgid "Badges"
 msgstr ""
 
@@ -1619,8 +1658,7 @@ msgstr ""
 #: frontend/src/components/Settings/Badges/badges.ts:124
 #: frontend/src/components/Settings/Coupons/coupons.ts:46
 #: frontend/src/components/Settings/Transactions/transactions.ts:104
-#: frontend/src/components/Setup/SetupPreview.vue:234
-#: frontend/src/utils/dashboard/batchStudent.ts:161 lms/lms/api.py:2184
+#: frontend/src/utils/dashboard/batchStudent.ts:161 lms/lms/api.py:2193
 #: lms/lms/doctype/lms_batch_enrollment/lms_batch_enrollment.json:73
 #: lms/lms/doctype/lms_batch_feedback/lms_batch_feedback.json:31
 #: lms/lms/doctype/lms_certificate/lms_certificate.json:67
@@ -1631,7 +1669,7 @@ msgstr ""
 
 #. Label of the batch_confirmation_template (Link) field in DocType 'LMS
 #. Settings'
-#: frontend/src/components/Settings/settings.ts:272
+#: frontend/src/components/Settings/settings.ts:275
 #: lms/lms/doctype/lms_settings/lms_settings.json:211
 msgid "Batch Confirmation Template"
 msgstr ""
@@ -1642,8 +1680,8 @@ msgid "Batch Course"
 msgstr ""
 
 #. Label of the batch_details (Text Editor) field in DocType 'LMS Batch'
-#: frontend/src/pages/Batches/BatchForm.vue:202
-#: frontend/src/pages/Forms/NewBatchForm.vue:115
+#: frontend/src/pages/Batches/BatchForm.vue:206
+#: frontend/src/pages/Forms/NewBatchForm.vue:119
 #: frontend/src/utils/batchForm.ts:49
 #: lms/lms/doctype/lms_batch/lms_batch.json:217
 #: lms/templates/emails/batch_confirmation.html:26
@@ -1675,6 +1713,7 @@ msgid "Batch Enrollments"
 msgstr ""
 
 #. Name of a role
+#: frontend/src/components/Setup/SetupInvite.vue:33
 #: lms/lms/doctype/course_evaluator/course_evaluator.json:123
 #: lms/lms/doctype/lms_assignment/lms_assignment.json:191
 #: lms/lms/doctype/lms_assignment_submission/lms_assignment_submission.json:210
@@ -1735,11 +1774,11 @@ msgstr ""
 msgid "Batch analytics"
 msgstr ""
 
-#: frontend/src/pages/Forms/NewBatchForm.vue:288
+#: frontend/src/pages/Forms/NewBatchForm.vue:292
 msgid "Batch created successfully"
 msgstr ""
 
-#: frontend/src/pages/Batches/BatchForm.vue:594
+#: frontend/src/pages/Batches/BatchForm.vue:598
 msgid "Batch deleted successfully"
 msgstr ""
 
@@ -1747,15 +1786,15 @@ msgstr ""
 msgid "Batch end date cannot be before the batch start date"
 msgstr ""
 
-#: lms/lms/api.py:330
+#: lms/lms/api.py:337
 msgid "Batch has already started."
 msgstr ""
 
-#: lms/lms/api.py:325
+#: lms/lms/api.py:332
 msgid "Batch is sold out."
 msgstr ""
 
-#: lms/lms/api.py:2133
+#: lms/lms/api.py:2142
 msgid "Batch must be a string."
 msgstr ""
 
@@ -1801,7 +1840,7 @@ msgstr ""
 msgid "Batch unpublished"
 msgstr ""
 
-#: frontend/src/pages/Batches/BatchForm.vue:554
+#: frontend/src/pages/Batches/BatchForm.vue:558
 msgid "Batch updated successfully"
 msgstr ""
 
@@ -1810,7 +1849,7 @@ msgstr ""
 msgid "Batch {0} does not exist."
 msgstr ""
 
-#: lms/lms/api.py:2089
+#: lms/lms/api.py:2098
 msgid "Batch, subject, content and reply-to must be strings."
 msgstr ""
 
@@ -1821,7 +1860,8 @@ msgstr ""
 
 #. Label of a Workspace Sidebar Item
 #: frontend/src/components/Settings/Sidebar/sidebar.ts:26
-#: frontend/src/components/Setup/SetupPreview.vue:215
+#: frontend/src/components/Setup/SetupPreview.vue:153
+#: frontend/src/components/Setup/SetupPreview.vue:158
 #: frontend/src/pages/Batches/BatchDetail.vue:335
 #: frontend/src/pages/Batches/Batches.vue:10
 #: frontend/src/pages/Batches/Batches.vue:445
@@ -1864,7 +1904,7 @@ msgid "Biggest drop at {0} (−{1} pts)"
 msgstr ""
 
 #: frontend/src/components/Enrollment/EnrollStudentTable.vue:22
-#: frontend/src/components/Settings/settings.ts:547
+#: frontend/src/components/Settings/settings.ts:556
 msgid "Billing"
 msgstr ""
 
@@ -1927,6 +1967,14 @@ msgstr ""
 msgid "Booked evaluations aren't added to this calendar. Contact a Moderator to turn them on."
 msgstr ""
 
+#: frontend/src/utils/setupPreviewData.js:169
+msgid "Botanical Art Circle"
+msgstr ""
+
+#: frontend/src/utils/setupPreviewData.js:159
+msgid "Botanical Watercolour Masterclass"
+msgstr ""
+
 #: frontend/src/components/Settings/BrandSettings.vue:34
 msgid "Brand Logo"
 msgstr ""
@@ -1940,7 +1988,7 @@ msgstr ""
 msgid "Brand Settings"
 msgstr ""
 
-#: frontend/src/components/Settings/settings.ts:488
+#: frontend/src/components/Settings/settings.ts:497
 msgid "Branding"
 msgstr ""
 
@@ -1957,16 +2005,16 @@ msgstr ""
 msgid "Bring your learners into a batch."
 msgstr ""
 
-#: frontend/src/components/Setup/SetupPreview.vue:149
-msgid "Bring your questions from week one."
-msgstr ""
-
-#: frontend/src/components/Settings/Members/members.ts:60
+#: frontend/src/components/Settings/Members/members.ts:61
 msgid "Build and manage courses, chapters, and lessons"
 msgstr ""
 
 #: frontend/src/pages/Questions.vue:130
 msgid "Build your question bank"
+msgstr ""
+
+#: frontend/src/utils/setupPreviewData.js:142
+msgid "Build, test and ship automations that save your team hours."
 msgstr ""
 
 #. Option for the 'Type' (Select) field in DocType 'LMS Sidebar Item'
@@ -1975,7 +2023,7 @@ msgstr ""
 msgid "Built-in"
 msgstr ""
 
-#: frontend/src/utils/index.js:257
+#: frontend/src/utils/index.js:259
 msgid "Bunny Stream embed"
 msgstr ""
 
@@ -2052,8 +2100,17 @@ msgstr ""
 #: frontend/src/components/UpcomingEvaluations.vue:54
 #: frontend/src/components/UpcomingEvaluations.vue:224
 #: frontend/src/composables/dashboard/useDashboardStudents.ts:196
-#: frontend/src/pages/Setup.vue:199
+#: frontend/src/pages/Setup.vue:321
 msgid "Cancel"
+msgstr ""
+
+#: frontend/src/components/Settings/Members/PendingInvites.vue:57
+msgid "Cancel invite"
+msgstr ""
+
+#: frontend/src/components/Settings/Members/PendingInvites.vue:58
+#, python-brace-format
+msgid "Cancel the invite to {0}"
 msgstr ""
 
 #. Option for the 'Status' (Select) field in DocType 'LMS Certificate Request'
@@ -2066,7 +2123,7 @@ msgstr ""
 msgid "Cannot delete the built-in sidebar links {0}. Switch them off instead."
 msgstr ""
 
-#: lms/lms/api.py:4610
+#: lms/lms/api.py:4623
 #, python-brace-format
 msgid "Cannot search for roles: {0}"
 msgstr ""
@@ -2085,7 +2142,7 @@ msgid "Case {0}"
 msgstr ""
 
 #: frontend/src/components/Settings/Categories.vue:11
-#: frontend/src/components/Settings/settings.ts:227
+#: frontend/src/components/Settings/settings.ts:230
 #: frontend/src/utils/dataImport.ts:32
 msgid "Categories"
 msgstr ""
@@ -2114,7 +2171,7 @@ msgstr ""
 msgid "Category added successfully"
 msgstr ""
 
-#: frontend/src/utils/index.js:884
+#: frontend/src/utils/index.js:895
 msgid "Category created successfully"
 msgstr ""
 
@@ -2122,7 +2179,7 @@ msgstr ""
 msgid "Category deleted successfully"
 msgstr ""
 
-#: lms/lms/api.py:4718
+#: lms/lms/api.py:4731
 msgid "Category is required."
 msgstr ""
 
@@ -2135,7 +2192,7 @@ msgstr ""
 msgid "Category updated successfully"
 msgstr ""
 
-#: lms/lms/api.py:4721
+#: lms/lms/api.py:4734
 #, python-brace-format
 msgid "Category {0} does not exist."
 msgstr ""
@@ -2151,7 +2208,7 @@ msgid "Certificate"
 msgstr ""
 
 #. Label of the certification_template (Link) field in DocType 'LMS Settings'
-#: frontend/src/components/Settings/settings.ts:285
+#: frontend/src/components/Settings/settings.ts:288
 #: lms/lms/doctype/lms_settings/lms_settings.json:264
 msgid "Certificate Email Template"
 msgstr ""
@@ -2160,7 +2217,7 @@ msgstr ""
 msgid "Certificate Link"
 msgstr ""
 
-#: lms/lms/api.py:3749
+#: lms/lms/api.py:3758
 #, python-brace-format
 msgid "Certificate already purchased by {0}."
 msgstr ""
@@ -2216,6 +2273,7 @@ msgstr ""
 msgid "Certificates your learners earn show up here, day by day."
 msgstr ""
 
+#. Name of a Dashboard Chart
 #. Name of a DocType
 #. Label of the certification (Check) field in DocType 'LMS Batch'
 #. Label of the section_break_cssv (Section Break) field in DocType 'LMS Batch'
@@ -2225,12 +2283,14 @@ msgstr ""
 #. Label of a Card Break in the Learning Workspace
 #. Label of a Link in the Learning Workspace
 #: frontend/src/components/Modals/Event.vue:428
-#: frontend/src/components/Sidebar/AppSidebar.vue:448
+#: frontend/src/components/Setup/SetupPreview.vue:140
+#: frontend/src/components/Sidebar/AppSidebar.vue:458
 #: frontend/src/pages/Batches/BatchForm.vue:93
 #: frontend/src/pages/Batches/Batches.vue:60
 #: frontend/src/pages/Courses/CourseCertification.vue:3
 #: frontend/src/pages/Courses/CourseCertification.vue:132
 #: frontend/src/pages/Courses/Courses.vue:76
+#: lms/lms/dashboard_chart/certification/certification.json:3
 #: lms/lms/doctype/certification/certification.json:68
 #: lms/lms/doctype/lms_batch/lms_batch.json:354
 #: lms/lms/doctype/lms_enrollment/lms_enrollment.json:116
@@ -2243,6 +2303,7 @@ msgstr ""
 msgid "Certification Name"
 msgstr ""
 
+#: frontend/src/components/Setup/SetupPreview.vue:141
 #: frontend/src/pages/Batches/Batches.vue:61
 #: frontend/src/pages/Courses/Courses.vue:77
 msgid "Certification available"
@@ -2266,7 +2327,6 @@ msgid "Certification is not enabled for this course."
 msgstr ""
 
 #: frontend/src/components/Settings/Sidebar/sidebar.ts:27
-#: frontend/src/components/Setup/SetupPreview.vue:216
 #: frontend/src/pages/Statistics.vue:42 frontend/src/pages/Statistics.vue:99
 #: frontend/src/pages/Statistics.vue:105
 msgid "Certifications"
@@ -2292,6 +2352,10 @@ msgstr ""
 #: lms/lms/dashboard/batch.py:435 lms/lms/dashboard/course.py:401
 #: lms/lms/dashboard/course.py:411 lms/lms/dashboard/course.py:532
 msgid "Certified"
+msgstr ""
+
+#: frontend/src/utils/setupPreviewData.js:148
+msgid "Certified Admin Program"
 msgstr ""
 
 #. Label of the certified_members (Check) field in DocType 'LMS Settings'
@@ -2356,16 +2420,12 @@ msgstr ""
 #. Label of the chapter (Link) field in DocType 'LMS Video Watch Duration'
 #. Label of a Link in the Learning Workspace
 #: frontend/src/pages/Courses/components/CourseFunnelPanel.vue:231
-#: lms/lms/api.py:2476
+#: lms/lms/api.py:2485
 #: lms/lms/doctype/chapter_reference/chapter_reference.json:16
 #: lms/lms/doctype/lms_course_progress/lms_course_progress.json:36
 #: lms/lms/doctype/lms_video_watch_duration/lms_video_watch_duration.json:35
 #: lms/lms/workspace/learning/learning.json:49
 msgid "Chapter"
-msgstr ""
-
-#: frontend/src/components/Setup/SetupPreview.vue:231
-msgid "Chapter 2 of 6"
 msgstr ""
 
 #. Name of a DocType
@@ -2385,7 +2445,7 @@ msgstr ""
 msgid "Chapter moved successfully"
 msgstr ""
 
-#: lms/lms/api.py:1573
+#: lms/lms/api.py:1582
 msgid "Chapter must be a string."
 msgstr ""
 
@@ -2397,7 +2457,7 @@ msgstr ""
 msgid "Chapter updated successfully"
 msgstr ""
 
-#: lms/lms/api.py:1622
+#: lms/lms/api.py:1631
 #, python-brace-format
 msgid "Chapter {0} does not exist."
 msgstr ""
@@ -2441,6 +2501,11 @@ msgstr ""
 #: lms/templates/certificates_section.html:24
 #, python-brace-format
 msgid "Check out the {0} to know more about certification."
+msgstr ""
+
+#: frontend/src/components/Settings/Members/PendingInvites.vue:114
+#, python-brace-format
+msgid "Check these emails: {0}"
 msgstr ""
 
 #: frontend/src/pages/Quizzes.vue:104
@@ -2535,6 +2600,10 @@ msgstr ""
 
 #: frontend/src/components/Settings/Sidebar/SidebarPageModal.vue:88
 msgid "Choose an icon for this link."
+msgstr ""
+
+#: frontend/src/pages/Setup.vue:346
+msgid "Choose an image file."
 msgstr ""
 
 #: frontend/src/components/Dashboard/AnalyticsPreviewPane.vue:74
@@ -2731,7 +2800,7 @@ msgstr ""
 msgid "Cloud Settings"
 msgstr ""
 
-#: frontend/src/utils/index.js:247
+#: frontend/src/utils/index.js:249
 msgid "Cloudflare Stream embed"
 msgstr ""
 
@@ -2752,7 +2821,7 @@ msgstr ""
 msgid "Code that learners submit for your programming exercises shows up here, with test results."
 msgstr ""
 
-#: frontend/src/utils/index.js:323
+#: frontend/src/utils/index.js:325
 msgid "CodeSandbox embed"
 msgstr ""
 
@@ -2778,7 +2847,7 @@ msgstr ""
 msgid "Colour mode"
 msgstr ""
 
-#: frontend/src/pages/Batches/BatchForm.vue:277
+#: frontend/src/pages/Batches/BatchForm.vue:281
 msgid "Comma separated keywords"
 msgstr ""
 
@@ -2786,7 +2855,7 @@ msgstr ""
 msgid "Comma separated keywords for SEO"
 msgstr ""
 
-#: frontend/src/components/Settings/settings.ts:520
+#: frontend/src/components/Settings/settings.ts:529
 msgid "Comma separated keywords for search engines to find your website."
 msgstr ""
 
@@ -2816,12 +2885,16 @@ msgstr ""
 msgid "Common keywords that will be used for all pages"
 msgstr ""
 
-#: frontend/src/components/Settings/settings.ts:235
+#: frontend/src/components/Settings/settings.ts:238
 msgid "Communication"
 msgstr ""
 
 #: frontend/src/pages/Lesson.vue:1409
 msgid "Community"
+msgstr ""
+
+#: frontend/src/utils/setupPreviewData.js:190
+msgid "Community Champions"
 msgstr ""
 
 #. Label of the company (Data) field in DocType 'LMS Job Application'
@@ -3024,21 +3097,21 @@ msgstr ""
 msgid "Conduct Evaluation"
 msgstr ""
 
-#: frontend/src/pages/Batches/BatchForm.vue:225
+#: frontend/src/pages/Batches/BatchForm.vue:229
 msgid "Conferencing"
 msgstr ""
 
 #. Label of the conferencing_provider (Select) field in DocType 'LMS Batch'
 #. Label of the conferencing_provider (Select) field in DocType 'LMS Live
 #. Class'
-#: frontend/src/pages/Batches/BatchForm.vue:231
+#: frontend/src/pages/Batches/BatchForm.vue:235
 #: lms/lms/doctype/lms_batch/lms_batch.json:368
 #: lms/lms/doctype/lms_live_class/lms_live_class.json:151
 msgid "Conferencing Provider"
 msgstr ""
 
-#: frontend/src/components/Settings/settings.ts:332
 #: frontend/src/components/Settings/settings.ts:341
+#: frontend/src/components/Settings/settings.ts:350
 #: frontend/src/components/Sidebar/UserDropdown.vue:181
 msgid "Configuration"
 msgstr ""
@@ -3068,7 +3141,7 @@ msgstr ""
 msgid "Confirm new password"
 msgstr ""
 
-#: frontend/src/pages/Batches/BatchForm.vue:573
+#: frontend/src/pages/Batches/BatchForm.vue:577
 msgid "Confirm your action to delete"
 msgstr ""
 
@@ -3107,7 +3180,7 @@ msgstr ""
 msgid "Console"
 msgstr ""
 
-#: frontend/src/components/Settings/settings.ts:250
+#: frontend/src/components/Settings/settings.ts:253
 msgid "Contact Information"
 msgstr ""
 
@@ -3161,7 +3234,9 @@ msgstr ""
 msgid "Content is required"
 msgstr ""
 
-#: frontend/src/components/Setup/SetupPreview.vue:104
+#: frontend/src/components/Setup/SetupInvite.vue:43
+#: frontend/src/components/Setup/SetupPreview.vue:385
+#: frontend/src/pages/Setup.vue:345
 msgid "Continue"
 msgstr ""
 
@@ -3210,6 +3285,10 @@ msgstr ""
 msgid "Correct answer"
 msgstr ""
 
+#: frontend/src/components/Settings/Members/PendingInvites.vue:155
+msgid "Could not cancel the invite"
+msgstr ""
+
 #: frontend/src/composables/raven/useWorkspaceGeneral.ts:138
 msgid "Could not change the visibility"
 msgstr ""
@@ -3253,6 +3332,11 @@ msgstr ""
 
 #: frontend/src/components/Dashboard/ExportAnalyticsDialog.vue:255
 msgid "Could not export analytics"
+msgstr ""
+
+#: frontend/src/components/Setup/SetupInvite.vue:55
+#, python-brace-format
+msgid "Could not invite {0}: their account is disabled."
 msgstr ""
 
 #: frontend/src/pages/Courses/components/CourseStudentSheet.vue:482
@@ -3314,7 +3398,7 @@ msgstr ""
 msgid "Could not load this workspace"
 msgstr ""
 
-#: frontend/src/pages/Setup.vue:102
+#: frontend/src/pages/Setup.vue:179
 msgid "Could not load your setup. Check your connection and try again."
 msgstr ""
 
@@ -3347,11 +3431,11 @@ msgstr ""
 msgid "Could not save the channel"
 msgstr ""
 
-#: frontend/src/pages/Setup.vue:88
+#: frontend/src/pages/Setup.vue:109
 msgid "Could not save your choice. Please try again."
 msgstr ""
 
-#: frontend/src/pages/Setup.vue:238
+#: frontend/src/pages/Setup.vue:423
 msgid "Could not save your setup. Please try again."
 msgstr ""
 
@@ -3359,7 +3443,8 @@ msgstr ""
 msgid "Could not search just now. Try again."
 msgstr ""
 
-#: frontend/src/components/Setup/SetupInvite.vue:133
+#: frontend/src/components/Settings/Members/PendingInvites.vue:125
+#: frontend/src/components/Setup/SetupInvite.vue:49
 msgid "Could not send the invites. Please try again."
 msgstr ""
 
@@ -3446,7 +3531,7 @@ msgid "Coupon updated successfully"
 msgstr ""
 
 #: frontend/src/components/Settings/Coupons/Coupons.vue:11
-#: frontend/src/components/Settings/settings.ts:434
+#: frontend/src/components/Settings/settings.ts:443
 msgid "Coupons"
 msgstr ""
 
@@ -3477,13 +3562,11 @@ msgstr ""
 #: frontend/src/components/Settings/Badges/badges.ts:123
 #: frontend/src/components/Settings/Coupons/coupons.ts:45
 #: frontend/src/components/Settings/Transactions/transactions.ts:103
-#: frontend/src/components/Setup/SetupPreview.vue:222
-#: frontend/src/components/Setup/SetupPreview.vue:228
 #: frontend/src/pages/Batches/components/BatchDashboard.vue:107
 #: frontend/src/pages/Forms/AssignmentForm.vue:30
 #: frontend/src/pages/Forms/BatchCourseForm.vue:13
 #: frontend/src/pages/Forms/BulkCertificatesForm.vue:31
-#: frontend/src/pages/Forms/ProgramForm.vue:194 lms/lms/api.py:2164
+#: frontend/src/pages/Forms/ProgramForm.vue:194 lms/lms/api.py:2173
 #: lms/lms/doctype/batch_course/batch_course.json:18
 #: lms/lms/doctype/course_chapter/course_chapter.json:30
 #: lms/lms/doctype/course_lesson/course_lesson.json:83
@@ -3509,6 +3592,10 @@ msgstr ""
 msgid "Course"
 msgstr ""
 
+#: frontend/src/utils/setupPreviewData.js:211
+msgid "Course Builders Cohort"
+msgstr ""
+
 #. Name of a DocType
 #. Label of the chapter (Link) field in DocType 'Course Lesson'
 #: lms/lms/doctype/course_chapter/course_chapter.json:122
@@ -3529,7 +3616,7 @@ msgstr ""
 msgid "Course Completions"
 msgstr ""
 
-#: frontend/src/components/Settings/settings.ts:108
+#: frontend/src/components/Settings/settings.ts:111
 msgid "Course Configuration"
 msgstr ""
 
@@ -3539,8 +3626,8 @@ msgid "Course Count"
 msgstr ""
 
 #. Name of a role
-#: frontend/src/components/Settings/Members/members.ts:59
-#: frontend/src/components/Setup/SetupInvite.vue:80
+#: frontend/src/components/Settings/Members/members.ts:60
+#: frontend/src/components/Setup/SetupInvite.vue:32
 #: lms/lms/doctype/course_chapter/course_chapter.json:156
 #: lms/lms/doctype/course_evaluator/course_evaluator.json:131
 #: lms/lms/doctype/course_lesson/course_lesson.json:205
@@ -3583,7 +3670,9 @@ msgstr ""
 msgid "Course Enrollment"
 msgstr ""
 
+#. Name of a Dashboard Chart
 #: frontend/src/pages/Statistics.vue:26
+#: lms/lms/dashboard_chart/course_enrollments/course_enrollments.json:3
 msgid "Course Enrollments"
 msgstr ""
 
@@ -3775,7 +3864,8 @@ msgstr ""
 #. Label of the show_courses (Check) field in DocType 'LMS Settings'
 #. Label of a Workspace Sidebar Item
 #: frontend/src/components/Settings/Sidebar/sidebar.ts:24
-#: frontend/src/components/Setup/SetupPreview.vue:213
+#: frontend/src/components/Setup/SetupPreview.vue:66
+#: frontend/src/components/Setup/SetupPreview.vue:71
 #: frontend/src/pages/Batches/BatchOverview.vue:39
 #: frontend/src/pages/Batches/components/BatchCourses.vue:5
 #: frontend/src/pages/Batches/components/BatchDashboard.vue:20
@@ -3864,7 +3954,7 @@ msgstr ""
 #: frontend/src/pages/Forms/EmailTemplateForm.vue:65
 #: frontend/src/pages/Forms/LiveClassForm.vue:93
 #: frontend/src/pages/Forms/MemberForm.vue:49
-#: frontend/src/pages/Forms/NewBatchForm.vue:140
+#: frontend/src/pages/Forms/NewBatchForm.vue:144
 #: frontend/src/pages/Forms/NewCourseForm.vue:114
 #: frontend/src/pages/Forms/ProgramForm.vue:232
 msgid "Create"
@@ -3888,7 +3978,7 @@ msgstr ""
 msgid "Create a Course"
 msgstr ""
 
-#: frontend/src/components/Sidebar/AppSidebar.vue:430
+#: frontend/src/components/Sidebar/AppSidebar.vue:440
 msgid "Create a batch"
 msgstr ""
 
@@ -3896,11 +3986,11 @@ msgstr ""
 msgid "Create a chapter"
 msgstr ""
 
-#: frontend/src/components/Sidebar/AppSidebar.vue:421
+#: frontend/src/components/Sidebar/AppSidebar.vue:431
 msgid "Create a course"
 msgstr ""
 
-#: frontend/src/components/Sidebar/AppSidebar.vue:431
+#: frontend/src/components/Sidebar/AppSidebar.vue:441
 msgid "Create a live class"
 msgstr ""
 
@@ -3916,11 +4006,11 @@ msgstr ""
 msgid "Create your first assignment"
 msgstr ""
 
-#: frontend/src/components/Sidebar/AppSidebar.vue:365
+#: frontend/src/components/Sidebar/AppSidebar.vue:375
 msgid "Create your first batch"
 msgstr ""
 
-#: frontend/src/components/Sidebar/AppSidebar.vue:307
+#: frontend/src/components/Sidebar/AppSidebar.vue:317
 msgid "Create your first course"
 msgstr ""
 
@@ -3933,16 +4023,17 @@ msgid "Create your first quiz"
 msgstr ""
 
 #: frontend/src/components/Settings/Categories.vue:226
+#: frontend/src/components/Setup/SetupPreview.vue:368
 #: frontend/src/pages/Courses/Courses.vue:360
 #: frontend/src/pages/DataImports.vue:227
 msgid "Created"
 msgstr ""
 
-#: frontend/src/components/Sidebar/AppSidebar.vue:427
+#: frontend/src/components/Sidebar/AppSidebar.vue:437
 msgid "Creating a batch"
 msgstr ""
 
-#: frontend/src/components/Sidebar/AppSidebar.vue:418
+#: frontend/src/components/Sidebar/AppSidebar.vue:428
 msgid "Creating a course"
 msgstr ""
 
@@ -4015,7 +4106,7 @@ msgstr ""
 msgid "Custom"
 msgstr ""
 
-#: frontend/src/components/Sidebar/AppSidebar.vue:454
+#: frontend/src/components/Sidebar/AppSidebar.vue:464
 msgid "Custom Certificate Templates"
 msgstr ""
 
@@ -4024,7 +4115,7 @@ msgstr ""
 msgid "Custom HTML"
 msgstr ""
 
-#: frontend/src/components/Settings/settings.ts:96
+#: frontend/src/components/Settings/settings.ts:99
 msgid "Custom HTML shown on the signup page, e.g. for consent notices or terms of service."
 msgstr ""
 
@@ -4051,16 +4142,12 @@ msgstr ""
 msgid "Customer Academy"
 msgstr ""
 
-#: frontend/src/components/Setup/SetupPreview.vue:230
-msgid "Customer support basics"
-msgstr ""
-
 #. Label of the customisations_tab (Tab Break) field in DocType 'LMS Batch'
 #: lms/lms/doctype/lms_batch/lms_batch.json:278
 msgid "Customisations"
 msgstr ""
 
-#: frontend/src/components/Settings/settings.ts:485
+#: frontend/src/components/Settings/settings.ts:494
 msgid "Customization"
 msgstr ""
 
@@ -4075,6 +4162,10 @@ msgstr ""
 #. Option for the 'Color' (Select) field in DocType 'LMS Course'
 #: lms/lms/doctype/lms_course/lms_course.json:285
 msgid "Cyan"
+msgstr ""
+
+#: frontend/src/utils/setupPreviewData.js:109
+msgid "Daily problem drills and a full mock test every Sunday."
 msgstr ""
 
 #: frontend/src/components/Sidebar/UserDropdown.vue:151
@@ -4093,6 +4184,10 @@ msgstr ""
 #: frontend/src/pages/DataImports.vue:236
 #: frontend/src/pages/DataImports.vue:240
 msgid "Data Import"
+msgstr ""
+
+#: frontend/src/utils/setupPreviewData.js:77
+msgid "Data Structures"
 msgstr ""
 
 #. Label of the date (Date) field in DocType 'LMS Batch Timetable'
@@ -4148,7 +4243,7 @@ msgid "Deduct marks for incorrect answers."
 msgstr ""
 
 #. Label of the default_currency (Link) field in DocType 'LMS Settings'
-#: frontend/src/components/Settings/settings.ts:344
+#: frontend/src/components/Settings/settings.ts:353
 #: lms/lms/doctype/lms_settings/lms_settings.json:176
 msgid "Default Currency"
 msgstr ""
@@ -4185,11 +4280,11 @@ msgstr ""
 msgid "Default Settings"
 msgstr ""
 
-#: frontend/src/components/Settings/settings.ts:349
+#: frontend/src/components/Settings/settings.ts:358
 msgid "Default currency used for course and batch pricing."
 msgstr ""
 
-#: frontend/src/components/Settings/settings.ts:531
+#: frontend/src/components/Settings/settings.ts:540
 msgid "Default social-share image used when pages lack their own meta image."
 msgstr ""
 
@@ -4214,7 +4309,7 @@ msgstr ""
 #: frontend/src/components/Settings/EmailTemplate/emailTemplate.ts:37
 #: frontend/src/components/Settings/GoogleCalendar/googleCalendar.ts:63
 #: frontend/src/components/Settings/GoogleMeet/googleMeet.ts:109
-#: frontend/src/components/Settings/Members/members.ts:185
+#: frontend/src/components/Settings/Members/members.ts:180
 #: frontend/src/components/Settings/PaymentGateways/paymentGateways.ts:64
 #: frontend/src/components/Settings/PaymentGateways/paymentGateways.ts:91
 #: frontend/src/components/Settings/Raven/DeleteConfirmDialog.vue:48
@@ -4224,7 +4319,7 @@ msgstr ""
 #: frontend/src/components/Settings/Zoom/zoom.ts:76
 #: frontend/src/components/Submissions/SubmissionsPage.vue:54
 #: frontend/src/pages/Assignments.vue:76
-#: frontend/src/pages/Batches/BatchForm.vue:579
+#: frontend/src/pages/Batches/BatchForm.vue:583
 #: frontend/src/pages/Batches/components/Assessments.vue:38
 #: frontend/src/pages/Courses/CourseForm.vue:267
 #: frontend/src/pages/Courses/CourseForm.vue:285
@@ -4296,13 +4391,13 @@ msgstr ""
 msgid "Delete this transaction?"
 msgstr ""
 
-#: frontend/src/components/Settings/Members/members.ts:137
+#: frontend/src/components/Settings/Members/members.ts:132
 msgid "Delete user"
 msgstr ""
 
 #: frontend/src/components/Settings/Coupons/coupons.ts:97
 #: frontend/src/components/Settings/EmailAccount/emailAccounts.ts:642
-#: frontend/src/components/Settings/Members/members.ts:178
+#: frontend/src/components/Settings/Members/members.ts:173
 #: frontend/src/components/Settings/PaymentGateways/paymentGateways.ts:57
 #: frontend/src/components/Settings/Raven/DeleteConfirmDialog.vue:4
 #, python-brace-format
@@ -4329,7 +4424,7 @@ msgstr ""
 msgid "Deleting these exercises will permanently remove them from the system, along with all associated submissions. This action is irreversible. Are you sure you want to proceed?"
 msgstr ""
 
-#: frontend/src/pages/Batches/BatchForm.vue:574
+#: frontend/src/pages/Batches/BatchForm.vue:578
 msgid "Deleting this batch will also delete all its data including enrolled students, linked courses, assessments, feedback and discussions. Are you sure you want to continue?"
 msgstr ""
 
@@ -4350,7 +4445,7 @@ msgstr ""
 msgid "Deleting…"
 msgstr ""
 
-#: lms/lms/api.py:1944
+#: lms/lms/api.py:1953
 #, python-brace-format
 msgid "Deletion not allowed for {0}"
 msgstr ""
@@ -4421,7 +4516,7 @@ msgstr ""
 msgid "Details for {0} students"
 msgstr ""
 
-#: lms/lms/api.py:2137
+#: lms/lms/api.py:2146
 msgid "Details must be an object."
 msgstr ""
 
@@ -4463,7 +4558,7 @@ msgstr ""
 msgid "Disable Signup"
 msgstr ""
 
-#: frontend/src/components/Settings/settings.ts:83
+#: frontend/src/components/Settings/settings.ts:86
 msgid "Disable signup"
 msgstr ""
 
@@ -4571,7 +4666,7 @@ msgstr ""
 msgid "Doe"
 msgstr ""
 
-#: frontend/src/components/Settings/settings.ts:559
+#: frontend/src/components/Settings/settings.ts:568
 msgid "Domains"
 msgstr ""
 
@@ -4616,7 +4711,7 @@ msgstr ""
 msgid "Each booked evaluation is added to this calendar with a Google Meet link."
 msgstr ""
 
-#: lms/lms/api.py:1522
+#: lms/lms/api.py:1531
 msgid "Each sidebar row must be an object."
 msgstr ""
 
@@ -4705,7 +4800,8 @@ msgstr ""
 #: frontend/src/components/Enrollment/EnrollStudentTable.vue:19
 #: frontend/src/components/Modals/NewMemberModal.vue:18
 #: frontend/src/components/Settings/Members/MemberForm.vue:41
-#: frontend/src/components/Settings/settings.ts:253
+#: frontend/src/components/Settings/settings.ts:256
+#: frontend/src/components/Setup/SetupPreview.vue:382
 #: frontend/src/pages/Forms/MemberForm.vue:12 lms/lms/dashboard/batch.py:442
 #: lms/lms/dashboard/batch.py:1547 lms/lms/dashboard/course.py:415
 #: lms/lms/dashboard/course.py:513
@@ -4727,7 +4823,7 @@ msgstr ""
 msgid "Email Account {0} does not exist"
 msgstr ""
 
-#: frontend/src/components/Settings/settings.ts:308
+#: frontend/src/components/Settings/settings.ts:311
 msgid "Email Accounts"
 msgstr ""
 
@@ -4750,7 +4846,7 @@ msgid "Email Sent"
 msgstr ""
 
 #: frontend/src/components/Settings/EmailTemplate/emailTemplate.ts:67
-#: frontend/src/components/Settings/settings.ts:301
+#: frontend/src/components/Settings/settings.ts:304
 msgid "Email Template"
 msgstr ""
 
@@ -4759,7 +4855,7 @@ msgid "Email Template created successfully"
 msgstr ""
 
 #. Label of the email_templates_tab (Tab Break) field in DocType 'LMS Settings'
-#: frontend/src/components/Settings/settings.ts:269
+#: frontend/src/components/Settings/settings.ts:272
 #: lms/lms/doctype/lms_settings/lms_settings.json:270
 msgid "Email Templates"
 msgstr ""
@@ -4793,7 +4889,7 @@ msgstr ""
 msgid "Email service {0} is not supported"
 msgstr ""
 
-#: frontend/src/components/Setup/SetupInvite.vue:10
+#: frontend/src/components/Setup/SetupInvite.vue:38
 #, python-brace-format
 msgid "Email {0}"
 msgstr ""
@@ -4880,7 +4976,7 @@ msgstr ""
 msgid "Enable this only if you want to upload a SCORM package as a chapter."
 msgstr ""
 
-#: frontend/src/components/Settings/settings.ts:78
+#: frontend/src/components/Settings/settings.ts:81
 msgid "Enable this option to identify the user category during signup."
 msgstr ""
 
@@ -5018,11 +5114,11 @@ msgstr ""
 msgid "Enforce Video Completion"
 msgstr ""
 
-#: frontend/src/components/Settings/settings.ts:132
+#: frontend/src/components/Settings/settings.ts:135
 msgid "Enforce completion"
 msgstr ""
 
-#: frontend/src/components/Settings/settings.ts:161
+#: frontend/src/components/Settings/settings.ts:164
 msgid "Enforce passing"
 msgstr ""
 
@@ -5105,7 +5201,7 @@ msgstr ""
 msgid "Enrollment & Certification"
 msgstr ""
 
-#: frontend/src/pages/Batches/BatchForm.vue:179
+#: frontend/src/pages/Batches/BatchForm.vue:183
 msgid "Enrollment Confirmation Email Template"
 msgstr ""
 
@@ -5176,11 +5272,11 @@ msgstr ""
 msgid "Enter a password."
 msgstr ""
 
-#: frontend/src/components/Setup/SetupInvite.vue:24
+#: frontend/src/components/Setup/SetupInvite.vue:47
 msgid "Enter a valid email address"
 msgstr ""
 
-#: lms/lms/api.py:2906
+#: lms/lms/api.py:2915
 msgid "Enter a valid email address."
 msgstr ""
 
@@ -5200,6 +5296,10 @@ msgstr ""
 
 #: frontend/src/pages/JobApplications.vue:79
 msgid "Enter email subject"
+msgstr ""
+
+#: lms/lms/onboarding.py:121
+msgid "Enter your organization's name."
 msgstr ""
 
 #: frontend/src/components/CourseOutline.vue:186
@@ -5229,7 +5329,7 @@ msgstr ""
 msgid "Error creating Address"
 msgstr ""
 
-#: frontend/src/pages/Forms/NewBatchForm.vue:302
+#: frontend/src/pages/Forms/NewBatchForm.vue:306
 msgid "Error creating batch"
 msgstr ""
 
@@ -5456,8 +5556,8 @@ msgstr ""
 #. Label of the evaluator (Link) field in DocType 'LMS Certificate Evaluation'
 #. Label of the evaluator (Link) field in DocType 'LMS Certificate Request'
 #. Label of the evaluator (Link) field in DocType 'LMS Course'
-#: frontend/src/components/Settings/Members/members.ts:33
-#: frontend/src/components/Settings/Members/members.ts:65
+#: frontend/src/components/Settings/Members/members.ts:34
+#: frontend/src/components/Settings/Members/members.ts:66
 #: frontend/src/pages/Batches/components/BatchCourses.vue:93
 #: frontend/src/pages/Courses/CoursePublishSettings.vue:127
 #: frontend/src/pages/Forms/BatchCourseForm.vue:23
@@ -5493,11 +5593,11 @@ msgstr ""
 msgid "Evaluator is required for paid certificates."
 msgstr ""
 
-#: lms/lms/api.py:1060
+#: lms/lms/api.py:1069
 msgid "Evaluator is required."
 msgstr ""
 
-#: lms/lms/api.py:1077
+#: lms/lms/api.py:1086
 #, python-brace-format
 msgid "Evaluator {0} not found"
 msgstr ""
@@ -5538,6 +5638,10 @@ msgstr ""
 
 #: frontend/src/pages/DataImports.vue:155
 msgid "Everything"
+msgstr ""
+
+#: frontend/src/components/Setup/SetupPreview.vue:315
+msgid "Example"
 msgstr ""
 
 #: frontend/src/components/Dashboard/ExportAnalyticsDialog.vue:175
@@ -5581,7 +5685,7 @@ msgstr ""
 msgid "Expected Output"
 msgstr ""
 
-#: lms/lms/api.py:3191
+#: lms/lms/api.py:3200
 #, python-brace-format
 msgid "Expected {0} outputs, got {1}"
 msgstr ""
@@ -5792,7 +5896,7 @@ msgstr ""
 msgid "Failed to update email account, Invalid credentials"
 msgstr ""
 
-#: frontend/src/utils/index.js:969
+#: frontend/src/utils/index.js:980
 #, python-brace-format
 msgid "Failed to update meta tags {0}"
 msgstr ""
@@ -5979,6 +6083,10 @@ msgstr ""
 msgid "Finished all lessons"
 msgstr ""
 
+#: frontend/src/utils/setupPreviewData.js:127
+msgid "First 90 Days Program"
+msgstr ""
+
 #: frontend/src/components/Modals/NewMemberModal.vue:28
 #: frontend/src/components/Settings/Members/MemberForm.vue:26
 #: frontend/src/pages/Forms/MemberForm.vue:22
@@ -6022,16 +6130,21 @@ msgstr ""
 msgid "Forgot it? Email me a reset link"
 msgstr ""
 
+#: frontend/src/components/Setup/SetupPreview.vue:384
+msgid "Forgot password?"
+msgstr ""
+
 #: frontend/src/components/Dashboard/ExportAnalyticsDialog.vue:4
 msgid "Format"
 msgstr ""
 
-#: frontend/src/components/Settings/settings.ts:543
+#: frontend/src/components/Settings/settings.ts:552
 msgid "Frappe Cloud"
 msgstr ""
 
 #. Label of a Desktop Icon
-#: frontend/src/pages/Setup.vue:15 lms/desktop_icon/frappe_learning.json:9
+#: frontend/src/pages/Setup.vue:15 frontend/src/pages/Setup.vue:122
+#: lms/desktop_icon/frappe_learning.json:9
 msgid "Frappe Learning"
 msgstr ""
 
@@ -6147,13 +6260,13 @@ msgstr ""
 msgid "Gateway"
 msgstr ""
 
-#: frontend/src/components/Settings/settings.ts:420
+#: frontend/src/components/Settings/settings.ts:429
 msgid "Gateways"
 msgstr ""
 
 #. Label of the general_tab (Tab Break) field in DocType 'LMS Settings'
-#: frontend/src/components/Settings/settings.ts:57
-#: frontend/src/components/Settings/settings.ts:238
+#: frontend/src/components/Settings/settings.ts:60
+#: frontend/src/components/Settings/settings.ts:241
 #: lms/lms/doctype/lms_settings/lms_settings.json:368
 msgid "General"
 msgstr ""
@@ -6220,7 +6333,7 @@ msgstr ""
 msgid "Give this channel a name before saving"
 msgstr ""
 
-#: lms/lms/api.py:781
+#: lms/lms/api.py:790
 msgid "Give your calendar a name."
 msgstr ""
 
@@ -6234,20 +6347,8 @@ msgstr ""
 msgid "Go now"
 msgstr ""
 
-#: frontend/src/components/Settings/Members/members.ts:132
+#: frontend/src/components/Settings/Members/members.ts:127
 msgid "Go to Profile"
-msgstr ""
-
-#: frontend/src/components/Setup/SetupPreview.vue:200
-msgid "Good afternoon"
-msgstr ""
-
-#: frontend/src/components/Setup/SetupPreview.vue:201
-msgid "Good evening"
-msgstr ""
-
-#: frontend/src/components/Setup/SetupPreview.vue:198
-msgid "Good morning"
 msgstr ""
 
 #: frontend/src/components/Settings/Services/Services.vue:55
@@ -6261,7 +6362,7 @@ msgstr ""
 #: frontend/src/components/Settings/GoogleCalendar/GoogleCalendarDetail.vue:69
 #: frontend/src/components/Settings/GoogleMeet/googleMeet.ts:87
 #: frontend/src/components/Settings/GoogleMeet/googleMeet.ts:145
-#: frontend/src/components/Settings/settings.ts:454
+#: frontend/src/components/Settings/settings.ts:463
 #: lms/lms/doctype/lms_google_meet_settings/lms_google_meet_settings.json:65
 msgid "Google Calendar"
 msgstr ""
@@ -6278,7 +6379,7 @@ msgstr ""
 msgid "Google Calendar created successfully"
 msgstr ""
 
-#: lms/lms/api.py:831
+#: lms/lms/api.py:840
 msgid "Google Calendar didn't take the new name. Try again in a few minutes."
 msgstr ""
 
@@ -6298,7 +6399,7 @@ msgstr ""
 msgid "Google Calendar enabled"
 msgstr ""
 
-#: lms/lms/api.py:750
+#: lms/lms/api.py:759
 msgid "Google Calendar is not set up on this site yet. Ask your site administrator to turn it on."
 msgstr ""
 
@@ -6318,7 +6419,7 @@ msgstr ""
 msgid "Google Classroom"
 msgstr ""
 
-#: frontend/src/utils/index.js:299
+#: frontend/src/utils/index.js:301
 msgid "Google Docs embed"
 msgstr ""
 
@@ -6326,15 +6427,15 @@ msgstr ""
 msgid "Google Drive"
 msgstr ""
 
-#: frontend/src/utils/index.js:289
+#: frontend/src/utils/index.js:291
 msgid "Google Drive embed"
 msgstr ""
 
 #. Option for the 'Conferencing Provider' (Select) field in DocType 'LMS Batch'
 #. Option for the 'Conferencing Provider' (Select) field in DocType 'LMS Live
 #. Class'
-#: frontend/src/components/Settings/settings.ts:462
-#: frontend/src/pages/Batches/BatchForm.vue:613
+#: frontend/src/components/Settings/settings.ts:471
+#: frontend/src/pages/Batches/BatchForm.vue:617
 #: lms/lms/doctype/lms_batch/lms_batch.json:369
 #: lms/lms/doctype/lms_live_class/lms_live_class.json:152
 msgid "Google Meet"
@@ -6343,7 +6444,7 @@ msgstr ""
 #. Label of the google_meet_account (Link) field in DocType 'LMS Batch'
 #. Label of the google_meet_account (Link) field in DocType 'LMS Live Class'
 #: frontend/src/components/Settings/GoogleMeet/googleMeet.ts:124
-#: frontend/src/pages/Batches/BatchForm.vue:250
+#: frontend/src/pages/Batches/BatchForm.vue:254
 #: lms/lms/doctype/lms_batch/lms_batch.json:382
 #: lms/lms/doctype/lms_live_class/lms_live_class.json:165
 msgid "Google Meet Account"
@@ -6367,11 +6468,11 @@ msgstr ""
 msgid "Google Meet account updated successfully"
 msgstr ""
 
-#: frontend/src/utils/index.js:307
+#: frontend/src/utils/index.js:309
 msgid "Google Sheets embed"
 msgstr ""
 
-#: frontend/src/utils/index.js:279 frontend/src/utils/index.js:315
+#: frontend/src/utils/index.js:281 frontend/src/utils/index.js:317
 msgid "Google Slides embed"
 msgstr ""
 
@@ -6383,6 +6484,10 @@ msgstr ""
 #: frontend/src/components/Assignment.vue:224
 #: lms/lms/doctype/education_detail/education_detail.json:51
 msgid "Grade"
+msgstr ""
+
+#: frontend/src/utils/setupPreviewData.js:56
+msgid "Grade 8 Science"
 msgstr ""
 
 #. Label of the grade_assignment (Check) field in DocType 'LMS Assignment'
@@ -6437,11 +6542,15 @@ msgstr ""
 msgid "Halfway or further"
 msgstr ""
 
+#: frontend/src/utils/setupPreviewData.js:67
+msgid "Hands-on experiments every Friday, ending with a science fair."
+msgstr ""
+
 #: lms/templates/signup-form.html:64
 msgid "Have an account? Login"
 msgstr ""
 
-#: frontend/src/utils/index.js:153
+#: frontend/src/utils/index.js:155
 msgid "Header"
 msgstr ""
 
@@ -6458,8 +6567,12 @@ msgstr ""
 msgid "Hello Learner"
 msgstr ""
 
-#: frontend/src/components/Sidebar/AppSidebar.vue:113
+#: frontend/src/components/Sidebar/AppSidebar.vue:114
 msgid "Help"
+msgstr ""
+
+#: frontend/src/pages/Setup.vue:107
+msgid "Help improve Frappe Learning by sharing anonymous usage data"
 msgstr ""
 
 #: lms/templates/courses_created.html:15
@@ -6518,7 +6631,7 @@ msgstr ""
 msgid "Hidden cases count toward the score but are not shown to the learner."
 msgstr ""
 
-#: frontend/src/pages/Setup.vue:208
+#: frontend/src/pages/Setup.vue:332
 msgid "Hide"
 msgstr ""
 
@@ -6550,7 +6663,6 @@ msgid "Hiring"
 msgstr ""
 
 #: frontend/src/components/Settings/Sidebar/sidebar.ts:21
-#: frontend/src/components/Setup/SetupPreview.vue:207
 #: frontend/src/pages/Home/Home.vue:178
 msgid "Home"
 msgstr ""
@@ -6644,7 +6756,7 @@ msgid "Icon"
 msgstr ""
 
 #. Label of the user_category (Check) field in DocType 'LMS Settings'
-#: frontend/src/components/Settings/settings.ts:75
+#: frontend/src/components/Settings/settings.ts:78
 #: lms/lms/doctype/lms_settings/lms_settings.json:140
 msgid "Identify User Category"
 msgstr ""
@@ -6653,7 +6765,7 @@ msgstr ""
 msgid "If checked, users will not be able to install the application as a Progressive Web App."
 msgstr ""
 
-#: frontend/src/components/Settings/settings.ts:389
+#: frontend/src/components/Settings/settings.ts:398
 msgid "If enabled, GST will be applied to the price for students from India."
 msgstr ""
 
@@ -6661,7 +6773,7 @@ msgstr ""
 msgid "If enabled, emails will be pulled from this account."
 msgstr ""
 
-#: frontend/src/components/Settings/settings.ts:372
+#: frontend/src/components/Settings/settings.ts:381
 msgid "If enabled, it applies rounding on the USD equivalent amount."
 msgstr ""
 
@@ -6669,15 +6781,15 @@ msgstr ""
 msgid "If enabled, it sends google calendar invite to the student for evaluations."
 msgstr ""
 
-#: frontend/src/components/Settings/settings.ts:402
+#: frontend/src/components/Settings/settings.ts:411
 msgid "If enabled, it sends payment reminders to students who left the payment incomplete for a batch."
 msgstr ""
 
-#: frontend/src/components/Settings/settings.ts:410
+#: frontend/src/components/Settings/settings.ts:419
 msgid "If enabled, it sends payment reminders to students who left the payment incomplete for a course."
 msgstr ""
 
-#: frontend/src/components/Settings/settings.ts:364
+#: frontend/src/components/Settings/settings.ts:373
 msgid "If enabled, it shows the USD equivalent amount for all transactions based on the current exchange rate."
 msgstr ""
 
@@ -6761,6 +6873,8 @@ msgstr ""
 msgid "Implicit SSL, which is what port 993 expects."
 msgstr ""
 
+#: frontend/src/components/Setup/SetupPreview.vue:92
+#: frontend/src/components/Setup/SetupPreview.vue:162
 #: frontend/src/components/Sidebar/UserDropdown.vue:185
 #: frontend/src/pages/Batches/Batches.vue:22
 #: frontend/src/pages/Courses/Courses.vue:38
@@ -6772,10 +6886,12 @@ msgstr ""
 msgid "Import Course from ZIP"
 msgstr ""
 
+#: frontend/src/components/Setup/SetupPreview.vue:295
 #: frontend/src/pages/Courses/Courses.vue:422
 msgid "Import from a spreadsheet"
 msgstr ""
 
+#: frontend/src/components/Setup/SetupPreview.vue:299
 #: frontend/src/pages/Courses/Courses.vue:430
 msgid "Import via ZIP"
 msgstr ""
@@ -6829,7 +6945,7 @@ msgstr ""
 msgid "Include In Preview"
 msgstr ""
 
-#: lms/lms/api.py:3815
+#: lms/lms/api.py:3824
 msgid "Include enrolled must be true or false."
 msgstr ""
 
@@ -6908,7 +7024,7 @@ msgstr ""
 
 #. Label of the instructor (Link) field in DocType 'Course Instructor'
 #. Name of a role
-#: frontend/src/components/Settings/Members/members.ts:31
+#: frontend/src/components/Settings/Members/members.ts:32
 #: frontend/src/utils/batchForm.ts:57 frontend/src/utils/courseForm.ts:44
 #: lms/lms/doctype/course_instructor/course_instructor.json:16
 #: lms/lms/doctype/lms_quiz_violation_log/lms_quiz_violation_log.json:73
@@ -6955,8 +7071,8 @@ msgstr ""
 #. Label of the instructors (Rating) field in DocType 'LMS Batch Feedback'
 #. Label of the instructors (Table MultiSelect) field in DocType 'LMS Course'
 #: frontend/src/components/Courses/CourseInstructorsField.vue:10
-#: frontend/src/pages/Batches/BatchForm.vue:154
-#: frontend/src/pages/Forms/NewBatchForm.vue:96
+#: frontend/src/pages/Batches/BatchForm.vue:158
+#: frontend/src/pages/Forms/NewBatchForm.vue:100
 #: frontend/src/pages/Forms/NewCourseForm.vue:34
 #: frontend/src/utils/dashboard/feedback.ts:13
 #: lms/lms/doctype/lms_batch/lms_batch.json:331
@@ -6970,7 +7086,7 @@ msgstr ""
 msgid "Insufficient Permission"
 msgstr ""
 
-#: frontend/src/components/Settings/settings.ts:445
+#: frontend/src/components/Settings/settings.ts:454
 msgid "Integrations"
 msgstr ""
 
@@ -6979,8 +7095,8 @@ msgstr ""
 msgid "Interest"
 msgstr ""
 
-#: frontend/src/components/Sidebar/AppSidebar.vue:410
-#: frontend/src/components/Sidebar/AppSidebar.vue:413
+#: frontend/src/components/Sidebar/AppSidebar.vue:420
+#: frontend/src/components/Sidebar/AppSidebar.vue:423
 msgid "Introduction"
 msgstr ""
 
@@ -7012,11 +7128,11 @@ msgstr ""
 msgid "Invalid batch"
 msgstr ""
 
-#: lms/lms/api.py:3653
+#: lms/lms/api.py:3662
 msgid "Invalid batch."
 msgstr ""
 
-#: lms/lms/api.py:1577
+#: lms/lms/api.py:1586
 msgid "Invalid chapter."
 msgstr ""
 
@@ -7028,19 +7144,19 @@ msgstr ""
 msgid "Invalid course ZIP: Missing course.json"
 msgstr ""
 
-#: lms/lms/api.py:3790 lms/lms/api.py:3810 lms/lms/bulk_enrollment.py:401
+#: lms/lms/api.py:3799 lms/lms/api.py:3819 lms/lms/bulk_enrollment.py:401
 msgid "Invalid course or batch."
 msgstr ""
 
-#: lms/lms/api.py:2335 lms/lms/api.py:2341 lms/lms/api.py:2347
+#: lms/lms/api.py:2344 lms/lms/api.py:2350 lms/lms/api.py:2356
 msgid "Invalid course or chapter name"
 msgstr ""
 
-#: lms/lms/api.py:3702
+#: lms/lms/api.py:3711
 msgid "Invalid course."
 msgstr ""
 
-#: lms/lms/api.py:1947
+#: lms/lms/api.py:1956
 msgid "Invalid document name"
 msgstr ""
 
@@ -7067,7 +7183,7 @@ msgstr ""
 msgid "Invalid file path"
 msgstr ""
 
-#: lms/lms/api.py:2368 lms/lms/api.py:2371
+#: lms/lms/api.py:2377 lms/lms/api.py:2380
 msgid "Invalid file path in package"
 msgstr ""
 
@@ -7083,7 +7199,7 @@ msgstr ""
 msgid "Invalid live class"
 msgstr ""
 
-#: lms/lms/api.py:1743 lms/lms/api.py:1747
+#: lms/lms/api.py:1752 lms/lms/api.py:1756
 msgid "Invalid member."
 msgstr ""
 
@@ -7103,7 +7219,7 @@ msgstr ""
 msgid "Invalid quiz."
 msgstr ""
 
-#: lms/lms/api.py:1763
+#: lms/lms/api.py:1772
 msgid "Invalid role filter."
 msgstr ""
 
@@ -7111,7 +7227,7 @@ msgstr ""
 msgid "Invalid search"
 msgstr ""
 
-#: lms/lms/api.py:1765
+#: lms/lms/api.py:1774
 msgid "Invalid search query."
 msgstr ""
 
@@ -7151,17 +7267,34 @@ msgstr ""
 msgid "Invite Status"
 msgstr ""
 
+#: frontend/src/components/Settings/Members/PendingInvites.vue:17
+msgid "Invite by email"
+msgstr ""
+
+#: frontend/src/components/Settings/Members/PendingInvites.vue:5
+msgid "Invite people to teach or learn on your site. Their role sets what they can do."
+msgstr ""
+
+#: frontend/src/components/Settings/Members/PendingInvites.vue:152
+#, python-brace-format
+msgid "Invite to {0} cancelled"
+msgstr ""
+
 #: lms/lms/day1_email.py:108
 #, python-brace-format
 msgid "Invite your first learners to {0}"
 msgstr ""
 
-#: frontend/src/pages/Setup.vue:184
+#: frontend/src/pages/Setup.vue:306
 msgid "Invite your team"
 msgstr ""
 
-#: frontend/src/components/Sidebar/AppSidebar.vue:355
+#: frontend/src/components/Sidebar/AppSidebar.vue:365
 msgid "Invite your team and students"
+msgstr ""
+
+#: frontend/src/components/Settings/settings.ts:330
+msgid "Invites"
 msgstr ""
 
 #: frontend/src/pages/Batches/components/LiveClass.vue:77
@@ -7255,7 +7388,7 @@ msgstr ""
 msgid "Issue Date"
 msgstr ""
 
-#: frontend/src/components/Sidebar/AppSidebar.vue:451
+#: frontend/src/components/Sidebar/AppSidebar.vue:461
 msgid "Issue a Certificate"
 msgstr ""
 
@@ -7316,6 +7449,14 @@ msgstr ""
 msgid "Its content is stored in a form we cannot read. Reload the page, and tell your instructor if it keeps happening."
 msgstr ""
 
+#: frontend/src/utils/setupPreviewData.js:108
+msgid "JEE 2027 Achievers"
+msgstr ""
+
+#: frontend/src/utils/setupPreviewData.js:98
+msgid "JEE Physics crash course"
+msgstr ""
+
 #: frontend/src/components/Modals/NewMemberModal.vue:29
 #: frontend/src/pages/Forms/MemberForm.vue:23
 msgid "Jane"
@@ -7369,13 +7510,12 @@ msgstr ""
 msgid "Job Title"
 msgstr ""
 
-#: lms/lms/api.py:352
+#: lms/lms/api.py:359
 msgid "Job must be a string."
 msgstr ""
 
 #. Label of the jobs_tab (Tab Break) field in DocType 'LMS Settings'
 #: frontend/src/components/Settings/Sidebar/sidebar.ts:28
-#: frontend/src/components/Setup/SetupPreview.vue:217
 #: frontend/src/pages/Forms/JobForm.vue:335
 #: frontend/src/pages/JobApplications.vue:276
 #: frontend/src/pages/JobDetail.vue:192 frontend/src/pages/Jobs.vue:342
@@ -7393,7 +7533,6 @@ msgstr ""
 msgid "Jobs you close move here, so you keep a record of past openings."
 msgstr ""
 
-#: frontend/src/components/Setup/SetupPreview.vue:160
 #: frontend/src/pages/Batches/components/LiveClass.vue:111
 #: frontend/src/pages/Home/LiveClassCard.vue:36
 #: lms/templates/upcoming_evals.html:15
@@ -7484,16 +7623,16 @@ msgstr ""
 msgid "Keep going: {0}"
 msgstr ""
 
-#: lms/lms/api.py:783
+#: lms/lms/api.py:792
 msgid "Keep the calendar name under 140 characters."
 msgstr ""
 
-#: lms/lms/api.py:1256
+#: lms/lms/api.py:1265
 #, python-brace-format
 msgid "Keep the schedule under {0} time ranges."
 msgstr ""
 
-#: lms/lms/api.py:613
+#: lms/lms/api.py:622
 msgid "Keyword must be a string."
 msgstr ""
 
@@ -7845,12 +7984,16 @@ msgstr ""
 msgid "Launch a paid course"
 msgstr ""
 
-#: frontend/src/components/Setup/SetupPreview.vue:53
-msgid "Learn"
+#: frontend/src/utils/setupPreviewData.js:163
+msgid "Layered washes, fine detail and a finished botanical study."
 msgstr ""
 
-#: frontend/src/components/Settings/Members/members.ts:54
+#: frontend/src/components/Settings/Members/members.ts:55
 msgid "Learn courses and track progress"
+msgstr ""
+
+#: frontend/src/utils/setupPreviewData.js:207
+msgid "Learn how to build and run courses on Frappe Learning."
 msgstr ""
 
 #: frontend/src/utils/setupQuestions.js:60
@@ -7865,13 +8008,21 @@ msgstr ""
 msgid "Learners can't book you during time off."
 msgstr ""
 
-#: frontend/src/components/Settings/settings.ts:200
+#: frontend/src/components/Settings/settings.ts:203
 msgid "Learners can't jump ahead of the furthest point they've watched. Turn on with Videos above to require watching the whole video."
 msgstr ""
 
 #: lms/lms/doctype/lms_live_class/lms_live_class.py:405
 #, python-brace-format
 msgid "Learners haven't been invited to {0}"
+msgstr ""
+
+#: frontend/src/pages/Setup.vue:290
+msgid "Learners see this name and logo everywhere."
+msgstr ""
+
+#: frontend/src/utils/setupPreviewData.js:212
+msgid "Learners take the demo course together, with a live class every week."
 msgstr ""
 
 #: frontend/src/pages/CertifiedParticipants.vue:154
@@ -7884,7 +8035,7 @@ msgstr ""
 
 #. Name of a Workspace
 #. Title of a Workspace Sidebar
-#: frontend/src/components/Setup/SetupPreview.vue:36
+#: frontend/src/components/Setup/SetupPreview.vue:23
 #: frontend/src/components/Sidebar/UserDropdown.vue:54
 #: lms/lms/workspace/learning/learning.json:26
 #: lms/workspace_sidebar/learning.json:123
@@ -7895,7 +8046,7 @@ msgstr ""
 msgid "Learning Consistency"
 msgstr ""
 
-#: frontend/src/components/Sidebar/AppSidebar.vue:435
+#: frontend/src/components/Sidebar/AppSidebar.vue:445
 msgid "Learning Paths"
 msgstr ""
 
@@ -7952,11 +8103,13 @@ msgstr ""
 msgid "Lesson"
 msgstr ""
 
-#: frontend/src/components/Settings/settings.ts:120
+#. Name of a Dashboard Chart
+#: frontend/src/components/Settings/settings.ts:123
+#: lms/lms/dashboard_chart/lesson_completion/lesson_completion.json:3
 msgid "Lesson Completion"
 msgstr ""
 
-#: frontend/src/components/Settings/settings.ts:123
+#: frontend/src/components/Settings/settings.ts:126
 msgid "Lesson Completion Time (seconds)"
 msgstr ""
 
@@ -8007,7 +8160,7 @@ msgstr ""
 msgid "Lesson moved successfully"
 msgstr ""
 
-#: lms/lms/api.py:3316
+#: lms/lms/api.py:3325
 msgid "Lesson must be a string."
 msgstr ""
 
@@ -8024,16 +8177,16 @@ msgstr ""
 msgid "Lesson title"
 msgstr ""
 
-#: lms/lms/api.py:1597
+#: lms/lms/api.py:1606
 msgid "Lesson title cannot be empty."
 msgstr ""
 
-#: lms/lms/api.py:1600
+#: lms/lms/api.py:1609
 #, python-brace-format
 msgid "Lesson title cannot be longer than {0} characters."
 msgstr ""
 
-#: lms/lms/api.py:1594
+#: lms/lms/api.py:1603
 msgid "Lesson title must be a string."
 msgstr ""
 
@@ -8139,12 +8292,16 @@ msgstr ""
 msgid "Live Class"
 msgstr ""
 
-#: lms/lms/api.py:4309
+#: lms/lms/api.py:4318
 msgid "Live Classes"
 msgstr ""
 
 #: lms/lms/doctype/lms_quiz/lms_quiz.py:811
 msgid "Live answer checking is not enabled for this quiz."
+msgstr ""
+
+#: frontend/src/utils/setupPreviewData.js:149
+msgid "Live sessions that prepare admins for the certification exam."
 msgstr ""
 
 #. Label of the livecode_url (Data) field in DocType 'LMS Settings'
@@ -8250,6 +8407,7 @@ msgstr ""
 msgid "Login to apply"
 msgstr ""
 
+#: frontend/src/pages/Setup.vue:338
 #: lms/templates/emails/published_batch_notification.html:2
 #: lms/templates/emails/published_course_notification.html:2
 msgid "Logo"
@@ -8314,7 +8472,7 @@ msgstr ""
 msgid "Make this certificate visible to the participant."
 msgstr ""
 
-#: frontend/src/components/Settings/Members/members.ts:66
+#: frontend/src/components/Settings/Members/members.ts:67
 msgid "Manage batches, review and grade submissions"
 msgstr ""
 
@@ -8383,7 +8541,7 @@ msgstr ""
 msgid "Marked by your instructor"
 msgstr ""
 
-#: frontend/src/components/Settings/settings.ts:553
+#: frontend/src/components/Settings/settings.ts:562
 msgid "Marketplace"
 msgstr ""
 
@@ -8426,6 +8584,10 @@ msgstr ""
 msgid "Marks:"
 msgstr ""
 
+#: frontend/src/utils/setupPreviewData.js:60
+msgid "Matter, energy and the living world, one experiment at a time."
+msgstr ""
+
 #. Label of the max_attempts (Int) field in DocType 'LMS Quiz'
 #: frontend/src/pages/Quizzes.vue:224 lms/lms/doctype/lms_quiz/lms_quiz.json:62
 msgid "Max Attempts"
@@ -8441,8 +8603,12 @@ msgstr ""
 msgid "Maximum Attempts"
 msgstr ""
 
+#: frontend/src/utils/setupPreviewData.js:102
+msgid "Mechanics to modern physics in 8 weeks, with 10 mock tests."
+msgstr ""
+
 #. Label of the medium (Select) field in DocType 'LMS Batch'
-#: frontend/src/pages/Batches/BatchForm.vue:171
+#: frontend/src/pages/Batches/BatchForm.vue:175
 #: frontend/src/pages/Forms/NewBatchForm.vue:73
 #: lms/lms/doctype/lms_batch/lms_batch.json:167
 msgid "Medium"
@@ -8452,10 +8618,6 @@ msgstr ""
 #: lms/templates/emails/batch_start_reminder.html:19
 #: lms/templates/emails/batch_start_reminder_recorded.html:22
 msgid "Medium:"
-msgstr ""
-
-#: frontend/src/components/Setup/SetupPreview.vue:146
-msgid "Meet your mentor"
 msgstr ""
 
 #. Label of the meeting_id (Data) field in DocType 'LMS Live Class'
@@ -8646,7 +8808,7 @@ msgstr ""
 msgid "Member is required"
 msgstr ""
 
-#: lms/lms/api.py:4538 lms/lms/utils.py:2712
+#: lms/lms/api.py:4547 lms/lms/utils.py:2712
 msgid "Member must be a string."
 msgstr ""
 
@@ -8679,7 +8841,7 @@ msgstr ""
 msgid "Member updated"
 msgstr ""
 
-#: lms/lms/api.py:1751 lms/lms/api.py:2935
+#: lms/lms/api.py:1760 lms/lms/api.py:2944
 #, python-brace-format
 msgid "Member {0} does not exist."
 msgstr ""
@@ -8703,7 +8865,7 @@ msgstr ""
 msgid "Members must be a list of user emails. Remove empty entries and try again."
 msgstr ""
 
-#: lms/lms/api.py:3655 lms/lms/api.py:3708 lms/lms/api.py:3793
+#: lms/lms/api.py:3664 lms/lms/api.py:3717 lms/lms/api.py:3802
 msgid "Members must be a list of users."
 msgstr ""
 
@@ -8760,30 +8922,30 @@ msgid "Messages from your instructors about this batch show up here."
 msgstr ""
 
 #. Label of the meta_description (Small Text) field in DocType 'LMS Settings'
-#: frontend/src/components/Settings/settings.ts:507
-#: frontend/src/pages/Batches/BatchForm.vue:269
+#: frontend/src/components/Settings/settings.ts:516
+#: frontend/src/pages/Batches/BatchForm.vue:273
 #: lms/lms/doctype/lms_settings/lms_settings.json:404
 msgid "Meta Description"
 msgstr ""
 
 #. Label of the meta_image (Attach Image) field in DocType 'LMS Batch'
 #. Label of the meta_image (Attach Image) field in DocType 'LMS Settings'
-#: frontend/src/components/Settings/settings.ts:525
-#: frontend/src/pages/Batches/BatchForm.vue:282
+#: frontend/src/components/Settings/settings.ts:534
+#: frontend/src/pages/Batches/BatchForm.vue:286
 #: lms/lms/doctype/lms_batch/lms_batch.json:269
 #: lms/lms/doctype/lms_settings/lms_settings.json:410
 msgid "Meta Image"
 msgstr ""
 
 #. Label of the meta_keywords (Small Text) field in DocType 'LMS Settings'
-#: frontend/src/components/Settings/settings.ts:516
-#: frontend/src/pages/Batches/BatchForm.vue:275
+#: frontend/src/components/Settings/settings.ts:525
+#: frontend/src/pages/Batches/BatchForm.vue:279
 #: lms/lms/doctype/lms_settings/lms_settings.json:420
 msgid "Meta Keywords"
 msgstr ""
 
 #: frontend/src/components/Courses/CourseOverviewSection.vue:48
-#: frontend/src/pages/Batches/BatchForm.vue:264
+#: frontend/src/pages/Batches/BatchForm.vue:268
 msgid "Meta Tags"
 msgstr ""
 
@@ -8795,11 +8957,11 @@ msgstr ""
 msgid "Meta keywords"
 msgstr ""
 
-#: lms/lms/api.py:3096
+#: lms/lms/api.py:3105
 msgid "Meta tags should be a list."
 msgstr ""
 
-#: lms/lms/api.py:3058
+#: lms/lms/api.py:3067
 msgid "Meta type and route must be strings."
 msgstr ""
 
@@ -8837,9 +8999,9 @@ msgid "Mobile No"
 msgstr ""
 
 #. Name of a role
-#: frontend/src/components/Settings/Members/members.ts:32
-#: frontend/src/components/Settings/Members/members.ts:71
-#: frontend/src/components/Setup/SetupInvite.vue:81
+#: frontend/src/components/Settings/Members/members.ts:33
+#: frontend/src/components/Settings/Members/members.ts:72
+#: frontend/src/components/Setup/SetupInvite.vue:34
 #: lms/lms/doctype/course_chapter/course_chapter.json:168
 #: lms/lms/doctype/course_evaluator/course_evaluator.json:113
 #: lms/lms/doctype/course_lesson/course_lesson.json:218
@@ -8886,11 +9048,11 @@ msgstr ""
 msgid "Modified By"
 msgstr ""
 
-#: lms/lms/api.py:307
+#: lms/lms/api.py:314
 msgid "Module Name is incorrect or does not exist."
 msgstr ""
 
-#: lms/lms/api.py:303
+#: lms/lms/api.py:310
 msgid "Module is incorrect."
 msgstr ""
 
@@ -8901,7 +9063,7 @@ msgstr ""
 msgid "Monday"
 msgstr ""
 
-#: frontend/src/components/Sidebar/AppSidebar.vue:459
+#: frontend/src/components/Sidebar/AppSidebar.vue:469
 msgid "Monetization"
 msgstr ""
 
@@ -8998,7 +9160,7 @@ msgstr ""
 msgid "Name the quiz first"
 msgstr ""
 
-#: lms/lms/api.py:3819
+#: lms/lms/api.py:3828
 msgid "Names must be a list of users."
 msgstr ""
 
@@ -9034,6 +9196,7 @@ msgstr ""
 msgid "New Badge"
 msgstr ""
 
+#: frontend/src/components/Setup/SetupPreview.vue:167
 #: frontend/src/pages/Batches/Batches.vue:28
 #: frontend/src/pages/Batches/Batches.vue:71
 #: frontend/src/pages/Forms/NewBatchForm.vue:3 lms/www/_lms.py:190
@@ -9052,6 +9215,7 @@ msgstr ""
 msgid "New Coupon"
 msgstr ""
 
+#: frontend/src/components/Setup/SetupPreview.vue:120
 #: frontend/src/pages/CertifiedParticipants.vue:19
 #: frontend/src/pages/Courses/Courses.vue:23
 #: frontend/src/pages/Courses/Courses.vue:45
@@ -9129,6 +9293,11 @@ msgstr ""
 msgid "New Sign Up"
 msgstr ""
 
+#. Name of a Dashboard Chart
+#: lms/lms/dashboard_chart/new_signups/new_signups.json:3
+msgid "New Signups"
+msgstr ""
+
 #: frontend/src/components/Settings/Transactions/TransactionForm.vue:395
 msgid "New Transaction"
 msgstr ""
@@ -9162,12 +9331,12 @@ msgstr ""
 msgid "New evaluations will be booked without a calendar event or Google Meet link. Events already on your calendar stay there."
 msgstr ""
 
-#: frontend/src/components/ChapterRow.vue:208
-msgid "New lesson"
+#: frontend/src/utils/setupPreviewData.js:128
+msgid "New joiners learn the tools, the team and how work gets done."
 msgstr ""
 
-#: frontend/src/components/Setup/SetupPreview.vue:236
-msgid "New manager programme"
+#: frontend/src/components/ChapterRow.vue:208
+msgid "New lesson"
 msgstr ""
 
 #: frontend/src/components/Profile/ChangePasswordDialog.vue:19
@@ -9194,8 +9363,12 @@ msgstr ""
 msgid "New reply on the topic {0} in course {1}"
 msgstr ""
 
-#: frontend/src/components/Settings/settings.ts:86
+#: frontend/src/components/Settings/settings.ts:89
 msgid "New users will have to be manually registered by Admins."
+msgstr ""
+
+#: frontend/src/utils/setupPreviewData.js:191
+msgid "New volunteers learning to lead drives in their neighbourhood."
 msgstr ""
 
 #: frontend/src/components/Discussions.vue:11
@@ -9215,10 +9388,6 @@ msgstr ""
 #: frontend/src/pages/Courses/CourseDetail.vue:184
 #: frontend/src/pages/Lesson.vue:44
 msgid "Next lesson"
-msgstr ""
-
-#: frontend/src/components/Setup/SetupPreview.vue:237
-msgid "Next live class Tuesday"
 msgstr ""
 
 #: frontend/src/components/PdfBlock.vue:21
@@ -9436,7 +9605,7 @@ msgstr ""
 msgid "No payment gateway is configured. Please contact the administrator."
 msgstr ""
 
-#: lms/lms/api.py:3679 lms/lms/api.py:3755
+#: lms/lms/api.py:3688 lms/lms/api.py:3764
 #, python-brace-format
 msgid "No payment was given for {0}. Add a payment for this student."
 msgstr ""
@@ -9502,7 +9671,7 @@ msgstr ""
 msgid "No students enrolled in this time frame."
 msgstr ""
 
-#: frontend/src/pages/Forms/AnnouncementForm.vue:162 lms/lms/api.py:2093
+#: frontend/src/pages/Forms/AnnouncementForm.vue:162 lms/lms/api.py:2102
 msgid "No students in this batch"
 msgstr ""
 
@@ -9674,7 +9843,7 @@ msgstr ""
 msgid "Not an Audio File"
 msgstr ""
 
-#: lms/lms/api.py:1088
+#: lms/lms/api.py:1097
 msgid "Not an evaluator"
 msgstr ""
 
@@ -9808,7 +9977,6 @@ msgstr ""
 #: frontend/src/components/Notifications/NotificationPanel.vue:23
 #: frontend/src/components/Settings/Preferences.vue:291
 #: frontend/src/components/Settings/Sidebar/sidebar.ts:23
-#: frontend/src/components/Setup/SetupPreview.vue:209
 #: lms/lms/doctype/lms_settings/lms_settings.json:500
 msgid "Notifications"
 msgstr ""
@@ -9848,8 +10016,8 @@ msgid "OAuth Client ID"
 msgstr ""
 
 #. Option for the 'Medium' (Select) field in DocType 'LMS Batch'
-#: frontend/src/pages/Batches/BatchForm.vue:657
-#: frontend/src/pages/Forms/NewBatchForm.vue:356
+#: frontend/src/pages/Batches/BatchForm.vue:661
+#: frontend/src/pages/Forms/NewBatchForm.vue:360
 #: lms/lms/doctype/lms_batch/lms_batch.json:168
 msgid "Offline"
 msgstr ""
@@ -9879,8 +10047,7 @@ msgstr ""
 msgid "Onboard my existing learners"
 msgstr ""
 
-#: frontend/src/components/Setup/SetupPreview.vue:95
-#: frontend/src/components/Setup/SetupPreview.vue:224
+#: frontend/src/utils/setupPreviewData.js:119
 msgid "Onboarding for new hires"
 msgstr ""
 
@@ -9897,25 +10064,25 @@ msgid "One person only"
 msgstr ""
 
 #. Option for the 'Medium' (Select) field in DocType 'LMS Batch'
-#: frontend/src/pages/Batches/BatchForm.vue:653
-#: frontend/src/pages/Forms/NewBatchForm.vue:352
+#: frontend/src/pages/Batches/BatchForm.vue:657
+#: frontend/src/pages/Forms/NewBatchForm.vue:356
 #: lms/lms/doctype/lms_batch/lms_batch.json:168
 msgid "Online"
 msgstr ""
 
-#: frontend/src/utils/index.js:744
+#: frontend/src/utils/index.js:755
 msgid "Only PDF files are allowed."
 msgstr ""
 
-#: frontend/src/utils/index.js:750
+#: frontend/src/utils/index.js:761
 msgid "Only ZIP files are allowed."
 msgstr ""
 
-#: lms/lms/api.py:2955
+#: lms/lms/api.py:2964
 msgid "Only a System Manager can change this account."
 msgstr ""
 
-#: frontend/src/utils/index.js:747
+#: frontend/src/utils/index.js:758
 msgid "Only document file of type .doc or .docx are allowed."
 msgstr ""
 
@@ -9967,7 +10134,7 @@ msgstr ""
 msgid "Only the batch's instructors can schedule live classes."
 msgstr ""
 
-#: lms/lms/api.py:448
+#: lms/lms/api.py:455
 msgid "Only the job's poster can email an applicant."
 msgstr ""
 
@@ -9987,7 +10154,7 @@ msgstr ""
 msgid "Only zip files are allowed"
 msgstr ""
 
-#: frontend/src/utils/index.js:759
+#: frontend/src/utils/index.js:770
 #, python-brace-format
 msgid "Only {0} file is allowed."
 msgstr ""
@@ -10089,7 +10256,7 @@ msgstr ""
 msgid "Open until {0} at {1}"
 msgstr ""
 
-#: frontend/src/components/Settings/settings.ts:174
+#: frontend/src/components/Settings/settings.ts:177
 msgid "Open-ended quizzes"
 msgstr ""
 
@@ -10207,6 +10374,10 @@ msgstr ""
 msgid "Organization"
 msgstr ""
 
+#: frontend/src/pages/Setup.vue:343
+msgid "Organization or team name"
+msgstr ""
+
 #. Label of the original_amount (Currency) field in DocType 'LMS Payment'
 #: frontend/src/components/Settings/Transactions/TransactionForm.vue:270
 #: frontend/src/pages/Billing.vue:24
@@ -10261,7 +10432,7 @@ msgstr ""
 msgid "Overlaps with {0}."
 msgstr ""
 
-#: frontend/src/components/Settings/Members/members.ts:72
+#: frontend/src/components/Settings/Members/members.ts:73
 msgid "Oversee all users, content, and system settings"
 msgstr ""
 
@@ -10305,7 +10476,7 @@ msgstr ""
 msgid "PDF document"
 msgstr ""
 
-#: lms/lms/api.py:3817
+#: lms/lms/api.py:3826
 msgid "Page length must be a number."
 msgstr ""
 
@@ -10349,6 +10520,10 @@ msgstr ""
 
 #: frontend/src/pages/Courses/CoursePublishSettings.vue:42
 msgid "Paid course"
+msgstr ""
+
+#: frontend/src/utils/setupPreviewData.js:170
+msgid "Paint flowers and leaves together, live every Saturday."
 msgstr ""
 
 #. Option for the 'Type' (Select) field in DocType 'Job Opportunity'
@@ -10435,7 +10610,8 @@ msgstr ""
 
 #. Label of the password (Password) field in DocType 'LMS Live Class'
 #: frontend/src/components/Settings/EmailAccount/emailAccounts.ts:189
-#: frontend/src/pages/Setup.vue:204
+#: frontend/src/components/Setup/SetupPreview.vue:383
+#: frontend/src/pages/Setup.vue:326
 #: lms/lms/doctype/lms_live_class/lms_live_class.json:118
 #: lms/www/new-sign-up.html:21
 msgid "Password"
@@ -10470,7 +10646,7 @@ msgstr ""
 #. Label of the payment (Link) field in DocType 'LMS Batch Enrollment'
 #. Label of the payment (Link) field in DocType 'LMS Enrollment'
 #: frontend/src/components/Enrollment/EnrollStudentTable.vue:21
-#: frontend/src/components/Settings/settings.ts:329
+#: frontend/src/components/Settings/settings.ts:338
 #: frontend/src/pages/Courses/components/CourseStudentsPanel.vue:146
 #: lms/lms/doctype/lms_batch_enrollment/lms_batch_enrollment.json:48
 #: lms/lms/doctype/lms_enrollment/lms_enrollment.json:110
@@ -10489,7 +10665,7 @@ msgid "Payment Details"
 msgstr ""
 
 #. Label of the payment_gateway (Data) field in DocType 'LMS Settings'
-#: frontend/src/components/Settings/settings.ts:377
+#: frontend/src/components/Settings/settings.ts:386
 #: lms/lms/doctype/lms_settings/lms_settings.json:354
 msgid "Payment Gateway"
 msgstr ""
@@ -10515,7 +10691,7 @@ msgstr ""
 msgid "Payment Reminder Template"
 msgstr ""
 
-#: frontend/src/components/Settings/settings.ts:396
+#: frontend/src/components/Settings/settings.ts:405
 msgid "Payment Reminders"
 msgstr ""
 
@@ -10529,7 +10705,7 @@ msgstr ""
 msgid "Payment amount must be a number that is zero or more."
 msgstr ""
 
-#: lms/lms/api.py:3660 lms/lms/api.py:3713
+#: lms/lms/api.py:3669 lms/lms/api.py:3722
 msgid "Payment arguments must be JSON objects."
 msgstr ""
 
@@ -10589,7 +10765,7 @@ msgstr ""
 msgid "Payment gateway updated successfully"
 msgstr ""
 
-#: frontend/src/components/Settings/settings.ts:381
+#: frontend/src/components/Settings/settings.ts:390
 msgid "Payment gateway used to process course and batch purchases."
 msgstr ""
 
@@ -10626,11 +10802,11 @@ msgstr ""
 msgid "Payments app required"
 msgstr ""
 
-#: lms/lms/api.py:3667
+#: lms/lms/api.py:3676
 msgid "Payments can only be recorded for a paid batch."
 msgstr ""
 
-#: lms/lms/api.py:3728
+#: lms/lms/api.py:3737
 msgid "Payments can only be recorded for a paid course or a purchased certificate."
 msgstr ""
 
@@ -10640,6 +10816,10 @@ msgstr ""
 #: frontend/src/utils/dashboard/filters.ts:79 lms/lms/dashboard/common.py:311
 #: lms/lms/doctype/lms_certificate_evaluation/lms_certificate_evaluation.json:92
 msgid "Pending"
+msgstr ""
+
+#: frontend/src/components/Settings/Members/PendingInvites.vue:40
+msgid "Pending invites"
 msgstr ""
 
 #: frontend/src/pages/Profile.vue:340
@@ -10719,12 +10899,8 @@ msgstr ""
 msgid "Pick a wider time frame to have something to export."
 msgstr ""
 
-#: lms/lms/onboarding.py:119
+#: lms/lms/onboarding.py:142
 msgid "Pick one of the goals shown in setup."
-msgstr ""
-
-#: frontend/src/components/Setup/SetupPreview.vue:92
-msgid "Pick up where you left off"
 msgstr ""
 
 #: lms/lms/dashboard/common.py:535
@@ -10760,11 +10936,11 @@ msgstr ""
 msgid "Please add <a href='{0}'>{1}</a> for <a href='{2}'>{3}</a> to send calendar invites for evaluations."
 msgstr ""
 
-#: lms/lms/api.py:2782
+#: lms/lms/api.py:2791
 msgid "Please add a subject."
 msgstr ""
 
-#: lms/lms/api.py:2246
+#: lms/lms/api.py:2255
 msgid "Please attach a SCORM package before saving this chapter."
 msgstr ""
 
@@ -10859,7 +11035,7 @@ msgstr ""
 msgid "Please login to access this page."
 msgstr ""
 
-#: lms/lms/api.py:299
+#: lms/lms/api.py:306
 msgid "Please login to continue with payment."
 msgstr ""
 
@@ -10980,7 +11156,7 @@ msgstr ""
 msgid "Please upload a SCORM package"
 msgstr ""
 
-#: lms/lms/api.py:4686
+#: lms/lms/api.py:4699
 msgid "Please upload a ZIP file."
 msgstr ""
 
@@ -11001,7 +11177,7 @@ msgstr ""
 msgid "Please upload your resume"
 msgstr ""
 
-#: lms/lms/api.py:2785
+#: lms/lms/api.py:2794
 msgid "Please write a message."
 msgstr ""
 
@@ -11116,13 +11292,14 @@ msgid "Prefills the learner’s editor. Leave empty for the language default."
 msgstr ""
 
 #. Label of the prevent_skipping_videos (Check) field in DocType 'LMS Settings'
-#: frontend/src/components/Settings/settings.ts:197
+#: frontend/src/components/Settings/settings.ts:200
 #: lms/lms/doctype/lms_settings/lms_settings.json:440
 msgid "Prevent Skipping Videos"
 msgstr ""
 
 #: frontend/src/components/Dashboard/AnalyticsPreviewPane.vue:4
 #: frontend/src/components/Dashboard/AnalyticsPreviewPane.vue:8
+#: frontend/src/components/Setup/SetupPreview.vue:18
 #: frontend/src/pages/Forms/ProgrammingExerciseForm.vue:13
 #: frontend/src/pages/Forms/QuizForm.vue:659
 msgid "Preview"
@@ -11134,7 +11311,7 @@ msgid "Preview Image"
 msgstr ""
 
 #. Label of the video_link (Attach) field in DocType 'LMS Batch'
-#: frontend/src/pages/Batches/BatchForm.vue:196
+#: frontend/src/pages/Batches/BatchForm.vue:200
 #: lms/lms/doctype/lms_batch/lms_batch.json:388
 msgid "Preview Video"
 msgstr ""
@@ -11222,6 +11399,10 @@ msgstr ""
 #: frontend/src/pages/Forms/ProgrammingExerciseForm.vue:74
 #: lms/lms/doctype/lms_programming_exercise/lms_programming_exercise.json:31
 msgid "Problem Statement"
+msgstr ""
+
+#: frontend/src/utils/setupPreviewData.js:88
+msgid "Problem sets, pair programming and a final project you can show."
 msgstr ""
 
 #: frontend/src/pages/Billing.vue:219
@@ -11326,13 +11507,12 @@ msgstr ""
 msgid "Programming exercise"
 msgstr ""
 
-#: frontend/src/components/Settings/settings.ts:155
-#: frontend/src/components/Settings/settings.ts:190
+#: frontend/src/components/Settings/settings.ts:158
+#: frontend/src/components/Settings/settings.ts:193
 msgid "Programming exercises"
 msgstr ""
 
 #: frontend/src/components/Settings/Sidebar/sidebar.ts:25
-#: frontend/src/components/Setup/SetupPreview.vue:214
 #: frontend/src/pages/Programs/ProgramDetail.vue:115
 #: frontend/src/pages/Programs/Programs.vue:16
 #: frontend/src/pages/Programs/Programs.vue:338
@@ -11343,7 +11523,7 @@ msgstr ""
 #. Label of the progress (Float) field in DocType 'LMS Enrollment'
 #. Label of the progress (Int) field in DocType 'LMS Program Member'
 #: frontend/src/components/ProgressBar.vue:36
-#: frontend/src/components/Settings/settings.ts:111
+#: frontend/src/components/Settings/settings.ts:114
 #: frontend/src/pages/Batches/components/BatchCard.vue:69
 #: frontend/src/pages/Batches/components/BatchDashboard.vue:111
 #: frontend/src/pages/Batches/components/BatchStudentsPanel.vue:142
@@ -11408,7 +11588,7 @@ msgstr ""
 msgid "Publish the course"
 msgstr ""
 
-#: frontend/src/components/Sidebar/AppSidebar.vue:339 lms/lms/day1_email.py:103
+#: frontend/src/components/Sidebar/AppSidebar.vue:349 lms/lms/day1_email.py:103
 msgid "Publish your course"
 msgstr ""
 
@@ -11421,6 +11601,7 @@ msgstr ""
 #. Label of the published (Check) field in DocType 'LMS Program'
 #: frontend/src/components/Layouts/pages/PageHeader.vue:20
 #: frontend/src/components/Modals/Event.vue:136
+#: frontend/src/components/Setup/SetupPreview.vue:366
 #: frontend/src/pages/Courses/Courses.vue:347
 #: frontend/src/pages/Forms/BulkCertificatesForm.vue:44
 #: frontend/src/pages/Forms/ProgramForm.vue:26
@@ -11452,7 +11633,7 @@ msgstr ""
 msgid "Purchased Certificate"
 msgstr ""
 
-#: lms/lms/api.py:3706 lms/lms/api.py:3795
+#: lms/lms/api.py:3715 lms/lms/api.py:3804
 msgid "Purchased certificate must be true or false."
 msgstr ""
 
@@ -11654,9 +11835,9 @@ msgid "Quiz · {0} attempts"
 msgstr ""
 
 #: frontend/src/components/Settings/Sidebar/sidebar.ts:31
-#: frontend/src/components/Settings/settings.ts:147
-#: frontend/src/components/Settings/settings.ts:169
-#: frontend/src/components/Sidebar/AppSidebar.vue:443
+#: frontend/src/components/Settings/settings.ts:150
+#: frontend/src/components/Settings/settings.ts:172
+#: frontend/src/components/Sidebar/AppSidebar.vue:453
 #: frontend/src/pages/Forms/QuizForm.vue:1088
 #: frontend/src/pages/Questions.vue:251 frontend/src/pages/QuizPage.vue:60
 #: frontend/src/pages/QuizSubmission.vue:524
@@ -11716,7 +11897,7 @@ msgstr ""
 msgid "Rating cannot be 0"
 msgstr ""
 
-#: frontend/src/components/Settings/settings.ts:477
+#: frontend/src/components/Settings/settings.ts:486
 msgid "Raven"
 msgstr ""
 
@@ -11879,6 +12060,7 @@ msgstr ""
 #: frontend/src/components/Dashboard/StudentSheetLayout.vue:304
 #: frontend/src/components/Settings/Raven/RuleConditions.vue:203
 #: frontend/src/composables/dashboard/useDashboardStudents.ts:198
+#: frontend/src/pages/Setup.vue:342
 msgid "Remove"
 msgstr ""
 
@@ -11951,6 +12133,11 @@ msgstr ""
 msgid "Remove video"
 msgstr ""
 
+#: frontend/src/components/Setup/SetupInvite.vue:40
+#, python-brace-format
+msgid "Remove {0}"
+msgstr ""
+
 #: frontend/src/pages/Batches/components/BatchStudentSheet.vue:764
 #: frontend/src/pages/Batches/components/BatchStudentsPanel.vue:205
 #, python-brace-format
@@ -11995,14 +12182,15 @@ msgstr ""
 #: frontend/src/components/Controls/Uploader.vue:63
 #: frontend/src/components/Controls/VideoPreviewField.vue:84
 #: frontend/src/components/Courses/CourseThumbnailField.vue:63
+#: frontend/src/pages/Setup.vue:340 frontend/src/pages/Setup.vue:341
 msgid "Replace"
 msgstr ""
 
-#: frontend/src/components/Settings/settings.ts:280
+#: frontend/src/components/Settings/settings.ts:283
 msgid "Replaces the wording of the batch enrollment notification."
 msgstr ""
 
-#: frontend/src/components/Settings/settings.ts:290
+#: frontend/src/components/Settings/settings.ts:293
 msgid "Replaces the wording of the certification notification."
 msgstr ""
 
@@ -12149,6 +12337,7 @@ msgstr ""
 
 #. Label of the role (Select) field in DocType 'LMS Enrollment'
 #: frontend/src/components/Settings/EmailAccount/emailAccounts.ts:679
+#: frontend/src/components/Settings/Members/PendingInvites.vue:24
 #: lms/lms/doctype/lms_enrollment/lms_enrollment.json:52
 msgid "Role"
 msgstr ""
@@ -12157,15 +12346,15 @@ msgstr ""
 msgid "Role updated successfully"
 msgstr ""
 
-#: frontend/src/components/Setup/SetupInvite.vue:18
+#: frontend/src/components/Setup/SetupInvite.vue:39
 #, python-brace-format
 msgid "Role {0}"
 msgstr ""
 
 #: frontend/src/components/Modals/NewMemberModal.vue:43
 #: frontend/src/components/Settings/Members/MemberForm.vue:89
-#: frontend/src/components/Settings/Members/members.ts:114
-#: frontend/src/components/Sidebar/AppSidebar.vue:471
+#: frontend/src/components/Settings/Members/members.ts:115
+#: frontend/src/components/Sidebar/AppSidebar.vue:481
 #: frontend/src/pages/Forms/MemberForm.vue:37
 #: frontend/src/pages/Profile.vue:296
 msgid "Roles"
@@ -12207,7 +12396,7 @@ msgstr ""
 msgid "Row #{0} Start time cannot be outside the batch duration."
 msgstr ""
 
-#: lms/lms/api.py:1233
+#: lms/lms/api.py:1242
 #, python-brace-format
 msgid "Row {0} of the schedule is not a time range."
 msgstr ""
@@ -12222,7 +12411,7 @@ msgstr ""
 msgid "Row {0}: this question is not part of the quiz."
 msgstr ""
 
-#: lms/lms/api.py:1237
+#: lms/lms/api.py:1246
 #, python-brace-format
 msgid "Row {0}: {1} is not a valid day."
 msgstr ""
@@ -12280,13 +12469,13 @@ msgid "SCORM Package Path"
 msgstr ""
 
 #. Label of the seo_tab (Tab Break) field in DocType 'LMS Settings'
-#: frontend/src/components/Settings/settings.ts:495
 #: frontend/src/components/Settings/settings.ts:504
+#: frontend/src/components/Settings/settings.ts:513
 #: lms/lms/doctype/lms_settings/lms_settings.json:398
 msgid "SEO"
 msgstr ""
 
-#: frontend/src/utils/index.js:776
+#: frontend/src/utils/index.js:787
 msgid "SVG contains potentially unsafe content."
 msgstr ""
 
@@ -12338,7 +12527,7 @@ msgstr ""
 msgid "Save"
 msgstr ""
 
-#: frontend/src/pages/Setup.vue:209
+#: frontend/src/pages/Setup.vue:333
 msgid "Save and continue"
 msgstr ""
 
@@ -12448,7 +12637,7 @@ msgstr ""
 msgid "Schedule an evaluation to get certified."
 msgstr ""
 
-#: lms/lms/api.py:1254
+#: lms/lms/api.py:1263
 msgid "Schedule must be a list of time ranges."
 msgstr ""
 
@@ -12534,7 +12723,10 @@ msgstr ""
 #: frontend/src/components/Programs/ProgramProgressSummary.vue:38
 #: frontend/src/components/Quiz/QuestionBankPanel.vue:8
 #: frontend/src/components/Settings/Sidebar/sidebar.ts:22
-#: frontend/src/components/Setup/SetupPreview.vue:208
+#: frontend/src/components/Setup/SetupPreview.vue:130
+#: frontend/src/components/Setup/SetupPreview.vue:131
+#: frontend/src/components/Setup/SetupPreview.vue:177
+#: frontend/src/components/Setup/SetupPreview.vue:178
 #: frontend/src/pages/Assignments.vue:50 frontend/src/pages/Assignments.vue:51
 #: frontend/src/pages/Batches/Batches.vue:42
 #: frontend/src/pages/Batches/Batches.vue:43
@@ -12606,7 +12798,7 @@ msgstr ""
 msgid "Search students"
 msgstr ""
 
-#: lms/lms/api.py:1427 lms/lms/api.py:3813
+#: lms/lms/api.py:1436 lms/lms/api.py:3822
 msgid "Search text must be text."
 msgstr ""
 
@@ -12633,7 +12825,7 @@ msgstr ""
 msgid "Seat count cannot be negative."
 msgstr ""
 
-#: frontend/src/components/Settings/settings.ts:127
+#: frontend/src/components/Settings/settings.ts:130
 msgid "Seconds a learner must stay on a lesson before it is marked complete."
 msgstr ""
 
@@ -12714,8 +12906,8 @@ msgid "Select evaluator"
 msgstr ""
 
 #: frontend/src/components/Courses/CourseInstructorsField.vue:11
-#: frontend/src/pages/Batches/BatchForm.vue:155
-#: frontend/src/pages/Forms/NewBatchForm.vue:97
+#: frontend/src/pages/Batches/BatchForm.vue:159
+#: frontend/src/pages/Forms/NewBatchForm.vue:101
 #: frontend/src/pages/Forms/NewCourseForm.vue:35
 msgid "Select instructors"
 msgstr ""
@@ -12849,15 +13041,16 @@ msgstr ""
 msgid "Send everyone in this batch a message, like a schedule change or a reminder before a live class."
 msgstr ""
 
-#: frontend/src/components/Setup/SetupInvite.vue:39
+#: frontend/src/components/Settings/Members/PendingInvites.vue:32
+#: frontend/src/components/Setup/SetupInvite.vue:42
 msgid "Send invites"
 msgstr ""
 
-#: frontend/src/components/Settings/settings.ts:399
+#: frontend/src/components/Settings/settings.ts:408
 msgid "Send payment reminders for batch"
 msgstr ""
 
-#: frontend/src/components/Settings/settings.ts:407
+#: frontend/src/components/Settings/settings.ts:416
 msgid "Send payment reminders for course"
 msgstr ""
 
@@ -12884,8 +13077,16 @@ msgstr ""
 msgid "Sending & Inbox"
 msgstr ""
 
+#: frontend/src/components/Setup/SetupInvite.vue:44
+msgid "Sent"
+msgstr ""
+
+#: frontend/src/components/Settings/Members/PendingInvites.vue:19
+msgid "Separate emails with commas."
+msgstr ""
+
 #: frontend/src/components/Settings/Services/Services.vue:3
-#: frontend/src/components/Settings/settings.ts:448
+#: frontend/src/components/Settings/settings.ts:457
 msgid "Services"
 msgstr ""
 
@@ -12911,7 +13112,7 @@ msgstr ""
 msgid "Set both a start and an end time."
 msgstr ""
 
-#: lms/lms/api.py:1262
+#: lms/lms/api.py:1271
 msgid "Set both dates of the time off, or clear it."
 msgstr ""
 
@@ -12927,7 +13128,7 @@ msgstr ""
 msgid "Set up"
 msgstr ""
 
-#: frontend/src/pages/Setup.vue:278
+#: frontend/src/pages/Setup.vue:496
 msgid "Set up Frappe Learning"
 msgstr ""
 
@@ -12963,11 +13164,11 @@ msgstr ""
 msgid "Set your first password from a signed-in browser."
 msgstr ""
 
-#: frontend/src/pages/Setup.vue:164
+#: frontend/src/pages/Setup.vue:276
 msgid "Set your password"
 msgstr ""
 
-#: frontend/src/components/Sidebar/AppSidebar.vue:414
+#: frontend/src/components/Sidebar/AppSidebar.vue:424
 msgid "Setting up"
 msgstr ""
 
@@ -12975,7 +13176,7 @@ msgstr ""
 msgid "Setting up Frappe Mail requires you to have an API key and API Secret of your email account. Read more"
 msgstr ""
 
-#: frontend/src/components/Sidebar/AppSidebar.vue:464
+#: frontend/src/components/Sidebar/AppSidebar.vue:474
 msgid "Setting up payment gateway"
 msgstr ""
 
@@ -12991,7 +13192,7 @@ msgstr ""
 
 #: frontend/src/components/CommandPalette/CommandPalette.vue:501
 #: frontend/src/components/Settings/Settings.vue:3
-#: frontend/src/components/Sidebar/AppSidebar.vue:469
+#: frontend/src/components/Sidebar/AppSidebar.vue:479
 #: frontend/src/components/Sidebar/UserDropdown.vue:173
 #: frontend/src/pages/Batches/BatchDetail.vue:253
 #: frontend/src/pages/Courses/CourseDetail.vue:498
@@ -13001,7 +13202,7 @@ msgstr ""
 msgid "Settings"
 msgstr ""
 
-#: frontend/src/utils/index.js:905
+#: frontend/src/utils/index.js:916
 msgid "Settings is only available on a larger screen."
 msgstr ""
 
@@ -13012,10 +13213,6 @@ msgstr ""
 #. Label of the severity (Select) field in DocType 'LMS Quiz Violation Log'
 #: lms/lms/doctype/lms_quiz_violation_log/lms_quiz_violation_log.json:35
 msgid "Severity"
-msgstr ""
-
-#: frontend/src/pages/Setup.vue:86
-msgid "Share anonymous usage data to help improve Frappe Learning"
 msgstr ""
 
 #: frontend/src/pages/Courses/components/CourseFunnelPanel.vue:242
@@ -13030,7 +13227,7 @@ msgstr ""
 msgid "Share openings with the people who learn on your site, from internships to full-time roles."
 msgstr ""
 
-#: frontend/src/pages/Batches/BatchForm.vue:186
+#: frontend/src/pages/Batches/BatchForm.vue:190
 #: frontend/src/utils/batchForm.ts:48
 msgid "Short Description"
 msgstr ""
@@ -13045,7 +13242,7 @@ msgstr ""
 msgid "Short description"
 msgstr ""
 
-#: frontend/src/pages/Batches/BatchForm.vue:188
+#: frontend/src/pages/Batches/BatchForm.vue:192
 msgid "Short description of the batch"
 msgstr ""
 
@@ -13053,7 +13250,7 @@ msgstr ""
 msgid "Short introduction"
 msgstr ""
 
-#: frontend/src/pages/Setup.vue:207
+#: frontend/src/pages/Setup.vue:331
 msgid "Show"
 msgstr ""
 
@@ -13084,7 +13281,7 @@ msgstr ""
 msgid "Show USD Equivalent"
 msgstr ""
 
-#: frontend/src/components/Settings/settings.ts:361
+#: frontend/src/components/Settings/settings.ts:370
 msgid "Show USD equivalent amount"
 msgstr ""
 
@@ -13222,8 +13419,12 @@ msgstr ""
 msgid "Sidebar row {0}: {1} is not a built-in link. Choose another type for it."
 msgstr ""
 
-#: lms/lms/api.py:1516
+#: lms/lms/api.py:1525
 msgid "Sidebar rows must be a list."
+msgstr ""
+
+#: frontend/src/components/Setup/SetupPreview.vue:380
+msgid "Sign In"
 msgstr ""
 
 #: lms/lms/user.py:38
@@ -13234,12 +13435,12 @@ msgstr ""
 msgid "Sign up"
 msgstr ""
 
-#: frontend/src/components/Settings/settings.ts:63
-#: frontend/src/components/Settings/settings.ts:72
+#: frontend/src/components/Settings/settings.ts:66
+#: frontend/src/components/Settings/settings.ts:75
 msgid "Signup"
 msgstr ""
 
-#: frontend/src/components/Settings/settings.ts:91
+#: frontend/src/components/Settings/settings.ts:94
 msgid "Signup Consent HTML"
 msgstr ""
 
@@ -13295,19 +13496,19 @@ msgstr ""
 msgid "Skip"
 msgstr ""
 
-#: frontend/src/pages/Setup.vue:194
+#: frontend/src/pages/Setup.vue:316
 msgid "Skip setup"
 msgstr ""
 
-#: frontend/src/pages/Setup.vue:195
+#: frontend/src/pages/Setup.vue:317
 msgid "Skip setup?"
 msgstr ""
 
-#: frontend/src/pages/Setup.vue:63
+#: frontend/src/pages/Setup.vue:84
 msgid "Skip this question"
 msgstr ""
 
-#: frontend/src/components/Setup/SetupInvite.vue:47
+#: frontend/src/components/Setup/SetupInvite.vue:45
 msgid "Skip this step"
 msgstr ""
 
@@ -13321,7 +13522,7 @@ msgstr ""
 msgid "Slot Times are overlapping for some schedules."
 msgstr ""
 
-#: lms/lms/api.py:1164
+#: lms/lms/api.py:1173
 msgid "Slot is required."
 msgstr ""
 
@@ -13463,7 +13664,7 @@ msgstr ""
 msgid "Start the conversation"
 msgstr ""
 
-#: lms/lms/api.py:905
+#: lms/lms/api.py:914
 msgid "Start the sign-in again from your Slots tab."
 msgstr ""
 
@@ -13563,7 +13764,7 @@ msgstr ""
 msgid "Stay on this tab"
 msgstr ""
 
-#: frontend/src/pages/Setup.vue:200
+#: frontend/src/pages/Setup.vue:322
 #, python-brace-format
 msgid "Step {0} of {1}"
 msgstr ""
@@ -13580,9 +13781,9 @@ msgstr ""
 #. Option for the 'Member Type' (Select) field in DocType 'LMS Enrollment'
 #: frontend/src/components/Enrollment/EnrollStudentTable.vue:17
 #: frontend/src/components/Modals/FeedbackModal.vue:583
-#: frontend/src/components/Settings/Members/members.ts:30
-#: frontend/src/components/Settings/Members/members.ts:53
-#: frontend/src/components/Setup/SetupInvite.vue:79
+#: frontend/src/components/Settings/Members/members.ts:31
+#: frontend/src/components/Settings/Members/members.ts:54
+#: frontend/src/components/Setup/SetupInvite.vue:31
 #: frontend/src/pages/Batches/components/BatchStudentsPanel.vue:141
 #: lms/lms/doctype/lms_enrollment/lms_enrollment.json:46
 #: lms/templates/signup-form.html:40
@@ -13666,7 +13867,7 @@ msgstr ""
 msgid "Subject"
 msgstr ""
 
-#: lms/lms/api.py:2779
+#: lms/lms/api.py:2788
 msgid "Subject and message must both be text."
 msgstr ""
 
@@ -13829,7 +14030,7 @@ msgstr ""
 msgid "Support / Sales"
 msgstr ""
 
-#: lms/lms/api.py:2410
+#: lms/lms/api.py:2419
 #, python-brace-format
 msgid "Suspicious pattern found in {0}: {1}"
 msgstr ""
@@ -13851,7 +14052,7 @@ msgstr ""
 msgid "System"
 msgstr ""
 
-#: frontend/src/components/Settings/settings.ts:54
+#: frontend/src/components/Settings/settings.ts:57
 msgid "System Configuration"
 msgstr ""
 
@@ -13987,10 +14188,6 @@ msgstr ""
 msgid "Temporarily Disabled"
 msgstr ""
 
-#: frontend/src/components/Setup/SetupPreview.vue:72
-msgid "Ten minutes today keeps you on track."
-msgstr ""
-
 #. Label of the test_cases (Table) field in DocType 'LMS Programming Exercise'
 #. Label of the test_cases (Table) field in DocType 'LMS Programming Exercise
 #. Submission'
@@ -14034,11 +14231,15 @@ msgstr ""
 msgid "Thanks and Regards"
 msgstr ""
 
-#: frontend/src/pages/Setup.vue:210
+#: frontend/src/pages/Setup.vue:347
+msgid "That logo could not be uploaded. Try another."
+msgstr ""
+
+#: frontend/src/pages/Setup.vue:334
 msgid "That password could not be saved. Try another."
 msgstr ""
 
-#: lms/lms/api.py:1170
+#: lms/lms/api.py:1179
 msgid "That slot does not belong to this evaluator."
 msgstr ""
 
@@ -14095,7 +14296,7 @@ msgstr ""
 msgid "The calendar this account books its meetings on"
 msgstr ""
 
-#: lms/lms/api.py:3720
+#: lms/lms/api.py:3729
 msgid "The certificate cannot be bought separately on a paid course. Turn off the certificate switch and try again."
 msgstr ""
 
@@ -14218,8 +14419,8 @@ msgstr ""
 msgid "The last day to schedule your evaluations is "
 msgstr ""
 
-#: frontend/src/components/Settings/settings.ts:177
-#: frontend/src/components/Settings/settings.ts:185
+#: frontend/src/components/Settings/settings.ts:180
+#: frontend/src/components/Settings/settings.ts:188
 msgid "The lesson completes only after an instructor grades it."
 msgstr ""
 
@@ -14289,7 +14490,7 @@ msgstr ""
 msgid "The selected Google Meet account is disabled. Please enable it or select another account."
 msgstr ""
 
-#: frontend/src/components/Settings/settings.ts:164
+#: frontend/src/components/Settings/settings.ts:167
 msgid "The selected items must be passed, not just attempted."
 msgstr ""
 
@@ -14457,7 +14658,7 @@ msgstr ""
 msgid "This browser cannot draw images."
 msgstr ""
 
-#: lms/lms/api.py:911
+#: lms/lms/api.py:920
 msgid "This calendar is not yours."
 msgstr ""
 
@@ -14529,7 +14730,7 @@ msgstr ""
 msgid "This deletes the {0} mapping and its membership rules, and stops syncing members. This cannot be undone."
 msgstr ""
 
-#: frontend/src/components/Settings/settings.ts:511
+#: frontend/src/components/Settings/settings.ts:520
 msgid "This description will be shown on lists and pages that don't have meta description"
 msgstr ""
 
@@ -14543,7 +14744,11 @@ msgstr ""
 msgid "This discussion did not load"
 msgstr ""
 
-#: lms/lms/api.py:4690
+#: frontend/src/components/Setup/SetupInvite.vue:48
+msgid "This email is already in the list"
+msgstr ""
+
+#: lms/lms/api.py:4703
 msgid "This file is not a valid ZIP archive."
 msgstr ""
 
@@ -14565,12 +14770,8 @@ msgstr ""
 msgid "This is a proctored quiz. Leaving this page submits it now with the answers you have given so far."
 msgstr ""
 
-#: frontend/src/components/Settings/settings.ts:203
+#: frontend/src/components/Settings/settings.ts:206
 msgid "This is not enforced for videos from Cloudflare Stream, Google Drive, Aparat or other embedded links."
-msgstr ""
-
-#: frontend/src/components/Setup/SetupPreview.vue:173
-msgid "This is the home page your learners will see. It shows what to continue and what is coming up."
 msgstr ""
 
 #: lms/lms/schedule_utils.py:67
@@ -14607,7 +14808,7 @@ msgstr ""
 msgid "This lesson is not available for preview. Please join the course to access it."
 msgstr ""
 
-#: lms/lms/api.py:1558
+#: lms/lms/api.py:1567
 msgid "This lesson is not in that chapter."
 msgstr ""
 
@@ -14631,7 +14832,7 @@ msgstr ""
 msgid "This permanently deletes the email account and cannot be undone."
 msgstr ""
 
-#: frontend/src/components/Settings/Members/members.ts:179
+#: frontend/src/components/Settings/Members/members.ts:174
 msgid "This permanently deletes the user account and cannot be undone."
 msgstr ""
 
@@ -14671,11 +14872,11 @@ msgstr ""
 msgid "This replaces what is in the editor with the starting code. Your run results are cleared too."
 msgstr ""
 
-#: lms/lms/api.py:2789
+#: lms/lms/api.py:2798
 msgid "This site has no contact address. Ask a moderator to set one in LMS Settings."
 msgstr ""
 
-#: frontend/src/components/Sidebar/AppSidebar.vue:217
+#: frontend/src/components/Sidebar/AppSidebar.vue:227
 msgid "This site is being updated. You will not be able to make any changes. Full access will be restored shortly."
 msgstr ""
 
@@ -14717,7 +14918,7 @@ msgstr ""
 msgid "This student is not enrolled in this course."
 msgstr ""
 
-#: lms/lms/api.py:3015
+#: lms/lms/api.py:3024
 msgid "This user cannot be deleted."
 msgstr ""
 
@@ -14804,7 +15005,7 @@ msgstr ""
 msgid "Time off"
 msgstr ""
 
-#: lms/lms/api.py:1262
+#: lms/lms/api.py:1271
 msgid "Time off incomplete"
 msgstr ""
 
@@ -15034,7 +15235,7 @@ msgid "Transaction updated successfully"
 msgstr ""
 
 #: frontend/src/components/Settings/Transactions/Transactions.vue:11
-#: frontend/src/components/Settings/settings.ts:427
+#: frontend/src/components/Settings/settings.ts:436
 msgid "Transactions"
 msgstr ""
 
@@ -15047,13 +15248,12 @@ msgid "Try a different name, email or stage"
 msgstr ""
 
 #: frontend/src/components/Quiz.vue:170 frontend/src/components/Quiz.vue:606
-#: frontend/src/components/Quiz.vue:732 frontend/src/pages/Setup.vue:107
+#: frontend/src/components/Quiz.vue:732 frontend/src/pages/Setup.vue:184
 msgid "Try again"
 msgstr ""
 
 #. Option for the 'Day' (Select) field in DocType 'Evaluator Schedule'
 #. Option for the 'Day' (Select) field in DocType 'LMS Certificate Request'
-#: frontend/src/components/Setup/SetupPreview.vue:154
 #: lms/lms/doctype/evaluator_schedule/evaluator_schedule.json:19
 #: lms/lms/doctype/lms_certificate_request/lms_certificate_request.json:69
 msgid "Tuesday"
@@ -15149,7 +15349,7 @@ msgstr ""
 #. Option for the 'Submission Type' (Select) field in DocType 'LMS Assignment'
 #. Option for the 'Type' (Select) field in DocType 'LMS Assignment Submission'
 #. Label of the url (Data) field in DocType 'LMS Sidebar Item'
-#: frontend/src/components/Settings/settings.ts:259
+#: frontend/src/components/Settings/settings.ts:262
 #: frontend/src/pages/Forms/AssignmentForm.vue:349
 #: lms/lms/doctype/lms_assignment/lms_assignment.json:40
 #: lms/lms/doctype/lms_assignment_submission/lms_assignment_submission.json:109
@@ -15172,7 +15372,7 @@ msgstr ""
 msgid "Unable to add member"
 msgstr ""
 
-#: frontend/src/utils/index.js:889
+#: frontend/src/utils/index.js:900
 msgid "Unable to create category"
 msgstr ""
 
@@ -15184,11 +15384,11 @@ msgstr ""
 msgid "Unable to delete transaction"
 msgstr ""
 
-#: frontend/src/components/Settings/Members/members.ts:166
+#: frontend/src/components/Settings/Members/members.ts:161
 msgid "Unable to delete user"
 msgstr ""
 
-#: frontend/src/pages/Forms/BulkCertificatesForm.vue:177 lms/lms/api.py:2157
+#: frontend/src/pages/Forms/BulkCertificatesForm.vue:177 lms/lms/api.py:2166
 msgid "Unable to generate certificate"
 msgstr ""
 
@@ -15224,7 +15424,7 @@ msgstr ""
 msgid "Underline"
 msgstr ""
 
-#: lms/lms/api.py:181
+#: lms/lms/api.py:188
 msgid "Unknown doctype"
 msgstr ""
 
@@ -15270,6 +15470,8 @@ msgid "Unpublish course"
 msgstr ""
 
 #: frontend/src/components/ContinueCoursePanel.vue:39
+#: frontend/src/components/Setup/SetupPreview.vue:369
+#: frontend/src/components/Setup/SetupPreview.vue:376
 #: frontend/src/pages/Batches/Batches.vue:354
 #: frontend/src/pages/Courses/Courses.vue:361
 #: frontend/src/pages/Programs/Programs.vue:283
@@ -15314,7 +15516,7 @@ msgstr ""
 msgid "Untitled"
 msgstr ""
 
-#: lms/lms/api.py:1582
+#: lms/lms/api.py:1591
 msgid "Untitled lesson"
 msgstr ""
 
@@ -15328,6 +15530,8 @@ msgstr ""
 
 #. Option for the 'Status' (Select) field in DocType 'LMS Certificate Request'
 #. Label of the upcoming (Check) field in DocType 'LMS Course'
+#: frontend/src/components/Setup/SetupPreview.vue:367
+#: frontend/src/components/Setup/SetupPreview.vue:374
 #: frontend/src/pages/Batches/Batches.vue:344
 #: frontend/src/pages/Batches/Batches.vue:361
 #: frontend/src/pages/Batches/components/BatchStudentSheet.vue:241
@@ -15349,7 +15553,6 @@ msgstr ""
 msgid "Upcoming Evaluations"
 msgstr ""
 
-#: frontend/src/components/Setup/SetupPreview.vue:139
 #: frontend/src/pages/Home/AdminHome.vue:55
 #: frontend/src/pages/Home/StudentHome.vue:7
 msgid "Upcoming Live Classes"
@@ -15401,7 +15604,7 @@ msgstr ""
 msgid "Upload a course thumbnail image"
 msgstr ""
 
-#: frontend/src/utils/index.js:753
+#: frontend/src/utils/index.js:764
 #: lms/lms/doctype/lms_assignment_submission/lms_assignment_submission.py:41
 #, python-brace-format
 msgid "Upload an audio file: {0}."
@@ -15426,6 +15629,10 @@ msgstr ""
 
 #: lms/lms/course_import_export.py:451
 msgid "Upload the course ZIP again and import it from there."
+msgstr ""
+
+#: lms/lms/onboarding.py:126
+msgid "Upload the logo again."
 msgstr ""
 
 #: frontend/src/components/Controls/VideoPreviewField.vue:117
@@ -15506,7 +15713,7 @@ msgstr ""
 #: frontend/src/components/Settings/Badges/badges.ts:50
 #: frontend/src/components/Settings/Badges/badges.ts:125
 #: frontend/src/components/Settings/GoogleCalendar/GoogleCalendarDetail.vue:93
-#: frontend/src/components/Settings/Members/members.ts:106
+#: frontend/src/components/Settings/Members/members.ts:107
 #: lms/job/doctype/lms_job_application/lms_job_application.json:21
 #: lms/lms/doctype/lms_course_interest/lms_course_interest.json:26
 msgid "User"
@@ -15533,7 +15740,7 @@ msgstr ""
 msgid "User Input"
 msgstr ""
 
-#: frontend/src/components/Settings/settings.ts:317
+#: frontend/src/components/Settings/settings.ts:320
 msgid "User Management"
 msgstr ""
 
@@ -15542,11 +15749,11 @@ msgstr ""
 msgid "User Skill"
 msgstr ""
 
-#: frontend/src/components/Settings/Members/members.ts:162
+#: frontend/src/components/Settings/Members/members.ts:157
 msgid "User deleted"
 msgstr ""
 
-#: lms/lms/api.py:3528
+#: lms/lms/api.py:3537
 msgid "User does not have permission to access this user's profile details."
 msgstr ""
 
@@ -15556,7 +15763,7 @@ msgstr ""
 msgid "User input"
 msgstr ""
 
-#: lms/lms/api.py:3017
+#: lms/lms/api.py:3026
 #, python-brace-format
 msgid "User {0} does not exist."
 msgstr ""
@@ -15571,7 +15778,7 @@ msgstr ""
 msgid "User {0} is disabled."
 msgstr ""
 
-#: lms/lms/api.py:3532
+#: lms/lms/api.py:3541
 #, python-brace-format
 msgid "User {0} not found"
 msgstr ""
@@ -15583,17 +15790,17 @@ msgstr ""
 msgid "Username"
 msgstr ""
 
-#: lms/lms/api.py:3495
+#: lms/lms/api.py:3504
 msgid "Username is required."
 msgstr ""
 
-#: lms/lms/api.py:4557
+#: lms/lms/api.py:4566
 msgid "Username must be a string."
 msgstr ""
 
 #. Label of a shortcut in the Learning Workspace
 #: frontend/src/components/Settings/Members/Members.vue:11
-#: frontend/src/components/Settings/settings.ts:320
+#: frontend/src/components/Settings/settings.ts:323
 #: lms/lms/workspace/learning/learning.json:206
 msgid "Users"
 msgstr ""
@@ -15644,7 +15851,7 @@ msgstr ""
 msgid "Video {0}"
 msgstr ""
 
-#: frontend/src/components/Settings/settings.ts:140
+#: frontend/src/components/Settings/settings.ts:143
 msgid "Videos"
 msgstr ""
 
@@ -15742,6 +15949,10 @@ msgstr ""
 msgid "Visit your batch"
 msgstr ""
 
+#: frontend/src/utils/setupPreviewData.js:180
+msgid "Volunteer orientation"
+msgstr ""
+
 #: frontend/src/components/LoadError.vue:88
 msgid "Wait a moment and try again."
 msgstr ""
@@ -15805,6 +16016,10 @@ msgstr ""
 msgid "Welcome to {0}!"
 msgstr ""
 
+#: frontend/src/components/Setup/SetupPreview.vue:381
+msgid "Welcome! Please sign in to continue."
+msgstr ""
+
 #: frontend/src/components/LessonHelp.vue:61
 msgid "What are Instructor Notes?"
 msgstr ""
@@ -15828,6 +16043,10 @@ msgstr ""
 #: frontend/src/components/Enrollment/EnrollPaymentPanel.vue:391
 #, python-brace-format
 msgid "What you enter applies to these {0}. Empty fields use the details for all."
+msgstr ""
+
+#: frontend/src/pages/Setup.vue:289
+msgid "What's your organization called?"
 msgstr ""
 
 #: lms/templates/courses_under_review.html:15
@@ -15866,6 +16085,10 @@ msgstr ""
 msgid "Which user on that record receives it."
 msgstr ""
 
+#: frontend/src/utils/setupPreviewData.js:184
+msgid "Who we are, how we work and what to expect in the field."
+msgstr ""
+
 #: frontend/src/pages/QuizSubmission.vue:441 frontend/src/utils/proctoring.ts:7
 msgid "Window focus lost"
 msgstr ""
@@ -15892,6 +16115,10 @@ msgstr ""
 
 #: frontend/src/pages/AssignmentSubmissions.vue:118
 msgid "Work that learners hand in for your assignments shows up here, ready for you to grade."
+msgstr ""
+
+#: frontend/src/utils/setupPreviewData.js:138
+msgid "Workflow Automation Essentials"
 msgstr ""
 
 #: frontend/src/components/Settings/Raven/WorkspaceList.vue:144
@@ -15968,11 +16195,11 @@ msgstr ""
 msgid "You are already certified for this course. Click on the card below to open your certificate."
 msgstr ""
 
-#: lms/lms/api.py:319
+#: lms/lms/api.py:326
 msgid "You are already enrolled for this batch."
 msgstr ""
 
-#: lms/lms/api.py:313
+#: lms/lms/api.py:320
 msgid "You are already enrolled for this course."
 msgstr ""
 
@@ -16040,7 +16267,7 @@ msgstr ""
 msgid "You are not permitted to access this page."
 msgstr ""
 
-#: frontend/src/pages/Forms/NewBatchForm.vue:221
+#: frontend/src/pages/Forms/NewBatchForm.vue:225
 msgid "You are not permitted to create a batch."
 msgstr ""
 
@@ -16082,7 +16309,7 @@ msgstr ""
 msgid "You are not permitted to read question details."
 msgstr ""
 
-#: lms/lms/api.py:1829 lms/lms/api.py:1898
+#: lms/lms/api.py:1838 lms/lms/api.py:1907
 msgid "You are not the assigned evaluator for this course and batch."
 msgstr ""
 
@@ -16094,7 +16321,7 @@ msgstr ""
 msgid "You are offline"
 msgstr ""
 
-#: frontend/src/pages/Setup.vue:165
+#: frontend/src/pages/Setup.vue:277
 msgid "You are signed in, but have no password yet. Set one so you can sign in again from any device."
 msgstr ""
 
@@ -16121,11 +16348,11 @@ msgstr ""
 msgid "You can find their resume attached to this email."
 msgstr ""
 
-#: frontend/src/pages/Setup.vue:196
+#: frontend/src/pages/Setup.vue:318
 msgid "You can invite people later. The getting started checklist will guide you from here."
 msgstr ""
 
-#: lms/lms/api.py:1100
+#: lms/lms/api.py:1109
 msgid "You can only change your own availability."
 msgstr ""
 
@@ -16137,7 +16364,7 @@ msgstr ""
 msgid "You can only record progress for your own account."
 msgstr ""
 
-#: lms/lms/api.py:1074
+#: lms/lms/api.py:1083
 msgid "You can only see or change your own availability."
 msgstr ""
 
@@ -16195,7 +16422,7 @@ msgstr ""
 msgid "You cannot enroll in this course as self-learning is disabled. Please contact the Administrator."
 msgstr ""
 
-#: lms/lms/api.py:3704
+#: lms/lms/api.py:3713
 msgid "You cannot enroll students in this course."
 msgstr ""
 
@@ -16208,11 +16435,11 @@ msgstr ""
 msgid "You cannot grade your own submission."
 msgstr ""
 
-#: lms/lms/api.py:3665
+#: lms/lms/api.py:3674
 msgid "You cannot record payments for this batch."
 msgstr ""
 
-#: lms/lms/api.py:3726
+#: lms/lms/api.py:3735
 msgid "You cannot record payments for this course."
 msgstr ""
 
@@ -16225,7 +16452,7 @@ msgstr ""
 msgid "You cannot schedule evaluations for past slots."
 msgstr ""
 
-#: lms/lms/api.py:3624 lms/lms/api.py:3637
+#: lms/lms/api.py:3633 lms/lms/api.py:3646
 msgid "You cannot start this live class."
 msgstr ""
 
@@ -16245,35 +16472,35 @@ msgstr ""
 msgid "You do not have access to this course."
 msgstr ""
 
-#: lms/lms/api.py:1383
+#: lms/lms/api.py:1392
 msgid "You do not have access to this discussion."
 msgstr ""
 
-#: lms/lms/api.py:3319
+#: lms/lms/api.py:3328
 msgid "You do not have access to this lesson."
 msgstr ""
 
-#: lms/lms/api.py:2041
+#: lms/lms/api.py:2050
 msgid "You do not have permission to access announcements for this batch."
 msgstr ""
 
-#: lms/lms/api.py:4536
+#: lms/lms/api.py:4545
 msgid "You do not have permission to access badges."
 msgstr ""
 
-#: lms/lms/api.py:2558
+#: lms/lms/api.py:2567
 msgid "You do not have permission to access heatmap data."
 msgstr ""
 
-#: lms/lms/api.py:4352
+#: lms/lms/api.py:4361
 msgid "You do not have permission to access lesson completion stats."
 msgstr ""
 
-#: lms/lms/api.py:4424
+#: lms/lms/api.py:4433
 msgid "You do not have permission to access this course's assessment data."
 msgstr ""
 
-#: lms/lms/api.py:3357
+#: lms/lms/api.py:3366
 msgid "You do not have permission to access this course's progress data."
 msgstr ""
 
@@ -16281,7 +16508,7 @@ msgstr ""
 msgid "You do not have permission to access this page."
 msgstr ""
 
-#: lms/lms/api.py:1579
+#: lms/lms/api.py:1588
 msgid "You do not have permission to add a lesson."
 msgstr ""
 
@@ -16293,7 +16520,7 @@ msgstr ""
 msgid "You do not have permission to add courses to this batch."
 msgstr ""
 
-#: lms/lms/api.py:2732 lms/lms/api.py:2741
+#: lms/lms/api.py:2741 lms/lms/api.py:2750
 msgid "You do not have permission to cancel this evaluation."
 msgstr ""
 
@@ -16305,19 +16532,19 @@ msgstr ""
 msgid "You do not have permission to create email templates."
 msgstr ""
 
-#: lms/lms/api.py:2186
+#: lms/lms/api.py:2195
 msgid "You do not have permission to delete this batch."
 msgstr ""
 
-#: lms/lms/api.py:2479
+#: lms/lms/api.py:2488
 msgid "You do not have permission to delete this chapter."
 msgstr ""
 
-#: lms/lms/api.py:2166
+#: lms/lms/api.py:2175
 msgid "You do not have permission to delete this course."
 msgstr ""
 
-#: lms/lms/api.py:1549
+#: lms/lms/api.py:1558
 msgid "You do not have permission to delete this lesson."
 msgstr ""
 
@@ -16333,19 +16560,19 @@ msgstr ""
 msgid "You do not have permission to enroll students in this course."
 msgstr ""
 
-#: lms/lms/api.py:4661 lms/lms/api.py:4672
+#: lms/lms/api.py:4674 lms/lms/api.py:4685
 msgid "You do not have permission to export this course."
 msgstr ""
 
-#: lms/lms/api.py:1696 lms/lms/api.py:2227
+#: lms/lms/api.py:1705 lms/lms/api.py:2236
 msgid "You do not have permission to modify this chapter."
 msgstr ""
 
-#: lms/lms/api.py:1617 lms/lms/api.py:1624 lms/lms/api.py:1631
+#: lms/lms/api.py:1626 lms/lms/api.py:1633 lms/lms/api.py:1640
 msgid "You do not have permission to modify this lesson."
 msgstr ""
 
-#: lms/lms/api.py:2962
+#: lms/lms/api.py:2971
 msgid "You do not have permission to modify this role."
 msgstr ""
 
@@ -16366,15 +16593,15 @@ msgstr ""
 msgid "You do not have permission to set up calendar events for this evaluation."
 msgstr ""
 
-#: lms/lms/api.py:3130
+#: lms/lms/api.py:3139
 msgid "You do not have permission to update meta tags."
 msgstr ""
 
-#: lms/lms/api.py:3267
+#: lms/lms/api.py:3276
 msgid "You do not have permission to update this submission."
 msgstr ""
 
-#: lms/lms/api.py:2861
+#: lms/lms/api.py:2870
 msgid "You do not have permission to view this course."
 msgstr ""
 
@@ -16394,7 +16621,7 @@ msgstr ""
 msgid "You have already applied for this job."
 msgstr ""
 
-#: lms/lms/api.py:343
+#: lms/lms/api.py:350
 msgid "You have already purchased the certificate for this course."
 msgstr ""
 
@@ -16424,7 +16651,7 @@ msgstr ""
 msgid "You have got a score of {0} for the quiz {1}"
 msgstr ""
 
-#: lms/lms/api.py:973
+#: lms/lms/api.py:982
 msgid "You have no Google Calendar to disconnect."
 msgstr ""
 
@@ -16542,6 +16769,10 @@ msgstr ""
 msgid "YouTube link added. Students see it embedded on the course page. Clear the field to upload a file instead."
 msgstr ""
 
+#: frontend/src/utils/setupPreviewData.js:66
+msgid "Young Scientists Lab"
+msgstr ""
+
 #: lms/www/new-sign-up.html:56
 msgid "Your Account has been successfully created!"
 msgstr ""
@@ -16599,12 +16830,16 @@ msgstr ""
 msgid "Your first course is one step away"
 msgstr ""
 
-#: frontend/src/components/Setup/SetupPreview.vue:110
-msgid "Your learning"
+#: frontend/src/utils/setupPreviewData.js:123
+msgid "Your first week: tools, people and how we work."
 msgstr ""
 
 #: frontend/src/pages/Home/Streak.vue:52
 msgid "Your learning streak counts the number of days in a row you’ve kept up your learning, whether it’s a lesson, quiz, or assignment. Don’t worry, weekends don’t break your streak."
+msgstr ""
+
+#: frontend/src/pages/Setup.vue:348
+msgid "Your name and logo could not be saved. Try again."
 msgstr ""
 
 #: frontend/src/components/ProgrammingExercises/ExerciseTestCases.vue:76
@@ -16629,10 +16864,6 @@ msgstr ""
 
 #: lms/templates/emails/mentor_request_status_update_email.html:4
 msgid "Your request to join us as a mentor for the course"
-msgstr ""
-
-#: frontend/src/components/Setup/SetupPreview.vue:38
-msgid "Your site"
 msgstr ""
 
 #: frontend/src/utils/trialCard.ts:26
@@ -16672,8 +16903,8 @@ msgstr ""
 #. Option for the 'Conferencing Provider' (Select) field in DocType 'LMS Batch'
 #. Option for the 'Conferencing Provider' (Select) field in DocType 'LMS Live
 #. Class'
-#: frontend/src/components/Settings/settings.ts:470
-#: frontend/src/pages/Batches/BatchForm.vue:609
+#: frontend/src/components/Settings/settings.ts:479
+#: frontend/src/pages/Batches/BatchForm.vue:613
 #: lms/lms/doctype/lms_batch/lms_batch.json:369
 #: lms/lms/doctype/lms_live_class/lms_live_class.json:152
 msgid "Zoom"
@@ -16682,7 +16913,7 @@ msgstr ""
 #. Label of the zoom_account (Link) field in DocType 'LMS Batch'
 #. Label of the zoom_account (Link) field in DocType 'LMS Live Class'
 #: frontend/src/components/Settings/Zoom/zoom.ts:91
-#: frontend/src/pages/Batches/BatchForm.vue:238
+#: frontend/src/pages/Batches/BatchForm.vue:242
 #: lms/lms/doctype/lms_batch/lms_batch.json:375
 #: lms/lms/doctype/lms_live_class/lms_live_class.json:157
 msgid "Zoom Account"
@@ -16766,7 +16997,7 @@ msgstr ""
 msgid "chapter must be a non-empty string"
 msgstr ""
 
-#: lms/lms/api.py:2222 lms/lms/api.py:2842
+#: lms/lms/api.py:2231 lms/lms/api.py:2851
 msgid "course must be a string"
 msgstr ""
 
@@ -16816,7 +17047,7 @@ msgstr ""
 msgid "evaluations"
 msgstr ""
 
-#: lms/lms/api.py:3149 lms/lms/api.py:3180
+#: lms/lms/api.py:3158 lms/lms/api.py:3189
 msgid "exercise must be a string"
 msgstr ""
 
@@ -16879,11 +17110,11 @@ msgstr ""
 msgid "multiple_faces"
 msgstr ""
 
-#: lms/lms/api.py:2224
+#: lms/lms/api.py:2233
 msgid "name must be a string"
 msgstr ""
 
-#: lms/lms/api.py:175
+#: lms/lms/api.py:182
 msgid "names must be a list"
 msgstr ""
 
@@ -16901,7 +17132,7 @@ msgstr ""
 msgid "of"
 msgstr ""
 
-#: lms/lms/api.py:3182
+#: lms/lms/api.py:3191
 msgid "outputs must be a list"
 msgstr ""
 
@@ -16954,7 +17185,7 @@ msgstr ""
 msgid "saving..."
 msgstr ""
 
-#: lms/lms/api.py:2248
+#: lms/lms/api.py:2257
 msgid "scorm_package name must be a string"
 msgstr ""
 
@@ -16994,7 +17225,7 @@ msgstr ""
 msgid "there"
 msgstr ""
 
-#: lms/lms/api.py:2220
+#: lms/lms/api.py:2229
 msgid "title must be a string"
 msgstr ""
 
@@ -17022,7 +17253,7 @@ msgstr ""
 msgid "today"
 msgstr ""
 
-#: lms/lms/api.py:3013
+#: lms/lms/api.py:3022
 msgid "user must be a string"
 msgstr ""
 
@@ -17102,7 +17333,7 @@ msgstr ""
 msgid "{0} Quizzes"
 msgstr ""
 
-#: lms/lms/api.py:1963 lms/lms/api.py:1971
+#: lms/lms/api.py:1972 lms/lms/api.py:1980
 #, python-brace-format
 msgid "{0} Settings not found"
 msgstr ""
@@ -17153,7 +17384,7 @@ msgstr ""
 msgid "{0} behind schedule"
 msgstr ""
 
-#: lms/lms/api.py:764 lms/lms/api.py:1196 lms/lms/api.py:1222
+#: lms/lms/api.py:773 lms/lms/api.py:1205 lms/lms/api.py:1231
 #, python-brace-format
 msgid "{0} cannot be changed."
 msgstr ""
@@ -17201,7 +17432,7 @@ msgstr ""
 msgid "{0} days ago"
 msgstr ""
 
-#: lms/lms/api.py:1084
+#: lms/lms/api.py:1093
 #, python-brace-format
 msgid "{0} doesn't have the Batch Evaluator role, so they have no availability to set."
 msgstr ""
@@ -17247,7 +17478,7 @@ msgstr ""
 msgid "{0} has applied for the job position {1}"
 msgstr ""
 
-#: lms/lms/api.py:1108
+#: lms/lms/api.py:1117
 #, python-brace-format
 msgid "{0} has no availability set up yet."
 msgstr ""
@@ -17293,12 +17524,18 @@ msgstr ""
 msgid "{0} in the archive is too large to import"
 msgstr ""
 
-#: frontend/src/components/Setup/SetupInvite.vue:127
+#: frontend/src/components/Settings/Members/PendingInvites.vue:137
+#: frontend/src/components/Setup/SetupInvite.vue:75
 #, python-brace-format
 msgid "{0} invited"
 msgstr ""
 
-#: lms/lms/api.py:2908
+#: frontend/src/components/Setup/SetupInvite.vue:53
+#, python-brace-format
+msgid "{0} invites could not be sent"
+msgstr ""
+
+#: lms/lms/api.py:2917
 #, python-brace-format
 msgid "{0} is already a member."
 msgstr ""
@@ -17333,32 +17570,32 @@ msgstr ""
 msgid "{0} is not a filter this list accepts."
 msgstr ""
 
-#: lms/lms/api.py:1487
+#: lms/lms/api.py:1496
 #, python-brace-format
 msgid "{0} is not a published web page."
 msgstr ""
 
-#: lms/lms/api.py:1150
+#: lms/lms/api.py:1159
 #, python-brace-format
 msgid "{0} is not a valid date."
 msgstr ""
 
-#: lms/lms/api.py:1176 lms/lms/api.py:1200
+#: lms/lms/api.py:1185 lms/lms/api.py:1209
 #, python-brace-format
 msgid "{0} is not a valid day."
 msgstr ""
 
-#: lms/lms/api.py:4753
+#: lms/lms/api.py:4766
 #, python-brace-format
 msgid "{0} is not a valid language"
 msgstr ""
 
-#: lms/lms/api.py:1133
+#: lms/lms/api.py:1142
 #, python-brace-format
 msgid "{0} is not a valid time."
 msgstr ""
 
-#: lms/lms/api.py:4758
+#: lms/lms/api.py:4771
 #, python-brace-format
 msgid "{0} is not a valid timezone"
 msgstr ""
@@ -17468,7 +17705,7 @@ msgstr ""
 msgid "{0} must be a string"
 msgstr ""
 
-#: lms/lms/api.py:2173
+#: lms/lms/api.py:2182
 #, python-brace-format
 msgid "{0} must be a string."
 msgstr ""
@@ -17488,7 +17725,7 @@ msgstr ""
 msgid "{0} not answered"
 msgstr ""
 
-#: lms/lms/api.py:2025
+#: lms/lms/api.py:2034
 #, python-brace-format
 msgid "{0} not found"
 msgstr ""
@@ -17752,7 +17989,7 @@ msgstr ""
 msgid "{0} {1} could not be loaded."
 msgstr ""
 
-#: lms/lms/api.py:2179
+#: lms/lms/api.py:2188
 #, python-brace-format
 msgid "{0} {1} does not exist."
 msgstr ""
