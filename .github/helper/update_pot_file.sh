@@ -1,28 +1,44 @@
 #!/bin/bash
-set -e
+set -euo pipefail
+
+BENCH_NAME="frappe-bench"
+BENCH_PATH="$HOME/pilot/benches/$BENCH_NAME"
+export PATH="$HOME/pilot/bin:$HOME/.local/bin:$PATH"
+
+cleanup() {
+  pilot -b "$BENCH_NAME" stop >/dev/null 2>&1 || true
+}
+trap cleanup EXIT
+
 cd ~ || exit
 
-echo "Setting Up Bench..."
+echo "Setting Up Pilot..."
 
-pip install frappe-bench
-bench init frappe-bench --skip-assets --skip-redis-config-generation --python "$(which python)" --frappe-branch "${FRAPPE_BRANCH:-${BASE_BRANCH}}"
-cd ./frappe-bench || exit
+curl -fsSL "https://raw.githubusercontent.com/frappe/pilot/develop/install.sh" | sh -s -- --ci
+
+# POT generation needs an app checkout, not a site or a database server.
+pilot new "$BENCH_NAME" \
+  --frappe-branch "${FRAPPE_BRANCH:-${BASE_BRANCH}}" \
+  --database sqlite
+pilot -b "$BENCH_NAME" init --skip-frontend --no-dev
 
 echo "Get LMS..."
-bench get-app --skip-assets lms "${GITHUB_WORKSPACE}"
+pilot get-app "$GITHUB_WORKSPACE" --branch "$BASE_BRANCH" --skip-assets
 
 echo "Generating POT file..."
-bench generate-pot-file --app lms
+pilot frappe generate-pot-file --app lms
 
-cd ./apps/lms || exit
+cd "$BENCH_PATH/apps/lms" || exit
 
 echo "Configuring git user..."
 git config user.email "developers@erpnext.com"
 git config user.name "frappe-pr-bot"
 
 echo "Setting the correct git remote..."
-# Here, the git remote is a local file path by default. Let's change it to the upstream repo.
-git remote set-url upstream https://github.com/frappe/lms.git
+# Pilot leaves origin pointed at the local workspace. Push the generated branch
+# to the canonical repository through a separate upstream remote.
+git remote remove upstream 2>/dev/null || true
+git remote add upstream https://github.com/frappe/lms.git
 
 echo "Creating a new branch..."
 isodate=$(date -u +"%Y-%m-%d")
