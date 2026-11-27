@@ -53,7 +53,8 @@ jobs:
         ports:
           - 3306:3306
         options: --health-cmd="mariadb-admin ping" --health-interval=5s --health-timeout=2s --health-retries=3
-      # bench's own defaults point at these ports, so no redis config is needed.
+      # Pilot uses the same Redis ports as bench's defaults. Keep the service
+      # containers up across hops so migrations never inherit a warm cache.
       redis-cache:
         image: redis:alpine
         ports:
@@ -96,7 +97,7 @@ jobs:
           node-version: 24
           check-latest: true
 
-      # frappe-arc runners have no yarn, and bench init needs it.
+      # frappe-arc runners have no yarn, and Pilot's frontend setup needs it.
       - name: Install Yarn
         run: corepack enable && corepack prepare yarn@1.22.22 --activate
 
@@ -111,33 +112,39 @@ jobs:
       - name: Build the oldest bench and seed the fixture
         run: |
           set -euo pipefail
-          # The helpers run under the bench's own python, from the sites directory
-          # frappe.init() expects to be started in.
-          PY="$HOME/frappe-bench/env/bin/python"
-          pip install frappe-bench
+          BENCH_NAME="frappe-bench"
+          BENCH_PATH="$HOME/pilot/benches/$BENCH_NAME"
+          export PATH="$HOME/pilot/bin:$HOME/.local/bin:$PATH"
 
-          bench init ~/frappe-bench \
-            --frappe-branch version-15 \
-            --python "$(which python3.11)" \
-            --skip-assets \
-            --skip-redis-config-generation
-          cd ~/frappe-bench
+          curl -fsSL "https://raw.githubusercontent.com/frappe/pilot/develop/install.sh" | sh -s -- --ci
 
-          bench get-app --skip-assets --branch version-15 payments https://github.com/frappe/payments
+          pilot new "$BENCH_NAME" --frappe-branch version-15
+          pilot -b "$BENCH_NAME" set-bench-config python "$(which python3.11)"
+          pilot -b "$BENCH_NAME" set-bench-config admin_allow_site_to_pilot_communication false
+          pilot -b "$BENCH_NAME" set-bench-config mariadb_existing true
+          pilot -b "$BENCH_NAME" set-bench-config mariadb_host 127.0.0.1
+          pilot -b "$BENCH_NAME" set-bench-config mariadb_port 3306
+          pilot -b "$BENCH_NAME" set-bench-config mariadb_admin_user root
+          pilot -b "$BENCH_NAME" set-bench-config mariadb_password 123
+          pilot -b "$BENCH_NAME" init --skip-frontend --no-dev
+          cd "$BENCH_PATH"
+
+          pilot get-app https://github.com/frappe/payments --branch version-15 --skip-assets
 
           # A pull_request checkout is detached. Give its actual head an advertised
           # local ref before get-app clones the workspace; fetching an unadvertised
           # raw SHA from a local Git remote is rejected by upload-pack.
           git -C "$GITHUB_WORKSPACE" update-ref refs/heads/ci-pr-head "$PR_HEAD_SHA"
-          bench get-app --skip-assets --branch v2.0.0 lms "${GITHUB_WORKSPACE}"
+          pilot get-app "$GITHUB_WORKSPACE" --branch v2.0.0 --skip-assets
 
-          # bench init clones frappe and payments with their remote named upstream.
-          # Keep LMS upstream pointed at the canonical repository for stable rungs,
-          # and use the checked-out workspace for the exact pull-request head.
-          git -C apps/lms remote remove upstream 2>/dev/null || true
-          git -C apps/lms remote add upstream https://github.com/frappe/lms.git
+          # Pilot names canonical remotes origin. Keep that convention for stable
+          # rungs, and add the checked-out workspace as the exact PR head.
+          for app in frappe payments lms; do
+            git -C "apps/$app" remote remove upstream 2>/dev/null || true
+            git -C "apps/$app" remote add upstream "https://github.com/frappe/${app}.git"
+          done
           git -C apps/lms remote remove pr 2>/dev/null || true
-          git -C apps/lms remote add pr "${GITHUB_WORKSPACE}"
+          git -C apps/lms remote add pr "$GITHUB_WORKSPACE"
           # LMS has no version-15 line: its frappe-v15-era releases are main /
           # main-hotfix, so that is the rung that pairs with frappe version-15-hotfix.
           git -C apps/lms fetch --force --tags upstream '+refs/heads/*:refs/remotes/upstream/*'
@@ -157,15 +164,15 @@ jobs:
           # payments version-15 pins setuptools 83, which has no pkg_resources,
           # but the razorpay 1.4 that LMS v2.0.0 pins still imports it. The hops
           # rebuild the env, so this only holds for the seed.
-          bench pip install "setuptools<82"
+          uv pip install --python "$BENCH_PATH/env/bin/python" "setuptools<82"
 
-          bench set-config -g db_host 127.0.0.1
-          bench new-site "$SITE" \
-            --mariadb-root-password 123 \
-            --admin-password admin
-          bench --site "$SITE" install-app lms
+          pilot new-site "$SITE" --admin-password admin --skip-assets
+          pilot install-app "$SITE" lms --force
 
-          (cd sites && "$PY" \
+          # The helpers run under the bench's own python, from the sites directory
+          # frappe.init() expects to be started in.
+          PY="$BENCH_PATH/env/bin/python"
+          (cd "$BENCH_PATH/sites" && "$PY" \
             "${GITHUB_WORKSPACE}/.github/helper/seed_fixture.py" "$SITE") | tee /tmp/seed.log
 
           counts="$(grep -m1 '^FIXTURE_JSON ' /tmp/seed.log | cut -d' ' -f2-)"
@@ -178,8 +185,11 @@ jobs:
       - name: Walk the version ladder
         run: |
           set -euo pipefail
-          cd ~/frappe-bench
-          PY="$HOME/frappe-bench/env/bin/python"
+          BENCH_NAME="frappe-bench"
+          BENCH_PATH="$HOME/pilot/benches/$BENCH_NAME"
+          export PATH="$HOME/pilot/bin:$HOME/.local/bin:$PATH"
+          cd "$BENCH_PATH"
+          PY="$BENCH_PATH/env/bin/python"
 
           # Each hop moves frappe, payments and lms together; lms requires payments,
           # so it cannot be dropped the way erpnext drops it before its own ladder.
@@ -206,21 +216,27 @@ jobs:
               git -C "apps/$app" clean -qxdf
             done
 
-            rm -rf ~/frappe-bench/env
-            bench -v setup env --python "$python_bin"
-            bench pip install -e ./apps/payments
-            bench pip install -e ./apps/lms
+            # Each rung needs a cold virtualenv as well as a cold cache: v15 and
+            # v16 support different Python versions, and their dependency sets
+            # must not accumulate across hops.
+            pilot -b "$BENCH_NAME" stop >/dev/null 2>&1 || true
+            rm -rf "$BENCH_PATH/env"
+            pilot -b "$BENCH_NAME" set-bench-config python "$python_bin"
+            uv venv --python "$python_bin" "$BENCH_PATH/env"
+            uv pip install --python "$PY" -e ./apps/frappe
+            uv pip install --python "$PY" -e ./apps/payments
+            uv pip install --python "$PY" -e ./apps/lms
 
             # erpnext's ladder gets a cold cache for free: it kills honcho between
             # hops, and the Procfile's redis goes down with it. These are service
             # containers that outlive the job, so clear the cache by hand. frappe.init()
             # reads the app -> modules map out of redis, and migrate's own clear_cache()
             # comes too late -- frappe.local is populated before it runs.
-            bench --site "$SITE" clear-cache
+            pilot frappe --site "$SITE" clear-cache
 
-            bench --site "$SITE" migrate
+            pilot frappe --site "$SITE" migrate
 
-            (cd sites && "$PY" \
+            (cd "$BENCH_PATH/sites" && "$PY" \
               "${GITHUB_WORKSPACE}/.github/helper/assert_fixture.py" "$SITE" "$name")
 
             echo "::endgroup::"
@@ -309,12 +325,19 @@ jobs:
 
           hop "head" "$frappe_ref" "$payments_ref" "pr/head" "$python_bin"
 
-      - name: Show bench logs
+      - name: Show Pilot and bench logs
         if: ${{ always() }}
         run: |
-          cd ~/frappe-bench/logs || exit 0
+          cat "$RUNNER_TEMP/pilot.log" || true
+          cd "$HOME/pilot/benches/frappe-bench/logs" || exit 0
           for f in ./*.log*; do
             echo "::group::$f"
             cat "$f" || true
             echo "::endgroup::"
           done
+
+      - name: Stop Pilot
+        if: ${{ always() }}
+        run: |
+          export PATH="$HOME/pilot/bin:$HOME/.local/bin:$PATH"
+          pilot -b frappe-bench stop || true
