@@ -168,6 +168,8 @@ jobs:
             "http://127.0.0.1:$admin_port/api/v1/health"
           redis-cli -p "$cache_port" ping | grep -q PONG
           redis-cli -p "$queue_port" ping | grep -q PONG
+          redis-cli -p "$queue_port" FLUSHALL >/dev/null
+          redis-cli -p "$cache_port" FLUSHALL >/dev/null
 
           # The helpers run under the bench's own python, from the sites directory
           # frappe.init() expects to be started in.
@@ -235,6 +237,8 @@ jobs:
               "http://127.0.0.1:$admin_port/api/v1/health"
             redis-cli -p "$cache_port" ping | grep -q PONG
             redis-cli -p "$queue_port" ping | grep -q PONG
+            redis-cli -p "$queue_port" FLUSHALL >/dev/null
+            redis-cli -p "$cache_port" FLUSHALL >/dev/null
 
             # Restarting Pilot gives each hop a cold Redis. Clear the site cache
             # explicitly too: frappe.init() reads the app -> modules map before
