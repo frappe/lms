@@ -53,20 +53,7 @@ jobs:
         ports:
           - 3306:3306
         options: --health-cmd="mariadb-admin ping" --health-interval=5s --health-timeout=2s --health-retries=3
-      # Pilot uses the same Redis ports as bench's defaults. Keep the service
-      # containers up across hops so migrations never inherit a warm cache.
-      redis-cache:
-        image: redis:alpine
-        ports:
-          - 13000:6379
-      redis-queue:
-        image: redis:alpine
-        ports:
-          - 11000:6379
-      redis-socketio:
-        image: redis:alpine
-        ports:
-          - 12000:6379
+      # Pilot owns Redis so its selected ports and generated config stay in sync.
 
     env:
       SITE: lms.test
@@ -128,6 +115,9 @@ jobs:
           pilot -b "$BENCH_NAME" set-bench-config mariadb_password 123
           pilot -b "$BENCH_NAME" init --skip-frontend --no-dev
           cd "$BENCH_PATH"
+          admin_port="$(python3 -c 'import sys, tomllib; print(tomllib.load(open(sys.argv[1], "rb"))["admin"]["port"])' bench.toml)"
+          cache_port="$(python3 -c 'import tomllib; print(tomllib.load(open("bench.toml", "rb"))["redis"]["cache_port"])')"
+          queue_port="$(python3 -c 'import tomllib; print(tomllib.load(open("bench.toml", "rb"))["redis"]["queue_port"])')"
 
           pilot get-app https://github.com/frappe/payments --branch version-15 --skip-assets
 
@@ -138,7 +128,7 @@ jobs:
 
           # v2.0.0 predates Pilot's required app metadata. Install a compatible
           # v15-era checkout through Pilot, then explicitly reinstall v2.0.0 below.
-          pilot get-app https://github.com/frappe/lms --branch version-15-hotfix --skip-assets
+          pilot get-app https://github.com/frappe/lms --branch main-hotfix --skip-assets
 
           # Pilot names canonical remotes origin. Keep that convention for stable
           # rungs, and add the checked-out workspace as the exact PR head.
@@ -173,6 +163,12 @@ jobs:
           pilot new-site "$SITE" --admin-password admin --skip-assets
           pilot install-app "$SITE" lms --force
 
+          pilot -b "$BENCH_NAME" start > "$RUNNER_TEMP/pilot.log" 2>&1 &
+          curl --fail --silent --show-error --retry 30 --retry-connrefused --retry-delay 1 \
+            "http://127.0.0.1:$admin_port/api/v1/health"
+          redis-cli -p "$cache_port" ping | grep -q PONG
+          redis-cli -p "$queue_port" ping | grep -q PONG
+
           # The helpers run under the bench's own python, from the sites directory
           # frappe.init() expects to be started in.
           PY="$BENCH_PATH/env/bin/python"
@@ -194,6 +190,9 @@ jobs:
           export PATH="$HOME/pilot/bin:$HOME/.local/bin:$PATH"
           cd "$BENCH_PATH"
           PY="$BENCH_PATH/env/bin/python"
+          admin_port="$(python3 -c 'import tomllib; print(tomllib.load(open("bench.toml", "rb"))["admin"]["port"])')"
+          cache_port="$(python3 -c 'import tomllib; print(tomllib.load(open("bench.toml", "rb"))["redis"]["cache_port"])')"
+          queue_port="$(python3 -c 'import tomllib; print(tomllib.load(open("bench.toml", "rb"))["redis"]["queue_port"])')"
 
           # Each hop moves frappe, payments and lms together; lms requires payments,
           # so it cannot be dropped the way erpnext drops it before its own ladder.
@@ -230,6 +229,12 @@ jobs:
             uv pip install --python "$PY" -e ./apps/frappe
             uv pip install --python "$PY" -e ./apps/payments
             uv pip install --python "$PY" -e ./apps/lms
+
+            pilot -b "$BENCH_NAME" start >> "$RUNNER_TEMP/pilot.log" 2>&1 &
+            curl --fail --silent --show-error --retry 30 --retry-connrefused --retry-delay 1 \
+              "http://127.0.0.1:$admin_port/api/v1/health"
+            redis-cli -p "$cache_port" ping | grep -q PONG
+            redis-cli -p "$queue_port" ping | grep -q PONG
 
             # erpnext's ladder gets a cold cache for free: it kills honcho between
             # hops, and the Procfile's redis goes down with it. These are service
