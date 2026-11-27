@@ -236,11 +236,9 @@ jobs:
             redis-cli -p "$cache_port" ping | grep -q PONG
             redis-cli -p "$queue_port" ping | grep -q PONG
 
-            # erpnext's ladder gets a cold cache for free: it kills honcho between
-            # hops, and the Procfile's redis goes down with it. These are service
-            # containers that outlive the job, so clear the cache by hand. frappe.init()
-            # reads the app -> modules map out of redis, and migrate's own clear_cache()
-            # comes too late -- frappe.local is populated before it runs.
+            # Restarting Pilot gives each hop a cold Redis. Clear the site cache
+            # explicitly too: frappe.init() reads the app -> modules map before
+            # migrate's own clear_cache() runs.
             pilot frappe --site "$SITE" clear-cache
 
             pilot frappe --site "$SITE" migrate
