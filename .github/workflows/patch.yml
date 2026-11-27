@@ -132,10 +132,13 @@ jobs:
           pilot get-app https://github.com/frappe/payments --branch version-15 --skip-assets
 
           # A pull_request checkout is detached. Give its actual head an advertised
-          # local ref before get-app clones the workspace; fetching an unadvertised
-          # raw SHA from a local Git remote is rejected by upload-pack.
+          # local ref before the ladder fetches it; fetching an unadvertised raw SHA
+          # from a local Git remote is rejected by upload-pack.
           git -C "$GITHUB_WORKSPACE" update-ref refs/heads/ci-pr-head "$PR_HEAD_SHA"
-          pilot get-app "$GITHUB_WORKSPACE" --branch v2.0.0 --skip-assets
+
+          # v2.0.0 predates Pilot's required app metadata. Install a compatible
+          # v15-era checkout through Pilot, then explicitly reinstall v2.0.0 below.
+          pilot get-app https://github.com/frappe/lms --branch version-15-hotfix --skip-assets
 
           # Pilot names canonical remotes origin. Keep that convention for stable
           # rungs, and add the checked-out workspace as the exact PR head.
@@ -145,8 +148,8 @@ jobs:
           done
           git -C apps/lms remote remove pr 2>/dev/null || true
           git -C apps/lms remote add pr "$GITHUB_WORKSPACE"
-          # LMS has no version-15 line: its frappe-v15-era releases are main /
-          # main-hotfix, so that is the rung that pairs with frappe version-15-hotfix.
+          # Fetch all stable branches and tags: the ladder selects the first
+          # published branch for each version, including LMS's older v15 names.
           git -C apps/lms fetch --force --tags upstream '+refs/heads/*:refs/remotes/upstream/*'
           git -C apps/lms fetch --force pr \
             '+refs/heads/ci-pr-head:refs/remotes/pr/head'
@@ -160,6 +163,7 @@ jobs:
             echo "expected lms at v2.0.0 ($want), got $on"
             exit 1
           fi
+          uv pip install --python "$BENCH_PATH/env/bin/python" -e ./apps/lms
 
           # payments version-15 pins setuptools 83, which has no pkg_resources,
           # but the razorpay 1.4 that LMS v2.0.0 pins still imports it. The hops
