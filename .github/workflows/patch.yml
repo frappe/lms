@@ -115,9 +115,12 @@ jobs:
           pilot -b "$BENCH_NAME" set-bench-config mariadb_password 123
           pilot -b "$BENCH_NAME" init --skip-frontend --no-dev
           cd "$BENCH_PATH"
-          admin_port="$(python3 -c 'import sys, tomllib; print(tomllib.load(open(sys.argv[1], "rb"))["admin"]["port"])' bench.toml)"
           cache_port="$(python3 -c 'import tomllib; print(tomllib.load(open("bench.toml", "rb"))["redis"]["cache_port"])')"
           queue_port="$(python3 -c 'import tomllib; print(tomllib.load(open("bench.toml", "rb"))["redis"]["queue_port"])')"
+          redis-server "$BENCH_PATH/config/redis_cache.conf" --daemonize yes
+          redis-server "$BENCH_PATH/config/redis_queue.conf" --daemonize yes
+          redis-cli -p "$cache_port" ping | grep -q PONG
+          redis-cli -p "$queue_port" ping | grep -q PONG
 
           pilot get-app https://github.com/frappe/payments --branch version-15 --skip-assets
 
@@ -163,11 +166,6 @@ jobs:
           pilot new-site "$SITE" --admin-password admin --skip-assets
           pilot install-app "$SITE" lms --force
 
-          pilot -b "$BENCH_NAME" start > "$RUNNER_TEMP/pilot.log" 2>&1 &
-          curl --fail --silent --show-error --retry 30 --retry-connrefused --retry-delay 1 \
-            "http://127.0.0.1:$admin_port/api/v1/health"
-          redis-cli -p "$cache_port" ping | grep -q PONG
-          redis-cli -p "$queue_port" ping | grep -q PONG
           redis-cli -p "$queue_port" FLUSHALL >/dev/null
           redis-cli -p "$cache_port" FLUSHALL >/dev/null
 
@@ -192,7 +190,6 @@ jobs:
           export PATH="$HOME/pilot/bin:$HOME/.local/bin:$PATH"
           cd "$BENCH_PATH"
           PY="$BENCH_PATH/env/bin/python"
-          admin_port="$(python3 -c 'import tomllib; print(tomllib.load(open("bench.toml", "rb"))["admin"]["port"])')"
           cache_port="$(python3 -c 'import tomllib; print(tomllib.load(open("bench.toml", "rb"))["redis"]["cache_port"])')"
           queue_port="$(python3 -c 'import tomllib; print(tomllib.load(open("bench.toml", "rb"))["redis"]["queue_port"])')"
 
@@ -224,7 +221,6 @@ jobs:
             # Each rung needs a cold virtualenv as well as a cold cache: v15 and
             # v16 support different Python versions, and their dependency sets
             # must not accumulate across hops.
-            pilot -b "$BENCH_NAME" stop >/dev/null 2>&1 || true
             rm -rf "$BENCH_PATH/env"
             pilot -b "$BENCH_NAME" set-bench-config python "$python_bin"
             uv venv --python "$python_bin" "$BENCH_PATH/env"
@@ -232,15 +228,10 @@ jobs:
             uv pip install --python "$PY" -e ./apps/payments
             uv pip install --python "$PY" -e ./apps/lms
 
-            pilot -b "$BENCH_NAME" start >> "$RUNNER_TEMP/pilot.log" 2>&1 &
-            curl --fail --silent --show-error --retry 30 --retry-connrefused --retry-delay 1 \
-              "http://127.0.0.1:$admin_port/api/v1/health"
-            redis-cli -p "$cache_port" ping | grep -q PONG
-            redis-cli -p "$queue_port" ping | grep -q PONG
             redis-cli -p "$queue_port" FLUSHALL >/dev/null
             redis-cli -p "$cache_port" FLUSHALL >/dev/null
 
-            # Restarting Pilot gives each hop a cold Redis. Clear the site cache
+            # Flushing gives each hop a cold Redis. Clear the site cache
             # explicitly too: frappe.init() reads the app -> modules map before
             # migrate's own clear_cache() runs.
             pilot frappe --site "$SITE" clear-cache
@@ -336,10 +327,9 @@ jobs:
 
           hop "head" "$frappe_ref" "$payments_ref" "pr/head" "$python_bin"
 
-      - name: Show Pilot and bench logs
+      - name: Show bench logs
         if: ${{ always() }}
         run: |
-          cat "$RUNNER_TEMP/pilot.log" || true
           cd "$HOME/pilot/benches/frappe-bench/logs" || exit 0
           for f in ./*.log*; do
             echo "::group::$f"
@@ -347,8 +337,15 @@ jobs:
             echo "::endgroup::"
           done
 
-      - name: Stop Pilot
+      - name: Stop Pilot and Redis
         if: ${{ always() }}
         run: |
           export PATH="$HOME/pilot/bin:$HOME/.local/bin:$PATH"
           pilot -b frappe-bench stop || true
+          bench="$HOME/pilot/benches/frappe-bench"
+          if [ -f "$bench/bench.toml" ]; then
+            cache_port="$(python3 -c 'import sys, tomllib; print(tomllib.load(open(sys.argv[1], "rb"))["redis"]["cache_port"])' "$bench/bench.toml")"
+            queue_port="$(python3 -c 'import sys, tomllib; print(tomllib.load(open(sys.argv[1], "rb"))["redis"]["queue_port"])' "$bench/bench.toml")"
+            redis-cli -p "$cache_port" shutdown nosave || true
+            redis-cli -p "$queue_port" shutdown nosave || true
+          fi
