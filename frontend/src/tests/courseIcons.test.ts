@@ -151,8 +151,10 @@ describe('the course icon picker', () => {
 	})
 
 	it('moves focus with the arrow keys', async () => {
-		const wrapper = await mountIconPicker({ columns: 12 })
+		const wrapper = await mountIconPicker()
 		document.body.append(wrapper.element)
+		const grid = wrapper.get('[role="group"]').element as HTMLElement
+		grid.style.gridTemplateColumns = Array(12).fill('44px').join(' ')
 		const buttons = wrapper.findAll('button')
 		;(buttons[0].element as HTMLElement).focus()
 		await buttons[0].trigger('keydown', { key: 'ArrowRight' })
@@ -171,9 +173,9 @@ describe('the course icon picker', () => {
 		).toBe('true')
 	})
 
-	// A narrow box lays out fewer cells than `columns`; Down must follow them.
-	it('steps a row by the columns as laid out, not as asked', async () => {
-		const wrapper = await mountIconPicker({ columns: 16 })
+	// As many cells as fit a row; Down must follow the row as laid out.
+	it('steps a row by the columns as laid out', async () => {
+		const wrapper = await mountIconPicker()
 		document.body.append(wrapper.element)
 		const grid = wrapper.get('[role="group"]').element as HTMLElement
 		grid.style.gridTemplateColumns = Array(8).fill('35px').join(' ')
@@ -184,9 +186,14 @@ describe('the course icon picker', () => {
 		wrapper.unmount()
 	})
 
-	it('lays out twelve columns when asked', async () => {
-		const wrapper = await mountIconPicker({ columns: 12 })
-		expect(wrapper.get('[role="group"]').classes()).toContain('grid-cols-12')
+	it('lays the icons out as square cells of one size, as many as fit', async () => {
+		const large = await mountIconPicker({ large: true })
+		expect(large.get('[role="group"]').classes()).toContain(
+			'grid-cols-[repeat(auto-fill,2.75rem)]'
+		)
+		expect(large.get('[aria-label="book open"]').classes()).toContain('size-11')
+		const small = await mountIconPicker()
+		expect(small.get('[aria-label="book open"]').classes()).toContain('size-9')
 	})
 })
 
@@ -208,7 +215,7 @@ describe('the course thumbnail picker', () => {
 		const wrapper = mountPicker({ tint: 'Blue', icon: 'rocket' })
 		const shuffle = wrapper
 			.findAll('button')
-			.find((b) => b.text() === 'Shuffle')
+			.find((b) => b.attributes('aria-label') === 'Shuffle')
 		await shuffle!.trigger('click')
 		expect(wrapper.emitted('update:tint')).toEqual([['Red']])
 		expect(wrapper.emitted('update:icon')).toEqual([['boxes']])
@@ -243,7 +250,7 @@ describe('the course thumbnail picker', () => {
 		)
 	})
 
-	it('puts the upload first under the preview and Shuffle by the colours', () => {
+	it('puts the upload first under the preview and Shuffle right after the colours', () => {
 		const wrapper = mountPicker()
 		const upload = wrapper.get('[data-testid="upload-image"]')
 		expect(upload.text()).toBe('Upload image')
@@ -252,7 +259,7 @@ describe('the course thumbnail picker', () => {
 		)
 		const shuffle = wrapper
 			.findAll('button')
-			.find((b) => b.text() === 'Shuffle')
+			.find((b) => b.attributes('aria-label') === 'Shuffle')
 		expect(shuffle!.element.closest('[role="group"]')).not.toBeNull()
 		expect(
 			mountPicker({ image: '/files/cover.png' })

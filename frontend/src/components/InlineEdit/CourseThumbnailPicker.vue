@@ -84,15 +84,16 @@
 							aria-hidden="true"
 						/>
 					</button>
-					<Button
-						class="ms-auto"
-						icon-left="lucide-shuffle"
-						:label="__('Shuffle')"
-						:tooltip="__('Pick a random colour and icon')"
-						@click="shuffle"
-					/>
+					<Tooltip :text="__('Shuffle')">
+						<Button
+							variant="ghost"
+							icon="lucide-shuffle"
+							:aria-label="__('Shuffle')"
+							@click="shuffle"
+						/>
+					</Tooltip>
 				</div>
-				<CourseIconPicker v-model="icon" :columns="16" large :tint="tint" />
+				<CourseIconPicker v-model="icon" large :tint="tint" />
 			</div>
 		</div>
 	</div>

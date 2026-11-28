@@ -14,8 +14,12 @@
 		<div ref="scroller" class="h-56 overflow-y-auto">
 			<div
 				ref="grid"
-				class="grid gap-1.5"
-				:class="GRID_COLUMNS[columns]"
+				class="grid justify-between gap-2"
+				:class="
+					large
+						? 'grid-cols-[repeat(auto-fill,2.75rem)]'
+						: 'grid-cols-[repeat(auto-fill,2.25rem)]'
+				"
 				role="group"
 				:aria-label="__('Thumbnail icon')"
 				@keydown="moveFocus"
@@ -26,7 +30,7 @@
 					type="button"
 					class="flex items-center justify-center rounded-4 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-outline-gray-3"
 					:class="[
-						large ? 'h-12' : 'h-9',
+						large ? 'size-11' : 'size-9',
 						isPicked(name)
 							? tint
 								? courseTint(tint)
@@ -63,26 +67,17 @@ import { COURSE_ICONS, courseIcon } from '@/utils/courseIcons'
 import { courseTint } from '@/utils/courseTints'
 import { loadIconTags } from '@/utils/lucideIconStyles'
 
-/** Any lucide icon for a course thumbnail: curated first, searchable by name or keyword. */
-const GRID_COLUMNS = {
-	6: 'grid-cols-6',
-	12: 'grid-cols-12',
-	// A narrow box would squeeze 16 cells under the icons they hold.
-	16: 'grid-cols-8 @lg:grid-cols-12 @2xl:grid-cols-[repeat(16,minmax(0,1fr))]',
-} as const
+/**
+ * Any lucide icon for a course thumbnail: curated first, searchable by name or
+ * keyword. Square cells of one size, as many as fit a row.
+ */
 
-const props = withDefaults(
-	defineProps<{
-		columns?: 6 | 12 | 16
-		/** Bigger cells and icons, for a roomy page rather than a popover. */
-		large?: boolean
-		/** The picked icon takes this course colour. */
-		tint?: string | null
-	}>(),
-	{
-		columns: 6,
-	}
-)
+defineProps<{
+	/** Bigger cells and icons, for a roomy page rather than a popover. */
+	large?: boolean
+	/** The picked icon takes this course colour. */
+	tint?: string | null
+}>()
 
 const icon = defineModel<string | null | undefined>()
 
@@ -161,7 +156,7 @@ function renderedColumns(): number {
 		? getComputedStyle(grid.value).gridTemplateColumns
 		: ''
 	const count = template.split(' ').filter(Boolean).length
-	return count > 1 ? count : props.columns
+	return Math.max(count, 1)
 }
 
 function nextIndex(key: string, from: number, count: number): number | null {
