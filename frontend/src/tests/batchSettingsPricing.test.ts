@@ -1,5 +1,4 @@
-// Pricing and the certificate can be set from a batch's Settings tab, as on develop,
-// as well as from its Overview card: both edit the same form.
+// Pricing and the certificate can be set from a batch's Settings tab, as on develop.
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { mount } from '@vue/test-utils'
 import { computed, reactive } from 'vue'
@@ -36,16 +35,7 @@ vi.mock('vue-router', () => ({
 	useRoute: () => ({ query: {}, hash: '' }),
 	useRouter: () => ({ replace: vi.fn() }),
 }))
-vi.mock('@/utils', () => ({
-	formatNumberIntoCurrency: (amount: number) => String(amount),
-	openSettings: vi.fn(),
-}))
-vi.mock('@/components/VideoPreview.vue', () => ({
-	default: { render: () => null },
-}))
-vi.mock('@/pages/Batches/components/overview/BatchFacts.vue', () => ({
-	default: { render: () => null },
-}))
+vi.mock('@/utils', () => ({ openSettings: vi.fn() }))
 vi.mock('@/stores/settings', () => ({
 	useSettings: () => ({ settings: { data: settingsData } }),
 }))
@@ -98,28 +88,6 @@ function mountSettings(doc: Record<string, unknown>) {
 					template: '<div />',
 				},
 			},
-		},
-	})
-}
-
-function mountOverlay(data: Record<string, unknown>) {
-	return mount(BatchOverlay, {
-		props: {
-			batch: {
-				data: {
-					name: 'B1',
-					courses: [],
-					start_date: '2026-11-01',
-					end_date: '2026-12-31',
-					accept_enrollments: 1,
-					allow_self_enrollment: 1,
-					...data,
-				},
-			},
-		},
-		global: {
-			provide: { $user: { data: { name: 'stu@example.com' } } },
-			mocks: { __: globalThis.__ },
 		},
 	})
 }

@@ -437,7 +437,7 @@ describe('TabbedDetailPage tabs on a phone', () => {
 		}
 	})
 
-	it('spreads the icon tabs evenly across the row', async () => {
+	it('marks the phone tab row as icon tabs', async () => {
 		mobile.value = true
 		try {
 			const { wrapper } = await mountPage({ tabs: tabs() })
