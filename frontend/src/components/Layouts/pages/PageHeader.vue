@@ -1,6 +1,9 @@
 <template>
 	<SkeletonLoader v-if="loading" variant="header" />
-	<header v-else class="header-frame sticky top-0 z-10 justify-between">
+	<header
+		v-else
+		class="header-frame sticky top-[var(--student-view-bar-h)] z-10 justify-between"
+	>
 		<div class="flex min-w-0 flex-1 items-center gap-2">
 			<template v-if="isMobile">
 				<router-link
@@ -17,7 +20,9 @@
 			</template>
 			<template v-else>
 				<Breadcrumbs class="h-7 min-w-0" :items="breadcrumbs" />
-				<Badge v-if="published" theme="green">{{ __('Published') }}</Badge>
+				<slot name="status">
+					<Badge v-if="published" theme="green">{{ __('Published') }}</Badge>
+				</slot>
 			</template>
 		</div>
 		<div class="flex shrink-0 items-center gap-2">

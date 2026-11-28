@@ -20,6 +20,7 @@ from lms.lms.permissions import (
 	can_use_conferencing_account,
 	is_site_administrator,
 )
+from lms.lms.student_view import batch_learners
 
 
 class GoogleCalendarMissingError(frappe.ValidationError):
@@ -365,7 +366,7 @@ def invite_missing_learners(live_class: str) -> bool:
 		return True
 
 	invited = {guest.email for guest in event.event_participants}
-	learners = frappe.get_all("LMS Batch Enrollment", {"batch": batch}, pluck="member")
+	learners = frappe.get_all("LMS Batch Enrollment", filters=batch_learners(batch), pluck="member")
 	missing = [learner for learner in learners if learner not in invited]
 	if not missing:
 		return True
@@ -480,8 +481,8 @@ def send_live_class_reminder():
 def send_reminders_for_class(live_class):
 	students = frappe.get_all(
 		"LMS Batch Enrollment",
-		{"batch": live_class.batch_name},
-		["member", "member_name"],
+		filters=batch_learners(live_class.batch_name),
+		fields=["member", "member_name"],
 	)
 	for student in students:
 		send_mail(live_class, student)

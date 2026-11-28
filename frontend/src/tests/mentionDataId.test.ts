@@ -50,6 +50,8 @@ describe('RichTextEditor mentions', () => {
 
 		const { items, command } = suggestion.options.suggestion
 		const [picked] = await items({ query: 'A', editor })
+		// A mention is picked while typing, so the editor has focus.
+		wrapper.findComponent(Editor).vm.$emit('focus')
 		editor.commands.insertContent('@A')
 		const to = editor.state.selection.from
 		command({ editor, range: { from: to - 2, to }, props: picked })

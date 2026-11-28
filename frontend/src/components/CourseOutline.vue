@@ -21,7 +21,13 @@
 				{{ __('Add') }}
 			</Button>
 		</div>
+		<OutlineRowsSkeleton
+			v-if="outline.loading && !outline.data"
+			:count="skeletonRows"
+			data-testid="outline-skeleton"
+		/>
 		<div
+			v-else
 			:class="{
 				'border-2 rounded-5 py-2 px-2': showOutline && outline.data?.length,
 			}"
@@ -43,6 +49,7 @@
 							:inlineSelect="inlineSelect"
 							:editorLinks="editorLinks"
 							:selectedLessonNumber="selectedLessonNumber"
+							:withProgress="getProgress"
 							@select-lesson="(payload) => emit('select-lesson', payload)"
 							@edit-chapter="openChapterForm"
 							@rename-chapter="renameChapter"
@@ -66,11 +73,13 @@
 import { Button, createResource, toast } from 'frappe-ui'
 import type { FrappeResourceError } from 'frappe-ui'
 import { resourceErrorMessage } from '@/utils/resource'
-import { ref, watch } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import Draggable from 'vuedraggable'
 
 import ChapterRow from '@/components/ChapterRow.vue'
+import OutlineRowsSkeleton from '@/components/Skeletons/OutlineRowsSkeleton.vue'
+import { studentViewMode } from '@/composables/useStudentView'
 import { openFormRoute } from '@/composables/useFormRoute'
 import type { OutlineChapter, OutlineLesson, Resource } from '@/types'
 import { outlineDragOptions } from '@/utils/courseOutline'
@@ -127,6 +136,8 @@ const props = withDefaults(
 		editorLinks?: boolean
 		selectedLessonNumber?: string
 		hideHeader?: boolean
+		/** Rows to hold while the outline loads: chapters plus the open one's lessons. */
+		skeletonRows?: number
 	}>(),
 	{
 		showOutline: false,
@@ -138,26 +149,33 @@ const props = withDefaults(
 		selectedLessonNumber: '',
 		completedLesson: null,
 		hideHeader: false,
+		skeletonRows: 8,
 	}
 )
 
 defineExpose({ openChapterForm })
 
+const studentView = computed(() => studentViewMode(route.query.studentView))
+
 const outline = createResource({
 	url: 'lms.lms.utils.get_course_outline',
-	cache: ['course_outline', props.courseName],
+	// The editors reload ['course_outline', name]; only a student view gets its own.
+	cache: studentView.value
+		? ['course_outline', props.courseName, studentView.value]
+		: ['course_outline', props.courseName],
 	makeParams() {
-		return { course: props.courseName, progress: props.getProgress }
+		return {
+			course: props.courseName,
+			progress: props.getProgress,
+			student_view: studentView.value,
+		}
 	},
 	auto: Boolean(props.courseName),
 }) as Resource<OutlineChapter[] | null>
 
-watch(
-	() => props.courseName,
-	() => {
-		if (props.courseName) outline.reload()
-	}
-)
+watch([() => props.courseName, () => props.getProgress, studentView], () => {
+	if (props.courseName) outline.reload()
+})
 
 watch(
 	() => props.completedLesson,

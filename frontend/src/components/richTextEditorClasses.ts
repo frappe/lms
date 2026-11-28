@@ -3,7 +3,7 @@
  * JIT emits it; a height or variant that is not a key below has no CSS.
  */
 
-export type RichTextEditorVariant = 'outline' | 'subtle' | 'ghost'
+export type RichTextEditorVariant = 'outline' | 'subtle' | 'ghost' | 'inline'
 
 const BOX: Record<RichTextEditorVariant, { valid: string; invalid: string }> = {
 	outline: {
@@ -19,12 +19,26 @@ const BOX: Record<RichTextEditorVariant, { valid: string; invalid: string }> = {
 			'rounded-5 border border-outline-red-3 bg-surface-gray-2 transition-colors hover:bg-surface-gray-3 focus-within:border-outline-red-4 focus-within:bg-surface-base focus-within:shadow-sm',
 	},
 	ghost: { valid: '', invalid: '' },
+	// No border until the editor has focus, for text edited in place.
+	inline: {
+		valid:
+			'rounded-5 border border-transparent transition-colors hover:bg-surface-gray-2 focus-within:border-outline-gray-4 focus-within:bg-surface-base focus-within:shadow-sm',
+		invalid:
+			'rounded-5 border border-outline-red-3 transition-colors focus-within:border-outline-red-4 focus-within:shadow-sm',
+	},
 }
+
+// Sticks to the top while scrolling a long body; shows only while focused.
+const FOCUS_TOOLBAR =
+	'sticky top-0 z-[1] hidden flex-wrap rounded-t-5 border-b border-outline-gray-1 bg-surface-base px-2 py-1.5 group-focus-within/editor:flex has-[[data-state=open]]:flex'
+
+const ROOMY_CONTENT = 'px-3 py-2.5'
 
 const TOOLBAR: Record<RichTextEditorVariant, string> = {
 	outline: 'flex-wrap border-b border-outline-gray-2 p-1',
 	subtle: 'flex-wrap border-b border-outline-gray-2 p-1',
 	ghost: 'flex-wrap pb-1',
+	inline: 'flex-wrap border-b border-outline-gray-2 p-1',
 }
 
 // Outline and subtle boxes show focus on their own border; a ghost editor has
@@ -33,10 +47,12 @@ const CONTENT: Record<RichTextEditorVariant, string> = {
 	outline: 'px-2 py-1',
 	subtle: 'px-2 py-1',
 	ghost: 'focus-visible:ring-2 focus-visible:ring-outline-gray-5',
+	inline: 'px-2 py-1',
 }
 
 export const MIN_HEIGHT = {
 	'5rem': 'min-h-[5rem]',
+	'8rem': 'min-h-[8rem]',
 	'6rem': 'min-h-[6rem]',
 	'7rem': 'min-h-[7rem]',
 	'10rem': 'min-h-[10rem]',
@@ -70,18 +86,22 @@ export function boxClass(
 	]
 }
 
-export function toolbarClass(variant: RichTextEditorVariant): string {
-	return TOOLBAR[variant]
+export function toolbarClass(
+	variant: RichTextEditorVariant,
+	onFocus = false
+): string {
+	return onFocus ? FOCUS_TOOLBAR : TOOLBAR[variant]
 }
 
 export function contentClass(
 	variant: RichTextEditorVariant,
 	minHeight: RichTextEditorMinHeight | null,
 	maxHeight: RichTextEditorMaxHeight | null,
-	fill: boolean
+	fill: boolean,
+	roomy = false
 ): string[] {
 	return [
-		CONTENT[variant],
+		roomy && variant !== 'ghost' ? ROOMY_CONTENT : CONTENT[variant],
 		minHeight ? MIN_HEIGHT[minHeight] : '',
 		maxHeight ? MAX_HEIGHT[maxHeight] : '',
 		fill ? 'flex-1 overflow-y-auto' : '',

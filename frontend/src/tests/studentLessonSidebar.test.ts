@@ -1,5 +1,5 @@
 import { mount } from '@vue/test-utils'
-import { describe, expect, it, vi } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 import StudentLessonSidebar from '@/components/StudentLessonSidebar.vue'
 import { translate } from './helpers/translate'
 
@@ -34,28 +34,40 @@ const outline = vi.hoisted(() => [
 	},
 ])
 
+const route = vi.hoisted(() => ({
+	params: {},
+	query: {} as Record<string, string>,
+}))
+
 vi.mock('vue-router', () => ({
-	useRoute: () => ({ params: {}, query: {} }),
+	useRoute: () => route,
 	useRouter: () => ({ push: vi.fn() }),
 }))
 
+const outlineParams = vi.hoisted(() => [] as (() => Record<string, unknown>)[])
+
 vi.mock('frappe-ui', () => ({
-	createResource: () => ({ data: outline, reload: vi.fn() }),
+	createResource: (options: { makeParams: () => Record<string, unknown> }) => {
+		outlineParams.push(options.makeParams)
+		return { data: outline, reload: vi.fn() }
+	},
 	Tooltip: {
 		props: ['text'],
 		template: '<span :data-tooltip="text"><slot /></span>',
 	},
+	Button: { template: '<button><slot name="icon" /><slot /></button>' },
 }))
 
 vi.stubGlobal('__', translate)
 
-const mountSidebar = () =>
+const mountSidebar = (extra: Record<string, unknown> = {}) =>
 	mount(StudentLessonSidebar, {
 		props: {
 			courseName: 'COURSE-1',
 			courseTitle: 'Course 1',
 			progress: 33,
 			selectedLessonNumber: '1-2',
+			...extra,
 		},
 		global: {
 			mocks: { __: translate },
@@ -131,6 +143,46 @@ describe('StudentLessonSidebar without progress', () => {
 
 		expect(wrapper.text()).not.toContain('Completed')
 		expect(wrapper.find('[style*="width"]').exists()).toBe(false)
+		expect(wrapper.text()).toContain('Course 1')
+	})
+})
+
+describe('StudentLessonSidebar in a not-enrolled preview', () => {
+	afterEach(() => {
+		route.query = {}
+	})
+
+	it('asks the server for the outline a learner in that mode gets', () => {
+		for (const [studentView, mode] of [
+			['not-enrolled', 'not-enrolled'],
+			['1', 'enrolled'],
+		]) {
+			route.query = { studentView }
+			mountSidebar()
+			expect(outlineParams.at(-1)!().student_view).toBe(mode)
+		}
+		route.query = {}
+		mountSidebar()
+		expect(outlineParams.at(-1)!().student_view).toBeNull()
+	})
+
+	it('keeps progress in the enrolled preview', () => {
+		route.query = { studentView: '1' }
+		const wrapper = mountSidebar()
+
+		expect(wrapper.text()).toContain('33% completed')
+		expect(wrapper.findAll('li li')[0].get('.sr-only').text()).toBe('Completed')
+	})
+})
+
+describe('folding the student chapters panel', () => {
+	it('offers a fold button only when the page lets it fold', async () => {
+		expect(mountSidebar().find('[data-testid="hide-chapters"]').exists()).toBe(
+			false
+		)
+		const wrapper = mountSidebar({ collapsible: true })
+		await wrapper.get('[data-testid="hide-chapters"]').trigger('click')
+		expect(wrapper.emitted('hide')).toHaveLength(1)
 		expect(wrapper.text()).toContain('Course 1')
 	})
 })

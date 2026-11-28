@@ -91,3 +91,25 @@ describe('StudentLessonSidebar lesson links', () => {
 		}
 	})
 })
+
+describe('StudentLessonSidebar course link', () => {
+	const courseLink = (wrapper: ReturnType<typeof mountSidebar>) =>
+		wrapper
+			.findAllComponents(RouterLinkStub)
+			.map((link) => link.props('to') as Record<string, any>)
+			.find((to) => to?.name === 'CourseDetail')
+
+	it('goes back to the course page in the same student view', () => {
+		query.current = { studentView: 'not-enrolled' }
+		expect(courseLink(mountSidebar())).toEqual({
+			name: 'CourseDetail',
+			params: { courseName: 'course-1' },
+			query: { studentView: 'not-enrolled' },
+		})
+	})
+
+	it('is a plain link to the course for a student', () => {
+		query.current = {}
+		expect(courseLink(mountSidebar())?.query).toBeUndefined()
+	})
+})

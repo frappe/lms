@@ -10,6 +10,7 @@ from frappe.model.document import Document
 from frappe.query_builder import Bracket
 from pypika.terms import LiteralValue
 
+from lms.lms.doctype.lms_batch.lms_batch import is_enrollment_open
 from lms.lms.doctype.lms_enrollment.lms_enrollment import (
 	AlreadyEnrolledError,
 	save_unless_enrolled,
@@ -17,6 +18,7 @@ from lms.lms.doctype.lms_enrollment.lms_enrollment import (
 )
 from lms.lms.locking import locked_count
 from lms.lms.permissions import authored_batch_condition, can_author_batch, is_site_administrator
+from lms.lms.student_view import STAFF_MEMBER_TYPE, batch_learners
 from lms.lms.utils import has_moderator_role
 
 # Roles that keep today's blanket access: every row, every ptype.
@@ -26,6 +28,9 @@ UNSCOPED_ROLES = ("Moderator", "Batch Evaluator")
 class LMSBatchEnrollment(Document):
 	def after_insert(self):
 		self.validate_against_committed_rows()
+		# An instructor walking through their own batch needs no welcome or invites.
+		if self.flags.student_view:
+			return
 		self.send_confirmation_email_or_log()
 		from lms.lms.doctype.lms_live_class.lms_live_class import add_learner_to_live_classes
 
@@ -55,9 +60,11 @@ class LMSBatchEnrollment(Document):
 	def validate(self):
 		validate_identity_unchanged(self, ("batch", "member"))
 		self.validate_owner()
+		self.validate_member_type()
 		self.validate_duplicate_members()
 		self.validate_payment()
 		self.validate_self_enrollment()
+		self.validate_enrollment_window()
 		self.validate_course_enrollment()
 
 	def validate_owner(self):
@@ -79,6 +86,11 @@ class LMSBatchEnrollment(Document):
 		frappe.throw(
 			_("You must be a Moderator, Batch Evaluator, or this batch's instructor to enroll users.")
 		)
+
+	def validate_member_type(self):
+		"""A Staff row takes no seat, so only the batch's own staff may hold one."""
+		if self.member_type == STAFF_MEMBER_TYPE and not can_author_batch(self.batch, user=self.member):
+			frappe.throw(_("Only this batch's staff can hold a staff enrollment."), frappe.PermissionError)
 
 	def validate_payment(self):
 		paid_batch = frappe.db.get_value("LMS Batch", self.batch, "paid_batch")
@@ -108,9 +120,23 @@ class LMSBatchEnrollment(Document):
 			return
 		frappe.throw(_("Enrollment in this batch is restricted. Please contact the Administrator."))
 
+	def validate_enrollment_window(self):
+		"""A learner enrolls themselves only until the batch's enrolment close date.
+		Staff enrolling someone, student view and a verified payment are not held to it:
+		the payment was checked against the window before it was taken."""
+		if not self.is_new() or self.owner != self.member or self.flags.via_payment:
+			return
+		if self.flags.student_view or can_author_batch(self.batch):
+			return
+		if not is_enrollment_open(self.batch):
+			frappe.throw(_("Enrollment for this batch is closed."))
+
 	def can_skip_payment(self):
 		"""Only a site admin or Moderator enrolls themselves without paying. The
-		batch's tagged instructors and evaluators may also enroll others free."""
+		batch's tagged instructors and evaluators may also enroll others free, and
+		themselves through student view."""
+		if self.flags.student_view:
+			return can_author_batch(self.batch)
 		if self.owner != self.member:
 			return can_author_batch(self.batch)
 		return is_site_administrator() or bool(has_moderator_role())
@@ -131,8 +157,10 @@ class LMSBatchEnrollment(Document):
 		if locked_count("LMS Batch Enrollment", self.duplicate_filters()) > 1:
 			self.throw_duplicate()
 
+		if self.member_type == STAFF_MEMBER_TYPE:
+			return
 		seat_count = frappe.db.get_value("LMS Batch", self.batch, "seat_count")
-		if seat_count and locked_count("LMS Batch Enrollment", {"batch": self.batch}) > seat_count:
+		if seat_count and locked_count("LMS Batch Enrollment", batch_learners(self.batch)) > seat_count:
 			frappe.throw(_("There are no seats available in this batch."))
 
 	def duplicate_filters(self):
@@ -163,6 +191,8 @@ class LMSBatchEnrollment(Document):
 				enrollment.course = course.course
 				enrollment.member = self.member
 				enrollment.enrollment_from_batch = self.batch
+				if self.flags.student_view:
+					enrollment.member_type = STAFF_MEMBER_TYPE
 				# Adding the learner to the batch is what was authorised and paid for;
 				# its courses come with it, whoever added them.
 				enrollment.flags.via_batch_enrollment = True

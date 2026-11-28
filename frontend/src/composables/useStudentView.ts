@@ -18,9 +18,10 @@ import {
  * everywhere, so providing a mocked one at the preview boundary shadows it for
  * the whole subtree without touching a single consumer.
  *
- * This is presentation fidelity, not a security boundary: the session keeps all
- * its real server-side permissions. Backend impersonation would be a genuine
- * privilege-escalation surface for no user benefit.
+ * The server side is separate: pages pass the mode as `student_view` to the
+ * course, outline, lesson, quiz and batch course reads, which then answer an
+ * author as a plain student (lms/lms/student_view.py). Nothing is impersonated;
+ * the flag only ever removes access.
  */
 export const IS_STUDENT_VIEW: InjectionKey<
 	Ref<boolean> | ComputedRef<boolean>
@@ -99,4 +100,23 @@ export function useStudentView(): Ref<boolean> | ComputedRef<boolean> {
 		IS_STUDENT_VIEW,
 		computed(() => false)
 	)
+}
+
+export type StudentViewMode = 'not-enrolled' | 'enrolled'
+
+/**
+ * `?studentView=1` previews as an enrolled learner, `=not-enrolled` as a visitor;
+ * anything else is no preview. The result is also the server's `student_view`.
+ */
+export function studentViewMode(value: unknown): StudentViewMode | null {
+	if (String(value) === '1') return 'enrolled'
+	return value === 'not-enrolled' ? 'not-enrolled' : null
+}
+
+/** The query that keeps a preview mode across lesson hops. */
+export function studentViewQuery(
+	mode: StudentViewMode | null
+): { studentView: 1 | 'not-enrolled' } | undefined {
+	if (!mode) return undefined
+	return { studentView: mode === 'enrolled' ? 1 : 'not-enrolled' }
 }

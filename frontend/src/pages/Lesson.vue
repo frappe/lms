@@ -1,19 +1,16 @@
 <template>
-	<div v-if="lesson.data" class="">
+	<div v-if="lesson.data" :class="{ 'flex grow flex-col': isMobile }">
+		<StudentViewBar
+			v-if="isStudentView"
+			v-model="studentMode"
+			doctype="LMS Course"
+			:name="courseName"
+			@exit="router.push(editorRoute)"
+			@change="reloadAsStudent()"
+		/>
 		<PageHeader :breadcrumbs="breadcrumbs">
 			<template #actions>
 				<CertificationLinks :courseName="courseName" />
-				<HeaderButton
-					v-if="canEditLesson"
-					:label="__('Editor View')"
-					icon="lucide-pencil"
-					:route="{
-						name: 'CourseDetail',
-						params: { courseName: courseName },
-						hash: '#editor',
-						query: { editLesson: `${chapterNumber}-${lessonNumber}` },
-					}"
-				/>
 			</template>
 		</PageHeader>
 
@@ -38,62 +35,81 @@
 				{{ lessonIndex }} / {{ lessonTotal }}
 			</div>
 			<Button
-				v-if="canGoNext"
 				variant="subtle"
 				class="!size-9"
-				:label="__('Next lesson')"
+				:label="
+					isNextLocked
+						? __('Complete this lesson to move to the next')
+						: __('Next lesson')
+				"
+				:disabled="!canGoNext"
 				@click="goNext()"
 			>
 				<template #icon>
-					<span class="lucide-chevron-right size-4 rtl:rotate-180" />
+					<span v-if="isNextLocked" class="lucide-lock size-4" />
+					<span v-else class="lucide-chevron-right size-4 rtl:rotate-180" />
 				</template>
 			</Button>
 		</div>
 
-		<div class="grid md:grid-cols-[70%,30%] sm:h-[94vh]">
-			<div v-if="lesson.data.no_preview" class="sm:border-e">
-				<div class="shadow rounded-5 w-3/4 mt-10 mx-auto text-center p-4">
-					<div class="flex items-center justify-center mt-4 gap-x-2">
-						<span class="lucide-lock-keyhole size-4 text-ink-gray-5" />
-						<div class="text-lg-semibold text-ink-gray-7">
+		<div class="flex">
+			<div v-if="isPreviewLocked" class="min-w-0 flex-1 sm:border-e">
+				<div class="mx-auto flex max-w-6xl flex-col gap-6 px-5 pt-5">
+					<LessonTitle
+						:title="lesson.data.title"
+						:icon="lessonIcon"
+						:index="lessonIndex"
+						:total="lessonTotal"
+					/>
+					<div
+						class="flex flex-col items-center gap-1 rounded-6 border border-outline-gray-2 px-5 py-10 text-center"
+						data-testid="preview-locked"
+					>
+						<span
+							class="lucide-lock-keyhole mb-2 size-5 text-ink-gray-6"
+							aria-hidden="true"
+						/>
+						<span class="text-p-base-medium text-ink-gray-9">
 							{{ __('This lesson is locked') }}
-						</div>
+						</span>
+						<span class="text-p-sm text-ink-gray-6">
+							{{
+								lesson.data.disable_self_learning
+									? __('Contact the Administrator to enroll for this course.')
+									: __('Enroll in the course to open it.')
+							}}
+						</span>
+						<Button
+							v-if="isStudentView"
+							class="mt-3"
+							variant="solid"
+							@click="studentMode = 'enrolled'"
+						>
+							{{ __('Start learning') }}
+						</Button>
+						<Button
+							v-else-if="user.data && !lesson.data.disable_self_learning"
+							class="mt-3"
+							variant="solid"
+							:loading="enrollment.loading"
+							@click="enrollStudent()"
+						>
+							{{ __('Start learning') }}
+						</Button>
+						<Button
+							v-else-if="!user.data"
+							class="mt-3"
+							@click="redirectToLogin(getLmsRoute(`courses/${courseName}`))"
+						>
+							<template #prefix>
+								<span class="lucide-log-in size-4" />
+							</template>
+							{{ __('Login') }}
+						</Button>
 					</div>
-					<div class="mt-1 mb-4 text-ink-gray-7">
-						{{
-							__(
-								'This lesson is not available for preview. Please enroll in the course to access it.'
-							)
-						}}
-					</div>
-					<Button
-						v-if="user.data && !lesson.data.disable_self_learning"
-						:loading="enrollment.loading"
-						@click="enrollStudent()"
-						variant="solid"
-					>
-						{{ __('Start Learning') }}
-					</Button>
-					<Badge
-						theme="blue"
-						size="lg"
-						v-else-if="lesson.data.disable_self_learning"
-						class="mt-2"
-					>
-						{{ __('Contact the Administrator to enroll for this course.') }}
-					</Badge>
-					<Button
-						v-else
-						@click="redirectToLogin(getLmsRoute(`courses/${courseName}`))"
-					>
-						<template #prefix>
-							<span class="lucide-log-in size-4" />
-						</template>
-						{{ __('Login') }}
-					</Button>
 				</div>
 			</div>
-			<div v-else-if="lesson.data.locked" class="sm:border-e">
+			<div v-else-if="lesson.data.locked" class="min-w-0 flex-1 sm:border-e">
 				<LockedLessonNotice
 					:redirect="!!lesson.data.redirect_to"
 					:notFound="!!lesson.data.not_found"
@@ -103,25 +119,28 @@
 			<div
 				v-else
 				ref="lessonContainer"
-				class="bg-surface-base min-w-0"
+				class="bg-surface-base min-w-0 flex-1"
 				:class="{
 					'overflow-y-auto': zenModeEnabled,
 				}"
 			>
 				<div
-					class="sm:border-e pt-8 sm:pt-5 pb-10 h-full"
+					class="sm:border-e pt-5 pb-10 h-full"
 					:class="{
 						'w-full md:w-3/5 mx-auto border-none !pt-10': zenModeEnabled,
 					}"
 				>
-					<div class="px-5">
+					<div class="mx-auto max-w-6xl px-5">
 						<div
-							class="flex flex-col space-y-3 md:space-y-0 md:flex-row md:items-center justify-between"
+							class="flex flex-col space-y-3 md:space-y-0 @2xl:flex-row md:items-end justify-between"
 						>
-							<div class="flex flex-col">
-								<h1 class="text-4xl-semibold text-ink-gray-9">
-									{{ lesson.data.title }}
-								</h1>
+							<div class="flex min-w-0 flex-col">
+								<LessonTitle
+									:title="lesson.data.title"
+									:icon="lessonIcon"
+									:index="lessonIndex"
+									:total="lessonTotal"
+								/>
 
 								<div
 									v-if="zenModeEnabled"
@@ -154,12 +173,17 @@
 										</template>
 									</Button>
 								</Tooltip>
-								<LessonNavButtons
-									:hasPrev="!!lesson.data.prev"
-									:hasNext="!!(lesson.data.next && canGoNext)"
-									:courseName="courseName"
-									@switch="switchLesson"
-								/>
+								<Button
+									v-if="!chaptersOpen"
+									variant="subtle"
+									data-testid="show-chapters"
+									@click="openChapters()"
+								>
+									<template #prefix>
+										<span class="lucide-panel-right-open size-4" />
+									</template>
+									{{ __('Chapters') }}
+								</Button>
 							</div>
 
 							<div
@@ -177,30 +201,13 @@
 								</Button>
 								<LessonNavButtons
 									:hasPrev="!!lesson.data.prev"
-									:hasNext="!!(lesson.data.next && canGoNext)"
+									:hasNext="hasNextButton"
+									:nextLocked="isNextLocked"
 									:courseName="courseName"
+									:courseQuery="previewQuery"
 									@switch="switchLesson"
 								/>
 							</div>
-						</div>
-
-						<div v-if="!zenModeEnabled" class="flex items-center mt-4 md:mt-2">
-							<span
-								class="h-6 me-1"
-								:class="{
-									'avatar-group overlap': lesson.data.instructors?.length > 1,
-								}"
-							>
-								<UserAvatar
-									v-for="instructor in lesson.data.instructors"
-									:key="instructor.username"
-									:user="instructor"
-								/>
-							</span>
-							<CourseInstructors
-								v-if="lesson.data?.instructors"
-								:instructors="lesson.data.instructors"
-							/>
 						</div>
 
 						<div
@@ -268,6 +275,20 @@
 								:quizId="lesson.data.quiz_id"
 							/>
 						</div>
+						<div
+							v-if="!zenModeEnabled"
+							class="mt-10 flex items-center"
+							data-testid="lesson-nav"
+						>
+							<LessonNavButtons
+								:hasPrev="!!lesson.data.prev"
+								:hasNext="hasNextButton"
+								:nextLocked="isNextLocked"
+								:courseName="courseName"
+								:courseQuery="previewQuery"
+								@switch="switchLesson"
+							/>
+						</div>
 					</div>
 					<div
 						v-if="lesson.data && tabs.length"
@@ -299,8 +320,18 @@
 					</div>
 				</div>
 			</div>
-			<aside v-if="!isMobile" class="sticky top-10 h-[94vh]">
+			<!-- Slides like the app sidebar; folded, it is inert. -->
+			<aside
+				v-if="!isMobile"
+				class="sticky top-[var(--sticky-stack-h)] hidden h-[calc(100dvh-var(--sticky-stack-h))] shrink-0 self-start overflow-hidden transition-[width] duration-200 ease-flow @2xl:block"
+				:class="chaptersOpen ? 'w-[30%]' : 'w-0'"
+				:inert="!chaptersOpen || undefined"
+				data-testid="chapters-panel"
+			>
 				<StudentLessonSidebar
+					class="min-w-72"
+					collapsible
+					@hide="foldChapters()"
 					:courseName="courseName"
 					:courseTitle="lesson.data.course_title"
 					:progress="lessonProgress"
@@ -313,7 +344,7 @@
 
 		<div
 			v-if="isMobile"
-			class="pointer-events-none sticky bottom-4 z-10 flex justify-end px-4"
+			class="pointer-events-none sticky bottom-4 z-10 mt-auto flex justify-end px-4 pt-4"
 		>
 			<Button
 				variant="outline"
@@ -344,6 +375,13 @@
 			/>
 		</BottomSheet>
 	</div>
+	<LessonPageSkeleton
+		v-else
+		:chaptersOpen="chaptersOpen"
+		:withProgress="Boolean(user.data)"
+		data-testid="lesson-skeleton"
+	/>
+	<span class="sr-only" role="status">{{ loadingAnnouncement }}</span>
 	<InlineLessonMenu
 		v-if="lesson.data?.name && canCreateNotes"
 		v-model="showInlineMenu"
@@ -354,7 +392,6 @@
 </template>
 <script setup lang="ts">
 import {
-	Badge,
 	Button,
 	call,
 	createListResource,
@@ -394,18 +431,21 @@ import {
 } from '@/utils/lessonProgress'
 import EditorJS from '@editorjs/editorjs'
 import LessonContent from '@/components/LessonContent.vue'
-import CourseInstructors from '@/components/CourseInstructors.vue'
 import ProgressBar from '@/components/ProgressBar.vue'
 import Discussions from '@/components/Discussions.vue'
 import CertificationLinks from '@/components/CertificationLinks.vue'
 import CourseOutline from '@/components/CourseOutline.vue'
+import { useFoldablePanel } from '@/composables/useFoldablePanel'
+import { useFlowChanges } from '@/composables/useFlowChanges'
 import LockedLessonNotice from '@/components/LockedLessonNotice.vue'
 import LessonNavButtons from '@/components/LessonNavButtons.vue'
+import LessonTitle from '@/components/LessonTitle.vue'
 import StudentLessonSidebar from '@/components/StudentLessonSidebar.vue'
+import StudentViewBar from '@/components/StudentViewBar.vue'
 import BottomSheet from '@/components/BottomSheet.vue'
+import LessonPageSkeleton from '@/components/Skeletons/LessonPageSkeleton.vue'
+import { useLoadingAnnouncement } from '@/utils/a11y'
 import PageHeader from '@/components/Layouts/pages/PageHeader.vue'
-import HeaderButton from '@/components/HeaderButton.vue'
-import UserAvatar from '@/components/UserAvatar.vue'
 import Notes from '@/components/Notes/Notes.vue'
 import InlineLessonMenu from '@/components/Notes/InlineLessonMenu.vue'
 import { parseStoredEditorJs } from '@/utils/lessonForm'
@@ -417,7 +457,12 @@ import {
 	canReadDiscussions,
 	hasDoctypePermission,
 } from '@/utils/doctypePermissions'
-import { provideStudentView } from '@/composables/useStudentView'
+import {
+	provideStudentView,
+	studentViewMode,
+	studentViewQuery,
+	type StudentViewMode,
+} from '@/composables/useStudentView'
 import type { UserResource } from '@/composables/useStudentView'
 import type { Note, Notes as NotesResource, SessionUser } from '@/types'
 import { isInstructorOf } from '@/utils/instructors'
@@ -492,10 +537,15 @@ const route = useRoute()
 const realUser = inject<UserResource & SessionUser>('$user')!
 // A component's own provide() is invisible to its own inject(), so read the
 // handles provideStudentView returns rather than calling useStudentView().
-const { isStudentView, mockedUser } = provideStudentView(
-	realUser,
-	() => route.query.studentView === '1'
+const { isStudentView, mockedUser } = provideStudentView(realUser, () =>
+	Boolean(studentViewMode(route.query.studentView))
 )
+
+const studentMode = computed<StudentViewMode>({
+	get: () => studentViewMode(route.query.studentView) ?? 'enrolled',
+	set: (mode) =>
+		router.replace({ query: { ...route.query, ...studentViewQuery(mode) } }),
+})
 // Shadows every user.data read below and in every child, so the page renders
 // exactly what a student sees.
 const user = mockedUser
@@ -540,6 +590,11 @@ const completedLesson = ref<string | null>(null)
 const settingsStore = useSettings()
 const { isMobile } = useScreenSize()
 const showChapters = ref(false)
+const {
+	isOpen: chaptersOpen,
+	fold: foldChapters,
+	open: openChapters,
+} = useFoldablePanel()
 let timerInterval: ReturnType<typeof setInterval> | undefined
 
 const props = defineProps<{
@@ -621,10 +676,16 @@ const lesson = createResource({
 			course: props.courseName,
 			chapter: values ? values.chapter : props.chapterNumber,
 			lesson: values ? values.lesson : props.lessonNumber,
+			student_view: studentViewMode(route.query.studentView),
 		}
 	},
 	auto: true,
 })
+
+const loadingAnnouncement = useLoadingAnnouncement(
+	() => !lesson.data,
+	() => (lesson.data?.title ? __('{0} loaded').format(lesson.data.title) : '')
+)
 
 // The stored body would not parse, so there is nothing to render and nothing
 // the student can do about it. Say so rather than show a lesson with no body.
@@ -796,7 +857,11 @@ const breadcrumbs = computed(() => {
 	const crumbs: Crumb[] = [{ label: __('Courses'), route: { name: 'Courses' } }]
 	crumbs.push({
 		label: lesson?.data?.course_title,
-		route: { name: 'CourseDetail', params: { courseName: props.courseName } },
+		route: {
+			name: 'CourseDetail',
+			params: { courseName: props.courseName },
+			query: previewQuery.value,
+		},
 	})
 	crumbs.push({
 		label: lesson?.data?.title,
@@ -807,7 +872,7 @@ const breadcrumbs = computed(() => {
 				chapterNumber: props.chapterNumber,
 				lessonNumber: props.lessonNumber,
 			},
-			query: studentViewQuery.value,
+			query: previewQuery.value,
 		},
 	})
 	return crumbs
@@ -815,16 +880,40 @@ const breadcrumbs = computed(() => {
 
 const outline = createResource({
 	url: 'lms.lms.utils.get_course_outline',
-	cache: ['course_outline_student', props.courseName, 'progress'],
+	cache: [
+		'course_outline_student',
+		props.courseName,
+		'progress',
+		studentViewMode(route.query.studentView),
+	],
 	makeParams() {
 		return {
 			course: props.courseName,
 			progress: true,
+			student_view: studentViewMode(route.query.studentView),
 		}
 	},
 	auto: false,
 })
 outline.fetch()
+
+// The server answers student view as a learner in that mode: switching modes,
+// enrolling or resetting progress changes the locks and the lesson itself.
+const reloadAsStudent = (): void => {
+	lesson.reload()
+	outline.reload()
+}
+watch(() => studentViewMode(route.query.studentView), reloadAsStudent)
+
+useFlowChanges({
+	doctypes: ['Course Lesson'],
+	name: () => lesson.data?.name,
+	reload: () => lesson.reload(),
+})
+useFlowChanges({
+	doctypes: ['LMS Course', 'Course Chapter', 'Course Lesson'],
+	reload: () => outline.reload(),
+})
 
 watch(
 	() => props.courseName,
@@ -853,6 +942,10 @@ const hasNext = computed(
 const outlineLessons = computed(() =>
 	(outline.data ?? []).flatMap((c: OutlineChapter) => c.lessons ?? [])
 )
+// A preview-locked lesson carries no content, so its kind comes from the outline.
+const lessonIcon = computed(
+	() => lesson.data?.icon ?? outlineLessons.value[currentIndex.value]?.icon
+)
 const nextLessonLocked = computed(
 	() => !!outlineLessons.value[currentIndex.value + 1]?.locked
 )
@@ -865,6 +958,13 @@ const canGoNext = computed(() => {
 	if (!outlineReady.value) return !!lesson.data?.next
 	return hasNext.value && !nextLessonLocked.value
 })
+// Sequential courses keep a locked Next in place, disabled, instead of hiding it.
+const isNextLocked = computed(
+	() => outlineReady.value && hasNext.value && nextLessonLocked.value
+)
+const hasNextButton = computed(
+	() => !!lesson.data?.next && (canGoNext.value || isNextLocked.value)
+)
 
 const goToLessonNumber = (
 	number: string,
@@ -879,7 +979,7 @@ const goToLessonNumber = (
 			chapterNumber,
 			lessonNumber,
 		},
-		query: studentViewQuery.value,
+		query: previewQuery.value,
 	}
 	if (replace) router.replace(target)
 	else router.push(target)
@@ -918,7 +1018,7 @@ const switchLesson = (direction: 'prev' | 'next'): void => {
 			chapterNumber,
 			lessonNumber,
 		},
-		query: studentViewQuery.value,
+		query: previewQuery.value,
 	})
 }
 
@@ -1194,10 +1294,9 @@ const updateVideoTime = (video: WatchedVideo): void => {
 let videoFallbackArmed = false
 let fallbackGeneration = 0
 const fallbackToDwellTimer = (reason: string): void => {
-	// The dwell fallback only matters for an enrolled student tracking progress.
-	// Don't surface the "mark as viewed" toast in student view or to
-	// non-enrolled viewers (admins/instructors reviewing the lesson).
-	if (isStudentView.value || !lesson.data?.membership) return
+	// The dwell fallback only matters for an enrolled learner tracking progress,
+	// including an instructor enrolled through student view.
+	if (!lesson.data?.membership) return
 	if (videoFallbackArmed) return
 	videoFallbackArmed = true
 	releaseLessonCompletion()
@@ -1213,6 +1312,9 @@ const fallbackToDwellTimer = (reason: string): void => {
 }
 
 const startTimer = () => {
+	// A second lesson load before the first clears its timer would orphan it,
+	// and the orphan ignores the video hold.
+	clearInterval(timerInterval)
 	if (!lesson.data?.membership) return
 	const dwell = resolveDwellSeconds(
 		settingsStore.settings?.data?.lesson_dwell_time
@@ -1279,8 +1381,16 @@ const isAdmin = computed(() => {
 // Student view is a mode, not a destination: every hop that stays on a lesson
 // has to carry the flag, or Prev / Next / the sidebar silently drops the
 // moderator back into their own identity mid-course.
-const studentViewQuery = computed(() =>
-	isStudentView.value ? { studentView: 1 } : undefined
+// The way back to this lesson in the course editor.
+const editorRoute = computed<RouteLocationRaw>(() => ({
+	name: 'CourseDetail',
+	params: { courseName: props.courseName },
+	hash: '#editor',
+	query: { editLesson: `${props.chapterNumber}-${props.lessonNumber}` },
+}))
+
+const previewQuery = computed(() =>
+	studentViewQuery(studentViewMode(route.query.studentView))
 )
 
 // Reads the real user, not the student-view shadow, so the way back to the
@@ -1292,6 +1402,18 @@ const canEditLesson = computed(() => {
 	)
 	return Boolean(realUser.data?.is_moderator) || isInstructor
 })
+
+// A learner who has not enrolled sees only the lessons in the preview.
+const isPreviewLocked = computed(() => Boolean(lesson.data?.no_preview))
+
+// Course editors see a lesson in the editor; the learner page is student view.
+watch(
+	canEditLesson,
+	(canEdit) => {
+		if (canEdit && !isStudentView.value) router.replace(editorRoute.value)
+	},
+	{ immediate: true }
+)
 
 const allowInstructorContent = () => {
 	if (window.read_only_mode) return false
@@ -1439,6 +1561,14 @@ usePageMeta(() => {
 
 .codex-editor__redactor {
 	padding-bottom: 0px !important;
+}
+
+/* Media of any shape fits the viewport under the lesson headers. */
+@media (min-width: 640px) {
+	#editor :is(img, video, .plyr__video-wrapper) {
+		max-height: calc(100dvh - 15rem);
+		object-fit: contain;
+	}
 }
 
 .codeBoxSelectItem:hover {

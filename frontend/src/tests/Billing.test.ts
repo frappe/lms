@@ -10,10 +10,19 @@ import Billing from '@/pages/Billing.vue'
 type BillingAddress = Record<string, unknown>
 type SubmittedCall = { url: string; params: { address: BillingAddress } }
 
-const { toastMock, submitted, unhandled } = vi.hoisted(() => ({
-	toastMock: { success: vi.fn(), error: vi.fn() },
-	submitted: [] as SubmittedCall[],
-	unhandled: [] as unknown[],
+const { toastMock, submitted, unhandled, routeQuery, pushMock } = vi.hoisted(
+	() => ({
+		toastMock: { success: vi.fn(), error: vi.fn() },
+		submitted: [] as SubmittedCall[],
+		unhandled: [] as unknown[],
+		routeQuery: { value: {} as Record<string, unknown> },
+		pushMock: vi.fn(),
+	})
+)
+
+vi.mock('vue-router', () => ({
+	useRoute: () => ({ query: routeQuery.value }),
+	useRouter: () => ({ push: pushMock }),
 }))
 
 const ACCESS_URL = 'lms.lms.api.validate_billing_access'
@@ -104,6 +113,10 @@ const createResourceMock = (opts: ResourceOptions) => {
 }
 
 vi.mock('frappe-ui', () => ({
+	Alert: {
+		props: ['title', 'description'],
+		template: `<div data-testid="preview-note">{{ description }}</div>`,
+	},
 	toast: toastMock,
 	usePageMeta: vi.fn(),
 	createResource: (opts: ResourceOptions) => createResourceMock(opts),
@@ -188,10 +201,13 @@ const address = (over: Record<string, unknown> = {}) => ({
 	...over,
 })
 
-const mountBilling = async (over: Record<string, unknown> = {}) => {
+const mountBilling = async (
+	over: Record<string, unknown> = {},
+	props: { type: string; name: string } = { type: 'batch', name: 'BATCH-01' }
+) => {
 	addressFixture = address(over)
 	const wrapper = mount(Billing, {
-		props: { type: 'batch', name: 'BATCH-01' },
+		props,
 		global: {
 			provide: { $user: { data: { name: 'a@b.c' } } },
 			mocks: { __: (s: string) => s },
@@ -394,5 +410,25 @@ describe('Billing: coupon field', () => {
 			.trigger('click')
 
 		expect(toastMock.error).toHaveBeenCalledWith('Please enter a coupon code')
+	})
+})
+
+describe('Billing in student view', () => {
+	it('shows the checkout as a preview and enrolls in student view instead of paying', async () => {
+		routeQuery.value = { studentView: 'not-enrolled' }
+		const wrapper = await mountBilling({}, { type: 'course', name: 'COURSE-1' })
+		expect(wrapper.find('[data-testid="preview-note"]').exists()).toBe(true)
+
+		const pay = wrapper
+			.findAll('button')
+			.find((button) => button.text() === 'Proceed to Payment')!
+		await pay.trigger('click')
+		expect(pushMock).toHaveBeenCalledWith({
+			name: 'CourseDetail',
+			params: { courseName: 'COURSE-1' },
+			query: { studentView: 1 },
+		})
+		expect(submitted.some((call) => call.url === PAYMENT_URL)).toBe(false)
+		routeQuery.value = {}
 	})
 })

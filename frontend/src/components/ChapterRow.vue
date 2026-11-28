@@ -62,7 +62,9 @@
 					<span class="sr-only">{{ lockReason }}</span>
 				</template>
 				<template
-					v-else-if="chapter.is_scorm_package && isScormChapterComplete"
+					v-else-if="
+						withProgress && chapter.is_scorm_package && isScormChapterComplete
+					"
 				>
 					<span
 						class="lucide-check size-4 text-ink-green-8"
@@ -170,7 +172,7 @@
 									<span class="sr-only">{{ __('Locked') }}</span>
 									<span class="sr-only">{{ lockReason }}</span>
 								</template>
-								<template v-else-if="lesson.is_complete">
+								<template v-else-if="withProgress && lesson.is_complete">
 									<span
 										class="lucide-check h-4 w-4 text-ink-green-8 ms-2"
 										aria-hidden="true"
@@ -229,6 +231,7 @@ import type { RouteLocationRaw } from 'vue-router'
 import type { InputExposed } from 'frappe-ui'
 import type { OutlineChapter, OutlineLesson, SessionUser } from '@/types'
 import { draftLessonNumber, outlineDragOptions } from '@/utils/courseOutline'
+import { studentViewMode, studentViewQuery } from '@/composables/useStudentView'
 
 interface DraggableEvent {
 	item: { __draggable_context: { element: OutlineChapter | OutlineLesson } }
@@ -245,12 +248,15 @@ const props = withDefaults(
 		inlineSelect?: boolean
 		editorLinks?: boolean
 		selectedLessonNumber?: string
+		// Off in a not-enrolled preview: the outline still carries the previewer's own completions.
+		withProgress?: boolean
 	}>(),
 	{
 		allowEdit: false,
 		inlineSelect: false,
 		editorLinks: false,
 		selectedLessonNumber: '',
+		withProgress: true,
 	}
 )
 
@@ -367,6 +373,7 @@ function lessonRoute(lesson: OutlineLesson): RouteLocationRaw {
 	return {
 		name: 'Lesson',
 		params: { courseName: props.courseName, chapterNumber, lessonNumber },
+		query: studentViewQuery(studentViewMode(route.query.studentView)),
 	}
 }
 

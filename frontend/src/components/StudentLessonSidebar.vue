@@ -1,14 +1,36 @@
 <template>
 	<div class="flex flex-col h-full">
 		<div
-			v-if="!hideHeader || withProgress"
+			v-if="!hideHeader || withProgress || collapsible"
 			class="bg-surface-gray-1 px-5 py-5 border-b"
 		>
-			<div
-				v-if="!hideHeader"
-				class="text-lg-semibold text-ink-gray-9 leading-snug"
-			>
-				{{ courseTitle }}
+			<div v-if="!hideHeader || collapsible" class="flex items-center gap-2">
+				<Button
+					v-if="collapsible"
+					variant="ghost"
+					size="sm"
+					class="-mx-1.5 shrink-0"
+					data-testid="hide-chapters"
+					:label="__('Hide chapters')"
+					:tooltip="__('Hide chapters')"
+					@click="emit('hide')"
+				>
+					<template #icon>
+						<span class="lucide-panel-right-close size-4 text-ink-gray-6" />
+					</template>
+				</Button>
+				<router-link
+					v-if="!hideHeader"
+					:to="{
+						name: 'CourseDetail',
+						params: { courseName },
+						query: previewQuery,
+					}"
+					class="min-w-0 truncate text-lg-semibold text-ink-gray-9 leading-snug hover:underline"
+					data-testid="course-home"
+				>
+					{{ courseTitle }}
+				</router-link>
 			</div>
 			<template v-if="withProgress">
 				<div
@@ -29,7 +51,12 @@
 			</template>
 		</div>
 
-		<ul class="flex-1 overflow-y-auto px-2 py-3 list-none">
+		<OutlineRowsSkeleton
+			v-if="outline.loading && !outline.data"
+			class="flex-1 px-2 py-3"
+			data-testid="outline-skeleton"
+		/>
+		<ul v-else class="flex-1 overflow-y-auto px-2 py-3 list-none">
 			<li v-for="chapter in outline.data || []" :key="chapter.name">
 				<Disclosure
 					v-slot="{ open }"
@@ -76,7 +103,7 @@
 														chapterNumber: lesson.number.split('-')[0],
 														lessonNumber: lesson.number.split('-')[1],
 													},
-													query: studentViewQuery,
+													query: previewQuery,
 											  }
 									"
 									class="flex w-full items-center gap-3 rounded-4 ps-9 pe-3 py-2 text-start text-sm leading-5 text-ink-gray-8 hover:bg-surface-gray-2"
@@ -131,7 +158,9 @@
 <script setup>
 import { computed, watch, watchEffect } from 'vue'
 import { useRoute } from 'vue-router'
-import { createResource, Tooltip } from 'frappe-ui'
+import { Button, createResource, Tooltip } from 'frappe-ui'
+import OutlineRowsSkeleton from '@/components/Skeletons/OutlineRowsSkeleton.vue'
+import { studentViewMode, studentViewQuery } from '@/composables/useStudentView'
 import { Disclosure, DisclosureButton, DisclosurePanel } from '@headlessui/vue'
 import {
 	ChevronDown,
@@ -155,16 +184,17 @@ const props = defineProps({
 	inlineSelect: { type: Boolean, default: false },
 	withProgress: { type: Boolean, default: true },
 	hideHeader: { type: Boolean, default: false },
+	// Shows a button that folds the panel away; the page owns the fold.
+	collapsible: { type: Boolean, default: false },
 })
 
-const emit = defineEmits(['select-lesson'])
+const emit = defineEmits(['select-lesson', 'hide'])
 
 // Keep ?studentView=1 across lesson hops, or a moderator previewing the course
 // silently reverts to their own identity on the first sidebar click.
 const route = useRoute()
-const studentViewQuery = computed(() =>
-	route.query.studentView === '1' ? { studentView: 1 } : undefined
-)
+const studentView = computed(() => studentViewMode(route.query.studentView))
+const previewQuery = computed(() => studentViewQuery(studentView.value))
 
 const outline = createResource({
 	url: 'lms.lms.utils.get_course_outline',
@@ -172,22 +202,21 @@ const outline = createResource({
 		'course_outline_student',
 		props.courseName,
 		props.withProgress ? 'progress' : 'no-progress',
+		studentView.value,
 	],
 	makeParams() {
 		return {
 			course: props.courseName,
 			progress: props.withProgress,
+			student_view: studentView.value,
 		}
 	},
 	auto: Boolean(props.courseName),
 })
 
-watch(
-	() => props.courseName,
-	() => {
-		if (props.courseName) outline.reload()
-	}
-)
+watch([() => props.courseName, studentView], () => {
+	if (props.courseName) outline.reload()
+})
 
 // Re-runs whenever either source updates so a completion event that
 // lands before outline.data finishes loading still gets applied (and a
