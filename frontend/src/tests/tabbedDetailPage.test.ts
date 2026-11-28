@@ -437,6 +437,21 @@ describe('TabbedDetailPage tabs on a phone', () => {
 		}
 	})
 
+	it('spreads the icon tabs evenly across the row', async () => {
+		mobile.value = true
+		try {
+			const { wrapper } = await mountPage({ tabs: tabs() })
+			expect(wrapper.find('.icon-tabs [role="tablist"]').exists()).toBe(true)
+		} finally {
+			mobile.value = false
+		}
+	})
+
+	it('keeps packed text tabs off a phone', async () => {
+		const { wrapper } = await mountPage({ tabs: tabs() })
+		expect(wrapper.find('.icon-tabs').exists()).toBe(false)
+	})
+
 	it('keeps text labels when a tab has no icon', async () => {
 		mobile.value = true
 		try {
@@ -446,6 +461,7 @@ describe('TabbedDetailPage tabs on a phone', () => {
 			const tab = wrapper.findAll('[role="tab"]')[0]
 			expect(tab.find('.sr-only').exists()).toBe(false)
 			expect(tab.text()).toBe('Overview')
+			expect(wrapper.find('.icon-tabs').exists()).toBe(false)
 		} finally {
 			mobile.value = false
 		}

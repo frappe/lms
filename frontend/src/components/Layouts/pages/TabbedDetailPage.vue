@@ -23,8 +23,8 @@
 		<div
 			v-else
 			ref="tabsBox"
-			class="relative flex flex-1 flex-col"
-			:class="{ 'min-h-0': !flowsWithPage }"
+			class="tab-row relative flex flex-1 flex-col"
+			:class="{ 'min-h-0': !flowsWithPage, 'icon-tabs': iconTabs }"
 			:style="{ '--tab-row-end-w': `${pinnedWidth}px` }"
 		>
 			<!-- Page actions that sit at the end of the tab row and stick with it,
@@ -32,7 +32,7 @@
 			<div class="tab-row-pinned z-20 h-0">
 				<div
 					ref="pinned"
-					class="pointer-events-none absolute end-0 top-0 flex h-[calc(var(--header-frame-h)-1px)] items-center gap-1 bg-surface-base px-5 [&>*]:pointer-events-auto"
+					class="pointer-events-none absolute end-0 top-0 flex h-[calc(var(--tab-row-h)-1px)] items-center gap-1 bg-surface-base px-5 [&>*]:pointer-events-auto"
 				>
 					<slot name="tab-row-end" :tab="activeTab" />
 				</div>
@@ -258,6 +258,10 @@ defineExpose({
 <style scoped>
 /* Same box as the `.header-frame` above: one height token, one inset.
    frappe-ui sizes only the pills. It sticks right under the page header. */
+.tab-row {
+	--tab-row-h: var(--header-frame-h);
+}
+
 :deep([role='tablist']),
 .tab-row-pinned {
 	position: sticky;
@@ -267,7 +271,7 @@ defineExpose({
 :deep([role='tablist']) {
 	z-index: 10;
 	flex-shrink: 0;
-	height: var(--header-frame-h);
+	height: var(--tab-row-h);
 	padding-inline: 1.25rem max(1.25rem, var(--tab-row-end-w, 0px));
 	background-color: var(--surface-base);
 	/* Too many tabs for the width scroll inside the strip, never the page. */
@@ -313,5 +317,25 @@ defineExpose({
 	.detail-tabs :deep([role='tablist']) {
 		gap: 1rem;
 	}
+}
+
+/* Icon-only tabs share the row equally, each a 44px-tall tap target. */
+.tab-row.icon-tabs {
+	--tab-row-h: calc(2.75rem + 1px);
+}
+
+.icon-tabs .detail-tabs :deep([role='tablist']) {
+	gap: 0;
+}
+
+.icon-tabs :deep([role='tab']) {
+	flex: 1 1 0%;
+	min-width: 1.5rem;
+	align-self: stretch;
+}
+
+.icon-tabs :deep([role='tab'] > [data-state]) {
+	width: 100%;
+	height: 100%;
 }
 </style>
