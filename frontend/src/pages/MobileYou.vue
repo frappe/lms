@@ -244,6 +244,8 @@ const activate = (action: string): void => {
 	if (action === 'notifications') toggleNotifications()
 	else if (action === COLOUR_MODE_ACTION) showColourMode.value = true
 	else if (action === 'logout') logout.submit()
+	// The panel Frappe's Flow launcher adds to the page, as the sidebar's Flow does
+	else if (action === 'flow') window.flow?.toggle()
 }
 
 // usePageMeta writes document.title on mount and never restores it on unmount,

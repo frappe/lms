@@ -550,7 +550,7 @@ const getSidebarItems = (forMobile = false) => {
 					action: 'flow',
 					shortcut: 'Mod+I',
 					condition: () => {
-						return !forMobile && userResource?.data?.can_use_flow
+						return userResource?.data?.can_use_flow
 					},
 				},
 			],

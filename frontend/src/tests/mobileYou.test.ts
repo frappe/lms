@@ -192,6 +192,22 @@ describe('a signed-out visitor who types the URL', () => {
 })
 
 describe('picking a row', () => {
+	it('opens Flow in place from its row', async () => {
+		const toggle = vi.fn()
+		window.flow = { toggle }
+		sidebarLinks.value = [
+			...sidebarLinks.value,
+			{ label: 'Flow', icon: {}, action: 'flow' },
+		]
+		try {
+			const { wrapper } = await openYou()
+			await rowLabelled(wrapper, 'Flow')?.trigger('click')
+			expect(toggle).toHaveBeenCalledTimes(1)
+		} finally {
+			delete window.flow
+		}
+	})
+
 	it('logs out in place rather than routing somewhere', async () => {
 		const { wrapper } = await openYou()
 		await rowLabelled(wrapper, 'Log out')?.trigger('click')

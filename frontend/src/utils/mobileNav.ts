@@ -3,8 +3,11 @@
 
 export interface NavLink {
 	label: string
-	icon: string
+	/** A lucide name, or a component of our own (Flow's mark). */
+	icon: string | object
 	to?: string
+	/** Opens something in place instead of going to `to`, such as Flow's panel. */
+	action?: string
 	activeFor?: string[]
 	/** Drawn as the user's avatar rather than as `icon`. Only the You tab is. */
 	avatar?: boolean
@@ -78,6 +81,15 @@ const SECTION_MAP: Record<string, readonly string[]> = {
 		'Programming Exercises',
 	],
 	DISCOVER: ['Jobs', 'Statistics'],
+	// Named only for their order: Flow sits under Certifications.
+	MORE: ['Certifications', 'Flow'],
+}
+
+/** Where a label falls among its section's named labels; unnamed ones come after. */
+export function orderInSection(label: string): number {
+	const labels = SECTION_MAP[sectionFor(label)] ?? []
+	const index = labels.indexOf(label)
+	return index < 0 ? labels.length : index
 }
 
 // Session actions belong to the account group no matter which list they
