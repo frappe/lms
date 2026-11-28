@@ -124,9 +124,15 @@ vi.mock('@/components/Modals/ScormUploadDialog.vue', async () => {
 vi.mock('@/stores/sidebar', () => ({
 	useSidebar: () => ({ isSidebarCollapsed: false }),
 }))
+const { compact } = vi.hoisted(() => ({ compact: { value: false } }))
 vi.mock('@/utils/composables', async () => {
-	const { ref } = await import('vue')
-	return { useScreenSize: () => ({ isMobile: ref(false) }) }
+	const { computed, ref } = await import('vue')
+	return {
+		useScreenSize: () => ({
+			isMobile: ref(false),
+			isCompact: computed(() => compact.value),
+		}),
+	}
 })
 
 import { defineComponent, h, reactive, ref } from 'vue'
@@ -448,6 +454,19 @@ describe('CourseEditor chapters panel', () => {
 		await showButton().trigger('click')
 		expect(panelOpen()).toBe(true)
 		expect(showButton().exists()).toBe(false)
+	})
+
+	it('gives way to the Chapters sheet on a tablet', async () => {
+		compact.value = true
+		try {
+			wrapper = await mountEditor([chapterA(1)])
+			expect(wrapper.find('[data-testid="chapters-panel"]').exists()).toBe(
+				false
+			)
+			expect(showButton().exists()).toBe(false)
+		} finally {
+			compact.value = false
+		}
 	})
 
 	it('closes while Flow is docked and reopens when Flow closes', async () => {

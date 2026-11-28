@@ -195,7 +195,7 @@
 		<template #overlay="{ tab }">
 			<Button
 				v-if="
-					isMobile && tab?.key === 'editor' && courseEditorRef?.outlineVisible
+					isCompact && tab?.key === 'editor' && courseEditorRef?.outlineVisible
 				"
 				variant="outline"
 				size="md"
@@ -269,7 +269,7 @@ const { brand } = sessionStore() as { brand: Brand }
 const router: Router = useRouter()
 const route = useRoute()
 const user = inject<SessionUser>('$user')!
-const { isMobile } = useScreenSize()
+const { isMobile, isCompact } = useScreenSize()
 
 const dashboardState = provideDashboardState()
 

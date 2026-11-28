@@ -1,5 +1,5 @@
 <template>
-	<div v-if="lesson.data" :class="{ 'flex grow flex-col': isMobile }">
+	<div v-if="lesson.data" :class="{ 'flex grow flex-col': isCompact }">
 		<StudentViewBar
 			v-if="isStudentView"
 			v-model="studentMode"
@@ -174,7 +174,7 @@
 									</Button>
 								</Tooltip>
 								<Button
-									v-if="!chaptersOpen"
+									v-if="!chaptersOpen && !isCompact"
 									variant="subtle"
 									data-testid="show-chapters"
 									@click="openChapters()"
@@ -322,7 +322,7 @@
 			</div>
 			<!-- Slides like the app sidebar; folded, it is inert. -->
 			<aside
-				v-if="!isMobile"
+				v-if="!isCompact"
 				class="sticky top-[var(--sticky-stack-h)] hidden h-[calc(100dvh-var(--sticky-stack-h))] shrink-0 self-start overflow-hidden transition-[width] duration-200 ease-flow @2xl:block"
 				:class="chaptersOpen ? 'w-[30%]' : 'w-0'"
 				:inert="!chaptersOpen || undefined"
@@ -343,7 +343,7 @@
 		</div>
 
 		<div
-			v-if="isMobile"
+			v-if="isCompact"
 			class="pointer-events-none sticky bottom-4 z-10 mt-auto flex justify-end px-4 pt-4"
 		>
 			<Button
@@ -358,7 +358,7 @@
 			</Button>
 		</div>
 
-		<BottomSheet v-if="isMobile" v-model="showChapters">
+		<BottomSheet v-if="isCompact" v-model="showChapters">
 			<template #header>
 				<div class="min-w-0 truncate text-p-lg-semibold text-ink-gray-9">
 					{{ lesson.data.course_title }}
@@ -588,7 +588,7 @@ const showInlineMenu = ref(false)
 const currentTab = ref<string | undefined>(undefined)
 const completedLesson = ref<string | null>(null)
 const settingsStore = useSettings()
-const { isMobile } = useScreenSize()
+const { isMobile, isCompact } = useScreenSize()
 const showChapters = ref(false)
 const {
 	isOpen: chaptersOpen,

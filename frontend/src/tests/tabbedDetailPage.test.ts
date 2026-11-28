@@ -423,3 +423,31 @@ describe('TabbedDetailPage actions', () => {
 		expect(root.getPropertyValue('--detail-tabs-h')).toBe('')
 	})
 })
+
+describe('TabbedDetailPage tabs on a phone', () => {
+	it('shows only the icons, keeping each name for screen readers', async () => {
+		mobile.value = true
+		try {
+			const { wrapper } = await mountPage({ tabs: tabs() })
+			const tab = wrapper.findAll('[role="tab"]')[0]
+			expect(tab.find('.lucide-list').exists()).toBe(true)
+			expect(tab.find('.sr-only').text()).toBe('Overview')
+		} finally {
+			mobile.value = false
+		}
+	})
+
+	it('keeps text labels when a tab has no icon', async () => {
+		mobile.value = true
+		try {
+			const { wrapper } = await mountPage({
+				tabs: tabs({ dashboard: { icon: '' } }),
+			})
+			const tab = wrapper.findAll('[role="tab"]')[0]
+			expect(tab.find('.sr-only').exists()).toBe(false)
+			expect(tab.text()).toBe('Overview')
+		} finally {
+			mobile.value = false
+		}
+	})
+})

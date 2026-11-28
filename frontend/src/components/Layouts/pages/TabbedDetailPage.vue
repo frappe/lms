@@ -46,11 +46,13 @@
 				<!-- The icon belongs in the prefix region, not the label: `#tab-label`
 				     lands inside the trigger's `truncate` span, which clips a
 				     `display: block` icon mask onto its own line. -->
-				<template v-if="!isMobile" #tab-prefix="{ tab }">
+				<template v-if="!isMobile || iconTabs" #tab-prefix="{ tab }">
 					<span class="size-4" :class="own(tab.data).icon" />
 				</template>
 				<template #tab-label="{ tab }">
-					<span class="text-p-base">{{ tabLabel(own(tab.data)) }}</span>
+					<span :class="iconTabs ? 'sr-only' : 'text-p-base'">{{
+						tabLabel(own(tab.data))
+					}}</span>
 				</template>
 				<template #tab-panel="{ tab }">
 					<template v-if="!loading">
@@ -193,6 +195,11 @@ const ownsHeading = computed<boolean>(
 const own = (data: unknown): DetailTab => data as DetailTab
 
 const bodySlot = (tab: DetailTab): `tab-body-${string}` => `tab-body-${tab.key}`
+
+// On phones, tabs that all have an icon show only the icon.
+const iconTabs = computed(
+	() => isMobile.value && visibleTabs.value.every((tab) => tab.icon)
+)
 
 function tabLabel(tab: DetailTab): string {
 	return isMobile.value && tab.shortLabel ? tab.shortLabel : tab.label

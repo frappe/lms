@@ -89,7 +89,7 @@
 			</div>
 		</aside>
 
-		<BottomSheet v-if="isMobile" v-model="showChapters">
+		<BottomSheet v-if="isCompact" v-model="showChapters">
 			<template #header>
 				<CourseChaptersHeader
 					class="flex-1"
@@ -166,7 +166,7 @@ const props = defineProps({
 const selectedModel = defineModel('selected', { default: null })
 const route = useRoute()
 const router = useRouter()
-const { isMobile } = useScreenSize()
+const { isMobile, isCompact } = useScreenSize()
 const { capture } = useTelemetry()
 const showChapters = ref(false)
 
@@ -501,7 +501,7 @@ const {
 	fold: foldChaptersPanel,
 	open: openChaptersPanel,
 } = useFoldablePanel()
-const panelAvailable = computed(() => !isMobile.value && outlineVisible.value)
+const panelAvailable = computed(() => !isCompact.value && outlineVisible.value)
 
 // Opened from here rather than through the outline: on a phone the outline
 // lives in the chapters sheet, which isn't mounted while it is closed. The

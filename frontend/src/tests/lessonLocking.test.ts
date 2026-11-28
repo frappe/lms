@@ -754,3 +754,31 @@ describe('Lesson.vue mobile Chapters button', () => {
 		}
 	})
 })
+
+describe('Lesson.vue chapters on a tablet', () => {
+	const chaptersAt = async (width: number) => {
+		vi.stubGlobal('innerWidth', width)
+		try {
+			wrapper = await mountLesson()
+			findResource('lms.lms.utils.get_lesson').data = { ...baseLesson }
+			await flushPromises()
+			return {
+				panel: wrapper.find('[data-testid="chapters-panel"]').exists(),
+				floating: wrapper
+					.findAll('button')
+					.some((button) => button.html().includes('lucide-layers')),
+			}
+		} finally {
+			vi.unstubAllGlobals()
+			vi.stubGlobal('__', translateStub)
+		}
+	}
+
+	it('opens the chapters from a floating button instead of a side panel', async () => {
+		expect(await chaptersAt(768)).toEqual({ panel: false, floating: true })
+	})
+
+	it('keeps the side panel on a desktop', async () => {
+		expect(await chaptersAt(1280)).toEqual({ panel: true, floating: false })
+	})
+})
