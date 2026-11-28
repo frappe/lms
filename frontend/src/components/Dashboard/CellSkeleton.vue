@@ -1,5 +1,9 @@
 <template>
-	<div v-if="first" class="flex items-center gap-2.5" aria-hidden="true">
+	<div
+		v-if="first"
+		class="flex min-w-0 items-center gap-2.5 overflow-hidden"
+		aria-hidden="true"
+	>
 		<Skeleton class="size-6 shrink-0 rounded-full" />
 		<Skeleton class="h-2 w-28 rounded-full" />
 	</div>
