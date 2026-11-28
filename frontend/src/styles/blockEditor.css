@@ -314,7 +314,22 @@ iframe {
 .cdx-block.embed-tool {
 	position: relative;
 	display: inline-block;
+	vertical-align: top;
 	width: 100%;
+}
+
+/* Until Plyr is ready only the preloader shows, in the player's 16:9 space;
+   the player loads unseen on top of it. */
+.embed-tool.embed-tool--player-loading .embed-tool__preloader {
+	display: block;
+	height: auto;
+	aspect-ratio: 16 / 9;
+}
+.embed-tool--player-loading .plyr,
+.embed-tool--player-loading .video-player {
+	position: absolute;
+	inset: 0;
+	visibility: hidden;
 }
 
 :root {

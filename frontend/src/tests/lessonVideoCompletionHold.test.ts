@@ -4,6 +4,7 @@
  */
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { flushPromises, mount, type VueWrapper } from '@vue/test-utils'
+import { nextTick } from 'vue'
 
 const pushMock = vi.hoisted(() => vi.fn())
 const callMock = vi.hoisted(() =>
@@ -376,5 +377,26 @@ describe('a Bunny Stream lesson', () => {
 			})
 		)
 		expect(findResource(SAVE_PROGRESS).submit).toHaveBeenCalled()
+	})
+})
+
+// Student View loads a lesson twice (once more after enrolling the previewer), and
+// the first load's dwell timer used to survive the second and bypass the hold.
+describe('a lesson loaded twice in a row', () => {
+	afterEach(() => vi.useRealTimers())
+
+	it('keeps waiting for an enforced video', async () => {
+		vi.useFakeTimers({ toFake: ['setInterval', 'clearInterval'] })
+		settings.data = { enforce_video_completion: 1 }
+		players.list = [new FakePlayer()]
+		wrapper = await mountLesson()
+		const lesson = findResource('lms.lms.utils.get_lesson')
+		lesson.data = { ...enrolledLesson }
+		await nextTick()
+		lesson.data = { ...enrolledLesson }
+		await flushPromises()
+
+		vi.advanceTimersByTime(120_000)
+		expect(findResource(SAVE_PROGRESS).submit).not.toHaveBeenCalled()
 	})
 })

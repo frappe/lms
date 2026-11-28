@@ -278,12 +278,10 @@ describe('Lesson.vue Next affordance follows canGoNext', () => {
 		expect(replaceMock).not.toHaveBeenCalled()
 	})
 
-	it('falls back to Back to Course when a next lesson exists but is locked', async () => {
-		// A lesson can be uncompletable for good (quiz attempts exhausted, SCORM that
-		// never reports completion), and hiding the fallback along with Next left the
-		// footer with no forward affordance at all and no way out of the page.
+	it('keeps a locked Next in place, disabled, until the lesson is completed', async () => {
 		wrapper = await mountLesson()
-		findResource('lms.lms.utils.get_course_outline').data = [
+		const outline = findResource('lms.lms.utils.get_course_outline')
+		outline.data = [
 			{
 				name: 'CH-1',
 				lessons: [
@@ -295,11 +293,33 @@ describe('Lesson.vue Next affordance follows canGoNext', () => {
 		findResource('lms.lms.utils.get_lesson').data = { ...baseLesson }
 		await flushPromises()
 
-		expect(wrapper.text()).not.toContain('Next')
-		expect(wrapper.text()).toContain('Back to Course')
+		const locked = wrapper.find(
+			'[data-testid="lesson-nav"] [data-testid="next-locked"]'
+		)
+		expect(locked.exists()).toBe(true)
+		expect(locked.attributes('tabindex')).toBe('0')
+		expect(locked.find('button').attributes('disabled')).toBeDefined()
+		expect(locked.text()).toContain('Complete this lesson to move to the next')
+
+		// Completing the lesson reloads the outline, which unlocks Next in place.
+		outline.data = [
+			{
+				name: 'CH-1',
+				lessons: [
+					{ name: 'L1', number: '1-1', locked: 0 },
+					{ name: 'L2', number: '1-2', locked: 0 },
+				],
+			},
+		]
+		await flushPromises()
+
+		const nav = wrapper.find('[data-testid="lesson-nav"]')
+		expect(nav.find('[data-testid="next-locked"]').exists()).toBe(false)
+		const next = nav.findAll('button').find((b) => b.text() === 'Next')
+		expect(next?.attributes('disabled')).toBeUndefined()
 	})
 
-	it('falls back to Back to Course only when there truly is no next lesson', async () => {
+	it('falls back to Back to course only when there truly is no next lesson', async () => {
 		wrapper = await mountLesson()
 		findResource('lms.lms.utils.get_course_outline').data = [
 			{
@@ -314,7 +334,7 @@ describe('Lesson.vue Next affordance follows canGoNext', () => {
 		await flushPromises()
 
 		expect(wrapper.text()).not.toContain('Next')
-		expect(wrapper.text()).toContain('Back to Course')
+		expect(wrapper.text()).toContain('Back to course')
 	})
 })
 
@@ -525,7 +545,6 @@ describe('Lesson.vue after a save the lesson requirements declined', () => {
 			handlers?.onSuccess?.(40)
 			return Promise.resolve()
 		})
-
 		;(wrapper.vm as any).markProgress()
 		await flushPromises()
 
@@ -617,7 +636,7 @@ describe('Lesson.vue Next survives an outline that never resolves', () => {
 		expect(wrapper.text()).toContain('Next')
 	})
 
-	it('still offers Back to Course on the last lesson with no outline', async () => {
+	it('still offers Back to course on the last lesson with no outline', async () => {
 		wrapper = await mountLesson()
 		findResource('lms.lms.utils.get_lesson').data = {
 			...baseLesson,
@@ -626,7 +645,7 @@ describe('Lesson.vue Next survives an outline that never resolves', () => {
 		await flushPromises()
 
 		expect((wrapper.vm as any).canGoNext).toBe(false)
-		expect(wrapper.text()).toContain('Back to Course')
+		expect(wrapper.text()).toContain('Back to course')
 	})
 
 	it('switchLesson navigates on the unresolved-outline fallback', async () => {
@@ -672,5 +691,66 @@ describe('Lesson.vue sidebar progress', () => {
 
 	it('keeps progress for a signed-in learner', async () => {
 		expect(await sidebarWithProgress({ name: 'a@example.com' })).toBe('true')
+	})
+})
+
+describe('Lesson.vue lesson heading on mobile', () => {
+	const headingAt = async (width: number, lesson: object) => {
+		vi.stubGlobal('innerWidth', width)
+		try {
+			wrapper = await mountLesson()
+			findResource('lms.lms.utils.get_lesson').data = {
+				...baseLesson,
+				...lesson,
+			}
+			await flushPromises()
+			const headings = wrapper.findAll('h1')
+			expect(headings).toHaveLength(1)
+			expect(headings[0].text()).toBe('Lesson 1')
+			return headings[0].classes()
+		} finally {
+			vi.unstubAllGlobals()
+			vi.stubGlobal('__', translateStub)
+		}
+	}
+
+	it('keeps the title for screen readers only, since the header shows it', async () => {
+		expect(await headingAt(410, {})).toEqual(['sr-only'])
+	})
+
+	it('does the same on the locked preview card', async () => {
+		expect(await headingAt(410, { no_preview: 1 })).toEqual(['sr-only'])
+		expect(wrapper.find('[data-testid="preview-locked"]').exists()).toBe(true)
+	})
+
+	it('shows the title on desktop', async () => {
+		expect(await headingAt(1500, {})).not.toContain('sr-only')
+	})
+
+	it('shows the locked preview title on desktop', async () => {
+		expect(await headingAt(1500, { no_preview: 1 })).not.toContain('sr-only')
+	})
+})
+
+describe('Lesson.vue mobile Chapters button', () => {
+	it('fills the scroll area so the button rests above the tab bar on a short lesson', async () => {
+		vi.stubGlobal('innerWidth', 410)
+		try {
+			wrapper = await mountLesson()
+			findResource('lms.lms.utils.get_lesson').data = { ...baseLesson }
+			await flushPromises()
+			const floating = wrapper
+				.findAll('button')
+				.find((button) => button.text() === 'Chapters')!.element.parentElement!
+			expect([...floating.classList]).toEqual(
+				expect.arrayContaining(['sticky', 'bottom-4', 'mt-auto'])
+			)
+			expect([...floating.parentElement!.classList]).toEqual(
+				expect.arrayContaining(['flex', 'grow', 'flex-col'])
+			)
+		} finally {
+			vi.unstubAllGlobals()
+			vi.stubGlobal('__', translateStub)
+		}
 	})
 })

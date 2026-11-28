@@ -22,8 +22,15 @@ export const isSafeEmbedSource = (
 export class SafeEmbed extends Embed {
 	render(): HTMLElement {
 		const { service, embed } = this.data
-		if (isSafeEmbedSource(service, embed)) return super.render()
-		this.element = document.createElement('div')
-		return this.element
+		if (!isSafeEmbedSource(service, embed)) {
+			this.element = document.createElement('div')
+			return this.element
+		}
+		const element = super.render()
+		// Plyr swaps out .video-player, escaping Embed's own loading state;
+		// utils/plyr clears this class once the player is ready.
+		if (element.querySelector('.video-player'))
+			element.classList.add('embed-tool--player-loading')
+		return element
 	}
 }
