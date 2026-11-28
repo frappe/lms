@@ -113,6 +113,7 @@ READ_ONLY_ENDPOINTS = (
 	"lms.lms.utils.get_assessments",
 	"lms.lms.utils.get_assignment",
 	"lms.lms.utils.get_batch_chart_data",
+	"lms.lms.utils.get_batch_categories",
 	"lms.lms.utils.get_batch_count",
 	"lms.lms.utils.get_batch_courses",
 	"lms.lms.utils.get_batch_details",

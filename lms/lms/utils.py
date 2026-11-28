@@ -1669,6 +1669,24 @@ def get_course_categories() -> list:
 	return options
 
 
+# nosemgrep: security.guest-whitelisted-method - the batch list's own guest grant; guests are served only when guest access is on, and only category names of published batches.
+@frappe.whitelist(allow_guest=True)
+@rate_limit(limit=500, seconds=60 * 60)
+@guest_access_required(list)
+def get_batch_categories() -> list:
+	"""Returns the categories of published batches, so the batch list's chips load with it
+	rather than from whichever rows it has loaded."""
+	rows = frappe.get_all(
+		"LMS Batch",
+		filters={"published": 1, "category": ["is", "set"]},
+		pluck="category",
+		distinct=True,
+		order_by="category asc",
+		limit_page_length=0,
+	)
+	return [{"label": "", "value": None}] + [{"label": category, "value": category} for category in rows]
+
+
 def get_course_card_details(courses: list) -> list:
 	for course in courses:
 		course.instructors = get_public_instructors("LMS Course", course.name)

@@ -104,7 +104,7 @@
 					</Button>
 				</div>
 				<ChipsSkeleton
-					v-if="batches.list.loading && !batches.data"
+					v-if="categories.list.loading && !categories.data"
 					data-testid="category-skeleton"
 				/>
 				<CategoryChips
@@ -166,7 +166,6 @@ const user = inject('$user')
 const dayjs = inject('$dayjs')
 const { brand } = sessionStore()
 const start = ref(0)
-const categories = ref([])
 const currentCategory = ref(null)
 const title = ref('')
 const certification = ref(false)
@@ -206,12 +205,6 @@ onMounted(() => {
 	watch([title, currentCategory, certification, price, medium], () =>
 		updateBatches()
 	)
-	categories.value = [
-		{
-			label: '',
-			value: null,
-		},
-	]
 })
 
 const setFiltersFromQuery = () => {
@@ -232,8 +225,17 @@ const activeFilterCount = computed(
 	() => [price.value, medium.value, certification.value].filter(Boolean).length
 )
 
+// Every published batch's category, fetched beside the list rather than read
+// off whichever rows it has loaded, so the chips are complete and come first.
+const categories = createListResource({
+	doctype: 'LMS Batch',
+	url: 'lms.lms.utils.get_batch_categories',
+	cache: ['batch_categories'],
+	auto: true,
+})
+
 const categoryOptions = computed(() =>
-	categories.value.filter((category) => category.value)
+	(categories.data || []).filter((category) => category.value)
 )
 
 const batches = createListResource({
@@ -253,16 +255,6 @@ const pageLength = computed({
 		batches.reload()
 	},
 })
-
-const setCategories = (data) => {
-	let allCategories = data.map((batch) => batch.category)
-	allCategories = allCategories.filter(
-		(category, index) => allCategories.indexOf(category) === index && category
-	)
-	if (categories.value.length <= allCategories.length) {
-		updateCategories(data)
-	}
-}
 
 // Active, Upcoming and Archived are settled against the current time in Python
 // rather than in the query, and `enrolled` is not a field, so only the
@@ -300,9 +292,7 @@ const updateBatches = () => {
 		filters: filters.value,
 		orderBy: orderBy.value,
 	})
-	batches.reload().then((data) => {
-		setCategories(data)
-	})
+	batches.reload()
 	// Nothing orders the responses, so a slow count for a tab the user has
 	// left would overwrite the current one.
 	batchCountResource.abort()
@@ -430,19 +420,6 @@ const setQueryParams = () => {
 		'',
 		`${location.pathname}${queries.size > 0 ? `?${queries.toString()}` : ''}`
 	)
-}
-
-const updateCategories = (data) => {
-	data.forEach((batch) => {
-		if (
-			batch.category &&
-			!categories.value.find((category) => category.value === batch.category)
-		)
-			categories.value.push({
-				label: batch.category,
-				value: batch.category,
-			})
-	})
 }
 
 watch(currentTab, () => {

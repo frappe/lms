@@ -20,6 +20,7 @@ lms.lms.api.get_translations
 lms.lms.doctype.course_lesson.course_lesson.serve_resource
 lms.lms.user.sign_up
 lms.lms.utils.get_batch_count
+lms.lms.utils.get_batch_categories
 lms.lms.utils.get_batch_courses
 lms.lms.utils.get_batch_details
 lms.lms.utils.get_batches
