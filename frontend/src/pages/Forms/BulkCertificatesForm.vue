@@ -6,6 +6,23 @@
 		:message="refusal"
 		@close="close"
 	>
+		<template #loading>
+			<span class="sr-only" role="status">{{ loadingAnnouncement }}</span>
+			<div
+				data-testid="bulk-certificates-skeleton"
+				class="space-y-4 motion-safe:animate-pulse"
+				aria-hidden="true"
+			>
+				<FieldSkeleton v-for="i in 5" :key="i" />
+				<div class="flex items-center gap-3 py-2">
+					<div class="flex flex-1 flex-col gap-1">
+						<SkeletonText text="text-p-base" width="w-20" />
+						<SkeletonText :lines="2" />
+					</div>
+					<div class="h-4 w-7 rounded-full bg-surface-gray-2" />
+				</div>
+			</div>
+		</template>
 		<template #default>
 			<div data-testid="bulk-certificates-fields" class="space-y-4">
 				<Link
@@ -68,6 +85,9 @@ import { createResource, FormControl, toast } from 'frappe-ui'
 import { useRoute } from 'vue-router'
 import BooleanSwitch from '@/components/Controls/BooleanSwitch.vue'
 import FormShell from '@/components/FormShell.vue'
+import SkeletonText from '@/components/Skeletons/SkeletonText.vue'
+import FieldSkeleton from '@/components/Skeletons/FieldSkeleton.vue'
+import { useLoadingAnnouncement } from '@/utils/a11y'
 import HeaderButton from '@/components/HeaderButton.vue'
 import Link from '@/components/Controls/Link.vue'
 import {
@@ -103,6 +123,11 @@ const { close } = useFormRoute(
 const batch = useBatchDetails(() => props.batchName)
 
 const loadingBatch = computed(() => !batch.data && batch.loading)
+
+const loadingAnnouncement = useLoadingAnnouncement(
+	() => loadingBatch.value,
+	() => ''
+)
 
 const isAdmin = computed(() =>
 	Boolean(

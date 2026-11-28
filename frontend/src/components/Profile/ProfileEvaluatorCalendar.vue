@@ -118,6 +118,7 @@
 				:name="__('Google Calendar')"
 				icon="lucide-calendar-x-2"
 				width="lg"
+				compact
 				:title="calendarEmptyTitle"
 				:description="calendarEmptyDescription"
 			>

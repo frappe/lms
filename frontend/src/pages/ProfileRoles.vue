@@ -12,13 +12,21 @@
 				{{ __('You cannot change the roles in read-only mode.') }}
 			</span>
 		</div>
+		<RoleSwitchesSkeleton
+			v-else-if="!rolesResource.data && !rolesResource.error"
+			class="mt-5"
+			data-testid="roles-skeleton"
+		/>
 		<RoleSwitches v-else class="mt-5" :model-value="roles" @toggle="onToggle" />
+		<span class="sr-only" role="status">{{ loadingAnnouncement }}</span>
 	</div>
 </template>
 <script setup lang="ts">
 import { call, createResource, toast } from 'frappe-ui'
 import { reactive, watch } from 'vue'
 import RoleSwitches from '@/components/Controls/RoleSwitches.vue'
+import RoleSwitchesSkeleton from '@/components/Skeletons/RoleSwitchesSkeleton.vue'
+import { useLoadingAnnouncement } from '@/utils/a11y'
 import {
 	ROLE_ROWS,
 	noRoles,
@@ -43,6 +51,11 @@ const rolesResource = createResource({
 		for (const row of ROLE_ROWS) roles[row.key] = Boolean(data[row.key])
 	},
 })
+
+const loadingAnnouncement = useLoadingAnnouncement(
+	() => !rolesResource.data && !rolesResource.error,
+	() => (rolesResource.data ? __('Roles loaded') : '')
+)
 
 watch(
 	() => props.profile,

@@ -1,84 +1,74 @@
 <template>
-	<div class="flex h-full items-center justify-center px-6">
-		<!-- Nudged up: the geometric centre of a tall column reads as too low. -->
-		<div
-			class="flex w-full max-w-md flex-col items-center gap-5 pb-16 text-center"
+	<EmptyStateLayout
+		name="Course"
+		title-tag="h2"
+		width="lg"
+		:icon="state.icon"
+		:title="state.title"
+		:description="state.description"
+	>
+		<div class="flex flex-wrap items-center justify-center gap-2">
+			<Button variant="subtle" :label="state.action" @click="state.onAction">
+				<template #prefix>
+					<span class="lucide-plus size-4" />
+				</template>
+			</Button>
+			<!-- An href makes the Button an anchor that opens in a new tab. -->
+			<Button
+				variant="ghost"
+				:href="state.docs"
+				:label="__('Read the docs')"
+				@click="openDocs"
+			>
+				<template #prefix>
+					<span class="lucide-book-open size-4" />
+				</template>
+			</Button>
+		</div>
+		<ol
+			v-if="state.steps"
+			class="mt-2 flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-sm"
+			:aria-label="__('Steps to publish')"
 		>
-			<div
-				class="flex size-12 items-center justify-center rounded-full bg-surface-gray-2"
+			<li
+				v-for="(step, index) in state.steps"
+				:key="step.label"
+				class="flex items-center gap-2"
+				:aria-current="step.current ? 'step' : undefined"
 			>
 				<span
-					class="size-6 text-ink-gray-7"
-					:class="state.icon"
+					v-if="step.done"
+					class="lucide-circle-check size-5 text-ink-gray-7"
 					aria-hidden="true"
 				/>
-			</div>
-			<div class="flex flex-col gap-1.5">
-				<h2 class="text-lg-semibold text-ink-gray-9">{{ state.title }}</h2>
-				<p class="text-p-base text-ink-gray-6">{{ state.description }}</p>
-			</div>
-			<div class="flex flex-wrap items-center justify-center gap-2">
-				<Button variant="subtle" :label="state.action" @click="state.onAction">
-					<template #prefix>
-						<span class="lucide-plus size-4" />
-					</template>
-				</Button>
-				<!-- An href makes the Button an anchor that opens in a new tab. -->
-				<Button
-					variant="ghost"
-					:href="state.docs"
-					:label="__('Read the docs')"
-					@click="openDocs"
+				<span
+					v-else
+					class="grid size-5 place-items-center rounded-full border pt-px text-xs leading-none"
+					:class="
+						step.current
+							? 'border-outline-gray-4 font-medium text-ink-gray-9'
+							: 'border-outline-gray-2 text-ink-gray-6'
+					"
 				>
-					<template #prefix>
-						<span class="lucide-book-open size-4" />
-					</template>
-				</Button>
-			</div>
-			<ol
-				v-if="state.steps"
-				class="mt-2 flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-sm"
-				:aria-label="__('Steps to publish')"
-			>
-				<li
-					v-for="(step, index) in state.steps"
-					:key="step.label"
-					class="flex items-center gap-2"
-					:aria-current="step.current ? 'step' : undefined"
+					{{ index + 1 }}
+				</span>
+				<span
+					:class="
+						step.current ? 'font-medium text-ink-gray-9' : 'text-ink-gray-6'
+					"
 				>
-					<span
-						v-if="step.done"
-						class="lucide-circle-check size-5 text-ink-gray-7"
-						aria-hidden="true"
-					/>
-					<span
-						v-else
-						class="grid size-5 place-items-center rounded-full border pt-px text-xs leading-none"
-						:class="
-							step.current
-								? 'border-outline-gray-4 font-medium text-ink-gray-9'
-								: 'border-outline-gray-2 text-ink-gray-6'
-						"
-					>
-						{{ index + 1 }}
-					</span>
-					<span
-						:class="
-							step.current ? 'font-medium text-ink-gray-9' : 'text-ink-gray-6'
-						"
-					>
-						{{ step.label }}
-					</span>
-				</li>
-			</ol>
-		</div>
-	</div>
+					{{ step.label }}
+				</span>
+			</li>
+		</ol>
+	</EmptyStateLayout>
 </template>
 
 <script setup lang="ts">
 import { Button } from 'frappe-ui'
 import { computed, watch } from 'vue'
 import { useTelemetry } from '@framework/ui/telemetry/index'
+import EmptyStateLayout from '@/components/Layouts/EmptyStateLayout.vue'
 import type { OutlineChapter } from '@/types'
 
 type Step = { label: string; done: boolean; current: boolean }

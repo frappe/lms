@@ -2,7 +2,22 @@
 	<PageHeader :breadcrumbs="breadcrumbs" />
 	<PageBody :title="__('Certification')">
 		<div class="px-5 pb-5">
-			<div v-if="certificate">
+			<span class="sr-only" role="status">{{ loadingAnnouncement }}</span>
+			<div
+				v-if="!certification.data && !certification.error"
+				class="mb-4 flex items-center justify-between motion-safe:animate-pulse"
+				aria-hidden="true"
+				data-testid="certification-skeleton"
+			>
+				<SkeletonText
+					text="text-lg-semibold"
+					width="w-48"
+					class="w-48"
+					strong
+				/>
+				<div class="h-7 w-20 rounded-4 bg-surface-gray-2" />
+			</div>
+			<div v-else-if="certificate">
 				<div class="text-ink-gray-9 text-sm">
 					{{
 						__(
@@ -40,6 +55,8 @@ import { useRouter } from 'vue-router'
 import { sessionStore } from '../../stores/session'
 import UpcomingEvaluations from '@/components/UpcomingEvaluations.vue'
 import { openExternal } from '@/utils/openExternal'
+import SkeletonText from '@/components/Skeletons/SkeletonText.vue'
+import { useLoadingAnnouncement } from '@/utils/a11y'
 import { resourceErrorMessage } from '@/utils/resource'
 import type dayjsType from 'dayjs'
 import type { CertificationInfo, Resource, SessionUser } from '@/types'
@@ -91,6 +108,11 @@ if (user.data) {
 		}
 	)
 }
+
+const loadingAnnouncement = useLoadingAnnouncement(
+	() => !certification.data,
+	() => (certification.data ? __('Certification loaded') : '')
+)
 
 const certificate = computed(() => certification.data?.certificate)
 const courseTitle = computed(() => certification.data?.title)

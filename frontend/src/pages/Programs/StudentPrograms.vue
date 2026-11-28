@@ -1,16 +1,28 @@
 <template>
-	<div class="py-5 px-5 w-full lg:w-3/4 lg:px-0 mx-auto">
+	<div class="flex flex-1 flex-col py-5 px-5 w-full lg:w-3/4 lg:px-0 mx-auto">
 		<div class="flex items-center justify-between mb-5">
 			<h1 class="text-lg-semibold text-ink-gray-9">
 				{{ __('All Programs') }}
 			</h1>
 			<TabButtons v-model="currentTab" :options="tabs" class="w-fit" />
 		</div>
-		<div v-for="(data, category) in programs.data" :key="category">
-			<div v-if="category == currentTab">
+		<span class="sr-only" role="status">{{ loadingAnnouncement }}</span>
+		<div
+			v-if="programs.loading && !programs.data"
+			class="grid grid-cols-1 @4xl:grid-cols-3 gap-5"
+			data-testid="program-skeletons"
+		>
+			<StudentProgramCardSkeleton
+				v-for="i in 3"
+				:key="i"
+				:progress="currentTab === 'enrolled'"
+			/>
+		</div>
+		<template v-for="(data, category) in programs.data" :key="category">
+			<template v-if="category == currentTab">
 				<div
 					v-if="data.length > 0"
-					class="grid grid-cols-1 lg:grid-cols-3 gap-5"
+					class="grid grid-cols-1 @4xl:grid-cols-3 gap-5"
 				>
 					<button
 						type="button"
@@ -54,14 +66,13 @@
 						</div>
 					</button>
 				</div>
-				<div v-else class="flex-1">
-					<EmptyStateLayout
-						:name="__('{0} Programs').format(__(convertToTitleCase(category)))"
-						icon="lucide-graduation-cap"
-					/>
-				</div>
-			</div>
-		</div>
+				<EmptyStateLayout
+					v-else
+					:name="__('{0} Programs').format(__(convertToTitleCase(category)))"
+					icon="lucide-graduation-cap"
+				/>
+			</template>
+		</template>
 	</div>
 </template>
 <script setup lang="ts">
@@ -73,6 +84,8 @@ import { convertToTitleCase } from '@/utils'
 import ProgressBar from '@/components/ProgressBar.vue'
 import EmptyStateLayout from '@/components/Layouts/EmptyStateLayout.vue'
 import { openFormRoute } from '@/composables/useFormRoute'
+import StudentProgramCardSkeleton from '@/components/Skeletons/StudentProgramCardSkeleton.vue'
+import { useLoadingAnnouncement } from '@/utils/a11y'
 
 const currentTab = ref('enrolled')
 const router = useRouter()
@@ -81,6 +94,11 @@ const programs = createResource({
 	url: 'lms.lms.utils.get_programs',
 	auto: true,
 })
+
+const loadingAnnouncement = useLoadingAnnouncement(
+	() => programs.loading,
+	() => (programs.data ? __('Programs loaded') : '')
+)
 
 const openDetails = (programName: any, category: string) => {
 	if (category === 'enrolled') {

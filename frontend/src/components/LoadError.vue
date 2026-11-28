@@ -1,33 +1,12 @@
 <template>
-	<div
+	<EmptyStateLayout
 		role="alert"
-		class="flex w-full grow flex-col items-center justify-center gap-3 px-6 text-center"
-		:class="compact ? 'min-h-24 py-4' : 'h-full min-h-64'"
+		name="Error"
+		:compact="compact"
+		:icon="copy.icon"
+		:title="copy.title"
+		:description="copy.description"
 	>
-		<span
-			v-if="!compact"
-			class="size-7.5 text-ink-gray-6"
-			:class="copy.icon"
-			aria-hidden="true"
-		/>
-		<div class="flex flex-col items-center gap-1">
-			<span
-				:class="
-					compact
-						? 'text-sm-medium text-ink-gray-8'
-						: 'text-lg-medium text-ink-gray-8'
-				"
-			>
-				{{ copy.title }}
-			</span>
-			<span
-				:class="
-					compact ? 'text-p-sm text-ink-gray-6' : 'text-p-base text-ink-gray-6'
-				"
-			>
-				{{ copy.description }}
-			</span>
-		</div>
 		<Button
 			v-if="canRetry(kind)"
 			:label="__('Retry')"
@@ -38,11 +17,12 @@
 				<span class="lucide-rotate-cw size-4" aria-hidden="true" />
 			</template>
 		</Button>
-	</div>
+	</EmptyStateLayout>
 </template>
 <script setup lang="ts">
 import { Button } from 'frappe-ui'
 import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
+import EmptyStateLayout from '@/components/Layouts/EmptyStateLayout.vue'
 import { canRetry, loadErrorKind } from '@/utils/loadError'
 import type { LoadErrorKind } from '@/utils/loadError'
 

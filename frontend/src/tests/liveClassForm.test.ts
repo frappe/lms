@@ -42,7 +42,7 @@ const {
 			fetched: true,
 			reload: () => {},
 		},
-		liveClassList: { data: [], reload: vi.fn() },
+		liveClassList: { data: [], list: { loading: false }, reload: vi.fn() },
 		// A default the Classes tab suite relies on: only the form suite's
 		// beforeEach sets one, so that suite running first used to supply it.
 		createResourceMock: vi.fn(() => ({
@@ -238,10 +238,10 @@ describe('LiveClassForm as a route', () => {
 		await router.push('/batches/B1/live-class/new')
 		const wrapper = await mountForm(router, student)
 		expect(wrapper.find('[data-testid="live-class-fields"]').exists()).toBe(
-			false,
+			false
 		)
 		expect(vi.mocked(toast.warning)).toHaveBeenLastCalledWith(
-			expect.stringContaining('Ask one of its instructors or a Moderator'),
+			expect.stringContaining('Ask one of its instructors or a Moderator')
 		)
 	})
 
@@ -250,10 +250,10 @@ describe('LiveClassForm as a route', () => {
 		await router.push('/batches/B1/live-class/new')
 		const wrapper = await mountForm(router, evaluator)
 		expect(wrapper.find('[data-testid="live-class-fields"]').exists()).toBe(
-			false,
+			false
 		)
 		expect(vi.mocked(toast.warning)).toHaveBeenLastCalledWith(
-			expect.stringContaining('Ask one of its instructors or a Moderator'),
+			expect.stringContaining('Ask one of its instructors or a Moderator')
 		)
 	})
 
@@ -263,10 +263,10 @@ describe('LiveClassForm as a route', () => {
 		await router.push('/batches/B1/live-class/new')
 		const wrapper = await mountForm(router, evaluator)
 		expect(wrapper.find('[data-testid="live-class-fields"]').exists()).toBe(
-			false,
+			false
 		)
 		expect(vi.mocked(toast.warning)).toHaveBeenLastCalledWith(
-			expect.stringContaining('Ask one of its instructors or a Moderator'),
+			expect.stringContaining('Ask one of its instructors or a Moderator')
 		)
 	})
 
@@ -280,7 +280,7 @@ describe('LiveClassForm as a route', () => {
 		await router.push('/batches/B1/live-class/new')
 		const wrapper = await mountForm(router, evaluator)
 		expect(wrapper.find('[data-testid="live-class-fields"]').exists()).toBe(
-			true,
+			true
 		)
 	})
 
@@ -290,10 +290,10 @@ describe('LiveClassForm as a route', () => {
 		await router.push('/batches/B1/live-class/new')
 		const wrapper = await mountForm(router, moderator)
 		expect(wrapper.find('[data-testid="live-class-fields"]').exists()).toBe(
-			false,
+			false
 		)
 		expect(vi.mocked(toast.warning)).toHaveBeenLastCalledWith(
-			expect.stringContaining('conferencing provider'),
+			expect.stringContaining('conferencing provider')
 		)
 	})
 
@@ -347,7 +347,7 @@ describe('LiveClassForm as a route', () => {
 						messages: [
 							'A Google Calendar connection is needed to send invites for live classes.',
 						],
-					}),
+					})
 			)
 
 		const shownLine = (wrapper: VueWrapper) => {
@@ -375,7 +375,7 @@ describe('LiveClassForm as a route', () => {
 
 			const line = shownLine(wrapper)
 			expect(line.text).toBe(
-				'A Google Calendar connection is needed to send invites for live classes. Set up',
+				'A Google Calendar connection is needed to send invites for live classes. Set up'
 			)
 			const { toast } = await import('frappe-ui')
 			expect(toast.error).not.toHaveBeenCalled()
@@ -489,7 +489,7 @@ describe('the Classes tab opener', () => {
 	const mountTab = async (
 		router: Router,
 		user: Record<string, unknown> = moderator,
-		access: Record<string, boolean> = {},
+		access: Record<string, boolean> = {}
 	) =>
 		mount(LiveClass, {
 			props: {
@@ -595,7 +595,7 @@ describe('the Classes tab opener', () => {
 		await wrapper.find('[data-testid="live-class-add"]').trigger('click')
 		await flushPromises()
 		expect(router.currentRoute.value.fullPath).toBe(
-			'/batches/B1/live-class/new#classes',
+			'/batches/B1/live-class/new#classes'
 		)
 	})
 })

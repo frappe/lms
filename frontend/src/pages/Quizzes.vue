@@ -16,7 +16,17 @@
 		@load-more="quizzes.next()"
 	>
 		<template #name="{ totalCount }">
-			{{ __('{0} Quizzes').format(totalCount || 0) }}
+			<SkeletonText
+				v-if="quizzes.list.loading && !quizzes.data"
+				text=""
+				width="w-32"
+				class="w-32 motion-safe:animate-pulse"
+				aria-hidden="true"
+				data-testid="count-skeleton"
+			/>
+			<template v-else>
+				{{ __('{0} Quizzes').format(totalCount || 0) }}
+			</template>
 		</template>
 
 		<template v-if="emptyState" #empty-actions>
@@ -82,6 +92,7 @@
 <script setup>
 import { Button, Checkbox, createListResource, usePageMeta } from 'frappe-ui'
 import ListPage from '@/components/Layouts/pages/ListPage.vue'
+import SkeletonText from '@/components/Skeletons/SkeletonText.vue'
 import EmptyStateActions from '@/components/EmptyStateActions.vue'
 import HeaderButton from '@/components/HeaderButton.vue'
 import { useRouter } from 'vue-router'

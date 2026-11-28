@@ -83,7 +83,6 @@
 	</div>
 	<EmptyStateLayout
 		v-else-if="singleThread && topics.error"
-		class="min-h-[60vh]"
 		name="Discussions"
 		icon="lucide-message-circle"
 		width="lg"
@@ -96,10 +95,9 @@
 	>
 		<Button :label="__('Reload')" @click="topics.reload()" />
 	</EmptyStateLayout>
-	<!-- Sits under a lesson, so it stays compact rather than filling the view. -->
 	<EmptyStateLayout
 		v-else-if="!singleThread && topics.data"
-		class="!min-h-0 py-10"
+		compact
 		name="Discussions"
 		icon="lucide-message-circle"
 		width="lg"

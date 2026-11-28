@@ -9,6 +9,7 @@
 				:name="__('Evaluations')"
 				icon="lucide-calendar-x-2"
 				width="lg"
+				compact
 				:title="__('Could not load evaluations')"
 				:description="__('The request did not get through. Try again.')"
 			>
@@ -30,13 +31,18 @@
 				:name="__('Evaluations')"
 				icon="lucide-calendar-check"
 				width="lg"
+				compact
 				:title="__('No evaluations yet')"
 				:description="emptyDescription"
 			/>
 		</div>
 		<div v-else class="flex h-dvh flex-col overflow-hidden">
+			<CalendarSkeleton
+				v-if="!evaluations.data && !evaluations.list?.fetched"
+				data-testid="schedule-skeleton"
+			/>
 			<Calendar
-				v-if="evaluations.data?.length"
+				v-else-if="evaluations.data?.length"
 				:config="calendarConfig"
 				:events="evaluations.data"
 				@click="(event) => openEvent(event)"
@@ -67,6 +73,7 @@
 			</Calendar>
 		</div>
 	</div>
+	<span class="sr-only" role="status">{{ loadingAnnouncement }}</span>
 	<Event v-model="showEvent" :event="currentEvent" />
 </template>
 <script setup>
@@ -75,6 +82,8 @@ import { Calendar } from 'frappe-ui/experimental'
 import { computed, inject, ref } from 'vue'
 import Event from '@/components/Modals/Event.vue'
 import EmptyStateLayout from '@/components/Layouts/EmptyStateLayout.vue'
+import CalendarSkeleton from '@/components/Skeletons/CalendarSkeleton.vue'
+import { useLoadingAnnouncement } from '@/utils/a11y'
 
 // #header hides the view switcher, so m/w/d would leave Week with no way back.
 const calendarConfig = { defaultMode: 'Week', enableShortcuts: false }
@@ -139,6 +148,11 @@ const evaluations = createListResource({
 const loadError = computed(
 	() => Boolean(evaluations.list?.error) && !evaluations.data?.length
 )
+const loadingAnnouncement = useLoadingAnnouncement(
+	() => !evaluations.data && !evaluations.list?.fetched && !loadError.value,
+	() => (evaluations.data ? __('Evaluations loaded') : '')
+)
+
 // The error state already shows the failure.
 const retryLoad = () => evaluations.reload().catch(() => {})
 

@@ -120,7 +120,7 @@ createDocumentResourceMock.mockImplementation((options: any) => {
 		doc: null as Doc | null,
 		originalDoc: null as Doc | null,
 		isDirty: false,
-		loading: false,
+		get: { loading: false },
 		reload: vi.fn(() => {
 			reloadSpy()
 			resource.doc = clone(server.doc)

@@ -146,23 +146,26 @@
 			</ListView>
 			<div v-if="!isMobile" :id="bannerDockId" class="sticky bottom-0 z-20" />
 		</template>
-		<div v-else-if="error" class="flex min-h-[200px] flex-1">
-			<LoadError compact :error="error" @retry="emit('retry')" />
-		</div>
-		<div v-else class="min-h-[200px] flex-1">
-			<EmptyStateLayout
-				name="Students"
-				icon="lucide-users"
-				:title="emptyTitle"
-				:description="emptyDescription"
-			>
-				<Button
-					v-if="search.trim()"
-					:label="__('Clear search')"
-					@click="search = ''"
-				/>
-			</EmptyStateLayout>
-		</div>
+		<LoadError
+			v-else-if="error"
+			compact
+			:error="error"
+			@retry="emit('retry')"
+		/>
+		<EmptyStateLayout
+			v-else
+			compact
+			name="Students"
+			icon="lucide-users"
+			:title="emptyTitle"
+			:description="emptyDescription"
+		>
+			<Button
+				v-if="search.trim()"
+				:label="__('Clear search')"
+				@click="search = ''"
+			/>
+		</EmptyStateLayout>
 		<ListFooter
 			v-if="total"
 			v-model="pageLength"
