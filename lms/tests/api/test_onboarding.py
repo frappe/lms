@@ -90,6 +90,29 @@ class TestOnboarding(BaseTestUtils):
 		self.assertFalse(state["needs_setup"])
 		self.assertEqual(state["first_goal"], "Onboard my existing learners")
 
+	def test_saving_or_skipping_setup_gives_the_admin_the_roles_to_create(self):
+		manager = self._create_user(
+			"onboarding.manager@example.com",
+			"Onboarding",
+			"Manager",
+			roles=["System Manager"],
+			user_type="System User",
+		)
+		self.addCleanup(frappe.defaults.clear_default, FIRST_GOAL)
+		frappe.set_user(manager.name)
+
+		# Skipping sends no goal.
+		save_setup()
+
+		roles = frappe.get_roles(manager.name)
+		self.assertIn("Moderator", roles)
+		self.assertIn("Course Creator", roles)
+
+		# Answering again leaves an admin who has the roles unsaved.
+		modified = frappe.db.get_value("User", manager.name, "modified")
+		save_setup()
+		self.assertEqual(frappe.db.get_value("User", manager.name, "modified"), modified)
+
 	def test_only_a_known_goal_is_saved(self):
 		manager = self._create_user(
 			"onboarding.manager@example.com",

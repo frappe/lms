@@ -4,6 +4,8 @@ from frappe.rate_limiter import rate_limit
 from frappe.utils import today
 
 ONBOARDING_ROLES = ("System Manager", "Moderator")
+# What the admin who answers setup is given, so they can create courses and batches.
+SETUP_ROLES = ("Moderator", "Course Creator")
 
 
 @frappe.whitelist()
@@ -136,10 +138,13 @@ def save_brand(name: str, logo: str | None = None) -> None:
 
 @frappe.whitelist(methods=["POST"])
 def save_setup(first_goal: str | None = None) -> None:
-	"""Mark setup as answered, and keep the goal for the checklist."""
+	"""Mark setup as answered, keep the goal for the checklist, and give the admin the LMS
+	roles that build courses, which a site owner otherwise lacks. Skipping setup ends here too."""
 	frappe.only_for("System Manager")
 	if first_goal and first_goal not in FIRST_GOALS:
 		frappe.throw(_("Pick one of the goals shown in setup."))
+	if missing := set(SETUP_ROLES) - set(frappe.get_roles()):
+		frappe.get_doc("User", frappe.session.user).add_roles(*missing)
 	if first_goal:
 		frappe.db.set_default(FIRST_GOAL, first_goal)
 	frappe.db.set_single_value("LMS Settings", "persona_captured", 1)
