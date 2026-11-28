@@ -44,6 +44,9 @@ vi.mock('@/components/VideoPreview.vue', () => ({
 vi.mock('@/pages/Batches/components/overview/BatchFacts.vue', () => ({
 	default: { render: () => null },
 }))
+vi.mock('@/stores/settings', () => ({
+	useSettings: () => ({ settings: { data: { is_payments_app_installed: 1 } } }),
+}))
 vi.mock('@/pages/Batches/composables/useBatchForm', () => ({
 	injectBatchForm: () => ({
 		doc: computed(() => formDoc),
@@ -84,6 +87,7 @@ function mountSettings(doc: Record<string, unknown>) {
 				PeopleGroup: true,
 				EvaluationGroup: true,
 				BatchManageGroup: true,
+				PaymentsAppDialog: true,
 			},
 		},
 	})

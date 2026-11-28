@@ -48,6 +48,7 @@
 			:modelValue="doc.video_link"
 			@update:modelValue="(link) => (doc.video_link = link || '')"
 		/>
+		<PaymentsAppDialog v-model="needsPaymentsApp" />
 		<div>
 			<Button v-if="buttonLabel" variant="solid" class="w-full" disabled>
 				<template #prefix>
@@ -84,6 +85,8 @@
 import { computed, ref } from 'vue'
 import { Button, Select } from 'frappe-ui'
 import PriceInput from '@/components/InlineEdit/PriceInput.vue'
+import PaymentsAppDialog from '@/components/PaymentsAppDialog.vue'
+import { usePaymentsApp } from '@/composables/usePaymentsApp'
 import VideoLinkDialog from '@/components/InlineEdit/VideoLinkDialog.vue'
 import VideoPreview from '@/components/VideoPreview.vue'
 import BatchFactsEditor from '@/pages/Batches/components/overview/BatchFactsEditor.vue'
@@ -103,6 +106,7 @@ const props = defineProps<{
 }>()
 
 const showVideoDialog = ref(false)
+const { needsPaymentsApp, canSell } = usePaymentsApp()
 
 const priceOptions = [
 	{ label: __('Free'), value: 'free' },
@@ -112,6 +116,7 @@ const priceOptions = [
 // The form keeps checkboxes as booleans, so the dirty check sees no change
 // after switching back.
 const setPaid = (paid: boolean): void => {
+	if (paid && !canSell()) return
 	;(props.doc as Record<string, unknown>).paid_batch = paid
 }
 

@@ -1,17 +1,20 @@
 // Pricing and the certificate can be set from a batch's Settings tab, as on develop,
 // as well as from its Overview card: both edit the same form.
-import { describe, expect, it, vi } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 import { mount } from '@vue/test-utils'
 import { computed, reactive } from 'vue'
 import BatchForm from '@/pages/Batches/BatchForm.vue'
 
-const { formDoc } = vi.hoisted(() => {
+const { formDoc, settingsData } = vi.hoisted(() => {
 	window.matchMedia ??= (() => ({
 		matches: false,
 		addEventListener: () => {},
 		removeEventListener: () => {},
 	})) as unknown as typeof window.matchMedia
-	return { formDoc: {} as Record<string, unknown> }
+	return {
+		formDoc: {} as Record<string, unknown>,
+		settingsData: { is_payments_app_installed: 1 },
+	}
 })
 
 vi.mock('frappe-ui', () => ({
@@ -42,6 +45,9 @@ vi.mock('@/components/VideoPreview.vue', () => ({
 }))
 vi.mock('@/pages/Batches/components/overview/BatchFacts.vue', () => ({
 	default: { render: () => null },
+}))
+vi.mock('@/stores/settings', () => ({
+	useSettings: () => ({ settings: { data: settingsData } }),
 }))
 vi.mock('@/pages/Batches/composables/useBatchForm', () => ({
 	injectBatchForm: () => ({
@@ -86,6 +92,11 @@ function mountSettings(doc: Record<string, unknown>) {
 				PeopleGroup: true,
 				EvaluationGroup: true,
 				BatchManageGroup: true,
+				PaymentsAppDialog: {
+					name: 'PaymentsAppDialog',
+					props: ['modelValue'],
+					template: '<div />',
+				},
 			},
 		},
 	})
@@ -113,6 +124,10 @@ function mountOverlay(data: Record<string, unknown>) {
 	})
 }
 
+afterEach(() => {
+	settingsData.is_payments_app_installed = 1
+})
+
 describe('batch settings pricing and certificate', () => {
 	it('sells the batch from Settings, with its price', async () => {
 		const wrapper = mountSettings({ name: 'B1', paid_batch: false })
@@ -120,6 +135,18 @@ describe('batch settings pricing and certificate', () => {
 		await wrapper.get('[data-label="Paid batch"]').trigger('click')
 		expect(formDoc.paid_batch).toBe(true)
 		expect(wrapper.findComponent({ name: 'PriceInput' }).exists()).toBe(true)
+	})
+
+	it('asks for the Payments app before the batch goes paid', async () => {
+		settingsData.is_payments_app_installed = 0
+		const wrapper = mountSettings({ name: 'B1', paid_batch: false })
+		await wrapper.get('[data-label="Paid batch"]').trigger('click')
+
+		expect(formDoc.paid_batch).toBe(false)
+		expect(wrapper.findComponent({ name: 'PriceInput' }).exists()).toBe(false)
+		expect(
+			wrapper.findComponent({ name: 'PaymentsAppDialog' }).props('modelValue')
+		).toBe(true)
 	})
 
 	it('turns on the certificate and evaluation, with its end date', async () => {

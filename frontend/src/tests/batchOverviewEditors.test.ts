@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { flushPromises, mount } from '@vue/test-utils'
 
 vi.stubGlobal('__', (text: string) => text)
@@ -10,7 +10,8 @@ String.prototype.format = function (this: string, ...args: unknown[]): string {
 	)
 }
 
-const { callMock, field, choices } = vi.hoisted(() => ({
+const { callMock, field, choices, settingsData } = vi.hoisted(() => ({
+	settingsData: { is_payments_app_installed: 1 },
 	choices: [
 		{ name: 'Q1', title: 'Accounting quiz', passing_percentage: 70 },
 		{ name: 'Q2', title: 'Stock quiz' },
@@ -49,6 +50,16 @@ vi.mock('frappe-ui', () => ({
 vi.mock('@/utils', () => ({
 	formatNumberIntoCurrency: (amount: number, currency: string) =>
 		amount ? `${currency} ${amount}` : '',
+}))
+vi.mock('@/stores/settings', () => ({
+	useSettings: () => ({ settings: { data: settingsData } }),
+}))
+vi.mock('@/components/PaymentsAppDialog.vue', () => ({
+	default: {
+		name: 'PaymentsAppDialog',
+		props: ['modelValue'],
+		template: '<div />',
+	},
 }))
 vi.mock('@/components/InlineEdit/PickerDialog.vue', () => ({
 	default: {
@@ -91,6 +102,10 @@ const mountCard = (doc: Record<string, unknown>, props = {}) =>
 		props: { doc, form, ...props } as never,
 		...options,
 	})
+
+afterEach(() => {
+	settingsData.is_payments_app_installed = 1
+})
 
 // Learners read BatchOverlay: price, video, button, then This batch includes.
 describe('the batch enroll card editor', () => {
@@ -154,6 +169,36 @@ describe('the batch enroll card editor', () => {
 			{ enrollmentClosesOn: '2026-12-15' }
 		)
 		expect(card.text()).toContain('Enrolment closes on 15 Dec')
+	})
+
+	it('asks for the Payments app before the batch goes paid', async () => {
+		settingsData.is_payments_app_installed = 0
+		const doc: Record<string, unknown> = { paid_batch: false }
+		const card = mountCard(doc)
+		const price = card
+			.findAllComponents({ name: 'Select' })
+			.find((select) => select.attributes('aria-label') === 'Batch price')!
+		price.vm.$emit('update:modelValue', 'paid')
+		await flushPromises()
+
+		expect(doc.paid_batch).toBe(false)
+		expect(card.findComponent({ name: 'PaymentsAppDialog' }).props()).toEqual({
+			modelValue: true,
+		})
+	})
+
+	it('sells the batch once the Payments app is installed', () => {
+		const doc: Record<string, unknown> = { paid_batch: false }
+		const card = mountCard(doc)
+		card
+			.findAllComponents({ name: 'Select' })
+			.find((select) => select.attributes('aria-label') === 'Batch price')!
+			.vm.$emit('update:modelValue', 'paid')
+
+		expect(doc.paid_batch).toBe(true)
+		expect(
+			card.findComponent({ name: 'PaymentsAppDialog' }).props('modelValue')
+		).toBe(false)
 	})
 
 	it('shows the closed message once the saved batch takes no enrolments', () => {

@@ -1,5 +1,5 @@
-import { computed, inject, ref } from 'vue'
-import { useSettings } from '@/stores/settings'
+import { computed, inject } from 'vue'
+import { usePaymentsApp } from '@/composables/usePaymentsApp'
 import type { CourseFormContext } from '@/types'
 import type { LMSCourse } from '@/types/lms/LMSCourse'
 
@@ -12,17 +12,7 @@ export type CertificateKind = 'none' | 'free' | 'paid'
 export function useCourseOffer() {
 	const { resource, markDirty, isMissing } =
 		inject<CourseFormContext>('courseForm')!
-	const settingsStore = useSettings()
-
-	/** Opens the Payments app dialog; pricing waits for the app. */
-	const needsPaymentsApp = ref<boolean>(false)
-
-	// Blocks only when the app is known to be missing; the server is the hard guard.
-	const paymentsAppMissing = computed<boolean>(
-		() =>
-			Boolean(settingsStore.settings?.data) &&
-			!settingsStore.settings.data.is_payments_app_installed
-	)
+	const { needsPaymentsApp, canSell } = usePaymentsApp()
 
 	const certificate = computed<CertificateKind>(() => {
 		const doc = resource.doc
@@ -39,10 +29,7 @@ export function useCourseOffer() {
 	function setPaidCourse(paid: boolean): void {
 		const doc = resource.doc
 		if (!doc) return
-		if (paid && paymentsAppMissing.value) {
-			needsPaymentsApp.value = true
-			return
-		}
+		if (paid && !canSell()) return
 		doc.paid_course = paid ? 1 : 0
 		// The paid-certificate flow applies only to free courses.
 		if (paid) doc.paid_certificate = 0
@@ -52,10 +39,7 @@ export function useCourseOffer() {
 	function setCertificate(kind: CertificateKind): void {
 		const doc = resource.doc
 		if (!doc) return
-		if (kind === 'paid' && paymentsAppMissing.value) {
-			needsPaymentsApp.value = true
-			return
-		}
+		if (kind === 'paid' && !canSell()) return
 		doc.enable_certification = kind === 'free' ? 1 : 0
 		doc.paid_certificate = kind === 'paid' ? 1 : 0
 		markDirty()

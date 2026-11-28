@@ -53,8 +53,9 @@
 
 		<SettingsGroup :title="__('Pricing')" icon="lucide-credit-card">
 			<SettingSwitch
-				v-model="doc.paid_batch"
+				:modelValue="doc.paid_batch"
 				:label="__('Paid batch')"
+				@update:modelValue="setPaidBatch"
 				:summary="__('Learners pay to enroll.')"
 			/>
 			<SettingRow v-if="doc.paid_batch" :label="__('Batch price')">
@@ -68,6 +69,7 @@
 					/>
 				</template>
 			</SettingRow>
+			<PaymentsAppDialog v-model="needsPaymentsApp" />
 		</SettingsGroup>
 
 		<SettingsGroup :title="__('Certificate')" icon="lucide-award">
@@ -181,6 +183,8 @@ import SettingsPage from '@/components/InlineEdit/SettingsPage.vue'
 import SearchPreview from '@/components/InlineEdit/SearchPreview.vue'
 import SettingRow from '@/components/InlineEdit/SettingRow.vue'
 import PriceInput from '@/components/InlineEdit/PriceInput.vue'
+import PaymentsAppDialog from '@/components/PaymentsAppDialog.vue'
+import { usePaymentsApp } from '@/composables/usePaymentsApp'
 import BatchManageGroup from '@/pages/Batches/components/BatchManageGroup.vue'
 import { openBatchForm } from '@/composables/useBatchForms'
 import { injectBatchForm } from '@/pages/Batches/composables/useBatchForm'
@@ -194,6 +198,13 @@ const router = useRouter()
 const route = useRoute()
 const form = injectBatchForm()
 const doc = computed(() => form?.doc.value ?? null)
+const { needsPaymentsApp, canSell } = usePaymentsApp()
+
+const setPaidBatch = (paid: boolean | number | null | undefined): void => {
+	if (!doc.value || (paid && !canSell()))
+		return // The form keeps checkboxes as booleans.
+	;(doc.value as Record<string, unknown>).paid_batch = Boolean(paid)
+}
 
 // The address learners share, without the scheme, as search results print it.
 const batchUrl = computed<string>(
