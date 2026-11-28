@@ -1,21 +1,20 @@
 import { mount } from '@vue/test-utils'
-import { describe, expect, it, vi } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 import { reactive } from 'vue'
 import CoursePublishSettings from '@/pages/Courses/CoursePublishSettings.vue'
 
-vi.hoisted(() => {
+const { settingsData } = vi.hoisted(() => {
 	// @/utils pulls in plyr, which touches matchMedia at import time.
 	window.matchMedia ??= (() => ({
 		matches: false,
 		addEventListener: () => {},
 		removeEventListener: () => {},
 	})) as unknown as typeof window.matchMedia
+	return { settingsData: { is_payments_app_installed: 1 } }
 })
 
 vi.mock('@/stores/settings', () => ({
-	useSettings: () => ({
-		settings: { data: { is_payments_app_installed: 1 } },
-	}),
+	useSettings: () => ({ settings: { data: settingsData } }),
 }))
 
 vi.mock('frappe-ui', () => ({
@@ -115,6 +114,11 @@ describe('CoursePublishSettings evaluator', () => {
 					Link: true,
 					NewMemberModal: true,
 					PriceInput: { name: 'PriceInput', template: '<div />' },
+					PaymentsAppDialog: {
+						name: 'PaymentsAppDialog',
+						props: ['modelValue'],
+						template: '<div />',
+					},
 					BooleanSwitch: {
 						props: ['modelValue', 'label'],
 						emits: ['update:modelValue'],
@@ -155,5 +159,29 @@ describe('CoursePublishSettings evaluator', () => {
 		expect(course.paid_certificate).toBe(1)
 		expect(course.enable_certification).toBe(0)
 		expect(wrapper.findComponent({ name: 'PriceInput' }).exists()).toBe(true)
+	})
+
+	describe('without the Payments app', () => {
+		afterEach(() => {
+			settingsData.is_payments_app_installed = 1
+		})
+
+		it.each(['Paid course', 'Paid certificate'])(
+			'asks for the app on "%s" and leaves the course as it was',
+			async (label) => {
+				settingsData.is_payments_app_installed = 0
+				const { wrapper, course, markDirty } = mountPricing({})
+				const before = { ...course }
+				await toggle(wrapper, label)
+
+				expect(course).toEqual(before)
+				expect(markDirty).not.toHaveBeenCalled()
+				expect(
+					wrapper
+						.findComponent({ name: 'PaymentsAppDialog' })
+						.props('modelValue')
+				).toBe(true)
+			}
+		)
 	})
 })
