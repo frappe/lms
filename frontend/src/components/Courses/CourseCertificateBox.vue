@@ -12,7 +12,7 @@
 				size="sm"
 				:aria-label="__('Certificate')"
 				class="-me-2 w-24"
-				@update:modelValue="(value) => setKind(value as CertificateKind)"
+				@update:modelValue="(value) => setCertificate(value as CertificateKind)"
 			/>
 		</div>
 		<PriceInput
@@ -21,8 +21,8 @@
 			:amount="resource.doc.course_price"
 			:missing="isMissing?.('price')"
 			class="-mx-2"
-			@update:currency="(value) => setPrice('currency', value)"
-			@update:amount="(value) => setPrice('course_price', value)"
+			@update:currency="(value) => setField('currency', value)"
+			@update:amount="(value) => setField('course_price', value)"
 		/>
 		<router-link
 			v-if="kind !== 'none'"
@@ -44,35 +44,35 @@
 			</span>
 		</router-link>
 		<p v-else class="text-ink-gray-6">{{ __('No certificate.') }}</p>
+		<PaymentsAppDialog v-model="needsPaymentsApp" />
 	</div>
 </template>
 
 <script setup lang="ts">
 import { Select } from 'frappe-ui'
-import { computed, inject } from 'vue'
+import { computed } from 'vue'
 import PriceInput from '@/components/InlineEdit/PriceInput.vue'
-import type { CourseFormContext } from '@/types'
-
-type CertificateKind = 'none' | 'free' | 'paid'
+import PaymentsAppDialog from '@/components/PaymentsAppDialog.vue'
+import {
+	useCourseOffer,
+	type CertificateKind,
+} from '@/composables/useCourseOffer'
 
 /** None, free on completion, or paid and evaluated. */
-const props = defineProps<{ paymentsAppMissing: boolean }>()
-const emit = defineEmits<{ needsPayments: [] }>()
-
-const { resource, markDirty, isMissing } =
-	inject<CourseFormContext>('courseForm')!
+const {
+	resource,
+	isMissing,
+	certificate: kind,
+	needsPaymentsApp,
+	setField,
+	setCertificate,
+} = useCourseOffer()
 
 const labels: Record<CertificateKind, string> = {
 	none: __('None'),
 	free: __('Free'),
 	paid: __('Paid'),
 }
-
-const kind = computed<CertificateKind>(() => {
-	const doc = resource.doc
-	if (doc?.paid_certificate) return 'paid'
-	return doc?.enable_certification ? 'free' : 'none'
-})
 
 // A paid course already charges, so its certificate can only be free.
 const options = computed(() => {
@@ -89,22 +89,4 @@ const evaluatorLabel = computed<string>(() => {
 		? __('Evaluated by {0}').format(evaluator)
 		: __('No evaluator yet')
 })
-
-function setPrice(field: 'currency' | 'course_price', value: unknown): void {
-	if (!resource.doc) return
-	;(resource.doc as Record<string, unknown>)[field] = value
-	markDirty()
-}
-
-function setKind(value: CertificateKind): void {
-	const doc = resource.doc
-	if (!doc) return
-	if (value === 'paid' && props.paymentsAppMissing) {
-		emit('needsPayments')
-		return
-	}
-	doc.enable_certification = value === 'free' ? 1 : 0
-	doc.paid_certificate = value === 'paid' ? 1 : 0
-	markDirty()
-}
 </script>

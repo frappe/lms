@@ -42,6 +42,19 @@ vi.mock('frappe-ui', () => ({
 	toast: { error: vi.fn(), success: vi.fn() },
 }))
 vi.mock('@framework/ui/telemetry/index', () => ({}))
+const payments = vi.hoisted(() => ({ installed: true }))
+vi.mock('@/stores/settings', () => ({
+	useSettings: () => ({
+		settings: { data: { is_payments_app_installed: payments.installed } },
+	}),
+}))
+vi.mock('@/components/PaymentsAppDialog.vue', () => ({
+	default: {
+		name: 'PaymentsAppDialog',
+		props: ['modelValue'],
+		template: '<div />',
+	},
+}))
 vi.mock('@framework/ui/components/Onboarding/index', () => ({}))
 
 import CourseCertificateBox from '@/components/Courses/CourseCertificateBox.vue'
@@ -148,9 +161,7 @@ describe('the certificate box', () => {
 
 	it('offers only a free certificate on a paid course', () => {
 		const form = formWith({ ...fullDoc, paid_course: 1 })
-		const wrapper = mountWithForm(CourseCertificateBox, form, {
-			paymentsAppMissing: false,
-		})
+		const wrapper = mountWithForm(CourseCertificateBox, form)
 		expect(select(wrapper).props('variant')).toBe('ghost')
 		expect(
 			select(wrapper)
@@ -162,9 +173,7 @@ describe('the certificate box', () => {
 	it('sets the flags for a paid certificate', async () => {
 		const doc: Record<string, unknown> = { ...fullDoc, enable_certification: 1 }
 		const form = formWith(doc)
-		const wrapper = mountWithForm(CourseCertificateBox, form, {
-			paymentsAppMissing: false,
-		})
+		const wrapper = mountWithForm(CourseCertificateBox, form)
 		await select(wrapper).vm.$emit('update:modelValue', 'paid')
 		expect(doc.paid_certificate).toBe(1)
 		expect(doc.enable_certification).toBe(0)
@@ -174,19 +183,23 @@ describe('the certificate box', () => {
 
 	it('asks for the Payments app before selling a certificate', async () => {
 		const doc: Record<string, unknown> = { ...fullDoc }
-		const wrapper = mountWithForm(CourseCertificateBox, formWith(doc), {
-			paymentsAppMissing: true,
-		})
-		await select(wrapper).vm.$emit('update:modelValue', 'paid')
-		expect(doc.paid_certificate).toBe(0)
-		expect(wrapper.emitted('needsPayments')).toBeTruthy()
+		payments.installed = false
+		try {
+			const wrapper = mountWithForm(CourseCertificateBox, formWith(doc))
+			await select(wrapper).vm.$emit('update:modelValue', 'paid')
+			expect(doc.paid_certificate).toBe(0)
+			expect(
+				wrapper.findComponent({ name: 'PaymentsAppDialog' }).props('modelValue')
+			).toBe(true)
+		} finally {
+			payments.installed = true
+		}
 	})
 
 	// The ghost price field and settings link bleed by their padding, so their
 	// prefix icons share the box's content edge with the label icon.
 	it('lines every row icon up on the box content edge', () => {
 		const wrapper = mount(CourseCertificateBox as never, {
-			props: { paymentsAppMissing: false },
 			global: {
 				mocks: { __: globalThis.__ },
 				provide: {
