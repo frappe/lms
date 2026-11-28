@@ -225,10 +225,8 @@ const activeFilterCount = computed(
 	() => [price.value, medium.value, certification.value].filter(Boolean).length
 )
 
-// Every published batch's category, fetched beside the list rather than read
-// off whichever rows it has loaded, so the chips are complete and come first.
 const categories = createListResource({
-	doctype: 'LMS Batch',
+	doctype: 'LMS Category',
 	url: 'lms.lms.utils.get_batch_categories',
 	cache: ['batch_categories'],
 	auto: true,

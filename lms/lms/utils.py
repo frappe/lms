@@ -1651,22 +1651,7 @@ def as_filter_conditions(filters: dict) -> list:
 @guest_access_required(list)
 def get_course_categories() -> list:
 	"""Returns the full, unfiltered list of categories used by published courses."""
-
-	# Distinct category strings are inherently bounded (one per category, not per
-	# course), so the full set is intended; limit_page_length=0 makes the
-	# "no page cap" explicit rather than relying on get_all's default.
-	rows = frappe.get_all(
-		"LMS Course",
-		filters={"published": 1, "category": ["is", "set"]},
-		pluck="category",
-		distinct=True,
-		order_by="category asc",
-		limit_page_length=0,
-	)
-
-	options = [{"label": "", "value": None}]
-	options += [{"label": category, "value": category} for category in rows]
-	return options
+	return get_published_categories("LMS Course")
 
 
 # nosemgrep: security.guest-whitelisted-method - the batch list's own guest grant; guests are served only when guest access is on, and only category names of published batches.
@@ -1674,10 +1659,19 @@ def get_course_categories() -> list:
 @rate_limit(limit=500, seconds=60 * 60)
 @guest_access_required(list)
 def get_batch_categories() -> list:
-	"""Returns the categories of published batches, so the batch list's chips load with it
-	rather than from whichever rows it has loaded."""
+	"""Returns the full, unfiltered list of categories used by published batches."""
+	return get_published_categories("LMS Batch")
+
+
+def get_published_categories(doctype: str) -> list:
+	"""The categories a list's chips offer: those of its published records, after a clear option.
+
+	Distinct category strings are inherently bounded (one per category, not per
+	record), so the full set is intended; limit_page_length=0 makes the "no page
+	cap" explicit rather than relying on get_all's default.
+	"""
 	rows = frappe.get_all(
-		"LMS Batch",
+		doctype,
 		filters={"published": 1, "category": ["is", "set"]},
 		pluck="category",
 		distinct=True,
