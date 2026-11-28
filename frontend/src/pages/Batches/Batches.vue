@@ -107,29 +107,11 @@
 					v-if="batches.list.loading && !batches.data"
 					data-testid="category-skeleton"
 				/>
-				<div
+				<CategoryChips
 					v-else-if="categoryOptions.length"
-					class="flex flex-wrap gap-2"
-					role="group"
-					:aria-label="__('Category')"
-				>
-					<button
-						v-for="option in [allCategories, ...categoryOptions]"
-						:key="String(option.value)"
-						type="button"
-						class="rounded-4 border px-2.5 py-1 text-p-sm outline-none focus-visible:ring-2 focus-visible:ring-outline-gray-3"
-						:class="
-							currentCategory === option.value
-								? 'border-transparent bg-surface-gray-2 text-ink-gray-9'
-								: 'border-outline-gray-2 text-ink-gray-7 hover:border-outline-gray-3'
-						"
-						:aria-pressed="currentCategory === option.value"
-						:data-testid="'category-' + option.label"
-						@click="currentCategory = option.value"
-					>
-						{{ option.label }}
-					</button>
-				</div>
+					v-model="currentCategory"
+					:options="categoryOptions"
+				/>
 			</div>
 		</template>
 
@@ -158,6 +140,7 @@
 	<router-view />
 </template>
 <script setup>
+import CategoryChips from '@/components/CategoryChips.vue'
 import {
 	Badge,
 	Button,
@@ -185,7 +168,6 @@ const { brand } = sessionStore()
 const start = ref(0)
 const categories = ref([])
 const currentCategory = ref(null)
-const allCategories = { label: __('All'), value: null }
 const title = ref('')
 const certification = ref(false)
 const price = ref('')
