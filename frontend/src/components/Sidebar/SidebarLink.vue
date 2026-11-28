@@ -6,6 +6,7 @@
 		:route="target.route"
 		:href="safeUrl(target.href)"
 		:active="isActive"
+		:aria-keyshortcuts="keyShortcuts"
 		:data-notifications-trigger="link.panel === 'notifications' ? '' : null"
 		@click="target.onClick?.()"
 	>
@@ -18,12 +19,11 @@
 			<kbd
 				v-if="link.shortcut"
 				class="me-2 inline-flex items-center gap-1 rounded-1 bg-surface-gray-2 px-1 py-0.5 font-sans text-p-sm text-ink-gray-6"
-				:aria-label="shortcutLabel"
+				aria-hidden="true"
 			>
 				<span
 					v-for="(key, index) in shortcutKeys"
 					:key="index"
-					aria-hidden="true"
 					:class="{ 'min-w-3 text-center': index === shortcutKeys.length - 1 }"
 					>{{ key }}</span
 				>
@@ -62,7 +62,8 @@ const props = defineProps<{ link: SidebarLink }>()
 
 const isMac = navigator.userAgent.includes('Mac')
 
-// A soft "Ctrl K" chip, as CRM and Helpdesk show it.
+// A soft "Ctrl K" chip, as CRM and Helpdesk show it. The last key sits in a
+// fixed-width cell, so "Ctrl K" and "Ctrl I" badges match.
 const shortcutKeys = computed(() =>
 	(props.link.shortcut || '')
 		.split('+')
@@ -71,8 +72,19 @@ const shortcutKeys = computed(() =>
 		)
 )
 
-// The last key sits in a fixed-width cell, so "Ctrl K" and "Ctrl I" badges match.
-const shortcutLabel = computed(() => shortcutKeys.value.join(' '))
+// The chip is hidden from screen readers; the control announces the shortcut.
+const keyShortcuts = computed(() =>
+	props.link.shortcut
+		?.split('+')
+		.map((key) =>
+			/^(mod|ctrl|cmd|meta)$/i.test(key)
+				? isMac
+					? 'Meta'
+					: 'Control'
+				: key.toUpperCase()
+		)
+		.join('+')
+)
 
 const icon = computed(() =>
 	typeof props.link.icon === 'string'
