@@ -10,8 +10,60 @@
 		/>
 	</SettingsGroup>
 
-	<SettingsGroup :title="__('Evaluation and certificate')" icon="lucide-award">
-		<template v-if="hasCertificate">
+	<SettingsGroup :title="__('Pricing')" icon="lucide-credit-card">
+		<SettingSwitch
+			:label="__('Paid course')"
+			:summary="__('Learners pay to enroll.')"
+			:modelValue="Boolean(doc.paid_course)"
+			@update:modelValue="setPaidCourse"
+		/>
+		<SettingRow v-if="doc.paid_course" :label="__('Course price')">
+			<template #control>
+				<PriceInput
+					:currency="doc.currency"
+					:amount="doc.course_price"
+					:missing="isMissing?.('price')"
+					@update:currency="(value) => setField('currency', value)"
+					@update:amount="(value) => setField('course_price', value)"
+				/>
+			</template>
+		</SettingRow>
+	</SettingsGroup>
+
+	<SettingsGroup :title="__('Certificate')" icon="lucide-award">
+		<SettingSwitch
+			:label="__('Completion certificate')"
+			:summary="
+				__('Issue a free certificate when learners complete the course.')
+			"
+			:modelValue="certificate === 'free'"
+			@update:modelValue="(on) => setCertificate(on ? 'free' : 'none')"
+		/>
+		<template v-if="!doc.paid_course">
+			<SettingSwitch
+				:label="__('Paid certificate')"
+				:summary="
+					__('Sell an evaluator-graded certificate alongside this free course.')
+				"
+				:modelValue="certificate === 'paid'"
+				@update:modelValue="(on) => setCertificate(on ? 'paid' : 'none')"
+			/>
+			<SettingRow
+				v-if="certificate === 'paid'"
+				:label="__('Certificate price')"
+			>
+				<template #control>
+					<PriceInput
+						:currency="doc.currency"
+						:amount="doc.course_price"
+						:missing="isMissing?.('price')"
+						@update:currency="(value) => setField('currency', value)"
+						@update:amount="(value) => setField('course_price', value)"
+					/>
+				</template>
+			</SettingRow>
+		</template>
+		<template v-if="certificate !== 'none'">
 			<SettingAction
 				:label="__('Certificate template')"
 				:summary="__('Certificates render from a Print Format.')"
@@ -19,7 +71,7 @@
 				@click="openPrintFormats"
 			/>
 			<SettingLink
-				v-if="doc.paid_certificate"
+				v-if="certificate === 'paid'"
 				v-model="doc.evaluator"
 				:label="__('Evaluator')"
 				:summary="__('Learners book a session with them after finishing.')"
@@ -29,7 +81,7 @@
 				@update:modelValue="markDirty()"
 			/>
 			<SettingField
-				v-if="doc.paid_certificate"
+				v-if="certificate === 'paid'"
 				v-model="doc.timezone"
 				type="combobox"
 				:label="__('Timezone')"
@@ -39,12 +91,9 @@
 				@update:modelValue="markDirty()"
 			/>
 		</template>
-		<SettingRow
-			v-else
-			:label="__('No certificate')"
-			:summary="__('Turn on a certificate on the Overview page first.')"
-		/>
 	</SettingsGroup>
+
+	<PaymentsAppDialog v-model="needsPaymentsApp" />
 
 	<NewMemberModal
 		v-model="showMemberModal"
@@ -61,14 +110,25 @@ import SettingField from '@/components/InlineEdit/SettingField.vue'
 import SettingLink from '@/components/InlineEdit/SettingLink.vue'
 import SettingRow from '@/components/InlineEdit/SettingRow.vue'
 import SettingSwitch from '@/components/InlineEdit/SettingSwitch.vue'
+import PriceInput from '@/components/InlineEdit/PriceInput.vue'
+import PaymentsAppDialog from '@/components/PaymentsAppDialog.vue'
+import { useCourseOffer } from '@/composables/useCourseOffer'
 import SettingsGroup from '@/components/InlineEdit/SettingsGroup.vue'
 import NewMemberModal from '@/components/Modals/NewMemberModal.vue'
 import type { CourseFormContext, Resource } from '@/types'
 import type { LMSCourse } from '@/types/lms/LMSCourse'
 import { openExternal } from '@/utils/openExternal'
 
-/** The Access and certificate sections of the Settings tab. */
+/** The Access, Pricing and Certificate sections of the Settings tab. */
 const { resource, markDirty } = inject<CourseFormContext>('courseForm')!
+const {
+	isMissing,
+	certificate,
+	needsPaymentsApp,
+	setField,
+	setPaidCourse,
+	setCertificate,
+} = useCourseOffer()
 
 const doc = computed(() => resource.doc!)
 const showMemberModal = ref<boolean>(false)
@@ -112,10 +172,6 @@ const accessRows = computed(() => [
 		__('Highlight the course on the homepage.')
 	),
 ])
-
-const hasCertificate = computed<boolean>(() =>
-	Boolean(doc.value.enable_certification || doc.value.paid_certificate)
-)
 
 const timezoneResource = createResource({
 	url: 'frappe.geo.country_info.get_country_timezone_info',

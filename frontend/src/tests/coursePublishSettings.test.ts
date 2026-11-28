@@ -1,5 +1,6 @@
 import { mount } from '@vue/test-utils'
 import { describe, expect, it, vi } from 'vitest'
+import { reactive } from 'vue'
 import CoursePublishSettings from '@/pages/Courses/CoursePublishSettings.vue'
 
 vi.hoisted(() => {
@@ -103,18 +104,56 @@ describe('CoursePublishSettings evaluator', () => {
 		expect(evaluatorPicker(mountWith({ enable_certification: 1 }))).toBe(false)
 	})
 
-	it('points to the Overview when the course has no certificate', () => {
+	const mountPricing = (extra: Record<string, unknown>) => {
+		const course: Record<string, unknown> = reactive({ ...doc, ...extra })
+		const markDirty = vi.fn()
 		const wrapper = mount(CoursePublishSettings, {
 			global: {
 				mocks: { __: (s: string) => s },
-				provide: {
-					courseForm: { resource: { doc: { ...doc } }, markDirty: vi.fn() },
+				provide: { courseForm: { resource: { doc: course }, markDirty } },
+				stubs: {
+					Link: true,
+					NewMemberModal: true,
+					PriceInput: { name: 'PriceInput', template: '<div />' },
+					BooleanSwitch: {
+						props: ['modelValue', 'label'],
+						emits: ['update:modelValue'],
+						template: `<button
+							:data-label="label"
+							:data-on="modelValue ? 1 : 0"
+							@click="$emit('update:modelValue', !modelValue)"
+						/>`,
+					},
 				},
-				stubs: { Link: true, NewMemberModal: true, BooleanSwitch: true },
 			},
 		})
-		expect(wrapper.text()).toContain(
-			'Turn on a certificate on the Overview page first.'
-		)
+		return { wrapper, course, markDirty }
+	}
+	const toggle = (wrapper: ReturnType<typeof mount>, label: string) =>
+		wrapper.get(`[data-label="${label}"]`).trigger('click')
+
+	it('sells the course from Settings, with its price', async () => {
+		const { wrapper, course, markDirty } = mountPricing({ paid_course: 0 })
+		await toggle(wrapper, 'Paid course')
+		expect(course.paid_course).toBe(1)
+		expect(markDirty).toHaveBeenCalled()
+		expect(wrapper.findComponent({ name: 'PriceInput' }).exists()).toBe(true)
+		// A paid course charges already, so it offers no paid certificate.
+		expect(wrapper.find('[data-label="Paid certificate"]').exists()).toBe(false)
+	})
+
+	it('turns on a completion certificate from Settings', async () => {
+		const { wrapper, course } = mountPricing({})
+		await toggle(wrapper, 'Completion certificate')
+		expect(course.enable_certification).toBe(1)
+		expect(course.paid_certificate).toBe(0)
+	})
+
+	it('sells a certificate on a free course, replacing the free one', async () => {
+		const { wrapper, course } = mountPricing({ enable_certification: 1 })
+		await toggle(wrapper, 'Paid certificate')
+		expect(course.paid_certificate).toBe(1)
+		expect(course.enable_certification).toBe(0)
+		expect(wrapper.findComponent({ name: 'PriceInput' }).exists()).toBe(true)
 	})
 })

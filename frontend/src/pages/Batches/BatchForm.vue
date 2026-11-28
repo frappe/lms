@@ -51,6 +51,55 @@
 			/>
 		</SettingsGroup>
 
+		<SettingsGroup :title="__('Pricing')" icon="lucide-credit-card">
+			<SettingSwitch
+				v-model="doc.paid_batch"
+				:label="__('Paid batch')"
+				:summary="__('Learners pay to enroll.')"
+			/>
+			<SettingRow v-if="doc.paid_batch" :label="__('Batch price')">
+				<template #control>
+					<PriceInput
+						:currency="doc.currency"
+						:amount="doc.amount"
+						:missing="form?.isMissing('currency') || form?.isMissing('amount')"
+						@update:currency="(value) => (doc!.currency = value)"
+						@update:amount="(value) => (doc!.amount = value)"
+					/>
+				</template>
+			</SettingRow>
+		</SettingsGroup>
+
+		<SettingsGroup :title="__('Certificate')" icon="lucide-award">
+			<SettingSwitch
+				v-model="doc.certification"
+				:label="__('Certificate')"
+				:summary="__('Issue a certificate to learners who complete the batch.')"
+			/>
+			<SettingSwitch
+				v-model="doc.evaluation"
+				:label="__('1-on-1 evaluation')"
+				:summary="__('Learners book an evaluation with an evaluator.')"
+			/>
+			<SettingRow
+				v-if="doc.evaluation"
+				:label="__('Evaluation end date')"
+				:summary="__('Learners can book until this date.')"
+			>
+				<template #control>
+					<DatePicker
+						v-model="doc.evaluation_end_date"
+						variant="outline"
+						format="D MMM YYYY"
+						:min="doc.end_date"
+						:placeholder="__('Evaluation end date')"
+						:aria-label="__('Evaluation end date')"
+						class="w-60"
+					/>
+				</template>
+			</SettingRow>
+		</SettingsGroup>
+
 		<SettingsGroup :title="__('Live classes')" icon="lucide-video">
 			<SettingField
 				v-model="doc.conferencing_provider"
@@ -131,6 +180,7 @@ import SettingsGroup from '@/components/InlineEdit/SettingsGroup.vue'
 import SettingsPage from '@/components/InlineEdit/SettingsPage.vue'
 import SearchPreview from '@/components/InlineEdit/SearchPreview.vue'
 import SettingRow from '@/components/InlineEdit/SettingRow.vue'
+import PriceInput from '@/components/InlineEdit/PriceInput.vue'
 import BatchManageGroup from '@/pages/Batches/components/BatchManageGroup.vue'
 import { openBatchForm } from '@/composables/useBatchForms'
 import { injectBatchForm } from '@/pages/Batches/composables/useBatchForm'
