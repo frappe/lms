@@ -22,10 +22,10 @@
 			<template #trigger>
 				<button
 					type="button"
-					:aria-label="__('Add tag')"
+					:aria-label="tags.length ? __('Add tag') : undefined"
 					class="flex h-6 items-center gap-1 rounded-full border border-dashed border-outline-gray-3 px-2.5 text-p-sm text-ink-gray-6 hover:border-outline-gray-4 hover:text-ink-gray-8"
 				>
-					<span class="lucide-plus size-3" />
+					<span class="lucide-plus size-3" aria-hidden="true" />
 					{{ tags.length ? __('Tag') : __('Add tags') }}
 				</button>
 			</template>

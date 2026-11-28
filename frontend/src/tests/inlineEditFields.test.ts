@@ -155,7 +155,9 @@ describe('the price field', () => {
 
 	it('reads Free once and hides the amount until paid', () => {
 		const wrapper = mountPrice({ paid: false })
-		expect(wrapper.get('button').text()).toBe('Free')
+		// The name starts with the visible choice, for 2.5.3.
+		expect(wrapper.get('button').text()).toBe('Free, Price')
+		expect(wrapper.get('button').attributes()).not.toHaveProperty('aria-label')
 		expect(wrapper.findComponent(PriceInput).exists()).toBe(false)
 	})
 
@@ -168,9 +170,9 @@ describe('the price field', () => {
 	it('names the choice in its menu and leaves the price to the field', () => {
 		const wrapper = mountPrice({ paid: true, currency: 'INR', amount: 500 })
 		expect(wrapper.findComponent(PriceInput).props('amount')).toBe(500)
-		expect(wrapper.get('button').text()).toBe('Paid')
+		expect(wrapper.get('button').text()).toBe('Paid, Price')
 		const free = mountPrice({ paid: false })
-		expect(free.get('button').text()).toBe('Free')
+		expect(free.get('button').text()).toBe('Free, Price')
 	})
 
 	it('emits the amount as a number', async () => {

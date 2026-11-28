@@ -29,7 +29,6 @@
 				class="flex items-center gap-2 rounded-4 px-1.5 py-0.5 text-p-sm transition-colors hover:bg-surface-gray-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-outline-gray-3 disabled:pointer-events-none"
 				:class="stars === row.stars ? 'bg-surface-gray-2' : ''"
 				:aria-pressed="stars === row.stars"
-				:aria-label="__('{0} stars: {1} reviews').format(row.stars, row.count)"
 				:disabled="!row.count"
 				data-testid="rating-row"
 				@click="stars = stars === row.stars ? null : row.stars"
@@ -40,6 +39,7 @@
 				>
 					{{ row.stars }}
 				</span>
+				<span class="sr-only">{{ ` ${__('stars')}, ` }}</span>
 				<span
 					class="lucide-star size-3.5"
 					:class="row.count ? 'text-ink-gray-6' : 'text-ink-gray-4'"
@@ -59,6 +59,7 @@
 				>
 					{{ row.count }}
 				</span>
+				<span class="sr-only">{{ ` ${__('reviews')}` }}</span>
 			</button>
 		</div>
 	</div>

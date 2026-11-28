@@ -188,7 +188,8 @@ describe('named controls and focus outlines', () => {
 		const tagButtons = elements('components/Courses/CourseTagsField.vue')
 			.filter((el) => el.tag === 'button')
 			.map((el) => attr(el, 'aria-label') ?? '')
-		expect(tagButtons).toContain("__('Add tag')")
+		// "Add tag" beside "Tag"; with no tags the visible "Add tags" names it.
+		expect(tagButtons).toContain("tags.length ? __('Add tag') : undefined")
 		const h1 = elements('pages/Forms/JobForm.vue').find((e) => e.tag === 'h1')!
 		expect(attr(h1, 'class')).toContain('sr-only')
 	})

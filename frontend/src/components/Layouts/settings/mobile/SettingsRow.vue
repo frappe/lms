@@ -2,7 +2,6 @@
 	<component
 		:is="tag"
 		:type="tag === 'button' ? 'button' : undefined"
-		:aria-label="tag === 'button' ? label : undefined"
 		:href="safeUrl(href)"
 		:target="opensInNewTab ? '_blank' : undefined"
 		:rel="opensInNewTab ? 'noopener noreferrer' : undefined"

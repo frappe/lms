@@ -22,7 +22,8 @@ async function openPicker(tags: string) {
 		},
 	})
 	mounted.push(wrapper)
-	await wrapper.get('[aria-label="Add tag"]').trigger('click')
+	const trigger = tags ? '[aria-label="Add tag"]' : 'button.border-dashed'
+	await wrapper.get(trigger).trigger('click')
 	await flushPromises()
 	return doc
 }

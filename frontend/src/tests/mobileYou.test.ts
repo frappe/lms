@@ -221,6 +221,13 @@ describe('picking a row', () => {
 		expect(router.currentRoute.value.name).toBe('Certifications')
 	})
 
+	it('names a row by its visible label and value, for 2.5.3', async () => {
+		const { wrapper } = await openYou()
+		const row = rowLabelled(wrapper, 'Colour mode')
+		expect(row?.attributes()).not.toHaveProperty('aria-label')
+		expect(row?.text()).toMatch(/Colour mode\s*System/)
+	})
+
 	it('sets the preference from the sheet and closes it', async () => {
 		const { wrapper } = await openYou()
 

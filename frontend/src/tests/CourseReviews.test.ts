@@ -227,13 +227,15 @@ describe('CourseReviews summary and editing', () => {
 		const wrapper = mountReviews({ membership })
 		await flushPromises()
 		const rows = wrapper.findAll('[data-testid="rating-row"]')
-		expect(rows.map((row) => row.text().replace(/\s+/g, ''))).toEqual([
-			'51',
-			'41',
-			'31',
-			'21',
-			'10',
+		// The name starts with the visible star and count, for 2.5.3.
+		expect(rows.map((row) => row.text().replace(/\s+/g, ' '))).toEqual([
+			'5 stars, 1 reviews',
+			'4 stars, 1 reviews',
+			'3 stars, 1 reviews',
+			'2 stars, 1 reviews',
+			'1 stars, 0 reviews',
 		])
+		expect(rows[0].attributes()).not.toHaveProperty('aria-label')
 		await rows[1].trigger('click')
 		expect(wrapper.findAll('article')).toHaveLength(1)
 		expect(rows[1].attributes('aria-pressed')).toBe('true')
