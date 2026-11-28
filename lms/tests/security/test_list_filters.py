@@ -99,6 +99,7 @@ class TestListFilters(BaseTestUtils):
 				"start_time": "10:00:00",
 				"end_time": "11:00:00",
 				"timezone": "Asia/Kolkata",
+				"medium": "Online",
 				"description": "description",
 				"batch_details": "details",
 				"instructors": [{"instructor": cls.instructor.name}],
@@ -213,6 +214,51 @@ class TestListFilters(BaseTestUtils):
 		self.assert_lists_course(self.student.name, {"enrolled": 1, "category": self.category})
 		self.assert_lists_course(self.instructor.name, {"created": 1, "category": self.category})
 
+	def test_the_course_search_matches_word_starts_and_not_description_markup(self):
+		other = self._make_course(f"Filters Markup {frappe.generate_hash(length=6)}")
+		self.addCleanup(frappe.delete_doc, "LMS Course", other.name, force=True)
+		frappe.db.set_value("LMS Course", other.name, "description", f'<a href="/{self.hash}">x</a>')
+		self.assert_lists_course(self.student.name, {"published": 1, "title": ["like", f"%{self.hash}%"]})
+
+		inside_a_word = {"published": 1, "title": ["like", f"%{self.hash[1:]}%"]}
+		self.assertEqual(self.as_user(self.student.name, get_courses, filters=inside_a_word), [])
+
+	def test_the_course_search_with_certification_lists_only_certified_matches(self):
+		uncertified = self._make_course(f"Filters Plain {self.hash}")
+		self.addCleanup(frappe.delete_doc, "LMS Course", uncertified.name, force=True)
+		frappe.db.set_value(
+			"LMS Course", uncertified.name, {"enable_certification": 0, "paid_certificate": 0}
+		)
+		elsewhere = self._make_course(f"Filters Elsewhere {frappe.generate_hash(length=6)}")
+		self.addCleanup(frappe.delete_doc, "LMS Course", elsewhere.name, force=True)
+
+		self.assert_lists_course(
+			self.student.name,
+			{"published": 1, "certification": 1, "title": ["like", f"%{self.hash}%"]},
+		)
+
+	def test_the_course_list_filters_by_price_and_rating_and_sorts_by_a_listed_order(self):
+		other = self._make_course(f"Filters Another Course {self.hash}")
+		self.addCleanup(frappe.delete_doc, "LMS Course", other.name, force=True)
+		frappe.db.set_value("LMS Course", self.course.name, {"rating": "4.6", "paid_course": 0})
+		frappe.db.set_value("LMS Course", other.name, {"rating": "3.2", "paid_course": 1})
+		category = {"published": 1, "category": self.category}
+		for user in self.callers():
+			with self.subTest(user=user):
+				self.assert_lists_course(user, {**category, "paid_course": 0})
+				self.assert_lists_course(user, {**category, "rating": [">=", "4"]})
+				for order_by, names in {
+					"title asc": [other.name, self.course.name],
+					"rating desc": [self.course.name, other.name],
+				}.items():
+					courses = self.as_user(user, get_courses, filters=category.copy(), order_by=order_by)
+					self.assertEqual([course.name for course in courses], names)
+				# Any other sort falls back to the default rather than reaching the query.
+				courses = self.as_user(
+					user, get_courses, filters=category.copy(), order_by="rating desc, (select 1)"
+				)
+				self.assertCountEqual([course.name for course in courses], [self.course.name, other.name])
+
 	def test_the_batch_list_filters_still_work(self):
 		today = nowdate()
 		shapes = {
@@ -230,6 +276,37 @@ class TestListFilters(BaseTestUtils):
 					self.assert_lists_batch(user, {**filters, "category": self.category}, order_by)
 
 		self.assert_lists_batch(self.student.name, {"enrolled": 1}, "start_date desc")
+
+	def test_the_batch_list_filters_by_price_and_mode_and_marks_enrollment(self):
+		filters = {"published": 1, "category": self.category}
+		self.assert_lists_batch("Guest", {**filters, "paid_batch": 0, "medium": "Online"}, "start_date")
+		self.assertEqual(
+			self.as_user("Guest", get_batches, filters={**filters, "paid_batch": 1}),
+			[],
+		)
+		student_view = self.as_user(self.student.name, get_batches, filters=filters)
+		guest_view = self.as_user("Guest", get_batches, filters=filters)
+		self.assertTrue(student_view[0].is_enrolled)
+		self.assertFalse(guest_view[0].is_enrolled)
+		self.assertEqual(guest_view[0].medium, "Online")
+
+	def test_the_in_progress_and_completed_batch_tabs_split_by_date(self):
+		running = self._make_batch(f"Filters Running Batch {self.hash}")
+		running.start_date = add_days(nowdate(), -3)
+		running.save()
+		finished = self._make_batch(f"Filters Finished Batch {self.hash}")
+		finished.start_date = add_days(nowdate(), -20)
+		finished.end_date = add_days(nowdate(), -10)
+		finished.save()
+		today = nowdate()
+		in_progress = {"start_date": ["<=", today], "end_date": [">=", today], "published": 1}
+		completed = {"end_date": ["<", today]}
+		for filters, expected in ((in_progress, running), (completed, finished)):
+			filters = {**filters, "category": self.category}
+			with self.subTest(filters=filters):
+				batches = self.as_user("Administrator", get_batches, filters=filters.copy())
+				self.assertEqual([batch.name for batch in batches], [expected.name])
+				self.assertEqual(self.as_user("Administrator", get_batch_count, filters=filters.copy()), 1)
 
 	def test_the_archived_batch_tab_is_accepted(self):
 		filters = {"start_date": ["<=", nowdate()], "category": self.category}

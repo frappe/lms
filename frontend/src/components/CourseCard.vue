@@ -1,176 +1,125 @@
 <template>
-	<div
+	<article
 		v-if="course.title"
-		class="relative isolate flex flex-col h-full rounded-5 overflow-auto text-ink-gray-9 bg-surface-elevation-1"
-		style="min-height: 350px"
+		class="relative isolate flex h-full flex-col rounded-6 border border-outline-gray-2 bg-surface-base p-2 transition hover:border-outline-gray-3 hover:shadow-sm"
 	>
 		<div
-			class="w-[100%] h-[168px] bg-cover bg-center bg-no-repeat border-t border-x rounded-t-5"
-			:style="
-				course.image
-					? { backgroundImage: `url('${encodeURI(course.image)}')` }
-					: {
-							backgroundImage: gradientColor,
-							backgroundBlendMode: 'screen',
-					  }
-			"
+			class="relative flex h-40 shrink-0 items-center justify-center overflow-hidden rounded-4"
+			:class="course.image ? 'bg-surface-gray-2' : thumbnailTint"
 		>
-			<!-- <div class="flex items-center flex-wrap relative top-4 px-2 w-fit">
-				<div
-					v-if="course.featured"
-					class="flex items-center gap-x-1 text-xs text-ink-amber-5 bg-surface-base border border-outline-amber-1 px-2 py-0.5 rounded-5 me-1 mb-1"
-				>
-					<LucideStar class="size-3 stroke-2" />
-					<span>
-						{{ __('Featured') }}
-					</span>
-				</div>
-				<div
-					v-if="course.tags"
-					v-for="tag in course.tags?.split(', ')"
-					class="text-xs border bg-surface-base text-ink-gray-9 px-2 py-0.5 rounded-5 mb-1 me-1"
-				>
-					{{ tag }}
-				</div>
-			</div> -->
-			<div
-				v-if="!course.image"
-				class="flex items-center justify-center text-white flex-1 font-extrabold my-auto px-5 text-center leading-6 h-full"
-				:class="
-					course.title.length > 32
-						? 'text-lg'
-						: course.title.length > 20
-						? 'text-2xl'
-						: 'text-3xl'
-				"
-			>
-				<CardLink :to="to" :external="external">{{ course.title }}</CardLink>
-			</div>
-		</div>
-		<div class="flex flex-col flex-auto p-4 border-x-2 border-b-2 rounded-b-5">
-			<div class="flex items-center justify-between mb-2">
-				<div v-if="course.lessons">
-					<Tooltip :text="__('Lessons')">
-						<span class="relative z-10 flex items-center">
-							<span class="lucide-book-open size-4 me-1" aria-hidden="true" />
-							<span aria-hidden="true">{{ course.lessons }}</span>
-							<span class="sr-only">{{ lessonCount }}</span>
-						</span>
-					</Tooltip>
-				</div>
-
-				<div v-if="course.enrollments">
-					<Tooltip :text="__('Enrolled Students')">
-						<span class="relative z-10 flex items-center">
-							<span class="lucide-users size-4 me-1" aria-hidden="true" />
-							<span aria-hidden="true">
-								{{ formatAmount(course.enrollments) }}
-							</span>
-							<span class="sr-only">
-								{{
-									__('{0} enrolled').format(formatAmount(course.enrollments))
-								}}
-							</span>
-						</span>
-					</Tooltip>
-				</div>
-
-				<div v-if="course.rating">
-					<Tooltip :text="__('Average Rating')">
-						<span class="relative z-10 flex items-center">
-							<LucideStar
-								class="size-4 me-1 text-transparent fill-ink-amber-7"
-								aria-hidden="true"
-							/>
-							<span aria-hidden="true">{{ formatRating(course.rating) }}</span>
-							<span class="sr-only">
-								{{
-									__('Rated {0} out of 5').format(formatRating(course.rating))
-								}}
-							</span>
-						</span>
-					</Tooltip>
-				</div>
-
-				<Tooltip v-if="course.featured" :text="__('Featured')">
-					<span class="relative z-10 flex">
-						<span
-							class="lucide-award size-4 text-ink-amber-5"
-							aria-hidden="true"
-						/>
-						<span class="sr-only">{{ __('Featured') }}</span>
-					</span>
-				</Tooltip>
-			</div>
-
-			<div
+			<img
 				v-if="course.image"
-				class="font-semibold leading-6"
-				:class="course.title.length > 32 ? 'text-lg' : 'text-2xl'"
-			>
-				<CardLink :to="to" :external="external">{{ course.title }}</CardLink>
-			</div>
-
-			<div class="short-introduction text-sm">
-				{{ course.short_introduction }}
-			</div>
-
-			<ProgressBar
-				v-if="user && course.membership"
-				:progress="course.membership.progress"
-				:label="__('Course progress')"
+				:src="safeUrl(encodeURI(course.image))"
+				alt=""
+				class="size-full object-cover"
 			/>
+			<span
+				v-else
+				class="size-10 stroke-[1.5]"
+				:class="courseIcon(course.icon)"
+				aria-hidden="true"
+			/>
+			<span
+				v-if="course.featured"
+				class="absolute end-2 top-2 flex items-center gap-1 rounded-full bg-surface-base px-2 py-0.5 text-p-xs text-ink-gray-8 shadow-sm"
+			>
+				<span class="lucide-award size-3 text-ink-gray-6" aria-hidden="true" />
+				{{ __('Featured') }}
+			</span>
+		</div>
 
-			<div v-if="user && course.membership" class="text-sm mt-2 mb-4">
-				{{ __('{0}% completed').format(Math.ceil(course.membership.progress)) }}
+		<div class="flex flex-1 flex-col gap-1.5 px-2 pb-1.5 pt-3">
+			<h3 class="line-clamp-2 text-base-semibold leading-snug text-ink-gray-9">
+				<CardLink :to="to" :external="external">{{ course.title }}</CardLink>
+			</h3>
+			<p
+				v-if="course.short_introduction"
+				class="line-clamp-2 text-p-sm text-ink-gray-6"
+			>
+				{{ course.short_introduction }}
+			</p>
+
+			<!-- First visually, after the title in reading and tab order. -->
+			<div class="order-first flex min-h-6 items-center justify-between gap-2">
+				<span
+					class="flex min-w-0 items-center gap-1.5 text-p-xs-medium uppercase tracking-wide text-ink-gray-6"
+				>
+					<span v-if="course.category" class="truncate">
+						{{ course.category }}
+					</span>
+				</span>
+				<span class="flex -space-x-1.5 rtl:space-x-reverse">
+					<template
+						v-for="instructor in instructors"
+						:key="instructor.username || instructor.full_name"
+					>
+						<router-link
+							v-if="instructor.username"
+							:to="{
+								name: 'Profile',
+								params: { username: instructor.username },
+							}"
+							:aria-label="instructor.full_name"
+							:title="instructor.full_name"
+							class="relative z-10 rounded-full"
+						>
+							<UserAvatar :user="instructor" size="sm" />
+						</router-link>
+						<UserAvatar v-else :user="instructor" size="sm" />
+					</template>
+				</span>
 			</div>
 
-			<div class="flex items-center justify-between mt-auto">
-				<div class="flex avatar-group overlap">
-					<div
-						class="relative z-10 h-6 me-1"
-						:class="{ 'avatar-group overlap': course.instructors.length > 1 }"
-					>
-						<UserAvatar
-							v-for="instructor in course.instructors"
-							:key="instructor.username || instructor.name"
-							:user="instructor"
-						/>
-					</div>
-					<CourseInstructors :instructors="course.instructors" />
-				</div>
-
-				<div class="flex items-center gap-x-2">
-					<div v-if="course.paid_course" class="font-semibold">
-						{{ course.price }}
-					</div>
-
-					<Tooltip
-						v-if="course.paid_certificate || course.enable_certification"
-						:text="__('Get Certified')"
-					>
-						<span class="relative z-10 flex">
-							<span
-								class="lucide-graduation-cap size-5 text-ink-gray-7"
-								aria-hidden="true"
-							/>
-							<span class="sr-only">{{ __('Get Certified') }}</span>
+			<div
+				class="mt-auto flex items-center gap-4 pt-3 text-p-sm text-ink-gray-6"
+			>
+				<template v-if="progress !== null">
+					<ProgressBar
+						class="flex-1"
+						:progress="progress"
+						:label="__('Course progress')"
+					/>
+					<span class="tabular-nums">{{ Math.ceil(progress) }}%</span>
+				</template>
+				<template v-else>
+					<span v-if="hasRating" class="flex items-center gap-1">
+						<span class="lucide-star size-4" aria-hidden="true" />
+						<span aria-hidden="true">{{ formatRating(course.rating) }}</span>
+						<span class="sr-only">
+							{{ __('Rated {0} out of 5').format(formatRating(course.rating)) }}
 						</span>
-					</Tooltip>
-				</div>
+					</span>
+					<span v-if="hasCertificate" class="flex min-w-0 items-center gap-1">
+						<span class="lucide-circle-check size-4" aria-hidden="true" />
+						<span class="truncate">{{ __('Certificate') }}</span>
+					</span>
+					<Badge v-if="isDraft" theme="amber" :label="__('Draft')" />
+					<span
+						class="ms-auto shrink-0"
+						:class="
+							course.paid_course
+								? 'text-sm-semibold text-ink-gray-9'
+								: 'text-ink-gray-7'
+						"
+					>
+						{{ priceLabel }}
+					</span>
+				</template>
 			</div>
 		</div>
-	</div>
+	</article>
 </template>
 <script setup>
+import { Badge } from 'frappe-ui'
+import { computed } from 'vue'
 import { sessionStore } from '@/stores/session'
-import { Tooltip } from 'frappe-ui'
-import { formatAmount, formatRating } from '@/utils'
-import { computed, watch } from 'vue'
+import { formatRating } from '@/utils'
+import { courseIcon } from '@/utils/courseIcons'
+import { courseTint } from '@/utils/courseTints'
+import { safeUrl } from '@/utils/safeUrl'
 import CardLink from '@/components/CardLink.vue'
-import CourseInstructors from '@/components/CourseInstructors.vue'
-import UserAvatar from '@/components/UserAvatar.vue'
 import ProgressBar from '@/components/ProgressBar.vue'
+import UserAvatar from '@/components/UserAvatar.vue'
 
 const { user } = sessionStore()
 
@@ -189,19 +138,30 @@ const props = defineProps({
 	},
 })
 
-const lessonCount = computed(() =>
-	props.course.lessons == 1
-		? __('1 lesson')
-		: __('{0} lessons').format(props.course.lessons)
+const thumbnailTint = computed(() => courseTint(props.course.card_gradient))
+
+const instructors = computed(() => (props.course.instructors || []).slice(0, 3))
+
+const progress = computed(() =>
+	user && props.course.membership ? props.course.membership.progress || 0 : null
 )
 
-const gradientColor = computed(() => {
-	let color = props.course.card_gradient?.toLowerCase() || 'blue'
-	// token-exempt: card art stays dark in both themes.
-	return `linear-gradient(to top right, black, var(--${color}-400))`
-})
+const hasRating = computed(() => Number(props.course.rating) > 0)
+
+const hasCertificate = computed(() =>
+	Boolean(props.course.enable_certification || props.course.paid_certificate)
+)
+
+const isDraft = computed(
+	() => 'published' in props.course && !props.course.published
+)
+
+const priceLabel = computed(() =>
+	props.course.paid_course ? props.course.price : __('Free')
+)
 </script>
 <style>
+/* Shared by other instructor avatar rows (BatchOverview, CourseOverview). */
 .avatar-group {
 	display: inline-flex;
 	align-items: center;
@@ -213,16 +173,5 @@ const gradientColor = computed(() => {
 
 .avatar-group.overlap .avatar + .avatar {
 	margin-inline-start: calc(-8px);
-}
-
-.short-introduction {
-	display: -webkit-box;
-	-webkit-line-clamp: 2;
-	-webkit-box-orient: vertical;
-	text-overflow: ellipsis;
-	width: 100%;
-	overflow: hidden;
-	margin: 0.25rem 0 1.25rem;
-	line-height: 1.5;
 }
 </style>
