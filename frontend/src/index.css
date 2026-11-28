@@ -115,10 +115,11 @@ main#main-content {
 }
 
 /* frappe-ui's chart and number cards set their labels, captions and a
-   reading's "/ target" in ink-gray-5 and ink-gray-4, under AA's 4.5:1. The
-   dashboard student list sits in a chart card too, so its header follows. */
-[data-slot='chart-card'] .text-ink-gray-5,
-[data-slot='chart-card'] .tabular-nums > .text-ink-gray-4 {
+   reading's "/ target" in ink-gray-5 and ink-gray-4, under AA's 4.5:1. A
+   card that is a tooltip trigger or names its own slot loses chart-card, so
+   the student list and the statistics cards are named here too. */
+:is([data-slot='chart-card'], [data-slot='dashboard-students'], .statistics-cards)
+	:is(.text-ink-gray-5, .tabular-nums > .text-ink-gray-4) {
 	color: var(--ink-gray-6);
 }
 

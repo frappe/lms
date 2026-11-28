@@ -5,7 +5,9 @@
 		<div class="p-5">
 			<!-- Window breakpoints, not the content area: Statistics keeps its full
 			     layout and narrows when Flow docks, instead of dropping columns. -->
-			<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+			<div
+				class="statistics-cards grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4"
+			>
 				<Tooltip
 					v-for="card in numberCards"
 					:key="card.key"
