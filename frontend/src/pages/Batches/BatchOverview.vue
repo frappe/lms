@@ -1,100 +1,132 @@
 <template>
-	<div class="m-5 pb-10">
-		<div class="flex flex-col md:flex-row justify-between w-full">
-			<div class="md:w-2/3 min-w-0">
-				<h1 class="text-4xl-semibold text-ink-gray-9">
-					{{ batch.data.title }}
-				</h1>
-				<div class="my-3 leading-6 text-ink-gray-7">
-					{{ batch.data.description }}
-				</div>
-				<div class="flex avatar-group overlap">
-					<div
-						class="h-6 me-1"
-						:class="{
-							'avatar-group overlap': batch.data.instructors.length > 1,
-						}"
-					>
-						<UserAvatar
-							v-for="instructor in batch.data.instructors"
-							:key="instructor.username"
-							:user="instructor"
-						/>
-					</div>
-					<CourseInstructors :instructors="batch.data.instructors" />
-				</div>
-				<BatchOverlay :batch="batch" class="md:hidden mt-5" />
-				<div
-					class="ProseMirror prose prose-table:table-fixed prose-td:p-2 prose-th:p-2 prose-td:border prose-th:border prose-td:border-outline-gray-2 prose-th:border-outline-gray-2 prose-td:relative prose-th:relative prose-th:bg-surface-gray-2 prose-sm max-w-none !whitespace-normal mt-10"
-					v-safe-html:rich="batch.data.batch_details"
-				></div>
-			</div>
-			<div class="hidden md:block">
-				<BatchOverlay :batch="batch" />
-			</div>
-		</div>
-		<div v-if="courses.data?.length">
-			<div class="flex items-center mt-10">
-				<h2 class="text-3xl-semibold text-ink-gray-9">
-					{{ __('Courses') }}
-				</h2>
-			</div>
-			<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mt-5">
-				<div
-					v-if="courses.data?.length"
-					v-for="course in courses.data"
-					:key="course.course"
-				>
-					<CourseCard
-						:course="course"
-						:to="{
-							name: 'CourseDetail',
-							params: {
-								courseName: course.name,
-							},
-						}"
+	<div class="p-5 pb-16">
+		<div class="flex flex-col items-start gap-8 @4xl:flex-row">
+			<div class="w-full min-w-0 space-y-10 @4xl:w-[70%]">
+				<BatchHeading :batch="batch.data" :doc="doc" :form="form" />
+				<div class="w-full @4xl:hidden">
+					<BatchEnrollCardEditor
+						v-if="doc"
+						:doc="doc"
+						:form="form!"
+						:courseCount="courseCount"
+						:enrollmentClosed="batch.data.accept_enrollments === false"
+						:enrollmentClosesOn="batch.data.enrollment_closes_on"
 					/>
+					<BatchOverlay v-else :batch="batch" />
 				</div>
-			</div>
-			<div v-if="batch.data.batch_details_raw">
+
+				<BatchSchedule
+					v-if="doc || batch.data.is_student"
+					:batchName="batch.data.name"
+					:editable="Boolean(doc)"
+				/>
+
+				<BatchCourseList
+					v-model:draft="draftCourses"
+					v-model:count="courseCount"
+					:batchName="batch.data.name"
+					:editable="Boolean(doc)"
+					:hideProgress="Boolean(doc)"
+					:studentView="studentView"
+					:category="doc?.category ?? batch.data.category"
+					:expected="batch.data.courses?.length"
+				/>
+
+				<BatchAssessmentList
+					v-if="doc"
+					v-model:draft="draftAssessments"
+					:batchName="batch.data.name"
+					:expected="batch.data.assessments?.length"
+				/>
+
+				<section v-if="doc" class="space-y-3">
+					<h2 :id="aboutHeadingId" class="text-3xl-semibold text-ink-gray-9">
+						{{ __('About this batch') }}
+					</h2>
+					<RichTextField
+						bleed
+						v-model="doc.batch_details"
+						:ariaLabelledby="aboutHeadingId"
+						:placeholder="
+							__(
+								'What learners will do, who it is for and how evaluation works.'
+							)
+						"
+						:missing="form?.isMissing('batch_details')"
+					/>
+				</section>
+				<section v-else-if="batch.data.batch_details" class="space-y-3">
+					<h2 class="text-3xl-semibold text-ink-gray-9">
+						{{ __('About this batch') }}
+					</h2>
+					<div
+						v-safe-html:rich="batch.data.batch_details"
+						class="ProseMirror prose prose-sm max-w-none !whitespace-normal prose-table:table-fixed prose-td:p-2 prose-th:p-2 prose-td:border prose-th:border prose-td:border-outline-gray-2 prose-th:border-outline-gray-2 prose-td:relative prose-th:relative prose-th:bg-surface-gray-2"
+					/>
+				</section>
+
 				<div
+					v-if="batch.data.batch_details_raw"
 					v-safe-html:rich="batch.data.batch_details_raw"
 					class="batch-description"
-				></div>
+				/>
 			</div>
+
+			<aside
+				class="hidden w-full shrink-0 self-start sticky-below-header @4xl:block @4xl:w-[30%]"
+			>
+				<BatchEnrollCardEditor
+					v-if="doc"
+					:doc="doc"
+					:form="form!"
+					:courseCount="courseCount"
+					:enrollmentClosed="batch.data.accept_enrollments === false"
+					:enrollmentClosesOn="batch.data.enrollment_closes_on"
+				/>
+				<BatchOverlay v-else :batch="batch" />
+			</aside>
 		</div>
 	</div>
 </template>
+
 <script setup lang="ts">
-import { watch } from 'vue'
-import { createResource } from 'frappe-ui'
-import CourseCard from '@/components/CourseCard.vue'
+import { computed, ref, useId } from 'vue'
+import RichTextField from '@/components/InlineEdit/RichTextField.vue'
 import BatchOverlay from '@/pages/Batches/components/BatchOverlay.vue'
-import CourseInstructors from '@/components/CourseInstructors.vue'
-import UserAvatar from '@/components/UserAvatar.vue'
+import BatchAssessmentList from '@/pages/Batches/components/overview/BatchAssessmentList.vue'
+import BatchCourseList from '@/pages/Batches/components/overview/BatchCourseList.vue'
+import BatchEnrollCardEditor from '@/pages/Batches/components/overview/BatchEnrollCardEditor.vue'
+import BatchHeading from '@/pages/Batches/components/overview/BatchHeading.vue'
+import BatchSchedule from '@/pages/Batches/components/overview/BatchSchedule.vue'
+import { useStudentView } from '@/composables/useStudentView'
+import type { StudentViewMode } from '@/composables/useStudentView'
+import { injectBatchForm } from '@/pages/Batches/composables/useBatchForm'
+import type { BatchDetails, Resource } from '@/types'
 
-const props = defineProps({
-	batch: {
-		type: Object,
-		default: null,
-	},
-})
+/** The batch page. Instructors edit it in place; learners and previews read it. */
+const props = defineProps<{ batch: Resource<BatchDetails> }>()
 
-const courses = createResource({
-	url: 'lms.lms.utils.get_batch_courses',
-	makeParams: () => ({
-		batch: props.batch?.data?.name,
-	}),
-})
+const form = injectBatchForm()
+const isStudentView = useStudentView()
+const aboutHeadingId = useId()
+const courseCount = ref(0)
 
-watch(
-	() => props.batch?.data?.name,
-	(name) => {
-		if (!name) return
-		// A slow response for the previous batch would overwrite this one.
-		courses.abort()
-		courses.reload()
-	},
-	{ immediate: true }
+const doc = computed(() =>
+	isStudentView.value ? null : form?.doc.value ?? null
 )
+
+const studentView = computed<StudentViewMode | null>(() => {
+	if (!isStudentView.value) return null
+	return props.batch.data.is_student ? 'enrolled' : 'not-enrolled'
+})
+
+// Set only on a new batch: its courses and assessments wait for the first save.
+const draftCourses = computed({
+	get: () => form?.draft?.courses.value,
+	set: (names) => form?.draft && (form.draft.courses.value = names ?? []),
+})
+const draftAssessments = computed({
+	get: () => form?.draft?.assessments.value,
+	set: (rows) => form?.draft && (form.draft.assessments.value = rows ?? []),
+})
 </script>

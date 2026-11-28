@@ -13,6 +13,9 @@ vi.mock('frappe-ui', () => ({
 vi.mock('@/components/VideoPreview.vue', () => ({
 	default: { render: () => null },
 }))
+vi.mock('@/pages/Batches/components/overview/BatchFacts.vue', () => ({
+	default: { render: () => null },
+}))
 vi.mock('@/utils', () => ({
 	formatNumberIntoCurrency: () => '',
 	formatTime: () => '',

@@ -1,102 +1,102 @@
 <template>
 	<NotFound v-if="(batch.fetched || batch.error) && !batch.data?.name" />
-	<TabbedDetailPage
+	<div
 		v-else
-		ref="page"
-		:tabs="tabs"
-		:breadcrumbs="breadcrumbs"
-		:published="isAdmin && Boolean(batch.data?.published)"
-		:loading="!batch.data"
-		:doc="batch"
-		doc-prop="batch"
+		class="flex flex-col"
+		:class="page?.flowsWithPage ? 'min-h-full shrink-0' : 'h-full'"
 	>
-		<template #actions="{ tab, instance }">
-			<Badge v-if="tab?.key === 'settings' && instance?.isDirty" theme="amber">
-				{{ __('Not Saved') }}
-			</Badge>
-			<Dropdown
-				v-if="isAdmin && batchMenu(tab).length"
-				:options="batchMenu(tab)"
-				:button="{
-					icon: 'lucide-ellipsis',
-					variant: 'ghost',
-					label: __('Batch options'),
-				}"
-				side="bottom"
-				align="end"
-			/>
-			<Button
-				v-if="tab?.key === 'settings' && isAdmin && !isMobile"
-				variant="subtle"
-				:theme="batch.data?.published ? 'red' : 'gray'"
-				:loading="publishToggle.loading"
-				@click="togglePublishBatch"
-			>
-				{{ batch.data?.published ? __('Unpublish') : __('Publish') }}
-			</Button>
-			<HeaderButton
-				v-if="tab?.key === 'dashboard' && isAdmin && dashboardState === 'ready'"
-				:label="__('Export analytics')"
-				icon="lucide-download"
-				variant="subtle"
-				@click="exportAnalytics"
-			/>
-			<HeaderButton
-				v-if="tab?.key === 'dashboard' && isAdmin && dashboardState === 'ready'"
-				:label="__('Enroll')"
-				icon="lucide-plus"
-				variant="solid"
-				@click="openStudentForm"
-			/>
-			<HeaderButton
-				v-if="
-					tab?.key === 'announcements' &&
-					isAdmin &&
-					!readOnlyMode &&
-					batch.data?.student_count
-				"
-				:label="__('Make Announcement')"
-				icon="lucide-send"
-				@click="openAnnouncementModal"
-			/>
-			<template v-if="tab?.key === 'settings' && isAdmin">
-				<Tooltip
-					v-if="!instance?.isDirty"
-					:text="__('No changes to save')"
-					:hoverDelay="100"
+		<span class="sr-only" role="status">{{ loadingAnnouncement }}</span>
+		<StudentViewBar
+			v-if="studentMode"
+			v-model="studentMode"
+			doctype="LMS Batch"
+			:name="batchName"
+			@exit="studentMode = null"
+			@change="refreshStudentView"
+		/>
+		<TabbedDetailPage
+			ref="page"
+			:key="studentViewVersion"
+			class="grow"
+			:tabs="tabs"
+			:breadcrumbs="breadcrumbs"
+			:published="isAdmin && Boolean(batch.data?.published)"
+			:loading="!batch.data"
+			:doc="viewBatch"
+			doc-prop="batch"
+		>
+			<template v-if="isAdmin" #status>
+				<Badge :theme="batch.data?.published ? 'green' : 'amber'">
+					{{ batch.data?.published ? __('Published') : __('Draft') }}
+				</Badge>
+				<Badge
+					v-if="
+						batch.data?.accept_enrollments && !batch.data?.enrollment_closes_on
+					"
+					theme="blue"
 				>
-					<HeaderButton :label="__('Save')" variant="solid" disabled />
-				</Tooltip>
-				<ShortcutTooltip v-else :label="__('Save')" combo="Mod+S">
-					<HeaderButton
-						:label="__('Save')"
-						variant="solid"
-						:loading="instance?.isSaving"
-						@click="instance?.submitBatch()"
-					/>
-				</ShortcutTooltip>
+					{{ __('Upcoming') }}
+				</Badge>
 			</template>
-		</template>
 
-		<template #solo>
-			<BatchOverview v-if="batch.data" :batch="batch" />
-			<SkeletonLoader v-else variant="course-page" />
-		</template>
-
-		<template #tab-body-discussions>
-			<div class="w-[90%] lg:w-[75%] mx-auto mt-5">
-				<Discussions
-					doctype="LMS Batch"
-					:docname="batch.data.name"
-					:title="__('Discussions')"
-					heading-size="lg"
-					:key="batch.data.name"
-					:singleThread="true"
-					:scrollToBottom="false"
+			<template #actions="{ tab }">
+				<BatchHeaderActions
+					v-if="isAdmin"
+					:tab="tab?.key"
+					:batch="batch"
+					@student-view="openStudentView(tab?.key)"
 				/>
-			</div>
-		</template>
-	</TabbedDetailPage>
+				<DashboardTabActions
+					v-if="isMobile && hasDashboardActions(tab?.key)"
+					@export="exportAnalytics"
+					@enroll="openForm('NewBatchStudent')"
+				/>
+				<HeaderButton
+					v-if="isMobile && hasAnnouncementAction(tab?.key)"
+					:label="__('Make announcement')"
+					icon="lucide-send"
+					@click="openForm('NewAnnouncement')"
+				/>
+			</template>
+
+			<template #solo>
+				<BatchOverview v-if="batch.data" :batch="viewBatch" />
+				<SkeletonLoader v-else variant="course-page" />
+			</template>
+
+			<template #tab-row-end="{ tab }">
+				<BatchSaveButton
+					v-if="isAdmin && isFormTab(tab?.key) && !isMobile"
+					:form="form"
+				/>
+				<DashboardTabActions
+					v-if="!isMobile && hasDashboardActions(tab?.key)"
+					@export="exportAnalytics"
+					@enroll="openForm('NewBatchStudent')"
+				/>
+				<HeaderButton
+					v-if="!isMobile && hasAnnouncementAction(tab?.key)"
+					:label="__('Make announcement')"
+					icon="lucide-send"
+					@click="openForm('NewAnnouncement')"
+				/>
+			</template>
+
+			<template #tab-body-discussions>
+				<div class="w-[90%] lg:w-[75%] mx-auto mt-5">
+					<Discussions
+						doctype="LMS Batch"
+						:docname="batch.data.name"
+						:title="__('Discussions')"
+						heading-size="lg"
+						:key="batch.data.name"
+						:singleThread="true"
+						:scrollToBottom="false"
+					/>
+				</div>
+			</template>
+		</TabbedDetailPage>
+	</div>
 	<ExportAnalyticsDialog
 		v-if="exportMounted"
 		v-model:open="showExport"
@@ -107,54 +107,52 @@
 	<router-view />
 </template>
 <script setup>
-import {
-	computed,
-	inject,
-	markRaw,
-	provide,
-	ref,
-	useTemplateRef,
-	watch,
-} from 'vue'
+import { computed, inject, markRaw, provide, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import {
-	Badge,
-	Button,
-	createResource,
-	Dropdown,
-	Tooltip,
-	toast,
-	usePageMeta,
-} from 'frappe-ui'
+import { Badge, createResource, usePageMeta } from 'frappe-ui'
 import { sessionStore } from '@/stores/session'
-import { useScreenSize } from '@/utils/composables'
 import AdminBatchDashboard from '@/pages/Batches/components/AdminBatchDashboard.vue'
 import StudentBatchDashboard from '@/pages/Batches/components/BatchDashboard.vue'
 import BatchOverview from '@/pages/Batches/BatchOverview.vue'
 import LiveClass from '@/pages/Batches/components/LiveClass.vue'
 import Announcements from '@/pages/Batches/components/Announcements.vue'
 import BatchForm from '@/pages/Batches/BatchForm.vue'
+import BatchHeaderActions from '@/pages/Batches/components/BatchHeaderActions.vue'
+import BatchSaveButton from '@/pages/Batches/components/BatchSaveButton.vue'
+import StudentViewBar from '@/components/StudentViewBar.vue'
 import Discussions from '@/components/Discussions.vue'
-import HeaderButton from '@/components/HeaderButton.vue'
 import ExportAnalyticsDialog from '@/components/Dashboard/ExportAnalyticsDialog.vue'
-import ShortcutTooltip from '@/components/ShortcutTooltip.vue'
+import DashboardTabActions from '@/components/Dashboard/DashboardTabActions.vue'
 import SkeletonLoader from '@/components/SkeletonLoader.vue'
+import HeaderButton from '@/components/HeaderButton.vue'
 import TabbedDetailPage from '@/components/Layouts/pages/TabbedDetailPage.vue'
 import NotFound from '@/pages/NotFound.vue'
-import { openBatchForm } from '@/composables/useBatchForms'
-import { provideDashboardState } from '@/composables/dashboard/useDashboard'
 import { canReadDiscussions } from '@/utils/doctypePermissions'
+import { useScreenSize } from '@/utils/composables'
+import { openBatchForm } from '@/composables/useBatchForms'
+import { provideStudentView } from '@/composables/useStudentView'
+import { provideDashboardState } from '@/composables/dashboard/useDashboard'
+import {
+	useKeyboardShortcuts,
+	saveShortcut,
+} from '@/composables/useKeyboardShortcuts'
+import { useBatchForm } from '@/pages/Batches/composables/useBatchForm'
+import { useLoadingAnnouncement } from '@/utils/a11y'
+import {
+	confirmUnsavedChanges,
+	useUnsavedChangesGuard,
+} from '@/composables/useUnsavedChangesGuard'
+import { useBatchManage } from '@/pages/Batches/composables/useBatchManage'
+import {
+	BATCH_PREVIEW,
+	studentBatch,
+} from '@/pages/Batches/composables/batchStudentView'
 
-const router = useRouter()
-// Read by every form opener below. TabbedDetailPage still keeps the active tab
-// in route.hash (:143, :158), so a form route opened without it re-renders the
-// page on its first tab.
 const route = useRoute()
-const { brand } = sessionStore()
 const { isMobile } = useScreenSize()
+const isFormTab = (key) => !key || ['overview', 'settings'].includes(key)
+const { brand } = sessionStore()
 const user = inject('$user')
-const page = useTemplateRef('page')
-const readOnlyMode = window.read_only_mode
 
 const dashboardState = provideDashboardState()
 
@@ -173,23 +171,39 @@ const batch = createResource({
 	auto: true,
 })
 
+const loadingAnnouncement = useLoadingAnnouncement(
+	() => !batch.data && !batch.error,
+	() => (batch.data?.title ? __('{0} loaded').format(batch.data.title) : '')
+)
+
 // The router reuses this component when you go straight from one batch to
-// another (the command palette does exactly that), so setup does not run a
-// second time. Without this the page would keep showing the batch you
-// arrived on. The `cache` key is gone for the same reason: it was read once at
-// setup, so a reload would have written the new batch into the old one's
-// entry.
+// another, so setup does not run a second time.
 watch(
 	() => props.batchName,
 	() => batch.reload()
 )
 
-// The forms in the <router-view> below change what this endpoint reports —
-// enrolling a student moves Seats Left on the overlay. Having no cache key is
-// what makes them unable to reach it themselves, so it is handed down.
+// The forms in the <router-view> below change what this endpoint reports.
 provide('reloadBatchDetails', () => batch.reload())
 
-const isAdmin = computed(() => {
+// Its flow decides the root's height, so the sticky student view bar
+// spans the whole page.
+const page = ref(null)
+/** null, or which learner the instructor is previewing the page as. */
+const studentMode = ref(null)
+provideStudentView(user, () => Boolean(studentMode.value))
+provide(BATCH_PREVIEW, {
+	enroll: () => (studentMode.value = 'enrolled'),
+})
+
+// Remounts the page so course progress refetches after enrolling or a reset.
+const studentViewVersion = ref(0)
+const refreshStudentView = () => {
+	batch.reload()
+	studentViewVersion.value++
+}
+
+const canManage = computed(() => {
 	// is_moderator/is_evaluator are session-wide roles; can_manage is this
 	// batch's own tag, since a Course Creator only manages batches they author.
 	return Boolean(
@@ -197,9 +211,70 @@ const isAdmin = computed(() => {
 	)
 })
 
+const isAdmin = computed(() => canManage.value && !studentMode.value)
+
 const isStudent = computed(() => {
+	if (studentMode.value) return studentMode.value === 'enrolled'
 	return Boolean(batch.data?.is_student)
 })
+
+const viewBatch = computed(() =>
+	studentMode.value ? studentBatch(batch, isStudent.value) : batch
+)
+
+const form = useBatchForm(
+	() => props.batchName,
+	batch,
+	() => isAdmin.value
+)
+useUnsavedChangesGuard({
+	isDirty: () => form.isDirty.value,
+	isSaving: () => form.isSaving.value,
+	save: form.submitBatch,
+	param: 'batchName',
+})
+useBatchManage(batch)
+
+useKeyboardShortcuts({
+	active: () =>
+		isAdmin.value && ['', '#overview', '#settings'].includes(route.hash),
+	shortcuts: [saveShortcut(() => form.submitBatch())],
+})
+
+const showExport = ref(false)
+// Mounted on first use: most visits to the dashboard never export.
+const exportMounted = ref(false)
+
+const exportAnalytics = () => {
+	exportMounted.value = true
+	showExport.value = true
+}
+
+const router = useRouter()
+const openForm = (name) => {
+	openBatchForm(router, name, props.batchName, route.hash)
+}
+
+const hasDashboardActions = (tab) =>
+	isAdmin.value && tab === 'dashboard' && dashboardState.value === 'ready'
+
+const hasAnnouncementAction = (tab) =>
+	isAdmin.value &&
+	tab === 'announcements' &&
+	!window.read_only_mode &&
+	Boolean(batch.data?.student_count)
+
+// Student view shows the stored batch, so unsaved edits are settled first.
+const openStudentView = async (tab) => {
+	const proceed = await confirmUnsavedChanges({
+		isDirty: () => form.isDirty.value,
+		isSaving: () => form.isSaving.value,
+		save: form.submitBatch,
+		discard: () => form.discardChanges?.(),
+	})
+	if (!proceed) return
+	studentMode.value = !tab || tab === 'overview' ? 'not-enrolled' : 'enrolled'
+}
 
 const tabs = computed(() => {
 	const enrolled = isAdmin.value || isStudent.value
@@ -258,78 +333,6 @@ const tabs = computed(() => {
 		},
 	]
 })
-
-const openAnnouncementModal = () => {
-	openBatchForm(router, 'NewAnnouncement', props.batchName, route.hash)
-}
-
-const openStudentForm = () => {
-	openBatchForm(router, 'NewBatchStudent', props.batchName, route.hash)
-}
-
-const showExport = ref(false)
-// Mounted on first use: most visits to the dashboard never export.
-const exportMounted = ref(false)
-
-const exportAnalytics = () => {
-	exportMounted.value = true
-	showExport.value = true
-}
-
-const publishToggle = createResource({
-	url: 'frappe.client.set_value',
-	makeParams() {
-		return {
-			doctype: 'LMS Batch',
-			name: batch.data?.name,
-			fieldname: 'published',
-			value: batch.data?.published ? 0 : 1,
-		}
-	},
-	onSuccess() {
-		toast.success(
-			batch.data?.published ? __('Batch unpublished') : __('Batch published')
-		)
-		batch.reload()
-	},
-	onError(err) {
-		toast.error(err.messages?.[0] || __('Could not update publish status'))
-	},
-})
-
-const togglePublishBatch = () => {
-	if (publishToggle.loading) return
-	publishToggle.submit()
-}
-
-const batchMenu = (tab) => {
-	const options = []
-	if (batch.data?.certification && batch.data?.student_count) {
-		options.push({
-			label: __('Generate Certificates'),
-			icon: 'lucide-award',
-			onClick: () =>
-				openBatchForm(router, 'BulkCertificates', props.batchName, route.hash),
-		})
-	}
-	if (tab?.key !== 'settings') return options
-	if (isMobile.value) {
-		options.push({
-			label: batch.data?.published
-				? __('Unpublish batch')
-				: __('Publish batch'),
-			icon: batch.data?.published ? 'lucide-globe-lock' : 'lucide-globe',
-			onClick: togglePublishBatch,
-		})
-	}
-	options.push({
-		label: __('Delete batch'),
-		icon: 'lucide-trash-2',
-		theme: 'red',
-		onClick: () => page.value?.instanceFor('settings')?.deleteBatch(),
-	})
-	return options
-}
 
 const breadcrumbs = computed(() => {
 	const crumbs = [{ label: __('Batches'), route: { name: 'Batches' } }]
