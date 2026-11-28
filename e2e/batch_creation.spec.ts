@@ -234,9 +234,9 @@ test.describe("Batch Creation", () => {
 		).toBeVisible();
 		await expect(batchCard.getByText("10:00 AM – 11:00 AM")).toBeVisible();
 		await expect(batchCard.getByText("Asia/Kolkata")).toBeVisible();
-		// The instructor shows as an avatar linking to their profile.
+		// The instructors show as one avatar group named after them.
 		await expect(
-			batchCard.getByRole("link", { name: "Evaluator" })
+			batchCard.getByRole("img", { name: "By Evaluator" })
 		).toBeVisible();
 		await expect(batchCard.getByText("10 Seats Left")).toBeVisible();
 		await batchLink.click();
