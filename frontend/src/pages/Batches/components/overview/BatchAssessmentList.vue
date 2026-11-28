@@ -1,12 +1,20 @@
 <template>
 	<section>
 		<div class="mb-4 flex items-baseline justify-between gap-4">
-			<h2 class="text-3xl-semibold text-ink-gray-9">
-				{{ __('Assessments') }}
-			</h2>
-			<span class="text-p-sm text-ink-gray-6">
-				{{ __('Learners take these from their batch dashboard') }}
-			</span>
+			<div class="flex items-center gap-1.5">
+				<h2 class="text-3xl-semibold text-ink-gray-9">
+					{{ __('Assessments') }}
+				</h2>
+				<Tooltip :text="__('Learners take these from their batch dashboard')">
+					<button
+						type="button"
+						class="inline-grid size-6 place-items-center rounded-4 text-ink-gray-6 hover:text-ink-gray-9"
+						:aria-label="__('About assessments')"
+					>
+						<span class="lucide-info size-4" aria-hidden="true" />
+					</button>
+				</Tooltip>
+			</div>
 		</div>
 		<OverviewListSkeleton
 			v-if="isPending"
@@ -75,7 +83,7 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
-import { Button, call, createResource, toast } from 'frappe-ui'
+import { Button, Tooltip, call, createResource, toast } from 'frappe-ui'
 import OverviewEmptyTile from '@/pages/Batches/components/overview/OverviewEmptyTile.vue'
 import OverviewListSkeleton from '@/components/Skeletons/OverviewListSkeleton.vue'
 import BatchAssessmentAdd from '@/pages/Batches/components/overview/BatchAssessmentAdd.vue'

@@ -1,7 +1,21 @@
 <template>
 	<section v-if="classes.length || editable || isPending">
 		<div class="mb-4 flex items-baseline justify-between gap-4">
-			<h2 class="text-3xl-semibold text-ink-gray-9">{{ __('Schedule') }}</h2>
+			<div class="flex items-center gap-1.5">
+				<h2 class="text-3xl-semibold text-ink-gray-9">{{ __('Schedule') }}</h2>
+				<Tooltip
+					v-if="editable && !isPending && !classes.length"
+					:text="__('Shown to enrolled learners once you add classes')"
+				>
+					<button
+						type="button"
+						class="inline-grid size-6 place-items-center rounded-4 text-ink-gray-6 hover:text-ink-gray-9"
+						:aria-label="__('About the schedule')"
+					>
+						<span class="lucide-info size-4" aria-hidden="true" />
+					</button>
+				</Tooltip>
+			</div>
 			<SkeletonText
 				v-if="isPending"
 				text="text-p-base"
@@ -11,9 +25,6 @@
 			/>
 			<span v-else-if="classes.length" class="text-p-base text-ink-gray-6">
 				{{ countLabel }}
-			</span>
-			<span v-else-if="editable" class="text-p-sm text-ink-gray-6">
-				{{ __('Shown to enrolled learners once you add classes') }}
 			</span>
 		</div>
 		<OverviewListSkeleton
@@ -76,7 +87,7 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
-import { Button, createListResource } from 'frappe-ui'
+import { Button, Tooltip, createListResource } from 'frappe-ui'
 import { useRoute, useRouter } from 'vue-router'
 import dayjs from '@/utils/dayjs'
 import { openBatchForm } from '@/composables/useBatchForms'

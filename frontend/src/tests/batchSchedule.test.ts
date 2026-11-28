@@ -11,6 +11,10 @@ const { rows } = vi.hoisted(() => ({
 }))
 
 vi.mock('frappe-ui', () => ({
+	Tooltip: {
+		props: ['text'],
+		template: '<span :data-tooltip="text"><slot /></span>',
+	},
 	createListResource: () => rows,
 	Button: {
 		props: ['label'],
@@ -65,7 +69,7 @@ describe('BatchSchedule empty state', () => {
 
 	it('tells the editor learners see it only once there are classes', async () => {
 		const { wrapper } = await mountSchedule({ conferencing_provider: 'Zoom' })
-		expect(wrapper.text()).toContain(
+		expect(wrapper.find('[data-tooltip]').attributes('data-tooltip')).toBe(
 			'Shown to enrolled learners once you add classes'
 		)
 	})
