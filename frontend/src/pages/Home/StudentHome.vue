@@ -1,6 +1,7 @@
 <template>
 	<div>
-		<div class="mt-10 space-y-10">
+		<!-- Gone with its margin when it has no evaluations or live classes. -->
+		<div class="mt-10 space-y-10 empty:hidden">
 			<UpcomingEvaluations :forHome="true" />
 			<div v-if="myLiveClasses.data?.length">
 				<h2 class="font-semibold text-md mb-3 text-ink-gray-9">

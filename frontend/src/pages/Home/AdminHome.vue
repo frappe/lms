@@ -1,6 +1,7 @@
 <template>
 	<div class="flex flex-1 flex-col">
-		<div class="mt-10 space-y-10">
+		<!-- Gone with its margin when it has no evaluations or live classes. -->
+		<div class="mt-10 space-y-10 empty:hidden">
 			<div v-if="evals?.data?.length">
 				<div class="text-lg-semibold text-ink-gray-9 mb-3">
 					{{ __('Upcoming Evaluations') }}
