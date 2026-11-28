@@ -64,11 +64,19 @@ from lms.lms.course_import_export import (
 	validate_archive,
 )
 from lms.lms.doctype.course_lesson.course_lesson import save_progress
+from lms.lms.doctype.lms_batch.lms_batch import is_enrollment_open
 from lms.lms.doctype.lms_certificate.lms_certificate import evaluates_certificate, get_latest_certificate
 from lms.lms.doctype.lms_certificate_evaluation.lms_certificate_evaluation import can_evaluate
 from lms.lms.html_sanitizer import sanitize_rich_text
-from lms.lms.permissions import is_site_administrator
+from lms.lms.permissions import (
+	ASSESSMENT_DOCTYPES,
+	can_administer_assessment,
+	can_author_assessment,
+	is_site_administrator,
+	stored_authors,
+)
 from lms.lms.sidebar import LEGACY_VISIBILITY_FIELDS, ROW_FIELDS, get_sidebar_rows
+from lms.lms.student_view import batch_learners
 from lms.lms.telemetry import demo_batch
 from lms.lms.utils import (
 	LMS_ROLES,
@@ -326,15 +334,15 @@ def verify_billing_access(doctype, name, billing_type):
 			message = _("You are already enrolled for this batch.")
 
 		seat_count = frappe.get_cached_value("LMS Batch", name, "seat_count")
-		number_of_students = frappe.db.count("LMS Batch Enrollment", {"batch": name})
-		if seat_count <= number_of_students:
+		number_of_students = frappe.db.count("LMS Batch Enrollment", batch_learners(name))
+		# No seat count means no limit.
+		if seat_count and seat_count <= number_of_students:
 			access = False
 			message = _("Batch is sold out.")
 
-		start_date = frappe.get_cached_value("LMS Batch", name, "start_date")
-		if start_date and date_diff(start_date, now()) < 0:
+		if not is_enrollment_open(name):
 			access = False
-			message = _("Batch has already started.")
+			message = _("Enrollment for this batch is closed.")
 
 	elif access and billing_type == "certificate":
 		purchased_certificate = frappe.db.exists(
@@ -2086,7 +2094,7 @@ def get_announcements(batch: str):
 
 
 def get_batch_members(batch: str) -> list[str]:
-	return frappe.get_all("LMS Batch Enrollment", {"batch": batch}, pluck="member")
+	return frappe.get_all("LMS Batch Enrollment", filters=batch_learners(batch), pluck="member")
 
 
 @frappe.whitelist(methods=["POST"])
@@ -4665,6 +4673,30 @@ def search_users_by_role(
 			"user_image": r.user_image,
 		}
 		for r in results
+	]
+
+
+@frappe.whitelist()
+def get_assessment_authors(doctype: str, name: str) -> dict:
+	"""The authors of one assessment with their names and avatars, and whether the
+	caller may change them. Staff reach only: an enrolled learner gets nothing."""
+	if not isinstance(doctype, str) or doctype not in ASSESSMENT_DOCTYPES:
+		frappe.throw(_("Invalid assessment type"))
+	if not isinstance(name, str) or not name:
+		frappe.throw(_("Invalid assessment"))
+	if not can_administer_assessment(doctype, name):
+		frappe.throw(_("You do not have permission to view this assessment"), frappe.PermissionError)
+
+	authors = stored_authors(doctype, name) or [frappe.db.get_value(doctype, name, "owner")]
+	return {"authors": _author_rows(authors), "can_edit": can_author_assessment(doctype, name)}
+
+
+def _author_rows(authors: list[str]) -> list[dict]:
+	"""Read through get_all so a reviewer needs no User read."""
+	fields = ["name", "full_name", "user_image"]
+	users = {user.name: user for user in frappe.get_all("User", {"name": ("in", authors)}, fields)}
+	return [
+		users.get(author) or {"name": author, "full_name": author, "user_image": None} for author in authors
 	]
 
 

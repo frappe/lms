@@ -91,4 +91,8 @@ export interface LMSBatch {
 	notification_sent?: 0 | 1
 	/**	Evaluation : Check	*/
 	evaluation?: 0 | 1
+	/**	Allow Enrolment After Start : Check	*/
+	allow_late_enrollment?: 0 | 1
+	/**	Last Enrolment Date : Date	*/
+	last_enrollment_date?: string
 }
