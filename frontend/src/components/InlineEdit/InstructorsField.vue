@@ -31,7 +31,7 @@
 			<span v-else class="lucide-user-plus size-4 text-ink-gray-5" />
 		</template>
 		<template #summary>
-			<span :class="instructors.length ? 'text-ink-gray-7' : 'text-ink-gray-4'">
+			<span :class="instructors.length ? 'text-ink-gray-7' : 'text-ink-gray-6'">
 				{{ summary }}
 			</span>
 		</template>

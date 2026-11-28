@@ -114,6 +114,14 @@ main#main-content {
 	--tw-prose-bullets: var(--ink-gray-4);
 }
 
+/* frappe-ui's chart and number cards set their labels, captions and a
+   reading's "/ target" in ink-gray-5 and ink-gray-4, under AA's 4.5:1. The
+   dashboard student list sits in a chart card too, so its header follows. */
+[data-slot='chart-card'] .text-ink-gray-5,
+[data-slot='chart-card'] .tabular-nums > .text-ink-gray-4 {
+	color: var(--ink-gray-6);
+}
+
 /* frappe-ui hides a hovered row's dividers so its hover surface floats free,
    but only draws that surface from `sm` on a hover-capable pointer. Elsewhere
    (a tapped row on a phone stays :hover) keep the dividers. */

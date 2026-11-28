@@ -312,3 +312,10 @@ function submitCreate(): void {
 
 defineExpose({ reload })
 </script>
+
+<style scoped>
+/* frappe-ui's button trigger sets its placeholder in ink-gray-4, under AA's 4.5:1. */
+:deep([data-slot='trigger'] > .truncate.text-ink-gray-4) {
+	color: var(--ink-gray-6);
+}
+</style>

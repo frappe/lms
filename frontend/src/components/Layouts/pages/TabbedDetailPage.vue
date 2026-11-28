@@ -280,6 +280,11 @@ defineExpose({
 	flex-shrink: 0;
 }
 
+/* frappe-ui draws inactive tabs in ink-gray-5, under AA's 4.5:1. */
+:deep([role='tab'] [data-state='inactive']:not(:hover)) {
+	color: var(--ink-gray-6);
+}
+
 .detail-tabs {
 	flex: 1 1 0%;
 	min-height: 0;
