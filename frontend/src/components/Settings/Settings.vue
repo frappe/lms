@@ -16,7 +16,7 @@
 					v-for="item in group.items"
 					:key="item.slug"
 					:text="__(item.label)"
-					placement="right"
+					:side="inlineEndSide()"
 					:disabled="!rail"
 				>
 					<SettingsNavItem :value="item.slug">
@@ -96,7 +96,8 @@ import SettingsFieldsPanel from '@/components/Layouts/settings/desktop/SettingsF
 import SettingsListPanel from '@/components/Layouts/settings/desktop/SettingsListPanel.vue'
 import { isGroupVisible, settingsTree } from '@/components/Settings/settings'
 import { useSettingsHash } from '@/composables/useSettingsHash'
-import { MOBILE_BREAKPOINT } from '@/utils/composables'
+import { useScreenSize } from '@/utils/composables'
+import { inlineEndSide } from '@/utils/textDirection'
 
 const doctype = ref('LMS Settings')
 
@@ -108,11 +109,11 @@ const nav = ref(null)
 const { width: rowWidth } = useElementSize(
 	computed(() => nav.value?.$el?.parentElement ?? null)
 )
-const rail = computed(
-	() => rowWidth.value > 0 && rowWidth.value < RAIL_BELOW && !isPhone()
-)
 // On a phone the nav sits above the panel, where it already has the full width.
-const isPhone = () => window.innerWidth < MOBILE_BREAKPOINT
+const { isMobile } = useScreenSize()
+const rail = computed(
+	() => rowWidth.value > 0 && rowWidth.value < RAIL_BELOW && !isMobile.value
+)
 const settingsStore = useSettings()
 
 // The dirty guard, installed once for every settings form. Each form
