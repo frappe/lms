@@ -1,5 +1,13 @@
 <template>
-	<PageHeader v-if="!fromLesson" :breadcrumbs="breadcrumbs" />
+	<PageHeader
+		v-if="!fromLesson"
+		:breadcrumbs="breadcrumbs"
+		:loading="title.loading && !title.data"
+	>
+		<template #actions>
+			<AssessmentAuthors doctype="LMS Assignment" :name="assignmentID" />
+		</template>
+	</PageHeader>
 	<div class="overflow-hidden h-[calc(100vh-3.2rem)]">
 		<Assignment
 			:key="`${assignmentID}-${submissionName}`"
@@ -15,6 +23,7 @@ import PageHeader from '@/components/Layouts/pages/PageHeader.vue'
 import { computed, inject, onMounted, ref } from 'vue'
 import { sessionStore } from '../stores/session'
 import Assignment from '@/components/Assignment.vue'
+import AssessmentAuthors from '@/components/Assessment/AssessmentAuthors.vue'
 import { provideStudentView } from '@/composables/useStudentView'
 import type { UserResource } from '@/composables/useStudentView'
 
@@ -50,10 +59,6 @@ const title = createResource<{ title: string }>({
 })
 
 onMounted(() => {
-	if (!user.data) {
-		window.location.href = '/login'
-	}
-
 	if (new URLSearchParams(window.location.search).get('fromLesson')) {
 		fromLesson.value = true
 	}

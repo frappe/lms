@@ -1,6 +1,7 @@
 /** What a submissions list declares. One config per assessment type. */
 
 import type { RouteLocationRaw } from 'vue-router'
+import type { AssessmentDoctype } from './api'
 import type { Breadcrumb, ListColumn, ListRow } from './listPage'
 
 // One filter control: `doctype` draws a Link, `options` a Select. `key` is both
@@ -16,7 +17,7 @@ export interface SubmissionFilterField {
 // The middle crumb, naming the assessment the list is scoped to.
 export interface SubmissionScopeCrumb {
 	filterKey: string
-	doctype: string
+	doctype: AssessmentDoctype
 	titleField: string
 	route: (value: string) => RouteLocationRaw
 }

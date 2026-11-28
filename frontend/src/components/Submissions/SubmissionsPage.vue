@@ -16,6 +16,12 @@
 		:empty-description="config.emptyDescription"
 		@load-more="submissions.next()"
 	>
+		<template v-if="config.scopeCrumb" #actions>
+			<AssessmentAuthors
+				:doctype="config.scopeCrumb.doctype"
+				:name="scopeValue || null"
+			/>
+		</template>
 		<template #filters>
 			<template v-for="field in config.filters" :key="field.key">
 				<Link
@@ -84,6 +90,7 @@ import { sessionStore } from '@/stores/session'
 import Link from '@/components/Controls/Link.vue'
 import Select from '@/components/Controls/Select.vue'
 import ListPage from '@/components/Layouts/pages/ListPage.vue'
+import AssessmentAuthors from '@/components/Assessment/AssessmentAuthors.vue'
 import type { Breadcrumb, ListViewOptions, SubmissionsConfig } from '@/types'
 
 const props = withDefaults(

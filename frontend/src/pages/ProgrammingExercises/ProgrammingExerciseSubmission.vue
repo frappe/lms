@@ -2,7 +2,14 @@
 	<PageHeader
 		v-if="!fromLesson && !preview && !embedded"
 		:breadcrumbs="breadcrumbs"
-	/>
+	>
+		<template #actions>
+			<AssessmentAuthors
+				doctype="LMS Programming Exercise"
+				:name="exerciseID"
+			/>
+		</template>
+	</PageHeader>
 	<div
 		v-if="falconError"
 		class="flex items-center justify-between p-3 text-sm bg-surface-amber-1 text-ink-amber-2"
@@ -61,6 +68,7 @@ import {
 import { computed, inject, onMounted, ref, shallowRef, watch } from 'vue'
 import { useDebounceFn } from '@vueuse/core'
 import PageHeader from '@/components/Layouts/pages/PageHeader.vue'
+import AssessmentAuthors from '@/components/Assessment/AssessmentAuthors.vue'
 import ExerciseCodeEditor from '@/components/ProgrammingExercises/ExerciseCodeEditor.vue'
 import ExerciseWorkspace from '@/components/ProgrammingExercises/ExerciseWorkspace.vue'
 import ExerciseWorkspaceSkeleton from '@/components/ProgrammingExercises/ExerciseWorkspaceSkeleton.vue'

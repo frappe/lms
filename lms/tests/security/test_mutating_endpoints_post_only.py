@@ -23,6 +23,7 @@ READ_ONLY_ENDPOINTS = (
 	"lms.lms.api.get_all_users",
 	"lms.lms.api.get_announcements",
 	"lms.lms.api.get_application_users",
+	"lms.lms.api.get_assessment_authors",
 	"lms.lms.api.get_badges",
 	"lms.lms.api.get_branding",
 	"lms.lms.api.get_bulk_enrollment_preview",

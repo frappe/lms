@@ -84,10 +84,14 @@ export interface BatchDetails extends Omit<LMSBatch, 'instructors'> {
 	instructors: string[]
 	student_count?: number
 	is_student?: boolean
+	/** False once the batch has started and takes no more enrolments. */
+	accept_enrollments?: boolean
 	batch_details_raw?: string
 	/** A listed instructor of this batch, or a Moderator: the server refuses
 	 * instructor-list changes from anyone else, a tagged evaluator included. */
 	can_change_instructors?: boolean
+	/** Set once a batch with late enrolment has started: the last day to enroll. */
+	enrollment_closes_on?: string
 }
 
 export interface CourseReviewInfo {
@@ -96,6 +100,13 @@ export interface CourseReviewInfo {
 	rating: number
 	review?: string
 	owner_details: UserInfo
+}
+
+/** The signed-in member's own review, as stored: `rating` is 0–1. */
+export interface OwnCourseReview {
+	name: string
+	rating: number
+	review?: string
 }
 
 export interface OutlineLesson {
@@ -160,6 +171,14 @@ export interface CourseFormContext {
 	relatedCourses: Ref<string[]>
 	meta: CourseFormMeta
 	markDirty: () => void
+	isDirty?: Ref<boolean>
+	/** Ring the empty required fields: Save is hovered, or a save had gaps. */
+	showRequired?: Ref<boolean>
+	isMissing?: (key: string) => boolean
+	/** Drops unsaved edits and reloads the stored course. */
+	discardChanges?: () => void
+	/** Set only before a new course's first save: the outline to create with it. */
+	draftChapters?: Ref<{ title: string; lessons: string[] }[]>
 }
 
 export interface EvaluatorCalendar {
@@ -183,4 +202,21 @@ export interface EvaluatorDetails {
 	timezone: string
 	evaluation_invites: boolean
 	can_configure_invites: boolean
+}
+
+export type AssessmentDoctype =
+	| 'LMS Quiz'
+	| 'LMS Assignment'
+	| 'LMS Programming Exercise'
+
+export interface AssessmentAuthor {
+	name: string
+	full_name: string
+	user_image: string | null
+}
+
+/** Response of lms.lms.api.get_assessment_authors. */
+export interface AssessmentAuthorsInfo {
+	authors: AssessmentAuthor[]
+	can_edit: boolean
 }
