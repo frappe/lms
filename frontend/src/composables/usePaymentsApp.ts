@@ -22,5 +22,5 @@ export function usePaymentsApp() {
 		return false
 	}
 
-	return { needsPaymentsApp, isPaymentsAppMissing, canSell }
+	return { needsPaymentsApp, canSell }
 }

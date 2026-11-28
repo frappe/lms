@@ -46,6 +46,17 @@ describe('InfoTip', () => {
 		expect(bubble()).toBeNull()
 	})
 
+	it('keeps a hint open when a mouse click follows the hover that opened it', async () => {
+		const button = mountTip().get('button')
+
+		await button.trigger('pointerdown', { pointerType: 'mouse' })
+		await button.trigger('click')
+		await button.trigger('pointerdown', { pointerType: 'mouse' })
+		await button.trigger('click')
+		await flushPromises()
+		expect(bubble()?.textContent?.trim()).toBe('Shown once you add classes')
+	})
+
 	it('opens on keyboard focus like a tooltip', async () => {
 		await mountTip().get('button').trigger('focus')
 		await flushPromises()

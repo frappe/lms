@@ -7,7 +7,8 @@
 					class="inline-grid size-6 place-items-center rounded-4 text-ink-gray-6 hover:text-ink-gray-9"
 					:aria-label="label"
 					:aria-describedby="hintId"
-					@click="open = !open"
+					@pointerdown="pointerType = $event.pointerType"
+					@click="onClick"
 				>
 					<span class="lucide-info size-4" aria-hidden="true" />
 				</button>
@@ -22,6 +23,7 @@
 					<div
 						class="rounded-4 bg-surface-gray-10 px-2 py-1 text-xs text-ink-base shadow-xl"
 						data-testid="info-tip-bubble"
+						aria-hidden="true"
 					>
 						{{ text }}
 					</div>
@@ -51,6 +53,14 @@ import { ref, useId } from 'vue'
 defineProps<{ label: string; text: string }>()
 
 const open = ref<boolean>(false)
+// Touch gets no hover, so a tap toggles; a mouse or keyboard press only opens,
+// since hover or focus has usually opened it already.
+const pointerType = ref<string>('')
 const hintId = useId()
 const portalTarget = usePortalTarget()
+
+function onClick(): void {
+	open.value = ['touch', 'pen'].includes(pointerType.value) ? !open.value : true
+	pointerType.value = ''
+}
 </script>
