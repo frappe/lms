@@ -13,7 +13,7 @@
 		<template #default>
 			<div
 				data-testid="profile-fields"
-				class="grid grid-cols-1 gap-6 text-base md:grid-cols-2 md:gap-10"
+				class="grid grid-cols-1 gap-6 text-base @2xl:grid-cols-2 md:gap-10"
 			>
 				<div class="space-y-4">
 					<Uploader

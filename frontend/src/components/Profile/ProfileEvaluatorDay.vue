@@ -1,6 +1,6 @@
 <template>
 	<div
-		class="grid grid-cols-1 items-start gap-x-4 gap-y-3 px-4 py-3.5 sm:grid-cols-[7rem_8rem_minmax(0,1fr)_auto]"
+		class="grid grid-cols-1 items-start gap-x-4 gap-y-3 px-4 py-3.5 @lg:grid-cols-[7rem_8rem_minmax(0,1fr)_auto]"
 	>
 		<span
 			class="flex h-7 items-center text-base font-medium"
@@ -16,7 +16,7 @@
 		</span>
 		<div
 			v-if="canEdit || ranges.length"
-			class="flex min-w-0 flex-col items-start gap-2 sm:col-start-3"
+			class="flex min-w-0 flex-col items-start gap-2 @lg:col-start-3"
 		>
 			<p
 				v-if="!canEdit"

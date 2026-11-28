@@ -18,13 +18,15 @@
 				</ShortcutTooltip>
 			</template>
 		</PageHeader>
-		<div class="">
-			<div class="grid grid-cols-1 gap-5 px-5 lg:grid-cols-[70%,30%]">
+		<span class="sr-only" role="status">{{ loadingAnnouncement }}</span>
+		<JobFormSkeleton v-if="isPending" with-status />
+		<div v-else class="">
+			<div class="grid grid-cols-1 gap-5 px-5 @4xl:grid-cols-[70%,30%]">
 				<div class="space-y-5 pt-5">
 					<h2 class="text-ink-gray-9 font-semibold">
 						{{ __('Job Details') }}
 					</h2>
-					<div class="grid grid-cols-1 gap-5 sm:grid-cols-3">
+					<div class="grid grid-cols-1 gap-5 @lg:grid-cols-3">
 						<FormControl
 							v-model="job.job_title"
 							:label="__('Title')"
@@ -149,6 +151,8 @@ import {
 import RichTextEditor from '@/components/RichTextEditor.vue'
 import { InputLabel } from 'frappe-ui/experimental'
 import { submitResource } from '@/utils/resource'
+import { useLoadingAnnouncement } from '@/utils/a11y'
+import JobFormSkeleton from '@/components/Skeletons/JobFormSkeleton.vue'
 
 const user = inject('$user')
 const router = useRouter()
@@ -229,6 +233,15 @@ watch(
 		})
 	},
 	{ deep: true }
+)
+
+const isPending = computed(
+	() => jobDetails?.get.loading && !jobDetails.doc && !jobDetails.get.error
+)
+
+const loadingAnnouncement = useLoadingAnnouncement(
+	() => Boolean(jobDetails?.get.loading),
+	() => (jobDetails?.doc ? __('Job loaded') : '')
 )
 
 const newJob = createResource({ url: 'frappe.client.insert' })

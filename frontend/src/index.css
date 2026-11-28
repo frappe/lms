@@ -28,10 +28,18 @@ svg.lucide {
 	scale: -1 1;
 }
 
-/* 48px, the desk header's height. The property is the single source so the
+/* 43px: Flow's panel header is 42px plus its 1px rule, so ours, rule
+   included, ends on the same line. The property is the single source so the
    scroll containers below clear exactly the header (WCAG 2.4.11). */
 :root {
-	--header-frame-h: 3rem;
+	--header-frame-h: calc(2.625rem + 1px);
+	/* Everything pinned at the top: the student view bar and a detail page's
+	   tab row, each measured while shown, around the page header. */
+	--student-view-bar-h: 0px;
+	--detail-tabs-h: 0px;
+	--sticky-stack-h: calc(
+		var(--student-view-bar-h) + var(--header-frame-h) + var(--detail-tabs-h)
+	);
 }
 
 .header-frame {
@@ -39,10 +47,19 @@ svg.lucide {
 	min-height: var(--header-frame-h);
 }
 
+/* A side card that pins just below the sticky header; a card taller than the
+   viewport scrolls on its own so its end stays reachable. */
+.sticky-below-header {
+	position: sticky;
+	top: calc(var(--sticky-stack-h) + 1.25rem);
+	max-height: calc(100dvh - var(--sticky-stack-h) - 2.5rem);
+	overflow-y: auto;
+}
+
 /* Keep focused elements from hiding under the sticky header. */
 main#scrollContainer,
 main#main-content {
-	scroll-padding-block-start: var(--header-frame-h);
+	scroll-padding-block-start: var(--sticky-stack-h);
 }
 
 /* frappe-ui swaps the dark-mode checkbox tick but ships no radio equivalent, so
@@ -195,4 +212,14 @@ main#main-content {
 		border-right-width: 0;
 		border-left-width: 1px;
 	}
+}
+
+/* With Flow docked, a dialog centres in the page beside the panel and leaves
+   the panel uncovered. A modal turns the body's pointer events off, which the
+   panel inherits; it stays usable beside the dialog (see flowBesideDialogs). */
+html[data-flow-docked] :is(.dialog-overlay, .dialog-scroll-container) {
+	right: var(--flow-dock-width);
+}
+html[data-flow-docked] flow-launcher {
+	pointer-events: auto;
 }

@@ -10,7 +10,8 @@
 		/>
 		<div
 			v-else
-			class="grid grid-cols-1 gap-5 lg:min-h-[30rem] lg:flex-1 lg:grid-cols-[minmax(0,1fr)_22rem] min-[1400px]:grid-cols-[minmax(0,1fr)_26rem] 2xl:grid-cols-[minmax(0,1fr)_30rem]"
+			class="grid shrink-0 grid-cols-1 gap-5 lg:min-h-[30rem]"
+			:class="gridClass"
 		>
 			<div class="flex min-w-0 flex-col gap-5 lg:min-h-0">
 				<DashboardKpiCards :kpis="kpis" :loading="!stats.data" />
@@ -63,7 +64,9 @@ import DashboardKpiCards from '@/components/Dashboard/DashboardKpiCards.vue'
 import DashboardEmptyState from '@/components/Dashboard/DashboardEmptyState.vue'
 import LoadError from '@/components/LoadError.vue'
 import { openFormRoute } from '@/composables/useFormRoute'
+import { useCourseFlowChanges } from '@/composables/useFlowChanges'
 import { syncDashboardState } from '@/composables/dashboard/useDashboard'
+import { useDashboardColumns } from '@/composables/dashboard/useDashboardColumns'
 import router from '@/router'
 import CourseActivityPanel from '@/pages/Courses/components/CourseActivityPanel.vue'
 import CourseFeedbackPanel from '@/pages/Courses/components/CourseFeedbackPanel.vue'
@@ -96,6 +99,8 @@ const props = defineProps<{
 }>()
 
 const courseName = props.course.data?.name ?? ''
+useCourseFlowChanges(props.course)
+const { gridClass } = useDashboardColumns()
 const stage = ref<StudentFilter | null>(null)
 const showProgressModal = ref<boolean>(false)
 const currentStudent = ref<CourseStudentRow | null>(null)

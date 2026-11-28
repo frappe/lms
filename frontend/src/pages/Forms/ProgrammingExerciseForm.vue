@@ -1,5 +1,5 @@
 <template>
-	<PageHeader :breadcrumbs="breadcrumbs">
+	<PageHeader :breadcrumbs="breadcrumbs" :loading="isExercisePending">
 		<template #actions>
 			<template v-if="canManageExercise">
 				<Badge v-if="!isNew && canEdit" :theme="saved ? 'green' : 'amber'">
@@ -36,14 +36,19 @@
 			</template>
 		</template>
 	</PageHeader>
+	<span class="sr-only" role="status">{{ loadingAnnouncement }}</span>
 	<div v-if="!canManageExercise" class="p-5 text-base text-ink-gray-6">
 		{{ __('You are not permitted to manage programming exercises.') }}
 	</div>
+	<ProgrammingExerciseFormSkeleton
+		v-else-if="isExercisePending"
+		data-testid="programming-exercise-form-skeleton"
+	/>
 	<fieldset
 		v-else
 		:disabled="!canEdit"
 		data-testid="programming-exercise-fields"
-		class="m-0 grid min-w-0 flex-1 grid-cols-1 border-0 p-0 lg:min-h-0 lg:grid-cols-[7fr,3fr]"
+		class="m-0 grid min-w-0 flex-1 grid-cols-1 border-0 p-0 lg:min-h-0 @4xl:grid-cols-[7fr,3fr]"
 	>
 		<div
 			class="flex min-h-0 flex-col gap-8 overflow-y-auto p-5"
@@ -163,6 +168,8 @@ import HeaderButton from '@/components/HeaderButton.vue'
 import PageHeader from '@/components/Layouts/pages/PageHeader.vue'
 import ProgrammingExerciseSubmission from '@/pages/ProgrammingExercises/ProgrammingExerciseSubmission.vue'
 import RichTextEditor from '@/components/RichTextEditor.vue'
+import ProgrammingExerciseFormSkeleton from '@/components/Skeletons/ProgrammingExerciseFormSkeleton.vue'
+import { useLoadingAnnouncement } from '@/utils/a11y'
 import { useAutosaveDoc } from '@/composables/useAutosaveDoc'
 import { useCanWrite } from '@/composables/useCanWrite'
 import {
@@ -290,10 +297,13 @@ const formPayload = () => ({
 // Built from the prop, not at setup: /new and /edit/:exerciseID share the
 // component, so the create flow patches this page rather than remounting it.
 const exerciseDoc = shallowRef<any>(undefined)
+// Off when the record was just created here: the form already holds it.
+const isOpeningRecord = ref(false)
 
 watch(
 	() => props.exerciseID,
-	(id) => {
+	(id, previousID) => {
+		isOpeningRecord.value = previousID !== 'new'
 		previewing.value = false
 		creating.value = false
 		committedTitle.value = ''
@@ -313,6 +323,19 @@ watch(
 		})
 	},
 	{ immediate: true }
+)
+
+const isExercisePending = computed(() =>
+	Boolean(
+		isOpeningRecord.value &&
+			exerciseDoc.value?.get.loading &&
+			!exerciseDoc.value.doc
+	)
+)
+
+const loadingAnnouncement = useLoadingAnnouncement(
+	() => isExercisePending.value,
+	() => (exerciseDoc.value?.doc ? __('Programming exercise loaded') : '')
 )
 
 // Seeding must not read as an edit. Compared by value, not a flag: the seed

@@ -13,7 +13,7 @@
 		<main
 			id="main-content"
 			tabindex="-1"
-			class="flex-1 flex flex-col h-full overflow-auto bg-surface-base focus:outline-none"
+			class="@container flex-1 flex flex-col h-full overflow-y-auto overflow-x-hidden bg-surface-base focus:outline-none"
 		>
 			<slot />
 		</main>

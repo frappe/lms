@@ -6,7 +6,7 @@
 				<h2 class="font-semibold text-md mb-3 text-ink-gray-9">
 					{{ __('Upcoming Live Classes') }}
 				</h2>
-				<div class="grid grid-cols-1 md:grid-cols-4 gap-5">
+				<div class="grid grid-cols-1 @2xl:grid-cols-4 gap-5">
 					<div
 						v-for="cls in myLiveClasses.data"
 						:key="cls.name"
@@ -28,7 +28,14 @@
 			</div>
 		</div>
 
-		<div v-if="myCourses.data?.length" class="mt-10">
+		<HomeSectionSkeleton
+			v-if="isPending(myCourses)"
+			kind="courses"
+			student
+			class="mt-10"
+			data-testid="courses-skeleton"
+		/>
+		<div v-else-if="myCourses.data?.length" class="mt-10">
 			<div class="flex items-center justify-between mb-3">
 				<h2 class="font-semibold text-md text-ink-gray-9">
 					{{
@@ -50,7 +57,7 @@
 					</span>
 				</router-link>
 			</div>
-			<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+			<div class="grid grid-cols-1 @lg:grid-cols-2 @4xl:grid-cols-3 gap-5">
 				<CourseCard
 					v-for="course in myCourses.data"
 					:key="course.name"
@@ -60,7 +67,14 @@
 			</div>
 		</div>
 
-		<div v-if="myBatches.data?.length" class="mt-10">
+		<HomeSectionSkeleton
+			v-if="isPending(myBatches)"
+			kind="batches"
+			student
+			class="mt-10"
+			data-testid="batches-skeleton"
+		/>
+		<div v-else-if="myBatches.data?.length" class="mt-10">
 			<div class="flex items-center justify-between mb-3">
 				<h2 class="font-semibold text-md text-ink-gray-9">
 					{{
@@ -82,7 +96,7 @@
 					</span>
 				</router-link>
 			</div>
-			<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+			<div class="grid grid-cols-1 @lg:grid-cols-2 @4xl:grid-cols-4 gap-5">
 				<BatchCard
 					v-for="batch in myBatches.data"
 					:key="batch.name"
@@ -94,12 +108,14 @@
 	</div>
 </template>
 <script setup lang="ts">
-import { inject } from 'vue'
+import { inject, watch } from 'vue'
 import { createResource } from 'frappe-ui'
 import CourseCard from '@/components/CourseCard.vue'
 import BatchCard from '@/pages/Batches/components/BatchCard.vue'
 import UpcomingEvaluations from '@/components/UpcomingEvaluations.vue'
 import LiveClassCard from '@/pages/Home/LiveClassCard.vue'
+import HomeSectionSkeleton from '@/components/Skeletons/HomeSectionSkeleton.vue'
+import { isPending } from '@/pages/Home/pending'
 
 const user = inject<any>('$user')
 
@@ -116,4 +132,12 @@ const myBatches = createResource({
 	url: 'lms.lms.api.get_my_batches',
 	auto: true,
 })
+
+const emit = defineEmits<{ pending: [boolean] }>()
+
+watch(
+	() => isPending(myCourses) || isPending(myBatches),
+	(pending) => emit('pending', pending),
+	{ immediate: true }
+)
 </script>

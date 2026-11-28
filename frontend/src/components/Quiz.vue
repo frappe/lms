@@ -7,7 +7,7 @@
 		<AssessmentCardHeader icon="lucide-circle-help" :title="__('Quiz')" />
 		<div class="space-y-4 p-3.5">
 			<Skeleton class="h-5 w-1/3 rounded-4" />
-			<div class="grid grid-cols-2 gap-2 sm:grid-cols-4">
+			<div class="grid grid-cols-2 gap-2 @lg:grid-cols-4">
 				<Skeleton v-for="i in 4" :key="i" class="h-14 rounded-6" />
 			</div>
 			<div class="flex justify-end">
@@ -193,7 +193,7 @@
 							!attemptsExhausted &&
 							!scheduleBlocked
 						"
-						class="-mx-3.5 -mt-3.5 grid border-b border-outline-gray-1 md:grid-cols-2 md:divide-x md:divide-outline-gray-1 rtl:divide-x-reverse"
+						class="-mx-3.5 -mt-3.5 grid border-b border-outline-gray-1 @2xl:grid-cols-2 @2xl:divide-x @2xl:divide-outline-gray-1 rtl:divide-x-reverse"
 					>
 						<!-- One band split by a divider, not two boxed cards: the quiz card
 						     is the only box. It is the first thing in this section whenever it
@@ -875,6 +875,7 @@ import { submitResource } from '@/utils/resource'
 import ResponsiveListView from '@/components/ResponsiveListView.vue'
 import RichTextEditor from '@/components/RichTextEditor.vue'
 import router from '@/router'
+import { studentViewMode } from '@/composables/useStudentView'
 import QuizActivityLog from '@/components/Quiz/QuizActivityLog.vue'
 import ProctoringMonitor from '@/components/ProctoringMonitor.vue'
 import EmptyStateLayout from '@/components/Layouts/EmptyStateLayout.vue'
@@ -1085,7 +1086,13 @@ const summaryHeading = ref<HTMLElement | null>(null)
 const quiz = createResource<QuizDetails>({
 	url: 'lms.lms.utils.get_quiz_with_questions',
 	makeParams() {
-		return { quiz: props.quizName }
+		return {
+			quiz: props.quizName,
+			// Lesson blocks mount outside the page's provide(), so read the URL.
+			student_view: studentViewMode(
+				router.currentRoute.value.query.studentView
+			),
+		}
 	},
 	// Keep this resource instance-local: its callbacks update component-local
 	// question and timer state on every mount.

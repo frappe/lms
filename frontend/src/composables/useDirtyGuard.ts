@@ -30,6 +30,10 @@ export function useDirtyGuard(isDirty: DirtyCheck, discard?: () => void) {
 	})
 }
 
+export function hasDirtyForms(): boolean {
+	return [...registered].some((entry) => entry.isDirty())
+}
+
 // Install the guard on the router (Settings.vue does this once). Must abort
 // (return false), never navigate: navigating from a guard cancels the pop, and vue-router won't restore the URL.
 export function installDirtyGuard(

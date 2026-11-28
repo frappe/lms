@@ -1,4 +1,5 @@
 import frappeUIPreset, { content } from 'frappe-ui/tailwind'
+import containerQueries from '@tailwindcss/container-queries'
 import { safeAreaPlugin } from './tailwind/safeArea.js'
 
 // App code imports `@framework/ui` by name, through the package's `exports`.
@@ -37,7 +38,16 @@ export default {
 				'2xl': '1600px',
 				'3xl': '1920px',
 			},
+			// Page layouts size to <main>, not the window: Flow's docked panel narrows the
+			// page without changing the window width.
+			containers: {
+				'8xl': '96rem',
+			},
+			// Flow's slide, so what makes room for its panel moves with it.
+			transitionTimingFunction: {
+				flow: 'cubic-bezier(0.2, 0, 0, 1)',
+			},
 		},
 	},
-	plugins: [safeAreaPlugin],
+	plugins: [containerQueries, safeAreaPlugin],
 }

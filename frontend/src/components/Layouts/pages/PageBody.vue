@@ -1,10 +1,12 @@
 <template>
 	<div class="flex flex-1 flex-col sm:min-h-0">
-		<div class="flex flex-1 flex-col sm:min-h-0 sm:overflow-y-auto">
+		<div
+			class="flex flex-1 flex-col sm:min-h-0 sm:overflow-y-auto sm:overflow-x-hidden"
+		>
 			<div
 				v-if="hasNameStrip"
 				data-testid="page-header-block"
-				class="mb-5 flex shrink-0 flex-col justify-between gap-4 border-b px-5 pb-4 pt-5 sm:border-b-0 sm:pb-0 md:flex-row md:items-center"
+				class="mb-5 flex shrink-0 flex-col justify-between gap-4 border-b px-5 pb-4 pt-5 sm:border-b-0 sm:pb-0 @4xl:flex-row @4xl:items-center"
 			>
 				<div class="flex min-w-0 items-center justify-between gap-3">
 					<h1 v-if="hasName" class="text-lg-semibold min-w-0 text-ink-gray-9">

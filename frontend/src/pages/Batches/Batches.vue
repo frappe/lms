@@ -1,7 +1,6 @@
 <template>
 	<ListPage
 		:breadcrumbs="breadcrumbs"
-		:title="pageTitle"
 		:rows="batches.data || []"
 		:loading="batches.list.loading"
 		:total-count="batchCount"
@@ -12,56 +11,126 @@
 		:empty-title="emptyState?.title"
 		:empty-description="emptyState?.description"
 		:search-query="title"
-		:filtered="Boolean(currentCategory || certification)"
+		:filtered="Boolean(currentCategory || activeFilterCount)"
 		@load-more="batches.next()"
 		@clear-filters="clearFilters"
 	>
 		<template #actions>
 			<div v-if="canCreateBatch()" class="flex items-center gap-2">
-				<Button variant="subtle" @click="openBatchImport">
+				<Button variant="outline" @click="openBatchImport">
+					<template #prefix>
+						<span class="lucide-upload size-4" />
+					</template>
 					{{ __('Import') }}
 				</Button>
 				<Button variant="solid" @click="openNewBatch">
 					<template #prefix>
 						<span class="lucide-plus size-4" />
 					</template>
-					{{ __('New Batch') }}
+					{{ __('New batch') }}
 				</Button>
 			</div>
 		</template>
 
-		<template #filters>
-			<TabButtons
-				v-if="user.data"
-				:options="batchTabs"
-				v-model="currentTab"
-				class="!w-fit shrink-0"
-			/>
-			<FormControl
-				v-model="title"
-				:placeholder="__('Search')"
-				:aria-label="__('Search')"
-				type="text"
-			>
-				<template #prefix>
-					<span class="lucide-search size-4 text-ink-gray-5" />
-				</template>
-			</FormControl>
-			<ClearableCombobox
-				v-if="categories.length"
-				v-model="currentCategory"
-				:options="categories.filter((c) => c.value)"
-				:placeholder="__('Category')"
-				:ariaLabel="__('Category')"
-				@update:modelValue="updateBatches()"
-			/>
-			<ToggleFilter
-				:modelValue="certification"
-				:label="__('Certification')"
-				:mobileLabel="__('Certification available')"
-				:tooltip="__('Only show batches that offer a certificate')"
-				@update:modelValue="setCertification"
-			/>
+		<template #toolbar>
+			<div class="space-y-3 px-5 pb-5 pt-4">
+				<!-- Below @2xl the status tabs take a row of their own and scroll inside it. -->
+				<div class="flex flex-wrap items-center gap-2">
+					<FormControl
+						v-model="title"
+						type="text"
+						class="min-w-0 flex-1 @2xl:max-w-sm"
+						:placeholder="__('Search batches')"
+						:aria-label="__('Search batches')"
+					>
+						<template #prefix>
+							<span class="lucide-search size-4 text-ink-gray-5" />
+						</template>
+					</FormControl>
+					<span class="hidden flex-1 @2xl:block" />
+					<div
+						v-if="user.data"
+						class="order-last w-full overflow-x-auto @2xl:order-none @2xl:w-auto"
+					>
+						<TabButtons
+							v-model="currentTab"
+							:options="batchTabs"
+							class="!w-fit shrink-0"
+							data-testid="status-tabs"
+						/>
+					</div>
+					<Button
+						:variant="showFilters ? 'outline' : 'subtle'"
+						:aria-expanded="showFilters"
+						data-testid="filters-button"
+						@click="showFilters = !showFilters"
+					>
+						<template #prefix>
+							<span class="lucide-list-filter size-4" />
+						</template>
+						{{ __('Filters') }}
+						<template v-if="activeFilterCount" #suffix>
+							<Badge :label="String(activeFilterCount)" />
+						</template>
+					</Button>
+				</div>
+
+				<div v-if="showFilters" class="flex flex-wrap items-center gap-2">
+					<FilterSelect
+						v-model="price"
+						:label="__('Price')"
+						icon="lucide-tag"
+						:options="priceOptions"
+					/>
+					<FilterSelect
+						v-model="medium"
+						:label="__('Mode')"
+						icon="lucide-map-pin"
+						:options="mediumOptions"
+					/>
+					<FilterSelect
+						v-model="certification"
+						data-testid="certification-chip"
+						:label="__('Certification')"
+						icon="lucide-circle-check"
+						:empty-value="false"
+					/>
+					<Button
+						v-if="activeFilterCount"
+						variant="ghost"
+						@click="clearFilters"
+					>
+						{{ __('Clear filters') }}
+					</Button>
+				</div>
+				<ChipsSkeleton
+					v-if="batches.list.loading && !batches.data"
+					data-testid="category-skeleton"
+				/>
+				<div
+					v-else-if="categoryOptions.length"
+					class="flex flex-wrap gap-2"
+					role="group"
+					:aria-label="__('Category')"
+				>
+					<button
+						v-for="option in [allCategories, ...categoryOptions]"
+						:key="String(option.value)"
+						type="button"
+						class="rounded-4 border px-2.5 py-1 text-p-sm outline-none focus-visible:ring-2 focus-visible:ring-outline-gray-3"
+						:class="
+							currentCategory === option.value
+								? 'border-transparent bg-surface-gray-2 text-ink-gray-9'
+								: 'border-outline-gray-2 text-ink-gray-7 hover:border-outline-gray-3'
+						"
+						:aria-pressed="currentCategory === option.value"
+						:data-testid="'category-' + option.label"
+						@click="currentCategory = option.value"
+					>
+						{{ option.label }}
+					</button>
+				</div>
+			</div>
 		</template>
 
 		<template v-if="emptyState" #empty-actions>
@@ -72,6 +141,10 @@
 				docs="https://docs.frappe.io/learning/create-a-batch"
 				@create="newBatchFromEmptyState"
 			/>
+		</template>
+
+		<template #card-skeleton>
+			<BatchCardSkeleton />
 		</template>
 
 		<template #card="{ row }">
@@ -86,6 +159,7 @@
 </template>
 <script setup>
 import {
+	Badge,
 	Button,
 	createListResource,
 	createResource,
@@ -93,15 +167,16 @@ import {
 	TabButtons,
 	usePageMeta,
 } from 'frappe-ui'
-import ClearableCombobox from '@/components/Controls/ClearableCombobox.vue'
-import ToggleFilter from '@/components/Controls/ToggleFilter.vue'
+import FilterSelect from '@/components/Controls/FilterSelect.vue'
 import { computed, inject, onMounted, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { sessionStore } from '@/stores/session'
 import BatchCard from '@/pages/Batches/components/BatchCard.vue'
+import BatchCardSkeleton from '@/components/Skeletons/BatchCardSkeleton.vue'
+import ChipsSkeleton from '@/components/Skeletons/ChipsSkeleton.vue'
 import ListPage from '@/components/Layouts/pages/ListPage.vue'
-import { openFormRoute } from '@/composables/useFormRoute'
 import { setFormSource } from '@/composables/formTracking'
+import { useFlowChanges } from '@/composables/useFlowChanges'
 import EmptyStateActions from '@/components/EmptyStateActions.vue'
 
 const user = inject('$user')
@@ -110,9 +185,23 @@ const { brand } = sessionStore()
 const start = ref(0)
 const categories = ref([])
 const currentCategory = ref(null)
+const allCategories = { label: __('All'), value: null }
 const title = ref('')
 const certification = ref(false)
+const price = ref('')
+const medium = ref('')
+const showFilters = ref(false)
 const filters = ref({})
+const priceOptions = [
+	{ label: __('Any price'), value: '' },
+	{ label: __('Free'), value: 'free' },
+	{ label: __('Paid'), value: 'paid' },
+]
+const mediumOptions = [
+	{ label: __('Any mode'), value: '' },
+	{ label: __('Online'), value: 'Online' },
+	{ label: __('In person'), value: 'Offline' },
+]
 const isAdmin = computed(() =>
 	['is_moderator', 'is_instructor', 'is_evaluator'].some(
 		(role) => user.data?.[role]
@@ -121,7 +210,7 @@ const isAdmin = computed(() =>
 // A signed-in learner most often comes back for a batch they are in, and a
 // batch that has started is no longer under Upcoming.
 const currentTab = ref(
-	isAdmin.value ? 'active' : user.data ? 'enrolled' : 'upcoming'
+	isAdmin.value ? 'upcoming' : user.data ? 'enrolled' : 'upcoming'
 )
 const orderBy = ref('start_date')
 const readOnlyMode = window.read_only_mode
@@ -129,9 +218,12 @@ const router = useRouter()
 
 onMounted(() => {
 	setFiltersFromQuery()
+	showFilters.value = Boolean(activeFilterCount.value)
 	updateBatches()
 	// TextInput emits on input and change; watched after query hydration to avoid a refetch.
-	watch(title, () => updateBatches())
+	watch([title, currentCategory, certification, price, medium], () =>
+		updateBatches()
+	)
 	categories.value = [
 		{
 			label: '',
@@ -146,7 +238,21 @@ const setFiltersFromQuery = () => {
 	currentCategory.value = queries.get('category') || null
 	// `|| false` would keep the raw string, so ?certification=false read as on.
 	certification.value = queries.get('certification') === 'true'
+	price.value = ['free', 'paid'].includes(queries.get('price'))
+		? queries.get('price')
+		: ''
+	medium.value = ['Online', 'Offline'].includes(queries.get('mode'))
+		? queries.get('mode')
+		: ''
 }
+
+const activeFilterCount = computed(
+	() => [price.value, medium.value, certification.value].filter(Boolean).length
+)
+
+const categoryOptions = computed(() =>
+	categories.value.filter((category) => category.value)
+)
 
 const batches = createListResource({
 	doctype: 'LMS Batch',
@@ -165,11 +271,6 @@ const pageLength = computed({
 		batches.reload()
 	},
 })
-
-const setCertification = (value) => {
-	certification.value = value
-	updateBatches()
-}
 
 const setCategories = (data) => {
 	let allCategories = data.map((batch) => batch.category)
@@ -194,12 +295,21 @@ const batchCountResource = createResource({
 
 const batchCount = computed(() => batchCountResource.data ?? null)
 
+useFlowChanges({
+	doctypes: ['LMS Batch'],
+	reload: () => {
+		batches.reload()
+		batchCountResource.reload()
+	},
+})
+
+// The watcher refetches once for however many of these change together.
 const clearFilters = () => {
 	currentCategory.value = null
 	certification.value = false
-	// The title watcher reloads on its own; reloading here as well fetches twice.
-	if (title.value) title.value = ''
-	else updateBatches()
+	price.value = ''
+	medium.value = ''
+	title.value = ''
 }
 
 const updateBatches = () => {
@@ -221,6 +331,7 @@ const updateFilters = () => {
 	updateCategoryFilter()
 	updateTitleFilter()
 	updateCertificationFilter()
+	updatePriceAndModeFilters()
 	updateTabFilter()
 	updateStudentFilter()
 	setQueryParams()
@@ -250,6 +361,35 @@ const updateCertificationFilter = () => {
 	}
 }
 
+const updatePriceAndModeFilters = () => {
+	if (price.value) filters.value['paid_batch'] = Number(price.value === 'paid')
+	else delete filters.value['paid_batch']
+	if (medium.value) filters.value['medium'] = medium.value
+	else delete filters.value['medium']
+}
+
+// Upcoming, In progress and Completed are settled to the day here; the server
+// settles the time of day from these same filter shapes.
+const staffTabFilters = () => {
+	const today = dayjs().format('YYYY-MM-DD')
+	return {
+		upcoming: {
+			filters: { start_date: ['>=', today], published: 1 },
+			orderBy: 'start_date',
+		},
+		active: {
+			filters: {
+				start_date: ['<=', today],
+				end_date: ['>=', today],
+				published: 1,
+			},
+			orderBy: 'start_date',
+		},
+		completed: { filters: { end_date: ['<', today] } },
+		unpublished: { filters: { published: 0 } },
+	}
+}
+
 const updateTabFilter = () => {
 	orderBy.value = 'start_date'
 	if (!user.data) {
@@ -266,20 +406,9 @@ const updateTabFilter = () => {
 		delete filters.value['start_date']
 		delete filters.value['end_date']
 		delete filters.value['published']
-		orderBy.value = 'start_date desc'
-		if (currentTab.value == 'active') {
-			filters.value['end_date'] = ['>=', dayjs().format('YYYY-MM-DD')]
-			filters.value['published'] = 1
-			orderBy.value = 'start_date'
-		} else if (currentTab.value == 'upcoming') {
-			filters.value['start_date'] = ['>=', dayjs().format('YYYY-MM-DD')]
-			filters.value['published'] = 1
-			orderBy.value = 'start_date'
-		} else if (currentTab.value == 'archived') {
-			filters.value['start_date'] = ['<=', dayjs().format('YYYY-MM-DD')]
-		} else if (currentTab.value == 'unpublished') {
-			filters.value['published'] = 0
-		}
+		const tab = staffTabFilters()[currentTab.value]
+		Object.assign(filters.value, tab?.filters)
+		orderBy.value = tab?.orderBy || 'start_date desc'
 	} else {
 		delete filters.value['enrolled']
 	}
@@ -302,6 +431,8 @@ const setQueryParams = () => {
 		title: title.value,
 		category: currentCategory.value,
 		certification: certification.value,
+		price: price.value,
+		mode: medium.value,
 	}
 
 	Object.keys(filterKeys).forEach((key) => {
@@ -339,22 +470,10 @@ watch(currentTab, () => {
 const batchTabs = computed(() => {
 	if (isAdmin.value) {
 		return [
-			{ label: __('Active'), title: __('Active Batches'), value: 'active' },
-			{
-				label: __('Upcoming'),
-				title: __('Upcoming Batches'),
-				value: 'upcoming',
-			},
-			{
-				label: __('Archived'),
-				title: __('Archived Batches'),
-				value: 'archived',
-			},
-			{
-				label: __('Unpublished'),
-				title: __('Unpublished Batches'),
-				value: 'unpublished',
-			},
+			{ label: __('Upcoming'), value: 'upcoming' },
+			{ label: __('In progress'), value: 'active' },
+			{ label: __('Completed'), value: 'completed' },
+			{ label: __('Drafts'), value: 'unpublished' },
 		]
 	}
 	const tabs = [
@@ -370,16 +489,11 @@ const batchTabs = computed(() => {
 	return tabs
 })
 
-// Roles can land after setup, leaving staff on `all`, which they have no tab for.
+// Roles can land after setup, leaving staff on `enrolled`, which they have no tab for.
 watch(batchTabs, (tabs) => {
 	if (!tabs.some((tab) => tab.value === currentTab.value)) {
 		currentTab.value = tabs[0].value
 	}
-})
-
-const pageTitle = computed(() => {
-	const tab = batchTabs.value.find((t) => t.value === currentTab.value)
-	return tab?.title
 })
 
 const canCreateBatch = () => {
@@ -387,11 +501,9 @@ const canCreateBatch = () => {
 	return Boolean(user.data?.is_moderator || user.data?.is_evaluator)
 }
 
-// openFormRoute, not a bare router.push: it stamps the history entry so the
-// form's own close() pops it instead of replacing.
 const openNewBatch = () => {
 	setFormSource('header_button')
-	openFormRoute(router, { name: 'NewBatch' })
+	router.push({ name: 'NewBatch' })
 }
 // A new site's batch tabs are all empty, and the learner wording ("fresh
 // learning experiences are on the way") tells the person who would create
@@ -413,11 +525,11 @@ const emptyState = computed(() => {
 					'Published batches that start later show up here, so you can open sign-ups early.'
 				),
 			}
-		case 'archived':
+		case 'completed':
 			return {
-				title: __('No archived batches'),
+				title: __('No completed batches'),
 				description: __(
-					'Batches move here once they start, so you can look back at each group.'
+					'Batches move here once they end, so you can look back at each group.'
 				),
 			}
 		case 'unpublished':
@@ -434,7 +546,7 @@ const emptyState = computed(() => {
 
 function newBatchFromEmptyState() {
 	setFormSource('empty_state')
-	openFormRoute(router, { name: 'NewBatch' })
+	router.push({ name: 'NewBatch' })
 }
 
 const openBatchImport = () =>

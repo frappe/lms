@@ -7,9 +7,30 @@
 		:message="refusal"
 		@close="close"
 	>
+		<template #loading>
+			<span class="sr-only" role="status">{{ loadingAnnouncement }}</span>
+			<div
+				data-testid="live-class-skeleton"
+				class="flex flex-col gap-4 motion-safe:animate-pulse"
+				aria-hidden="true"
+			>
+				<div class="grid grid-cols-1 @2xl:grid-cols-2 gap-4">
+					<div class="space-y-4">
+						<FieldSkeleton v-for="i in 3" :key="i" />
+					</div>
+					<div class="space-y-4">
+						<FieldSkeleton v-for="i in 3" :key="i" />
+					</div>
+				</div>
+				<div class="space-y-1.5">
+					<SkeletonText text="text-sm leading-tighter" width="w-24" />
+					<div class="h-[72.5px] rounded-4 bg-surface-gray-2" />
+				</div>
+			</div>
+		</template>
 		<template #default>
 			<div data-testid="live-class-fields" class="flex flex-col gap-4">
-				<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+				<div class="grid grid-cols-1 @2xl:grid-cols-2 gap-4">
 					<div class="space-y-4">
 						<FormControl
 							type="text"
@@ -113,6 +134,9 @@ import { getTimezones, getUserTimezone, openSettings } from '@/utils/'
 import { canManageGoogleIntegrations } from '@/components/Settings/GoogleApi/googleApi'
 import { canManageGoogleMeet } from '@/components/Settings/GoogleMeet/googleMeet'
 import FormShell from '@/components/FormShell.vue'
+import SkeletonText from '@/components/Skeletons/SkeletonText.vue'
+import FieldSkeleton from '@/components/Skeletons/FieldSkeleton.vue'
+import { useLoadingAnnouncement } from '@/utils/a11y'
 import HeaderButton from '@/components/HeaderButton.vue'
 import {
 	batchRouteLocation,
@@ -149,6 +173,11 @@ const { close } = useFormRoute(
 const batch = useBatchDetails(() => props.batchName)
 
 const loadingBatch = computed(() => !batch.data && batch.loading)
+
+const loadingAnnouncement = useLoadingAnnouncement(
+	() => loadingBatch.value,
+	() => ''
+)
 
 const conferencingProvider = computed(
 	() => batch.data?.conferencing_provider || null
