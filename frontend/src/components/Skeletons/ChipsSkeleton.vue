@@ -1,7 +1,7 @@
 <template>
 	<div
 		class="flex gap-2 motion-safe:animate-pulse"
-		:class="scroll ? 'overflow-hidden pb-2' : 'overflow-hidden sm:flex-wrap'"
+		:class="scroll ? 'overflow-hidden pb-2' : 'overflow-hidden'"
 		aria-hidden="true"
 	>
 		<div
@@ -18,7 +18,7 @@
 import { computed } from 'vue'
 
 /** Category chips: the real chips' box, padding and type, without the words.
- * Like CategoryChips, one row on a phone and wrapped rows from sm up. */
+ * One row, like CategoryChips. */
 const props = withDefaults(
 	defineProps<{
 		count?: number

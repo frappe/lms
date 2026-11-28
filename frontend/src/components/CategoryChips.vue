@@ -1,7 +1,7 @@
 <template>
-	<!-- One row that scrolls inside itself on a phone, wrapped rows from sm up. -->
+	<!-- One row that scrolls sideways inside itself, with no scrollbar drawn. -->
 	<div
-		class="flex gap-2 overflow-x-auto [scrollbar-width:none] sm:flex-wrap sm:overflow-visible"
+		class="flex gap-2 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
 		role="group"
 		:aria-label="__('Category')"
 	>
