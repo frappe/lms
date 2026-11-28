@@ -1,274 +1,121 @@
 <template>
-	<div class="">
-		<CollapsibleSection :label="__('Visibility')">
-			<div class="flex flex-col gap-y-4">
-				<BooleanSwitch
-					size="sm"
-					v-model="doc.upcoming"
-					:label="__('Upcoming')"
-					:description="__('Not yet open for enrollment.')"
-					@update:modelValue="markDirty()"
-				/>
-				<BooleanSwitch
-					size="sm"
-					v-model="doc.featured"
-					:label="__('Featured')"
-					:description="__('Highlight on the homepage.')"
-					@update:modelValue="markDirty()"
-				/>
-				<BooleanSwitch
-					size="sm"
-					v-model="selfEnrollment"
-					:label="__('Self enrollment')"
-					:description="__('Let users enroll themselves.')"
-				/>
-				<BooleanSwitch
-					size="sm"
-					v-model="doc.enforce_lesson_completion"
-					:label="__('Enforce Lesson Completion')"
-					:description="
-						__('Students must complete each lesson before the next one opens.')
-					"
-					@update:modelValue="markDirty()"
-				/>
-			</div>
-		</CollapsibleSection>
+	<SettingsGroup :title="__('Access')" icon="lucide-door-open">
+		<SettingSwitch
+			v-for="row in accessRows"
+			:key="row.label"
+			:label="row.label"
+			:summary="row.summary"
+			:modelValue="row.value"
+			@update:modelValue="row.set"
+		/>
+	</SettingsGroup>
 
-		<CollapsibleSection :label="__('Pricing and certification')">
-			<div class="flex flex-col gap-y-4">
-				<BooleanSwitch
-					size="sm"
-					:modelValue="Boolean(doc?.paid_course)"
-					:label="__('Paid course')"
-					:description="__('Charge learners to enroll in this course.')"
-					@update:modelValue="setPaidCourse"
-				/>
-
-				<template v-if="doc?.paid_course">
-					<Link
-						v-model="doc.currency"
-						doctype="Currency"
-						query="lms.lms.api.search_currencies"
-						:label="__('Currency')"
-						:filters="{ enabled: 1 }"
-						:placeholder="__('Select currency')"
-						variant="outline"
-						:required="true"
-						@update:modelValue="markDirty()"
-					/>
-					<FormControl
-						v-model="doc.course_price"
-						type="number"
-						min="0"
-						:label="__('Course price')"
-						variant="outline"
-						:required="true"
-						@input="markDirty()"
-					/>
-					<div class="border-t -mx-5" />
-					<BooleanSwitch
-						size="sm"
-						v-model="doc.enable_certification"
-						:label="__('Completion certificate')"
-						:description="
-							__('Issue a free certificate when learners complete the course.')
-						"
-						@update:modelValue="markDirty()"
-					/>
-				</template>
-
-				<template v-else>
-					<div class="border-t -mx-5" />
-					<BooleanSwitch
-						size="sm"
-						v-model="doc.enable_certification"
-						:label="__('Completion certificate')"
-						:description="
-							__('Issue a free certificate when learners complete the course.')
-						"
-						@update:modelValue="markDirty()"
-					/>
-					<BooleanSwitch
-						size="sm"
-						:modelValue="doc.paid_certificate"
-						:label="__('Paid certificate')"
-						:description="
-							__(
-								'Sell an evaluator-graded certificate alongside this free course.'
-							)
-						"
-						@update:modelValue="setPaidCertificate"
-					/>
-					<template v-if="doc.paid_certificate">
-						<Link
-							v-model="doc.currency"
-							doctype="Currency"
-							query="lms.lms.api.search_currencies"
-							:label="__('Currency')"
-							:filters="{ enabled: 1 }"
-							:placeholder="__('Select currency')"
-							variant="outline"
-							:required="true"
-							@update:modelValue="markDirty()"
-						/>
-						<FormControl
-							v-model="doc.course_price"
-							type="number"
-							min="0"
-							:label="__('Certificate price')"
-							variant="outline"
-							:required="true"
-							@input="markDirty()"
-						/>
-						<Link
-							ref="evaluatorLinkRef"
-							v-model="doc.evaluator"
-							doctype="Course Evaluator"
-							:label="__('Evaluator')"
-							:placeholder="__('Select evaluator')"
-							variant="outline"
-							:onCreate="openEvaluatorModal"
-							@update:modelValue="markDirty()"
-						/>
-						<FormControl
-							v-model="doc.timezone"
-							type="combobox"
-							:label="__('Timezone')"
-							:options="timezoneOptions"
-							:placeholder="__('Select timezone')"
-							variant="outline"
-							@update:modelValue="markDirty()"
-						/>
-					</template>
-				</template>
-
-				<div
-					v-if="doc?.enable_certification || doc?.paid_certificate"
-					class="flex flex-wrap items-center gap-1 text-p-sm text-ink-gray-6"
-				>
-					<span>
-						{{
-							__(
-								'Certificates render from a Print Format. Build or customize templates from the desk.'
-							)
-						}}
-					</span>
-					<button
-						type="button"
-						class="font-medium text-ink-gray-8 underline"
-						@click="openPrintFormats"
-					>
-						{{ __('Manage templates') }}
-					</button>
-				</div>
-			</div>
-		</CollapsibleSection>
-	</div>
+	<SettingsGroup :title="__('Evaluation and certificate')" icon="lucide-award">
+		<template v-if="hasCertificate">
+			<SettingAction
+				:label="__('Certificate template')"
+				:summary="__('Certificates render from a Print Format.')"
+				:action="__('Manage templates')"
+				@click="openPrintFormats"
+			/>
+			<SettingLink
+				v-if="doc.paid_certificate"
+				v-model="doc.evaluator"
+				:label="__('Evaluator')"
+				:summary="__('Learners book a session with them after finishing.')"
+				doctype="Course Evaluator"
+				:placeholder="__('Select evaluator')"
+				:onCreate="openEvaluatorModal"
+				@update:modelValue="markDirty()"
+			/>
+			<SettingField
+				v-if="doc.paid_certificate"
+				v-model="doc.timezone"
+				type="combobox"
+				:label="__('Timezone')"
+				:summary="__('Evaluation slots are shown in this timezone.')"
+				:options="timezoneOptions"
+				:placeholder="__('Select timezone')"
+				@update:modelValue="markDirty()"
+			/>
+		</template>
+		<SettingRow
+			v-else
+			:label="__('No certificate')"
+			:summary="__('Turn on a certificate on the Overview page first.')"
+		/>
+	</SettingsGroup>
 
 	<NewMemberModal
 		v-model="showMemberModal"
 		:defaultRoles="['batch_evaluator']"
 		@created="onEvaluatorCreated"
 	/>
-
-	<Dialog
-		v-model:open="showPaymentsAppModal"
-		:title="__('Payments app required')"
-		:actions="[
-			{
-				label: __('Get the Payments app'),
-				variant: 'solid',
-				onClick: ({ close }: any) => {
-					openPaymentsApp()
-					close()
-				},
-			},
-		]"
-	>
-		<template #default>
-			<p class="text-p-base text-ink-gray-7">
-				{{
-					__(
-						'Selling a paid course or certificate needs the Payments app. Install it from the Frappe Marketplace, then turn on pricing here.'
-					)
-				}}
-			</p>
-		</template>
-	</Dialog>
 </template>
 
 <script setup lang="ts">
-import { Dialog, FormControl, createResource } from 'frappe-ui'
-import BooleanSwitch from '@/components/Controls/BooleanSwitch.vue'
+import { createResource } from 'frappe-ui'
 import { computed, inject, ref } from 'vue'
-import CollapsibleSection from '@/components/CollapsibleSection.vue'
-import Link from '@/components/Controls/Link.vue'
+import SettingAction from '@/components/InlineEdit/SettingAction.vue'
+import SettingField from '@/components/InlineEdit/SettingField.vue'
+import SettingLink from '@/components/InlineEdit/SettingLink.vue'
+import SettingRow from '@/components/InlineEdit/SettingRow.vue'
+import SettingSwitch from '@/components/InlineEdit/SettingSwitch.vue'
+import SettingsGroup from '@/components/InlineEdit/SettingsGroup.vue'
 import NewMemberModal from '@/components/Modals/NewMemberModal.vue'
-import { useSettings } from '@/stores/settings'
 import type { CourseFormContext, Resource } from '@/types'
+import type { LMSCourse } from '@/types/lms/LMSCourse'
 import { openExternal } from '@/utils/openExternal'
-import { hasCloudSettings } from '@/composables/cloudSettings'
-import { openSettings } from '@/utils'
 
+/** The Access and certificate sections of the Settings tab. */
 const { resource, markDirty } = inject<CourseFormContext>('courseForm')!
-const dayjs = inject('$dayjs') as typeof import('dayjs')
 
-const settingsStore = useSettings()
-// Only block when we positively know the app is missing; if settings haven't
-// loaded yet, let it through (the backend validation is the hard guard).
-const paymentsAppMissing = computed<boolean>(
-	() =>
-		!!settingsStore.settings.data &&
-		!settingsStore.settings.data.is_payments_app_installed
-)
-
-const doc = computed(() => resource.doc)
-const evaluatorLinkRef = ref<{ reload: () => void } | null>(null)
+const doc = computed(() => resource.doc!)
 const showMemberModal = ref<boolean>(false)
-const showPaymentsAppModal = ref<boolean>(false)
 
-const publishedOnLabel = computed<string>(() =>
-	doc.value?.published_on
-		? dayjs(doc.value.published_on).format('DD MMM YYYY')
-		: ''
-)
+type Flag = 'upcoming' | 'featured' | 'enforce_lesson_completion'
 
-const selfEnrollment = computed<boolean>({
-	get: () => !resource.doc?.disable_self_learning,
-	set: (val: boolean) => {
-		if (!resource.doc) return
-		resource.doc.disable_self_learning = val ? 0 : 1
-		markDirty()
-	},
+function setFlag(field: Flag | 'disable_self_learning', value: boolean): void {
+	;(doc.value as LMSCourse)[field] = value ? 1 : 0
+	markDirty()
+}
+
+const flagRow = (field: Flag, label: string, summary: string) => ({
+	label,
+	summary,
+	value: Boolean(doc.value[field]),
+	set: (value: boolean) => setFlag(field, value),
 })
 
-function setPaidCourse(val: boolean) {
-	if (!resource.doc) return
-	if (val && paymentsAppMissing.value) {
-		showPaymentsAppModal.value = true
-		return
-	}
-	resource.doc.paid_course = val ? 1 : 0
-	// A paid course is already monetized: the paid-certificate flow only
-	// applies to free courses, so clear it when switching to paid.
-	if (val) resource.doc.paid_certificate = 0
-	markDirty()
-}
+const accessRows = computed(() => [
+	{
+		label: __('Self enrollment'),
+		summary: doc.value.disable_self_learning
+			? __('Off: you enroll people from the Dashboard.')
+			: __('Learners enroll themselves.'),
+		value: !doc.value.disable_self_learning,
+		set: (value: boolean) => setFlag('disable_self_learning', !value),
+	},
+	flagRow(
+		'enforce_lesson_completion',
+		__('Lessons in sequence'),
+		__('Each lesson opens only after the previous one is complete.')
+	),
+	flagRow(
+		'upcoming',
+		__('Upcoming'),
+		__('Show the course before it opens. Learners can ask to be notified.')
+	),
+	flagRow(
+		'featured',
+		__('Featured'),
+		__('Highlight the course on the homepage.')
+	),
+])
 
-function setPaidCertificate(val: boolean) {
-	if (!resource.doc) return
-	if (val && paymentsAppMissing.value) {
-		showPaymentsAppModal.value = true
-		return
-	}
-	resource.doc.paid_certificate = val ? 1 : 0
-	markDirty()
-}
-
-function openPaymentsApp() {
-	if (hasCloudSettings()) openSettings('cloud-marketplace')
-	else openExternal('https://frappecloud.com/marketplace/apps/payments')
-}
+const hasCertificate = computed<boolean>(() =>
+	Boolean(doc.value.enable_certification || doc.value.paid_certificate)
+)
 
 const timezoneResource = createResource({
 	url: 'frappe.geo.country_info.get_country_timezone_info',
@@ -277,21 +124,19 @@ const timezoneResource = createResource({
 }) as Resource<string[] | null>
 
 const timezoneOptions = computed<{ label: string; value: string }[]>(() =>
-	(timezoneResource.data || []).map((tz) => ({ label: tz, value: tz }))
+	(timezoneResource.data || []).map((zone) => ({ label: zone, value: zone }))
 )
 
-function openEvaluatorModal() {
-	showMemberModal.value = true
-}
-
-function openPrintFormats() {
+function openPrintFormats(): void {
 	openExternal('/app/print-format?doc_type=LMS Certificate')
 }
 
-function onEvaluatorCreated(created: { name: string }) {
-	if (!resource.doc) return
-	resource.doc.evaluator = created.name
-	evaluatorLinkRef.value?.reload()
+function openEvaluatorModal(): void {
+	showMemberModal.value = true
+}
+
+function onEvaluatorCreated(created: { name: string }): void {
+	doc.value.evaluator = created.name
 	markDirty()
 }
 </script>

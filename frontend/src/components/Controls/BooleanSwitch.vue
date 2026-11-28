@@ -8,7 +8,9 @@
 		:model-value="!!modelValue"
 		@update:model-value="onUpdate"
 		v-bind="$attrs"
-	/>
+	>
+		<template v-if="$slots.label" #label><slot name="label" /></template>
+	</SwitchRow>
 	<FUISwitch
 		v-else
 		:model-value="!!modelValue"

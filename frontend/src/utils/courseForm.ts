@@ -24,34 +24,41 @@ function hasText(value: string | null | undefined): boolean {
 	)
 }
 
-// Returns a single actionable message for the first unmet requirement, or null
-// when the course can be saved. Field labels match the form labels so the user
-// can find what to fix.
-export function validateCourse(input: CourseValidationInput): string | null {
-	const { doc, instructors } = input
-	if (!doc) return null
+export interface MissingField {
+	key: 'title' | 'short_introduction' | 'description' | 'instructors' | 'price'
+	label: string
+}
 
-	if (!hasText(doc.title)) {
-		return __('Add a {0} before saving.').format(__('Title'))
-	}
+// Every unmet requirement, so the Save tooltip can name them all and each
+// inline field can ring itself.
+export function missingCourseFields(
+	input: CourseValidationInput
+): MissingField[] {
+	const { doc, instructors } = input
+	if (!doc) return []
+	const missing: MissingField[] = []
+	if (!hasText(doc.title)) missing.push({ key: 'title', label: __('a title') })
 	if (!hasText(doc.short_introduction)) {
-		return __('Add a {0} before saving.').format(__('Short Introduction'))
+		missing.push({ key: 'short_introduction', label: __('an introduction') })
 	}
 	if (!hasText(doc.description)) {
-		return __('Add a {0} before saving.').format(__('Description'))
+		missing.push({ key: 'description', label: __('a description') })
 	}
 	if (!instructors.length) {
-		return __('Add at least one {0} before saving.').format(__('Instructor'))
+		missing.push({ key: 'instructors', label: __('an instructor') })
 	}
+	const charges = doc.paid_course || doc.paid_certificate
+	if (charges && (!doc.currency || !(Number(doc.course_price) > 0))) {
+		missing.push({ key: 'price', label: __('a price') })
+	}
+	return missing
+}
 
-	if (!doc.paid_course && !doc.paid_certificate) return null
-
-	const subject = doc.paid_course ? __('paid courses') : __('paid certificates')
-	if (!doc.currency) {
-		return __('Currency is required for {0}.').format(subject)
-	}
-	if (!(Number(doc.course_price) > 0)) {
-		return __('Price must be a positive number for {0}.').format(subject)
-	}
-	return null
+/** "a", "a and b", "a, b and c". */
+export function joinLabels(labels: string[]): string {
+	if (labels.length < 2) return labels[0] ?? ''
+	return __('{0} and {1}').format(
+		labels.slice(0, -1).join(', '),
+		labels[labels.length - 1]
+	)
 }
