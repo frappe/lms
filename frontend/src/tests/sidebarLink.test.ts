@@ -177,4 +177,21 @@ describe('SidebarLink', () => {
 			'4'
 		)
 	})
+
+	it('puts the shortcut key in a fixed-width cell, so badges match in width', async () => {
+		for (const shortcut of ['Mod+K', 'Mod+I']) {
+			const { wrapper } = await build({ shortcut })
+			const kbd = wrapper.find('kbd')
+			const keys = kbd.findAll('span')
+			expect(kbd.attributes('aria-label')).toBe(`Ctrl ${shortcut.slice(-1)}`)
+			expect(keys.map((key) => key.text())).toEqual([
+				'Ctrl',
+				shortcut.slice(-1),
+			])
+			expect(keys[1].classes()).toEqual(
+				expect.arrayContaining(['min-w-3', 'text-center'])
+			)
+			wrapper.unmount()
+		}
+	})
 })

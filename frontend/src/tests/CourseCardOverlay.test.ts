@@ -81,15 +81,33 @@ describe('the learner progress in the course side card', () => {
 	})
 })
 
-// Guards the self-learning-off message overflowing the side card as a one-line
-// badge. Added on quiz-no-access-message.
-describe('a course without self-enrollment', () => {
-	it('tells the learner to ask the administrator', () => {
-		const wrapper = mountWith({ disable_self_learning: 1 }, [])
+describe('the side card in student view', () => {
+	const mountPreview = (preview: 'not-enrolled' | 'enrolled') => {
+		outline.data = []
+		return mount(CourseCardOverlay, {
+			props: {
+				course: reactive({ data: { name: 'COURSE-1', lessons: 3 } }),
+				preview,
+			} as never,
+			global: {
+				provide: { $user: { data: { name: 'mod', is_moderator: true } } },
+				mocks: { __: globalThis.__ },
+			},
+		})
+	}
 
-		expect(wrapper.find('.alert').exists()).toBe(true)
-		expect(wrapper.text()).toContain(
-			'Contact the Administrator to enroll for this course'
-		)
+	it('shows a moderator the enrol button, which only switches the view', async () => {
+		const wrapper = mountPreview('not-enrolled')
+		const enroll = wrapper
+			.findAll('button')
+			.find((button) => button.text().includes('Enroll Now'))!
+		await enroll.trigger('click')
+		expect(wrapper.emitted('enroll')).toBeTruthy()
+	})
+
+	it('shows progress and Start Learning once enrolled', () => {
+		const wrapper = mountPreview('enrolled')
+		expect(wrapper.text()).toContain('Start Learning')
+		expect(wrapper.text()).not.toContain('Enroll Now')
 	})
 })

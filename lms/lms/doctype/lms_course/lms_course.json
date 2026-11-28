@@ -17,6 +17,7 @@
   "column_break_htgn",
   "image",
   "card_gradient",
+  "icon",
   "section_break_7",
   "published",
   "published_on",
@@ -285,6 +286,11 @@
    "options": "Red\nBlue\nGreen\nAmber\nCyan\nOrange\nPink\nPurple\nTeal\nViolet\nYellow\nGray"
   },
   {
+   "fieldname": "icon",
+   "fieldtype": "Data",
+   "label": "Icon"
+  },
+  {
    "fieldname": "section_break_vqbh",
    "fieldtype": "Section Break"
   },
@@ -322,7 +328,7 @@
   }
  ],
  "make_attachments_public": 1,
- "modified": "2026-02-19 11:41:57.038869",
+ "modified": "2026-11-24 12:00:00.000000",
  "modified_by": "sayali@frappe.io",
  "module": "LMS",
  "name": "LMS Course",

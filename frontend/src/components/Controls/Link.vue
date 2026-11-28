@@ -10,6 +10,7 @@
 			:aria-label="label ? undefined : (attrs['aria-label'] as string)"
 			:autocomplete="attrs.autocomplete as string"
 			:variant="attrs.variant as ComboboxVariant"
+			:trigger="isButton ? 'button' : 'input'"
 			:align="props.align"
 			:loading="options.loading"
 			:filterable="false"
@@ -17,11 +18,27 @@
 			:required="required"
 			:description="description"
 			:error="error"
+			:query="query"
 			@update:modelValue="onSelect"
 			@update:query="onQuery"
 			@update:open="onOpen"
-			class="w-full"
+			:class="isButton ? 'w-fit' : 'w-full'"
 		>
+			<template v-if="icon" #prefix>
+				<span :class="[icon, 'size-4 shrink-0']" aria-hidden="true" />
+			</template>
+			<!-- Combobox draws the selected value through the list's row slot too;
+			     the icon belongs on the control only, so rows hide it. -->
+			<template v-if="icon" #item-prefix="{ selected }">
+				<span
+					v-if="selected"
+					:class="[
+						icon,
+						'hidden size-4 shrink-0 [[data-slot=trigger]_&]:block',
+					]"
+					aria-hidden="true"
+				/>
+			</template>
 			<template #footer>
 				<div
 					data-popover-footer-sticky
@@ -113,6 +130,8 @@ const props = withDefaults(
 		inlineCreate?: boolean
 		inlineCreatePlaceholder?: string
 		onCreate?: CreateHandler
+		/** A lucide class drawn inside the control, before the value or placeholder. */
+		icon?: string
 		// Where the popover hangs off the control. `end` is the trailing edge in
 		// either direction, so a control near the end of a row opens inwards.
 		align?: 'start' | 'center' | 'end'
@@ -133,12 +152,17 @@ const emit = defineEmits<{
 defineOptions({ inheritAttrs: false })
 
 const attrs = useAttrs()
+// A button trigger sizes to its value and moves the search into the menu.
+const isButton = computed(() => attrs.trigger === 'button')
 const valuePropPassed = computed<boolean>(() => 'value' in attrs)
 
 const creating = ref<boolean>(false)
 const newItemName = ref<string>('')
 const isOpen = ref<boolean>(false)
-let loaded = false
+// Owned here so the search starts empty on every open instead of keeping the
+// picked label, which would filter the list down to the current value.
+const query = ref<string>('')
+let searchedFor: string | null = null
 
 const value = computed<string>(() =>
 	valuePropPassed.value ? (attrs.value as string) : props.modelValue
@@ -212,7 +236,7 @@ const resolvedOptions = computed<LinkOption[]>(() => {
 })
 
 function reload(txt: string = ''): void {
-	loaded = true
+	searchedFor = txt
 	options.update({
 		params: {
 			txt,
@@ -226,10 +250,21 @@ function reload(txt: string = ''): void {
 
 function onOpen(open: unknown): void {
 	isOpen.value = open as boolean
-	if (isOpen.value && !loaded) reload('')
+	if (!isOpen.value) return
+	// In input mode the query is the selected label shown in the control.
+	if (isButton.value) query.value = ''
+	if (searchedFor !== '') reload('')
 }
 
-const onQuery = useDebounceFn((txt: unknown) => reload(txt as string), 300)
+// Only typing searches; Combobox also writes the picked label into the query.
+const search = useDebounceFn((txt: string) => {
+	if (isOpen.value && txt !== searchedFor) reload(txt)
+}, 300)
+
+function onQuery(txt: unknown): void {
+	query.value = txt as string
+	search(query.value)
+}
 
 // Settings drawer (UserDropdown) is where users add Categories, Course
 // Evaluators, etc. Refresh options once it closes so newly-created
@@ -238,7 +273,7 @@ const settingsStore = useSettings()
 watchDebounced(
 	() => settingsStore.isSettingsOpen,
 	(isOpen, wasOpen) => {
-		if (wasOpen && !isOpen && loaded) reload('')
+		if (wasOpen && !isOpen && searchedFor !== null) reload('')
 	},
 	{ debounce: 200 }
 )
