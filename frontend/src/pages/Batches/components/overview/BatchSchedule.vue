@@ -3,18 +3,11 @@
 		<div class="mb-4 flex items-baseline justify-between gap-4">
 			<div class="flex items-center gap-1.5">
 				<h2 class="text-3xl-semibold text-ink-gray-9">{{ __('Schedule') }}</h2>
-				<Tooltip
+				<InfoTip
 					v-if="editable && !isPending && !classes.length"
+					:label="__('About the schedule')"
 					:text="__('Shown to enrolled learners once you add classes')"
-				>
-					<button
-						type="button"
-						class="inline-grid size-6 place-items-center rounded-4 text-ink-gray-6 hover:text-ink-gray-9"
-						:aria-label="__('About the schedule')"
-					>
-						<span class="lucide-info size-4" aria-hidden="true" />
-					</button>
-				</Tooltip>
+				/>
 			</div>
 			<SkeletonText
 				v-if="isPending"
@@ -87,7 +80,8 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
-import { Button, Tooltip, createListResource } from 'frappe-ui'
+import { Button, createListResource } from 'frappe-ui'
+import InfoTip from '@/components/InfoTip.vue'
 import { useRoute, useRouter } from 'vue-router'
 import dayjs from '@/utils/dayjs'
 import { openBatchForm } from '@/composables/useBatchForms'

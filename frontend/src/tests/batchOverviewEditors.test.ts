@@ -24,10 +24,7 @@ const { callMock, field, choices } = vi.hoisted(() => ({
 }))
 
 vi.mock('frappe-ui', () => ({
-	Tooltip: {
-		props: ['text'],
-		template: '<span :data-tooltip="text"><slot /></span>',
-	},
+	usePortalTarget: () => undefined,
 	Button: {
 		props: ['label'],
 		template: '<button><slot />{{ label }}</button>',
@@ -388,7 +385,9 @@ describe('the empty assessments list', () => {
 			props: { batchName: 'B1' },
 			global: { mocks: { __: globalThis.__ }, stubs: { RouterLink: true } },
 		})
-		expect(list.find('[data-tooltip]').attributes('data-tooltip')).toBe(
+		const hint = list.get('button[aria-label="About assessments"]')
+		const description = hint.attributes('aria-describedby')!
+		expect(list.get(`[id="${description}"]`).text()).toBe(
 			'Learners take these from their batch dashboard'
 		)
 	})

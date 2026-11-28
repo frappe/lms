@@ -5,15 +5,10 @@
 				<h2 class="text-3xl-semibold text-ink-gray-9">
 					{{ __('Assessments') }}
 				</h2>
-				<Tooltip :text="__('Learners take these from their batch dashboard')">
-					<button
-						type="button"
-						class="inline-grid size-6 place-items-center rounded-4 text-ink-gray-6 hover:text-ink-gray-9"
-						:aria-label="__('About assessments')"
-					>
-						<span class="lucide-info size-4" aria-hidden="true" />
-					</button>
-				</Tooltip>
+				<InfoTip
+					:label="__('About assessments')"
+					:text="__('Learners take these from their batch dashboard')"
+				/>
 			</div>
 		</div>
 		<OverviewListSkeleton
@@ -83,7 +78,8 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
-import { Button, Tooltip, call, createResource, toast } from 'frappe-ui'
+import { Button, call, createResource, toast } from 'frappe-ui'
+import InfoTip from '@/components/InfoTip.vue'
 import OverviewEmptyTile from '@/pages/Batches/components/overview/OverviewEmptyTile.vue'
 import OverviewListSkeleton from '@/components/Skeletons/OverviewListSkeleton.vue'
 import BatchAssessmentAdd from '@/pages/Batches/components/overview/BatchAssessmentAdd.vue'
