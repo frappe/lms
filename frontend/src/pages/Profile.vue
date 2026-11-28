@@ -1,4 +1,5 @@
 <template>
+	<span class="sr-only" role="status">{{ loadingAnnouncement }}</span>
 	<NoPermission v-if="!$user.data" />
 	<div v-else-if="profile.data">
 		<PageHeader :breadcrumbs="breadcrumbs">
@@ -20,7 +21,7 @@
 			@select="(imageUrl) => coverImage.submit({ url: imageUrl })"
 		/>
 		<div class="mx-auto -mt-10 md:-mt-4 max-w-4xl translate-x-0 px-5">
-			<div class="flex flex-col md:flex-row items-center">
+			<div class="flex flex-col @2xl:flex-row items-center">
 				<div>
 					<ProfileAvatar
 						:image="profile.data.user_image"
@@ -75,8 +76,14 @@
 					v-model="activeTab"
 				/>
 			</div>
+			<SkeletonLoader
+				v-if="awaitingEmail"
+				:lines="4"
+				class="mb-10 mt-7"
+				data-testid="profile-tab-skeleton"
+			/>
 			<router-view
-				v-if="!awaitingEmail && !onBlockedEvaluatorTab"
+				v-else-if="!onBlockedEvaluatorTab"
 				:profile="profile"
 				:key="profile.data.username"
 			/>
@@ -86,7 +93,8 @@
 			v-model:open="showPasswordDialog"
 		/>
 	</div>
-	<NotFound v-else-if="(profile.fetched || profile.error) && !profile.data" />
+	<NotFound v-else-if="profile.fetched || profile.error" />
+	<ProfileSkeleton v-else data-testid="profile-skeleton" />
 </template>
 <script setup>
 import {
@@ -110,6 +118,9 @@ import ProfileAvatar from '@/components/Profile/ProfileAvatar.vue'
 import ProfileCover from '@/components/Profile/ProfileCover.vue'
 import ProfileSocialLinks from '@/components/Profile/ProfileSocialLinks.vue'
 import ChangePasswordDialog from '@/components/Profile/ChangePasswordDialog.vue'
+import ProfileSkeleton from '@/components/Skeletons/ProfileSkeleton.vue'
+import SkeletonLoader from '@/components/SkeletonLoader.vue'
+import { useLoadingAnnouncement } from '@/utils/a11y'
 import { openFormRoute } from '@/composables/useFormRoute'
 import { submitResource } from '@/utils/resource'
 
@@ -161,6 +172,11 @@ const settleEmail = (username, name) => {
 	resolvedEmail.value = { username, name }
 	applyResolvedEmail()
 }
+
+const loadingAnnouncement = useLoadingAnnouncement(
+	() => !profile.data && !profile.error,
+	() => (profile.data ? __('Profile loaded') : '')
+)
 
 const profileEmail = createResource({ url: 'frappe.client.get_value' })
 

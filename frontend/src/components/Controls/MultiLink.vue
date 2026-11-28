@@ -40,9 +40,11 @@
 		<template #footer="{ clear, selectAll }">
 			<slot name="footer" :close="closePopover">
 				<div
+					v-if="value?.length || props.onCreate || canSelectAll"
 					class="flex items-center justify-between gap-2 border-t border-outline-gray-1 px-2 py-1.5 mt-1"
 				>
 					<Button
+						v-if="value?.length"
 						variant="ghost"
 						size="sm"
 						:aria-label="__('Clear')"
@@ -51,8 +53,8 @@
 						{{ __('Clear') }}
 					</Button>
 					<div
-						v-if="props.onCreate || allowSelectAll"
-						class="flex items-center gap-1"
+						v-if="props.onCreate || canSelectAll"
+						class="ms-auto flex items-center gap-1"
 					>
 						<Button
 							v-if="props.onCreate"
@@ -67,7 +69,7 @@
 							{{ __(createLabel) }}
 						</Button>
 						<Button
-							v-if="allowSelectAll"
+							v-if="canSelectAll"
 							variant="ghost"
 							size="sm"
 							:aria-label="__('Select all')"
@@ -280,6 +282,12 @@ const mergedOptions = computed<SelectOption[]>(() => {
 	}
 	return out
 })
+
+const canSelectAll = computed<boolean>(
+	() =>
+		props.allowSelectAll &&
+		mergedOptions.value.some((option) => !value.value?.includes(option.value))
+)
 
 function resolveMissing(vals: string[]): void {
 	const known = new Set<string>([

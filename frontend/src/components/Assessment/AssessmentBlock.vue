@@ -14,6 +14,7 @@
 </template>
 
 <script setup lang="ts">
+import { redirectToLogin } from '@/utils/login'
 import { inject } from 'vue'
 import type { Component } from 'vue'
 import { Button } from 'frappe-ui'
@@ -34,8 +35,4 @@ const { mockedUser: user } = provideStudentView(
 	inject<UserResource>('$user')!,
 	() => blockProps.studentView
 )
-
-const redirectToLogin = (): void => {
-	window.location.href = '/login'
-}
 </script>

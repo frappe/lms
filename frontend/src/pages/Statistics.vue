@@ -1,55 +1,42 @@
 <template>
 	<div class="">
 		<PageHeader :breadcrumbs="breadcrumbs" />
-		<div
-			v-if="chartDetails.loading && !chartDetails.data"
-			class="flex flex-1 items-center justify-center p-5"
-		>
-			<LoadingIndicator class="size-5 text-ink-gray-5" />
-		</div>
-		<div v-else-if="chartDetails.data" class="p-5">
-			<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
-				<Tooltip :text="__('Published Courses')">
+		<span class="sr-only" role="status">{{ loadingAnnouncement }}</span>
+		<div class="p-5">
+			<!-- Window breakpoints, not the content area: Statistics keeps its full
+			     layout and narrows when Flow docks, instead of dropping columns. -->
+			<div
+				class="statistics-cards grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4"
+			>
+				<Tooltip
+					v-for="card in numberCards"
+					:key="card.key"
+					:text="card.tooltip"
+				>
 					<NumberCard
-						:title="__('Courses')"
-						:value="chartDetails.data.courses"
+						:title="card.title"
+						:value="chartDetails.data?.[card.key] ?? 0"
+						:loading="isPending(chartDetails)"
 						:format="compactNumber"
-					/>
-				</Tooltip>
-				<Tooltip :text="__('Active Members')">
-					<NumberCard
-						:title="__('Signups')"
-						:value="chartDetails.data.users"
-						:format="compactNumber"
-					/>
-				</Tooltip>
-				<Tooltip :text="__('Course Enrollments')">
-					<NumberCard
-						:title="__('Enrollments')"
-						:value="chartDetails.data.enrollments"
-						:format="compactNumber"
-					/>
-				</Tooltip>
-				<Tooltip :text="__('Course Completions')">
-					<NumberCard
-						:title="__('Completions')"
-						:value="chartDetails.data.completions"
-						:format="compactNumber"
-					/>
-				</Tooltip>
-				<Tooltip :text="__('Certified Members')">
-					<NumberCard
-						:title="__('Certifications')"
-						:value="chartDetails.data.certifications"
-						:format="compactNumber"
-					/>
+					>
+						<!-- Only the number: these cards draw no delta row under it. -->
+						<template #loading>
+							<SkeletonText
+								text="text-3xl-semibold"
+								width="w-28"
+								class="motion-safe:animate-pulse"
+								aria-hidden="true"
+							/>
+						</template>
+					</NumberCard>
 				</Tooltip>
 			</div>
 			<div class="statistics-charts grid grid-cols-1 lg:grid-cols-2 gap-4 mt-4">
 				<ChartCard class="h-72">
 					<LineChart
-						v-if="hasPoints(signupsChart.data)"
-						:data="signupsChart.data"
+						v-if="!signupsChart.data || hasPoints(signupsChart.data)"
+						:data="signupsChart.data || []"
+						:loading="isPending(signupsChart)"
 						x="date"
 						y="count"
 						:title="__('Signups')"
@@ -70,8 +57,9 @@
 				</ChartCard>
 				<ChartCard class="h-72">
 					<LineChart
-						v-if="hasPoints(enrollmentChart.data)"
-						:data="enrollmentChart.data"
+						v-if="!enrollmentChart.data || hasPoints(enrollmentChart.data)"
+						:data="enrollmentChart.data || []"
+						:loading="isPending(enrollmentChart)"
 						x="date"
 						y="count"
 						:title="__('Enrollments')"
@@ -92,8 +80,9 @@
 				</ChartCard>
 				<ChartCard class="h-72">
 					<LineChart
-						v-if="hasPoints(certification.data)"
-						:data="certification.data"
+						v-if="!certification.data || hasPoints(certification.data)"
+						:data="certification.data || []"
+						:loading="isPending(certification)"
 						x="date"
 						y="count"
 						:title="__('Certifications')"
@@ -110,10 +99,11 @@
 						icon="lucide-badge-check"
 					/>
 				</ChartCard>
-				<ChartCard v-if="courseCompletion.data" class="h-72">
+				<ChartCard class="h-72">
 					<DonutChart
-						v-if="hasCompletions"
-						:data="completionSlices"
+						v-if="!courseCompletion.data || hasCompletions"
+						:data="completionSlices || []"
+						:loading="isPending(courseCompletion)"
 						category="label"
 						value="value"
 						:title="__('Completions')"
@@ -137,20 +127,37 @@
 	</div>
 </template>
 <script setup>
-import {
-	createResource,
-	LoadingIndicator,
-	Tooltip,
-	usePageMeta,
-} from 'frappe-ui'
+import { createResource, Tooltip, usePageMeta } from 'frappe-ui'
 import { ChartCard, DonutChart, LineChart, NumberCard } from 'frappe-ui/charts'
 import { computed } from 'vue'
 import PageHeader from '@/components/Layouts/pages/PageHeader.vue'
 import ChartEmptyState from '@/components/ChartEmptyState.vue'
+import SkeletonText from '@/components/Skeletons/SkeletonText.vue'
 import { compactNumber } from '@/utils/numberCardFormat'
 import { sessionStore } from '../stores/session'
+import { useLoadingAnnouncement } from '@/utils/a11y'
 
 const { brand } = sessionStore()
+
+const numberCards = [
+	{ key: 'courses', title: __('Courses'), tooltip: __('Published Courses') },
+	{ key: 'users', title: __('Signups'), tooltip: __('Active Members') },
+	{
+		key: 'enrollments',
+		title: __('Enrollments'),
+		tooltip: __('Course Enrollments'),
+	},
+	{
+		key: 'completions',
+		title: __('Completions'),
+		tooltip: __('Course Completions'),
+	},
+	{
+		key: 'certifications',
+		title: __('Certifications'),
+		tooltip: __('Certified Members'),
+	},
+]
 
 const breadcrumbs = computed(() => {
 	return [
@@ -215,6 +222,21 @@ const hasCompletions = computed(() => {
 // The server labels each slice in English.
 const completionSlices = computed(() =>
 	courseCompletion.data?.map((slice) => ({ ...slice, label: __(slice.label) }))
+)
+
+// Not yet answered and not failed: a refetch keeps its data and its chart.
+const isPending = (resource) => !resource.data && !resource.error
+
+const loadingAnnouncement = useLoadingAnnouncement(
+	() =>
+		[
+			chartDetails,
+			signupsChart,
+			enrollmentChart,
+			certification,
+			courseCompletion,
+		].some(isPending),
+	() => __('Statistics loaded')
 )
 
 usePageMeta(() => {

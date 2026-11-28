@@ -1,5 +1,9 @@
 <template>
-	<PageHeader v-if="!fromLesson" :breadcrumbs="breadcrumbs" />
+	<PageHeader
+		v-if="!fromLesson"
+		:breadcrumbs="breadcrumbs"
+		:loading="title.loading && !title.data"
+	/>
 	<div
 		class="md:w-7/12 md:mx-auto mx-4 py-6 flex grow flex-col"
 		:class="{ 'pt-4 md:w-full': fromLesson }"
@@ -12,19 +16,13 @@ import Quiz from '@/components/Quiz.vue'
 import { createResource, usePageMeta } from 'frappe-ui'
 import PageHeader from '@/components/Layouts/pages/PageHeader.vue'
 import { computed, inject, onMounted, ref } from 'vue'
-import { useRouter } from 'vue-router'
 import { sessionStore } from '../stores/session'
 
 const { brand } = sessionStore()
 const user = inject('$user')
-const router = useRouter()
 const fromLesson = ref(false)
 
 onMounted(() => {
-	if (!user.data) {
-		router.push({ name: 'Courses' })
-	}
-
 	if (new URLSearchParams(window.location.search).get('fromLesson')) {
 		fromLesson.value = true
 	}

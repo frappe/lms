@@ -579,18 +579,27 @@ describe('MultiLink select all', () => {
 		expect(selected).not.toContain('b10')
 	})
 
-	it('selects nothing when the list is empty', async () => {
+	it('hides select-all and the footer when there is nothing to pick', async () => {
 		h.searchHits = []
-		const wrapper = mountLink([], false, { allowSelectAll: true })
+		mountLink([], false, { allowSelectAll: true })
+		await flushPromises()
+
+		document.querySelector<HTMLButtonElement>('button[data-state]')?.click()
+		await flushPromises()
+
+		expect(selectAllButton()).toBeUndefined()
+		expect(popoverText()).not.toContain('Clear')
+	})
+
+	it('hides select-all once every listed option is selected', async () => {
+		h.searchHits = [{ value: 'b1', label: 'One' }]
+		const wrapper = mountLink(['b1'], false, { allowSelectAll: true })
 		await flushPromises()
 
 		await wrapper.get('button[data-state]').trigger('click')
 		await flushPromises()
 
-		selectAllButton()?.click()
-		await flushPromises()
-
-		const selected = wrapper.emitted('update:modelValue')?.at(-1)?.[0]
-		expect(selected ?? []).toEqual([])
+		expect(selectAllButton()).toBeUndefined()
+		expect(popoverText()).toContain('Clear')
 	})
 })

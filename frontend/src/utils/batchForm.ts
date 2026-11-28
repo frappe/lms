@@ -32,39 +32,31 @@ function hasText(value: string | null | undefined): boolean {
 	)
 }
 
-// Returns a single actionable message for the first unmet requirement, or null
-// when the batch can be saved. Field labels match the form labels.
-export function validateBatch(input: BatchValidationInput): string | null {
+export interface MissingBatchField {
+	key: string
+	label: string
+}
+
+/** Every empty required field, keyed the way the overview rings them. */
+export function missingBatchFields(
+	input: BatchValidationInput
+): MissingBatchField[] {
 	const { doc, instructors } = input
-	if (!doc) return null
-
-	const required: [string, string | null | undefined][] = [
-		[__('Title'), doc.title],
-		[__('Batch Start Date'), doc.start_date],
-		[__('Batch End Date'), doc.end_date],
-		[__('Session Start Time'), doc.start_time],
-		[__('Session End Time'), doc.end_time],
-		[__('Timezone'), doc.timezone],
-		[__('Short Description'), doc.description],
-		[__('Batch Details'), doc.batch_details],
+	if (!doc) return []
+	const required: [string, string, unknown][] = [
+		['title', __('title'), doc.title],
+		['instructors', __('instructors'), instructors.length ? 'set' : ''],
+		['description', __('short description'), doc.description],
+		['dates', __('dates'), doc.start_date && doc.end_date],
+		['times', __('class times'), doc.start_time && doc.end_time],
+		['timezone', __('timezone'), doc.timezone],
+		['batch_details', __('batch details'), doc.batch_details],
 	]
-	for (const [label, value] of required) {
-		if (!hasText(value)) {
-			return __('Add a {0} before saving.').format(label)
-		}
+	if (doc.paid_batch) {
+		required.push(['currency', __('currency'), doc.currency])
+		required.push(['amount', __('price'), Number(doc.amount) > 0 ? 'set' : ''])
 	}
-	if (!instructors.length) {
-		return __('Add at least one {0} before saving.').format(__('Instructor'))
-	}
-
-	if (!doc.paid_batch) return null
-	if (!doc.currency) {
-		return __('Currency is required for {0}.').format(__('paid batches'))
-	}
-	if (!(Number(doc.amount) > 0)) {
-		return __('Amount must be a positive number for {0}.').format(
-			__('paid batches')
-		)
-	}
-	return null
+	return required
+		.filter(([, , value]) => !hasText(value ? String(value) : ''))
+		.map(([key, label]) => ({ key, label }))
 }

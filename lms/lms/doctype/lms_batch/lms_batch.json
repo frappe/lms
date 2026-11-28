@@ -15,6 +15,8 @@
   "end_date",
   "column_break_4",
   "allow_self_enrollment",
+  "allow_late_enrollment",
+  "last_enrollment_date",
   "start_time",
   "end_time",
   "timezone",
@@ -415,6 +417,21 @@
   {
    "fieldname": "column_break_uamg",
    "fieldtype": "Column Break"
+  },
+  {
+   "default": "0",
+   "description": "Learners can still enroll after the batch starts, until the last enrolment date.",
+   "fieldname": "allow_late_enrollment",
+   "fieldtype": "Check",
+   "label": "Allow Enrolment After Start"
+  },
+  {
+   "depends_on": "allow_late_enrollment",
+   "description": "The last day, in the site's timezone, a learner can enroll.",
+   "fieldname": "last_enrollment_date",
+   "fieldtype": "Date",
+   "label": "Last Enrolment Date",
+   "mandatory_depends_on": "allow_late_enrollment"
   }
  ],
  "grid_page_length": 50,
@@ -437,7 +454,7 @@
    "link_fieldname": "payment_for_document"
   }
  ],
- "modified": "2026-10-01 00:00:00.000000",
+ "modified": "2026-11-25 12:00:00.000000",
  "modified_by": "sayali@frappe.io",
  "module": "LMS",
  "name": "LMS Batch",

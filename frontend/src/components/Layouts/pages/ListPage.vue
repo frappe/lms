@@ -29,16 +29,27 @@
 
 		<span class="sr-only" role="status">{{ loadingAnnouncement }}</span>
 
+		<slot name="toolbar" />
+
+		<div
+			v-if="
+				loading && !rows.length && layout === 'grid' && $slots['card-skeleton']
+			"
+			class="px-5 pb-5"
+			data-testid="card-skeletons"
+		>
+			<div class="grid gap-5" :class="gridClass">
+				<slot v-for="i in 8" :key="i" name="card-skeleton" />
+			</div>
+		</div>
 		<SkeletonLoader
-			v-if="loading && !rows.length"
+			v-else-if="loading && !rows.length"
 			:variant="skeletonVariant"
 			:count="8"
 			class="px-5 pb-5"
 		/>
 		<div v-else-if="rows.length && layout === 'grid'" class="px-5 pb-5">
-			<div
-				class="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4"
-			>
+			<div class="grid gap-5" :class="gridClass">
 				<slot
 					v-for="row in rows"
 					:key="String(row[rowKey])"
@@ -67,22 +78,22 @@
 				<slot name="selection-actions" v-bind="bannerProps" />
 			</template>
 		</ResponsiveListView>
-		<!-- Bottom padding lifts the empty state: dead centre reads as too low. -->
-		<div v-else class="flex-1 pb-24">
-			<EmptyStateLayout
-				:name="emptyName"
-				:icon="emptyIcon"
-				:title="isFiltered ? undefined : emptyTitle || undefined"
-				:description="emptyStateDescription"
-			>
-				<Button
-					v-if="isFiltered"
-					:label="__('Clear filters')"
-					@click="clearFilters"
-				/>
-				<slot v-else name="empty-actions" />
-			</EmptyStateLayout>
-		</div>
+		<EmptyStateLayout
+			v-else
+			:name="emptyName"
+			:icon="emptyIcon"
+			:title="isFiltered ? undefined : emptyTitle || undefined"
+			:description="emptyStateDescription"
+		>
+			<Button
+				v-if="isFiltered"
+				:label="__('Clear filters')"
+				@click="clearFilters"
+			/>
+			<slot v-else name="empty-actions" />
+		</EmptyStateLayout>
+
+		<slot name="after" />
 
 		<template #footer>
 			<ListFooter
@@ -163,6 +174,8 @@ const props = withDefaults(
 		totalCount?: number | null
 		/** `grid` hands each row to the #card slot; `list` draws #columns. */
 		layout?: ListPageLayout
+		/** Column classes for the `grid` layout. */
+		gridClass?: string
 		rowKey?: string
 		columns?: ListColumn[]
 		listOptions?: ListViewOptions
@@ -186,6 +199,7 @@ const props = withDefaults(
 		listResource: undefined,
 		totalCount: null,
 		layout: 'grid',
+		gridClass: 'grid-cols-1 @2xl:grid-cols-2 @4xl:grid-cols-3 @7xl:grid-cols-4',
 		rowKey: 'name',
 		columns: () => [],
 		listOptions: undefined,

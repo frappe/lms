@@ -64,7 +64,6 @@
 		<EmptyStateLayout
 			v-else
 			data-testid="selected-empty"
-			class="flex-1"
 			:name="__('Students')"
 			:title="__('No students added')"
 			:description="__('Students you add will be listed here.')"

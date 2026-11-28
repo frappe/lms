@@ -1,6 +1,10 @@
 <template>
 	<PageHeader :breadcrumbs="breadcrumbs">
 		<template #actions>
+			<AssessmentAuthors
+				doctype="LMS Quiz"
+				:name="submissionDetails.doc?.quiz || null"
+			/>
 			<!-- The sentence is why the Save button is missing, so it has to stay
 			     reachable on a phone. A tooltip would not do it: there is no hover on
 			     a touch screen, so the header spells it out where it fits and hands
@@ -60,6 +64,11 @@
 	</PageHeader>
 
 	<PageBody>
+		<span class="sr-only" role="status">{{ loadingAnnouncement }}</span>
+		<QuizSubmissionSkeleton
+			v-if="submissionDetails.get.loading && !submissionDetails.doc"
+			data-testid="quiz-submission-skeleton"
+		/>
 		<!-- Questions read as the page; the sidebar is a margin note about who sat
 		     it and how it went, so it stacks under them once there is no room for
 		     a second column. PageBody owns the one scroll box.
@@ -69,15 +78,15 @@
 		     Top padding therefore belongs to each column: on the grid it would sit
 		     above the rule and leave the same gap again. -->
 		<div
-			v-if="submissionDetails.doc"
-			class="grid lg:flex-1 lg:grid-cols-[minmax(0,1fr)_300px] lg:grid-rows-[auto_1fr]"
+			v-else-if="submissionDetails.doc"
+			class="grid lg:flex-1 @4xl:grid-cols-[minmax(0,1fr)_300px] @4xl:grid-rows-[auto_1fr]"
 		>
 			<!-- The rule belongs to this column, not to the sidebar blocks: they are
 			     only as tall as their own content, so a submission with no
 			     violations ended the line halfway down the page. Spanning both rows
 			     against a grid that fills the body carries it to the bottom. -->
 			<div
-				class="order-3 min-w-0 lg:order-none lg:col-start-1 lg:row-start-1 lg:row-span-2 lg:border-e"
+				class="order-3 min-w-0 lg:order-none @4xl:col-start-1 lg:row-start-1 @4xl:row-span-2 lg:border-e"
 			>
 				<h1 class="text-lg-semibold mb-4 px-5 pt-5 text-ink-gray-9 lg:pe-10">
 					{{ submissionDetails.doc.quiz_title }}
@@ -97,7 +106,7 @@
 					<div
 						v-for="(row, index) in submissionDetails.doc.result"
 						:key="row.name"
-						class="flex flex-col gap-3 px-5 py-3 lg:grid lg:grid-cols-[minmax(0,1fr)_auto] lg:items-start lg:gap-10 lg:pe-10"
+						class="flex flex-col gap-3 px-5 py-3 @4xl:grid @4xl:grid-cols-[minmax(0,1fr)_auto] lg:items-start lg:gap-10 lg:pe-10"
 					>
 						<div class="min-w-0 space-y-3">
 							<!-- The number runs inline with the question rather than beside
@@ -178,7 +187,7 @@
 			     them, so summary then log then questions. The explicit placement
 			     outranks order once there are two columns. -->
 			<aside
-				class="order-1 border-b lg:order-none lg:col-start-2 lg:row-start-1 lg:border-b-0"
+				class="order-1 border-b lg:order-none @4xl:col-start-2 lg:row-start-1 lg:border-b-0"
 			>
 				<div class="flex items-center gap-3 px-5 py-5">
 					<Avatar
@@ -236,7 +245,7 @@
 			     submission with no violations still gets one from the summary. -->
 			<aside
 				v-if="submissionDetails.doc.violation_count"
-				class="order-2 border-b px-5 py-5 lg:order-none lg:col-start-2 lg:row-start-2 lg:border-b-0 lg:border-t"
+				class="order-2 border-b px-5 py-5 lg:order-none @4xl:col-start-2 lg:row-start-2 lg:border-b-0 lg:border-t"
 			>
 				<details
 					:open="logOpen"
@@ -263,8 +272,12 @@
 					<div class="mt-4">
 						<!-- The rule runs behind the markers rather than between them,
 						     so the events read as one run of time. -->
+						<ViolationLogSkeleton
+							v-if="violationLog.loading && !violationLog.data"
+							data-testid="violation-log-skeleton"
+						/>
 						<ol
-							v-if="violationLog.data?.length"
+							v-else-if="violationLog.data?.length"
 							class="border-s border-outline-gray-2 ps-4"
 						>
 							<li
@@ -366,7 +379,11 @@ import { computed, inject, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useDebounceFn, useMediaQuery } from '@vueuse/core'
 import { safeUrl } from '@/utils/safeUrl'
 import PageHeader from '@/components/Layouts/pages/PageHeader.vue'
+import AssessmentAuthors from '@/components/Assessment/AssessmentAuthors.vue'
 import PageBody from '@/components/Layouts/pages/PageBody.vue'
+import QuizSubmissionSkeleton from '@/components/Skeletons/QuizSubmissionSkeleton.vue'
+import ViolationLogSkeleton from '@/components/Skeletons/ViolationLogSkeleton.vue'
+import { useLoadingAnnouncement } from '@/utils/a11y'
 import HeaderButton from '@/components/HeaderButton.vue'
 import ShortcutTooltip from '@/components/ShortcutTooltip.vue'
 import {
@@ -411,6 +428,11 @@ const submissionDetails = createDocumentResource({
 	name: props.submission,
 	auto: true,
 })
+
+const loadingAnnouncement = useLoadingAnnouncement(
+	() => submissionDetails.get.loading && !submissionDetails.doc,
+	() => (submissionDetails.doc ? __('Submission loaded') : '')
+)
 
 const violationLog = createResource({
 	url: 'lms.lms.doctype.lms_quiz.lms_quiz.get_quiz_violation_logs',

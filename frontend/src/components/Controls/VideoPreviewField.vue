@@ -17,9 +17,10 @@
 				</button>
 			</Tooltip>
 		</div>
-		<div class="flex flex-col gap-4 sm:flex-row sm:items-start">
+		<div class="flex flex-col gap-3">
 			<div
-				class="relative aspect-[750/422] w-full shrink-0 grid place-items-center overflow-hidden rounded-6 border border-outline-gray-2 bg-surface-gray-2 sm:w-56"
+				class="relative grid aspect-video w-full place-items-center overflow-hidden rounded-6 border border-outline-gray-2 bg-surface-gray-2"
+				data-testid="video-preview"
 			>
 				<iframe
 					v-if="preview.type === 'youtube'"
@@ -42,31 +43,17 @@
 					class="flex flex-col items-center gap-1 px-3 text-center"
 				>
 					<span class="lucide-circle-check size-5 text-ink-green-5" />
-					<span class="text-xs text-ink-gray-6">
+					<span class="text-p-sm text-ink-gray-6">
 						{{ __("Saved. This format can't be previewed here.") }}
 					</span>
 				</div>
-				<span v-else class="lucide-video size-6 text-ink-gray-4" />
-				<button
-					v-if="modelValue && !isUploadedVideo"
-					type="button"
-					:aria-label="__('Remove video')"
-					class="absolute end-1 top-1 grid size-6 place-items-center rounded-4 bg-surface-base/90 shadow"
-					@click="update('')"
-				>
-					<span class="lucide-x size-4 text-ink-gray-7" />
-				</button>
-			</div>
-
-			<div v-if="isUploadedVideo" class="min-w-0 space-y-2 sm:flex-1">
-				<div class="text-p-sm-medium text-ink-gray-7 truncate">
-					{{ fileName }}
-				</div>
-				<div
-					class="flex flex-col items-start gap-2 md:max-xl:flex-row md:max-xl:flex-wrap md:max-xl:items-center"
-				>
+				<div v-else class="flex flex-col items-center gap-3">
+					<span
+						class="lucide-video size-8 text-ink-gray-4"
+						aria-hidden="true"
+					/>
 					<FileUploader
-						:fileTypes="['video/mp4', 'video/webm', 'video/ogg']"
+						:fileTypes="PLAYABLE_VIDEO_TYPES"
 						:private="false"
 						:validateFile="validatePlayableVideo"
 						@success="(file: { file_url: string }) => update(file.file_url)"
@@ -74,51 +61,51 @@
 					>
 						<template #default="{ openFileSelector, uploading, progress }">
 							<Button
-								:id="inputId"
+								variant="outline"
 								:loading="uploading"
+								data-testid="upload-video"
 								@click="openFileSelector"
 							>
 								<template #prefix>
 									<span class="lucide-upload size-4" />
 								</template>
-								{{ uploading ? `${progress}%` : __('Replace') }}
+								{{ uploading ? `${progress}%` : __('Upload video') }}
 							</Button>
 						</template>
 					</FileUploader>
-					<Button theme="red" variant="ghost" @click="update('')">
-						<template #prefix>
-							<span class="lucide-trash-2 size-4" />
-						</template>
-						{{ __('Remove') }}
-					</Button>
 				</div>
-			</div>
-
-			<div v-else class="min-w-0 space-y-2 sm:flex-1">
-				<FormControl
-					:id="inputId"
-					type="text"
-					v-model="urlInput"
-					dir="auto"
-					:aria-label="__('YouTube link')"
-					:placeholder="__('Paste a YouTube link')"
-					variant="outline"
+				<Button
+					v-if="modelValue"
+					size="sm"
+					icon="lucide-x"
+					:label="__('Remove video')"
+					:tooltip="__('Remove video')"
+					class="absolute end-2 top-2"
+					data-testid="remove-video"
+					@click="update('')"
 				/>
-				<FileUploader
-					:fileTypes="['video/*']"
-					:private="false"
-					@success="(file: { file_url: string }) => update(file.file_url)"
-				>
-					<template #default="{ openFileSelector, uploading, progress }">
-						<Button :loading="uploading" @click="openFileSelector">
-							<template #prefix>
-								<span class="lucide-upload size-4" />
-							</template>
-							{{ uploading ? `${progress}%` : __('Upload video') }}
-						</Button>
-					</template>
-				</FileUploader>
 			</div>
+			<div
+				v-if="isUploadedVideo"
+				class="truncate text-p-sm text-ink-gray-7"
+				data-testid="video-file-name"
+			>
+				{{ fileName }}
+			</div>
+			<FormControl
+				v-else
+				:id="inputId"
+				type="text"
+				v-model="urlInput"
+				dir="auto"
+				:aria-label="__('YouTube link')"
+				:placeholder="__('Or paste a YouTube link')"
+				variant="outline"
+			>
+				<template #prefix>
+					<span class="lucide-link size-4 text-ink-gray-5" />
+				</template>
+			</FormControl>
 		</div>
 		<InputDescription
 			v-if="showDescription"

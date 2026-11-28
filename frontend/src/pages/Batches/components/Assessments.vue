@@ -11,7 +11,12 @@
 				{{ __('Add') }}
 			</Button>
 		</div>
-		<div v-if="assessments.data?.length" class="text-sm">
+		<BorderedListSkeleton
+			v-if="!assessments.data && assessments.loading"
+			data-testid="assessments-skeleton"
+			:rows="expected || 1"
+		/>
+		<div v-else-if="assessments.data?.length" class="text-sm">
 			<ResponsiveListView
 				docked-banner
 				:columns="assessmentColumns"
@@ -64,6 +69,7 @@ import { computed, inject } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { openBatchForm } from '@/composables/useBatchForms'
 import ResponsiveListView from '@/components/ResponsiveListView.vue'
+import BorderedListSkeleton from '@/components/Skeletons/BorderedListSkeleton.vue'
 
 const user = inject('$user')
 const readOnlyMode = window.read_only_mode
@@ -78,6 +84,11 @@ const props = defineProps({
 	canManage: {
 		type: Boolean,
 		default: false,
+	},
+	/** How many assessments the batch has, so the skeleton matches the list. */
+	expected: {
+		type: Number,
+		default: 0,
 	},
 	rows: {
 		type: Array,

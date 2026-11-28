@@ -16,6 +16,20 @@
 		:empty-description="emptyState?.description"
 		@load-more="exercises.next()"
 	>
+		<template #name>
+			<SkeletonText
+				v-if="totalExercises.data == null"
+				text=""
+				width="w-32"
+				class="w-32 motion-safe:animate-pulse"
+				aria-hidden="true"
+				data-testid="count-skeleton"
+			/>
+			<template v-else>{{
+				__('{0} Exercises').format(totalExercises.data)
+			}}</template>
+		</template>
+
 		<template v-if="emptyState" #empty-actions>
 			<EmptyStateActions
 				list="programming_exercises"
@@ -103,6 +117,7 @@ import {
 	type FrappeResourceError,
 } from 'frappe-ui'
 import ListPage from '@/components/Layouts/pages/ListPage.vue'
+import SkeletonText from '@/components/Skeletons/SkeletonText.vue'
 import EmptyStateActions from '@/components/EmptyStateActions.vue'
 import HeaderButton from '@/components/HeaderButton.vue'
 import Select from '@/components/Controls/Select.vue'

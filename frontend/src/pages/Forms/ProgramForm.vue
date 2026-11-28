@@ -2,9 +2,14 @@
 	<FormShell
 		:title="isNew ? __('New Program') : __('Edit Program')"
 		size="2xl"
+		:loading="!refusal && isPending"
 		:message="refusal"
 		@close="close"
 	>
+		<template #loading>
+			<span class="sr-only" role="status">{{ loadingAnnouncement }}</span>
+			<ProgramFormSkeleton />
+		</template>
 		<template #header-action>
 			<Badge theme="amber" v-if="dirty">
 				{{ __('Not Saved') }}
@@ -20,7 +25,7 @@
 						:required="true"
 						@change="dirty = true"
 					/>
-					<div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+					<div class="grid grid-cols-1 @2xl:grid-cols-2 gap-5">
 						<FormControl
 							v-model="program.published"
 							:label="__('Published')"
@@ -269,6 +274,8 @@ import Link from '@/components/Controls/Link.vue'
 import ResponsiveListView from '@/components/ResponsiveListView.vue'
 import Draggable from 'vuedraggable'
 import ProgramProgressSummary from '@/components/Programs/ProgramProgressSummary.vue'
+import ProgramFormSkeleton from '@/components/Skeletons/ProgramFormSkeleton.vue'
+import { useLoadingAnnouncement } from '@/utils/a11y'
 import { resourceErrorMessage, submitResource } from '@/utils/resource'
 import { withoutSelectedRows } from '@/utils/programSelection'
 
@@ -313,8 +320,7 @@ const isNew = computed(() => programId.value === 'new')
 // gate, not an authorization boundary — the server's DocPerms on LMS Program
 // are; this only spares an unentitled user a form that could never save.
 const canManageProgram = computed(() => {
-	// Cast because Window has no read_only_mode declaration; same shape as
-	// NewBatchForm.vue:190.
+	// Cast because Window has no read_only_mode declaration.
 	if ((window as Window & { read_only_mode?: boolean }).read_only_mode)
 		return false
 	return Boolean(user.data?.is_moderator || user.data?.is_instructor)
@@ -373,6 +379,20 @@ const programCourses = createListResource({
 		program.value.program_courses = data
 	},
 })
+
+// Both halves of an existing program land before its fields show, so a Save
+// can never post a half-loaded program back.
+const isPending = computed(() => {
+	if (isNew.value) return false
+	const docPending = !programDoc?.doc && !programDoc?.get.error
+	const coursesPending = programCourses.list.loading && !programCourses.data
+	return docPending || coursesPending
+})
+
+const loadingAnnouncement = useLoadingAnnouncement(
+	() => isPending.value,
+	() => ''
+)
 
 const fetchCourses = () => {
 	programCourses.update({

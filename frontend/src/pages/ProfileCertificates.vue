@@ -3,9 +3,17 @@
 		<h2 class="mb-3 text-lg-semibold text-ink-gray-9">
 			{{ __('Certificates') }}
 		</h2>
+		<span class="sr-only" role="status">{{ loadingAnnouncement }}</span>
 		<div
-			v-if="certificates.data?.length"
-			class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"
+			v-if="isPending"
+			class="grid grid-cols-1 gap-4 @2xl:grid-cols-2 @4xl:grid-cols-3"
+			data-testid="certificates-skeleton"
+		>
+			<ProfileCertificateCardSkeleton v-for="i in 3" :key="i" />
+		</div>
+		<div
+			v-else-if="certificates.data?.length"
+			class="grid grid-cols-1 gap-4 @2xl:grid-cols-2 @4xl:grid-cols-3"
 		>
 			<a
 				v-for="certificate in certificates.data"
@@ -30,7 +38,9 @@
 </template>
 <script setup>
 import { createResource } from 'frappe-ui'
-import { inject, onMounted } from 'vue'
+import { computed, inject, onMounted } from 'vue'
+import ProfileCertificateCardSkeleton from '@/components/Skeletons/ProfileCertificateCardSkeleton.vue'
+import { useLoadingAnnouncement } from '@/utils/a11y'
 
 const dayjs = inject('$dayjs')
 const props = defineProps({
@@ -58,4 +68,11 @@ const certificateUrl = (certificate) =>
 	`/api/method/frappe.utils.print_format.download_pdf?doctype=LMS+Certificate&name=${
 		certificate.name
 	}&format=${encodeURIComponent(certificate.template)}&no_letterhead=1`
+
+const isPending = computed(() => !certificates.data && !certificates.error)
+
+const loadingAnnouncement = useLoadingAnnouncement(
+	() => isPending.value,
+	() => (certificates.data ? __('Certificates loaded') : '')
+)
 </script>

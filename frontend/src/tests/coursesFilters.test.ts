@@ -8,9 +8,8 @@
  * the wrong rows. That is the bug behind "Unpublished shows nothing, then a few
  * seconds later it is full of published courses".
  *
- * The page no longer picks its own filter controls (ListPage and ToggleFilter
- * do), so ListPage is stubbed here and the real ToggleFilter is kept, to prove
- * one click still reaches the resource exactly once.
+ * ListPage is stubbed here and the real FilterSelect chips are kept, to prove
+ * one pick still reaches the resource exactly once.
  */
 import { describe, expect, it, vi, beforeEach } from 'vitest'
 import { defineComponent, nextTick, reactive } from 'vue'
@@ -20,6 +19,7 @@ type Rows = { name: string }[]
 
 interface FakeRequest {
 	filters: Record<string, unknown>
+	orderBy: string
 	aborted: boolean
 	respond: (rows: Rows) => void
 }
@@ -38,18 +38,27 @@ function makeCoursesResource() {
 		hasNextPage: false,
 		pageLength: 30,
 		filters: {} as Record<string, unknown>,
+		orderBy: '',
 		list: {
 			loading: false,
 			abort: () => {
 				if (inFlight) inFlight.aborted = true
 			},
 		},
-		update({ filters }: { filters: Record<string, unknown> }) {
+		update({
+			filters,
+			orderBy,
+		}: {
+			filters: Record<string, unknown>
+			orderBy: string
+		}) {
 			resource.filters = JSON.parse(JSON.stringify(filters))
+			resource.orderBy = orderBy
 		},
 		reload() {
 			const request: FakeRequest = {
 				filters: JSON.parse(JSON.stringify(resource.filters)),
+				orderBy: resource.orderBy,
 				aborted: false,
 				respond(rows: Rows) {
 					if (!request.aborted) resource.data = rows
@@ -64,53 +73,70 @@ function makeCoursesResource() {
 	return { resource, requests }
 }
 
-const { coursesResource, requests, mobile } = vi.hoisted(() => ({
-	coursesResource: { current: null as any },
-	requests: { current: [] as any[] },
-	mobile: { value: false },
-}))
+const { coursesResource, categories, requests, mobile, countAborts } =
+	vi.hoisted(() => ({
+		coursesResource: { current: null as any },
+		categories: { current: null as any },
+		requests: { current: [] as any[] },
+		mobile: { value: false },
+		countAborts: { value: 0 },
+	}))
 
 vi.mock('frappe-ui', () => ({
 	usePageMeta: vi.fn(),
-	createResource: () =>
+	// The footer's total. It is aborted and resubmitted alongside the list, so
+	// the counter below is what proves the two stay in step.
+	createResource: (options: { url: string }) =>
 		reactive({
-			data: 0,
-			abort: vi.fn(),
+			data: options.url.includes('get_course_count') ? 0 : null,
+			abort: () => {
+				if (options.url.includes('get_course_count')) countAborts.value += 1
+			},
 			submit: vi.fn(),
 		}),
 	createListResource: (options: { url: string }) => {
 		if (options.url.includes('get_course_categories')) {
-			return reactive({ data: [], list: { loading: false }, reload: vi.fn() })
+			categories.current = reactive({
+				data: [],
+				list: { loading: false },
+				reload: vi.fn(),
+			})
+			return categories.current
 		}
 		return coursesResource.current
 	},
-	Button: { template: '<button><slot /></button>' },
-	Dropdown: { template: '<div><slot :open="false" /></div>' },
-	Tooltip: { template: '<div><slot /></div>' },
-	// Emits the input's checked state once per change, as frappe-ui's does.
-	Checkbox: defineComponent({
-		props: {
-			modelValue: Boolean,
-			label: String,
-			description: String,
-			size: String,
-		},
+	Button: {
+		template:
+			'<button><slot name="prefix" /><slot /><slot name="suffix" /></button>',
+	},
+	Badge: { props: ['label'], template: '<span>{{ label }}</span>' },
+	// Renders each tab as a button so a test can pick one by its label.
+	TabButtons: {
+		props: ['options', 'modelValue'],
 		emits: ['update:modelValue'],
-		methods: {
-			onChange(event: Event) {
-				this.$emit(
-					'update:modelValue',
-					(event.target as HTMLInputElement).checked
-				)
-			},
-		},
-		template: `<input
-			type="checkbox"
-			data-testid="toggle-checkbox"
-			:checked="modelValue"
-			@change="onChange"
-		/>`,
-	}),
+		template: `<div>
+			<button
+				v-for="option in options"
+				:key="option.value"
+				:data-testid="'option-' + option.label"
+				@click="$emit('update:modelValue', option.value)"
+			>{{ option.label }}</button>
+		</div>`,
+	},
+	// Renders its menu inline so a test can pick an option by its label.
+	Dropdown: {
+		props: ['options'],
+		template: `<div>
+			<slot :open="false" />
+			<button
+				v-for="option in options"
+				:key="option.label"
+				:data-testid="'option-' + option.label"
+				@click="option.onClick()"
+			>{{ option.label }}</button>
+		</div>`,
+	},
+	Tooltip: { template: '<div><slot /></div>' },
 	// Like rc.1's TextInput, emits update:modelValue on input and on change.
 	FormControl: {
 		inheritAttrs: false,
@@ -124,19 +150,6 @@ vi.mock('frappe-ui', () => ({
 			@input="$emit('update:modelValue', $event.target.value)"
 			@change="$emit('update:modelValue', $event.target.value)"
 		/>`,
-	},
-	TabButtons: {
-		props: ['options', 'modelValue'],
-		emits: ['update:modelValue'],
-		template: `<div>
-			<button
-				v-for="option in options"
-				:key="option.value"
-				:data-testid="'tab-' + option.value"
-				:data-state="option.value === modelValue ? 'checked' : 'unchecked'"
-				@click="$emit('update:modelValue', option.value)"
-			>{{ option.label }}</button>
-		</div>`,
 	},
 }))
 
@@ -154,7 +167,6 @@ vi.mock('vue-router', () => ({
 
 const stub = (template: string) => ({ default: { template } })
 vi.mock('@/components/CourseCard.vue', () => stub('<article />'))
-vi.mock('@/components/Controls/ClearableCombobox.vue', () => stub('<div />'))
 
 // Stands in for the whole page shell, so this file stays about filter state.
 vi.mock('@/components/Layouts/pages/ListPage.vue', () => ({
@@ -169,15 +181,11 @@ vi.mock('@/components/Layouts/pages/ListPage.vue', () => ({
 				@click="$emit('clearFilters')"
 			/>
 			<slot name="actions" />
-			<slot name="tabs" />
-			<slot name="filters" />
-			<slot name="toggles" />
+			<slot name="toolbar" />
 			<slot v-for="row in rows" :key="row.name" name="card" :row="row" />
 		</div>`,
 	},
 }))
-
-vi.stubGlobal('__', (s: string) => s)
 
 const MODERATOR = { name: 'admin@test.com', is_moderator: true }
 const PUBLISHED_COURSES = [{ name: 'course-a' }, { name: 'course-b' }]
@@ -190,7 +198,7 @@ async function mountCourses(user: { data: Record<string, unknown> | null }) {
 				$user: user,
 				$dayjs: () => ({ add: () => ({ format: () => '' }) }),
 			},
-			mocks: { __: (s: string) => s },
+			mocks: { __: globalThis.__ },
 			// The page now hosts its two form child routes through an outlet.
 			// No router plugin is installed here (vue-router is mocked down to
 			// useRouter), so the outlet has to be stubbed or it stays an
@@ -205,8 +213,23 @@ async function mountCourses(user: { data: Record<string, unknown> | null }) {
 }
 
 const cards = (wrapper: any) => wrapper.findAll('article').length
-const checkedTab = (wrapper: any) =>
-	wrapper.find('[data-state="checked"]').attributes('data-testid')
+const openFilters = async (wrapper: any) => {
+	if (wrapper.find('[data-testid="certification-chip"]').exists()) return
+	await wrapper.find('[data-testid="filters-button"]').trigger('click')
+	await nextTick()
+}
+const pick = async (wrapper: any, label: string) => {
+	if (!wrapper.find(`[data-testid="option-${label}"]`).exists()) {
+		await openFilters(wrapper)
+	}
+	await wrapper.find(`[data-testid="option-${label}"]`).trigger('click')
+	await nextTick()
+}
+const toggleCertification = async (wrapper: any) => {
+	await openFilters(wrapper)
+	await wrapper.find('[data-testid="certification-chip"]').trigger('click')
+	await nextTick()
+}
 
 beforeEach(() => {
 	mobile.value = false
@@ -225,8 +248,7 @@ describe('Courses list filters', () => {
 		expect(requests.current).toHaveLength(1)
 		expect(requests.current[0].filters).toMatchObject({ published: 1, live: 1 })
 
-		await wrapper.find('[data-testid="tab-unpublished"]').trigger('click')
-		await nextTick()
+		await pick(wrapper, 'Drafts')
 		expect(requests.current).toHaveLength(2)
 		expect(requests.current[1].filters).toMatchObject({ published: 0 })
 
@@ -239,7 +261,7 @@ describe('Courses list filters', () => {
 		requests.current[0].respond(PUBLISHED_COURSES)
 		await nextTick()
 
-		expect(checkedTab(wrapper)).toBe('tab-unpublished')
+		expect(wrapper.text()).toContain('Drafts')
 		expect(cards(wrapper)).toBe(0)
 	})
 
@@ -247,26 +269,82 @@ describe('Courses list filters', () => {
 		const user = reactive({ data: { ...MODERATOR } as Record<string, unknown> })
 		const wrapper = await mountCourses(user)
 
-		await wrapper.find('[data-testid="tab-unpublished"]').trigger('click')
-		await nextTick()
+		await pick(wrapper, 'Drafts')
 		const requestsAfterTabChange = requests.current.length
 
 		// A second resolution of get_user_info rebuilds `courseTabs`.
 		user.data = { ...MODERATOR }
 		await nextTick()
 
-		expect(checkedTab(wrapper)).toBe('tab-unpublished')
+		expect(requests.current.at(-1).filters).toMatchObject({ published: 0 })
 		expect(requests.current).toHaveLength(requestsAfterTabChange)
 	})
 
-	it('sends one request with the new value from the desktop certification checkbox', async () => {
+	it('sends one request with the new value from the certification chip', async () => {
 		const wrapper = await mountCourses({ data: { ...MODERATOR } })
 
-		await wrapper.find('[data-testid="toggle-checkbox"]').setValue(true)
-		await nextTick()
+		await toggleCertification(wrapper)
 
 		expect(requests.current).toHaveLength(2)
 		expect(requests.current[1].filters).toMatchObject({ certification: 1 })
+	})
+
+	it('maps the price and rating chips onto course fields', async () => {
+		const wrapper = await mountCourses({ data: { ...MODERATOR } })
+
+		await pick(wrapper, 'Paid')
+		expect(requests.current.at(-1).filters).toMatchObject({ paid_course: 1 })
+		await pick(wrapper, 'Free')
+		expect(requests.current.at(-1).filters).toMatchObject({ paid_course: 0 })
+		await pick(wrapper, '4 and up')
+		expect(requests.current.at(-1).filters).toMatchObject({
+			rating: ['>=', '4'],
+		})
+		expect(window.location.search).toBe('?price=free&rating=4')
+		expect(wrapper.find('[data-testid="filters-button"]').text()).toBe(
+			'Filters 2'
+		)
+
+		await pick(wrapper, 'Any price')
+		expect(requests.current.at(-1).filters).not.toHaveProperty('paid_course')
+	})
+
+	it('sorts through the list resource and keeps the sort in the URL', async () => {
+		const wrapper = await mountCourses({ data: { ...MODERATOR } })
+		expect(requests.current[0].orderBy).toBe('enrollments desc')
+
+		await pick(wrapper, 'Highest rated')
+
+		expect(requests.current).toHaveLength(2)
+		expect(requests.current[1].orderBy).toBe('rating desc')
+		expect(wrapper.find('[data-testid="sort-button"]').text()).toBe(
+			'Highest rated'
+		)
+		expect(window.location.search).toBe('?sort=rating')
+	})
+
+	it('narrows to a category from its pill and back with All', async () => {
+		const wrapper = await mountCourses({ data: { ...MODERATOR } })
+		categories.current.data = [
+			{ label: '', value: null },
+			{ label: 'ERPNext', value: 'ERPNext' },
+		]
+		await nextTick()
+
+		await wrapper.find('[data-testid="category-ERPNext"]').trigger('click')
+		await nextTick()
+		expect(requests.current.at(-1).filters).toMatchObject({
+			category: 'ERPNext',
+		})
+		expect(
+			wrapper
+				.find('[data-testid="category-ERPNext"]')
+				.attributes('aria-pressed')
+		).toBe('true')
+
+		await wrapper.find('[data-testid="category-All"]').trigger('click')
+		await nextTick()
+		expect(requests.current.at(-1).filters).not.toHaveProperty('category')
 	})
 
 	it('searches with the new title after one keystroke', async () => {
@@ -293,14 +371,13 @@ describe('Courses list filters', () => {
 		})
 	})
 
-	// Same filter, same request, from the checkbox now inside the mobile
-	// filters sheet — the chip it replaced is gone.
-	it('sends the same request from the mobile certification checkbox', async () => {
-		mobile.value = true
+	it('folds the chips away until Filters is pressed', async () => {
 		const wrapper = await mountCourses({ data: { ...MODERATOR } })
+		expect(wrapper.find('[data-testid="certification-chip"]').exists()).toBe(
+			false
+		)
 
-		await wrapper.find('[data-testid="toggle-checkbox"]').setValue(true)
-		await nextTick()
+		await toggleCertification(wrapper)
 
 		expect(requests.current).toHaveLength(2)
 		expect(requests.current[1].filters).toMatchObject({ certification: 1 })
@@ -349,13 +426,12 @@ describe('Courses list filters', () => {
 	})
 
 	it('reads certification=false from the query string as off', async () => {
-		mobile.value = true
 		window.history.replaceState({}, '', '/lms/courses?certification=false')
 		const wrapper = await mountCourses({ data: { ...MODERATOR } })
 
 		expect(requests.current[0].filters).not.toHaveProperty('certification')
-		expect(
-			wrapper.find('[data-testid="toggle-checkbox"]').attributes('checked')
-		).toBeUndefined()
+		expect(wrapper.find('[data-testid="filters-button"]').text()).toBe(
+			'Filters'
+		)
 	})
 })

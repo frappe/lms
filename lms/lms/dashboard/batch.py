@@ -55,6 +55,7 @@ from lms.lms.dashboard.common import (
 from lms.lms.doctype.lms_batch_feedback.lms_batch_feedback import feedback_rows, feedback_summary
 from lms.lms.feedback import validate_feedback_page
 from lms.lms.permissions import can_author_batch, evaluator_role_reads_batch
+from lms.lms.student_view import batch_learners, learner_condition
 
 BATCH_FILTERS = (
 	"on_track",
@@ -97,7 +98,7 @@ def get_batch_dashboard_stats(batch: str) -> dict:
 	Certificate = frappe.qb.DocType("LMS Certificate")
 	certificates = frappe.qb.from_(Certificate).where(Certificate.batch_name == context.name)
 	joined = _weekly_counts(
-		frappe.qb.from_(Enrollment).where(Enrollment.batch == context.name), Enrollment.creation, weeks
+		frappe.qb.from_(Enrollment).where(batch_learners(context.name)), Enrollment.creation, weeks
 	)
 
 	return {
@@ -152,11 +153,7 @@ def _batch_weekly_learning(context: frappe._dict, weeks: list, enrolled: int, jo
 		frappe.qb.from_(Progress)
 		.join(Enrollment)
 		.on(Enrollment.member == Progress.member)
-		.where(
-			(Enrollment.batch == context.name)
-			& Progress.course.isin(courses)
-			& (Progress.status == "Complete")
-		)
+		.where(batch_learners(context.name) & Progress.course.isin(courses) & (Progress.status == "Complete"))
 	)
 	lessons = _weekly_counts(completions, Progress.creation, weeks)
 	learners = _weekly_counts(completions, Progress.creation, weeks, fn.Count(Progress.member).distinct())
@@ -329,7 +326,7 @@ def get_batch_class_attendance(batch: str, live_class: str) -> dict:
 			fn.Sum(fn.Coalesce(Participant.duration, 0)).as_("duration"),
 			fn.Min(Participant.joined_at).as_("joined_at"),
 		)
-		.where(Enrollment.batch == batch)
+		.where(batch_learners(batch))
 		.groupby(Enrollment.member)
 		.orderby(Enrollment.member)
 		.run(as_dict=True)
@@ -341,7 +338,7 @@ def get_batch_class_attendance(batch: str, live_class: str) -> dict:
 		.left_join(User)
 		.on(User.name == Enrollment.member)
 		.select(*member_fields)
-		.where((Enrollment.batch == batch) & Participant.name.isnull())
+		.where(batch_learners(batch) & Participant.name.isnull())
 		.groupby(Enrollment.member)
 		.orderby(Enrollment.member)
 		.run(as_dict=True)
@@ -470,7 +467,7 @@ def _cohort_class_attendance(context: frappe._dict, window: tuple, enrolled: int
 	query = (
 		frappe.qb.from_(Participant)
 		.join(Enrollment)
-		.on((Enrollment.member == Participant.member) & (Enrollment.batch == context.name))
+		.on((Enrollment.member == Participant.member) & batch_learners(context.name))
 		.select(Participant.live_class, fn.Count(Participant.member).distinct())
 		.where(_isin(Participant.live_class, context.held))
 		.groupby(Participant.live_class)
@@ -1005,12 +1002,16 @@ def _isin(field, values: list):
 
 def _batch_roster(batch: str):
 	Roster = frappe.qb.DocType("LMS Batch Enrollment").as_("roster")
-	return frappe.qb.from_(Roster).select(Roster.member).where(Roster.batch == batch)
+	return (
+		frappe.qb.from_(Roster)
+		.select(Roster.member)
+		.where((Roster.batch == batch) & learner_condition(Roster))
+	)
 
 
 def _batch_members_only(query, Submission, batch: str):
 	Enrollment = frappe.qb.DocType("LMS Batch Enrollment")
-	return query.join(Enrollment).on((Enrollment.member == Submission.member) & (Enrollment.batch == batch))
+	return query.join(Enrollment).on((Enrollment.member == Submission.member) & batch_learners(batch))
 
 
 def _batch_member_facts(context: frappe._dict):
@@ -1029,7 +1030,7 @@ def _batch_member_facts(context: frappe._dict):
 	query = frappe.qb.from_(Enrollment)
 	for subquery in (progress, attendance, certificates, evaluations, requests, activity, passes):
 		query = query.left_join(subquery).on(subquery.member == Enrollment.member)
-	query = query.where(Enrollment.batch == context.name)
+	query = query.where(batch_learners(context.name))
 
 	courses = len(context.courses)
 	never, always = Enrollment.name.isnull(), Enrollment.name.isnotnull()

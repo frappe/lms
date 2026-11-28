@@ -24,6 +24,7 @@ from lms.lms.utils import (
 	guest_access_allowed,
 	has_moderator_role,
 	moderators_among,
+	views_as_author,
 )
 
 # File fields that hold instructor-only lesson media (never served to students).
@@ -490,7 +491,7 @@ def resolve_lesson_access(lesson: str, *, user: str | None = None) -> tuple[bool
 	try:
 		# can_modify_course / get_membership / guest_access_allowed read session.user.
 		frappe.session.user = user
-		if can_modify_course(lesson_row.course):
+		if views_as_author(lesson_row.course):
 			return True, True
 		if get_membership(lesson_row.course, user):
 			return False, True
@@ -608,15 +609,15 @@ def enforces_lesson_completion(course: str) -> bool:
 	"""Whether the sequential lesson gate applies to the current user on this course.
 
 	Course authors and moderators are exempt (they have no enrollment, so gating would
-	park them on the first lesson), and so is anyone who is not enrolled — sequencing
-	is meaningless without progress, and their access is already decided by
-	include_in_preview.
+	park them on the first lesson), unless in student view, and so is anyone who is not
+	enrolled — sequencing is meaningless without progress, and their access is already
+	decided by include_in_preview.
 	"""
 	if not isinstance(course, str) or not course:
 		return False
 	if not frappe.db.get_value("LMS Course", course, "enforce_lesson_completion"):
 		return False
-	if can_modify_course(course):
+	if views_as_author(course):
 		return False
 	return bool(get_membership(course))
 
@@ -756,6 +757,7 @@ def stored_authors(doctype: str, name: str) -> list[str]:
 		"LMS Content Author",
 		filters={"parent": name, "parenttype": doctype, "parentfield": "authors"},
 		pluck="author",
+		order_by="idx asc",
 	)
 	return [author for author in rows if author]
 

@@ -1,5 +1,5 @@
 <template>
-	<div class="w-full p-5">
+	<div class="flex w-full flex-1 flex-col p-5">
 		<div class="space-y-2">
 			<div class="flex items-center justify-between">
 				<h1 class="text-2xl-bold text-ink-gray-9">
@@ -25,40 +25,49 @@
 				</div>
 			</div>
 
-			<div class="text-lg text-ink-gray-6 leading-6">
+			<SkeletonText
+				v-if="isSubtitlePending"
+				text="text-lg leading-6"
+				width="w-80"
+				class="max-w-full motion-safe:animate-pulse"
+				aria-hidden="true"
+				data-testid="subtitle-skeleton"
+			/>
+			<div v-else class="text-lg text-ink-gray-6 leading-6">
 				{{ subtitle }}
 			</div>
 		</div>
 
-		<div
-			v-if="isHomeLoading"
-			class="flex flex-1 items-center justify-center py-20"
-		>
-			<LoadingIndicator class="size-5 text-ink-gray-5" />
-		</div>
+		<span class="sr-only" role="status">{{ loadingAnnouncement }}</span>
+
 		<AdminHome
-			v-else-if="isAdmin && currentTab === 'instructor'"
+			v-if="isAdmin && currentTab === 'instructor'"
 			:liveClasses="adminLiveClasses"
 			:evals="adminEvals"
+			@pending="sectionsPending = $event"
 		/>
 		<StudentHome
 			v-else-if="currentTab === 'student'"
 			:myLiveClasses="myLiveClasses"
+			@pending="sectionsPending = $event"
 		/>
 	</div>
 	<Streak v-model="showStreakModal" :streakInfo="streakInfo" />
 </template>
 <script setup lang="ts">
 import { computed, inject, onMounted, ref } from 'vue'
-import { call, createResource, LoadingIndicator, usePageMeta } from 'frappe-ui'
+import { call, createResource, usePageMeta } from 'frappe-ui'
 import { sessionStore } from '@/stores/session'
 import StudentHome from '@/pages/Home/StudentHome.vue'
 import AdminHome from '@/pages/Home/AdminHome.vue'
 import Streak from '@/pages/Home/Streak.vue'
+import SkeletonText from '@/components/Skeletons/SkeletonText.vue'
+import { isPending } from '@/pages/Home/pending'
+import { useLoadingAnnouncement } from '@/utils/a11y'
 
 const user = inject<any>('$user')
 const { brand } = sessionStore()
-const evalCount = ref(0)
+const evalCount = ref<number | null>(null)
 const currentTab = ref<'student' | 'instructor'>('student')
 const showStreakModal = ref(false)
 
@@ -70,9 +79,13 @@ const fetchEvalCount = () => {
 			status: 'Upcoming',
 			date: ['>=', inject<any>('$dayjs')().format('YYYY-MM-DD')],
 		},
-	}).then((data: any) => {
-		evalCount.value = data
 	})
+		.then((data: any) => {
+			evalCount.value = data
+		})
+		.catch(() => {
+			evalCount.value = 0
+		})
 }
 
 const isAdmin = computed(() => {
@@ -83,14 +96,12 @@ const isAdmin = computed(() => {
 	)
 })
 
-const isHomeLoading = computed(() => {
+// The subtitle counts these, so it waits for them rather than changing words.
+const isSubtitlePending = computed(() => {
 	if (isAdmin.value) {
-		return (
-			(adminLiveClasses.loading && !adminLiveClasses.data) ||
-			(adminEvals.loading && !adminEvals.data)
-		)
+		return isPending(adminLiveClasses) || isPending(adminEvals)
 	}
-	return myLiveClasses.loading && !myLiveClasses.data
+	return isPending(myLiveClasses) || evalCount.value === null
 })
 
 onMounted(() => {
@@ -122,6 +133,13 @@ const streakInfo = createResource({
 	auto: true,
 })
 
+const sectionsPending = ref(true)
+
+const loadingAnnouncement = useLoadingAnnouncement(
+	() => isSubtitlePending.value || sectionsPending.value,
+	() => __('Home loaded')
+)
+
 const subtitle = computed(() => {
 	if (isAdmin.value) {
 		let liveClassSuffix =
@@ -150,12 +168,13 @@ const subtitle = computed(() => {
 	} else {
 		let liveClassSuffix =
 			myLiveClasses.data?.length > 1 ? __('live classes') : __('live class')
-		let evalSuffix = evalCount.value > 1 ? __('evaluations') : __('evaluation')
-		if (myLiveClasses.data?.length > 0 && evalCount.value > 0) {
+		const evaluationCount = evalCount.value ?? 0
+		let evalSuffix = evaluationCount > 1 ? __('evaluations') : __('evaluation')
+		if (myLiveClasses.data?.length > 0 && evaluationCount > 0) {
 			return __('You have {0} upcoming {1} and {2} {3} scheduled.').format(
 				myLiveClasses.data.length,
 				liveClassSuffix,
-				evalCount.value,
+				evaluationCount,
 				evalSuffix
 			)
 		} else if (myLiveClasses.data?.length > 0) {
@@ -163,9 +182,9 @@ const subtitle = computed(() => {
 				myLiveClasses.data.length,
 				liveClassSuffix
 			)
-		} else if (evalCount.value > 0) {
+		} else if (evaluationCount > 0) {
 			return __('You have {0} {1} scheduled.').format(
-				evalCount.value,
+				evaluationCount,
 				evalSuffix
 			)
 		}

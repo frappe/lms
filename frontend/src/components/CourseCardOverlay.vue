@@ -1,6 +1,10 @@
 <template>
-	<div class="border-2 rounded-5 min-w-80 max-w-sm">
+	<div
+		class="w-full max-w-sm overflow-hidden rounded-6 border border-outline-gray-2 bg-surface-base"
+	>
+		<!-- Inset like the editor's card, so media and content share one edge. -->
 		<VideoPreview
+			class="mx-5 mt-5 !w-auto !rounded-5"
 			:video-link="course.data?.video_link"
 			:fallback-image="course.data?.image"
 		/>
@@ -9,7 +13,7 @@
 				{{ priceLabel }}
 			</div>
 			<div v-if="!readOnlyMode">
-				<div v-if="course.data?.membership" class="space-y-2 mb-8">
+				<div v-if="membership" class="space-y-2 mb-8">
 					<ProgressBar :progress="progress" :label="__('Course progress')" />
 					<div v-if="lessonCounts.total" class="text-p-sm text-ink-gray-7">
 						{{ lessonsCompletedLabel }}
@@ -29,6 +33,7 @@
 									? course?.data?.current_lesson.split('-')[1]
 									: 1,
 							},
+							query: studentViewQuery(preview ?? null),
 						}"
 					>
 						<template #prefix>
@@ -38,19 +43,21 @@
 							{{ progress ? __('Continue Learning') : __('Start Learning') }}
 						</span>
 					</Button>
-					<CertificationLinks :courseName="course.data.name" class="w-full" />
+					<CertificationLinks
+						v-if="!preview"
+						:courseName="course.data.name"
+						class="w-full"
+					/>
 				</div>
 				<Button
-					v-else-if="course.data?.paid_course && !isAdmin"
+					v-else-if="course.data?.paid_course && actsAsLearner"
 					variant="solid"
 					size="md"
 					class="w-full mb-8 text-p-base-medium"
 					:route="{
 						name: 'Billing',
-						params: {
-							type: 'course',
-							name: course.data.name,
-						},
+						params: { type: 'course', name: course.data.name },
+						query: studentViewQuery(preview ?? null),
 					}"
 				>
 					<template #prefix>
@@ -61,7 +68,7 @@
 					</span>
 				</Button>
 				<Alert
-					v-else-if="course.data?.disable_self_learning && !isAdmin"
+					v-else-if="course.data?.disable_self_learning && actsAsLearner"
 					class="mb-4"
 					:icon="false"
 					:description="
@@ -69,9 +76,9 @@
 					"
 				/>
 				<Button
-					v-else-if="!isAdmin"
+					v-else-if="actsAsLearner"
 					:loading="enrolling"
-					@click="enrollStudent()"
+					@click="preview ? emit('enroll') : enrollStudent()"
 					variant="solid"
 					class="w-full mb-8"
 					size="md"
@@ -84,7 +91,7 @@
 					</span>
 				</Button>
 				<Button
-					v-if="canGetCertificate"
+					v-if="canGetCertificate && !preview"
 					:loading="certificate.loading"
 					@click="fetchCertificate()"
 					variant="subtle"
@@ -97,58 +104,13 @@
 					{{ __('Get Certificate') }}
 				</Button>
 			</div>
-			<section v-if="hasCourseStats" class="space-y-3">
-				<div class="text-base text-ink-gray-9 mb-1">
-					{{ __('This course includes:') }}
-				</div>
-				<div
-					v-if="enrolledLabel"
-					class="flex items-center gap-3 text-ink-gray-8"
-				>
-					<span class="lucide-users size-4 shrink-0 text-ink-gray-7" />
-					<span>{{ __('{0} enrolled').format(enrolledLabel) }}</span>
-				</div>
-				<div
-					v-if="course.data?.video_link"
-					class="flex items-center gap-3 text-ink-gray-8"
-				>
-					<span class="lucide-monitor-play size-4 shrink-0 text-ink-gray-7" />
-					<span>{{ __('On demand course video') }}</span>
-				</div>
-				<div
-					v-if="course.data?.lessons"
-					class="flex items-center gap-3 text-ink-gray-8"
-				>
-					<span class="lucide-book-open size-4 shrink-0 text-ink-gray-7" />
-					<span>
-						{{
-							course.data?.lessons === 1
-								? __('1 lesson')
-								: __('{0} lessons').format(course.data?.lessons ?? 0)
-						}}
-					</span>
-				</div>
-				<div
-					v-if="(course.data?.quiz_count || 0) > 0"
-					class="flex items-center gap-3 text-ink-gray-8"
-				>
-					<span class="lucide-help-circle size-4 shrink-0 text-ink-gray-7" />
-					<span>
-						{{
-							course.data?.quiz_count === 1
-								? __('1 quiz topic')
-								: __('{0} quiz topics').format(course.data?.quiz_count ?? 0)
-						}}
-					</span>
-				</div>
-				<div
-					v-if="course.data?.enable_certification"
-					class="flex items-center gap-3 text-ink-gray-8"
-				>
-					<span class="lucide-award size-4 shrink-0 text-ink-gray-7" />
-					<span>{{ __('Certificate of completion') }}</span>
-				</div>
-			</section>
+			<CourseIncludes
+				:enrollments="course.data?.enrollments"
+				:lessons="course.data?.lessons"
+				:quizzes="course.data?.quiz_count"
+				:hasVideo="Boolean(course.data?.video_link)"
+				:certificate="certificateKind"
+			/>
 		</div>
 	</div>
 </template>
@@ -161,8 +123,10 @@ import { useRouter } from 'vue-router'
 import CertificationLinks from '@/components/CertificationLinks.vue'
 import ProgressBar from '@/components/ProgressBar.vue'
 import VideoPreview from '@/components/VideoPreview.vue'
-import { openExternal } from '@/utils/openExternal'
+import CourseIncludes from '@/components/Courses/CourseIncludes.vue'
 import { redirectToLogin } from '@/utils/login'
+import { openExternal } from '@/utils/openExternal'
+import { studentViewQuery } from '@/composables/useStudentView'
 import type { CourseDetails, Resource, SessionUser } from '@/types'
 import { isInstructorOf } from '@/utils/instructors'
 
@@ -171,12 +135,22 @@ const user = inject<SessionUser>('$user')!
 const readOnlyMode = (window as Window & { read_only_mode?: boolean })
 	.read_only_mode
 
-const props = withDefaults(
-	defineProps<{
-		course: Resource<CourseDetails | null>
-	}>(),
-	{}
-)
+const props = defineProps<{
+	course: Resource<CourseDetails | null>
+	/** Student view: shows the card as a learner in that state would. */
+	preview?: 'not-enrolled' | 'enrolled' | null
+}>()
+
+const emit = defineEmits<{ enroll: [] }>()
+
+// The server answers a preview as a learner in that mode; an enrolled preview
+// shows as enrolled while its own enrollment is still being created.
+const membership = computed(() => {
+	if (props.preview === 'enrolled') {
+		return props.course.data?.membership ?? { progress: 0 }
+	}
+	return props.course.data?.membership ?? null
+})
 
 const enrolling = ref(false)
 
@@ -229,34 +203,28 @@ const priceLabel = computed<string>(() => {
 	return __('Free')
 })
 
-const enrolledLabel = computed<string>(() => {
-	const n = props.course.data?.enrollments ?? 0
-	if (!n) return ''
-	if (n < 50) return String(n)
-	const tier = n < 1000 ? 50 : 100
-	return `${Math.floor(n / tier) * tier}+`
+const certificateKind = computed<'free' | 'paid' | null>(() => {
+	if (props.course.data?.paid_certificate) return 'paid'
+	return props.course.data?.enable_certification ? 'free' : null
 })
 
-const hasCourseStats = computed<boolean>(() =>
-	Boolean(
-		enrolledLabel.value ||
-			props.course.data?.video_link ||
-			props.course.data?.lessons ||
-			(props.course.data?.quiz_count ?? 0) > 0 ||
-			props.course.data?.enable_certification
-	)
-)
-
-const progress = computed<number>(
-	() => props.course.data?.membership?.progress ?? 0
-)
+const progress = computed<number>(() => membership.value?.progress ?? 0)
 
 // The stored progress lags lesson edits, so count the outline's completed flags.
 const outline = createResource({
 	url: 'lms.lms.utils.get_course_outline',
-	cache: ['course_outline_student', props.course.data?.name, 'progress'],
+	cache: [
+		'course_outline_student',
+		props.course.data?.name,
+		'progress',
+		props.preview ?? null,
+	],
 	makeParams() {
-		return { course: props.course.data?.name, progress: true }
+		return {
+			course: props.course.data?.name,
+			progress: true,
+			student_view: props.preview ?? null,
+		}
 	},
 }) as Resource<{ lessons?: { is_complete?: boolean }[] }[] | null>
 
@@ -317,4 +285,8 @@ const fetchCertificate = () => {
 const isAdmin = computed<boolean>(() => {
 	return Boolean(user.data?.is_moderator) || is_instructor()
 })
+
+const actsAsLearner = computed<boolean>(
+	() => Boolean(props.preview) || !isAdmin.value
+)
 </script>

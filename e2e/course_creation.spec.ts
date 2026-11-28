@@ -45,110 +45,88 @@ test.describe("Course Creation", () => {
 	test("creates a new course with settings", async ({ page }) => {
 		await page.goto("/lms/courses");
 
-		// Open New Course modal
-		await button(page, "New Course").click();
-
-		// The form is a route now (NewCourseForm.vue); scope to its own fields
-		// rather than to the last layer on the page.
-		//
-		// No whole-wrapper visibility assertion: the fields scroll inside the
-		// dialog on a short CI viewport, and Playwright's per-locator actions
-		// already auto-wait and auto-scroll the specific element they touch —
-		// the wrapper itself never needs to be "visible" as a whole.
-		const fields = page.getByTestId("new-course-fields");
-		await fields
-			.locator("label")
-			.filter({ hasText: "Title" })
-			.locator("xpath=..")
-			.locator("input")
-			.fill(courseTitle);
-
-		// The form pre-fills the signed-in user as instructor; clicking their
-		// option would deselect them and the form now refuses to save.
-		await expect(
-			fields
-				.locator("label")
-				.filter({ hasText: "Instructors" })
-				.locator("xpath=..")
-				.locator("button")
-				.first()
-		).toContainText("Frappe");
-
-		// Thumbnail
-		const upload = waitForApiCall(page, "/api/method/upload_file");
-		await fields
-			.locator('input[type="file"]')
-			.setInputFiles(path.join(__dirname, "fixtures/profile.png"));
-		thumbnailFile = (await (await upload).json()).message.name;
-
-		// Short introduction
-		await fields
-			.locator("label")
-			.filter({ hasText: "Short introduction" })
-			.locator("xpath=..")
-			.locator("textarea")
-			.fill("Test Course Short Introduction to test the UI");
-
-		// Description
-		await fields.locator("div.ProseMirror").evaluate((el, text) => {
-			el.textContent = text;
-		}, description);
-
-		// Save sits in the shell's action slot, outside the fields above.
-		await page.getByTestId("new-course-save").click();
-
-		// Redirect to course settings. The slug isn't known ahead of time (see
-		// the courseTitle comment above), so it's read off the URL Vue Router
-		// actually lands on rather than asserted against a guessed value.
-		// The form's own route is /lms/courses/new, which a plain
-		// /\/lms\/courses\/[^/]+$/ also matches — excluding "new" is what
-		// actually waits for the post-save redirect rather than the form's
-		// own already-current URL.
-		await page.waitForURL(/\/lms\/courses\/(?!new(?:$|[/#]))[^/]+$/, {
-			timeout: 10000,
-		});
-		courseSlug = new URL(page.url()).pathname.split("/").pop() as string;
-
-		// Configure settings
-		await settingsTab(page).click();
-
-		// Preview video: the field has a URL input beside a hidden file input,
-		// so target the URL input by its accessible name.
+		// The header's: an empty list offers its own New Course.
 		await page
-			.getByRole("textbox", { name: "YouTube link" })
-			.fill("https://www.youtube.com/embed/-LPmw2Znl2c");
+			.locator("header")
+			.getByRole("button", { name: "New course" })
+			.click();
+		await page.waitForURL(/\/lms\/courses\/new$/);
 
-		// Tags. A new tag is the `Create "<tag>"` option CourseDetailsSection
-		// adds once the query reaches it, and reka only highlights that option
-		// a tick later, so an Enter pressed straight after typing can select
-		// nothing. Click the option itself, and redo the pick when the click
-		// lands on an option the list was re-rendering: the trigger then still
-		// reads "Add tag" instead of listing the tag.
-		const tagsTrigger = page
-			.locator("label")
-			.filter({ hasText: "Tags" })
-			.locator("xpath=..")
-			.locator("button")
-			.first();
-		await tagsTrigger.click();
+		// A new course is its own page (NewCoursePage.vue): the course overview,
+		// edited in place, saved once with Save.
+		const main = page.getByRole("main");
+		await main.getByRole("textbox", { name: "Course title" }).fill(courseTitle);
+
+		// The page pre-fills the signed-in user as instructor; the course does
+		// not save without one.
+		await expect(main.getByRole("button", { name: "Frappe" })).toBeVisible();
+
+		// Tags. A new tag is the `Create "<tag>"` option CourseTagsField adds once
+		// the query reaches it, and reka only highlights that option a tick
+		// later, so an Enter pressed straight after typing can select nothing.
+		// Click the option itself, and redo the pick when the click lands on an
+		// option the list was re-rendering: no badge for the tag shows then.
+		const tagsTrigger = main.getByRole("button", { name: "Add tag" });
 		const tagInput = page.locator(
 			'[data-slot="content-body"] [data-slot="input"]'
 		);
-		const added: string[] = [];
 		for (const tag of ["Learning", "Frappe", "ERPNext"]) {
-			added.push(tag);
 			await expect(async () => {
 				if (!(await tagInput.isVisible())) await tagsTrigger.click();
 				await tagInput.fill(tag);
 				await page
 					.getByRole("option", { name: `Create "${tag}"` })
 					.click({ timeout: 5000 });
-				await expect(tagsTrigger).toHaveText(added.join(", "), {
-					timeout: 5000,
-				});
+				await expect(
+					main.getByRole("button", { name: `Remove tag ${tag}` })
+				).toBeVisible({ timeout: 5000 });
 			}).toPass({ timeout: 20000 });
 		}
 		await page.keyboard.press("Escape");
+
+		await main
+			.getByRole("textbox", { name: /^Short introduction/ })
+			.fill("Test Course Short Introduction to test the UI");
+
+		// Preview video: the dialog's field has a URL input beside a hidden file
+		// input, so target the URL input by its accessible name.
+		await main.getByRole("button", { name: "Add preview video" }).click();
+		const videoDialog = page.getByRole("dialog", { name: "Preview video" });
+		await videoDialog
+			.getByRole("textbox", { name: "YouTube link" })
+			.fill("https://www.youtube.com/embed/-LPmw2Znl2c");
+		await videoDialog.getByRole("button", { name: "Done" }).click();
+
+		// Last: the description's toolbar hides on blur, and when that shrinks a
+		// page scrolled to its end, the card beside it moves between mousedown
+		// and mouseup, so a click on its video button is lost.
+		await main
+			.getByRole("textbox", { name: "About this course" })
+			.fill(description);
+
+		await page
+			.locator("header")
+			.getByRole("button", { name: "Save", exact: true })
+			.click();
+
+		// Saving opens the course's own page. The slug isn't known ahead of time
+		// (see the courseTitle comment above), so it's read off the URL Vue
+		// Router actually lands on. Excluding "new" is what waits for the
+		// redirect rather than the draft page's own already-current URL.
+		await page.waitForURL(/\/lms\/courses\/(?!new(?:$|[/?#]))[^/?#]+(#.*)?$/, {
+			timeout: 10000,
+		});
+		courseSlug = new URL(page.url()).pathname.split("/").pop() as string;
+
+		// The thumbnail is set in Settings.
+		await settingsTab(page).click();
+		const upload = waitForApiCall(page, "/api/method/upload_file");
+		const chooser = page.waitForEvent("filechooser");
+		await page.getByTestId("upload-image").click();
+		await (
+			await chooser
+		).setFiles(path.join(__dirname, "fixtures/profile.png"));
+		thumbnailFile = (await (await upload).json()).message.name;
 
 		await button(page, "Save").click();
 		// Save writes the whole doc, published flag included, and reloads it
@@ -157,35 +135,36 @@ test.describe("Course Creation", () => {
 		await expect(page.getByText("Course updated successfully")).toBeVisible();
 		await page.reload();
 
-		// Publish
-		await page
-			.locator("header")
-			.getByRole("button", { name: /^Publish$/ })
-			.click();
-		// Not the toast: its wording reads `published` when the request returns,
-		// and a reload already in flight can carry the new value, so a successful
-		// publish can say "Course unpublished". The button flips only once a
-		// reload has returned the course as published.
-		await expect(
-			page.locator("header").getByRole("button", { name: /^Unpublish$/ })
-		).toBeVisible({ timeout: 20000 });
+		// Publish. Not the toast: its wording reads `published` when the request
+		// returns, and a reload already in flight can carry the new value, so a
+		// successful publish can say "Course unpublished". The header's badge
+		// and Publish button change only once a reload returns the course as
+		// published.
+		const header = page.locator("header");
+		await header.getByRole("button", { name: /^Publish$/ }).click();
+		await expect(header.getByText(/^Published$/)).toBeVisible({
+			timeout: 20000,
+		});
+		await expect(header.getByRole("button", { name: /^Publish$/ })).toHaveCount(
+			0
+		);
 
 		// Reload and verify published state
 		await page.reload();
-		await expect(page.locator("header").getByText(/^Published$/)).toBeVisible({
+		await expect(header.getByText(/^Published$/)).toBeVisible({
 			timeout: 10000,
 		});
-		await expect(
-			page.locator("header").getByRole("button", { name: /^Unpublish$/ })
-		).toBeVisible();
+		await expect(header.getByRole("button", { name: /^Publish$/ })).toHaveCount(
+			0
+		);
 	});
 
 	test("adds a chapter and a lesson", async ({ page }) => {
 		await page.goto(`/lms/courses/${courseSlug}`);
+		// exact: the overview's "Course content" heading sits on the same page.
 		await page
-			.getByRole("button")
-			.or(page.getByRole("tab"))
-			.filter({ hasText: "Course editor" })
+			.getByRole("button", { name: "Content", exact: true })
+			.or(page.getByRole("tab", { name: "Content", exact: true }))
 			.click();
 		// A course without chapters shows one empty state in place of the
 		// chapters panel and its toolbar; its "Create chapter" is the only way
@@ -274,16 +253,21 @@ test.describe("Course Creation", () => {
 		await expect(page).toHaveURL(new RegExp(`/lms/courses/${courseSlug}`), {
 			timeout: 10000,
 		});
-		await expect(page.getByText(courseTitle).first()).toBeVisible();
+		// The instructor's overview is the course's edit form, so the title and
+		// introduction are field values.
+		const main = page.getByRole("main");
 		await expect(
-			page.getByText("Test Course Short Introduction to test the UI")
-		).toBeVisible();
-		// Scoped to the Overview panel: an unscoped getByText("Learning") also
-		// matches the sidebar brand button, whose own fallback text is literally
-		// "Learning" on a site with no custom brand name set.
+			main.getByRole("textbox", { name: "Course title" })
+		).toHaveValue(courseTitle);
 		await expect(
-			page.getByLabel("Overview").getByText("Learning")
-		).toBeVisible();
+			main.getByRole("textbox", { name: /^Short introduction/ })
+		).toHaveValue("Test Course Short Introduction to test the UI");
+		// Each saved tag is a badge with its own remove button.
+		for (const tag of ["Learning", "Frappe", "ERPNext"]) {
+			await expect(
+				main.getByRole("button", { name: `Remove tag ${tag}` })
+			).toBeVisible();
+		}
 		await expect(page.locator("iframe").first()).toHaveAttribute(
 			"src",
 			"https://www.youtube.com/embed/-LPmw2Znl2c"
@@ -302,14 +286,13 @@ test.describe("Course Creation", () => {
 
 		await page
 			.locator("header")
-			.locator('button[aria-haspopup="menu"]')
-			.first()
-			.click({ force: true, timeout: 10000 });
+			.getByRole("button", { name: "Course options" })
+			.click({ timeout: 10000 });
+		await page.getByRole("menuitem", { name: "Delete" }).click();
 		await page
-			.locator("div[role=menu]")
-			.getByRole("menuitem", { name: "Delete" })
+			.getByRole("dialog", { name: "Delete course" })
+			.getByRole("button", { name: "Delete" })
 			.click();
-		await page.locator("span").filter({ hasText: "Delete" }).first().click();
 
 		await expect(page).toHaveURL(/\/lms\/courses(\/|\?|$)/, { timeout: 10000 });
 		await expect(page.getByText(courseTitle)).toHaveCount(0);

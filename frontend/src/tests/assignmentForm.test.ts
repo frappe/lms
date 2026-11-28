@@ -209,6 +209,7 @@ describe('AssignmentForm as a route', () => {
 		insertOptions.current = null
 		docResource.current = reactive({
 			doc: null as Record<string, string> | null,
+			get: { loading: false },
 			setValue: { submit: setValueSubmit, loading: false },
 		})
 		Object.defineProperty(window, 'innerWidth', {
@@ -226,11 +227,11 @@ describe('AssignmentForm as a route', () => {
 		})
 		const wrapper = await mountForm(router, student)
 		expect(wrapper.find('[data-testid="assignment-fields"]').exists()).toBe(
-			false,
+			false
 		)
 		expect(wrapper.find('[data-testid="assignment-save"]').exists()).toBe(false)
 		expect(vi.mocked(toast.warning)).toHaveBeenLastCalledWith(
-			expect.stringContaining('not permitted'),
+			expect.stringContaining('not permitted')
 		)
 	})
 
@@ -330,7 +331,7 @@ describe('AssignmentForm as a route', () => {
 			.findAllComponents({ name: 'FormControl' })
 			.find((field: any) => field.props('label') === 'Submission Type')
 		expect(
-			typeField.props('options').map((option: any) => option.value),
+			typeField.props('options').map((option: any) => option.value)
 		).toContain('Audio')
 
 		await fillRequired(wrapper)
@@ -357,7 +358,7 @@ describe('AssignmentForm as a route', () => {
 		await save()
 		expect(insertSubmit).not.toHaveBeenCalled()
 		expect(error).toHaveBeenLastCalledWith(
-			'Add a Submission Type before saving.',
+			'Add a Submission Type before saving.'
 		)
 
 		await inputs(wrapper)[1].setValue('Text')
@@ -425,11 +426,11 @@ describe('AssignmentForm as a route', () => {
 		const wrapper = await mountForm(router, moderator)
 
 		expect(
-			wrapper.find('[data-testid="assignment-read-only-note"]').text(),
+			wrapper.find('[data-testid="assignment-read-only-note"]').text()
 		).toBe('Only the authors of this assignment can edit it.')
 		expect(wrapper.find('[data-testid="assignment-save"]').exists()).toBe(false)
 		expect(
-			wrapper.find('[data-testid="assignment-fields"]').attributes('disabled'),
+			wrapper.find('[data-testid="assignment-fields"]').attributes('disabled')
 		).toBeDefined()
 
 		const vm = wrapper.findComponent(AssignmentForm).vm as any
@@ -464,7 +465,7 @@ describe('AssignmentForm as a route', () => {
 		await fillRequired(wrapper)
 
 		insertSubmit.mockImplementation(() =>
-			insertOptions.current.onSuccess({ name: 'ASG-0002' }),
+			insertOptions.current.onSuccess({ name: 'ASG-0002' })
 		)
 		await wrapper.find('[data-testid="assignment-save"]').trigger('click')
 		await flushPromises()

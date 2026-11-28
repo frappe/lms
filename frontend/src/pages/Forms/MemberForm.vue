@@ -36,10 +36,17 @@
 					<div class="text-p-sm-medium text-ink-gray-7">
 						{{ __('Roles') }}
 					</div>
-					<RoleSwitches
-						:model-value="roles"
-						@toggle="(key, value) => (roles[key] = value)"
-					/>
+					<SkeletonOverlay :active="memberFetch.loading && !memberFetch.data">
+						<template #skeleton>
+							<div class="grid grid-cols-1 gap-5 md:grid-cols-2">
+								<FieldSkeleton v-for="i in 4" :key="i" kind="switch" />
+							</div>
+						</template>
+						<RoleSwitches
+							:model-value="roles"
+							@toggle="(key, value) => (roles[key] = value)"
+						/>
+					</SkeletonOverlay>
 				</div>
 			</div>
 		</template>
@@ -63,6 +70,8 @@ import { useOnboarding } from '@framework/ui/components/Onboarding/index'
 import { seesOnboarding } from '@/utils/onboarding'
 import { useTelemetry } from '@framework/ui/telemetry/index'
 import RoleSwitches from '@/components/Controls/RoleSwitches.vue'
+import FieldSkeleton from '@/components/Skeletons/FieldSkeleton.vue'
+import SkeletonOverlay from '@/components/Skeletons/SkeletonOverlay.vue'
 import FormShell from '@/components/FormShell.vue'
 import HeaderButton from '@/components/HeaderButton.vue'
 import { useFormRoute } from '@/composables/useFormRoute'

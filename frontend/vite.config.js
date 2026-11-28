@@ -53,6 +53,7 @@ export default defineConfig(async ({ mode }) => {
 			}),
 			vue(),
 			dropFrappeUIEsbuildTwin(),
+			flowLauncherInDev(),
 			VitePWA({
 				registerType: 'autoUpdate',
 				devOptions: {
@@ -223,4 +224,32 @@ function dropFrappeUIEsbuildTwin() {
 async function importFrappeUIPlugin() {
 	const module = await import('frappe-ui/vite')
 	return module.default
+}
+
+/**
+ * Frappe adds Flow's launcher to the /lms pages it serves; the dev server's page
+ * never passes through Frappe, so it adds the same script from the bench's
+ * built assets. Missing until Frappe's assets are built.
+ */
+function flowLauncherInDev() {
+	const manifest = path.resolve(
+		import.meta.dirname,
+		'../../../sites/assets/assets.json'
+	)
+	return {
+		name: 'lms-flow-launcher-in-dev',
+		apply: 'serve',
+		transformIndexHtml(html) {
+			if (!fs.existsSync(manifest)) return html
+			const assets = JSON.parse(fs.readFileSync(manifest, 'utf8'))
+			const launcher = assets['flow_launcher.bundle.js']
+			if (!launcher) return html
+			const island = assets['frappe.flow.chat.island.js'] || ''
+			const islandCss = assets['frappe.flow.chat.island.css'] || ''
+			return html.replace(
+				'</body>',
+				`<script src="${launcher}" defer data-island="${island}" data-island-css="${islandCss}"></script></body>`
+			)
+		},
+	}
 }

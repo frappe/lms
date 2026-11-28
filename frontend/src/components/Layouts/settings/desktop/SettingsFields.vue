@@ -194,9 +194,10 @@
 								v-for="option in visibleOptions(field)"
 								:key="option.name"
 								:data-setting-field="option.name"
-								class="py-2"
 							>
 								<BooleanSwitch
+									variant="row"
+									class="py-2"
 									size="sm"
 									:label="__(option.label)"
 									:description="translated(option.description)"
@@ -214,7 +215,7 @@
 					<div
 						v-else-if="field.type == 'checkbox'"
 						:data-setting-field="field.name"
-						class="relative isolate py-3"
+						class="relative isolate"
 					>
 						<span
 							aria-hidden="true"
@@ -223,6 +224,8 @@
 							:class="flashed === field.name ? 'opacity-100' : 'opacity-0'"
 						/>
 						<BooleanSwitch
+							variant="row"
+							class="py-3"
 							size="sm"
 							:label="__(field.label)"
 							:description="translated(field.description)"

@@ -12,6 +12,7 @@ from frappe.utils import cint, flt
 from pypika.terms import ExistsCriterion
 
 from lms.lms.permissions import can_author_batch, can_author_course
+from lms.lms.student_view import batch_learners
 
 MAX_BULK_ENROLL_MEMBERS: int = 50
 
@@ -510,7 +511,7 @@ def get_target_summary(doctype: str, docname: str) -> dict:
 	)
 	seats_left = None
 	if seat_count:
-		seats_left = cint(seat_count) - frappe.db.count("LMS Batch Enrollment", {"batch": docname})
+		seats_left = cint(seat_count) - frappe.db.count("LMS Batch Enrollment", batch_learners(docname))
 	return {"seats_left": seats_left, "amount": flt(amount), "currency": currency}
 
 

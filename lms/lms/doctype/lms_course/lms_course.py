@@ -2,6 +2,7 @@
 # For license information, please see license.txt
 
 import random
+import re
 
 import frappe
 from frappe import _
@@ -37,6 +38,9 @@ COURSE_OWNED_DOCTYPES = (
 	"Related Courses",
 )
 
+# A lucide icon name; frontend/src/utils/courseIcons.ts mirrors this.
+ICON_NAME = re.compile(r"[a-z0-9]+(-[a-z0-9]+)*")
+
 
 class LMSCourse(Document):
 	def validate(self):
@@ -52,6 +56,7 @@ class LMSCourse(Document):
 		validate_attachable_file(self, "image")
 		self.image = validate_image(self.image)
 		self.validate_card_gradient()
+		self.validate_icon()
 
 	def validate_published(self):
 		if not self.published:
@@ -145,6 +150,11 @@ class LMSCourse(Document):
 				"Purple",
 			]
 			self.card_gradient = random.choice(colors)
+
+	def validate_icon(self):
+		self.icon = (self.icon or "").strip()
+		if self.icon and (len(self.icon) > 64 or not ICON_NAME.fullmatch(self.icon)):
+			frappe.throw(_("{0} is not a Lucide icon name.").format(frappe.bold(self.icon)))
 
 	def on_update(self):
 		if not self.upcoming and self.has_value_changed("upcoming"):

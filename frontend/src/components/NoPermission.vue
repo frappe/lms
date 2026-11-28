@@ -16,7 +16,7 @@
 					{{ __('Checkout Courses') }}
 				</Button>
 			</div>
-			<div class="px-5 py-3">
+			<div v-else class="px-5 py-3">
 				<div class="text-ink-gray-6">
 					{{ __('You are not permitted to access this page.') }}
 				</div>
@@ -28,16 +28,13 @@
 	</div>
 </template>
 <script setup>
+import { redirectToLogin } from '@/utils/login'
 import { inject } from 'vue'
 import { Button, usePageMeta } from 'frappe-ui'
 import { sessionStore } from '../stores/session'
 
 const user = inject('$user')
 const { brand } = sessionStore()
-
-const redirectToLogin = () => {
-	window.location.href = '/login'
-}
 
 usePageMeta(() => {
 	return {

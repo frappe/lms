@@ -168,6 +168,10 @@ const translateStub = (s: string) =>
 
 vi.stubGlobal('__', translateStub)
 
+vi.mock('@/components/StudentViewBar.vue', () => ({
+	default: { template: '<div />' },
+}))
+
 import Lesson from '@/pages/Lesson.vue'
 
 const findResource = (url: string) =>
@@ -177,7 +181,8 @@ async function mountLesson(
 	props: { chapterNumber: string; lessonNumber: string } = {
 		chapterNumber: '1',
 		lessonNumber: '1',
-	}
+	},
+	user: Record<string, unknown> = { name: 'student@example.com' }
 ) {
 	const wrapper = mount(Lesson, {
 		props: { courseName: 'COURSE-1', ...props },
@@ -185,7 +190,7 @@ async function mountLesson(
 		global: {
 			mocks: { __: translateStub },
 			provide: {
-				$user: { data: { name: 'student@example.com' } },
+				$user: { data: user },
 				$socket: { on: socketOnMock, off: socketOffMock },
 			},
 		},
@@ -225,6 +230,8 @@ beforeEach(() => {
 	editors.list.length = 0
 	editors.nextReady = null
 	pushMock.mockReset()
+	replaceMock.mockReset()
+	route.value.query = {}
 	route.value.params.chapterNumber = '1'
 	route.value.params.lessonNumber = '1'
 })
@@ -292,5 +299,30 @@ describe('Lesson.vue editor teardown', () => {
 		await flushPromises()
 
 		expect(document.querySelector('#editor .rendered')).not.toBeNull()
+	})
+})
+
+describe('Lesson.vue for someone who edits the course', () => {
+	const moderator = { name: 'mod@example.com', is_moderator: true }
+	const open = async () => {
+		wrapper = await mountLesson(undefined, moderator)
+		findResource('lms.lms.utils.get_lesson').data = { ...baseLesson }
+		await flushPromises()
+	}
+
+	it('opens the lesson in the course editor', async () => {
+		await open()
+		expect(replaceMock).toHaveBeenCalledWith({
+			name: 'CourseDetail',
+			params: { courseName: 'COURSE-1' },
+			hash: '#editor',
+			query: { editLesson: '1-1' },
+		})
+	})
+
+	it('stays on the learner page in student view', async () => {
+		route.value.query = { studentView: '1' }
+		await open()
+		expect(replaceMock).not.toHaveBeenCalled()
 	})
 })

@@ -7,7 +7,7 @@ import {
 	RouterView,
 	type Router,
 } from 'vue-router'
-import { defineComponent, h, reactive } from 'vue'
+import { defineComponent, h, nextTick, reactive } from 'vue'
 
 vi.stubGlobal('__', (text: string) => text)
 enableAutoUnmount(afterEach)
@@ -40,6 +40,7 @@ createListResourceMock.mockImplementation((options: any) => {
 		data: null as any[] | null,
 		update: vi.fn((patch: any) => Object.assign(resource.options, patch)),
 		reload: vi.fn(),
+		list: { loading: false },
 		insert: { submit: insertSubmit, loading: false },
 		setValue: { submit: setValueSubmit },
 		delete: { submit: deleteSubmit },
@@ -50,7 +51,7 @@ createListResourceMock.mockImplementation((options: any) => {
 		answer(rows: any[]) {
 			if (resource.reload.mock.calls.length === 0) {
 				throw new Error(
-					`answered ${options.doctype}, which the form never reloaded`,
+					`answered ${options.doctype}, which the form never reloaded`
 				)
 			}
 			// The server returns at most one page: frappe-ui sends
@@ -71,6 +72,7 @@ createDocumentResourceMock.mockImplementation((options: any) => {
 	const resource = reactive({
 		options,
 		doc: null as any,
+		get: { error: null },
 		// Same rule as the list mock: a resource that was never told to fetch
 		// cannot answer.
 		answer(doc: any) {
@@ -209,7 +211,7 @@ const mountForm = async (router: Router, user: Record<string, unknown>) => {
 
 const deepLink = async (
 	programName: string,
-	user: Record<string, unknown> = moderator,
+	user: Record<string, unknown> = moderator
 ) => {
 	const router = makeRouter()
 	await router.push(`/programs/${programName}/edit`)
@@ -247,7 +249,7 @@ describe('ProgramForm as a route', () => {
 		expect(wrapper.find('[data-testid="program-fields"]').exists()).toBe(false)
 		expect(wrapper.find('[data-testid="program-save"]').exists()).toBe(false)
 		expect(vi.mocked(toast.warning)).toHaveBeenLastCalledWith(
-			expect.stringContaining('not permitted'),
+			expect.stringContaining('not permitted')
 		)
 	})
 
@@ -260,7 +262,7 @@ describe('ProgramForm as a route', () => {
 					doctype: 'LMS Program',
 					name: 'data-science',
 					auto: true,
-				}),
+				})
 			)
 
 			// And the fetched document is what fills the form.
@@ -272,7 +274,7 @@ describe('ProgramForm as a route', () => {
 			})
 			await flushPromises()
 			expect(
-				(wrapper.find('input[type="text"]').element as HTMLInputElement).value,
+				(wrapper.find('input[type="text"]').element as HTMLInputElement).value
 			).toBe('data-science')
 		})
 
@@ -341,7 +343,7 @@ describe('ProgramForm as a route', () => {
 		const drag = async (
 			wrapper: Awaited<ReturnType<typeof loadProgram>>,
 			oldIndex: number,
-			newIndex: number,
+			newIndex: number
 		) => {
 			const draggable = wrapper.findComponent({ name: 'Draggable' })
 			const list = draggable.props('list')
@@ -359,7 +361,7 @@ describe('ProgramForm as a route', () => {
 			await wrapper.find('[data-testid="program-save"]').trigger('click')
 			const payload = setValueSubmit.mock.calls[0][0]
 			expect(
-				payload.program_courses.map((row: any) => [row.course, row.idx]),
+				payload.program_courses.map((row: any) => [row.course, row.idx])
 			).toEqual([
 				['course-b', 1],
 				['course-c', 2],
@@ -399,7 +401,7 @@ describe('ProgramForm as a route', () => {
 			const wrapper = await loadProgram(THREE_COURSES, MEMBER_ROWS)
 			setValueSubmit.mockImplementation(
 				(_doc: unknown, options: { onError: (err: unknown) => void }) =>
-					options.onError(new Error('Not permitted')),
+					options.onError(new Error('Not permitted'))
 			)
 
 			await drag(wrapper, 0, 2)
@@ -410,6 +412,12 @@ describe('ProgramForm as a route', () => {
 
 		it('offers Delete only for a real program', async () => {
 			const { wrapper } = await deepLink('data-science')
+			// The actions wait with the fields for the record to land.
+			expect(wrapper.find('[data-testid="program-delete"]').exists()).toBe(
+				false
+			)
+			resources.docs[0].answer({ name: 'data-science', program_members: [] })
+			await nextTick()
 			await wrapper.find('[data-testid="program-delete"]').trigger('click')
 			expect($dialog).toHaveBeenCalledTimes(1)
 		})

@@ -1,6 +1,11 @@
 import type { RouteLocationRaw } from 'vue-router'
 import type { ThemePreference } from '@/utils/theme'
-import { overflowLinks, sectionFor, type NavLink } from '@/utils/mobileNav'
+import {
+	orderInSection,
+	overflowLinks,
+	sectionFor,
+	type NavLink,
+} from '@/utils/mobileNav'
 import type { FieldsSection } from '@/types/settingsSchema'
 
 // Every grouped list a phone draws is a list of these, and `SettingsRowList`
@@ -135,6 +140,9 @@ const ICON_CLASSES: Record<string, string> = {
 export const iconClass = (icon?: string): string | undefined =>
 	icon ? ICON_CLASSES[icon] ?? 'lucide-link' : undefined
 
+// Links whose icon is a component of our own rather than a lucide name.
+const LABEL_ICON_CLASSES: Record<string, string> = { Flow: 'lms-icon-flow' }
+
 // The sections survive as a sort order, not as three headings: one "Pages"
 // list, course content first, keeping related rows adjacent (arrival order
 // would interleave the sidebar and moderator extras). ACCOUNT is absent deliberately.
@@ -159,9 +167,13 @@ const destinationRow = (
 	const row: MobileRow = {
 		key: link.label,
 		label: link.label,
-		icon: iconClass(link.icon),
+		icon:
+			LABEL_ICON_CLASSES[link.label] ??
+			iconClass(typeof link.icon === 'string' ? link.icon : undefined),
 	}
 
+	// Flow opens a panel rather than going anywhere, like Notifications.
+	if (link.action) return { ...row, action: link.action }
 	if (!link.to) return row
 	if (hasRoute(link.to)) return { ...row, to: { name: link.to } }
 	if (ABSOLUTE_URL.test(link.to)) return { ...row, href: link.to }
@@ -196,7 +208,11 @@ export const buildYouRows = (options: {
 	// arrived in. `filter` already copied the array, so `overflow` is not reordered under its other reader.
 	const pageRows: MobileRow[] = overflow
 		.filter((link) => sectionRank(link) >= 0)
-		.sort((a, b) => sectionRank(a) - sectionRank(b))
+		.sort(
+			(a, b) =>
+				sectionRank(a) - sectionRank(b) ||
+				orderInSection(a.label) - orderInSection(b.label)
+		)
 		.map((link) => destinationRow(link, hasRoute))
 
 	// No rows, no heading: a bar that already holds every destination should not

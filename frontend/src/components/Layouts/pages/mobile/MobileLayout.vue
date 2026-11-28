@@ -8,7 +8,7 @@
 			{{ __('Skip to main content') }}
 		</a>
 		<main
-			class="flex min-h-0 flex-1 flex-col overflow-y-auto focus:outline-none"
+			class="@container flex min-h-0 flex-1 flex-col overflow-y-auto focus:outline-none"
 			id="scrollContainer"
 			tabindex="-1"
 		>
@@ -60,6 +60,7 @@
 	</div>
 </template>
 <script setup>
+import { redirectToLogin } from '@/utils/login'
 // Two browser constraints the markup depends on. The frame is `h-dvh`, not
 // `h-screen`: 100vh is the URL-bar-retracted viewport, so the tab bar would
 // sit below the visible area, and nothing above main scrolls to retract it.
@@ -150,7 +151,7 @@ let isActive = (tab) => {
 // one exception, leaving the SPA for Frappe's own /login, which vue-router
 // knows nothing about.
 const handleClick = (tab) => {
-	if (tab.label == 'Log in') window.location.href = '/login'
+	if (tab.label == 'Log in') redirectToLogin()
 	else router.push({ name: tab.to })
 }
 </script>

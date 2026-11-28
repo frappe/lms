@@ -19,6 +19,12 @@ const { batchResource, createResourceMock } = vi.hoisted(() => ({
 
 vi.mock('frappe-ui', () => ({
 	createResource: createResourceMock,
+	createDocumentResource: () => ({
+		doc: null,
+		reload: vi.fn(),
+		setValue: { submit: vi.fn() },
+	}),
+	call: vi.fn(() => Promise.resolve([])),
 	usePageMeta: () => {},
 	toast: { success: vi.fn(), error: vi.fn() },
 	Badge: { template: `<span><slot /></span>` },

@@ -13,10 +13,9 @@ String.prototype.format = function (this: string, ...args: unknown[]): string {
 	)
 }
 
-const { state, openFormRouteMock } = vi.hoisted(() => ({
+const { state } = vi.hoisted(() => ({
 	// Whether the user may create batches.
 	state: { isModerator: 1 },
-	openFormRouteMock: vi.fn(),
 }))
 
 // Only the header actions are under test.
@@ -74,9 +73,6 @@ vi.mock('frappe-ui', () => ({
 	usePageMeta: vi.fn(),
 }))
 
-vi.mock('@/composables/useFormRoute', () => ({
-	openFormRoute: openFormRouteMock,
-}))
 vi.mock('@/stores/session', () => ({ sessionStore: () => ({ brand: {} }) }))
 vi.mock('@/components/Controls/ClearableCombobox.vue', () => ({
 	default: defineComponent({ setup: () => () => h('div') }),
@@ -94,6 +90,11 @@ const mountBatches = async () => {
 		history: createMemoryHistory(),
 		routes: [
 			{ path: '/', name: 'Batches', component: { render: () => null } },
+			{
+				path: '/batches/new',
+				name: 'NewBatch',
+				component: { render: () => null },
+			},
 			{
 				path: '/import/:doctype',
 				name: 'NewDataImport',
@@ -120,19 +121,17 @@ const mountBatches = async () => {
 describe('Batches page header', () => {
 	beforeEach(() => {
 		state.isModerator = 1
-		openFormRouteMock.mockReset()
 	})
 
-	it('offers New Batch as a button, with Import beside it', async () => {
+	it('offers New batch as a button, with Import beside it', async () => {
 		const { wrapper, router } = await mountBatches()
 		const buttons = wrapper.find('header').findAll('button')
 
-		expect(buttons.map((b) => b.text())).toEqual(['Import', 'New Batch'])
+		expect(buttons.map((b) => b.text())).toEqual(['Import', 'New batch'])
 
 		await buttons[1].trigger('click')
-		expect(openFormRouteMock).toHaveBeenCalledWith(expect.anything(), {
-			name: 'NewBatch',
-		})
+		await flushPromises()
+		expect(router.currentRoute.value.name).toBe('NewBatch')
 		const { takeFormSource } = await import('@/composables/formTracking')
 		expect(takeFormSource()).toBe('header_button')
 

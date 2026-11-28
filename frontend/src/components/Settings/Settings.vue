@@ -1,23 +1,33 @@
 <template>
 	<SettingsDialog v-model:open="show" v-model:tab="activeSlug" size="5xl">
 		<template #title>{{ __('Settings') }}</template>
-		<SettingsSidebar class="lms-settings-nav">
+		<SettingsSidebar
+			ref="nav"
+			class="lms-settings-nav"
+			:class="{ 'lms-settings-nav-rail': rail }"
+		>
 			<SettingsNavGroup v-for="group in tabs" :key="group.label">
-				<template #label>
+				<template v-if="!rail" #label>
 					<span class="text-xs-medium text-ink-gray-6">
 						{{ __(group.label) }}
 					</span>
 				</template>
-				<SettingsNavItem
+				<Tooltip
 					v-for="item in group.items"
 					:key="item.slug"
-					:value="item.slug"
+					:text="__(item.label)"
+					:side="inlineEndSide()"
+					:disabled="!rail"
 				>
-					<template #prefix>
-						<span :class="[item.icon, 'size-4 shrink-0 text-ink-gray-7']" />
-					</template>
-					<span class="text-p-sm text-ink-gray-7">{{ __(item.label) }}</span>
-				</SettingsNavItem>
+					<SettingsNavItem :value="item.slug">
+						<template #prefix>
+							<span :class="[item.icon, 'size-4 shrink-0 text-ink-gray-7']" />
+						</template>
+						<span :class="rail ? 'sr-only' : 'text-p-sm text-ink-gray-7'">{{
+							__(item.label)
+						}}</span>
+					</SettingsNavItem>
+				</Tooltip>
 			</SettingsNavGroup>
 		</SettingsSidebar>
 		<SettingsContent class="min-w-0">
@@ -73,8 +83,10 @@ import {
 	SettingsNavItem,
 	SettingsPanel,
 	SettingsSidebar,
+	Tooltip,
 	createDocumentResource,
 } from 'frappe-ui'
+import { useElementSize } from '@vueuse/core'
 import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useSettings } from '@/stores/settings'
@@ -84,8 +96,24 @@ import SettingsFieldsPanel from '@/components/Layouts/settings/desktop/SettingsF
 import SettingsListPanel from '@/components/Layouts/settings/desktop/SettingsListPanel.vue'
 import { isGroupVisible, settingsTree } from '@/components/Settings/settings'
 import { useSettingsHash } from '@/composables/useSettingsHash'
+import { useScreenSize } from '@/utils/composables'
+import { inlineEndSide } from '@/utils/textDirection'
 
 const doctype = ref('LMS Settings')
+
+// Beside an open Flow, or in any narrow window, the dialog loses its width to
+// the nav first: below RAIL_BELOW the nav folds to its icons. Measured on the
+// dialog's row, which the rail does not change, so the fold cannot flip back.
+const RAIL_BELOW = 900
+const nav = ref(null)
+const { width: rowWidth } = useElementSize(
+	computed(() => nav.value?.$el?.parentElement ?? null)
+)
+// On a phone the nav sits above the panel, where it already has the full width.
+const { isMobile } = useScreenSize()
+const rail = computed(
+	() => rowWidth.value > 0 && rowWidth.value < RAIL_BELOW && !isMobile.value
+)
 const settingsStore = useSettings()
 
 // The dirty guard, installed once for every settings form. Each form

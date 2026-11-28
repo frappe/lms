@@ -7,7 +7,7 @@
 		<AssessmentCardHeader :icon="icon" :title="label" preview />
 		<div class="space-y-4 p-3.5">
 			<Skeleton class="h-5 w-1/3 rounded-4" />
-			<div v-if="kind == 'quiz'" class="grid grid-cols-2 gap-2 sm:grid-cols-4">
+			<div v-if="kind == 'quiz'" class="grid grid-cols-2 gap-2 @lg:grid-cols-4">
 				<Skeleton v-for="i in 4" :key="i" class="h-14 rounded-6" />
 			</div>
 			<template v-else>
@@ -64,7 +64,9 @@
 			:subtitle="details.doc.title"
 			preview
 		/>
-		<div class="grid grid-cols-1 md:grid-cols-[minmax(0,1fr)_minmax(0,0.9fr)]">
+		<div
+			class="grid grid-cols-1 @2xl:grid-cols-[minmax(0,1fr)_minmax(0,0.9fr)]"
+		>
 			<div
 				class="min-w-0 space-y-2 border-b border-outline-gray-1 p-3.5 md:border-b-0 md:border-e"
 			>
@@ -118,7 +120,7 @@
 			<Button variant="solid" size="sm" disabled>{{ __('Run code') }}</Button>
 		</AssessmentCardHeader>
 		<div
-			class="grid grid-cols-1 md:grid-cols-[minmax(0,0.8fr)_minmax(0,1.2fr)]"
+			class="grid grid-cols-1 @2xl:grid-cols-[minmax(0,0.8fr)_minmax(0,1.2fr)]"
 		>
 			<div
 				class="min-w-0 space-y-2 border-b border-outline-gray-1 p-3.5 md:border-b-0 md:border-e"

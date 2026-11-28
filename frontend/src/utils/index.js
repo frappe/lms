@@ -281,7 +281,7 @@ export function getEditorTools(
 							__('Google Slides embed')
 						)} style='width: 100%; height: ${
 							window.innerWidth < 640 ? '15rem' : '30rem'
-						}; border: 1px solid var(--outline-gray-2); border-radius: 12px; margin: 1rem 0' frameborder='0' allowfullscreen='true'></iframe>`,
+						}; border: 1px solid var(--outline-gray-2); border-radius: 12px;' frameborder='0' allowfullscreen='true'></iframe>`,
 					},
 					drive: {
 						regex: /^https:\/\/drive\.google\.com\/file\/d\/([A-Za-z0-9_-]+)\/view(\?.+)?$/,
@@ -315,7 +315,7 @@ export function getEditorTools(
 							'https://docs.google.com/presentation/d/<%= remote_id %>/embed',
 						html: `<iframe ${frameTitle(
 							__('Google Slides embed')
-						)} style='width: 100%; height: 30rem; border: 1px solid var(--outline-gray-2); border-radius: 12px; margin: 1rem 0;' frameborder='0' allowfullscreen='true'></iframe>`,
+						)} style='width: 100%; height: 30rem; border: 1px solid var(--outline-gray-2); border-radius: 12px;' frameborder='0' allowfullscreen='true'></iframe>`,
 					},
 					codesandbox: {
 						regex: /^https:\/\/codesandbox\.io\/(?:(?:p\/(?:sandbox|devbox)\/)|(?:embed\/)|(?:s\/))?([A-Za-z0-9_-]+)(?:[\/\?].*)?$/,
@@ -550,7 +550,7 @@ const getSidebarItems = (forMobile = false) => {
 					action: 'flow',
 					shortcut: 'Mod+I',
 					condition: () => {
-						return !forMobile && userResource?.data?.can_use_flow
+						return userResource?.data?.can_use_flow
 					},
 				},
 			],
@@ -952,7 +952,7 @@ export const cleanError = (message) => {
 }
 
 export const getMetaInfo = (type, route, meta) => {
-	call('lms.lms.api.get_meta_info', {
+	return call('lms.lms.api.get_meta_info', {
 		type: type,
 		route: route,
 	}).then((data) => {
@@ -969,7 +969,7 @@ export const getMetaInfo = (type, route, meta) => {
 }
 
 export const updateMetaInfo = (type, route, meta) => {
-	call('lms.lms.api.update_meta_info', {
+	return call('lms.lms.api.update_meta_info', {
 		meta_type: type,
 		route: route,
 		meta_tags: [

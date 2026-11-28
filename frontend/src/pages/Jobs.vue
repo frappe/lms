@@ -1,11 +1,6 @@
 <template>
 	<ListPage
 		:breadcrumbs="breadcrumbs"
-		:title="
-			activeTab === 'Open'
-				? __('{0} Open Jobs').format(jobCount.data ?? 0)
-				: __('{0} Closed Jobs').format(jobCount.data ?? 0)
-		"
 		:rows="jobs.data || []"
 		:total-count="jobCount.data ?? 0"
 		:loading="jobs.list.loading"
@@ -20,6 +15,24 @@
 		@load-more="jobs.next()"
 		@clear-filters="clearFilters"
 	>
+		<template #name>
+			<SkeletonText
+				v-if="jobCount.data == null"
+				text=""
+				width="w-28"
+				class="w-28 motion-safe:animate-pulse"
+				aria-hidden="true"
+				data-testid="count-skeleton"
+			/>
+			<template v-else>
+				{{
+					activeTab === 'Open'
+						? __('{0} Open Jobs').format(jobCount.data)
+						: __('{0} Closed Jobs').format(jobCount.data)
+				}}
+			</template>
+		</template>
+
 		<template v-if="emptyState" #empty-actions>
 			<EmptyStateActions
 				list="jobs"
@@ -90,6 +103,10 @@
 			/>
 		</template>
 
+		<template #card-skeleton>
+			<JobCardSkeleton />
+		</template>
+
 		<template #card="{ row }">
 			<router-link
 				:to="{
@@ -116,6 +133,8 @@ import { sessionStore } from '@/stores/session'
 import { useSettings } from '@/stores/settings'
 import { inject, computed, ref, onMounted, watch } from 'vue'
 import JobCard from '@/components/JobCard.vue'
+import JobCardSkeleton from '@/components/Skeletons/JobCardSkeleton.vue'
+import SkeletonText from '@/components/Skeletons/SkeletonText.vue'
 import Link from '@/components/Controls/Link.vue'
 import Select from '@/components/Controls/Select.vue'
 import ListPage from '@/components/Layouts/pages/ListPage.vue'

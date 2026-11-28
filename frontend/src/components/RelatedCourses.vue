@@ -2,11 +2,11 @@
 	<div v-if="relatedCourses.data?.length" class="mt-10">
 		<div class="flex items-center justify-between mb-6">
 			<div class="text-3xl-semibold text-ink-gray-9">
-				{{ __('Related Courses') }}
+				{{ __('Related courses') }}
 			</div>
 		</div>
 		<div
-			class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-4"
+			class="grid grid-cols-1 @2xl:grid-cols-2 @4xl:grid-cols-3 @7xl:grid-cols-4 gap-5"
 		>
 			<CourseCard
 				v-for="course in relatedCourses.data"

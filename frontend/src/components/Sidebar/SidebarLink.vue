@@ -6,6 +6,7 @@
 		:route="target.route"
 		:href="safeUrl(target.href)"
 		:active="isActive"
+		:aria-keyshortcuts="keyShortcuts"
 		:data-notifications-trigger="link.panel === 'notifications' ? '' : null"
 		@click="target.onClick?.()"
 	>
@@ -15,12 +16,18 @@
 			</span>
 		</Tooltip>
 		<template #suffix>
-			<KeyboardShortcut
+			<kbd
 				v-if="link.shortcut"
-				bg
-				:combo="link.shortcut"
-				class="me-2"
-			/>
+				class="me-2 inline-flex items-center gap-1 rounded-1 bg-surface-gray-2 px-1 py-0.5 font-sans text-p-sm text-ink-gray-6"
+				aria-hidden="true"
+			>
+				<span
+					v-for="(key, index) in shortcutKeys"
+					:key="index"
+					:class="{ 'min-w-3 text-center': index === shortcutKeys.length - 1 }"
+					>{{ key }}</span
+				>
+			</kbd>
 			<span v-else-if="link.count" class="me-2 text-p-xs text-ink-gray-6">
 				{{ link.count }}
 			</span>
@@ -29,7 +36,7 @@
 	<ContactUsEmail v-if="isContactLink" v-model="showContactForm" />
 </template>
 <script setup lang="ts">
-import { KeyboardShortcut, SidebarItem, Tooltip } from 'frappe-ui'
+import { SidebarItem, Tooltip } from 'frappe-ui'
 import { inlineEndSide } from '@/utils/textDirection'
 import { computed, ref } from 'vue'
 import { useRouter } from 'vue-router'
@@ -52,6 +59,32 @@ const settingsStore = useSettings()
 const showContactForm = ref<boolean>(false)
 
 const props = defineProps<{ link: SidebarLink }>()
+
+const isMac = navigator.userAgent.includes('Mac')
+
+// A soft "Ctrl K" chip, as CRM and Helpdesk show it. The last key sits in a
+// fixed-width cell, so "Ctrl K" and "Ctrl I" badges match.
+const shortcutKeys = computed(() =>
+	(props.link.shortcut || '')
+		.split('+')
+		.map((key) =>
+			/^(mod|ctrl|cmd|meta)$/i.test(key) ? (isMac ? '⌘' : 'Ctrl') : key
+		)
+)
+
+// The chip is hidden from screen readers; the control announces the shortcut.
+const keyShortcuts = computed(() =>
+	props.link.shortcut
+		?.split('+')
+		.map((key) =>
+			/^(mod|ctrl|cmd|meta)$/i.test(key)
+				? isMac
+					? 'Meta'
+					: 'Control'
+				: key.toUpperCase()
+		)
+		.join('+')
+)
 
 const icon = computed(() =>
 	typeof props.link.icon === 'string'

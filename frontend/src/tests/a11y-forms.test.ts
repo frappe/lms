@@ -72,10 +72,8 @@ const expectIdsDeclared = (file: string, labelledby: string) => {
 const EDITOR_FILES = [
 	'components/Notes/Notes.vue',
 	'components/DiscussionReplies.vue',
-	'pages/Forms/NewCourseForm.vue',
-	'pages/Forms/NewBatchForm.vue',
-	'pages/Batches/BatchForm.vue',
-	'components/Courses/CourseOverviewSection.vue',
+	'pages/Batches/BatchOverview.vue',
+	'pages/Courses/CourseOverview.vue',
 	'pages/Forms/JobForm.vue',
 	'pages/Forms/EmailTemplateForm.vue',
 	'components/ContactUsEmail.vue',
@@ -87,7 +85,9 @@ describe('rich text editors', () => {
 	// Guards: unnamed rich text editors with no focus ring. Introduced in #2565
 	// and #2662; test added with the a11y audit remediation.
 	it.each(EDITOR_FILES)('%s names every editor', (file) => {
-		const editors = elements(file).filter((el) => el.tag === 'RichTextEditor')
+		const editors = elements(file).filter((el) =>
+			['RichTextEditor', 'RichTextField'].includes(el.tag ?? '')
+		)
 		expect(editors.length).toBeGreaterThan(0)
 		for (const el of editors) {
 			const label = attr(el, 'ariaLabel')
@@ -131,8 +131,8 @@ const FILTERS: Array<[string, string, string]> = [
 	['pages/QuizSubmissions.vue', 'Link', 'Filter by Course'],
 	['pages/ProgrammingExercises/ProgrammingExercises.vue', 'Select', 'Type'],
 	['components/Programs/ProgramProgressSummary.vue', 'FormControl', 'Search'],
-	['pages/Courses/Courses.vue', 'ClearableCombobox', 'Category'],
-	['pages/Batches/Batches.vue', 'ClearableCombobox', 'Category'],
+	['pages/Courses/Courses.vue', 'FormControl', 'Search courses'],
+	['pages/Batches/Batches.vue', 'FormControl', 'Search batches'],
 	['pages/CertifiedParticipants.vue', 'ClearableCombobox', 'Category'],
 ]
 
@@ -166,6 +166,11 @@ describe('named controls and focus outlines', () => {
 		const switches = elements(file).filter((el) => el.tag === 'SwitchRow')
 		expect(switches).toHaveLength(2)
 		for (const sw of switches) expect(attr(sw, 'label')).toBeTruthy()
+		// The editor's toolbar switch sits right before its label.
+		expect(switches.map((sw) => attr(sw, 'control-position'))).toEqual([
+			'start',
+			undefined,
+		])
 		const title = elements(file).find((el) => el.tag === 'textarea')!
 		// The ring is bound, not static: it shows only after keyboard input.
 		const boundClass = (title.props ?? []).find(
@@ -180,9 +185,11 @@ describe('named controls and focus outlines', () => {
 			(e) => e.tag === 'FormControl' && attr(e, 'type') === 'number'
 		)!
 		expect(attr(marks, 'aria-label')).toContain("__('Marks for question {0}')")
-		const file = 'components/Courses/CourseDetailsSection.vue'
-		const tags = elements(file).find((el) => el.tag === 'button')!
-		expectIdsDeclared(file, attr(tags, 'aria-labelledby') ?? '')
+		const tagButtons = elements('components/Courses/CourseTagsField.vue')
+			.filter((el) => el.tag === 'button')
+			.map((el) => attr(el, 'aria-label') ?? '')
+		// "Add tag" beside "Tag"; with no tags the visible "Add tags" names it.
+		expect(tagButtons).toContain("tags.length ? __('Add tag') : undefined")
 		const h1 = elements('pages/Forms/JobForm.vue').find((e) => e.tag === 'h1')!
 		expect(attr(h1, 'class')).toContain('sr-only')
 	})

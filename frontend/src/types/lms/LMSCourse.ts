@@ -81,6 +81,8 @@ export interface LMSCourse {
 		| 'Violet'
 		| 'Yellow'
 		| 'Gray'
+	/**	Icon : Data	*/
+	icon?: string
 	/**	Timezone : Data	*/
 	timezone?: string
 	/**	Notification Sent : Check	*/

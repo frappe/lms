@@ -46,7 +46,7 @@
 		</AssessmentCardHeader>
 
 		<div
-			class="grid min-h-0 flex-1 grid-cols-1 md:grid-cols-[minmax(0,0.8fr)_minmax(0,1.2fr)]"
+			class="grid min-h-0 flex-1 grid-cols-1 @2xl:grid-cols-[minmax(0,0.8fr)_minmax(0,1.2fr)]"
 		>
 			<div
 				class="flex min-h-0 flex-col border-b border-outline-gray-1 md:border-b-0 md:border-e"

@@ -1,5 +1,5 @@
 <template>
-	<PageHeader :breadcrumbs="breadcrumbs" :loading="quizDetails.loading">
+	<PageHeader :breadcrumbs="breadcrumbs" :loading="isQuizPending">
 		<template #actions>
 			<template v-if="!readOnlyMode">
 				<Badge
@@ -42,15 +42,11 @@
 		</template>
 	</PageHeader>
 	<h1 class="sr-only">{{ pageTitle }}</h1>
-	<div
-		v-if="quizDetails.loading && !quizDetails.doc"
-		class="flex items-center justify-center py-20"
-	>
-		<LoadingIndicator class="size-5 text-ink-gray-5" />
-	</div>
+	<span class="sr-only" role="status">{{ loadingAnnouncement }}</span>
+	<QuizFormSkeleton v-if="isQuizPending" data-testid="quiz-form-skeleton" />
 	<div
 		v-else-if="doc"
-		class="grid flex-1 grid-cols-1 lg:min-h-0 lg:grid-cols-[7fr,3fr]"
+		class="grid flex-1 grid-cols-1 lg:min-h-0 @4xl:grid-cols-[7fr,3fr]"
 	>
 		<div class="flex min-h-0 flex-col overflow-y-auto px-5 py-5">
 			<div v-if="previewing" data-testid="quiz-preview" class="w-full">
@@ -66,11 +62,11 @@
 				</p>
 				<div
 					v-if="!locked"
-					class="mb-5 flex items-center gap-3"
+					class="mb-5 flex flex-wrap items-center gap-3"
 					data-testid="question-toolbar"
 				>
 					<FormControl
-						class="flex-1"
+						class="min-w-48 flex-1"
 						type="text"
 						:disabled="isNew"
 						v-model="searchQuery"
@@ -106,7 +102,6 @@
 				<EmptyStateLayout
 					v-if="isNew"
 					data-testid="quiz-unnamed-state"
-					class="flex-1"
 					name="Quiz"
 					icon="lucide-pencil-line"
 					:title="__('Name the quiz first')"
@@ -152,7 +147,6 @@
 
 				<EmptyStateLayout
 					v-if="!isNew && !questions.length && !draft"
-					class="flex-1"
 					name="Questions"
 					icon="lucide-circle-dot"
 					:title="__('No questions yet')"
@@ -393,7 +387,6 @@ import {
 	toast,
 	createDocumentResource,
 	Badge,
-	LoadingIndicator,
 } from 'frappe-ui'
 import BooleanSwitch from '@/components/Controls/BooleanSwitch.vue'
 import HeaderButton from '@/components/HeaderButton.vue'
@@ -403,6 +396,8 @@ import { toDatetimeLocal, fromDatetimeLocal } from '@/utils/schedule'
 import Draggable from 'vuedraggable'
 import QuestionCard from '@/components/Quiz/QuestionCard.vue'
 import QuestionBankPanel from '@/components/Quiz/QuestionBankPanel.vue'
+import QuizFormSkeleton from '@/components/Skeletons/QuizFormSkeleton.vue'
+import { useLoadingAnnouncement } from '@/utils/a11y'
 import Quiz from '@/components/Quiz.vue'
 import {
 	allowedUiTypesFor,
@@ -930,6 +925,16 @@ const openQuiz = (quizID) =>
 		: null
 const quizResource = shallowRef(openQuiz(props.quizID))
 const quizDetails = computed(() => quizResource.value ?? standInQuiz)
+
+// A document resource reports its fetch on `get`; it has no `loading` of its own.
+const isQuizPending = computed(() =>
+	Boolean(quizResource.value?.get.loading && !quizResource.value.doc)
+)
+
+const loadingAnnouncement = useLoadingAnnouncement(
+	() => isQuizPending.value,
+	() => (quizDetails.value.doc ? __('Quiz loaded') : '')
+)
 
 // /quizzes/new and /quizzes/:quizID resolve to the same component and
 // <router-view> has no key, so vue patches this page instead of remounting.

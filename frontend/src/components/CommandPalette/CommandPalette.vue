@@ -26,7 +26,7 @@
 								v-if="item.icon"
 								:class="[item.icon, 'size-4 text-ink-gray-6']"
 							/>
-							<div v-safe-html:rich="item.title"></div>
+							<div v-safe-html:rich="item.title" class="text-base"></div>
 						</div>
 						<template v-if="item.modified" #suffix>
 							<div class="text-ink-gray-6">
@@ -118,6 +118,7 @@ import {
 	visibleNavTargets,
 } from './categories'
 import { openFormRoute } from '@/composables/useFormRoute'
+import { canEditPrograms } from '@/utils/recordRoutes'
 import { pushSettingsHash } from '@/composables/useSettingsHash'
 
 const dayjs = inject<typeof dayjsType>('$dayjs')!
@@ -223,11 +224,7 @@ const resultsAreStale = computed(
 
 /** The same test Programs.vue gates its own card click on. */
 const routeContext = computed(() => ({
-	canEditPrograms:
-		!window.read_only_mode &&
-		Boolean(
-			userResource.data?.is_moderator || userResource.data?.is_instructor
-		),
+	canEditPrograms: canEditPrograms(userResource.data),
 }))
 
 /**

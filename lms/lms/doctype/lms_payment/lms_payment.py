@@ -8,6 +8,7 @@ from frappe.model.document import Document
 from frappe.utils import add_days, flt, nowdate
 from pypika import functions as fn
 
+from lms.lms.student_view import batch_learners
 from lms.lms.utils import get_lms_route
 
 
@@ -147,7 +148,9 @@ def has_paid_later(payment):
 def is_batch_sold_out(payment):
 	if payment.payment_for_document_type == "LMS Batch":
 		seat_count = frappe.get_cached_value("LMS Batch", payment.payment_for_document, "seat_count")
-		number_of_students = frappe.db.count("LMS Batch Enrollment", {"batch": payment.payment_for_document})
+		number_of_students = frappe.db.count(
+			"LMS Batch Enrollment", batch_learners(payment.payment_for_document)
+		)
 
 		if seat_count <= number_of_students:
 			return True

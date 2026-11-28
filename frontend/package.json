@@ -52,6 +52,7 @@
   },
   "devDependencies": {
     "@codemirror/language": "^6.0.0",
+    "@tailwindcss/container-queries": "^0.1.1",
     "@vitejs/plugin-vue": "6.0.10",
     "@vue/test-utils": "^2.4.10",
     "autoprefixer": "10.4.2",

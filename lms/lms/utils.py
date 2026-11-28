@@ -227,6 +227,8 @@ def create_user(
 def get_membership(course: str, member: str = None):
 	if not member:
 		member = frappe.session.user
+	if hides_own_enrollment(course, member):
+		return False
 
 	filters = {"member": member, "course": course}
 
@@ -408,7 +410,12 @@ def get_instructors(doctype: str, docname: str):
 
 
 def get_public_instructors(doctype: str, docname: str) -> list:
-	return hide_user_emails(get_instructors(doctype, docname), "name")
+	"""Instructors without their emails; guests also get no bio, in the same shape."""
+	instructors = hide_user_emails(get_instructors(doctype, docname), "name")
+	if frappe.session.user == "Guest":
+		for instructor in instructors:
+			instructor.bio = None
+	return instructors
 
 
 def hide_user_emails(rows: list, *fields: str) -> list:
@@ -477,7 +484,7 @@ def _course_reviews(course: str) -> list:
 	reviews = frappe.get_all(
 		"LMS Course Review",
 		{"course": course},
-		["review", "rating", "owner", "creation"],
+		["name", "review", "rating", "owner", "creation"],
 		order_by="creation desc",
 	)
 
@@ -516,6 +523,8 @@ def get_lesson_url(course: str, lesson_number: str):
 def get_progress(course: str, lesson: str, member: str = None):
 	if not member:
 		member = frappe.session.user
+	if hides_own_enrollment(course, member):
+		return None
 
 	return frappe.db.exists(
 		"LMS Course Progress",
@@ -757,6 +766,8 @@ def get_course_details_for_notification(topic: dict):
 
 
 def get_batch_details_for_notification(topic: dict):
+	from lms.lms.student_view import batch_learners
+
 	users = []
 	batch_title = frappe.db.get_value("LMS Batch", topic.reference_docname, "title")
 	subject = _("New comment in batch {0}").format(batch_title)
@@ -766,7 +777,9 @@ def get_batch_details_for_notification(topic: dict):
 		{"parenttype": "LMS Batch", "parent": topic.reference_docname},
 		pluck="instructor",
 	)
-	students = frappe.db.get_all("LMS Batch Enrollment", {"batch": topic.reference_docname}, pluck="member")
+	students = frappe.db.get_all(
+		"LMS Batch Enrollment", filters=batch_learners(topic.reference_docname), pluck="member"
+	)
 	users += instructors
 	users += students
 	return subject, link, users
@@ -1454,10 +1467,23 @@ COURSE_LIST_FILTERS = frozenset(
 		"published",
 		"published_on",
 		"upcoming",
+		"paid_course",
+		"rating",
 	}
 )
+COURSE_LIST_ORDERS = frozenset({"enrollments desc", "rating desc", "published_on desc", "title asc"})
 BATCH_LIST_FILTERS = frozenset(
-	{"title", "category", "certification", "enrolled", "start_date", "end_date", "published"}
+	{
+		"title",
+		"category",
+		"certification",
+		"enrolled",
+		"start_date",
+		"end_date",
+		"published",
+		"paid_batch",
+		"medium",
+	}
 )
 BATCH_LIST_ORDERS = frozenset({"start_date", "start_date asc", "start_date desc"})
 LIST_FILTER_OPERATORS = frozenset({"=", "!=", "<", "<=", ">", ">=", "like", "not like", "is"})
@@ -1520,10 +1546,14 @@ def resolve_page_length(limit_page_length=None, default: int = DEFAULT_PAGE_LENG
 @frappe.whitelist(allow_guest=True)  # nosemgrep: frappe-semgrep-rules.rules.security.guest-whitelisted-method
 @rate_limit(limit=500, seconds=60 * 60)
 @guest_access_required(list)
-def get_courses(filters: dict = None, start: int = 0, limit_page_length: int | str = None) -> list:
-	"""Returns the list of courses."""
+def get_courses(
+	filters: dict = None, start: int = 0, limit_page_length: int | str = None, order_by: str = None
+) -> list:
+	"""Returns the list of courses, most enrolled first unless `order_by` names another listed sort."""
 
 	filters = check_list_filters(filters, COURSE_LIST_FILTERS)
+	if order_by not in COURSE_LIST_ORDERS:
+		order_by = "enrollments desc"
 
 	self_scoped = is_self_scoped(filters)
 	filters, or_filters, show_featured = update_course_filters(filters)
@@ -1542,7 +1572,9 @@ def get_courses(filters: dict = None, start: int = 0, limit_page_length: int | s
 	# of the sequence starts at, and it is only needed when the window runs past
 	# the featured rows, which is exactly when this read returned all of them.
 	featured = (
-		get_featured_courses(filters.copy(), or_filters, fields, start + page_length) if show_featured else []
+		get_featured_courses(filters.copy(), or_filters, fields, start + page_length, order_by)
+		if show_featured
+		else []
 	)
 	courses = featured[start : start + page_length]
 	remaining = page_length - len(courses)
@@ -1553,7 +1585,7 @@ def get_courses(filters: dict = None, start: int = 0, limit_page_length: int | s
 			filters=filters,
 			fields=fields,
 			or_filters=or_filters,
-			order_by="enrollments desc",
+			order_by=order_by,
 			start=max(start - len(featured), 0),
 			page_length=remaining,
 		)
@@ -1587,7 +1619,7 @@ def get_course_count(filters: dict = None) -> int:
 	return total
 
 
-def count_matching(doctype: str, filters: dict | list, or_filters: dict = None) -> int:
+def count_matching(doctype: str, filters: dict | list, or_filters: dict | list = None) -> int:
 	"""Return row count for filters, including OR filters."""
 	if not or_filters:
 		return frappe.db.count(doctype, filters)
@@ -1619,22 +1651,34 @@ def as_filter_conditions(filters: dict) -> list:
 @guest_access_required(list)
 def get_course_categories() -> list:
 	"""Returns the full, unfiltered list of categories used by published courses."""
+	return get_published_categories("LMS Course")
 
-	# Distinct category strings are inherently bounded (one per category, not per
-	# course), so the full set is intended; limit_page_length=0 makes the
-	# "no page cap" explicit rather than relying on get_all's default.
+
+# nosemgrep: security.guest-whitelisted-method - the batch list's own guest grant; guests are served only when guest access is on, and only category names of published batches.
+@frappe.whitelist(allow_guest=True)
+@rate_limit(limit=500, seconds=60 * 60)
+@guest_access_required(list)
+def get_batch_categories() -> list:
+	"""Returns the full, unfiltered list of categories used by published batches."""
+	return get_published_categories("LMS Batch")
+
+
+def get_published_categories(doctype: str) -> list:
+	"""The categories a list's chips offer: those of its published records, after a clear option.
+
+	Distinct category strings are inherently bounded (one per category, not per
+	record), so the full set is intended; limit_page_length=0 makes the "no page
+	cap" explicit rather than relying on get_all's default.
+	"""
 	rows = frappe.get_all(
-		"LMS Course",
+		doctype,
 		filters={"published": 1, "category": ["is", "set"]},
 		pluck="category",
 		distinct=True,
 		order_by="category asc",
 		limit_page_length=0,
 	)
-
-	options = [{"label": "", "value": None}]
-	options += [{"label": category, "value": category} for category in rows]
-	return options
+	return [{"label": "", "value": None}] + [{"label": category, "value": category} for category in rows]
 
 
 def get_course_card_details(courses: list) -> list:
@@ -1650,17 +1694,31 @@ def get_course_card_details(courses: list) -> list:
 	return courses
 
 
-def get_course_or_filters(filters: dict) -> dict:
-	or_filters = {}
-	or_filters.update({"title": filters.get("title")})
-	or_filters.update({"short_introduction": filters.get("title")})
-	or_filters.update({"description": filters.get("title")})
-	or_filters.update({"tags": filters.get("title")})
-	return or_filters
+COURSE_SEARCH_FIELDS = ("title", "short_introduction", "tags")
+
+
+def get_course_or_filters(filters: dict) -> list:
+	"""Courses with a title, introduction or tag word that starts with the search.
+
+	The description is HTML, so a substring search matched markup like `href`.
+	"""
+	term = get_search_term(filters.get("title"))
+	return [
+		[field, "like", pattern]
+		for field in COURSE_SEARCH_FIELDS
+		for pattern in (f"{term}%", f"% {term}%", f"%,{term}%")
+	]
+
+
+def get_search_term(value) -> str:
+	"""The typed text from a plain value or a `["like", "%text%"]` filter."""
+	if isinstance(value, list | tuple):
+		value = value[1]
+	return str(value).strip("%").strip()
 
 
 def update_course_filters(filters: dict) -> tuple:
-	or_filters = {}
+	or_filters = []
 	show_featured = False
 
 	if filters.get("title"):
@@ -1687,8 +1745,12 @@ def update_course_filters(filters: dict) -> tuple:
 		del filters["live"]
 
 	if filters.get("certification"):
-		or_filters.update({"enable_certification": 1})
-		or_filters.update({"paid_certificate": 1})
+		certified = frappe.get_all(
+			"LMS Course", or_filters={"enable_certification": 1, "paid_certificate": 1}, pluck="name"
+		)
+		if name := filters.get("name"):
+			certified = [course for course in certified if course in name[1]]
+		filters.update({"name": ["in", certified]})
 		del filters["certification"]
 
 	return filters, or_filters, show_featured
@@ -1712,14 +1774,16 @@ def get_enrollment_details(courses: list) -> list:
 	return courses
 
 
-def get_featured_courses(filters: dict, or_filters: dict, fields: list, page_length: int) -> list:
+def get_featured_courses(
+	filters: dict, or_filters: list, fields: list, page_length: int, order_by: str = "enrollments desc"
+) -> list:
 	filters.update({"featured": 1})
 	featured_courses = frappe.get_all(
 		"LMS Course",
 		filters=filters,
 		fields=fields,
 		or_filters=or_filters,
-		order_by="enrollments desc",
+		order_by=order_by,
 		page_length=page_length,
 	)
 	return featured_courses
@@ -1748,6 +1812,7 @@ def get_course_fields():
 		"image",
 		"video_link",
 		"card_gradient",
+		"icon",
 		"short_introduction",
 		"description",
 		"published",
@@ -1772,7 +1837,15 @@ def get_course_fields():
 @frappe.whitelist(allow_guest=True)  # nosemgrep: frappe-semgrep-rules.rules.security.guest-whitelisted-method
 @rate_limit(limit=500, seconds=60 * 60)
 @guest_access_required(dict)
-def get_course_details(course: str):
+def get_course_details(course: str, student_view: str | None = None):
+	"""`student_view` ("enrolled" or "not-enrolled") answers an author as a plain student would be."""
+	from lms.lms.student_view import answer_as_student
+
+	with answer_as_student("LMS Course", course, student_view):
+		return build_course_details(course)
+
+
+def build_course_details(course: str) -> dict:
 	is_course_published = frappe.db.get_value("LMS Course", course, "published")
 	membership = get_membership(course)
 	if not is_course_published and not can_modify_course(course) and not membership:
@@ -1853,12 +1926,18 @@ def get_categorized_courses(courses: list) -> dict:
 
 @frappe.whitelist(allow_guest=True)  # nosemgrep: frappe-semgrep-rules.rules.security.guest-whitelisted-method
 @guest_access_required(list)
-def get_course_outline(course: str, progress: bool = False) -> list:
-	"""Returns the course outline."""
+def get_course_outline(course: str, progress: bool = False, student_view: str | None = None) -> list:
+	"""Returns the course outline. See get_course_details for `student_view`."""
+	from lms.lms.student_view import answer_as_student
 
 	if not isinstance(course, str):
 		frappe.throw(_("Course must be a string."))
 
+	with answer_as_student("LMS Course", course, student_view):
+		return build_course_outline(course, progress)
+
+
+def build_course_outline(course: str, progress: bool) -> list:
 	if not can_view_course(course):
 		return []
 
@@ -1869,7 +1948,7 @@ def get_course_outline(course: str, progress: bool = False) -> list:
 	# get_outline_chapter reads through frappe.qb, which consults no permission layer at
 	# all — not the DocPerm rows, not the permlevel — and this endpoint answers guests.
 	# can_modify_course is the predicate the only reader's own save is refused on.
-	if any(c.is_scorm_package and c.scorm_package for c in chapters) and not can_modify_course(course):
+	if any(c.is_scorm_package and c.scorm_package for c in chapters) and not views_as_author(course):
 		for chapter in chapters:
 			chapter.scorm_package = None
 
@@ -1958,7 +2037,7 @@ def get_scorm_files(chapters: list) -> dict:
 
 
 def get_completed_lessons(course: str, lesson_rows: list) -> set:
-	if frappe.session.user == "Guest" or not lesson_rows:
+	if frappe.session.user == "Guest" or not lesson_rows or hides_own_enrollment(course):
 		return set()
 	return set(
 		frappe.get_all(
@@ -2120,7 +2199,15 @@ def _gate_redirect(course: str) -> dict:
 @frappe.whitelist(allow_guest=True)  # nosemgrep: frappe-semgrep-rules.rules.security.guest-whitelisted-method
 @rate_limit(limit=500, seconds=60 * 60)
 @guest_access_required(dict)
-def get_lesson(course: str, chapter: int, lesson: int) -> dict:
+def get_lesson(course: str, chapter: int, lesson: int, student_view: str | None = None) -> dict:
+	"""See get_course_details for `student_view`."""
+	from lms.lms.student_view import answer_as_student
+
+	with answer_as_student("LMS Course", course, student_view):
+		return build_lesson(course, chapter, lesson)
+
+
+def build_lesson(course: str, chapter: int, lesson: int) -> dict:
 	# Local import: permissions imports from utils at module load.
 	from lms.lms.permissions import can_access_course
 
@@ -2241,7 +2328,7 @@ def get_lesson(course: str, chapter: int, lesson: int) -> dict:
 	lesson_details.course_title = course_info.title
 	lesson_details.paid_certificate = course_info.paid_certificate
 	lesson_details.disable_self_learning = course_info.disable_self_learning
-	lesson_details.videos = get_video_details(lesson_name)
+	lesson_details.videos = get_video_details(lesson_name, course)
 
 	# Rewrite for EVERYONE, not just guests: native /private/files/ needs a Course
 	# Lesson read role-perm that students/guests lack, so all private media is routed
@@ -2252,7 +2339,9 @@ def get_lesson(course: str, chapter: int, lesson: int) -> dict:
 	return lesson_details
 
 
-def get_video_details(lesson_name: str) -> list:
+def get_video_details(lesson_name: str, course: str) -> list:
+	if hides_own_enrollment(course):
+		return []
 	return frappe.get_all(
 		"LMS Video Watch Duration",
 		{"lesson": lesson_name, "member": frappe.session.user},
@@ -2304,19 +2393,30 @@ def can_view_batch(batch: str) -> bool:
 @frappe.whitelist(allow_guest=True)  # nosemgrep: frappe-semgrep-rules.rules.security.guest-whitelisted-method
 @rate_limit(limit=500, seconds=60 * 60)
 @guest_access_required(dict)
-def get_batch_details(batch: str):
+def get_batch_details(batch: str, student_view: str | None = None):
+	"""See get_course_details for `student_view`."""
+	from lms.lms.student_view import answer_as_student
+
+	with answer_as_student("LMS Batch", batch, student_view):
+		return build_batch_details(batch)
+
+
+def build_batch_details(batch: str) -> dict:
 	from lms.lms.permissions import can_instruct_batch, evaluates_batch
+	from lms.lms.student_view import batch_learners, hides_enrollment, is_viewing_as_student
 
 	if not can_view_batch(batch):
 		return {}
 
-	batch_students = frappe.get_all("LMS Batch Enrollment", {"batch": batch}, pluck="member")
 	# can_modify_batch only recognises the Course Instructor tag; can_manage, like
 	# can_author_batch, also recognises a Batch Course evaluator tag, which a Course
 	# Creator may hold instead. Only instructors schedule live classes.
-	instructs = can_instruct_batch(batch)
-	can_manage = instructs or evaluates_batch(batch)
-	is_student_enrolled = frappe.session.user in batch_students
+	as_staff = not is_viewing_as_student("LMS Batch", batch)
+	instructs = as_staff and can_instruct_batch(batch)
+	can_manage = instructs or (as_staff and evaluates_batch(batch))
+	is_student_enrolled = bool(
+		frappe.db.exists("LMS Batch Enrollment", {"batch": batch, "member": frappe.session.user})
+	) and not hides_enrollment("LMS Batch", batch)
 
 	batch_details = frappe.db.get_value(
 		"LMS Batch",
@@ -2339,6 +2439,8 @@ def get_batch_details(batch: str):
 			"paid_batch",
 			"evaluation_end_date",
 			"allow_self_enrollment",
+			"allow_late_enrollment",
+			"last_enrollment_date",
 			"certification",
 			"evaluation",
 			"timezone",
@@ -2347,6 +2449,8 @@ def get_batch_details(batch: str):
 			"conferencing_provider",
 			"google_meet_account",
 			"video_link",
+			"meta_image",
+			"medium",
 		],
 		as_dict=True,
 	)
@@ -2366,6 +2470,7 @@ def get_batch_details(batch: str):
 		and get_time(batch_details.start_time) > get_time(nowtime())
 	):
 		batch_details.accept_enrollments = True
+	set_late_enrollment(batch_details)
 
 	batch_details.courses = frappe.get_all(
 		"Batch Course", filters={"parent": batch}, fields=["course", "title", "evaluator"]
@@ -2378,18 +2483,31 @@ def get_batch_details(batch: str):
 	)
 
 	batch_details.is_student = is_student_enrolled
-	batch_details.student_count = len(batch_students)
+	batch_details.student_count = frappe.db.count("LMS Batch Enrollment", batch_learners(batch))
 
-	if batch_details.paid_batch and batch_details.start_date >= getdate():
+	if batch_details.paid_batch and (
+		batch_details.start_date >= getdate() or batch_details.accept_enrollments
+	):
 		batch_details.amount, batch_details.currency = check_multicurrency(
 			batch_details.amount, batch_details.currency, None, batch_details.amount_usd
 		)
 		batch_details.price = fmt_money(batch_details.amount, 0, batch_details.currency)
 
 	if batch_details.seat_count:
-		batch_details.seats_left = batch_details.seat_count - len(batch_students)
+		batch_details.seats_left = batch_details.seat_count - batch_details.student_count
 
 	return batch_details
+
+
+def set_late_enrollment(batch) -> None:
+	"""A started batch with late enrolment still open takes learners, and says until when."""
+	from lms.lms.doctype.lms_batch.lms_batch import get_enrollment_close_date, is_enrollment_open
+
+	started = getdate(batch.start_date) < getdate() or bool(batch.start_time and has_started_today(batch))
+	if not (started and batch.allow_late_enrollment and is_enrollment_open(batch)):
+		return
+	batch.accept_enrollments = True
+	batch.enrollment_closes_on = get_enrollment_close_date(batch)
 
 
 def categorize_batches(batches: list) -> dict:
@@ -2438,7 +2556,7 @@ def get_country_code():
 	return
 
 
-def can_view_quiz_answers(quiz: str, show_answers=None) -> bool:
+def can_view_quiz_answers(quiz: str, show_answers=None, student_view: bool = False) -> bool:
 	"""Whether the caller is entitled to a quiz's answer-key material.
 
 	An explanation is written per option and authors normally write one only on
@@ -2449,7 +2567,7 @@ def can_view_quiz_answers(quiz: str, show_answers=None) -> bool:
 	right after `check_answer` and never refetches, so withholding them there
 	would silently kill the feedback the setting exists for.
 	"""
-	if PRIVILEGED_ROLES & set(frappe.get_roles()):
+	if not student_view and PRIVILEGED_ROLES & set(frappe.get_roles()):
 		return True
 
 	if show_answers:
@@ -2459,7 +2577,7 @@ def can_view_quiz_answers(quiz: str, show_answers=None) -> bool:
 
 
 @frappe.whitelist()
-def get_quiz_with_questions(quiz: str) -> dict:
+def get_quiz_with_questions(quiz: str, student_view: str | None = None) -> dict:
 	"""Return the quiz doc plus every question's details in a single round trip.
 
 	When scheduling blocks the quiz for a non-privileged user, question content
@@ -2473,6 +2591,7 @@ def get_quiz_with_questions(quiz: str) -> dict:
 	)
 	from lms.lms.permissions import can_access_quiz
 	from lms.lms.schedule_utils import enrich_schedule_payload
+	from lms.lms.student_view import MODES
 
 	if not isinstance(quiz, str):
 		frappe.throw(_("Quiz must be a string."))
@@ -2486,7 +2605,9 @@ def get_quiz_with_questions(quiz: str) -> dict:
 	quiz_doc = enrich_schedule_payload(frappe.get_doc("LMS Quiz", quiz).as_dict())
 	reason = quiz_doc.get("schedule_block_reason")
 
-	privileged = bool(PRIVILEGED_ROLES & set(frappe.get_roles()))
+	# Student view only drops the privileged-role bypasses, so it needs no author check.
+	student_view = student_view in MODES
+	privileged = not student_view and bool(PRIVILEGED_ROLES & set(frappe.get_roles()))
 	withhold_questions = bool(reason) and not privileged
 
 	questions_by_name = {}
@@ -2506,7 +2627,7 @@ def get_quiz_with_questions(quiz: str) -> dict:
 				"multiple",
 				*QUESTION_OPTION_FIELDS,
 			]
-			if can_view_quiz_answers(quiz, quiz_doc.get("show_answers")):
+			if can_view_quiz_answers(quiz, quiz_doc.get("show_answers"), student_view):
 				fields += QUESTION_EXPLANATION_FIELDS
 			# nosemgrep: lms-unjustified-ignore-permissions - access gated by can_access_quiz above
 			rows = frappe.get_all(
@@ -2564,15 +2685,23 @@ def get_assignment(name: str) -> dict:
 @frappe.whitelist(allow_guest=True)
 @rate_limit(limit=500, seconds=60 * 60)
 @guest_access_required(list)
-def get_batch_courses(batch: str) -> list:
+def get_batch_courses(batch: str, student_view: str | None = None) -> list:
+	"""See get_course_details for `student_view`."""
+	from lms.lms.student_view import answer_as_student
+
 	if not can_view_batch(batch):
 		return []
 
+	with answer_as_student("LMS Batch", batch, student_view):
+		return build_batch_courses(batch)
+
+
+def build_batch_courses(batch: str) -> list:
 	courses = []
 	course_list = frappe.get_all("Batch Course", {"parent": batch}, ["name", "course"])
 
 	for course in course_list:
-		details = get_course_details(course.course)
+		details = build_course_details(course.course)
 		if details.get("name"):
 			details.batch_course = course.name
 			courses.append(details)
@@ -2728,6 +2857,8 @@ def get_batch_student_progress(member: str, batch: str) -> dict:
 
 def get_course_completion_stats(batch: str) -> list:
 	"""Get completion counts per course in batch"""
+	from lms.lms.student_view import learner_condition
+
 	BatchCourse = frappe.qb.DocType("Batch Course")
 	BatchEnrollment = frappe.qb.DocType("LMS Batch Enrollment")
 	Enrollment = frappe.qb.DocType("LMS Enrollment")
@@ -2735,7 +2866,7 @@ def get_course_completion_stats(batch: str) -> list:
 	rows = (
 		frappe.qb.from_(BatchCourse)
 		.left_join(BatchEnrollment)
-		.on(BatchEnrollment.batch == BatchCourse.parent)
+		.on((BatchEnrollment.batch == BatchCourse.parent) & learner_condition(BatchEnrollment))
 		.left_join(Enrollment)
 		.on((Enrollment.course == BatchCourse.course) & (Enrollment.member == BatchEnrollment.member))
 		.where(BatchCourse.parent == batch)
@@ -2751,6 +2882,8 @@ def get_course_completion_stats(batch: str) -> list:
 
 def get_assignment_pass_stats(batch: str) -> list:
 	"""Get pass counts per assignment in batch"""
+	from lms.lms.student_view import learner_condition
+
 	Assessment = frappe.qb.DocType("LMS Assessment")
 	Assignment = frappe.qb.DocType("LMS Assignment")
 	BatchEnrollment = frappe.qb.DocType("LMS Batch Enrollment")
@@ -2761,7 +2894,7 @@ def get_assignment_pass_stats(batch: str) -> list:
 		.join(Assignment)
 		.on(Assignment.name == Assessment.assessment_name)
 		.left_join(BatchEnrollment)
-		.on(BatchEnrollment.batch == Assessment.parent)
+		.on((BatchEnrollment.batch == Assessment.parent) & learner_condition(BatchEnrollment))
 		.left_join(Submission)
 		.on(
 			(Submission.assignment == Assessment.assessment_name)
@@ -2780,6 +2913,8 @@ def get_assignment_pass_stats(batch: str) -> list:
 
 def get_quiz_pass_stats(batch: str) -> list:
 	"""Get pass counts per quiz in batch"""
+	from lms.lms.student_view import learner_condition
+
 	Assessment = frappe.qb.DocType("LMS Assessment")
 	Quiz = frappe.qb.DocType("LMS Quiz")
 	BatchEnrollment = frappe.qb.DocType("LMS Batch Enrollment")
@@ -2790,7 +2925,7 @@ def get_quiz_pass_stats(batch: str) -> list:
 		.join(Quiz)
 		.on(Quiz.name == Assessment.assessment_name)
 		.left_join(BatchEnrollment)
-		.on(BatchEnrollment.batch == Assessment.parent)
+		.on((BatchEnrollment.batch == Assessment.parent) & learner_condition(BatchEnrollment))
 		.left_join(Submission)
 		.on((Submission.quiz == Assessment.assessment_name) & (Submission.member == BatchEnrollment.member))
 		.where((Assessment.parent == batch) & (Assessment.assessment_type == "LMS Quiz"))
@@ -3907,6 +4042,10 @@ def get_batches(
 			"timezone",
 			"published",
 			"category",
+			"certification",
+			"medium",
+			"allow_late_enrollment",
+			"last_enrollment_date",
 		],
 		order_by=order_by,
 		start=start,
@@ -4032,20 +4171,38 @@ def _filter_operator(value) -> str:
 
 
 def get_batch_card_details(batches: list) -> list:
+	from lms.lms.student_view import batch_learners
+
+	enrolled = get_enrolled_batches([batch.name for batch in batches])
 	for batch in batches:
 		batch.instructors = get_public_instructors("LMS Batch", batch.name)
-		students_count = frappe.db.count("LMS Batch Enrollment", {"batch": batch.name})
+		batch.is_enrolled = batch.name in enrolled
+		students_count = frappe.db.count("LMS Batch Enrollment", batch_learners(batch.name))
 
 		if batch.seat_count:
 			batch.seats_left = batch.seat_count - students_count
 
-		if batch.paid_batch and batch.start_date >= getdate():
+		set_late_enrollment(batch)
+		if batch.paid_batch and (batch.start_date >= getdate() or batch.get("enrollment_closes_on")):
 			batch.amount, batch.currency = check_multicurrency(
 				batch.amount, batch.currency, None, batch.amount_usd
 			)
 			batch.price = fmt_money(batch.amount, 0, batch.currency)
 
 	return batches
+
+
+def get_enrolled_batches(batches: list) -> set:
+	"""Which of `batches` the current user is enrolled in."""
+	if frappe.session.user == "Guest" or not batches:
+		return set()
+	return set(
+		frappe.get_all(
+			"LMS Batch Enrollment",
+			{"member": frappe.session.user, "batch": ["in", batches]},
+			pluck="batch",
+		)
+	)
 
 
 def get_palette(full_name: str) -> list:
@@ -4163,6 +4320,20 @@ def can_modify_course(course: str) -> bool:
 	if not (has_moderator_role() or is_instructor):
 		return False
 	return True
+
+
+def views_as_author(course: str) -> bool:
+	"""can_modify_course, except where student view answers the course as a student."""
+	from lms.lms.student_view import is_viewing_as_student
+
+	return can_modify_course(course) and not is_viewing_as_student("LMS Course", course)
+
+
+def hides_own_enrollment(course: str, member: str | None = None) -> bool:
+	"""A not-enrolled student view hides the caller's own enrollment and progress."""
+	from lms.lms.student_view import hides_enrollment
+
+	return (member or frappe.session.user) == frappe.session.user and hides_enrollment("LMS Course", course)
 
 
 def can_modify_batch(batch: str) -> bool:

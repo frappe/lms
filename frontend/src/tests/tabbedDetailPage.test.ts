@@ -59,10 +59,15 @@ vi.mock('frappe-ui', async () => {
 			v-bind="$attrs"
 		>
 			<div role="tablist">
-				<template v-for="(tab, i) in tabs" :key="i">
+				<button
+					v-for="(tab, i) in tabs"
+					:key="i"
+					role="tab"
+					:data-state="tab.value === selected ? 'active' : 'inactive'"
+				>
 					<slot name="tab-prefix" :tab="tab" :selected="tab.value === selected" />
 					<slot name="tab-label" :tab="tab" :selected="tab.value === selected" />
-				</template>
+				</button>
 			</div>
 			<div role="tabpanel" data-state="active">
 				<slot name="tab-panel" :tab="tabs.find((t) => t.value === selected)" />
@@ -231,6 +236,23 @@ describe('TabbedDetailPage tab visibility', () => {
 		expect(wrapper.find('[data-testid="solo"]').exists()).toBe(true)
 	})
 
+	// A bounded box would end the sticky header's run one viewport down.
+	it('grows the single view with the page, like a flow tab', async () => {
+		const hidden = tabs({
+			overview: { when: false },
+			dashboard: { when: false },
+			editor: { when: false },
+			settings: { when: false },
+		})
+
+		const { wrapper } = await mountPage({ tabs: hidden, slots: { solo } })
+
+		expect(wrapper.classes()).toEqual(
+			expect.arrayContaining(['min-h-full', 'shrink-0'])
+		)
+		expect((wrapper.vm as any).flowsWithPage).toBe(true)
+	})
+
 	it('renders nothing rather than throwing when there is no single view either', async () => {
 		const hidden = tabs({
 			overview: { when: false },
@@ -305,6 +327,26 @@ describe('TabbedDetailPage hash', () => {
 	})
 })
 
+describe('TabbedDetailPage tab strip', () => {
+	// The strip scrolls inside itself when the tabs outgrow a phone.
+	it('scrolls the picked tab into view', async () => {
+		const scrollIntoView = vi.fn()
+		HTMLElement.prototype.scrollIntoView = scrollIntoView
+		const { wrapper } = await mountPage({ tabs: tabs() })
+
+		await openTab(wrapper, 'settings')
+
+		const active = wrapper.get('[role="tab"][data-state="active"]')
+		expect(active.text()).toContain('Settings')
+		expect(scrollIntoView.mock.contexts.at(-1)).toBe(active.element)
+		expect(scrollIntoView).toHaveBeenLastCalledWith({
+			block: 'nearest',
+			inline: 'nearest',
+		})
+		delete (HTMLElement.prototype as Partial<HTMLElement>).scrollIntoView
+	})
+})
+
 describe('TabbedDetailPage document binding', () => {
 	it('mounts no tab body before the document arrives', async () => {
 		const { wrapper } = await mountPage({
@@ -314,6 +356,29 @@ describe('TabbedDetailPage document binding', () => {
 
 		expect(shell(wrapper).exists()).toBe(true)
 		expect(wrapper.find('[data-testid="body-overview"]').exists()).toBe(false)
+	})
+
+	it('fills the open tab with the loading slot until the document arrives', async () => {
+		const { wrapper } = await mountPage({
+			tabs: tabs(),
+			props: { loading: true },
+			slots: {
+				loading: (props: { tab: Tab }) =>
+					h('div', { 'data-testid': `skeleton-${props.tab.key}` }),
+			},
+		})
+
+		expect(wrapper.find('[data-testid="skeleton-overview"]').exists()).toBe(
+			true
+		)
+
+		await wrapper.setProps({ loading: false })
+		await flushPromises()
+
+		expect(wrapper.find('[data-testid="skeleton-overview"]').exists()).toBe(
+			false
+		)
+		expect(wrapper.find('[data-testid="body-overview"]').exists()).toBe(true)
 	})
 })
 
@@ -336,5 +401,69 @@ describe('TabbedDetailPage actions', () => {
 		await openTab(wrapper, 'editor')
 
 		expect(seen.key).toBe('editor')
+	})
+
+	// The tab row sticks under the header; its actions stick with it.
+	it('pins tab-row actions to the tab row and adds the row to the sticky stack', async () => {
+		const { wrapper } = await mountPage({
+			tabs: tabs(),
+			slots: {
+				'tab-row-end': (props: { tab?: Tab }) =>
+					h('button', { 'data-testid': 'row-action' }, props.tab?.key),
+			},
+		})
+		const root = document.documentElement.style
+
+		const pinned = wrapper.find('.tab-row-pinned')
+		expect(pinned.find('[data-testid="row-action"]').text()).toBe('overview')
+		expect(pinned.element.nextElementSibling).toBe(shell(wrapper).element)
+		expect(root.getPropertyValue('--detail-tabs-h')).toMatch(/px$/)
+
+		wrapper.unmount()
+		expect(root.getPropertyValue('--detail-tabs-h')).toBe('')
+	})
+})
+
+describe('TabbedDetailPage tabs on a phone', () => {
+	it('shows only the icons, keeping each name for screen readers', async () => {
+		mobile.value = true
+		try {
+			const { wrapper } = await mountPage({ tabs: tabs() })
+			const tab = wrapper.findAll('[role="tab"]')[0]
+			expect(tab.find('.lucide-list').exists()).toBe(true)
+			expect(tab.find('.sr-only').text()).toBe('Overview')
+		} finally {
+			mobile.value = false
+		}
+	})
+
+	it('marks the phone tab row as icon tabs', async () => {
+		mobile.value = true
+		try {
+			const { wrapper } = await mountPage({ tabs: tabs() })
+			expect(wrapper.find('.icon-tabs [role="tablist"]').exists()).toBe(true)
+		} finally {
+			mobile.value = false
+		}
+	})
+
+	it('keeps packed text tabs off a phone', async () => {
+		const { wrapper } = await mountPage({ tabs: tabs() })
+		expect(wrapper.find('.icon-tabs').exists()).toBe(false)
+	})
+
+	it('keeps text labels when a tab has no icon', async () => {
+		mobile.value = true
+		try {
+			const { wrapper } = await mountPage({
+				tabs: tabs({ dashboard: { icon: '' } }),
+			})
+			const tab = wrapper.findAll('[role="tab"]')[0]
+			expect(tab.find('.sr-only').exists()).toBe(false)
+			expect(tab.text()).toBe('Overview')
+			expect(wrapper.find('.icon-tabs').exists()).toBe(false)
+		} finally {
+			mobile.value = false
+		}
 	})
 })

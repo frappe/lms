@@ -6,72 +6,82 @@
 		@close="close"
 	>
 		<template #default>
-			<div data-testid="chapter-fields" class="space-y-4 text-base">
-				<FormControl
-					:label="__('Title')"
-					v-model="chapter.title"
-					:required="true"
-					autocomplete="off"
-					autofocus
-				/>
-				<BooleanSwitch
-					size="sm"
-					:label="__('SCORM Package')"
-					:description="
-						__(
-							'Enable this only if you want to upload a SCORM package as a chapter.'
-						)
-					"
-					v-model="chapter.is_scorm_package"
-				/>
-				<div v-if="chapter.is_scorm_package">
-					<FileUploader
-						v-if="!chapter.scorm_package"
-						:fileTypes="['.zip']"
-						:private="true"
-						:uploadEndpoint="ZIP_UPLOAD_ENDPOINT"
-						:validateFile="validateFile"
-						@success="(file) => (chapter.scorm_package = file)"
-						@failure="onUploadFailure"
-					>
-						<template v-slot="{ file, progress, uploading, openFileSelector }">
-							<Button @click="openFileSelector" :loading="uploading">
-								{{ uploadLabel(uploading, progress) }}
-							</Button>
-						</template>
-					</FileUploader>
-					<div v-else class="flex items-center">
-						<div class="border rounded-5 p-2 me-2 shrink-0">
-							<span class="lucide-file-text h-5 w-5 text-ink-gray-7" />
-						</div>
-						<div class="flex min-w-0 flex-1 flex-col">
-							<span
-								class="truncate text-ink-gray-9"
-								:title="chapter.scorm_package.file_name"
-							>
-								{{ chapter.scorm_package.file_name }}
-							</span>
-							<span
-								v-if="chapter.scorm_package.file_size"
-								class="text-sm text-ink-gray-4 mt-1"
-							>
-								{{ getFileSize(chapter.scorm_package.file_size) }}
-							</span>
-						</div>
-						<button
-							type="button"
-							:aria-label="__('Remove file')"
-							@click="() => (chapter.scorm_package = null)"
-							class="-m-0.5 ms-3.5 size-6 shrink-0 cursor-pointer p-0.5"
+			<SkeletonOverlay :active="outline.loading && !outline.data">
+				<template #skeleton>
+					<div class="space-y-4">
+						<FieldSkeleton />
+						<FieldSkeleton kind="switch" />
+					</div>
+				</template>
+				<div data-testid="chapter-fields" class="space-y-4 text-base">
+					<FormControl
+						:label="__('Title')"
+						v-model="chapter.title"
+						:required="true"
+						autocomplete="off"
+						autofocus
+					/>
+					<BooleanSwitch
+						size="sm"
+						:label="__('SCORM Package')"
+						:description="
+							__(
+								'Enable this only if you want to upload a SCORM package as a chapter.'
+							)
+						"
+						v-model="chapter.is_scorm_package"
+					/>
+					<div v-if="chapter.is_scorm_package">
+						<FileUploader
+							v-if="!chapter.scorm_package"
+							:fileTypes="['.zip']"
+							:private="true"
+							:uploadEndpoint="ZIP_UPLOAD_ENDPOINT"
+							:validateFile="validateFile"
+							@success="(file) => (chapter.scorm_package = file)"
+							@failure="onUploadFailure"
 						>
-							<span
-								class="lucide-x bg-surface-gray-3 rounded-5 w-5 h-5 p-1"
-								aria-hidden="true"
-							/>
-						</button>
+							<template
+								v-slot="{ file, progress, uploading, openFileSelector }"
+							>
+								<Button @click="openFileSelector" :loading="uploading">
+									{{ uploadLabel(uploading, progress) }}
+								</Button>
+							</template>
+						</FileUploader>
+						<div v-else class="flex items-center">
+							<div class="border rounded-5 p-2 me-2 shrink-0">
+								<span class="lucide-file-text h-5 w-5 text-ink-gray-7" />
+							</div>
+							<div class="flex min-w-0 flex-1 flex-col">
+								<span
+									class="truncate text-ink-gray-9"
+									:title="chapter.scorm_package.file_name"
+								>
+									{{ chapter.scorm_package.file_name }}
+								</span>
+								<span
+									v-if="chapter.scorm_package.file_size"
+									class="text-sm text-ink-gray-4 mt-1"
+								>
+									{{ getFileSize(chapter.scorm_package.file_size) }}
+								</span>
+							</div>
+							<button
+								type="button"
+								:aria-label="__('Remove file')"
+								@click="() => (chapter.scorm_package = null)"
+								class="-m-0.5 ms-3.5 size-6 shrink-0 cursor-pointer p-0.5"
+							>
+								<span
+									class="lucide-x bg-surface-gray-3 rounded-5 w-5 h-5 p-1"
+									aria-hidden="true"
+								/>
+							</button>
+						</div>
 					</div>
 				</div>
-			</div>
+			</SkeletonOverlay>
 		</template>
 		<template #actions>
 			<HeaderButton
@@ -104,6 +114,8 @@ import { ZIP_UPLOAD_ENDPOINT } from '@/utils/zipUpload'
 import { useTelemetry } from '@framework/ui/telemetry/index'
 import { takeFormSource } from '@/composables/formTracking'
 import FormShell from '@/components/FormShell.vue'
+import FieldSkeleton from '@/components/Skeletons/FieldSkeleton.vue'
+import SkeletonOverlay from '@/components/Skeletons/SkeletonOverlay.vue'
 import HeaderButton from '@/components/HeaderButton.vue'
 import { useFormRoute } from '@/composables/useFormRoute'
 import type { OutlineChapter, Resource, SessionUser } from '@/types'

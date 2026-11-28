@@ -60,4 +60,15 @@ describe('ListPage empty state under a search or filter', () => {
 		await wrapper.get('button').trigger('click')
 		expect(wrapper.emitted('update:search')).toEqual([['']])
 	})
+
+	// The list used to lift its empty state with a `flex-1 pb-24` wrapper, so
+	// it sat higher than every other page's. The empty state now sits in the
+	// page body directly and places itself.
+	it('puts the empty state in the page body with no lifting wrapper', () => {
+		const empty = mountEmpty({ searchQuery: 'zzzz' }).get('[data-empty-state]')
+		const parent = empty.element.parentElement as HTMLElement
+
+		expect(empty.classes()).toContain('flex-1')
+		expect(parent.className).not.toMatch(/\bp[by]-/)
+	})
 })

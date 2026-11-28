@@ -272,8 +272,14 @@ describe('Quiz remount', () => {
 
 		expect(resourceState.request).toHaveBeenCalledTimes(2)
 		expect(resourceState.request.mock.calls).toEqual([
-			['lms.lms.utils.get_quiz_with_questions', { quiz: 'QUIZ-1' }],
-			['lms.lms.utils.get_quiz_with_questions', { quiz: 'QUIZ-1' }],
+			[
+				'lms.lms.utils.get_quiz_with_questions',
+				{ quiz: 'QUIZ-1', student_view: null },
+			],
+			[
+				'lms.lms.utils.get_quiz_with_questions',
+				{ quiz: 'QUIZ-1', student_view: null },
+			],
 		])
 		expect(second.text()).toContain('Questions1')
 		expect(second.text()).toContain('Start')

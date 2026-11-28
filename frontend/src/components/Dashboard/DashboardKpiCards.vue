@@ -1,7 +1,8 @@
 <template>
 	<div
 		data-slot="dashboard-kpis"
-		class="grid shrink-0 grid-cols-2 gap-5 md:grid-cols-4 lg:grid-cols-2 min-[1400px]:grid-cols-4"
+		class="grid shrink-0 grid-cols-2 gap-5 @2xl:grid-cols-4"
+		:class="kpiClass"
 	>
 		<component
 			:is="kpi.select ? 'button' : 'div'"
@@ -40,12 +41,15 @@
 <script setup lang="ts">
 import { NumberCard } from 'frappe-ui/charts'
 import { computed } from 'vue'
+import { useDashboardColumns } from '@/composables/dashboard/useDashboardColumns'
 import type { DashboardKpi } from '@/types'
 
 defineProps<{
 	kpis: DashboardKpi[]
 	loading: boolean
 }>()
+
+const { kpiClass } = useDashboardColumns()
 
 const lastMonth = computed<string>(() => __('vs last month'))
 

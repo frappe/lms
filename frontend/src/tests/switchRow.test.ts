@@ -37,6 +37,16 @@ describe('SwitchRow', () => {
 		)
 	})
 
+	// A card fact line is a field-height row inside the card, like the ghost
+	// fields above and below it.
+	it('keeps a compact row inside the card at field height', () => {
+		const row = mount(SwitchRow, {
+			props: { label: 'Certificate', variant: 'compact' },
+		}).get('[data-testid="switch-row"]')
+		expect(row.classes()).toEqual(expect.arrayContaining(['h-7', 'px-2']))
+		expect(row.classes().some((name) => name.startsWith('-m'))).toBe(false)
+	})
+
 	it('drops the description and its reference when there is none', () => {
 		const w = mount(SwitchRow, { props: { label: 'Enabled' } })
 		expect(w.find('[data-testid="switch-description"]').exists()).toBe(false)

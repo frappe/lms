@@ -60,7 +60,7 @@ vi.mock('@/pages/Batches/components/BatchCard.vue', () => ({
 }))
 vi.mock('@/components/Layouts/pages/ListPage.vue', () => ({
 	default: {
-		template: '<div><slot name="filters" /></div>',
+		template: '<div><slot name="toolbar" /></div>',
 	},
 }))
 vi.mock('@/stores/session', () => ({ sessionStore: () => ({ brand: {} }) }))

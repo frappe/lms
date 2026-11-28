@@ -287,6 +287,31 @@ describe('ChapterRow keyboard access', () => {
 	})
 })
 
+describe('ChapterRow without progress', () => {
+	// A not-enrolled preview reuses the outline fetched with the previewer's own
+	// completions; the row must not show them.
+	it('hides completion ticks', () => {
+		const wrapper = mount(ChapterRow, {
+			props: {
+				chapter: {
+					...chapter,
+					lessons: [{ ...chapter.lessons![0], is_complete: true }],
+				},
+				courseName: 'course-1',
+				withProgress: false,
+			},
+			global: {
+				mocks: { __: (s: string) => s },
+				provide: { $user: { data: { name: 'admin@example.com' } } },
+				stubs: { RouterLink: RouterLinkStub },
+			},
+		})
+
+		expect(wrapper.text()).not.toContain('Completed')
+		expect(wrapper.find('.lucide-check').exists()).toBe(false)
+	})
+})
+
 describe('ChapterRow draft lesson', () => {
 	const mountInline = (selectedLessonNumber: string) =>
 		mount(ChapterRow, {

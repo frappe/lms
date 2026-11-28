@@ -20,6 +20,9 @@ const { passthrough, selection } = vi.hoisted(() => {
 vi.mock('@/stores/settings', () => ({ useSettings: () => ({}) }))
 vi.mock('@/stores/user', () => ({ usersStore: () => ({ userResource: {} }) }))
 vi.mock('@/stores/session', () => ({ sessionStore: () => ({ brand: {} }) }))
+vi.mock('@/composables/useUnsavedChangesGuard', () => ({
+	useUnsavedChangesGuard: vi.fn(),
+}))
 
 // frappe-ui's Button renders a RouterLink for `route`, which resolves it during
 // render. Doing the same here is what makes an unresolvable route throw.
@@ -83,6 +86,14 @@ vi.mock('@/pages/Courses/CourseDashboard.vue', stub)
 vi.mock('@/pages/Courses/CourseForm.vue', stub)
 vi.mock('@/components/SkeletonLoader.vue', stub)
 vi.mock('@/components/LessonHelp.vue', stub)
+
+// The form owns a document resource; these tests are about the page shell.
+vi.mock('@/composables/useCourseForm', () => ({
+	useCourseForm: () => ({ isDirty: { value: false }, submitCourse: vi.fn() }),
+}))
+vi.mock('@/components/Courses/CourseHeaderActions.vue', stub)
+vi.mock('@/components/Courses/CourseSaveButton.vue', stub)
+vi.mock('@/components/Courses/CourseStudentView.vue', stub)
 vi.mock('@/components/ShortcutTooltip.vue', stub)
 vi.mock('@/components/HeaderButton.vue', stub)
 

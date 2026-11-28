@@ -8,7 +8,7 @@
 		/>
 		<div class="overflow-visible border border-outline-elevation-2 rounded-5">
 			<div
-				class="grid overflow-x-auto gap-x-4"
+				class="relative grid overflow-x-auto gap-x-4"
 				role="table"
 				:aria-labelledby="label ? labelId : undefined"
 				data-testid="child-table-grid"

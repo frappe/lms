@@ -6,6 +6,20 @@
 		:message="refusal"
 		@close="close"
 	>
+		<template #loading>
+			<span class="sr-only" role="status">{{ loadingAnnouncement }}</span>
+			<div
+				data-testid="announcement-skeleton"
+				class="space-y-4 motion-safe:animate-pulse"
+				aria-hidden="true"
+			>
+				<FieldSkeleton v-for="i in 2" :key="i" />
+				<div class="space-y-1.5">
+					<SkeletonText text="text-sm leading-tighter" width="w-24" />
+					<div class="h-[200px] rounded-4 bg-surface-gray-2" />
+				</div>
+			</div>
+		</template>
 		<template #default>
 			<div data-testid="announcement-fields">
 				<FormLayout v-model:doc="doc" :layout="layout" />
@@ -28,6 +42,9 @@ import { FormLayout, CommitKey, NO_COMMIT } from '@framework/ui/FormLayout'
 import { computed, inject, provide, ref } from 'vue'
 import { useRoute } from 'vue-router'
 import FormShell from '@/components/FormShell.vue'
+import SkeletonText from '@/components/Skeletons/SkeletonText.vue'
+import FieldSkeleton from '@/components/Skeletons/FieldSkeleton.vue'
+import { useLoadingAnnouncement } from '@/utils/a11y'
 import HeaderButton from '@/components/HeaderButton.vue'
 import RichTextEditorField from '@/components/FormLayout/RichTextEditorField.vue'
 import {
@@ -71,6 +88,11 @@ const { close } = useFormRoute(
 const batch = useBatchDetails(() => props.batchName)
 
 const loadingBatch = computed(() => !batch.data && batch.loading)
+
+const loadingAnnouncement = useLoadingAnnouncement(
+	() => loadingBatch.value,
+	() => ''
+)
 
 const isAdmin = computed(() =>
 	Boolean(

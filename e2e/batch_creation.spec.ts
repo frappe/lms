@@ -81,7 +81,10 @@ test.describe("Batch Creation", () => {
 		// second dialog on top of the settings one, and its submit says "Create".
 		// Two stacked dismissable layers make a label search ambiguous, so go
 		// by the form's own test id.
-		const memberAdd = waitForApiCall(page, "/api/method/lms.lms.api.add_member");
+		const memberAdd = waitForApiCall(
+			page,
+			"/api/method/lms.lms.api.add_member"
+		);
 		const saveRole = waitForApiCall(page, "/api/method/lms.lms.api.save_role");
 		await page.getByTestId("member-save").click();
 		await memberAdd;
@@ -123,7 +126,10 @@ test.describe("Batch Creation", () => {
 			.click();
 		await fillMemberField(page, "Email", randomStudent);
 		await fillMemberField(page, "First Name", "Student");
-		const studentAdd = waitForApiCall(page, "/api/method/lms.lms.api.add_member");
+		const studentAdd = waitForApiCall(
+			page,
+			"/api/method/lms.lms.api.add_member"
+		);
 		await page.getByTestId("member-save").click();
 		await studentAdd;
 		await expect(page.getByText("New Member", { exact: true })).toHaveCount(0);
@@ -132,48 +138,27 @@ test.describe("Batch Creation", () => {
 		await page.goto("/lms/batches");
 
 		// Create batch. The header's: an empty list offers its own New Batch.
-		await page.locator("header").getByRole("button", { name: "New Batch" }).click();
+		await page
+			.locator("header")
+			.getByRole("button", { name: "New Batch" })
+			.click();
+		await page.waitForURL(/\/lms\/batches\/new$/);
 
-		const field = (label: string) =>
-			page.locator("label").filter({ hasText: label }).locator("xpath=..");
-
-		await field("Title").locator("input").fill("Test Batch");
-		await field("Start Date").locator("input").fill("2030-10-01");
-		await field("End Date").locator("input").fill("2030-10-31");
-		await field("Start Time").locator("input").fill("10:00");
-		await field("End Time").locator("input").fill("11:00");
-
-		// Timezone picker
-		const tzInput = field("Timezone").locator("input");
-		await tzInput.click();
-		await tzInput.fill("Asia/Kol");
-		const tzListId = await tzInput.getAttribute("aria-controls");
-		const tzList = page.locator(`[id^="${tzListId}"]`);
-		await expect(tzList).toBeVisible();
-		await tzList.locator("[data-slot=item]").first().click();
-
-		await field("Seat Count").locator("input").fill("10");
-		await field("Description")
-			.locator("textarea")
+		// A new batch is its own page (NewBatchPage.vue): the batch overview,
+		// edited in place, saved once with Save.
+		const main = page.getByRole("main");
+		await main.getByRole("textbox", { name: "Batch title" }).fill("Test Batch");
+		await main
+			.getByRole("textbox", { name: /^Short description/ })
 			.fill("Test Batch Short Description to test the UI");
 
-		await page.locator("div.ProseMirror").click();
+		// Pick the evaluator as instructor. Typing the full unique email filters
+		// the list to the single matching evaluator; the option shows the user's
+		// name, not the email.
+		await main.getByRole("button", { name: "Add instructors" }).click();
 		await page
-			.locator("div.ProseMirror")
-			.pressSequentially(
-				"Test Batch Description. I need a very big description to test the UI. This is a very big description."
-			);
-
-		// Pick the evaluator as instructor. MultiLink renders both a hidden
-		// headlessui combobox button and the visible trigger button, so target
-		// the visible one (.first() would grab the hidden one and fail).
-		await field("Instructors").locator("button:visible").first().click();
-		const instructorInput = page.locator(
-			'[data-slot="content-body"] [data-slot="input"]'
-		);
-		await instructorInput.fill(randomEvaluator);
-		// The option shows the user's name, not the email; typing the full
-		// unique email filters the list to the single matching evaluator.
+			.locator('[data-slot="content-body"] [data-slot="input"]')
+			.fill(randomEvaluator);
 		const instructorOption = page.locator(
 			'[data-slot="content-body"] [role="option"]'
 		);
@@ -181,20 +166,54 @@ test.describe("Batch Creation", () => {
 		await instructorOption.first().click();
 		await page.keyboard.press("Escape");
 
-		await page.getByTestId("new-batch-save").click();
+		// The enrol card's facts. The pickers take typed values, committed on
+		// Enter.
+		const dates = main.getByRole("combobox", { name: "Start and end dates" });
+		await dates.fill("2030-10-01 to 2030-10-31");
+		await dates.press("Enter");
+		const startTime = main.getByRole("combobox", {
+			name: "Start",
+			exact: true,
+		});
+		await startTime.fill("10:00 am");
+		await startTime.press("Enter");
+		const endTime = main.getByRole("combobox", { name: "End", exact: true });
+		await endTime.fill("11:00 am");
+		await endTime.press("Enter");
 
-		// Verify redirect to settings
-		await expect(page).toHaveURL(/#settings/, { timeout: 10000 });
+		const timezone = main.getByRole("combobox", { name: "Timezone" });
+		await timezone.fill("Asia/Kol");
+		await page.getByRole("option", { name: "Asia/Kolkata" }).click();
+
+		await main.getByRole("spinbutton", { name: "Seat count" }).fill("10");
+
+		// Last: the details editor's toolbar hides on blur, which can move the
+		// enrol card under a click aimed at it.
+		await main
+			.getByRole("textbox", { name: "About this batch" })
+			.fill(
+				"Test Batch Description. I need a very big description to test the UI. This is a very big description."
+			);
+
+		await page
+			.locator("header")
+			.getByRole("button", { name: "Save", exact: true })
+			.click();
+
+		// Saving opens the batch's own page. Excluding "new" is what waits for
+		// the redirect rather than the draft page's own already-current URL.
+		await page.waitForURL(/\/lms\/batches\/(?!new(?:$|[/?#]))[^/?#]+(#.*)?$/, {
+			timeout: 10000,
+		});
+		batchName = new URL(page.url()).pathname.split("/").pop();
 
 		// Publish
-		await button(page, "Publish").click();
+		const header = page.locator("header");
+		await header.getByRole("button", { name: /^Publish$/ }).click();
 		await expect(page.getByText(/Batch published/i)).toBeVisible({
 			timeout: 10000,
 		});
-		await expect(button(page, "Unpublish")).toBeVisible();
-
-		// Capture batch slug
-		batchName = page.url().split("/").pop()!.split("#")[0];
+		await expect(header.getByText(/^Published$/)).toBeVisible();
 
 		// View batch card in list
 		await page.goto("/lms/batches");
@@ -202,10 +221,9 @@ test.describe("Batch Creation", () => {
 		await page.getByRole("radio", { name: "Upcoming" }).click();
 
 		// The card's title is its link, stretched over the card; the rest of the
-		// card's text sits beside the link, not inside it. The grid around the
-		// cards is an isolate too, so take the innermost match: the card.
+		// card's text sits beside the link, not inside it.
 		const batchLink = page.locator(`a[href='/lms/batches/${batchName}']`);
-		const batchCard = page.locator("div.isolate", { has: batchLink }).last();
+		const batchCard = page.getByRole("article").filter({ has: batchLink });
 		await expect(batchLink).toBeVisible({ timeout: 10000 });
 		await expect(batchLink).toHaveText("Test Batch");
 		await expect(
@@ -214,22 +232,26 @@ test.describe("Batch Creation", () => {
 		await expect(
 			batchCard.getByText("01 Oct 2030 - 31 Oct 2030")
 		).toBeVisible();
-		await expect(batchCard.getByText("10:00 AM - 11:00 AM")).toBeVisible();
+		await expect(batchCard.getByText("10:00 AM – 11:00 AM")).toBeVisible();
 		await expect(batchCard.getByText("Asia/Kolkata")).toBeVisible();
-		await expect(batchCard.getByText("Evaluator")).toBeVisible();
+		// The instructors show as one avatar group named after them.
+		await expect(
+			batchCard.getByRole("img", { name: "By Evaluator" })
+		).toBeVisible();
 		await expect(batchCard.getByText("10 Seats Left")).toBeVisible();
 		await batchLink.click();
 
-		// Batch detail page
-		await expect(page.getByText("Test Batch").first()).toBeVisible({
-			timeout: 10000,
-		});
+		// Batch detail page. Its overview is the edit form for the batch's
+		// instructor, so the title and short description are field values.
+		const detail = page.getByRole("main");
 		await expect(
-			page.getByText("Test Batch Short Description to test the UI")
-		).toBeVisible();
-		await expect(page.getByText("Evaluator")).toBeVisible();
-		// The dates, times, timezone and seats were checked on the card above;
-		// BatchOverlay formats them with the same helpers as BatchCard.
+			detail.getByRole("textbox", { name: "Batch title" })
+		).toHaveValue("Test Batch", { timeout: 10000 });
+		await expect(
+			detail.getByRole("textbox", { name: /^Short description/ })
+		).toHaveValue("Test Batch Short Description to test the UI");
+		await expect(detail.getByText("Evaluator")).toBeVisible();
+		// The dates, times, timezone and seats were checked on the card above.
 		await expect(
 			page.getByText(
 				"Test Batch Description. I need a very big description to test the UI."
@@ -273,18 +295,14 @@ test.describe("Batch Creation", () => {
 		await enrollDialog.getByTestId("enroll-submit").click();
 		await enrolled;
 
-		// Enrolling takes a seat. BatchOverview renders BatchOverlay twice for
-		// responsive layouts: a mobile copy (md:hidden, first in the DOM) and a
-		// desktop copy (hidden md:block), so scope to the visible one.
+		// Enrolling takes a seat, which the batch's card counts. Back through
+		// the breadcrumb: a page load would abort the dashboard's own reload.
 		await page
-			.getByRole("button")
-			.or(page.getByRole("tab"))
-			.filter({ hasText: "Overview" })
+			.locator("header")
+			.getByRole("link", { name: "Batches", exact: true })
 			.click();
-		const overlayAfterEnroll = page
-			.locator(".border-2.rounded-5.lg\\:w-72:visible")
-			.first();
-		await expect(overlayAfterEnroll.getByText("9 Seats Left")).toBeVisible({
+		await page.getByRole("radio", { name: "Upcoming" }).click();
+		await expect(batchCard.getByText("9 Seats Left")).toBeVisible({
 			timeout: 10000,
 		});
 	});

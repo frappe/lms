@@ -1,8 +1,23 @@
 <template>
 	<PageHeader :breadcrumbs="breadcrumbs" />
 	<PageBody :title="__('Billing Details')">
-		<div v-if="access.data?.access && orderSummary.data" class="px-5 pb-10">
-			<div class="flex flex-col lg:flex-row justify-between">
+		<span class="sr-only" role="status">{{ loadingAnnouncement }}</span>
+		<BillingSkeleton v-if="isPending" />
+		<div
+			v-else-if="(access.data?.access || isPreview) && orderSummary.data"
+			class="px-5 pb-10"
+		>
+			<Alert
+				v-if="isPreview"
+				class="mb-6"
+				:title="__('Student view')"
+				:description="
+					__(
+						'This is the checkout a learner sees. No payment is taken: proceeding enrolls you as a preview learner.'
+					)
+				"
+			/>
+			<div class="flex flex-col @4xl:flex-row justify-between">
 				<div class="flex flex-col lg:order-last mb-10 lg:mt-10 lg:w-1/4">
 					<div class="h-fit bg-surface-gray-2 rounded-5 p-5 space-y-4">
 						<div class="space-y-1">
@@ -100,7 +115,7 @@
 							{{ __('Address') }}
 						</h2>
 					</div>
-					<div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+					<div class="grid grid-cols-1 @2xl:grid-cols-2 gap-5">
 						<div class="space-y-4">
 							<FormControl
 								:label="__('Billing Name')"
@@ -186,7 +201,7 @@
 						</div>
 					</div>
 					<div
-						class="flex flex-col lg:flex-row items-start lg:items-center justify-between border-t pt-4 mt-8 space-y-4 lg:space-y-0"
+						class="flex flex-col @4xl:flex-row items-start lg:items-center justify-between border-t pt-4 mt-8 space-y-4 lg:space-y-0"
 					>
 						<div>
 							<FormControl
@@ -236,16 +251,11 @@
 				"
 			/>
 		</div>
-		<div v-else-if="!user.data?.name">
-			<NotPermitted
-				:text="__('Please login to access this page.')"
-				:buttonLink="loginUrl(getLmsRoute(`billing/${type}/${name}`))"
-			/>
-		</div>
 	</PageBody>
 </template>
 <script setup>
 import {
+	Alert,
 	Button,
 	Combobox,
 	createResource,
@@ -254,14 +264,17 @@ import {
 	toast,
 } from 'frappe-ui'
 import { reactive, inject, onMounted, computed, ref, watch } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
+import { studentViewMode } from '@/composables/useStudentView'
 import PageHeader from '@/components/Layouts/pages/PageHeader.vue'
 import PageBody from '@/components/Layouts/pages/PageBody.vue'
 import { sessionStore } from '../stores/session'
 import Link from '@/components/Controls/Link.vue'
 import NotPermitted from '@/components/NotPermitted.vue'
+import BillingSkeleton from '@/components/Skeletons/BillingSkeleton.vue'
+import { useLoadingAnnouncement } from '@/utils/a11y'
 import { useTelemetry } from '@framework/ui/telemetry/index'
 import { getLmsRoute } from '@/utils/basePath'
-import { loginUrl } from '@/utils/login'
 import {
 	INDIAN_STATE_OPTIONS,
 	canonicalIndianState,
@@ -375,7 +388,24 @@ const paymentLink = createResource({
 	},
 })
 
+// An instructor previewing the course as a learner: show the real checkout,
+// but finish by enrolling them in student view instead of taking payment.
+const route = useRoute()
+const router = useRouter()
+const isPreview = computed(
+	() =>
+		props.type === 'course' && Boolean(studentViewMode(route.query.studentView))
+)
+
 const generatePaymentLink = () => {
+	if (isPreview.value) {
+		router.push({
+			name: 'CourseDetail',
+			params: { courseName: props.name },
+			query: { studentView: 1 },
+		})
+		return
+	}
 	if (paymentLink.loading) return
 	paymentLink.submit(
 		{},
@@ -461,6 +491,19 @@ const validateAddress = () => {
 
 // A validation failure arrives as an Error; handing that to toast.error renders
 // an empty toast, which is why a rejected checkout looked like a dead button.
+// Access is asked first and the order summary only once it is granted.
+const isPending = computed(() => {
+	if (!user.data?.name) return false
+	if (!access.data) return !access.error
+	const canPay = access.data.access || isPreview.value
+	return canPay && !orderSummary.data && !orderSummary.error
+})
+
+const loadingAnnouncement = useLoadingAnnouncement(
+	() => isPending.value,
+	() => ''
+)
+
 const showError = (err) => {
 	toast.error(err.messages?.[0] || err.message || err)
 }

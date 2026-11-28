@@ -14,24 +14,22 @@ export const routes = [
 		path: '/courses',
 		name: 'Courses',
 		component: () => import('@/pages/Courses/Courses.vue'),
-		// Both children are static segments, so vue-router scores them above
-		// the sibling '/courses/:courseName' and they win. The trade: a course
-		// whose docname is literally `new` or `import` becomes unreachable.
-		// Accepted and documented in the design — it is the same trade the app
-		// already makes for '/batches/details/:batchName'. Deliberately not
-		// guarded.
+		// A static segment, so vue-router scores it above the sibling
+		// '/courses/:courseName' and it wins. The trade: a course whose
+		// docname is literally `import` becomes unreachable, as '/courses/new'
+		// below does for one named `new`.
 		children: [
-			{
-				path: 'new',
-				name: 'NewCourse',
-				component: () => import('@/pages/Forms/NewCourseForm.vue'),
-			},
 			{
 				path: 'import',
 				name: 'CourseImport',
 				component: () => import('@/pages/Forms/CourseImportForm.vue'),
 			},
 		],
+	},
+	{
+		path: '/courses/new',
+		name: 'NewCourse',
+		component: () => import('@/pages/Courses/NewCoursePage.vue'),
 	},
 	{
 		path: '/courses/:courseName',
@@ -76,13 +74,11 @@ export const routes = [
 		path: '/batches',
 		name: 'Batches',
 		component: () => import('@/pages/Batches/Batches.vue'),
-		children: [
-			{
-				path: 'new',
-				name: 'NewBatch',
-				component: () => import('@/pages/Forms/NewBatchForm.vue'),
-			},
-		],
+	},
+	{
+		path: '/batches/new',
+		name: 'NewBatch',
+		component: () => import('@/pages/Batches/NewBatchPage.vue'),
 	},
 	{
 		path: '/batches/details/:batchName',
@@ -147,6 +143,7 @@ export const routes = [
 		name: 'Billing',
 		component: () => import('@/pages/Billing.vue'),
 		props: true,
+		meta: { requiresLogin: true },
 	},
 	{
 		path: '/statistics',
@@ -221,6 +218,7 @@ export const routes = [
 		path: '/certified-participants',
 		name: 'CertifiedParticipants',
 		component: () => import('@/pages/CertifiedParticipants.vue'),
+		meta: { requiresLogin: true },
 	},
 	{
 		path: '/quizzes',
@@ -258,6 +256,7 @@ export const routes = [
 		name: 'QuizPage',
 		component: () => import('@/pages/QuizPage.vue'),
 		props: true,
+		meta: { requiresLogin: true },
 	},
 	{
 		path: '/quiz-submission/:submission',
@@ -289,6 +288,7 @@ export const routes = [
 		path: '/programs',
 		name: 'Programs',
 		component: () => import('@/pages/Programs/Programs.vue'),
+		meta: { requiresLogin: true },
 		children: [
 			{
 				// `/edit` is mandatory, not stylistic. A bare `:programName` child
@@ -356,6 +356,7 @@ export const routes = [
 		name: 'AssignmentSubmission',
 		component: () => import('@/pages/AssignmentSubmission.vue'),
 		props: true,
+		meta: { requiresLogin: true },
 	},
 	{
 		path: '/assignment-submissions',

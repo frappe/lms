@@ -12,11 +12,26 @@
 			{{ __('No introduction') }}
 		</div>
 	</div>
-	<div class="mt-7 mb-10" v-if="badges.data?.length">
+	<div
+		v-if="badges.loading && !badges.data"
+		class="mt-7 mb-10 motion-safe:animate-pulse"
+		aria-hidden="true"
+		data-testid="badges-skeleton"
+	>
+		<SkeletonText text="text-lg-semibold" width="w-32" class="mb-3" strong />
+		<div class="grid grid-cols-2 @2xl:grid-cols-3 @4xl:grid-cols-5 gap-4">
+			<div
+				v-for="i in 5"
+				:key="i"
+				class="size-[80px] rounded-full bg-surface-gray-2"
+			/>
+		</div>
+	</div>
+	<div class="mt-7 mb-10" v-else-if="badges.data?.length">
 		<h2 class="mb-3 text-lg-semibold text-ink-gray-9">
 			{{ __('Achievements') }}
 		</h2>
-		<div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+		<div class="grid grid-cols-2 @2xl:grid-cols-3 @4xl:grid-cols-5 gap-4">
 			<div v-for="badge in badges.data" :key="badge.badge">
 				<HoverCard :leave-delay="10">
 					<template #trigger>
@@ -110,6 +125,7 @@ import { decodeEntities } from '@/utils'
 import { getLmsRoute } from '@/utils/basePath'
 import { safeUrl } from '@/utils/safeUrl'
 import { openExternal } from '@/utils/openExternal'
+import SkeletonText from '@/components/Skeletons/SkeletonText.vue'
 
 const dayjs = inject('$dayjs')
 const user = inject('$user')

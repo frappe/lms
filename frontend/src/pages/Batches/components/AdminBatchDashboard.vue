@@ -3,6 +3,7 @@
 		v-if="batch?.data"
 		class="flex flex-col p-5 lg:min-h-0 lg:flex-1 lg:overflow-y-auto"
 	>
+		<span class="sr-only" role="status">{{ loadingAnnouncement }}</span>
 		<LoadError v-if="statsError" :error="statsError" @retry="stats.reload()" />
 		<DashboardEmptyState
 			v-else-if="showStudentsEmptyState"
@@ -15,7 +16,8 @@
 		/>
 		<div
 			v-else
-			class="grid grid-cols-1 gap-5 lg:min-h-[30rem] lg:flex-1 lg:grid-cols-[minmax(0,1fr)_22rem] min-[1400px]:grid-cols-[minmax(0,1fr)_26rem] 2xl:grid-cols-[minmax(0,1fr)_30rem]"
+			class="grid shrink-0 grid-cols-1 gap-5 lg:min-h-[30rem]"
+			:class="gridClass"
 		>
 			<div class="flex min-w-0 flex-col gap-5 lg:min-h-0">
 				<DashboardKpiCards :kpis="kpis" :loading="!stats.data">
@@ -76,6 +78,7 @@ import DashboardEmptyState from '@/components/Dashboard/DashboardEmptyState.vue'
 import LoadError from '@/components/LoadError.vue'
 import { openBatchForm } from '@/composables/useBatchForms'
 import { syncDashboardState } from '@/composables/dashboard/useDashboard'
+import { useDashboardColumns } from '@/composables/dashboard/useDashboardColumns'
 import router from '@/router'
 import BatchAttendancePanel from '@/pages/Batches/components/BatchAttendancePanel.vue'
 import BatchFunnelPanel from '@/pages/Batches/components/BatchFunnelPanel.vue'
@@ -89,6 +92,7 @@ import {
 } from '@/utils/dashboard/charts'
 import { BATCH_FILTER_GROUPS, groupOf } from '@/utils/dashboard/filters'
 import { firstLoadError } from '@/utils/loadError'
+import { useLoadingAnnouncement } from '@/utils/a11y'
 import type {
 	BatchDashboardStats,
 	BatchFilter,
@@ -111,6 +115,7 @@ const reloadBatchDetails = inject<(() => void) | null>(
 )
 
 const batchName: string = props.batch?.data?.name ?? ''
+const { gridClass } = useDashboardColumns()
 const stage = ref<BatchFilter | null>(null)
 const classFilter = ref<ClassAttendanceFilter | null>(null)
 const showProgressModal = ref<boolean>(false)
@@ -126,6 +131,11 @@ const stats = createResource<BatchDashboardStats>({
 
 // A failed reload keeps the stats on screen; only a first load fails the body.
 const statsError = computed(() => firstLoadError(stats))
+
+const loadingAnnouncement = useLoadingAnnouncement(
+	() => !stats.data && !statsError.value,
+	() => (stats.data ? __('Dashboard loaded') : '')
+)
 
 const showStudentsEmptyState = computed<boolean>(
 	() => stats.data?.enrolled === 0

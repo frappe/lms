@@ -285,3 +285,27 @@ describe('every icon the page can draw', () => {
 		expect(existsSync(resolve(ICONS_DIR, `${name}.svg`))).toBe(true)
 	})
 })
+
+describe('flow', () => {
+	// Flow is in the sidebar's top group, so it arrives before Certifications.
+	const FLOW: NavLink = { label: 'Flow', icon: {}, action: 'flow' }
+	const pages = () =>
+		group(
+			build({
+				sidebarLinks: [SIDEBAR[0], FLOW, ...SIDEBAR.slice(1)],
+				primaryLabels: ['Home', 'Courses', 'Batches', 'You'],
+			}),
+			'Pages'
+		)?.rows ?? []
+
+	it('sits right under Certifications', () => {
+		const labels = pages().map((row) => row.label)
+		expect(labels.indexOf('Flow')).toBe(labels.indexOf('Certifications') + 1)
+	})
+
+	it('opens the panel in place, drawn with its own mark', () => {
+		const flow = pages().find((row) => row.label === 'Flow')
+		expect(flow).toMatchObject({ action: 'flow', icon: 'lms-icon-flow' })
+		expect(flow?.to).toBeUndefined()
+	})
+})

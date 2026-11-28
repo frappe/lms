@@ -1,11 +1,10 @@
 <template>
 	<ListPage
 		:breadcrumbs="breadcrumbs"
-		:title="applicationCountLabel"
 		layout="list"
 		:columns="applicationColumns"
 		:rows="applicantRows"
-		:loading="applications.loading"
+		:loading="applications.list.loading"
 		:total-count="totalApplications.data ?? null"
 		:has-next-page="applications.hasNextPage"
 		:list-options="{ showTooltip: false, selectable: false }"
@@ -16,6 +15,21 @@
 		:empty-description="emptyState?.description"
 		@load-more="applications.next()"
 	>
+		<template #name>
+			<span
+				v-if="totalApplications.data == null && !totalApplications.error"
+				class="relative inline-block w-32 motion-safe:animate-pulse"
+				aria-hidden="true"
+				data-testid="application-count-skeleton"
+			>
+				&nbsp;
+				<span
+					class="absolute inset-x-0 top-1/2 h-[0.7em] -translate-y-1/2 rounded-4 bg-surface-gray-3"
+				/>
+			</span>
+			<template v-else>{{ applicationCountLabel }}</template>
+		</template>
+
 		<template #filters>
 			<FormControl
 				v-model="search"
@@ -30,7 +44,19 @@
 		</template>
 
 		<template #cell="{ column, row, value }">
-			<div v-if="column.key === 'full_name'" class="flex items-center gap-x-3">
+			<div
+				v-if="column.key === 'full_name' && !users.data && !users.error"
+				class="flex items-center gap-x-3 motion-safe:animate-pulse"
+				aria-hidden="true"
+				data-testid="applicant-skeleton"
+			>
+				<span class="size-5 shrink-0 rounded-full bg-surface-gray-2" />
+				<span class="h-[0.7em] w-32 rounded-4 bg-surface-gray-2" />
+			</div>
+			<div
+				v-else-if="column.key === 'full_name'"
+				class="flex items-center gap-x-3"
+			>
 				<Avatar
 					size="sm"
 					:image="row['user_image']"

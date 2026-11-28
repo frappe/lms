@@ -1,7 +1,13 @@
 <template>
 	<FormShell :title="formTitle" size="lg" :message="refusal" @close="close">
 		<template #default>
+			<span class="sr-only" role="status">{{ loadingAnnouncement }}</span>
+			<AssignmentFormSkeleton
+				v-if="isAssignmentPending"
+				data-testid="assignment-form-skeleton"
+			/>
 			<fieldset
+				v-else
 				:disabled="!canEdit"
 				data-testid="assignment-fields"
 				class="m-0 min-w-0 space-y-4 border-0 p-0 text-base"
@@ -124,6 +130,8 @@ import BooleanSwitch from '@/components/Controls/BooleanSwitch.vue'
 import { useFormRoute } from '@/composables/useFormRoute'
 import Link from '@/components/Controls/Link.vue'
 import RichTextEditor from '@/components/RichTextEditor.vue'
+import AssignmentFormSkeleton from '@/components/Skeletons/AssignmentFormSkeleton.vue'
+import { useLoadingAnnouncement } from '@/utils/a11y'
 import { InputLabel } from 'frappe-ui/experimental'
 import { resourceErrorMessage, submitResource } from '@/utils/resource'
 import { toDatetimeLocal, fromDatetimeLocal } from '@/utils/schedule'
@@ -161,8 +169,7 @@ const formTitle = computed(() =>
 // through neither. This is a UX gate, not an authorization boundary — the
 // server-side DocPerms on LMS Assignment are.
 const canManageAssignments = computed<boolean>(() => {
-	// Cast because Window carries no read_only_mode declaration; same shape as
-	// NewBatchForm.vue:190.
+	// Cast because Window carries no read_only_mode declaration.
 	if ((window as Window & { read_only_mode?: boolean }).read_only_mode)
 		return false
 	return Boolean(user.data?.is_moderator || user.data?.is_instructor)
@@ -215,6 +222,15 @@ const assignmentDoc = createDocumentResource({
 	},
 })
 
+const isAssignmentPending = computed(() =>
+	Boolean(assignmentDoc?.get.loading && !assignmentDoc.doc)
+)
+
+const loadingAnnouncement = useLoadingAnnouncement(
+	() => isAssignmentPending.value,
+	() => (assignmentDoc?.doc ? __('Assignment loaded') : '')
+)
+
 // C3: the watch this replaces had no `immediate`, so a directly mounted route
 // never ran its load at all. It is still needed here alongside `auto`, because
 // documentResource hands back a cached instance for a record already visited
@@ -234,7 +250,7 @@ watch(
 	{ immediate: true }
 )
 
-// Deliberately NOT the parent list's cache key, unlike NewBatchForm.vue:178.
+// Deliberately NOT the parent list's cache key.
 // Assignments.vue:148-162 configures its list through CONSTRUCTOR options
 // (fields, orderBy, transform) and createListResource discards the second
 // caller's options for an identical key (listResource.js:15-22) — so on a cold
@@ -264,7 +280,7 @@ const saving = computed<boolean>(() =>
 	Boolean(newAssignment.loading || assignmentDoc?.setValue?.loading)
 )
 
-// An image-only question has no text but is not empty (CourseCreatorCard.vue).
+// An image-only question has no text but is not empty.
 const hasContent = (html: string): boolean =>
 	html.replace(/<[^>]*>/g, '').trim().length > 0 || /<img\b/i.test(html)
 

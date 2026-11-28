@@ -53,7 +53,7 @@ createListResourceMock.mockReturnValue(exercisesResource)
 createResourceMock.mockReturnValue({ reload: countReload, data: 0 })
 // Faithful to documentResource.js:15 — no doctype+name, no resource at all.
 const documentResourceStub = (doc: unknown) => (options: { name?: string }) =>
-	options.name ? { doc } : undefined
+	options.name ? { doc, get: { loading: false } } : undefined
 createDocumentResourceMock.mockImplementation(documentResourceStub(null))
 
 // HeaderButton wraps frappe-ui's Button in a Tooltip below the mobile

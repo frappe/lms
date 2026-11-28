@@ -21,7 +21,7 @@ vi.mock('@/pages/Forms/AssignmentForm.vue', stub)
 vi.mock('@/pages/AssignmentSubmissions.vue', stub)
 vi.mock('@/pages/AssignmentSubmission.vue', stub)
 vi.mock('@/pages/Batches/Batches.vue', stub)
-vi.mock('@/pages/Forms/NewBatchForm.vue', stub)
+vi.mock('@/pages/Batches/NewBatchPage.vue', stub)
 vi.mock('@/pages/Batches/BatchDetail.vue', stub)
 vi.mock('@/pages/Forms/BulkCertificatesForm.vue', stub)
 vi.mock('@/pages/Forms/LiveClassForm.vue', stub)
@@ -31,7 +31,7 @@ vi.mock('@/pages/Forms/AssessmentForm.vue', stub)
 vi.mock('@/pages/Forms/BatchStudentForm.vue', stub)
 vi.mock('@/pages/Forms/EmailTemplateForm.vue', stub)
 vi.mock('@/pages/Courses/Courses.vue', stub)
-vi.mock('@/pages/Forms/NewCourseForm.vue', stub)
+vi.mock('@/pages/Courses/NewCoursePage.vue', stub)
 vi.mock('@/pages/Forms/CourseImportForm.vue', stub)
 vi.mock('@/pages/Courses/CourseDetail.vue', stub)
 vi.mock('@/pages/Forms/CourseEnrollmentForm.vue', stub)
@@ -296,7 +296,7 @@ describe('the batch-detail form routes', () => {
 const router = () => createRouter({ history: createMemoryHistory(), routes })
 
 describe('the course form routes', () => {
-	it('resolves /courses/new to the form, not to a course named "new"', async () => {
+	it('resolves /courses/new to the new course page, not to a course named "new"', async () => {
 		const r = router()
 		await r.push('/courses/new')
 		expect(r.currentRoute.value.name).toBe('NewCourse')
@@ -315,11 +315,10 @@ describe('the course form routes', () => {
 		expect(r.currentRoute.value.params.courseName).toBe('rest-api-basics')
 	})
 
-	it('keeps both forms nested under the list so the list stays mounted', async () => {
+	it('opens a new course as its own page, and import over the list', async () => {
 		const r = router()
 		await r.push('/courses/new')
 		expect(r.currentRoute.value.matched.map((m) => m.name)).toEqual([
-			'Courses',
 			'NewCourse',
 		])
 
@@ -352,7 +351,7 @@ describe('the course form routes', () => {
 })
 
 describe('the new-batch route', () => {
-	it('resolves /batches/new to the form, not to a batch named "new"', async () => {
+	it('resolves /batches/new to the new batch page, not to a batch named "new"', async () => {
 		const router = createRouter({ history: createMemoryHistory(), routes })
 		await router.push('/batches/new')
 		expect(router.currentRoute.value.name).toBe('NewBatch')
@@ -365,11 +364,11 @@ describe('the new-batch route', () => {
 		expect(router.currentRoute.value.params.batchName).toBe('BATCH-0001')
 	})
 
-	it('keeps the form nested under the list so the list stays mounted', async () => {
+	it('opens a new batch as its own page, not over the list', async () => {
 		const router = createRouter({ history: createMemoryHistory(), routes })
 		await router.push('/batches/new')
 		const names = router.currentRoute.value.matched.map((r) => r.name)
-		expect(names).toEqual(['Batches', 'NewBatch'])
+		expect(names).toEqual(['NewBatch'])
 	})
 })
 

@@ -11,6 +11,8 @@ import {
 
 /** Tailwind's `sm`. The one place the phone/desktop cutoff is written down. */
 export const MOBILE_BREAKPOINT = 640
+/** Tailwind's `lg`: below it a side panel beside the content is too cramped. */
+export const COMPACT_BREAKPOINT = 1024
 
 export interface ScreenSize {
 	width: number
@@ -20,6 +22,7 @@ export interface ScreenSize {
 export function useScreenSize(): {
 	size: ScreenSize
 	isMobile: ComputedRef<boolean>
+	isCompact: ComputedRef<boolean>
 } {
 	const size = reactive<ScreenSize>({
 		width: window.innerWidth,
@@ -27,6 +30,7 @@ export function useScreenSize(): {
 	})
 
 	const isMobile = computed(() => size.width < MOBILE_BREAKPOINT)
+	const isCompact = computed(() => size.width < COMPACT_BREAKPOINT)
 
 	const onResize = (): void => {
 		size.width = window.innerWidth
@@ -44,6 +48,7 @@ export function useScreenSize(): {
 	return {
 		size,
 		isMobile,
+		isCompact,
 	}
 }
 

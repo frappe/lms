@@ -35,7 +35,7 @@
 			</AssessmentCardHeader>
 
 			<div
-				class="grid grid-cols-1 md:grid-cols-[minmax(0,1fr)_minmax(0,0.9fr)]"
+				class="grid grid-cols-1 @2xl:grid-cols-[minmax(0,1fr)_minmax(0,0.9fr)]"
 			>
 				<div
 					class="min-w-0 space-y-2 border-b border-outline-gray-1 p-3.5 md:border-b-0 md:border-e"
@@ -262,7 +262,9 @@
 		<AssessmentCardHeader icon="lucide-notebook-pen" :title="__('Assignment')">
 			<Skeleton class="h-7 w-16 rounded-4" />
 		</AssessmentCardHeader>
-		<div class="grid grid-cols-1 md:grid-cols-[minmax(0,1fr)_minmax(0,0.9fr)]">
+		<div
+			class="grid grid-cols-1 @2xl:grid-cols-[minmax(0,1fr)_minmax(0,0.9fr)]"
+		>
 			<div
 				class="space-y-2.5 border-b border-outline-gray-1 p-3.5 md:border-b-0 md:border-e"
 			>

@@ -28,6 +28,12 @@ const { batchResource, createResourceMock } = vi.hoisted(() => ({
 
 vi.mock('frappe-ui', () => ({
 	createResource: createResourceMock,
+	createDocumentResource: () => ({
+		doc: null,
+		reload: vi.fn(),
+		setValue: { submit: vi.fn() },
+	}),
+	call: vi.fn(() => Promise.resolve([])),
 	usePageMeta: () => {},
 	toast: { success: vi.fn(), error: vi.fn() },
 	Badge: { template: `<span><slot /></span>` },
@@ -74,12 +80,15 @@ vi.mock('@/components/HeaderButton.vue', () => ({
 	},
 }))
 
-// Drives the #actions slot with a chosen tab, which is the only way to reach
-// the header openers without standing up the whole tab shell.
+// Drives the header and tab-row slots with a chosen tab, which is the only way
+// to reach the openers without standing up the whole tab shell.
 vi.mock('@/components/Layouts/pages/TabbedDetailPage.vue', () => ({
 	default: {
 		props: ['tabs', 'breadcrumbs', 'published', 'loading', 'doc', 'docProp'],
-		template: `<div><slot name="actions" :tab="{ key: 'announcements' }" :instance="null" /></div>`,
+		template: `<div>
+			<slot name="actions" :tab="{ key: 'announcements' }" :instance="null" />
+			<slot name="tab-row-end" :tab="{ key: 'announcements' }" />
+		</div>`,
 	},
 }))
 
@@ -151,7 +160,7 @@ describe("BatchDetail's form openers", () => {
 		await router.push('/batches/B1#announcements')
 		const wrapper = await mountPage(router)
 
-		await wrapper.find('[data-label="Make Announcement"]').trigger('click')
+		await wrapper.find('[data-label="Make announcement"]').trigger('click')
 		await flushPromises()
 		expect(router.currentRoute.value.fullPath).toBe(
 			'/batches/B1/announcement/new#announcements'
@@ -167,7 +176,7 @@ describe("BatchDetail's form openers", () => {
 			.findComponent({ name: 'Dropdown' })
 			.props('options') as { label: string; onClick: () => void }[]
 		const generate = options.find(
-			(option) => option.label === 'Generate Certificates'
+			(option) => option.label === 'Generate certificates'
 		)
 		expect(generate).toBeDefined()
 		generate?.onClick()

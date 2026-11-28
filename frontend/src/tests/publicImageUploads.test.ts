@@ -290,17 +290,15 @@ const MANIFEST: Record<string, Privacy[]> = {
 	'components/Controls/Uploader.vue': ['public'],
 	// The brand logo and the favicon, rendered on /login for Guest.
 	'components/Settings/BrandSettings.vue': ['public', 'public'],
-	'components/Controls/VideoPreviewField.vue': ['public', 'public'],
+	'components/Controls/VideoPreviewField.vue': ['public'],
 	'components/Modals/EditCoverImage.vue': ['public'],
 	'components/UnsplashImageBrowser.vue': ['public'],
-	'components/Courses/CourseThumbnailField.vue': ['public', 'public'],
-	// A course description and a batch's details are shown wherever the course
-	// or batch is, Guest included; a private image in them was a 403 for
-	// everyone but its uploader (#3213).
-	'components/Courses/CourseOverviewSection.vue': ['public'],
-	'pages/Forms/NewCourseForm.vue': ['public'],
-	'pages/Batches/BatchForm.vue': ['public'],
-	'pages/Forms/NewBatchForm.vue': ['public'],
+	// SettingImage.vue (a batch's share image) uploads through useImageUpload,
+	// which has no tag here; settingFields.test.ts asserts it uploads public.
+	// The course and batch "About" bodies are shown wherever the course or
+	// batch is, Guest included; a private image in them was a 403 for everyone
+	// but its uploader (#3213).
+	'components/InlineEdit/RichTextField.vue': ['public'],
 	// Deliberately not readable by other users.
 	'components/Assignment.vue': ['private', 'private', 'private'],
 	'components/Modals/JobApplicationModal.vue': ['private'],

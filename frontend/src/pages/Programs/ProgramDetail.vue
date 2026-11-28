@@ -3,6 +3,17 @@
 	<PageBody>
 		<template #name>
 			<span class="flex items-center gap-x-2">
+				<span
+					v-if="isPending"
+					class="relative w-48 motion-safe:animate-pulse"
+					aria-hidden="true"
+					data-testid="program-title-skeleton"
+				>
+					&nbsp;
+					<span
+						class="absolute inset-x-0 top-1/2 h-[0.7em] -translate-y-1/2 rounded-4 bg-surface-gray-3"
+					/>
+				</span>
 				{{ program.data?.name }}
 
 				<Badge
@@ -24,8 +35,18 @@
 			</span>
 		</template>
 
-		<div v-if="program.data?.is_member" class="px-5 pb-10">
-			<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 mb-5">
+		<span class="sr-only" role="status">{{ loadingAnnouncement }}</span>
+		<div v-if="isPending" class="px-5 pb-10" data-testid="program-skeleton">
+			<div
+				class="grid grid-cols-1 @2xl:grid-cols-2 @4xl:grid-cols-3 gap-5 mb-5"
+			>
+				<CourseCardSkeleton v-for="i in 3" :key="i" />
+			</div>
+		</div>
+		<div v-else-if="program.data?.is_member" class="px-5 pb-10">
+			<div
+				class="grid grid-cols-1 @2xl:grid-cols-2 @4xl:grid-cols-3 gap-5 mb-5"
+			>
 				<div
 					v-for="(course, index) in program.data.courses"
 					:key="course.name"
@@ -66,10 +87,13 @@ import { inlineEndSide } from '@/utils/textDirection'
 import PageHeader from '@/components/Layouts/pages/PageHeader.vue'
 import PageBody from '@/components/Layouts/pages/PageBody.vue'
 import { Badge, createResource, Tooltip, usePageMeta } from 'frappe-ui'
+import { useFlowChanges } from '@/composables/useFlowChanges'
 import { sessionStore } from '@/stores/session'
 
 import { useRouter } from 'vue-router'
 import CourseCard from '@/components/CourseCard.vue'
+import CourseCardSkeleton from '@/components/Skeletons/CourseCardSkeleton.vue'
+import { useLoadingAnnouncement } from '@/utils/a11y'
 import type { CourseDetails } from '@/types/api'
 
 const { brand } = sessionStore()
@@ -93,6 +117,18 @@ const program = createResource({
 		router.push({ name: 'Programs' })
 	},
 })
+useFlowChanges({
+	doctypes: ['LMS Program'],
+	name: () => props.programName,
+	reload: () => program.reload(),
+})
+
+const isPending = computed(() => program.loading && !program.data)
+
+const loadingAnnouncement = useLoadingAnnouncement(
+	() => program.loading,
+	() => (program.data ? __('Program loaded') : '')
+)
 
 const courseOrderNote = __(
 	'Courses must be completed in order. You can only start the next course after completing the previous one.'

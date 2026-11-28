@@ -1,5 +1,12 @@
 <template>
-	<div data-testid="rich-text-editor" :class="boxClasses">
+	<div
+		data-testid="rich-text-editor"
+		:class="[boxClasses, menuOnFocus && 'group/editor']"
+		@pointerdown.capture="markTouched"
+		@keydown.capture="markTouched"
+		@paste.capture="markTouched"
+		@drop.capture="markTouched"
+	>
 		<Editor
 			ref="editorRef"
 			v-model="html"
@@ -8,14 +15,14 @@
 			:placeholder="placeholder"
 			:upload-function="uploadFile"
 			format="html"
-			@focus="hasFocus = true"
+			@focus="onFocus"
 			@blur="onBlur"
 		>
 			<template #default>
 				<EditorFixedMenu
-					v-if="fixedMenu"
+					v-if="fixedMenu || menuOnFocus"
 					:class="toolbarClasses"
-					:items="toolbar"
+					:items="toolbar ?? FULL_TOOLBAR"
 				/>
 				<EditorContent
 					:id="id"
@@ -65,7 +72,11 @@ import {
 	Strike,
 	Undo,
 } from 'frappe-ui/editor'
-import type { MentionSuggestionItem, UploadFunction } from 'frappe-ui/editor'
+import type {
+	MentionSuggestionItem,
+	MenuItem,
+	UploadFunction,
+} from 'frappe-ui/editor'
 import {
 	boxClass,
 	contentClass,
@@ -82,6 +93,11 @@ const props = withDefaults(
 		content?: string | null
 		editable?: boolean
 		fixedMenu?: boolean
+		/** A sticky toolbar that shows only while the editor has focus. */
+		menuOnFocus?: boolean
+		toolbar?: MenuItem[]
+		/** Document-like padding inside a boxed editor. */
+		roomy?: boolean
 		variant?: RichTextEditorVariant
 		minHeight?: RichTextEditorMinHeight | null
 		maxHeight?: RichTextEditorMaxHeight | null
@@ -103,6 +119,9 @@ const props = withDefaults(
 		content: '',
 		editable: true,
 		fixedMenu: false,
+		menuOnFocus: false,
+		toolbar: undefined,
+		roomy: false,
 		variant: 'outline',
 		minHeight: null,
 		maxHeight: null,
@@ -127,9 +146,17 @@ const emit = defineEmits<{
 const boxClasses = computed(() =>
 	boxClass(props.variant, props.ariaInvalid === true, props.fill)
 )
-const toolbarClasses = computed(() => toolbarClass(props.variant))
+const toolbarClasses = computed(() =>
+	toolbarClass(props.variant, props.menuOnFocus)
+)
 const contentClasses = computed(() =>
-	contentClass(props.variant, props.minHeight, props.maxHeight, props.fill)
+	contentClass(
+		props.variant,
+		props.minHeight,
+		props.maxHeight,
+		props.fill,
+		props.roomy
+	)
 )
 
 const editorRef = useTemplateRef<InstanceType<typeof Editor>>('editorRef')
@@ -138,7 +165,7 @@ defineExpose({
 	focus: () => editorRef.value?.editor?.commands.focus('end'),
 })
 
-const toolbar = [
+const FULL_TOOLBAR: MenuItem[] = [
 	HeadingGroup,
 	Separator,
 	Bold,
@@ -189,6 +216,20 @@ const uploadFile: UploadFunction = (file, options) =>
 
 const html = ref(props.content ?? '')
 const hasFocus = ref(false)
+// True until the user touches the editor (focus, pointer, key, paste or drop).
+// Loading stored HTML makes the editor
+// rewrite it (collapsed spaces, no newlines between blocks); that rewrite is not
+// an edit, so it must not mark the form unsaved.
+let pristine = true
+
+function markTouched() {
+	pristine = false
+}
+
+function onFocus() {
+	hasFocus.value = true
+	markTouched()
+}
 
 function onBlur(event: FocusEvent) {
 	hasFocus.value = false
@@ -199,11 +240,15 @@ watch(
 	() => props.content,
 	(value) => {
 		if (hasFocus.value) return
-		if ((value ?? '') !== html.value) html.value = value ?? ''
+		if ((value ?? '') !== html.value) {
+			pristine = true
+			html.value = value ?? ''
+		}
 	}
 )
 
 watch(html, (value) => {
+	if (pristine) return
 	if (value !== (props.content ?? '')) emit('change', value)
 })
 </script>

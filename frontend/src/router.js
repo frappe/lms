@@ -3,7 +3,8 @@ import { call } from 'frappe-ui'
 import { usersStore } from './stores/user'
 import { sessionStore } from './stores/session'
 import { useSettings } from './stores/settings'
-import { getLmsBasePath } from './utils/basePath'
+import { getLmsBasePath, getLmsRoute } from './utils/basePath'
+import { redirectToLogin } from './utils/login'
 import { routes } from './routes'
 
 // Run the fresh-site-admin setup check at most once per app load.
@@ -48,12 +49,16 @@ export async function guardNavigation(to, from, next) {
 	}
 
 	if (!isLoggedIn) {
+		if (to.meta.requiresLogin) {
+			redirectToLogin(getLmsRoute(to.fullPath))
+			return next(false)
+		}
 		if (to.name == 'Home') router.push({ name: 'Courses' })
 
 		await settings.promise
 		if (!settings.data.allow_guest_access) {
-			window.location.href = '/login'
-			return
+			redirectToLogin(getLmsRoute(to.fullPath))
+			return next(false)
 		}
 	}
 

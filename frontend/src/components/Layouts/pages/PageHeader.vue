@@ -1,6 +1,9 @@
 <template>
 	<SkeletonLoader v-if="loading" variant="header" />
-	<header v-else class="header-frame sticky top-0 z-10 justify-between">
+	<header
+		v-else
+		class="header-frame sticky top-[var(--student-view-bar-h)] z-10 justify-between"
+	>
 		<div class="flex min-w-0 flex-1 items-center gap-2">
 			<template v-if="isMobile">
 				<router-link
@@ -16,8 +19,10 @@
 				</span>
 			</template>
 			<template v-else>
-				<Breadcrumbs class="h-7 min-w-0" :items="breadcrumbs" />
-				<Badge v-if="published" theme="green">{{ __('Published') }}</Badge>
+				<Breadcrumbs class="page-crumbs h-7 min-w-0" :items="breadcrumbs" />
+				<slot name="status">
+					<Badge v-if="published" theme="green">{{ __('Published') }}</Badge>
+				</slot>
 			</template>
 		</div>
 		<div class="flex shrink-0 items-center gap-2">
@@ -53,3 +58,11 @@ const backTo = computed<RouteLocationRaw | null>(
 	() => props.breadcrumbs[props.breadcrumbs.length - 2]?.route ?? null
 )
 </script>
+
+<style scoped>
+/* frappe-ui draws non-current crumbs in ink-gray-5, under AA's 4.5:1. A
+   crumb with a later crumb is not the current one. */
+.page-crumbs :deep(:is(a, button):has(~ :is(a, button)):not(:hover)) {
+	color: var(--ink-gray-6);
+}
+</style>

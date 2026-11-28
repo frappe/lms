@@ -1,71 +1,76 @@
 <template>
-	<div
-		class="relative isolate flex flex-col border hover:border-outline-gray-3 rounded-5 p-4 h-full"
-		style="min-height: 150px"
+	<article
+		class="relative isolate flex h-full flex-col gap-1.5 rounded-6 border border-outline-gray-2 bg-surface-base p-4 transition hover:border-outline-gray-3 hover:shadow-sm"
 	>
-		<div class="text-lg-semibold leading-5 mb-2 text-ink-gray-9">
+		<h3 class="line-clamp-2 text-base-semibold leading-snug text-ink-gray-9">
 			<CardLink :to="to">{{ batch.title }}</CardLink>
-		</div>
-		<Badge
-			v-if="batch.seat_count && batch.seats_left > 0"
-			variant="subtle"
-			theme="green"
-			size="md"
-			class="self-start"
-			:label="
-				batch.seats_left > 1
-					? __('{0} seats left').format(batch.seats_left)
-					: __('1 seat left')
-			"
-		/>
-		<Badge
-			v-else-if="batch.seat_count && batch.seats_left <= 0"
-			variant="subtle"
-			theme="red"
-			size="md"
-			class="self-start"
-			:label="__('Sold Out')"
-		/>
-		<div class="short-introduction text-sm text-ink-gray-7">
+		</h3>
+		<p v-if="batch.description" class="line-clamp-2 text-p-sm text-ink-gray-6">
 			{{ batch.description }}
-		</div>
-		<div v-if="batch.amount" class="font-semibold text-ink-gray-9 mb-4">
-			{{ batch.price }}
-		</div>
-		<div class="flex flex-col space-y-2 mt-auto">
-			<div class="flex items-center text-sm text-ink-gray-7">
-				<span class="lucide-calendar h-4 w-4 me-2" />
-				<span>{{
-					getFormattedDateRange(batch.start_date, batch.end_date)
-				}}</span>
-			</div>
-			<div class="flex items-center text-sm text-ink-gray-7">
-				<span class="lucide-clock h-4 w-4 me-2 text-ink-gray-7" />
-				<span dir="auto">
-					{{ formatTime(batch.start_time) }} - {{ formatTime(batch.end_time) }}
-				</span>
-			</div>
-			<div
-				v-if="batch.timezone"
-				class="flex items-center text-sm text-ink-gray-7"
+		</p>
+
+		<!-- First visually, after the title in reading and tab order. -->
+		<div class="order-first flex min-h-6 items-center justify-between gap-2">
+			<span
+				class="truncate text-p-xs-medium uppercase tracking-wide text-ink-gray-6"
 			>
-				<span class="lucide-globe h-4 w-4 me-2 text-ink-gray-5" />
-				<span>
-					{{
-						formatTimezone(
-							batch.timezone,
-							nextOccurrence(batch.start_date, batch.end_date)
-						)
-					}}
-				</span>
-			</div>
+				{{ batch.category }}
+			</span>
+			<span
+				v-if="instructors.length"
+				role="img"
+				:aria-label="instructorNames"
+				class="flex -space-x-1.5 rtl:space-x-reverse"
+			>
+				<UserAvatar
+					v-for="instructor in instructors"
+					:key="instructor.username || instructor.full_name"
+					:user="instructor"
+					size="sm"
+				/>
+			</span>
 		</div>
+
+		<ul class="mt-3 space-y-2 text-p-sm text-ink-gray-7">
+			<li class="flex items-center gap-2">
+				<span
+					class="lucide-calendar size-4 text-ink-gray-5"
+					aria-hidden="true"
+				/>
+				{{ getFormattedDateRange(batch.start_date, batch.end_date) }}
+			</li>
+			<li v-if="batch.start_time" class="flex items-center gap-2">
+				<span class="lucide-clock size-4 text-ink-gray-5" aria-hidden="true" />
+				<span dir="auto">
+					{{ formatTime(batch.start_time) }} – {{ formatTime(batch.end_time) }}
+				</span>
+			</li>
+			<li v-if="batch.timezone" class="flex items-center gap-2">
+				<span class="lucide-globe size-4 text-ink-gray-5" aria-hidden="true" />
+				{{ timezone }}
+			</li>
+			<li v-if="closesLabel" class="flex items-center gap-2">
+				<span
+					class="lucide-calendar-clock size-4 text-ink-gray-5"
+					aria-hidden="true"
+				/>
+				{{ closesLabel }}
+			</li>
+			<li v-if="batch.certification" class="flex items-center gap-2">
+				<span
+					class="lucide-circle-check size-4 text-ink-gray-5"
+					aria-hidden="true"
+				/>
+				{{ __('Certificate') }}
+			</li>
+		</ul>
+
 		<Tooltip v-if="batch.progress != null" :disabled="!breakdown.length">
 			<div
-				class="relative z-10 flex flex-col gap-1.5 mt-4 rounded-4 outline-none focus-visible:ring-2 focus-visible:ring-outline-gray-5"
+				class="relative z-10 mt-4 flex flex-col gap-1.5 rounded-4 outline-none focus-visible:ring-2 focus-visible:ring-outline-gray-5"
 				:tabindex="breakdown.length ? 0 : undefined"
 			>
-				<div class="flex items-center justify-between text-sm">
+				<div class="flex items-center justify-between text-p-sm">
 					<span class="text-ink-gray-7">{{ __('Progress') }}</span>
 					<span class="font-medium tabular-nums text-ink-gray-9">
 						{{ percent(batch.progress) }}
@@ -85,40 +90,39 @@
 						class="flex items-center gap-4"
 					>
 						<span class="max-w-[200px] truncate">{{ part.title }}</span>
-						<span class="w-9 shrink-0 ms-auto text-end tabular-nums">
+						<span class="ms-auto w-9 shrink-0 text-end tabular-nums">
 							{{ percent(part.progress) }}
 						</span>
 					</div>
 				</div>
 			</template>
 		</Tooltip>
-		<div
-			v-if="batch.instructors?.length"
-			class="flex avatar-group overlap mt-4"
-		>
-			<div
-				class="relative z-10 h-6 me-1"
-				:class="{ 'avatar-group overlap': batch.instructors.length > 1 }"
+
+		<div class="mt-auto flex items-center gap-2 pt-4">
+			<Badge v-if="status" :theme="status.theme" :label="status.label" />
+			<span
+				class="ms-auto shrink-0"
+				:class="
+					batch.paid_batch
+						? 'text-sm-semibold text-ink-gray-9'
+						: 'text-p-sm text-ink-gray-7'
+				"
 			>
-				<UserAvatar
-					v-for="instructor in batch.instructors"
-					:key="instructor.username"
-					:user="instructor"
-				/>
-			</div>
-			<CourseInstructors :instructors="batch.instructors" />
+				{{ batch.paid_batch ? batch.price : __('Free') }}
+			</span>
 		</div>
-	</div>
+	</article>
 </template>
 <script setup>
 import { computed } from 'vue'
 import { Badge, Tooltip } from 'frappe-ui'
 import { formatTime, getFormattedDateRange } from '@/utils'
+import { joinLabels } from '@/utils/courseForm'
 import { formatTimezone, nextOccurrence } from '@/utils/timezone'
 import CardLink from '@/components/CardLink.vue'
-import CourseInstructors from '@/components/CourseInstructors.vue'
 import UserAvatar from '@/components/UserAvatar.vue'
 import ProgressBar from '@/components/ProgressBar.vue'
+import { enrollmentClosesLabel } from '@/utils/batchEnrollment'
 
 const props = defineProps({
 	batch: {
@@ -131,32 +135,42 @@ const props = defineProps({
 	},
 })
 
+const closesLabel = computed(() =>
+	enrollmentClosesLabel(props.batch.enrollment_closes_on)
+)
+
 const breakdown = computed(() => props.batch.progress_breakdown || [])
 
 const percent = (value) => `${Math.round(value)}%`
+
+const instructors = computed(() => (props.batch.instructors || []).slice(0, 3))
+
+const instructorNames = computed(() =>
+	__('By {0}').format(
+		joinLabels(
+			(props.batch.instructors || []).map((instructor) => instructor.full_name)
+		)
+	)
+)
+
+const timezone = computed(() =>
+	formatTimezone(
+		props.batch.timezone,
+		nextOccurrence(props.batch.start_date, props.batch.end_date)
+	)
+)
+
+const status = computed(() => {
+	const { is_enrolled, seat_count, seats_left } = props.batch
+	if (is_enrolled) return { theme: 'green', label: __('Enrolled') }
+	if (!seat_count) return null
+	if (seats_left <= 0) return { theme: 'red', label: __('Sold out') }
+	return {
+		theme: 'amber',
+		label:
+			seats_left == 1
+				? __('1 seat left')
+				: __('{0} seats left').format(seats_left),
+	}
+})
 </script>
-<style>
-.short-introduction {
-	display: -webkit-box;
-	-webkit-line-clamp: 2;
-	-webkit-box-orient: vertical;
-	text-overflow: ellipsis;
-	width: 100%;
-	overflow: hidden;
-	margin: 0.25rem 0 1rem;
-	line-height: 1.5;
-}
-
-.avatar-group {
-	display: inline-flex;
-	align-items: center;
-}
-
-.avatar-group .avatar {
-	transition: margin 0.1s ease-in-out;
-}
-
-.avatar-group.overlap .avatar + .avatar {
-	margin-inline-start: calc(-8px);
-}
-</style>

@@ -1,5 +1,6 @@
 <template>
 	<PageHeader :breadcrumbs="breadcrumbs" />
+	<span class="sr-only" role="status">{{ loadingAnnouncement }}</span>
 	<div
 		v-if="isPlaybackPending"
 		class="flex items-center justify-center h-[calc(100vh-3.00rem)]"
@@ -76,6 +77,7 @@ import LockedLessonNotice from '@/components/LockedLessonNotice.vue'
 import { useSidebar } from '@/stores/sidebar'
 import { sessionStore } from '../stores/session'
 import { safeUrl } from '@/utils/safeUrl'
+import { useLoadingAnnouncement } from '@/utils/a11y'
 
 const router = useRouter()
 const { brand } = sessionStore()
@@ -132,6 +134,11 @@ const playback = createResource({
 // playing. The page renders what it is told and derives none of them itself.
 // Nothing to show until the server answers; an error leaves for the course instead.
 const isPlaybackPending = computed(() => !playback.data && !playback.error)
+
+const loadingAnnouncement = useLoadingAnnouncement(
+	() => isPlaybackPending.value,
+	() => playback.data?.title || ''
+)
 
 const isLocked = computed(() => !!playback.data?.locked)
 

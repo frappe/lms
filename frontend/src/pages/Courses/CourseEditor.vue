@@ -1,9 +1,25 @@
 <template>
-	<div
-		class="grid grid-cols-1 flex-1 min-h-0"
-		:class="{ 'md:grid-cols-[70%,30%]': outlineVisible }"
-	>
-		<div class="flex flex-col overflow-hidden">
+	<div class="flex flex-1 min-h-0">
+		<div class="relative flex min-w-0 flex-1 flex-col overflow-hidden">
+			<Transition
+				enter-active-class="transition-opacity duration-200 delay-200"
+				enter-from-class="opacity-0"
+				leave-active-class="transition-opacity duration-100"
+				leave-to-class="opacity-0"
+			>
+				<Button
+					v-if="panelAvailable && !chaptersOpen"
+					variant="subtle"
+					class="absolute end-5 top-4 z-10"
+					data-testid="show-chapters"
+					@click="openChaptersPanel()"
+				>
+					<template #prefix>
+						<span class="lucide-panel-right-open size-4" />
+					</template>
+					{{ __('Chapters') }}
+				</Button>
+			</Transition>
 			<div class="overflow-y-auto h-full">
 				<SkeletonLoader
 					v-if="outline.loading && !outline.data"
@@ -22,7 +38,7 @@
 				<LessonForm
 					v-else-if="selected"
 					ref="lessonFormRef"
-					:key="`edit-${selected.formKey}`"
+					:key="`edit-${selected.formKey}-${lessonRevision}`"
 					:courseName="props.course.data.name"
 					:chapterNumber="selected.chapterNumber"
 					:lessonNumber="selected.lessonNumber"
@@ -33,36 +49,54 @@
 			</div>
 		</div>
 
-		<aside v-if="!isMobile && outlineVisible" class="border-s overflow-y-auto">
-			<SkeletonLoader
-				v-if="outline.loading && !outline.data"
-				variant="editor-sidebar"
-			/>
-			<CourseOutline
-				v-else-if="props.course?.data"
-				:courseName="props.course.data.name"
-				:title="__('Chapters')"
-				:allowEdit="true"
-				:hideHeader="true"
-				:inlineSelect="true"
-				:selectedLessonNumber="selected?.number"
-				@select-lesson="onSelectLesson"
-				@lesson-deleted="onLessonDeleted"
-				@chapter-deleted="onChapterDeleted"
-				@add-lesson="onAddLesson"
-			/>
+		<!-- Slides like the app sidebar: its width animates, the content keeps
+		     its own width so it doesn't reflow while the panel moves. -->
+		<aside
+			v-if="panelAvailable"
+			class="hidden min-h-0 shrink-0 overflow-hidden transition-[width] duration-200 ease-flow @2xl:flex"
+			:class="chaptersOpen ? 'w-[30%] border-s' : 'w-0'"
+			:inert="!chaptersOpen || undefined"
+			data-testid="chapters-panel"
+		>
+			<div class="flex min-h-0 w-full min-w-72 flex-col">
+				<CourseChaptersHeader
+					collapsible
+					class="shrink-0 px-5 pt-4"
+					:count="outline.data?.length"
+					@add-chapter="openAddChapter"
+					@upload-scorm="openScormUpload"
+					@hide="foldChaptersPanel"
+				/>
+				<div class="min-h-0 flex-1 overflow-y-auto">
+					<SkeletonLoader
+						v-if="outline.loading && !outline.data"
+						variant="editor-sidebar"
+					/>
+					<CourseOutline
+						v-else-if="props.course?.data"
+						:courseName="props.course.data.name"
+						:title="__('Chapters')"
+						:allowEdit="true"
+						:hideHeader="true"
+						:inlineSelect="true"
+						:selectedLessonNumber="selected?.number"
+						@select-lesson="onSelectLesson"
+						@lesson-deleted="onLessonDeleted"
+						@chapter-deleted="onChapterDeleted"
+						@add-lesson="onAddLesson"
+					/>
+				</div>
+			</div>
 		</aside>
 
-		<BottomSheet v-if="isMobile" v-model="showChapters">
+		<BottomSheet v-if="isCompact" v-model="showChapters">
 			<template #header>
-				<div class="text-p-lg-semibold text-ink-gray-9">
-					{{ __('Chapters') }}
-				</div>
-				<Button :label="__('Add chapter')" @click="openAddChapter">
-					<template #icon>
-						<span class="lucide-plus size-4" />
-					</template>
-				</Button>
+				<CourseChaptersHeader
+					class="flex-1"
+					:count="outline.data?.length"
+					@add-chapter="openAddChapter"
+					@upload-scorm="openScormUpload"
+				/>
 			</template>
 			<CourseOutline
 				v-if="props.course?.data"
@@ -78,6 +112,13 @@
 				@add-lesson="onAddLesson"
 			/>
 		</BottomSheet>
+
+		<ScormUploadDialog
+			v-if="props.course?.data"
+			v-model:open="showScormUpload"
+			:courseName="props.course.data.name"
+			@added="outline.reload()"
+		/>
 
 		<VideoStatistics
 			v-model="showStats"
@@ -95,7 +136,14 @@ import { useSidebar } from '@/stores/sidebar'
 import { useScreenSize } from '@/utils/composables'
 import CourseOutline from '@/components/CourseOutline.vue'
 import CourseEditorEmptyState from '@/components/CourseEditorEmptyState.vue'
+import CourseChaptersHeader from '@/components/Courses/CourseChaptersHeader.vue'
+import { useFoldablePanel } from '@/composables/useFoldablePanel'
+import ScormUploadDialog from '@/components/Modals/ScormUploadDialog.vue'
 import { openFormRoute } from '@/composables/useFormRoute'
+import {
+	useCourseFlowChanges,
+	useFlowChanges,
+} from '@/composables/useFlowChanges'
 import { setFormSource } from '@/composables/formTracking'
 import { useTelemetry } from '@framework/ui/telemetry/index'
 import BottomSheet from '@/components/BottomSheet.vue'
@@ -118,7 +166,7 @@ const props = defineProps({
 const selectedModel = defineModel('selected', { default: null })
 const route = useRoute()
 const router = useRouter()
-const { isMobile } = useScreenSize()
+const { isMobile, isCompact } = useScreenSize()
 const { capture } = useTelemetry()
 const showChapters = ref(false)
 
@@ -276,6 +324,12 @@ const outline = createResource({
 	auto: false,
 })
 
+useCourseFlowChanges(props.course)
+useFlowChanges({
+	doctypes: ['Course Chapter', 'Course Lesson'],
+	reload: () => outline.reload(),
+})
+
 // Our own URL writes come back through the route watcher; skip those, and
 // take anything else as a new target.
 const ownWrites = new Set()
@@ -373,6 +427,16 @@ watch(
 
 const lessonFormRef = ref(null)
 
+// A fresh form shows Flow's change: rendering into the open editor would
+// leave its mounted blocks behind.
+const lessonRevision = ref(0)
+useFlowChanges({
+	doctypes: ['Course Lesson'],
+	name: () => selected.value?.name,
+	isDirty: () => Boolean(lessonFormRef.value?.isDirty),
+	reload: () => lessonRevision.value++,
+})
+
 function saveSelectedLesson() {
 	lessonFormRef.value?.saveLesson?.()
 }
@@ -432,6 +496,13 @@ function openVideoStats() {
 // stays while the outline loads, so a course with chapters doesn't flash.
 const outlineVisible = computed(() => !outline.data || outline.data.length > 0)
 
+const {
+	isOpen: chaptersOpen,
+	fold: foldChaptersPanel,
+	open: openChaptersPanel,
+} = useFoldablePanel()
+const panelAvailable = computed(() => !isCompact.value && outlineVisible.value)
+
 // Opened from here rather than through the outline: on a phone the outline
 // lives in the chapters sheet, which isn't mounted while it is closed. The
 // form reports `source` with its chapter_created event.
@@ -446,12 +517,17 @@ function openChapterForm(source = 'course_editor') {
 }
 const openAddChapter = () => openChapterForm('course_editor')
 
+const showScormUpload = ref(false)
+function openScormUpload() {
+	showChapters.value = false
+	showScormUpload.value = true
+}
+
 defineExpose({
 	saveSelectedLesson,
 	isDirty,
 	lessonHasVideo,
 	openVideoStats,
-	openAddChapter,
 	outlineVisible,
 	lessonIndex,
 	lessonTotal,

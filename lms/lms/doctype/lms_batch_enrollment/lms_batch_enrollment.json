@@ -12,6 +12,7 @@
   "member_image",
   "column_break_sjzm",
   "batch",
+  "member_type",
   "payment",
   "source",
   "confirmation_email_sent"
@@ -76,6 +77,13 @@
    "set_only_once": 1
   },
   {
+   "fieldname": "member_type",
+   "fieldtype": "Select",
+   "in_standard_filter": 1,
+   "label": "Member Type",
+   "options": "\nStaff"
+  },
+  {
    "fetch_from": "member.user_image",
    "fieldname": "member_image",
    "fieldtype": "Attach Image",
@@ -84,7 +92,7 @@
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2026-10-01 00:00:00.000000",
+ "modified": "2026-11-28 00:00:00.000000",
  "modified_by": "sayali@frappe.io",
  "module": "LMS",
  "name": "LMS Batch Enrollment",
