@@ -1,6 +1,7 @@
 import { computed, inject, ref } from 'vue'
 import { useSettings } from '@/stores/settings'
 import type { CourseFormContext } from '@/types'
+import type { LMSCourse } from '@/types/lms/LMSCourse'
 
 export type CertificateKind = 'none' | 'free' | 'paid'
 
@@ -29,7 +30,7 @@ export function useCourseOffer() {
 		return doc?.enable_certification ? 'free' : 'none'
 	})
 
-	function setField(field: string, value: unknown): void {
+	function setField(field: keyof LMSCourse, value: unknown): void {
 		if (!resource.doc) return
 		;(resource.doc as Record<string, unknown>)[field] = value
 		markDirty()
@@ -62,6 +63,7 @@ export function useCourseOffer() {
 
 	return {
 		resource,
+		markDirty,
 		isMissing,
 		certificate,
 		needsPaymentsApp,

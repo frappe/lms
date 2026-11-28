@@ -104,7 +104,7 @@
 
 <script setup lang="ts">
 import { createResource } from 'frappe-ui'
-import { computed, inject, ref } from 'vue'
+import { computed, ref } from 'vue'
 import SettingAction from '@/components/InlineEdit/SettingAction.vue'
 import SettingField from '@/components/InlineEdit/SettingField.vue'
 import SettingLink from '@/components/InlineEdit/SettingLink.vue'
@@ -115,13 +115,14 @@ import PaymentsAppDialog from '@/components/PaymentsAppDialog.vue'
 import { useCourseOffer } from '@/composables/useCourseOffer'
 import SettingsGroup from '@/components/InlineEdit/SettingsGroup.vue'
 import NewMemberModal from '@/components/Modals/NewMemberModal.vue'
-import type { CourseFormContext, Resource } from '@/types'
+import type { Resource } from '@/types'
 import type { LMSCourse } from '@/types/lms/LMSCourse'
 import { openExternal } from '@/utils/openExternal'
 
 /** The Access, Pricing and Certificate sections of the Settings tab. */
-const { resource, markDirty } = inject<CourseFormContext>('courseForm')!
 const {
+	resource,
+	markDirty,
 	isMissing,
 	certificate,
 	needsPaymentsApp,
