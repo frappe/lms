@@ -14,6 +14,7 @@
 			<SwitchRow
 				v-else
 				v-model="lesson.include_in_preview"
+				control-position="start"
 				:label="__('Include in preview')"
 				@update:modelValue="markDirty"
 			>
@@ -108,6 +109,7 @@
 	</div>
 </template>
 <script setup>
+import { redirectToLogin } from '@/utils/login'
 // The title textarea is `block` because a textarea is inline-block by default,
 // so it would sit on the parent's line box and carry its descender — 5px of
 // space under the title belonging to no rule and no gap.
@@ -311,7 +313,8 @@ defineExpose({
 })
 
 onMounted(() => {
-	if (!user.data?.is_moderator && !user.data?.is_instructor) {
+	if (!user.data) redirectToLogin()
+	else if (!user.data.is_moderator && !user.data.is_instructor) {
 		window.location.href = '/login'
 	}
 	capture('lesson_form_opened')

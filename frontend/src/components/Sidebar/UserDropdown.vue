@@ -22,6 +22,7 @@
 </template>
 
 <script setup>
+import { redirectToLogin } from '@/utils/login'
 import { sessionStore } from '@/stores/session'
 import { call, createResource, SidebarHeader, toast } from 'frappe-ui'
 import { useRouter } from 'vue-router'
@@ -243,9 +244,7 @@ const userDropdownOptions = computed(() => {
 				{
 					icon: 'lucide-log-in',
 					label: __('Log in'),
-					onClick: () => {
-						window.location.href = '/login'
-					},
+					onClick: () => redirectToLogin(),
 					condition: () => {
 						return !isLoggedIn
 					},

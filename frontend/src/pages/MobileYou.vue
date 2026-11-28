@@ -8,6 +8,7 @@
 			<p class="text-p-base text-ink-gray-6">{{ signedOutPrompt }}</p>
 			<a
 				href="/login"
+				@click.prevent="redirectToLogin()"
 				class="text-p-base font-medium text-ink-gray-9 underline underline-offset-2"
 			>
 				{{ logInLabel }}
@@ -69,6 +70,7 @@
 </template>
 
 <script setup lang="ts">
+import { redirectToLogin } from '@/utils/login'
 // The bar is five fixed routes with no More sheet, so every other destination
 // is reachable on a phone only from here. Structure copied from Gameplan's
 // MobileMoreMenu.vue; the scale is Raven's, not Gameplan's 120px/26px.

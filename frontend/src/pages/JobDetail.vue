@@ -1,6 +1,6 @@
 <template>
 	<div class="">
-		<PageHeader :breadcrumbs="breadcrumbs" :loading="job.loading">
+		<PageHeader :breadcrumbs="breadcrumbs" :loading="isPending">
 			<template #actions>
 				<div
 					v-if="user.data?.name && !readOnlyMode"
@@ -32,8 +32,14 @@
 						variant="subtle"
 						@click="redirectToWebsite(job.data?.company_website)"
 					/>
+					<div
+						v-if="!jobApplication.data && !jobApplication.error"
+						class="h-7 w-7 rounded-4 bg-surface-gray-2 motion-safe:animate-pulse sm:w-20"
+						aria-hidden="true"
+						data-testid="apply-skeleton"
+					/>
 					<HeaderButton
-						v-if="!jobApplication.data?.length"
+						v-else-if="!jobApplication.data?.length"
 						:label="__('Apply')"
 						icon="lucide-send-horizonal"
 						variant="solid"
@@ -51,11 +57,13 @@
 					:label="__('Login to apply')"
 					icon="lucide-log-in"
 					variant="subtle"
-					@click="redirectToLogin(`/job-openings/${job.data?.name}`)"
+					@click="redirectToLogin()"
 				/>
 			</template>
 		</PageHeader>
-		<div v-if="job.data" class="max-w-3xl mx-auto pt-5">
+		<span class="sr-only" role="status">{{ loadingAnnouncement }}</span>
+		<JobDetailSkeleton v-if="isPending" />
+		<div v-else-if="job.data" class="max-w-3xl mx-auto pt-5">
 			<div class="p-4">
 				<div class="space-y-5 mb-12">
 					<div class="flex">
@@ -141,6 +149,7 @@
 </template>
 <script setup>
 import { Avatar, Badge, createResource, usePageMeta } from 'frappe-ui'
+import { useFlowChanges } from '@/composables/useFlowChanges'
 import { inject, ref, computed, watch, nextTick } from 'vue'
 import { sessionStore } from '../stores/session'
 import PageHeader from '@/components/Layouts/pages/PageHeader.vue'
@@ -150,6 +159,8 @@ import { safeUrl } from '@/utils/safeUrl'
 import { openExternal } from '@/utils/openExternal'
 import { redirectToLogin } from '@/utils/login'
 import { serverTime } from '@/utils/dayjs'
+import { useLoadingAnnouncement } from '@/utils/a11y'
+import JobDetailSkeleton from '@/components/Skeletons/JobDetailSkeleton.vue'
 
 const user = inject('$user')
 const { brand } = sessionStore()
@@ -171,6 +182,11 @@ const job = createResource({
 	cache: ['job', props.job],
 	auto: true,
 })
+useFlowChanges({
+	doctypes: ['Job Opportunity'],
+	name: () => props.job,
+	reload: () => job.reload(),
+})
 
 const jobApplication = createResource({
 	url: 'frappe.client.get_list',
@@ -184,6 +200,13 @@ const jobApplication = createResource({
 		}
 	},
 })
+
+const isPending = computed(() => job.loading && !job.data)
+
+const loadingAnnouncement = useLoadingAnnouncement(
+	() => job.loading,
+	() => (job.data ? __('Job loaded') : '')
+)
 
 const applicantCount = computed(() => job.data?.applicants || 0)
 

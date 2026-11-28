@@ -66,6 +66,10 @@
 			/>
 		</template>
 
+		<template #card-skeleton>
+			<MemberCardSkeleton />
+		</template>
+
 		<template #card="{ row }">
 			<component
 				:is="row.username ? 'router-link' : 'div'"
@@ -125,13 +129,13 @@ import ToggleFilter from '@/components/Controls/ToggleFilter.vue'
 import { computed, inject, onMounted, ref, watch } from 'vue'
 import { sessionStore } from '../stores/session'
 import { useRouter } from 'vue-router'
-import { openFormRoute } from '@/composables/useFormRoute'
 import { setFormSource } from '@/composables/formTracking'
 import UserAvatar from '@/components/UserAvatar.vue'
 import ListPage from '@/components/Layouts/pages/ListPage.vue'
 import EmptyStateActions from '@/components/EmptyStateActions.vue'
 import { profileRoute } from '@/utils/routes'
 import { serverTime } from '@/utils/dayjs'
+import MemberCardSkeleton from '@/components/Skeletons/MemberCardSkeleton.vue'
 
 const filters = ref({})
 const currentCategory = ref('')
@@ -159,14 +163,10 @@ const emptyState = computed(() => {
 
 function newCourseFromEmptyState() {
 	setFormSource('empty_state')
-	openFormRoute(router, { name: 'NewCourse' })
+	router.push({ name: 'NewCourse' })
 }
 
 onMounted(() => {
-	if (!user.data) {
-		router.push({ name: 'Courses' })
-		return
-	}
 	setFiltersFromQuery()
 	updateParticipants()
 	// TextInput emits on input and change; watched after query hydration to avoid a refetch.
