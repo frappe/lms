@@ -48,25 +48,18 @@
 						{{ course.category }}
 					</span>
 				</span>
-				<span class="flex -space-x-1.5 rtl:space-x-reverse">
-					<template
+				<span
+					v-if="instructors.length"
+					role="img"
+					:aria-label="instructorNames"
+					class="flex -space-x-1.5 rtl:space-x-reverse"
+				>
+					<UserAvatar
 						v-for="instructor in instructors"
 						:key="instructor.username || instructor.full_name"
-					>
-						<router-link
-							v-if="instructor.username"
-							:to="{
-								name: 'Profile',
-								params: { username: instructor.username },
-							}"
-							:aria-label="instructor.full_name"
-							:title="instructor.full_name"
-							class="relative z-10 rounded-full"
-						>
-							<UserAvatar :user="instructor" size="sm" />
-						</router-link>
-						<UserAvatar v-else :user="instructor" size="sm" />
-					</template>
+						:user="instructor"
+						size="sm"
+					/>
 				</span>
 			</div>
 
@@ -114,6 +107,7 @@ import { Badge } from 'frappe-ui'
 import { computed } from 'vue'
 import { sessionStore } from '@/stores/session'
 import { formatRating } from '@/utils'
+import { joinLabels } from '@/utils/courseForm'
 import { courseIcon } from '@/utils/courseIcons'
 import { courseTint } from '@/utils/courseTints'
 import { safeUrl } from '@/utils/safeUrl'
@@ -141,6 +135,14 @@ const props = defineProps({
 const thumbnailTint = computed(() => courseTint(props.course.card_gradient))
 
 const instructors = computed(() => (props.course.instructors || []).slice(0, 3))
+
+const instructorNames = computed(() =>
+	__('By {0}').format(
+		joinLabels(
+			(props.course.instructors || []).map((instructor) => instructor.full_name)
+		)
+	)
+)
 
 const progress = computed(() =>
 	user && props.course.membership ? props.course.membership.progress || 0 : null

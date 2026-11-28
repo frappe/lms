@@ -193,8 +193,8 @@ describe('NotificationPanel', () => {
 })
 
 describe('Course and batch cards', () => {
-	// Guards: instructor links nested inside card links. Introduced in #779 and
-	// #2081; test added with the a11y audit remediation.
+	// Guards: instructor links nested inside card links (#779, #2081), then
+	// overlapping 20px avatar links under the 24px target size (2.5.8).
 	const instructors = [
 		{ username: 'ada', first_name: 'Ada', full_name: 'Ada L' },
 		{ username: 'bo', first_name: 'Bo', full_name: 'Bo K' },
@@ -205,7 +205,7 @@ describe('Course and batch cards', () => {
 		[BatchCard, { batch: { name: 'x-1', title: 'Card', instructors }, to }],
 		[CourseCard, { course: { name: 'x-1', title: 'Card', instructors }, to }],
 	])(
-		'%#: links the title and keeps instructor links unnested',
+		'%#: links only the title and names the instructors once',
 		(card, props) => {
 			wrapper = mount(card as any, {
 				props: props as Record<string, unknown>,
@@ -213,13 +213,11 @@ describe('Course and batch cards', () => {
 			})
 
 			const links = wrapper.findAllComponents(RouterLinkStub)
-			expect(wrapper.find('a a').exists()).toBe(false)
+			expect(links.map((l) => l.props('to'))).toEqual([to])
 			expect(links[0].text()).toBe('Card')
-			expect(links.map((l) => l.props('to'))).toEqual([
-				to,
-				{ name: 'Profile', params: { username: 'ada' } },
-				{ name: 'Profile', params: { username: 'bo' } },
-			])
+			const group = wrapper.get('[role="img"]')
+			expect(group.attributes('aria-label')).toBe('By Ada L and Bo K')
+			expect(group.findAll('a').length).toBe(0)
 		}
 	)
 })

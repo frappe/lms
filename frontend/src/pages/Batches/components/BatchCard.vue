@@ -16,25 +16,18 @@
 			>
 				{{ batch.category }}
 			</span>
-			<span class="flex -space-x-1.5 rtl:space-x-reverse">
-				<template
+			<span
+				v-if="instructors.length"
+				role="img"
+				:aria-label="instructorNames"
+				class="flex -space-x-1.5 rtl:space-x-reverse"
+			>
+				<UserAvatar
 					v-for="instructor in instructors"
 					:key="instructor.username || instructor.full_name"
-				>
-					<router-link
-						v-if="instructor.username"
-						:to="{
-							name: 'Profile',
-							params: { username: instructor.username },
-						}"
-						:aria-label="instructor.full_name"
-						:title="instructor.full_name"
-						class="relative z-10 rounded-full"
-					>
-						<UserAvatar :user="instructor" size="sm" />
-					</router-link>
-					<UserAvatar v-else :user="instructor" size="sm" />
-				</template>
+					:user="instructor"
+					size="sm"
+				/>
 			</span>
 		</div>
 
@@ -124,6 +117,7 @@
 import { computed } from 'vue'
 import { Badge, Tooltip } from 'frappe-ui'
 import { formatTime, getFormattedDateRange } from '@/utils'
+import { joinLabels } from '@/utils/courseForm'
 import { formatTimezone, nextOccurrence } from '@/utils/timezone'
 import CardLink from '@/components/CardLink.vue'
 import UserAvatar from '@/components/UserAvatar.vue'
@@ -150,6 +144,14 @@ const breakdown = computed(() => props.batch.progress_breakdown || [])
 const percent = (value) => `${Math.round(value)}%`
 
 const instructors = computed(() => (props.batch.instructors || []).slice(0, 3))
+
+const instructorNames = computed(() =>
+	__('By {0}').format(
+		joinLabels(
+			(props.batch.instructors || []).map((instructor) => instructor.full_name)
+		)
+	)
+)
 
 const timezone = computed(() =>
 	formatTimezone(
