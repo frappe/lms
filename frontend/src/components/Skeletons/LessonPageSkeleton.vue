@@ -27,7 +27,7 @@
 				</div>
 			</div>
 			<aside
-				v-if="!isMobile && chaptersOpen"
+				v-if="!isCompact && chaptersOpen"
 				class="hidden w-[30%] shrink-0 overflow-hidden @2xl:block"
 			>
 				<div class="min-w-72 border-b bg-surface-gray-1 p-5">
@@ -59,5 +59,5 @@ import { useScreenSize } from '@/utils/composables'
 /** pages/Lesson.vue before its lesson arrives: header, title, body, chapters. */
 defineProps<{ chaptersOpen: boolean; withProgress: boolean }>()
 
-const { isMobile } = useScreenSize()
+const { isMobile, isCompact } = useScreenSize()
 </script>

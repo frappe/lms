@@ -192,3 +192,26 @@ describe('SkeletonOverlay', () => {
 		).not.toContain('invisible')
 	})
 })
+
+describe('LessonPageSkeleton', () => {
+	const mountAt = async (width: number) => {
+		Object.defineProperty(window, 'innerWidth', {
+			configurable: true,
+			value: width,
+		})
+		const { default: LessonPageSkeleton } = await import(
+			'@/components/Skeletons/LessonPageSkeleton.vue'
+		)
+		return mount(LessonPageSkeleton, {
+			props: { chaptersOpen: true, withProgress: false },
+			global,
+		})
+	}
+
+	it('draws the chapters column only where the lesson page has one', async () => {
+		expect((await mountAt(1280)).find('aside').exists()).toBe(true)
+		// Below 1024px the lesson keeps its chapters in a bottom sheet.
+		expect((await mountAt(800)).find('aside').exists()).toBe(false)
+		expect((await mountAt(400)).find('aside').exists()).toBe(false)
+	})
+})
