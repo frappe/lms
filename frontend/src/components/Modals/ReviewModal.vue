@@ -1,11 +1,11 @@
 <template>
 	<Dialog
 		v-model:open="show"
-		:title="__('Write a Review')"
+		:title="ownReview ? __('Edit your review') : __('Write a Review')"
 		size="xl"
 		:actions="[
 			{
-				label: __('Submit'),
+				label: ownReview ? __('Save') : __('Submit'),
 				variant: 'solid',
 				onClick: ({ close }) => submitReview(close),
 			},
@@ -28,51 +28,70 @@
 import { Dialog, FormControl, createResource, toast, Rating } from 'frappe-ui'
 import type { FrappeResourceError } from 'frappe-ui'
 import { resourceErrorMessage, submitResource } from '@/utils/resource'
-import { reactive } from 'vue'
-import type { Resource } from '@/types'
+import { reactive, watch } from 'vue'
+import type { OwnCourseReview } from '@/types'
 
+/** Writes the member's review of a course, or edits the one they wrote. */
 const show = defineModel<boolean>()
-const reviews = defineModel<Resource<unknown> | undefined>('reloadReviews')
-const hasReviewed = defineModel<Resource<unknown> | undefined>('hasReviewed')
+
+const props = defineProps<{
+	courseName: string
+	ownReview?: OwnCourseReview | null
+}>()
+
+const emit = defineEmits<{ (e: 'saved'): void }>()
 
 const review = reactive<{ review: string; rating: number }>({
 	review: '',
 	rating: 0,
 })
 
-const props = defineProps<{
-	courseName: string
-}>()
+// The Rating control is 0–5; the doctype stores a 0–1 fraction.
+watch(
+	show,
+	(open) => {
+		if (!open) return
+		review.review = props.ownReview?.review || ''
+		review.rating = Math.round((props.ownReview?.rating || 0) * 5)
+	},
+	{ immediate: true }
+)
+
+const fields = () => ({ review: review.review, rating: review.rating / 5 })
 
 const createReview = createResource({
 	url: 'frappe.client.insert',
-	makeParams() {
-		return {
-			doc: {
-				doctype: 'LMS Course Review',
-				course: props.courseName,
-				review: review.review,
-				// the Rating control is 0–5; the doctype stores a 0–1 fraction
-				rating: review.rating / 5,
-			},
-		}
-	},
+	makeParams: () => ({
+		doc: {
+			doctype: 'LMS Course Review',
+			course: props.courseName,
+			...fields(),
+		},
+	}),
+})
+
+const updateReview = createResource({
+	url: 'frappe.client.set_value',
+	makeParams: () => ({
+		doctype: 'LMS Course Review',
+		name: props.ownReview?.name,
+		fieldname: fields(),
+	}),
 })
 
 function submitReview(close: () => void) {
-	return submitResource(createReview, review, {
+	return submitResource(props.ownReview ? updateReview : createReview, review, {
 		validate() {
 			if (!review.rating) {
-				return 'Please enter a rating.'
+				return __('Please enter a rating.')
 			}
 		},
 		onSuccess() {
-			reviews.value?.reload()
-			hasReviewed.value?.reload()
+			emit('saved')
 			close()
 		},
 		onError(err: string | FrappeResourceError) {
-			toast.error(resourceErrorMessage(err, 'Error'))
+			toast.error(resourceErrorMessage(err, __('Error')))
 		},
 	})
 }

@@ -1,125 +1,132 @@
 <template>
-	<div
-		v-if="canReadReviews && (reviews.data?.length || membership)"
-		class="mt-12"
+	<section
+		v-if="
+			canReadReviews && (reviews.data?.length || membership || isReviewsPending)
+		"
+		class="space-y-6"
 	>
-		<div class="flex items-center justify-between gap-3 mb-8">
-			<div class="flex items-center gap-2">
-				<LucideStar class="size-5 text-transparent fill-ink-amber-7" />
-				<span class="text-3xl-semibold text-ink-gray-9">
-					{{ avg_rating ? formatRating(avg_rating) : '0' }}
-				</span>
-				<span class="text-lg text-ink-gray-7">
-					{{
-						(reviews.data?.length || 0) === 1
-							? __('course rating & 1 user rating')
-							: __('course rating & {0} user ratings').format(
-									reviews.data?.length || 0
-							  )
-					}}
-				</span>
-			</div>
+		<div class="flex items-center justify-between gap-3">
+			<h2 class="text-3xl-semibold text-ink-gray-9">
+				{{ __('Reviews') }}
+			</h2>
 			<Button
-				v-if="canCreateReview && membership && !hasReviewed.data"
-				class="text-p-base-medium"
-				@click="openReviewModal()"
+				v-if="membership && !ownReview && canCreateReview"
+				iconLeft="lucide-star"
+				data-testid="write-review"
+				@click="showReviewModal = true"
 			>
 				{{ __('Write a Review') }}
 			</Button>
 		</div>
 
+		<CourseReviewsSkeleton
+			v-if="isReviewsPending"
+			data-testid="reviews-skeleton"
+		/>
+		<CourseReviewSummary
+			v-else-if="ratings.length"
+			v-model:stars="starFilter"
+			:ratings="ratings"
+		/>
+
+		<div
+			v-if="starFilter"
+			class="flex items-center gap-2 text-p-base text-ink-gray-7"
+		>
+			{{
+				starFilter === 1
+					? __('Showing 1-star reviews')
+					: __('Showing {0}-star reviews').format(starFilter)
+			}}
+			<Button variant="ghost" size="sm" @click="starFilter = null">
+				{{ __('Clear') }}
+			</Button>
+		</div>
+
 		<div
 			v-if="visibleReviews.length"
-			class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-8"
+			class="grid grid-cols-1 gap-4 @2xl:grid-cols-2"
 		>
 			<article
 				v-for="review in visibleReviews"
 				:key="review.name"
-				class="flex gap-4"
+				class="group relative flex flex-col gap-2.5 rounded-6 border border-outline-gray-2 p-4"
 			>
-				<router-link
-					:to="{
-						name: 'Profile',
-						params: { username: review.owner_details.username },
-					}"
-					class="shrink-0"
-				>
-					<UserAvatar :user="review.owner_details" size="2xl" />
-				</router-link>
-				<div class="min-w-0 flex-1">
-					<div class="flex items-center justify-between gap-3">
-						<router-link
-							:to="{
-								name: 'Profile',
-								params: { username: review.owner_details.username },
-							}"
-							class="text-lg-medium text-ink-gray-9 truncate"
-						>
-							{{ review.owner_details.full_name }}
-						</router-link>
-						<span class="text-ink-gray-6 shrink-0">
-							{{ formatReviewDate(review.creation) }}
-						</span>
-					</div>
-					<div class="flex gap-1 mt-2">
-						<LucideStar
-							v-for="i in 5"
-							:key="i"
-							class="size-4 text-transparent"
-							:class="
-								i <= Math.ceil(review.rating)
-									? 'fill-ink-amber-7'
-									: 'fill-surface-gray-3'
-							"
-						/>
-					</div>
+				<Button
+					v-if="review.name === ownReview?.name"
+					icon="lucide-pencil"
+					variant="ghost"
+					size="sm"
+					:label="__('Edit your review')"
+					:tooltip="__('Edit your review')"
+					class="absolute end-2 top-2 opacity-0 focus-visible:opacity-100 group-hover:opacity-100"
+					data-testid="edit-review"
+					@click="showReviewModal = true"
+				/>
+				<ReviewStars :rating="review.rating" />
+				<div v-if="review.review" class="flex-1">
 					<p
-						v-if="review.review"
-						class="text-ink-gray-7 mt-3 leading-6"
+						class="text-p-base leading-6 text-ink-gray-8"
 						:class="{ 'line-clamp-5': !expanded[review.name] }"
 					>
 						{{ review.review }}
 					</p>
 					<button
-						v-if="review.review && isClampable(review.review)"
-						class="font-medium text-ink-gray-9 hover:underline mt-1"
+						v-if="isClampable(review.review)"
+						type="button"
+						class="mt-1 text-p-sm-medium text-ink-gray-9 hover:underline"
 						@click="toggleExpand(review.name)"
 					>
 						{{ expanded[review.name] ? __('See less') : __('See more') }}
 					</button>
 				</div>
+				<div class="mt-auto flex items-center gap-2">
+					<router-link
+						:to="{
+							name: 'Profile',
+							params: { username: review.owner_details.username },
+						}"
+						class="flex min-w-0 items-center gap-2"
+					>
+						<UserAvatar :user="review.owner_details" size="sm" />
+						<span class="truncate text-p-base text-ink-gray-8">
+							{{ review.owner_details.full_name }}
+						</span>
+					</router-link>
+					<span class="ms-auto shrink-0 text-p-sm text-ink-gray-6">
+						{{ formatReviewDate(review.creation) }}
+					</span>
+				</div>
 			</article>
 		</div>
 
-		<div v-if="canShowMore" class="mt-8">
-			<Button
-				class="w-full text-p-base-medium"
-				size="md"
-				@click="showAll = true"
-			>
-				{{ __('View all reviews') }}
-			</Button>
-		</div>
-	</div>
+		<Button v-if="canShowMore" class="w-full" size="md" @click="showAll = true">
+			{{ __('View all reviews') }}
+		</Button>
+	</section>
 	<ReviewModal
 		v-model="showReviewModal"
-		v-model:reloadReviews="reviews"
-		v-model:hasReviewed="hasReviewed"
 		:courseName="courseName"
+		:ownReview="ownReview"
+		@saved="onSaved"
 	/>
 </template>
 
 <script setup lang="ts">
 import { createResource, Button } from 'frappe-ui'
+import CourseReviewsSkeleton from '@/components/Skeletons/CourseReviewsSkeleton.vue'
 import { computed, inject, reactive, ref, watch } from 'vue'
+import CourseReviewSummary from '@/components/CourseReviewSummary.vue'
+import ReviewStars from '@/components/ReviewStars.vue'
 import UserAvatar from '@/components/UserAvatar.vue'
-import { formatRating } from '@/utils'
+import { starBucket } from '@/utils/reviews'
 import { hasDoctypePermission, hasLmsRole } from '@/utils/doctypePermissions'
 import ReviewModal from '@/components/Modals/ReviewModal.vue'
 import type dayjsType from 'dayjs'
 import type {
 	CourseReviewInfo,
 	Membership,
+	OwnCourseReview,
 	Resource,
 	SessionUser,
 } from '@/types'
@@ -132,7 +139,6 @@ const CLAMP_THRESHOLD = 220
 
 const props = defineProps<{
 	courseName: string
-	avg_rating?: string
 	membership?: Membership | null
 }>()
 
@@ -146,18 +152,23 @@ const canCreateReview = computed(() =>
 	hasDoctypePermission(user, 'LMS Course Review', 'create')
 )
 
-const hasReviewed = createResource({
-	url: 'frappe.client.get_count',
-	cache: ['eligible_to_review', props.courseName, props.membership?.member],
+// Only the signed-in member's own row comes back: students read and write
+// reviews `if_owner`.
+const ownReviewResource = createResource({
+	url: 'frappe.client.get_list',
+	cache: ['own_course_review', props.courseName, props.membership?.member],
 	params: {
 		doctype: 'LMS Course Review',
-		filters: {
-			course: props.courseName,
-			owner: props.membership?.member,
-		},
+		filters: { course: props.courseName, owner: props.membership?.member },
+		fields: ['name', 'rating', 'review'],
+		limit_page_length: 1,
 	},
-	auto: Boolean(user.data?.name && canReadReviews.value),
-}) as Resource<number | null>
+	auto: Boolean(props.membership?.member && canReadReviews.value),
+}) as Resource<OwnCourseReview[] | null>
+
+const ownReview = computed<OwnCourseReview | null>(
+	() => ownReviewResource.data?.[0] || null
+)
 
 const reviews = createResource({
 	url: 'lms.lms.utils.get_reviews',
@@ -168,6 +179,8 @@ const reviews = createResource({
 	auto: Boolean(props.courseName && canReadReviews.value),
 }) as Resource<CourseReviewInfo[] | null>
 
+const isReviewsPending = computed(() => reviews.loading && !reviews.data)
+
 watch(
 	() => props.courseName,
 	() => {
@@ -177,18 +190,30 @@ watch(
 
 const showReviewModal = ref(false)
 const showAll = ref(false)
+const starFilter = ref<number | null>(null)
 const expanded = reactive<Record<string, boolean>>({})
 
-const visibleReviews = computed(() => {
+const matchingReviews = computed(() => {
 	// Drop reviews whose author record is missing: owner_details can come
 	// back null for guest-authored or deleted-user reviews, and the row
 	// markup dereferences it for the avatar / profile link.
 	const all = (reviews.data || []).filter((r) => r.owner_details)
-	return showAll.value ? all : all.slice(0, PREVIEW_LIMIT)
+	const own = all.filter((r) => r.name === ownReview.value?.name)
+	return [...own, ...all.filter((r) => !own.includes(r))].filter(
+		(r) => !starFilter.value || starBucket(r.rating) === starFilter.value
+	)
 })
 
+const visibleReviews = computed(() =>
+	showAll.value
+		? matchingReviews.value
+		: matchingReviews.value.slice(0, PREVIEW_LIMIT)
+)
+
+const ratings = computed(() => (reviews.data || []).map((r) => r.rating))
+
 const canShowMore = computed(
-	() => !showAll.value && (reviews.data?.length || 0) > PREVIEW_LIMIT
+	() => !showAll.value && matchingReviews.value.length > PREVIEW_LIMIT
 )
 
 function isClampable(text: string) {
@@ -215,7 +240,8 @@ function formatReviewDate(date: string) {
 	return __('Today')
 }
 
-function openReviewModal() {
-	showReviewModal.value = true
+function onSaved() {
+	reviews.reload()
+	ownReviewResource.reload()
 }
 </script>

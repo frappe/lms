@@ -33,6 +33,12 @@ vi.mock('@/utils/timezone', () => ({
 }))
 
 vi.mock('@/components/VideoPreview.vue', () => ({
+	default: {
+		props: ['videoLink', 'fallbackImage'],
+		template: '<div class="video-preview">{{ videoLink }}</div>',
+	},
+}))
+vi.mock('@/pages/Batches/components/overview/BatchFacts.vue', () => ({
 	default: { render: () => null },
 }))
 
@@ -105,5 +111,18 @@ describe('BatchOverlay when the viewer cannot join', () => {
 		const w = mountOverlay({ seat_count: 5, seats_left: 0 })
 		expect(w.text()).toContain('Sold Out')
 		expect(w.text()).not.toContain('Contact the Administrator')
+	})
+})
+
+describe('BatchOverlay media', () => {
+	it('shows the preview video under the price, above the enroll button', () => {
+		const w = mountOverlay({
+			allow_self_enrollment: 1,
+			video_link: 'https://youtu.be/x',
+		})
+		const html = w.html()
+		const video = html.indexOf('video-preview')
+		expect(video).toBeGreaterThan(html.indexOf('Free'))
+		expect(video).toBeLessThan(html.indexOf('Enroll Now'))
 	})
 })

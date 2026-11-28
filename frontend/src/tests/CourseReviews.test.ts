@@ -60,6 +60,7 @@ const DEFAULT_REVIEWS: Review[] = [
 // Mutable so each test can swap in its own fixture before mounting; the resource
 // exposes `data` via a getter so the component reads the current value.
 let currentReviews: Review[] = DEFAULT_REVIEWS
+let ownReviews: { name: string; rating: number }[] = []
 
 // frappe-ui's internal module resolution doesn't work under vitest; stub the
 // pieces CourseReviews uses. The reviews resource returns the fixture; the
@@ -79,7 +80,7 @@ vi.mock('frappe-ui', () => ({
 				refresh: vi.fn(),
 			}
 		}
-		return { data: 0, reload: vi.fn(), refresh: vi.fn() }
+		return { data: ownReviews, reload: vi.fn(), refresh: vi.fn() }
 	},
 }))
 vi.mock('@/components/UserAvatar.vue', () => ({
@@ -88,7 +89,7 @@ vi.mock('@/components/UserAvatar.vue', () => ({
 vi.mock('@/components/Modals/ReviewModal.vue', () => ({
 	default: { template: '<div />' },
 }))
-vi.mock('@/utils', () => ({ formatRating: (r: string) => String(r) }))
+vi.mock('@/utils', () => ({ formatRating: (r: number) => String(r) }))
 
 vi.stubGlobal('__', translate)
 
@@ -128,6 +129,7 @@ const renderedDates = async () => {
 
 beforeEach(() => {
 	currentReviews = DEFAULT_REVIEWS
+	ownReviews = []
 })
 
 describe('CourseReviews date rendering', () => {
@@ -215,5 +217,37 @@ describe('CourseReviews permission gate (#2538)', () => {
 		await flushPromises()
 		expect(wrapper.findAll('article').length).toBeGreaterThan(0)
 		expect(lastReviewsResourceOpts?.auto).toBe(true)
+	})
+})
+
+describe('CourseReviews summary and editing', () => {
+	const membership = { name: 'M1', member: 'a@b.c' }
+
+	it('counts reviews per star and filters the list by a clicked star', async () => {
+		const wrapper = mountReviews({ membership })
+		await flushPromises()
+		const rows = wrapper.findAll('[data-testid="rating-row"]')
+		expect(rows.map((row) => row.text().replace(/\s+/g, ''))).toEqual([
+			'51',
+			'41',
+			'31',
+			'21',
+			'10',
+		])
+		await rows[1].trigger('click')
+		expect(wrapper.findAll('article')).toHaveLength(1)
+		expect(rows[1].attributes('aria-pressed')).toBe('true')
+		await rows[1].trigger('click')
+		expect(wrapper.findAll('article')).toHaveLength(4)
+	})
+
+	it("puts the member's own review first, with its edit button", async () => {
+		ownReviews = [{ name: 'r-2-months', rating: 0.4 }]
+		const wrapper = mountReviews({ membership })
+		await flushPromises()
+		const first = wrapper.findAll('article')[0]
+		expect(first.find('[data-testid="edit-review"]').exists()).toBe(true)
+		expect(wrapper.findAll('[data-testid="edit-review"]')).toHaveLength(1)
+		expect(wrapper.text()).not.toContain('Write a Review')
 	})
 })
