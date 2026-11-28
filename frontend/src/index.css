@@ -195,7 +195,8 @@ main#main-content {
 [data-slot='trigger']:is([role='combobox'], [data-variant]).text-left:dir(rtl) {
 	text-align: start;
 }
-[data-slot='trigger']:is([role='combobox'], [data-variant]):dir(rtl) > .ml-auto {
+[data-slot='trigger']:is([role='combobox'], [data-variant]):dir(rtl)
+	> .ml-auto {
 	margin-left: 0;
 	margin-inline-start: auto;
 }
@@ -214,12 +215,28 @@ main#main-content {
 	}
 }
 
+/* Folded to its icons when the dialog is narrow (see Settings.vue). */
+@media (min-width: 640px) {
+	.lms-settings-nav.lms-settings-nav-rail {
+		width: 3.25rem;
+	}
+}
+.lms-settings-nav-rail [role='tab'] {
+	justify-content: center;
+}
+
 /* With Flow docked, a dialog centres in the page beside the panel and leaves
    the panel uncovered. A modal turns the body's pointer events off, which the
    panel inherits; it stays usable beside the dialog (see flowBesideDialogs). */
 html[data-flow-docked] :is(.dialog-overlay, .dialog-scroll-container) {
 	right: var(--flow-dock-width);
 }
-html[data-flow-docked] flow-launcher {
+/* Too narrow to dock, Flow's open panel covers the page: dialogs make room the
+   same way (see markOpenPanel). */
+html[data-flow-open]:not([data-flow-docked])
+	:is(.dialog-overlay, .dialog-scroll-container) {
+	right: var(--flow-panel-width);
+}
+html:is([data-flow-docked], [data-flow-open]) flow-launcher {
 	pointer-events: auto;
 }

@@ -3,7 +3,10 @@
  * reaches the document listeners a modal dismisses itself and traps focus with.
  */
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { keepFlowUsableBesideDialogs } from '@/utils/flowBesideDialogs'
+import {
+	keepFlowUsableBesideDialogs,
+	markOpenPanel,
+} from '@/utils/flowBesideDialogs'
 
 let flowInput: HTMLInputElement
 let dialogInput: HTMLInputElement
@@ -61,5 +64,41 @@ describe('Flow beside a modal', () => {
 			)
 		expect(reachesDocument('focusout', leaveFor(flowInput))).toBe(false)
 		expect(reachesDocument('focusout', leaveFor(document.body))).toBe(true)
+	})
+})
+
+describe('an open Flow panel too narrow to dock', () => {
+	const page = document.documentElement
+	const panelOf = (width: number, open: boolean) => {
+		const panel = document.createElement('div')
+		panel.style.setProperty('--width', `${width}px`)
+		panel.inert = !open
+		return panel
+	}
+	afterEach(() => {
+		vi.unstubAllGlobals()
+		page.removeAttribute('data-flow-open')
+		page.style.removeProperty('--flow-panel-width')
+	})
+
+	it('hands dialogs its width so they make room', () => {
+		vi.stubGlobal('innerWidth', 1150)
+		markOpenPanel(panelOf(320, true))
+		expect(page.hasAttribute('data-flow-open')).toBe(true)
+		expect(page.style.getPropertyValue('--flow-panel-width')).toBe('320px')
+	})
+
+	it('clears once the panel closes', () => {
+		vi.stubGlobal('innerWidth', 1150)
+		markOpenPanel(panelOf(320, true))
+		markOpenPanel(panelOf(320, false))
+		expect(page.hasAttribute('data-flow-open')).toBe(false)
+		expect(page.style.getPropertyValue('--flow-panel-width')).toBe('')
+	})
+
+	it('leaves dialogs alone when the panel takes a phone screen', () => {
+		vi.stubGlobal('innerWidth', 600)
+		markOpenPanel(panelOf(320, true))
+		expect(page.hasAttribute('data-flow-open')).toBe(false)
 	})
 })

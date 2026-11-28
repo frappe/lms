@@ -1,3 +1,5 @@
+import { MOBILE_BREAKPOINT } from '@/utils/composables'
+
 const FLOW_HOST = 'flow-launcher'
 
 /** reka turns the body's pointer events off while a modal layer is open. */
@@ -14,9 +16,38 @@ const keepFromPage = (event: Event) => {
 	event.stopPropagation()
 }
 
+/**
+ * In a window too narrow to dock, Flow's open panel covers the page, and with it
+ * a dialog's right side. Marks <html> with the panel's width while it is open
+ * and still leaves a page beside it, so dialogs make room as they do when Flow
+ * docks. The panel is `inert` while closed and carries its width as `--width`.
+ */
+export function markOpenPanel(panel: HTMLElement): void {
+	const width = parseFloat(panel.style.getPropertyValue('--width'))
+	const open =
+		!panel.inert && width > 0 && innerWidth - width >= MOBILE_BREAKPOINT
+	const page = document.documentElement
+	page.toggleAttribute('data-flow-open', open)
+	if (open) page.style.setProperty('--flow-panel-width', `${width}px`)
+	else page.style.removeProperty('--flow-panel-width')
+}
+
+const trackPanel = (host: Element) => {
+	const panel = host.shadowRoot?.querySelector<HTMLElement>('.panel')
+	if (!panel) return
+	const mark = () => markOpenPanel(panel)
+	mark()
+	new MutationObserver(mark).observe(panel, {
+		attributes: true,
+		attributeFilter: ['inert', 'style'],
+	})
+	window.addEventListener('resize', mark)
+}
+
 const guardHost = (host: Element) => {
 	for (const type of ['pointerdown', 'focusin', 'keydown'])
 		host.addEventListener(type, keepFromPage)
+	trackPanel(host)
 }
 
 /**
